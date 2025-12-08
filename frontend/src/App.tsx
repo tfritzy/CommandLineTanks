@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Game } from './Game';
-import TerminalComponent from './components/Terminal';
+import TerminalComponent from './components/terminal/Terminal';
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
