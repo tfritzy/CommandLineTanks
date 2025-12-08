@@ -10,7 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
+export default __t.object("World", {
+  id: __t.string(),
   name: __t.string(),
-  age: __t.i32(),
-};
+  createdAt: __t.u64(),
+});
+
+

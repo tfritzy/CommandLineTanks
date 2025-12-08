@@ -10,10 +10,14 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("Person", {
-  id: __t.i32(),
-  name: __t.string(),
-  age: __t.i32(),
+export default __t.object("Tank", {
+  id: __t.string(),
+  worldId: __t.string(),
+  player: __t.identity(),
+  positionX: __t.f32(),
+  positionY: __t.f32(),
+  bodyRotation: __t.f32(),
+  turretRotation: __t.f32(),
 });
 
 

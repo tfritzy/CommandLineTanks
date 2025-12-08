@@ -31,40 +31,80 @@ import {
 } from "spacetimedb";
 
 // Import and reexport all reducer arg types
-import Add from "./add_reducer";
-export { Add };
-import SayHello from "./say_hello_reducer";
-export { SayHello };
+import CreateWorld from "./create_world_reducer";
+export { CreateWorld };
+import FindWorld from "./find_world_reducer";
+export { FindWorld };
+import HandleConnect from "./handle_connect_reducer";
+export { HandleConnect };
 
 // Import and reexport all procedure arg types
 
 // Import and reexport all table handle types
-import PersonRow from "./person_table";
-export { PersonRow };
+import PlayerRow from "./player_table";
+export { PlayerRow };
+import TankRow from "./tank_table";
+export { TankRow };
+import WorldRow from "./world_table";
+export { WorldRow };
 
 // Import and reexport all types
-import Person from "./person_type";
-export { Person };
+import Player from "./player_type";
+export { Player };
+import Tank from "./tank_type";
+export { Tank };
+import World from "./world_type";
+export { World };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
   __table({
-    name: 'Person',
+    name: 'Player',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'Identity', algorithm: 'btree', columns: [
+        'identity',
+      ] },
+    ],
+    constraints: [
+      { name: 'Player_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'Player_Identity_key', constraint: 'unique', columns: ['identity'] },
+    ],
+  }, PlayerRow),
+  __table({
+    name: 'Tank',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'Player', algorithm: 'btree', columns: [
+        'player',
+      ] },
+    ],
+    constraints: [
+      { name: 'Tank_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'Tank_Player_key', constraint: 'unique', columns: ['player'] },
+    ],
+  }, TankRow),
+  __table({
+    name: 'World',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
     ],
     constraints: [
-      { name: 'Person_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'World_Id_key', constraint: 'unique', columns: ['id'] },
     ],
-  }, PersonRow),
+  }, WorldRow),
 );
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
-  __reducerSchema("Add", Add),
-  __reducerSchema("SayHello", SayHello),
+  __reducerSchema("createWorld", CreateWorld),
+  __reducerSchema("findWorld", FindWorld),
 );
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */

@@ -11,7 +11,7 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  id: __t.i32().primaryKey(),
+  id: __t.string().primaryKey(),
   name: __t.string(),
-  age: __t.i32(),
+  createdAt: __t.u64(),
 });
