@@ -33,6 +33,8 @@ import {
 // Import and reexport all reducer arg types
 import CreateWorld from "./create_world_reducer";
 export { CreateWorld };
+import Drive from "./drive_reducer";
+export { Drive };
 import FindWorld from "./find_world_reducer";
 export { FindWorld };
 import HandleConnect from "./handle_connect_reducer";
@@ -49,10 +51,14 @@ import WorldRow from "./world_table";
 export { WorldRow };
 
 // Import and reexport all types
+import PathEntry from "./path_entry_type";
+export { PathEntry };
 import Player from "./player_type";
 export { Player };
 import Tank from "./tank_type";
 export { Tank };
+import Vector2 from "./vector_2_type";
+export { Vector2 };
 import World from "./world_type";
 export { World };
 
@@ -79,13 +85,12 @@ const tablesSchema = __schema(
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
-      { name: 'Player', algorithm: 'btree', columns: [
-        'player',
+      { name: 'Owner', algorithm: 'btree', columns: [
+        'owner',
       ] },
     ],
     constraints: [
       { name: 'Tank_Id_key', constraint: 'unique', columns: ['id'] },
-      { name: 'Tank_Player_key', constraint: 'unique', columns: ['player'] },
     ],
   }, TankRow),
   __table({
@@ -104,6 +109,7 @@ const tablesSchema = __schema(
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
   __reducerSchema("createWorld", CreateWorld),
+  __reducerSchema("drive", Drive),
   __reducerSchema("findWorld", FindWorld),
 );
 

@@ -9,18 +9,10 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import PathEntry from "./path_entry_type";
 
-
-export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  owner: __t.identity(),
-  get path() {
-    return __t.array(PathEntry);
-  },
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  bodyRotation: __t.f32(),
-  turretRotation: __t.f32(),
+export default __t.object("Vector2", {
+  x: __t.i32(),
+  y: __t.i32(),
 });
+
+

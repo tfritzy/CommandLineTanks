@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using static Types;
 
 public static partial class Module
 {
@@ -58,6 +59,34 @@ public static partial class Module
     }
 
     [Reducer]
+    public static void drive(ReducerContext ctx, Vector2 offset, float throttle, bool append)
+    {
+        Tank? maybeTank = ctx.Db.Tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        Vector2 rootPos = tank.Path.Length > 0 ? tank.Path[^1].Position : new Vector2((int)tank.PositionX, (int)tank.PositionY);
+        Vector2 nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
+
+        PathEntry entry = new()
+        {
+            DriveSpeedPercent = throttle,
+            Position = nextPos
+        };
+
+        if (append)
+        {
+            tank.Path = [.. tank.Path, entry];
+        }
+        else
+        {
+            tank.Path = [entry];
+        }
+
+        ctx.Db.Tank.Id.Update(tank);
+    }
+
+    [Reducer]
     public static void findWorld(ReducerContext ctx)
     {
         var player = ctx.Db.Player.Identity.Find(ctx.Sender);
@@ -67,7 +96,7 @@ public static partial class Module
             return;
         }
 
-        var existingTank = ctx.Db.Tank.Player.Find(ctx.Sender);
+        Tank? existingTank = ctx.Db.Tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (existingTank != null)
         {
             Log.Info($"Player {player.Value.Name} already has a tank in world {existingTank.Value.WorldId}");
@@ -92,7 +121,7 @@ public static partial class Module
         {
             Id = tankId,
             WorldId = world.Value.Id,
-            Player = ctx.Sender,
+            Owner = ctx.Sender,
             PositionX = 0.0f,
             PositionY = 0.0f,
             BodyRotation = 0.0f,

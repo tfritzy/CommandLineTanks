@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using static Types;
 
 public static partial class Module
 {
@@ -33,8 +34,10 @@ public static partial class Module
 
         public string WorldId;
 
-        [Unique]
-        public Identity Player;
+        [SpacetimeDB.Index.BTree]
+        public Identity Owner;
+
+        public PathEntry[] Path;
 
         public float PositionX;
         public float PositionY;

@@ -9,18 +9,13 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import PathEntry from "./path_entry_type";
 
+import Vector2 from "./vector_2_type";
 
-export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  owner: __t.identity(),
-  get path() {
-    return __t.array(PathEntry);
+export default {
+  get offset() {
+    return Vector2;
   },
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  bodyRotation: __t.f32(),
-  turretRotation: __t.f32(),
-});
+  throttle: __t.f32(),
+  append: __t.bool(),
+};

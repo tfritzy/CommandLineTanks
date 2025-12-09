@@ -9,11 +9,16 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import PathEntry from "./path_entry_type";
+
 
 export default __t.object("Tank", {
   id: __t.string(),
   worldId: __t.string(),
-  player: __t.identity(),
+  owner: __t.identity(),
+  get path() {
+    return __t.array(PathEntry);
+  },
   positionX: __t.f32(),
   positionY: __t.f32(),
   bodyRotation: __t.f32(),
