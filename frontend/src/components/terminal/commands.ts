@@ -263,15 +263,16 @@ export function aim(connection: DbConnection, args: string[]): string[] {
   }
 
   const input = args[0].toLowerCase();
-  let angle: number;
-  let description: string;
 
   if (validDirections.includes(input)) {
-    angle = directionToAngle(input);
+    const angle = directionToAngle(input);
     const dirInfo = directionAliases[input];
-    description = `${dirInfo.symbol} ${dirInfo.name}`;
+    const description = `${dirInfo.symbol} ${dirInfo.name}`;
+    
+    connection.reducers.aim({ angle });
+    return [`Aiming turret to ${description}`];
   } else {
-    const degrees = Number.parseFloat(args[0]);
+    const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
       return [
         `aim: error: invalid value '${args[0]}' for '<angle|direction>'`,
@@ -282,11 +283,20 @@ export function aim(connection: DbConnection, args: string[]): string[] {
         "       aim 90"
       ];
     }
-    angle = (degrees * Math.PI) / 180;
-    description = `${degrees}°`;
+    if (degrees < 0 || degrees > 360) {
+      return [
+        `aim: error: angle '${degrees}' out of range`,
+        "Angle must be between 0 and 360 degrees",
+        "",
+        "Usage: aim <angle|direction>",
+        "       aim 90"
+      ];
+    }
+    
+    const angle = (degrees * Math.PI) / 180;
+    const description = `${degrees}°`;
+    
+    connection.reducers.aim({ angle });
+    return [`Aiming turret to ${description}`];
   }
-
-  connection.reducers.aim({ angle });
-
-  return [`Aiming turret to ${description}`];
 }
