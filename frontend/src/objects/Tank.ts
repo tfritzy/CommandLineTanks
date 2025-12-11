@@ -1,20 +1,41 @@
-import { UNIT_TO_PIXEL } from "../Game";
+import { UNIT_TO_PIXEL } from "../game";
+
+type PathEntry = {
+  position: { x: number; y: number };
+  throttlePercent: number;
+};
 
 export class Tank {
   private x: number;
   private y: number;
   private bodyRotation: number;
+  private targetBodyRotation: number;
   private turretRotation: number;
   private velocityX: number;
   private velocityY: number;
+  private bodyAngularVelocity: number;
+  private path: PathEntry[];
 
-  constructor(x: number, y: number, bodyRotation: number, turretRotation: number, velocityX: number = 0, velocityY: number = 0) {
+  constructor(
+    x: number,
+    y: number,
+    bodyRotation: number,
+    targetBodyRotation: number,
+    turretRotation: number,
+    velocityX: number = 0,
+    velocityY: number = 0,
+    bodyAngularVelocity: number = 0,
+    path: PathEntry[] = []
+  ) {
     this.x = x;
     this.y = y;
     this.bodyRotation = bodyRotation;
+    this.targetBodyRotation = targetBodyRotation;
     this.turretRotation = turretRotation;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
+    this.bodyAngularVelocity = bodyAngularVelocity;
+    this.path = path;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -84,6 +105,10 @@ export class Tank {
     this.bodyRotation = rotation;
   }
 
+  public setTargetBodyRotation(rotation: number) {
+    this.targetBodyRotation = rotation;
+  }
+
   public setTurretRotation(rotation: number) {
     this.turretRotation = rotation;
   }
@@ -93,9 +118,55 @@ export class Tank {
     this.velocityY = velocityY;
   }
 
+  public setBodyAngularVelocity(bodyAngularVelocity: number) {
+    this.bodyAngularVelocity = bodyAngularVelocity;
+  }
+
+  public setPath(path: PathEntry[]) {
+    this.path = path;
+  }
+
   public update(deltaTime: number) {
-    this.x += this.velocityX * deltaTime;
-    this.y += this.velocityY * deltaTime;
+    if (this.path.length > 0) {
+      const target = this.path[0].position;
+      
+      if (this.velocityX !== 0 || this.velocityY !== 0) {
+        const newX = this.x + this.velocityX * deltaTime;
+        const newY = this.y + this.velocityY * deltaTime;
+        
+        const currentDistSq = (target.x - this.x) ** 2 + (target.y - this.y) ** 2;
+        const newDistSq = (target.x - newX) ** 2 + (target.y - newY) ** 2;
+        
+        if (newDistSq > currentDistSq) {
+          this.x = target.x;
+          this.y = target.y;
+          this.velocityX = 0;
+          this.velocityY = 0;
+        } else {
+          this.x = newX;
+          this.y = newY;
+        }
+      }
+    }
+    
+    if (this.bodyAngularVelocity !== 0) {
+      const newRotation = this.bodyRotation + this.bodyAngularVelocity * deltaTime;
+      
+      let currentDiff = this.targetBodyRotation - this.bodyRotation;
+      while (currentDiff > Math.PI) currentDiff -= 2 * Math.PI;
+      while (currentDiff < -Math.PI) currentDiff += 2 * Math.PI;
+      
+      let newDiff = this.targetBodyRotation - newRotation;
+      while (newDiff > Math.PI) newDiff -= 2 * Math.PI;
+      while (newDiff < -Math.PI) newDiff += 2 * Math.PI;
+      
+      if (Math.sign(currentDiff) !== Math.sign(newDiff)) {
+        this.bodyRotation = this.targetBodyRotation;
+        this.bodyAngularVelocity = 0;
+      } else {
+        this.bodyRotation = newRotation;
+      }
+    }
   }
 
   // Getters

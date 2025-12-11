@@ -1,24 +1,72 @@
 import { type DbConnection } from "../../../module_bindings";
 
-const directions = {
-  north: { x: 0, y: 1 },
-  northEast: { x: 1, y: 1 },
-  east: { x: 1, y: 0 },
-  southeast: { x: 1, y: -1 },
-  south: { x: 0, y: -1 },
-  southwest: { x: -1, y: -1 },
-  west: { x: -1, y: 0 },
-  northeast: { x: -1, y: 1 },
+const directionAliases: Record<string, { x: number; y: number; name: string; symbol: string }> = {
+  // North
+  north: { x: 0, y: 1, name: "north", symbol: "↑" },
+  up: { x: 0, y: 1, name: "north", symbol: "↑" },
+  n: { x: 0, y: 1, name: "north", symbol: "↑" },
+  u: { x: 0, y: 1, name: "north", symbol: "↑" },
+  
+  // Northeast
+  northeast: { x: 1, y: 1, name: "northeast", symbol: "↗" },
+  upright: { x: 1, y: 1, name: "northeast", symbol: "↗" },
+  rightup: { x: 1, y: 1, name: "northeast", symbol: "↗" },
+  ne: { x: 1, y: 1, name: "northeast", symbol: "↗" },
+  ur: { x: 1, y: 1, name: "northeast", symbol: "↗" },
+  ru: { x: 1, y: 1, name: "northeast", symbol: "↗" },
+  
+  // East
+  east: { x: 1, y: 0, name: "east", symbol: "→" },
+  right: { x: 1, y: 0, name: "east", symbol: "→" },
+  e: { x: 1, y: 0, name: "east", symbol: "→" },
+  r: { x: 1, y: 0, name: "east", symbol: "→" },
+  
+  // Southeast
+  southeast: { x: 1, y: -1, name: "southeast", symbol: "↘" },
+  downright: { x: 1, y: -1, name: "southeast", symbol: "↘" },
+  rightdown: { x: 1, y: -1, name: "southeast", symbol: "↘" },
+  se: { x: 1, y: -1, name: "southeast", symbol: "↘" },
+  dr: { x: 1, y: -1, name: "southeast", symbol: "↘" },
+  rd: { x: 1, y: -1, name: "southeast", symbol: "↘" },
+  
+  // South
+  south: { x: 0, y: -1, name: "south", symbol: "↓" },
+  down: { x: 0, y: -1, name: "south", symbol: "↓" },
+  s: { x: 0, y: -1, name: "south", symbol: "↓" },
+  d: { x: 0, y: -1, name: "south", symbol: "↓" },
+  
+  // Southwest
+  southwest: { x: -1, y: -1, name: "southwest", symbol: "↙" },
+  downleft: { x: -1, y: -1, name: "southwest", symbol: "↙" },
+  leftdown: { x: -1, y: -1, name: "southwest", symbol: "↙" },
+  sw: { x: -1, y: -1, name: "southwest", symbol: "↙" },
+  dl: { x: -1, y: -1, name: "southwest", symbol: "↙" },
+  ld: { x: -1, y: -1, name: "southwest", symbol: "↙" },
+  
+  // West
+  west: { x: -1, y: 0, name: "west", symbol: "←" },
+  left: { x: -1, y: 0, name: "west", symbol: "←" },
+  w: { x: -1, y: 0, name: "west", symbol: "←" },
+  l: { x: -1, y: 0, name: "west", symbol: "←" },
+  
+  // Northwest
+  northwest: { x: -1, y: 1, name: "northwest", symbol: "↖" },
+  upleft: { x: -1, y: 1, name: "northwest", symbol: "↖" },
+  leftup: { x: -1, y: 1, name: "northwest", symbol: "↖" },
+  nw: { x: -1, y: 1, name: "northwest", symbol: "↖" },
+  ul: { x: -1, y: 1, name: "northwest", symbol: "↖" },
+  lu: { x: -1, y: 1, name: "northwest", symbol: "↖" },
 };
-const validDirections = Object.keys(directions);
+
+const validDirections = Object.keys(directionAliases);
 
 export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       "Commands:",
-      "  drive       Move your tank in a direction",
-      "  clear       Clear the terminal output",
-      "  help        Display help information",
+      "  drive, d, dr    Move your tank in a direction",
+      "  clear, c        Clear the terminal output",
+      "  help, h         Display help information",
     ];
   }
 
@@ -26,30 +74,43 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   
   switch (command) {
     case "drive":
+    case "d":
+    case "dr":
       return [
-        "drive - Move your tank in a direction",
+        "drive, d, dr - Move your tank in a direction",
         "",
-        "Usage: drive <direction> [distance] [throttle] [--append]",
+        "Usage: drive <direction> [distance] [throttle] [--append|-a]",
         "",
         "Arguments:",
         "  <direction>   Direction to move (required)",
-        `                Valid options: ${validDirections.join(", ")}`,
+        "                Directions:",
+        "                  ↑: north, up, n, u",
+        "                  ↗: northeast, upright, rightup, ne, ur, ru",
+        "                  →: east, right, e, r",
+        "                  ↘: southeast, downright, rightdown, se, dr, rd",
+        "                  ↓: south, down, s, d",
+        "                  ↙: southwest, downleft, leftdown, sw, dl, ld",
+        "                  ←: west, left, w, l",
+        "                  ↖: northwest, upleft, leftup, nw, ul, lu",
         "  [distance]    Distance to travel in units (default: 1)",
         "  [throttle]    Speed as percentage 1-100 (default: 100)",
         "",
         "Options:",
-        "  --append      Add this movement to existing path instead of replacing",
+        "  --append, -a  Add this movement to existing path instead of replacing",
         "",
         "Examples:",
         "  drive east",
+        "  d e",
         "  drive north 5",
+        "  d n 5",
         "  drive southeast 3 75",
-        "  drive west 2 50 --append"
+        "  d se 3 75 -a"
       ];
     
     case "help":
+    case "h":
       return [
-        "help - Display help information",
+        "help, h - Display help information",
         "",
         "Usage: help [command]",
         "",
@@ -58,7 +119,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  help",
-        "  help drive"
+        "  help drive",
+        "  h d"
       ];
     
     default:
@@ -71,8 +133,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 }
 
 export function drive(connection: DbConnection, args: string[]): string[] {
-  const recognizedFlags = ["--append"];
-  const unrecognizedFlag = args.find(arg => arg.startsWith('--') && !recognizedFlags.includes(arg));
+  const recognizedFlags = ["--append", "-a"];
+  const unrecognizedFlag = args.find(arg => arg.startsWith('-') && !recognizedFlags.includes(arg));
   
   if (unrecognizedFlag) {
     return [
@@ -80,13 +142,13 @@ export function drive(connection: DbConnection, args: string[]): string[] {
       "",
       `Valid flags: ${recognizedFlags.join(", ")}`,
       "",
-      "Usage: drive <direction> [distance] [throttle] [--append]",
+      "Usage: drive <direction> [distance] [throttle] [--append|-a]",
       "       drive east 3 75 --append"
     ];
   }
   
-  const append = args.includes("--append");
-  args = args.filter(arg => !arg.startsWith('--'))
+  const append = args.some(arg => arg === "--append" || arg === "-a");
+  args = args.filter(arg => !arg.startsWith('-'))
   
   if (args.length < 1) {
     return [
@@ -97,19 +159,20 @@ export function drive(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  const direction = args[0];
+  const direction = args[0].toLowerCase();
   if (!validDirections.includes(direction)) {
     return [
       `drive: error: invalid value '${direction}' for '<direction>'`,
-      `Valid options: ${validDirections.join(", ")}`,
+      "Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu",
+      "Use 'help drive' for full list",
       "",
       "Usage: drive <direction> [distance] [throttle]",
       "       drive east 3"
     ];
   }
 
-  let offset = directions[direction as keyof typeof directions];
-  offset = {x: offset.x, y: offset.y};
+  let directionInfo = directionAliases[direction];
+  let offset = { x: directionInfo.x, y: directionInfo.y };
 
   let distance = 1;
   if (args.length > 1) {
@@ -145,7 +208,7 @@ export function drive(connection: DbConnection, args: string[]): string[] {
   
   connection.reducers.drive({ offset, throttle, append });
 
-  const explanation =  `${distance} ${distance != 1 ? "units" : "unit"} ${args[0]} at ${throttle == 1 ? "full" : throttle * 100 + "%"} throttle`;
+  const explanation =  `${distance} ${distance != 1 ? "units" : "unit"} ${directionInfo.symbol} ${directionInfo.name} at ${throttle == 1 ? "full" : throttle * 100 + "%"} throttle`;
   if (append) {
     return [`Added drive ${explanation} to path`];
   }

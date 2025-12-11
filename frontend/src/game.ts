@@ -40,9 +40,12 @@ export class Game {
         tank.positionX,
         tank.positionY,
         tank.bodyRotation,
+        tank.targetBodyRotation,
         tank.turretRotation,
         tank.velocity.x,
-        tank.velocity.y
+        tank.velocity.y,
+        tank.bodyAngularVelocity,
+        tank.path
       );
       this.tanks.set(tank.id, newTank);
     });
@@ -53,8 +56,11 @@ export class Game {
       if (tank) {
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setBodyRotation(newTank.bodyRotation);
+        tank.setTargetBodyRotation(newTank.targetBodyRotation);
         tank.setTurretRotation(newTank.turretRotation);
         tank.setVelocity(newTank.velocity.x, newTank.velocity.y);
+        tank.setBodyAngularVelocity(newTank.bodyAngularVelocity);
+        tank.setPath(newTank.path);
       }
     });
 
@@ -65,8 +71,11 @@ export class Game {
   }
 
   private resizeCanvas() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    const parent = this.canvas.parentElement;
+    if (parent) {
+      this.canvas.width = parent.clientWidth;
+      this.canvas.height = parent.clientHeight;
+    }
   }
 
   private drawGrid() {

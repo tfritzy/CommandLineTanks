@@ -121,7 +121,7 @@ public static partial class Module
             BodyRotation = 0.0f,
             TurretRotation = 0.0f,
             TopSpeed = 3f,
-            BodyRotationSpeed = 2f,
+            BodyRotationSpeed = 3f,
             TurretRotationSpeed = 3f
         };
 

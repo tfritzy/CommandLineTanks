@@ -65,14 +65,18 @@ function TerminalComponent() {
             } else {
                 switch (cmd.toLowerCase()) {
                     case 'drive':
+                    case 'd':
+                    case 'dr':
                         const driveOutput = drive(connection, args);
                         newOutput.push(...driveOutput);
                         break;
                     case 'help':
+                    case 'h':
                         const helpOutput = help(connection, args);
                         newOutput.push(...helpOutput);
                         break;
                     case 'clear':
+                    case 'c':
                         newOutput = [];
                         break;
                     default:
@@ -93,34 +97,29 @@ function TerminalComponent() {
         <div
             ref={containerRef}
             style={{
-                position: 'fixed',
-                bottom: '20px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '700px',
-                maxWidth: '90vw',
-                height: '400px',
-                background: '#2b2d3a',
-                color: '#d4d4d8',
-                fontFamily: 'monospace',
-                fontSize: '13px',
-                padding: '10px',
-                borderRadius: '4px',
+                width: '100%',
+                height: '500px',
+                background: '#0f1419',
+                color: '#e6edf3',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '14px',
+                lineHeight: '1.5',
+                padding: '16px',
                 display: 'flex',
                 flexDirection: 'column',
-                zIndex: 1000,
                 overflowY: 'auto',
-                border: '1px solid #3a3d4d',
+                borderTop: '1px solid #10b981',
+                boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.3), 0 -2px 4px -1px rgba(0, 0, 0, 0.2)',
             }}
             onClick={() => inputRef.current?.focus()}
         >
             <div>
                 {output.map((line, i) => (
-                    <div key={i} style={{ minHeight: '1em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
+                    <div key={i} style={{ minHeight: '1.5em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
                 ))}
             </div>
-            <form onSubmit={handleSubmit} style={{ display: 'flex' }}>
-                <span style={{ marginRight: '1ch', color: '#7dd3fc' }}>❯ </span>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ marginRight: '10px', color: '#10b981', fontWeight: 'bold' }}>❯</span>
                 <input
                     ref={inputRef}
                     type="text"
@@ -132,9 +131,10 @@ function TerminalComponent() {
                         background: 'transparent',
                         border: 'none',
                         outline: 'none',
-                        color: '#d4d4d8',
-                        fontFamily: 'monospace',
-                        fontSize: '13px',
+                        color: '#e6edf3',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: '14px',
+                        caretColor: '#10b981',
                     }}
                 />
             </form>

@@ -14,6 +14,7 @@ export default __t.object("ScheduledTankUpdates", {
   scheduledId: __t.u64(),
   scheduledAt: __t.scheduleAt(),
   worldId: __t.string(),
+  lastTickAt: __t.u64(),
 });
 
 

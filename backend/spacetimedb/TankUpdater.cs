@@ -42,7 +42,18 @@ public static partial class TankUpdater
                     var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
                     var moveDistance = moveSpeed * deltaTime;
 
-                    if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
+                    if (tank.Velocity.X == 0 && tank.Velocity.Y == 0)
+                    {
+                        var dirX = deltaX / distance;
+                        var dirY = deltaY / distance;
+
+                        ctx.Db.tank.Id.Update(tank with
+                        {
+                            Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
+                            BodyAngularVelocity = 0
+                        });
+                    }
+                    else if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
                     {
                         var newPath = new PathEntry[tank.Path.Length - 1];
                         Array.Copy(tank.Path, 1, newPath, 0, newPath.Length);
@@ -51,6 +62,7 @@ public static partial class TankUpdater
                             PositionX = targetPos.Position.X,
                             PositionY = targetPos.Position.Y,
                             Velocity = new Vector2Float(0, 0),
+                            BodyAngularVelocity = 0,
                             Path = newPath
                         });
                     }
@@ -63,7 +75,8 @@ public static partial class TankUpdater
                         {
                             PositionX = (float)(tank.PositionX + dirX * moveDistance),
                             PositionY = (float)(tank.PositionY + dirY * moveDistance),
-                            Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed))
+                            Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
+                            BodyAngularVelocity = 0
                         });
                     }
                 }
@@ -79,12 +92,27 @@ public static partial class TankUpdater
 
                     var rotationAmount = tank.BodyRotationSpeed * deltaTime;
 
-                    if (Math.Abs(angleDiff) <= rotationAmount)
+                    if (tank.BodyAngularVelocity == 0)
                     {
                         ctx.Db.tank.Id.Update(tank with
                         {
+                            TargetBodyRotation = (float)targetAngle,
+                            Velocity = new Vector2Float(0, 0),
+                            BodyAngularVelocity = (float)(Math.Sign(angleDiff) * tank.BodyRotationSpeed)
+                        });
+                    }
+                    else if (Math.Abs(angleDiff) <= rotationAmount)
+                    {
+                        var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
+                        var dirX = Math.Cos(targetAngle);
+                        var dirY = Math.Sin(targetAngle);
+
+                        ctx.Db.tank.Id.Update(tank with
+                        {
                             BodyRotation = (float)targetAngle,
-                            Velocity = new Vector2Float(0, 0)
+                            TargetBodyRotation = (float)targetAngle,
+                            Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
+                            BodyAngularVelocity = 0
                         });
                     }
                     else
@@ -93,7 +121,9 @@ public static partial class TankUpdater
                         ctx.Db.tank.Id.Update(tank with
                         {
                             BodyRotation = (float)(tank.BodyRotation + rotationAmount),
-                            Velocity = new Vector2Float(0, 0)
+                            TargetBodyRotation = (float)targetAngle,
+                            Velocity = new Vector2Float(0, 0),
+                            BodyAngularVelocity = (float)(Math.Sign(angleDiff) * tank.BodyRotationSpeed)
                         });
                     }
                 }

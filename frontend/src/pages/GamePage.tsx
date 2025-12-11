@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Game } from '../Game';
+import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
 
 export default function GamePage() {
@@ -19,18 +19,28 @@ export default function GamePage() {
     }, []);
 
     return (
-        <>
-            <canvas
-                ref={canvasRef}
-                style={{
-                    display: 'block',
-                    margin: 0,
-                    padding: 0,
-                    width: '100vw',
-                    height: '100vh'
-                }}
-            />
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100vh',
+            width: '100vw',
+            margin: 0,
+            padding: 0,
+            overflow: 'hidden'
+        }}>
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+                <canvas
+                    ref={canvasRef}
+                    style={{
+                        display: 'block',
+                        margin: 0,
+                        padding: 0,
+                        width: '100%',
+                        height: '100%'
+                    }}
+                />
+            </div>
             <TerminalComponent />
-        </>
+        </div>
     );
 }
