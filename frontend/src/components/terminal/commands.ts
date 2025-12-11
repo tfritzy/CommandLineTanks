@@ -86,9 +86,9 @@ export function drive(connection: DbConnection, args: string[]): string[] {
   }
   
   const append = args.includes("--append");
-  const nonFlagArgs = args.filter(arg => !arg.startsWith('--'))
+  args = args.filter(arg => !arg.startsWith('--'))
   
-  if (nonFlagArgs.length < 1) {
+  if (args.length < 1) {
     return [
       "drive: error: missing required argument '<direction>'",
       "",
@@ -97,7 +97,7 @@ export function drive(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  const direction = nonFlagArgs[0];
+  const direction = args[0];
   if (!validDirections.includes(direction)) {
     return [
       `drive: error: invalid value '${direction}' for '<direction>'`,
@@ -112,11 +112,11 @@ export function drive(connection: DbConnection, args: string[]): string[] {
   offset = {x: offset.x, y: offset.y};
 
   let distance = 1;
-  if (nonFlagArgs.length > 1) {
-    const parsed = Number.parseInt(nonFlagArgs[1]);
+  if (args.length > 1) {
+    const parsed = Number.parseInt(args[1]);
     if (Number.isNaN(parsed)) {
       return [
-        `drive: error: invalid value '${nonFlagArgs[1]}' for '[distance]': must be a valid integer`,
+        `drive: error: invalid value '${args[1]}' for '[distance]': must be a valid integer`,
         "",
         "Usage: drive <direction> [distance] [throttle]",
         "       drive east 3"
@@ -129,11 +129,11 @@ export function drive(connection: DbConnection, args: string[]): string[] {
   offset.y *= distance;
 
   let throttle = 1;
-  if (nonFlagArgs.length > 2) {
-    const parsed = Number.parseInt(nonFlagArgs[2]);
+  if (args.length > 2) {
+    const parsed = Number.parseInt(args[2]);
     if (Number.isNaN(parsed)) {
       return [
-        `drive: error: invalid value '${nonFlagArgs[2]}' for '[throttle]': must be an integer between 1 and 100`,
+        `drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
         "",
         "Usage: drive <direction> [distance] [throttle]",
         "       drive east 3 75"
@@ -145,7 +145,7 @@ export function drive(connection: DbConnection, args: string[]): string[] {
   
   connection.reducers.drive({ offset, throttle, append });
 
-  const explanation =  `${distance} ${distance != 1 ? "units" : "unit"} ${nonFlagArgs[0]} at ${throttle == 1 ? "full" : throttle * 100 + "%"} throttle`;
+  const explanation =  `${distance} ${distance != 1 ? "units" : "unit"} ${args[0]} at ${throttle == 1 ? "full" : throttle * 100 + "%"} throttle`;
   if (append) {
     return [`Added drive ${explanation} to path`];
   }
