@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class TankUpdater
 {
-    private const double ARRIVAL_THRESHOLD = 0.5;
+    private const double ARRIVAL_THRESHOLD = 0.1;
 
     [Table(Scheduled = nameof(UpdateTanks))]
     public partial struct ScheduledTankUpdates
@@ -39,7 +39,10 @@ public static partial class TankUpdater
                     var deltaY = targetPos.Position.Y - tank.PositionY;
                     var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-                    if (distance <= ARRIVAL_THRESHOLD)
+                    var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
+                    var moveDistance = moveSpeed * deltaTime;
+
+                    if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
                     {
                         var newPath = new PathEntry[tank.Path.Length - 1];
                         Array.Copy(tank.Path, 1, newPath, 0, newPath.Length);
@@ -52,9 +55,6 @@ public static partial class TankUpdater
                     }
                     else
                     {
-                        var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
-                        var moveDistance = moveSpeed * deltaTime;
-                        moveDistance = Math.Min(moveDistance, distance);
                         var dirX = deltaX / distance;
                         var dirY = deltaY / distance;
 
@@ -76,19 +76,29 @@ public static partial class TankUpdater
                     while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
 
                     var rotationAmount = tank.BodyRotationSpeed * deltaTime;
-                    rotationAmount = Math.Sign(angleDiff) * Math.Min(Math.Abs(angleDiff), rotationAmount);
 
-                    ctx.Db.tank.Id.Update(tank with
+                    if (Math.Abs(angleDiff) <= rotationAmount)
                     {
-                        BodyRotation = (float)(tank.BodyRotation + rotationAmount)
-                    });
+                        ctx.Db.tank.Id.Update(tank with
+                        {
+                            BodyRotation = (float)targetAngle
+                        });
+                    }
+                    else
+                    {
+                        rotationAmount = Math.Sign(angleDiff) * rotationAmount;
+                        ctx.Db.tank.Id.Update(tank with
+                        {
+                            BodyRotation = (float)(tank.BodyRotation + rotationAmount)
+                        });
+                    }
                 }
 
             }
         }
     }
 
-    private static bool IsTankFacingTarget(Module.Tank tank, Vector2 target, double tolerance = 0.1)
+    private static bool IsTankFacingTarget(Module.Tank tank, Vector2 target, double tolerance = 0.02)
     {
         var deltaX = target.X - tank.PositionX;
         var deltaY = target.Y - tank.PositionY;
