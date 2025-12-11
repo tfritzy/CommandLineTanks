@@ -15,7 +15,7 @@ export class Tank {
 
   public draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
+    ctx.translate(this.x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2, this.y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2);
     ctx.rotate(this.bodyRotation);
 
     // Draw tank tracks (bottom)
