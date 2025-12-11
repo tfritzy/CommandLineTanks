@@ -50,8 +50,7 @@ public static partial class TankUpdater
                         {
                             PositionX = targetPos.Position.X,
                             PositionY = targetPos.Position.Y,
-                            VelocityX = 0,
-                            VelocityY = 0,
+                            Velocity = new Vector2Float(0, 0),
                             Path = newPath
                         });
                     }
@@ -64,8 +63,7 @@ public static partial class TankUpdater
                         {
                             PositionX = (float)(tank.PositionX + dirX * moveDistance),
                             PositionY = (float)(tank.PositionY + dirY * moveDistance),
-                            VelocityX = (float)(dirX * moveSpeed),
-                            VelocityY = (float)(dirY * moveSpeed)
+                            Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed))
                         });
                     }
                 }
@@ -86,8 +84,7 @@ public static partial class TankUpdater
                         ctx.Db.tank.Id.Update(tank with
                         {
                             BodyRotation = (float)targetAngle,
-                            VelocityX = 0,
-                            VelocityY = 0
+                            Velocity = new Vector2Float(0, 0)
                         });
                     }
                     else
@@ -96,8 +93,7 @@ public static partial class TankUpdater
                         ctx.Db.tank.Id.Update(tank with
                         {
                             BodyRotation = (float)(tank.BodyRotation + rotationAmount),
-                            VelocityX = 0,
-                            VelocityY = 0
+                            Velocity = new Vector2Float(0, 0)
                         });
                     }
                 }

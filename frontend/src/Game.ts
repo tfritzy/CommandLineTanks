@@ -41,8 +41,8 @@ export class Game {
         tank.positionY,
         tank.bodyRotation,
         tank.turretRotation,
-        tank.velocityX,
-        tank.velocityY
+        tank.velocity.x,
+        tank.velocity.y
       );
       this.tanks.set(tank.id, newTank);
     });
@@ -54,7 +54,7 @@ export class Game {
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setBodyRotation(newTank.bodyRotation);
         tank.setTurretRotation(newTank.turretRotation);
-        tank.setVelocity(newTank.velocityX, newTank.velocityY);
+        tank.setVelocity(newTank.velocity.x, newTank.velocity.y);
       }
     });
 

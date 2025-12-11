@@ -10,6 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import PathEntry from "./path_entry_type";
+import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.object("Tank", {
@@ -24,8 +25,9 @@ export default __t.object("Tank", {
   turretRotationSpeed: __t.f32(),
   positionX: __t.f32(),
   positionY: __t.f32(),
-  velocityX: __t.f32(),
-  velocityY: __t.f32(),
+  get velocity() {
+    return Vector2Float;
+  },
   bodyRotation: __t.f32(),
   turretRotation: __t.f32(),
 });
