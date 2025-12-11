@@ -65,21 +65,24 @@ function TerminalComponent() {
             } else {
                 switch (cmd.toLowerCase()) {
                     case 'aim':
-                    case 'a':
+                    case 'a': {
                         const aimOutput = aim(connection, args);
                         newOutput.push(...aimOutput);
                         break;
+                    }
                     case 'drive':
                     case 'd':
-                    case 'dr':
+                    case 'dr': {
                         const driveOutput = drive(connection, args);
                         newOutput.push(...driveOutput);
                         break;
+                    }
                     case 'help':
-                    case 'h':
+                    case 'h': {
                         const helpOutput = help(connection, args);
                         newOutput.push(...helpOutput);
                         break;
+                    }
                     case 'clear':
                     case 'c':
                         newOutput = [];

@@ -205,8 +205,8 @@ export function drive(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  let directionInfo = directionAliases[direction];
-  let offset = { x: directionInfo.x, y: directionInfo.y };
+  const directionInfo = directionAliases[direction];
+  const offset = { x: directionInfo.x, y: directionInfo.y };
 
   let distance = 1;
   if (args.length > 1) {
