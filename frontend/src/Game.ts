@@ -70,14 +70,16 @@ export class Game {
     this.ctx.strokeStyle = "#dddddd";
     this.ctx.lineWidth = 1;
 
-    for (let x = 0; x <= this.canvas.width; x += UNIT_TO_PIXEL) {
+    const offset = UNIT_TO_PIXEL / 2;
+
+    for (let x = offset; x <= this.canvas.width; x += UNIT_TO_PIXEL) {
       this.ctx.beginPath();
       this.ctx.moveTo(x, 0);
       this.ctx.lineTo(x, this.canvas.height);
       this.ctx.stroke();
     }
 
-    for (let y = 0; y <= this.canvas.height; y += UNIT_TO_PIXEL) {
+    for (let y = offset; y <= this.canvas.height; y += UNIT_TO_PIXEL) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
       this.ctx.lineTo(this.canvas.width, y);
