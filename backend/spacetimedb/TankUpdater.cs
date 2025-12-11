@@ -129,6 +129,31 @@ public static partial class TankUpdater
                 }
 
             }
+
+            if (Math.Abs(tank.TurretRotation - tank.TargetTurretRotation) > 0.001)
+            {
+                var angleDiff = tank.TargetTurretRotation - tank.TurretRotation;
+                while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+                while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+                var rotationAmount = tank.TurretRotationSpeed * deltaTime;
+
+                if (Math.Abs(angleDiff) <= rotationAmount)
+                {
+                    ctx.Db.tank.Id.Update(tank with
+                    {
+                        TurretRotation = tank.TargetTurretRotation
+                    });
+                }
+                else
+                {
+                    rotationAmount = Math.Sign(angleDiff) * rotationAmount;
+                    ctx.Db.tank.Id.Update(tank with
+                    {
+                        TurretRotation = (float)(tank.TurretRotation + rotationAmount)
+                    });
+                }
+            }
         }
     }
 

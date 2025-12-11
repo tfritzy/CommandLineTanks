@@ -31,6 +31,8 @@ import {
 } from "spacetimedb";
 
 // Import and reexport all reducer arg types
+import Aim from "./aim_reducer";
+export { Aim };
 import Drive from "./drive_reducer";
 export { Drive };
 import FindWorld from "./find_world_reducer";
@@ -128,6 +130,7 @@ const tablesSchema = __schema(
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
+  __reducerSchema("aim", Aim),
   __reducerSchema("drive", Drive),
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("UpdateTanks", UpdateTanks),

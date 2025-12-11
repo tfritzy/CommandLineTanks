@@ -52,5 +52,6 @@ public static partial class Module
         public float BodyRotation;
         public float TargetBodyRotation;
         public float TurretRotation;
+        public float TargetTurretRotation;
     }
 }

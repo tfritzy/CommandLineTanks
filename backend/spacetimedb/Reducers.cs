@@ -81,6 +81,17 @@ public static partial class Module
     }
 
     [Reducer]
+    public static void aim(ReducerContext ctx, float angle)
+    {
+        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        tank.TargetTurretRotation = angle;
+        ctx.Db.tank.Id.Update(tank);
+    }
+
+    [Reducer]
     public static void findWorld(ReducerContext ctx)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
@@ -120,6 +131,7 @@ public static partial class Module
             PositionY = 0.0f,
             BodyRotation = 0.0f,
             TurretRotation = 0.0f,
+            TargetTurretRotation = 0.0f,
             TopSpeed = 3f,
             BodyRotationSpeed = 3f,
             TurretRotationSpeed = 3f

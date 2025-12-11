@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getConnection } from '../../spacetimedb-connection';
-import { drive, help } from './commands';
+import { aim, drive, help } from './commands';
 
 function TerminalComponent() {
     const [output, setOutput] = useState<string[]>([]);
@@ -64,6 +64,11 @@ function TerminalComponent() {
                 newOutput.push("Error: connection is currently not active");
             } else {
                 switch (cmd.toLowerCase()) {
+                    case 'aim':
+                    case 'a':
+                        const aimOutput = aim(connection, args);
+                        newOutput.push(...aimOutput);
+                        break;
                     case 'drive':
                     case 'd':
                     case 'dr':

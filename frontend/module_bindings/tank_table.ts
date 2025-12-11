@@ -32,4 +32,5 @@ export default __t.row({
   bodyRotation: __t.f32(),
   targetBodyRotation: __t.f32(),
   turretRotation: __t.f32(),
+  targetTurretRotation: __t.f32(),
 });
