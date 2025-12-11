@@ -1,4 +1,4 @@
-import { Vector2, type DbConnection } from "../../../module_bindings";
+import { type DbConnection } from "../../../module_bindings";
 
 const directions = {
   north: { x: 0, y: 1 },
@@ -71,6 +71,20 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 }
 
 export function drive(connection: DbConnection, args: string[]): string[] {
+  const recognizedFlags = ["--append"];
+  const unrecognizedFlags = args.filter(arg => arg.startsWith('--') && !recognizedFlags.includes(arg));
+  
+  if (unrecognizedFlags.length > 0) {
+    return [
+      `drive: error: unrecognized flag '${unrecognizedFlags[0]}'`,
+      "",
+      "Valid flags: --append",
+      "",
+      "Usage: drive <direction> [distance] [throttle] [--append]",
+      "       drive east 3 75 --append"
+    ];
+  }
+  
   const append = args.includes("--append");
   args = args.filter(arg => !arg.startsWith('--'))
   
@@ -83,7 +97,7 @@ export function drive(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  var direction = args[0];
+  const direction = args[0];
   if (!validDirections.includes(direction)) {
     return [
       `drive: error: invalid value '${direction}' for '<direction>'`,
