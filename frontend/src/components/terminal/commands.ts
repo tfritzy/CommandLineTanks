@@ -11,7 +11,6 @@ const directions = {
   northeast: { x: -1, y: 1 },
 };
 const validDirections = Object.keys(directions);
-const recognizedDriveFlags = ["--append"];
 
 export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
@@ -72,13 +71,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 }
 
 export function drive(connection: DbConnection, args: string[]): string[] {
-  const unrecognizedFlag = args.find(arg => arg.startsWith('--') && !recognizedDriveFlags.includes(arg));
+  const recognizedFlags = ["--append"];
+  const unrecognizedFlag = args.find(arg => arg.startsWith('--') && !recognizedFlags.includes(arg));
   
   if (unrecognizedFlag) {
     return [
       `drive: error: unrecognized flag '${unrecognizedFlag}'`,
       "",
-      "Valid flags: --append",
+      `Valid flags: ${recognizedFlags.join(", ")}`,
       "",
       "Usage: drive <direction> [distance] [throttle] [--append]",
       "       drive east 3 75 --append"
