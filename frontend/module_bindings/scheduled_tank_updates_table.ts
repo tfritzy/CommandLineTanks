@@ -9,14 +9,9 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2 from "./vector_2_type";
 
-
-export default __t.object("PathEntry", {
-  get position() {
-    return Vector2;
-  },
-  throttlePercent: __t.f32(),
+export default __t.row({
+  scheduledId: __t.u64().primaryKey(),
+  scheduledAt: __t.scheduleAt(),
+  worldId: __t.string(),
 });
-
-

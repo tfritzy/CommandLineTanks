@@ -9,14 +9,11 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2 from "./vector_2_type";
 
+import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 
-export default __t.object("PathEntry", {
-  get position() {
-    return Vector2;
+export default {
+  get args() {
+    return ScheduledTankUpdates;
   },
-  throttlePercent: __t.f32(),
-});
-
-
+};

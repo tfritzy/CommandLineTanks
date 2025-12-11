@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import MainMenuPage from './pages/MainMenuPage';
 import GamePage from './pages/GamePage';
-import { connectToSpacetimeDB } from './spacetimedb-connection';
+import { connectToSpacetimeDB, getConnection } from './spacetimedb-connection';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<'menu' | 'game'>('menu');
@@ -16,6 +16,7 @@ function App() {
   }, []);
 
   const handleJoinWorld = () => {
+    getConnection()?.reducers.findWorld({});
     setCurrentPage('game');
   };
 

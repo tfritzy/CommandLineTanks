@@ -94,7 +94,8 @@ export function drive(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  const offset = directions[direction as keyof typeof directions];
+  let offset = directions[direction as keyof typeof directions];
+  offset = {x: offset.x, y: offset.y};
 
   let distance = 1;
   if (args.length > 1) {

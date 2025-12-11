@@ -13,7 +13,7 @@ public static partial class Types
     public partial struct PathEntry
     {
         public Vector2 Position;
-        public float DriveSpeedPercent;
+        public float ThrottlePercent;
     }
 
     [Type]

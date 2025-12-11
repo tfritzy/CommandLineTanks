@@ -14,14 +14,22 @@ public static partial class Module
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
-        ctx.Db.World.Insert(world);
+        ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
+            WorldId = worldId,
+            LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+        });
+
+        ctx.Db.world.Insert(world);
         Log.Info($"Initialized world {worldId}");
     }
 
     [Reducer(ReducerKind.ClientConnected)]
     public static void HandleConnect(ReducerContext ctx)
     {
-        var existingPlayer = ctx.Db.Player.Identity.Find(ctx.Sender);
+        var existingPlayer = ctx.Db.player.Identity.Find(ctx.Sender);
 
         if (existingPlayer != null)
         {
@@ -38,39 +46,25 @@ public static partial class Module
                 CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             };
 
-            ctx.Db.Player.Insert(player);
+            ctx.Db.player.Insert(player);
             Log.Info($"New player connected with ID {playerId}");
         }
     }
 
     [Reducer]
-    public static void createWorld(ReducerContext ctx, string name)
-    {
-        var worldId = GenerateId(ctx, "wld");
-        var world = new World
-        {
-            Id = worldId,
-            Name = name,
-            CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-        };
-
-        ctx.Db.World.Insert(world);
-        Log.Info($"Created world {name} with ID {worldId}");
-    }
-
-    [Reducer]
     public static void drive(ReducerContext ctx, Vector2 offset, float throttle, bool append)
     {
-        Tank? maybeTank = ctx.Db.Tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
-        Vector2 rootPos = tank.Path.Length > 0 ? tank.Path[^1].Position : new Vector2((int)tank.PositionX, (int)tank.PositionY);
+        Vector2 rootPos = tank.Path.Length > 0 && append ? tank.Path[^1].Position : new Vector2((int)tank.PositionX, (int)tank.PositionY);
         Vector2 nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
+        Log.Info(tank + " driving to " + nextPos + ". because " + rootPos + " and " + offset);
 
         PathEntry entry = new()
         {
-            DriveSpeedPercent = throttle,
+            ThrottlePercent = throttle,
             Position = nextPos
         };
 
@@ -83,28 +77,21 @@ public static partial class Module
             tank.Path = [entry];
         }
 
-        ctx.Db.Tank.Id.Update(tank);
+        ctx.Db.tank.Id.Update(tank);
     }
 
     [Reducer]
     public static void findWorld(ReducerContext ctx)
     {
-        var player = ctx.Db.Player.Identity.Find(ctx.Sender);
+        var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
         {
             Log.Error("Player not found for identity");
             return;
         }
 
-        Tank? existingTank = ctx.Db.Tank.Owner.Filter(ctx.Sender).FirstOrDefault();
-        if (existingTank != null)
-        {
-            Log.Info($"Player {player.Value.Name} already has a tank in world {existingTank.Value.WorldId}");
-            return;
-        }
-
         World? world = null;
-        foreach (var w in ctx.Db.World.Iter())
+        foreach (var w in ctx.Db.world.Iter())
         {
             world = w;
             break;
@@ -116,19 +103,29 @@ public static partial class Module
             return;
         }
 
+        Tank existingTank = ctx.Db.tank.WorldId.Filter(world.Value.Id).FirstOrDefault();
+        if (existingTank.Id != null)
+        {
+            return;
+        }
+
         var tankId = GenerateId(ctx, "tnk");
         var tank = new Tank
         {
             Id = tankId,
             WorldId = world.Value.Id,
             Owner = ctx.Sender,
+            Path = [],
             PositionX = 0.0f,
             PositionY = 0.0f,
             BodyRotation = 0.0f,
-            TurretRotation = 0.0f
+            TurretRotation = 0.0f,
+            TopSpeed = 5f,
+            BodyRotationSpeed = 1f,
+            TurretRotationSpeed = 3f
         };
 
-        ctx.Db.Tank.Insert(tank);
+        ctx.Db.tank.Insert(tank);
         Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId}");
     }
 }

@@ -19,6 +19,9 @@ export default __t.object("Tank", {
   get path() {
     return __t.array(PathEntry);
   },
+  topSpeed: __t.f32(),
+  bodyRotationSpeed: __t.f32(),
+  turretRotationSpeed: __t.f32(),
   positionX: __t.f32(),
   positionY: __t.f32(),
   bodyRotation: __t.f32(),

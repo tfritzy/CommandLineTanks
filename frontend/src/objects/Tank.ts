@@ -1,3 +1,5 @@
+import { UNIT_TO_PIXEL } from "../Game";
+
 export class Tank {
   private x: number;
   private y: number;
@@ -13,7 +15,7 @@ export class Tank {
 
   public draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    ctx.translate(this.x, this.y);
+    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
     ctx.rotate(this.bodyRotation);
 
     // Draw tank tracks (bottom)

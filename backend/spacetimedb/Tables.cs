@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    [Table]
+    [Table(Name = "player", Public = true)]
     public partial struct Player
     {
         [PrimaryKey]
@@ -16,7 +16,7 @@ public static partial class Module
         public ulong CreatedAt;
     }
 
-    [Table]
+    [Table(Name = "world", Public = true)]
     public partial struct World
     {
         [PrimaryKey]
@@ -26,18 +26,22 @@ public static partial class Module
         public ulong CreatedAt;
     }
 
-    [Table]
+    [Table(Name = "tank", Public = true)]
     public partial struct Tank
     {
         [PrimaryKey]
         public string Id;
 
+        [SpacetimeDB.Index.BTree]
         public string WorldId;
 
         [SpacetimeDB.Index.BTree]
         public Identity Owner;
 
         public PathEntry[] Path;
+        public float TopSpeed;
+        public float BodyRotationSpeed;
+        public float TurretRotationSpeed;
 
         public float PositionX;
         public float PositionY;

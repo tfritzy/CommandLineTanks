@@ -97,9 +97,9 @@ function TerminalComponent() {
                 bottom: '20px',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                width: '600px',
+                width: '700px',
                 maxWidth: '90vw',
-                height: '300px',
+                height: '400px',
                 background: '#2b2d3a',
                 color: '#d4d4d8',
                 fontFamily: 'monospace',
@@ -116,7 +116,7 @@ function TerminalComponent() {
         >
             <div>
                 {output.map((line, i) => (
-                    <div key={i} style={{ minHeight: '1em', whiteSpace: 'pre' }}>{line}</div>
+                    <div key={i} style={{ minHeight: '1em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
                 ))}
             </div>
             <form onSubmit={handleSubmit} style={{ display: 'flex' }}>

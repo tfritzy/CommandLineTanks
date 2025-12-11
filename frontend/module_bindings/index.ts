@@ -31,18 +31,20 @@ import {
 } from "spacetimedb";
 
 // Import and reexport all reducer arg types
-import CreateWorld from "./create_world_reducer";
-export { CreateWorld };
 import Drive from "./drive_reducer";
 export { Drive };
 import FindWorld from "./find_world_reducer";
 export { FindWorld };
 import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
+import UpdateTanks from "./update_tanks_reducer";
+export { UpdateTanks };
 
 // Import and reexport all procedure arg types
 
 // Import and reexport all table handle types
+import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
+export { ScheduledTankUpdatesRow };
 import PlayerRow from "./player_table";
 export { PlayerRow };
 import TankRow from "./tank_table";
@@ -55,6 +57,8 @@ import PathEntry from "./path_entry_type";
 export { PathEntry };
 import Player from "./player_type";
 export { Player };
+import ScheduledTankUpdates from "./scheduled_tank_updates_type";
+export { ScheduledTankUpdates };
 import Tank from "./tank_type";
 export { Tank };
 import Vector2 from "./vector_2_type";
@@ -65,7 +69,18 @@ export { World };
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
   __table({
-    name: 'Player',
+    name: 'ScheduledTankUpdates',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledTankUpdates_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledTankUpdatesRow),
+  __table({
+    name: 'player',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
@@ -75,12 +90,12 @@ const tablesSchema = __schema(
       ] },
     ],
     constraints: [
-      { name: 'Player_Id_key', constraint: 'unique', columns: ['id'] },
-      { name: 'Player_Identity_key', constraint: 'unique', columns: ['identity'] },
+      { name: 'player_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'player_Identity_key', constraint: 'unique', columns: ['identity'] },
     ],
   }, PlayerRow),
   __table({
-    name: 'Tank',
+    name: 'tank',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
@@ -88,29 +103,32 @@ const tablesSchema = __schema(
       { name: 'Owner', algorithm: 'btree', columns: [
         'owner',
       ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
     ],
     constraints: [
-      { name: 'Tank_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'tank_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, TankRow),
   __table({
-    name: 'World',
+    name: 'world',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
     ],
     constraints: [
-      { name: 'World_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'world_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, WorldRow),
 );
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
-  __reducerSchema("createWorld", CreateWorld),
   __reducerSchema("drive", Drive),
   __reducerSchema("findWorld", FindWorld),
+  __reducerSchema("UpdateTanks", UpdateTanks),
 );
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */

@@ -10,6 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  name: __t.string(),
-};
+export default __t.object("ScheduledTankUpdates", {
+  scheduledId: __t.u64(),
+  scheduledAt: __t.scheduleAt(),
+  worldId: __t.string(),
+});
+
+

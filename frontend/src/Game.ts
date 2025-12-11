@@ -1,4 +1,7 @@
-import { Tank } from './objects/Tank';
+import { Tank } from "./objects/Tank";
+import { getConnection } from "./spacetimedb-connection";
+
+export const UNIT_TO_PIXEL = 50;
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -6,26 +9,56 @@ export class Game {
   private animationFrameId: number | null = null;
   private time: number = 0;
   private lastFrameTime: number = 0;
-  private tank: Tank;
+  private tanks: Map<string, Tank> = new Map();
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) {
-      throw new Error('Failed to get 2D context');
+      throw new Error("Failed to get 2D context");
     }
     this.ctx = ctx;
-    
+
     this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
-    
-    // Create a tank in the center of the screen
-    this.tank = new Tank(
-      window.innerWidth / 2,
-      window.innerHeight / 2,
-      0,
-      0
-    );
+    window.addEventListener("resize", () => this.resizeCanvas());
+
+    this.subscribeToTanks();
+  }
+
+  private subscribeToTanks() {
+    const connection = getConnection();
+    if (!connection) return;
+
+    connection
+      .subscriptionBuilder()
+      .onError((e) => console.log("Ah fuck", e))
+      .subscribe([`SELECT * FROM tank`]);
+
+    connection.db.tank.onInsert((_ctx, tank) => {
+      console.log(tank);
+      const newTank = new Tank(
+        tank.positionX,
+        tank.positionY,
+        tank.bodyRotation,
+        tank.turretRotation
+      );
+      this.tanks.set(tank.id, newTank);
+    });
+
+    connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
+      console.log(newTank);
+      const tank = this.tanks.get(newTank.id);
+      if (tank) {
+        tank.setPosition(newTank.positionX, newTank.positionY);
+        tank.setBodyRotation(newTank.bodyRotation);
+        tank.setTurretRotation(newTank.turretRotation);
+      }
+    });
+
+    connection.db.tank.onDelete((_ctx, tank) => {
+      console.log(tank);
+      this.tanks.delete(tank.id);
+    });
   }
 
   private resizeCanvas() {
@@ -34,21 +67,17 @@ export class Game {
   }
 
   private drawGrid() {
-    const gridSize = 50; // Size of each grid cell in pixels
-    
-    this.ctx.strokeStyle = '#dddddd';
+    this.ctx.strokeStyle = "#dddddd";
     this.ctx.lineWidth = 1;
 
-    // Draw vertical lines
-    for (let x = 0; x <= this.canvas.width; x += gridSize) {
+    for (let x = 0; x <= this.canvas.width; x += UNIT_TO_PIXEL) {
       this.ctx.beginPath();
       this.ctx.moveTo(x, 0);
       this.ctx.lineTo(x, this.canvas.height);
       this.ctx.stroke();
     }
 
-    // Draw horizontal lines
-    for (let y = 0; y <= this.canvas.height; y += gridSize) {
+    for (let y = 0; y <= this.canvas.height; y += UNIT_TO_PIXEL) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
       this.ctx.lineTo(this.canvas.width, y);
@@ -57,27 +86,25 @@ export class Game {
   }
 
   private update(currentTime: number = 0) {
-    // Calculate delta time in seconds
-    const deltaTime = this.lastFrameTime === 0 ? 0 : (currentTime - this.lastFrameTime) / 1000;
+    const deltaTime =
+      this.lastFrameTime === 0 ? 0 : (currentTime - this.lastFrameTime) / 1000;
     this.lastFrameTime = currentTime;
     this.time += deltaTime;
-    
-    // Clear canvas with white background
-    this.ctx.fillStyle = '#ffffff';
+
+    this.ctx.fillStyle = "#ffffff";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Draw grid
+    this.ctx.save();
+    this.ctx.translate(0, this.canvas.height);
+    this.ctx.scale(1, -1);
+
     this.drawGrid();
 
-    // Update tank rotations
-    const bodyRotationSpeed = 0.5; // radians per second
-    const turretRotationSpeed = 1.5; // radians per second (3x faster)
-    
-    this.tank.setBodyRotation(this.time * bodyRotationSpeed);
-    this.tank.setTurretRotation(this.time * turretRotationSpeed);
-    
-    // Draw tank
-    this.tank.draw(this.ctx);
+    for (const tank of this.tanks.values()) {
+      tank.draw(this.ctx);
+    }
+
+    this.ctx.restore();
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }
@@ -98,6 +125,6 @@ export class Game {
 
   public destroy() {
     this.stop();
-    window.removeEventListener('resize', () => this.resizeCanvas());
+    window.removeEventListener("resize", () => this.resizeCanvas());
   }
 }
