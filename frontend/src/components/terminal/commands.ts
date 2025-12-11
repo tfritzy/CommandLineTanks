@@ -63,7 +63,8 @@ const validDirections = Object.keys(directionAliases);
 function directionToAngle(direction: string): number {
   const dir = directionAliases[direction.toLowerCase()];
   if (!dir) return NaN;
-  return Math.atan2(dir.y, dir.x);
+  const mathAngle = Math.atan2(dir.y, dir.x);
+  return mathAngle - Math.PI / 2;
 }
 
 export function help(_connection: DbConnection, args: string[]): string[] {
@@ -123,7 +124,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Arguments:",
         "  <angle|direction>   Angle in degrees (0-360) or direction name",
-        "                      Angles: 0=east, 90=north, 180=west, 270=south",
+        "                      Angles: 0=north, 90=east, 180=south, 270=west",
         "                      Directions:",
         "                        ↑: north, up, n, u",
         "                        ↗: northeast, upright, rightup, ne, ur, ru",
@@ -135,10 +136,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                        ↖: northwest, upleft, leftup, nw, ul, lu",
         "",
         "Examples:",
-        "  aim 45",
-        "  aim east",
-        "  a ne",
-        "  aim 180"
+        "  aim 90",
+        "  aim northeast"
       ];
     
     case "help":
@@ -265,11 +264,11 @@ export function aim(connection: DbConnection, args: string[]): string[] {
   const input = args[0].toLowerCase();
 
   if (validDirections.includes(input)) {
-    const angle = directionToAngle(input);
+    const angleRadians = directionToAngle(input);
     const dirInfo = directionAliases[input];
     const description = `${dirInfo.symbol} ${dirInfo.name}`;
     
-    connection.reducers.aim({ angle });
+    connection.reducers.aim({ angleRadians });
     return [`Aiming turret to ${description}`];
   } else {
     const degrees = Number.parseFloat(input);
@@ -293,10 +292,10 @@ export function aim(connection: DbConnection, args: string[]): string[] {
       ];
     }
     
-    const angle = (degrees * Math.PI) / 180;
+    const angleRadians = (degrees * Math.PI) / 180 - Math.PI / 2;
     const description = `${degrees}°`;
     
-    connection.reducers.aim({ angle });
+    connection.reducers.aim({ angleRadians });
     return [`Aiming turret to ${description}`];
   }
 }

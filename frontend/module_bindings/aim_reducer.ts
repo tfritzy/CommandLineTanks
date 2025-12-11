@@ -3,5 +3,5 @@ import {
 } from "spacetimedb";
 
 export default {
-  angle: __t.f32(),
+  angleRadians: __t.f32(),
 };

@@ -81,13 +81,12 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void aim(ReducerContext ctx, float angle)
+    public static void aim(ReducerContext ctx, float angleRadians)
     {
-        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
-        if (maybeTank == null) return;
-        var tank = maybeTank.Value;
+        Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (tank.Id == null) return;
 
-        tank.TargetTurretRotation = angle;
+        tank.TargetTurretRotation = angleRadians;
         ctx.Db.tank.Id.Update(tank);
     }
 
