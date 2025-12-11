@@ -63,6 +63,8 @@ import Tank from "./tank_type";
 export { Tank };
 import Vector2 from "./vector_2_type";
 export { Vector2 };
+import Vector2Float from "./vector_2_float_type";
+export { Vector2Float };
 import World from "./world_type";
 export { World };
 

@@ -1,4 +1,4 @@
-import { Vector2, type DbConnection } from "../../../module_bindings";
+import { type DbConnection } from "../../../module_bindings";
 
 const directions = {
   north: { x: 0, y: 1 },

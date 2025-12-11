@@ -40,7 +40,9 @@ export class Game {
         tank.positionX,
         tank.positionY,
         tank.bodyRotation,
-        tank.turretRotation
+        tank.turretRotation,
+        tank.velocity.x,
+        tank.velocity.y
       );
       this.tanks.set(tank.id, newTank);
     });
@@ -52,6 +54,7 @@ export class Game {
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setBodyRotation(newTank.bodyRotation);
         tank.setTurretRotation(newTank.turretRotation);
+        tank.setVelocity(newTank.velocity.x, newTank.velocity.y);
       }
     });
 
@@ -92,6 +95,10 @@ export class Game {
       this.lastFrameTime === 0 ? 0 : (currentTime - this.lastFrameTime) / 1000;
     this.lastFrameTime = currentTime;
     this.time += deltaTime;
+
+    for (const tank of this.tanks.values()) {
+      tank.update(deltaTime);
+    }
 
     this.ctx.fillStyle = "#ffffff";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);

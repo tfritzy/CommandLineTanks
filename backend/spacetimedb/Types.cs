@@ -10,6 +10,13 @@ public static partial class Types
     }
 
     [Type]
+    public partial struct Vector2Float(float x, float y)
+    {
+        public float X = x;
+        public float Y = y;
+    }
+
+    [Type]
     public partial struct PathEntry
     {
         public Vector2 Position;
