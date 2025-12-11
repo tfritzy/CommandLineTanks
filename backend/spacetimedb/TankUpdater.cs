@@ -138,11 +138,19 @@ public static partial class TankUpdater
 
                 var rotationAmount = tank.TurretRotationSpeed * deltaTime;
 
-                if (Math.Abs(angleDiff) <= rotationAmount)
+                if (tank.TurretAngularVelocity == 0)
                 {
                     ctx.Db.tank.Id.Update(tank with
                     {
-                        TurretRotation = tank.TargetTurretRotation
+                        TurretAngularVelocity = (float)(Math.Sign(angleDiff) * tank.TurretRotationSpeed)
+                    });
+                }
+                else if (Math.Abs(angleDiff) <= rotationAmount)
+                {
+                    ctx.Db.tank.Id.Update(tank with
+                    {
+                        TurretRotation = tank.TargetTurretRotation,
+                        TurretAngularVelocity = 0
                     });
                 }
                 else
@@ -150,7 +158,8 @@ public static partial class TankUpdater
                     rotationAmount = Math.Sign(angleDiff) * rotationAmount;
                     ctx.Db.tank.Id.Update(tank with
                     {
-                        TurretRotation = (float)(tank.TurretRotation + rotationAmount)
+                        TurretRotation = (float)(tank.TurretRotation + rotationAmount),
+                        TurretAngularVelocity = (float)(Math.Sign(angleDiff) * tank.TurretRotationSpeed)
                     });
                 }
             }

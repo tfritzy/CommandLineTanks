@@ -48,6 +48,7 @@ public static partial class Module
 
         public Vector2Float Velocity;
         public float BodyAngularVelocity;
+        public float TurretAngularVelocity;
 
         public float BodyRotation;
         public float TargetBodyRotation;
