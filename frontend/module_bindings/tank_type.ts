@@ -24,6 +24,8 @@ export default __t.object("Tank", {
   turretRotationSpeed: __t.f32(),
   positionX: __t.f32(),
   positionY: __t.f32(),
+  velocityX: __t.f32(),
+  velocityY: __t.f32(),
   bodyRotation: __t.f32(),
   turretRotation: __t.f32(),
 });

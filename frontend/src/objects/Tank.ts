@@ -5,12 +5,16 @@ export class Tank {
   private y: number;
   private bodyRotation: number;
   private turretRotation: number;
+  private velocityX: number;
+  private velocityY: number;
 
-  constructor(x: number, y: number, bodyRotation: number, turretRotation: number) {
+  constructor(x: number, y: number, bodyRotation: number, turretRotation: number, velocityX: number = 0, velocityY: number = 0) {
     this.x = x;
     this.y = y;
     this.bodyRotation = bodyRotation;
     this.turretRotation = turretRotation;
+    this.velocityX = velocityX;
+    this.velocityY = velocityY;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -81,6 +85,16 @@ export class Tank {
 
   public setTurretRotation(rotation: number) {
     this.turretRotation = rotation;
+  }
+
+  public setVelocity(velocityX: number, velocityY: number) {
+    this.velocityX = velocityX;
+    this.velocityY = velocityY;
+  }
+
+  public update(deltaTime: number) {
+    this.x += this.velocityX * deltaTime;
+    this.y += this.velocityY * deltaTime;
   }
 
   // Getters
