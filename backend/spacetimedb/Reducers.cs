@@ -98,42 +98,30 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void aim(ReducerContext ctx, float? angleRadians, string? targetName)
+    public static void aim(ReducerContext ctx, float angleRadians)
     {
         Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (tank.Id == null) return;
 
-        if (targetName != null)
+        tank.TargetTurretRotation = angleRadians;
+        tank.Target = null;
+        ctx.Db.tank.Id.Update(tank);
+    }
+
+    [Reducer]
+    public static void targetTank(ReducerContext ctx, string targetName)
+    {
+        Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (tank.Id == null) return;
+
+        var targetTank = ctx.Db.tank.Name.Find(targetName);
+        if (targetTank == null)
         {
-            if (targetName == tank.Name)
-            {
-                throw new Exception("Cannot target your own tank");
-            }
-
-            Tank? targetTank = null;
-            foreach (var t in ctx.Db.tank.WorldId.Filter(tank.WorldId))
-            {
-                if (t.Name == targetName)
-                {
-                    targetTank = t;
-                    break;
-                }
-            }
-
-            if (targetTank == null)
-            {
-                throw new Exception($"Tank '{targetName}' not found");
-            }
-
-            tank.Target = targetTank.Value.Id;
-            ctx.Db.tank.Id.Update(tank);
+            return;
         }
-        else if (angleRadians != null)
-        {
-            tank.TargetTurretRotation = angleRadians.Value;
-            tank.Target = null;
-            ctx.Db.tank.Id.Update(tank);
-        }
+
+        tank.Target = targetTank.Value.Id;
+        ctx.Db.tank.Id.Update(tank);
     }
 
     [Reducer]

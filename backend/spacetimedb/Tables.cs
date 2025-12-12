@@ -38,6 +38,7 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public Identity Owner;
 
+        [SpacetimeDB.Index.BTree(Name = "world_id_name")]
         public string Name;
 
         public string? Target;

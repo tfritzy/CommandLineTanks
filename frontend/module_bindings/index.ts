@@ -39,6 +39,8 @@ import FindWorld from "./find_world_reducer";
 export { FindWorld };
 import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
+import TargetTank from "./target_tank_reducer";
+export { TargetTank };
 import UpdateTanks from "./update_tanks_reducer";
 export { UpdateTanks };
 
@@ -133,6 +135,7 @@ const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
   __reducerSchema("drive", Drive),
   __reducerSchema("findWorld", FindWorld),
+  __reducerSchema("targetTank", TargetTank),
   __reducerSchema("UpdateTanks", UpdateTanks),
 );
 

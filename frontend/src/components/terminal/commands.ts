@@ -140,7 +140,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  aim 90",
         "  aim northeast",
-        "  aim Tank_A"
+        "  aim Alpha"
       ];
     
     case "help":
@@ -261,7 +261,7 @@ export function aim(connection: DbConnection, args: string[]): string[] {
       "Usage: aim <angle|direction|tank_name>",
       "       aim 45",
       "       aim northeast",
-      "       aim Tank_A"
+      "       aim Alpha"
     ];
   }
 
@@ -273,12 +273,49 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     const dirInfo = directionAliases[inputLower];
     const description = `${dirInfo.symbol} ${dirInfo.name}`;
     
-    connection.reducers.aim({ angleRadians, targetName: undefined });
+    connection.reducers.aim({ angleRadians });
     return [`Aiming turret to ${description}`];
   } else {
     const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
-      connection.reducers.aim({ angleRadians: undefined, targetName: input });
+      if (!connection.identity) {
+        return [
+          "aim: error: not connected",
+          "",
+          "Connection required to target tanks"
+        ];
+      }
+      
+      const allTanks = Array.from(connection.db.tank.iter());
+      const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+      
+      if (!myTank) {
+        return [
+          "aim: error: you don't have a tank yet",
+          "",
+          "Use 'findWorld' to spawn a tank first"
+        ];
+      }
+      
+      if (input === myTank.name) {
+        return [
+          "aim: error: cannot target your own tank",
+          "",
+          `Your tank name is '${myTank.name}'`
+        ];
+      }
+      
+      const targetTank = allTanks.find(t => t.name === input);
+      if (!targetTank) {
+        return [
+          `aim: error: tank '${input}' not found`,
+          "",
+          "Available tanks:",
+          ...allTanks.filter(t => !t.owner.isEqual(connection.identity!)).map(t => `  ${t.name}`)
+        ];
+      }
+      
+      connection.reducers.targetTank({ targetName: input });
       return [`Targeting tank '${input}'`];
     }
     if (degrees < 0 || degrees > 360) {
@@ -294,7 +331,7 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     const angleRadians = (degrees * Math.PI) / 180 - Math.PI / 2;
     const description = `${degrees}°`;
     
-    connection.reducers.aim({ angleRadians, targetName: undefined });
+    connection.reducers.aim({ angleRadians });
     return [`Aiming turret to ${description}`];
   }
 }
