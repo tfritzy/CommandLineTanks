@@ -10,6 +10,7 @@ export class Game {
   private time: number = 0;
   private lastFrameTime: number = 0;
   private tanks: Map<string, Tank> = new Map();
+  private playerTankId: string | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -42,12 +43,18 @@ export class Game {
         tank.bodyRotation,
         tank.targetBodyRotation,
         tank.turretRotation,
+        tank.targetTurretRotation,
         tank.velocity.x,
         tank.velocity.y,
         tank.bodyAngularVelocity,
+        tank.turretAngularVelocity,
         tank.path
       );
       this.tanks.set(tank.id, newTank);
+      
+      if (connection.identity && tank.owner.isEqual(connection.identity)) {
+        this.playerTankId = tank.id;
+      }
     });
 
     connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
@@ -57,9 +64,10 @@ export class Game {
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setBodyRotation(newTank.bodyRotation);
         tank.setTargetBodyRotation(newTank.targetBodyRotation);
-        tank.setTurretRotation(newTank.turretRotation);
+        tank.setTargetTurretRotation(newTank.targetTurretRotation);
         tank.setVelocity(newTank.velocity.x, newTank.velocity.y);
         tank.setBodyAngularVelocity(newTank.bodyAngularVelocity);
+        tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
         tank.setPath(newTank.path);
       }
     });
@@ -67,6 +75,9 @@ export class Game {
     connection.db.tank.onDelete((_ctx, tank) => {
       console.log(tank);
       this.tanks.delete(tank.id);
+      if (this.playerTankId === tank.id) {
+        this.playerTankId = null;
+      }
     });
   }
 
@@ -78,23 +89,26 @@ export class Game {
     }
   }
 
-  private drawGrid() {
+  private drawGrid(cameraX: number, cameraY: number) {
     this.ctx.strokeStyle = "#dddddd";
     this.ctx.lineWidth = 1;
 
-    const offset = UNIT_TO_PIXEL / 2;
+    const startX = Math.floor(cameraX / UNIT_TO_PIXEL) * UNIT_TO_PIXEL;
+    const endX = cameraX + this.canvas.width;
+    const startY = Math.floor(cameraY / UNIT_TO_PIXEL) * UNIT_TO_PIXEL;
+    const endY = cameraY + this.canvas.height;
 
-    for (let x = offset; x <= this.canvas.width; x += UNIT_TO_PIXEL) {
+    for (let x = startX; x <= endX; x += UNIT_TO_PIXEL) {
       this.ctx.beginPath();
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.canvas.height);
+      this.ctx.moveTo(x, cameraY);
+      this.ctx.lineTo(x, endY);
       this.ctx.stroke();
     }
 
-    for (let y = offset; y <= this.canvas.height; y += UNIT_TO_PIXEL) {
+    for (let y = startY; y <= endY; y += UNIT_TO_PIXEL) {
       this.ctx.beginPath();
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.canvas.width, y);
+      this.ctx.moveTo(cameraX, y);
+      this.ctx.lineTo(endX, y);
       this.ctx.stroke();
     }
   }
@@ -116,7 +130,19 @@ export class Game {
     this.ctx.translate(0, this.canvas.height);
     this.ctx.scale(1, -1);
 
-    this.drawGrid();
+    const playerTank = this.playerTankId ? this.tanks.get(this.playerTankId) : null;
+    let cameraX = 0;
+    let cameraY = 0;
+    
+    if (playerTank) {
+      const playerPos = playerTank.getPosition();
+      cameraX = playerPos.x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - this.canvas.width / 2;
+      cameraY = playerPos.y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - this.canvas.height / 2;
+    }
+
+    this.ctx.translate(-cameraX, -cameraY);
+
+    this.drawGrid(cameraX, cameraY);
 
     for (const tank of this.tanks.values()) {
       tank.draw(this.ctx);

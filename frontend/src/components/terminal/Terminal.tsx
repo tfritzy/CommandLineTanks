@@ -110,14 +110,13 @@ function TerminalComponent() {
                 background: '#0f1419',
                 color: '#e6edf3',
                 fontFamily: "'JetBrains Mono', monospace",
-                fontSize: '14px',
+                fontSize: '12px',
                 lineHeight: '1.5',
                 padding: '16px',
                 display: 'flex',
                 flexDirection: 'column',
                 overflowY: 'auto',
                 borderTop: '1px solid #10b981',
-                boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.3), 0 -2px 4px -1px rgba(0, 0, 0, 0.2)',
             }}
             onClick={() => inputRef.current?.focus()}
         >
@@ -127,7 +126,7 @@ function TerminalComponent() {
                 ))}
             </div>
             <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ marginRight: '10px', color: '#10b981', fontWeight: 'bold' }}>❯</span>
+                <span style={{ marginRight: '8px', color: '#10b981', fontWeight: 'bold' }}>❯</span>
                 <input
                     ref={inputRef}
                     type="text"
@@ -141,7 +140,7 @@ function TerminalComponent() {
                         outline: 'none',
                         color: '#e6edf3',
                         fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: '14px',
+                        fontSize: '12px',
                         caretColor: '#10b981',
                     }}
                 />

@@ -28,8 +28,10 @@ public static partial class TankUpdater
             LastTickAt = currentTime
         });
 
-        foreach (var tank in ctx.Db.tank.WorldId.Filter(args.WorldId))
+        foreach (var iTank in ctx.Db.tank.WorldId.Filter(args.WorldId))
         {
+            bool needsUpdate = false;
+            var tank = iTank;
             if (tank.Path.Length > 0)
             {
                 var targetPos = tank.Path[0];
@@ -47,37 +49,40 @@ public static partial class TankUpdater
                         var dirX = deltaX / distance;
                         var dirY = deltaY / distance;
 
-                        ctx.Db.tank.Id.Update(tank with
+                        tank = tank with
                         {
                             Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
                             BodyAngularVelocity = 0
-                        });
+                        };
+                        needsUpdate = true;
                     }
                     else if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
                     {
                         var newPath = new PathEntry[tank.Path.Length - 1];
                         Array.Copy(tank.Path, 1, newPath, 0, newPath.Length);
-                        ctx.Db.tank.Id.Update(tank with
+                        tank = tank with
                         {
                             PositionX = targetPos.Position.X,
                             PositionY = targetPos.Position.Y,
                             Velocity = new Vector2Float(0, 0),
                             BodyAngularVelocity = 0,
                             Path = newPath
-                        });
+                        };
+                        needsUpdate = true;
                     }
                     else
                     {
                         var dirX = deltaX / distance;
                         var dirY = deltaY / distance;
 
-                        ctx.Db.tank.Id.Update(tank with
+                        tank = tank with
                         {
                             PositionX = (float)(tank.PositionX + dirX * moveDistance),
                             PositionY = (float)(tank.PositionY + dirY * moveDistance),
                             Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
                             BodyAngularVelocity = 0
-                        });
+                        };
+                        needsUpdate = true;
                     }
                 }
                 else
@@ -94,12 +99,13 @@ public static partial class TankUpdater
 
                     if (tank.BodyAngularVelocity == 0)
                     {
-                        ctx.Db.tank.Id.Update(tank with
+                        tank = tank with
                         {
                             TargetBodyRotation = (float)targetAngle,
                             Velocity = new Vector2Float(0, 0),
                             BodyAngularVelocity = (float)(Math.Sign(angleDiff) * tank.BodyRotationSpeed)
-                        });
+                        };
+                        needsUpdate = true;
                     }
                     else if (Math.Abs(angleDiff) <= rotationAmount)
                     {
@@ -107,61 +113,70 @@ public static partial class TankUpdater
                         var dirX = Math.Cos(targetAngle);
                         var dirY = Math.Sin(targetAngle);
 
-                        ctx.Db.tank.Id.Update(tank with
+                        tank = tank with
                         {
                             BodyRotation = (float)targetAngle,
                             TargetBodyRotation = (float)targetAngle,
                             Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
                             BodyAngularVelocity = 0
-                        });
+                        };
+                        needsUpdate = true;
                     }
                     else
                     {
                         rotationAmount = Math.Sign(angleDiff) * rotationAmount;
-                        ctx.Db.tank.Id.Update(tank with
+                        tank = tank with
                         {
                             BodyRotation = (float)(tank.BodyRotation + rotationAmount),
                             TargetBodyRotation = (float)targetAngle,
                             Velocity = new Vector2Float(0, 0),
                             BodyAngularVelocity = (float)(Math.Sign(angleDiff) * tank.BodyRotationSpeed)
-                        });
+                        };
+                        needsUpdate = true;
                     }
                 }
-
             }
 
             if (Math.Abs(tank.TurretRotation - tank.TargetTurretRotation) > 0.001)
             {
                 var angleDiff = tank.TargetTurretRotation - tank.TurretRotation;
-                while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-                while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+                while (angleDiff > MathF.PI) angleDiff -= 2 * MathF.PI;
+                while (angleDiff < -MathF.PI) angleDiff += 2 * MathF.PI;
 
                 var rotationAmount = tank.TurretRotationSpeed * deltaTime;
 
                 if (tank.TurretAngularVelocity == 0)
                 {
-                    ctx.Db.tank.Id.Update(tank with
+                    tank = tank with
                     {
                         TurretAngularVelocity = (float)(Math.Sign(angleDiff) * tank.TurretRotationSpeed)
-                    });
+                    };
+                    needsUpdate = true;
                 }
                 else if (Math.Abs(angleDiff) <= rotationAmount)
                 {
-                    ctx.Db.tank.Id.Update(tank with
+                    tank = tank with
                     {
                         TurretRotation = tank.TargetTurretRotation,
                         TurretAngularVelocity = 0
-                    });
+                    };
+                    needsUpdate = true;
                 }
                 else
                 {
                     rotationAmount = Math.Sign(angleDiff) * rotationAmount;
-                    ctx.Db.tank.Id.Update(tank with
+                    tank = tank with
                     {
                         TurretRotation = (float)(tank.TurretRotation + rotationAmount),
                         TurretAngularVelocity = (float)(Math.Sign(angleDiff) * tank.TurretRotationSpeed)
-                    });
+                    };
+                    needsUpdate = true;
                 }
+            }
+
+            if (needsUpdate)
+            {
+                ctx.Db.tank.Id.Update(tank);
             }
         }
     }

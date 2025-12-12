@@ -11,9 +11,11 @@ export class Tank {
   private bodyRotation: number;
   private targetBodyRotation: number;
   private turretRotation: number;
+  private targetTurretRotation: number;
   private velocityX: number;
   private velocityY: number;
   private bodyAngularVelocity: number;
+  private turretAngularVelocity: number;
   private path: PathEntry[];
 
   constructor(
@@ -22,9 +24,11 @@ export class Tank {
     bodyRotation: number,
     targetBodyRotation: number,
     turretRotation: number,
+    targetTurretRotation: number,
     velocityX: number = 0,
     velocityY: number = 0,
     bodyAngularVelocity: number = 0,
+    turretAngularVelocity: number = 0,
     path: PathEntry[] = []
   ) {
     this.x = x;
@@ -32,9 +36,11 @@ export class Tank {
     this.bodyRotation = bodyRotation;
     this.targetBodyRotation = targetBodyRotation;
     this.turretRotation = turretRotation;
+    this.targetTurretRotation = targetTurretRotation;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
     this.bodyAngularVelocity = bodyAngularVelocity;
+    this.turretAngularVelocity = turretAngularVelocity;
     this.path = path;
   }
 
@@ -45,15 +51,15 @@ export class Tank {
     ctx.rotate(this.bodyRotation);
 
     // Draw tank tracks (bottom)
-    this.drawTrack(ctx, -30, -20, 60, 10);
-    this.drawTrack(ctx, -30, 10, 60, 10);
+    this.drawTrack(ctx, -25, -20, 50, 10);
+    this.drawTrack(ctx, -25, 10, 50, 10);
 
     // Draw tank body (main rectangle)
     ctx.fillStyle = '#e8e8e8';
-    ctx.fillRect(-25, -15, 50, 30);
+    ctx.fillRect(-23, -15, 46, 30);
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2;
-    ctx.strokeRect(-25, -15, 50, 30);
+    ctx.strokeRect(-23, -15, 46, 30);
 
     // Draw turret
     ctx.rotate(this.turretRotation - this.bodyRotation);
@@ -113,6 +119,10 @@ export class Tank {
     this.turretRotation = rotation;
   }
 
+  public setTargetTurretRotation(rotation: number) {
+    this.targetTurretRotation = rotation;
+  }
+
   public setVelocity(velocityX: number, velocityY: number) {
     this.velocityX = velocityX;
     this.velocityY = velocityY;
@@ -120,6 +130,10 @@ export class Tank {
 
   public setBodyAngularVelocity(bodyAngularVelocity: number) {
     this.bodyAngularVelocity = bodyAngularVelocity;
+  }
+
+  public setTurretAngularVelocity(turretAngularVelocity: number) {
+    this.turretAngularVelocity = turretAngularVelocity;
   }
 
   public setPath(path: PathEntry[]) {
@@ -165,6 +179,23 @@ export class Tank {
         this.bodyAngularVelocity = 0;
       } else {
         this.bodyRotation = newRotation;
+      }
+    }
+
+    if (this.turretAngularVelocity !== 0) {
+      let currentDiff = this.targetTurretRotation - this.turretRotation;
+      while (currentDiff > Math.PI) currentDiff -= 2 * Math.PI;
+      while (currentDiff < -Math.PI) currentDiff += 2 * Math.PI;
+      
+      const rotationAmount = this.turretAngularVelocity * deltaTime;
+      
+      if (Math.abs(currentDiff) <= Math.abs(rotationAmount)) {
+        this.turretRotation = this.targetTurretRotation;
+        this.turretAngularVelocity = 0;
+      } else {
+        this.turretRotation += rotationAmount;
+        while (this.turretRotation > Math.PI) this.turretRotation -= 2 * Math.PI;
+        while (this.turretRotation < -Math.PI) this.turretRotation += 2 * Math.PI;
       }
     }
   }

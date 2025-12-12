@@ -39,6 +39,8 @@ import FindWorld from "./find_world_reducer";
 export { FindWorld };
 import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
+import HandleDisconnect from "./handle_disconnect_reducer";
+export { HandleDisconnect };
 import UpdateTanks from "./update_tanks_reducer";
 export { UpdateTanks };
 

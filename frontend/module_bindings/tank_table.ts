@@ -17,6 +17,7 @@ export default __t.row({
   id: __t.string().primaryKey(),
   worldId: __t.string(),
   owner: __t.identity(),
+  name: __t.string(),
   get path() {
     return __t.array(PathEntry);
   },

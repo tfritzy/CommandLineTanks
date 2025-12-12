@@ -60,11 +60,11 @@ public static partial class Module
             return;
         }
 
-        Tank? tank = ctx.Db.tank.Owner.Find(ctx.Sender);
-        if (tank != null)
+        Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (!string.IsNullOrEmpty(tank.Id))
         {
-            ctx.Db.tank.Id.Delete(tank.Value.Id);
-            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Value.Id} named {tank.Value.Name ?? "Unknown"}");
+            ctx.Db.tank.Id.Delete(tank.Id);
+            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} named {tank.Name ?? "Unknown"}");
         }
     }
 
@@ -130,8 +130,8 @@ public static partial class Module
             return;
         }
 
-        Tank? existingTank = ctx.Db.tank.Owner.Find(ctx.Sender);
-        if (existingTank != null)
+        Tank existingTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (!string.IsNullOrEmpty(existingTank.Id))
         {
             return;
         }

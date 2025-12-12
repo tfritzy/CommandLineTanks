@@ -64,7 +64,7 @@ function directionToAngle(direction: string): number {
   const dir = directionAliases[direction.toLowerCase()];
   if (!dir) return NaN;
   const mathAngle = Math.atan2(dir.y, dir.x);
-  return mathAngle - Math.PI / 2;
+  return mathAngle;
 }
 
 export function help(_connection: DbConnection, args: string[]): string[] {
@@ -124,7 +124,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Arguments:",
         "  <angle|direction>   Angle in degrees (0-360) or direction name",
-        "                      Angles: 0=north, 90=east, 180=south, 270=west",
+        "                      Angles: 0=east, 90=north, 180=west, 270=south",
         "                      Directions:",
         "                        ↑: north, up, n, u",
         "                        ↗: northeast, upright, rightup, ne, ur, ru",
@@ -292,7 +292,7 @@ export function aim(connection: DbConnection, args: string[]): string[] {
       ];
     }
     
-    const angleRadians = (degrees * Math.PI) / 180 - Math.PI / 2;
+    const angleRadians = (degrees * Math.PI) / 180;
     const description = `${degrees}°`;
     
     connection.reducers.aim({ angleRadians });
