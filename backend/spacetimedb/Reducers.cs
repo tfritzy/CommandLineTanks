@@ -51,6 +51,23 @@ public static partial class Module
         }
     }
 
+    [Reducer(ReducerKind.ClientDisconnected)]
+    public static void HandleDisconnect(ReducerContext ctx)
+    {
+        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        if (player == null)
+        {
+            return;
+        }
+
+        Tank? tank = ctx.Db.tank.Owner.Find(ctx.Sender);
+        if (tank != null)
+        {
+            ctx.Db.tank.Id.Delete(tank.Value.Id);
+            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Value.Id} named {tank.Value.Name ?? "Unknown"}");
+        }
+    }
+
     [Reducer]
     public static void drive(ReducerContext ctx, Vector2 offset, float throttle, bool append)
     {
@@ -113,9 +130,16 @@ public static partial class Module
             return;
         }
 
-        Tank existingTank = ctx.Db.tank.WorldId.Filter(world.Value.Id).FirstOrDefault();
-        if (existingTank.Id != null)
+        Tank? existingTank = ctx.Db.tank.Owner.Find(ctx.Sender);
+        if (existingTank != null)
         {
+            return;
+        }
+
+        var tankName = AllocateTankName(ctx, world.Value.Id);
+        if (tankName == null)
+        {
+            Log.Error($"No available tank names in world {world.Value.Name}");
             return;
         }
 
@@ -125,6 +149,7 @@ public static partial class Module
             Id = tankId,
             WorldId = world.Value.Id,
             Owner = ctx.Sender,
+            Name = tankName,
             Path = [],
             PositionX = 0.0f,
             PositionY = 0.0f,
@@ -137,6 +162,6 @@ public static partial class Module
         };
 
         ctx.Db.tank.Insert(tank);
-        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId}");
+        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName}");
     }
 }

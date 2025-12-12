@@ -38,6 +38,8 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public Identity Owner;
 
+        public string Name;
+
         public PathEntry[] Path;
         public float TopSpeed;
         public float BodyRotationSpeed;
