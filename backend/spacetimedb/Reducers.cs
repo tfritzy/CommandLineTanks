@@ -114,7 +114,7 @@ public static partial class Module
         Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (tank.Id == null) return;
 
-        var targetTank = ctx.Db.tank.WorldId.Filter(tank.WorldId).Name.Find(targetName);
+        var targetTank = ctx.Db.tank.WorldId_Name.Filter((tank.WorldId, targetName));
         
         if (targetTank == null)
         {

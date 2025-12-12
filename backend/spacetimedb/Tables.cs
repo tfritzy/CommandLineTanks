@@ -27,7 +27,7 @@ public static partial class Module
     }
 
     [Table(Name = "tank", Public = true)]
-    [Index.BTree(Name = "world_name_idx", Columns = new[] { nameof(WorldId), nameof(Name) })]
+    [Index.BTree(Columns = new[] { nameof(WorldId), nameof(Name) })]
     public partial struct Tank
     {
         [PrimaryKey]
