@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using System.Collections.Generic;
 
 public static partial class Module
 {
@@ -13,7 +14,7 @@ public static partial class Module
     public static string? AllocateTankName(ReducerContext ctx, string worldId)
     {
         var tanksInWorld = ctx.Db.tank.WorldId.Filter(worldId);
-        var usedNames = new System.Collections.Generic.HashSet<string>();
+        var usedNames = new HashSet<string>();
         
         foreach (var tank in tanksInWorld)
         {

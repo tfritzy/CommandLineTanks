@@ -64,7 +64,7 @@ public static partial class Module
         if (tank != null)
         {
             ctx.Db.tank.Id.Delete(tank.Value.Id);
-            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Value.Id} named {tank.Value.Name}");
+            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Value.Id} named {tank.Value.Name ?? "Unknown"}");
         }
     }
 
