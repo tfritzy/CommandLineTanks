@@ -139,12 +139,11 @@ public static partial class TankUpdater
                     var deltaY = targetTank.Value.PositionY - tank.PositionY;
                     var targetAngle = Math.Atan2(deltaY, deltaX);
                     
-                    ctx.Db.tank.Id.Update(tank with
+                    tank = tank with
                     {
                         TargetTurretRotation = (float)targetAngle
-                    });
-                    
-                    tank = ctx.Db.tank.Id.Find(tank.Id).Value;
+                    };
+                    ctx.Db.tank.Id.Update(tank);
                 }
             }
 
