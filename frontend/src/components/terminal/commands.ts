@@ -273,12 +273,12 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     const dirInfo = directionAliases[inputLower];
     const description = `${dirInfo.symbol} ${dirInfo.name}`;
     
-    connection.reducers.aim({ angleRadians, targetName: null });
+    connection.reducers.aim({ angleRadians, targetName: undefined });
     return [`Aiming turret to ${description}`];
   } else {
     const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
-      connection.reducers.aim({ angleRadians: null, targetName: input });
+      connection.reducers.aim({ angleRadians: undefined, targetName: input });
       return [`Targeting tank '${input}'`];
     }
     if (degrees < 0 || degrees > 360) {
@@ -294,7 +294,7 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     const angleRadians = (degrees * Math.PI) / 180 - Math.PI / 2;
     const description = `${degrees}°`;
     
-    connection.reducers.aim({ angleRadians, targetName: null });
+    connection.reducers.aim({ angleRadians, targetName: undefined });
     return [`Aiming turret to ${description}`];
   }
 }

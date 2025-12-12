@@ -17,6 +17,8 @@ export default __t.object("Tank", {
   id: __t.string(),
   worldId: __t.string(),
   owner: __t.identity(),
+  name: __t.string(),
+  target: __t.option(__t.string()),
   get path() {
     return __t.array(PathEntry);
   },
@@ -29,9 +31,11 @@ export default __t.object("Tank", {
     return Vector2Float;
   },
   bodyAngularVelocity: __t.f32(),
+  turretAngularVelocity: __t.f32(),
   bodyRotation: __t.f32(),
   targetBodyRotation: __t.f32(),
   turretRotation: __t.f32(),
+  targetTurretRotation: __t.f32(),
 });
 
 
