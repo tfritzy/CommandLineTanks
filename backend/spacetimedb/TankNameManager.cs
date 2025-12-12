@@ -27,7 +27,7 @@ public static partial class Module
         var availableNames = ctx.Db.available_tank_name.WorldId.Filter(worldId);
         var availableName = availableNames.FirstOrDefault();
         
-        if (availableName.Name == null)
+        if (availableName.Id == 0)
         {
             return null;
         }

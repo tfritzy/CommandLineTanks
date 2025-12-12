@@ -104,8 +104,8 @@ public static partial class Module
             return;
         }
 
-        Tank existingTank = ctx.Db.tank.Owner.Find(ctx.Sender);
-        if (existingTank.Id != null)
+        Tank? existingTank = ctx.Db.tank.Owner.Find(ctx.Sender);
+        if (existingTank != null)
         {
             return;
         }
