@@ -23,7 +23,6 @@ public static partial class Module
         });
 
         ctx.Db.world.Insert(world);
-        InitializeAvailableNamesForWorld(ctx, worldId);
         Log.Info($"Initialized world {worldId}");
     }
 
@@ -49,6 +48,23 @@ public static partial class Module
 
             ctx.Db.player.Insert(player);
             Log.Info($"New player connected with ID {playerId}");
+        }
+    }
+
+    [Reducer(ReducerKind.ClientDisconnected)]
+    public static void HandleDisconnect(ReducerContext ctx)
+    {
+        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        if (player == null)
+        {
+            return;
+        }
+
+        Tank? tank = ctx.Db.tank.Owner.Find(ctx.Sender);
+        if (tank != null)
+        {
+            ctx.Db.tank.Id.Delete(tank.Value.Id);
+            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Value.Id} named {tank.Value.Name}");
         }
     }
 

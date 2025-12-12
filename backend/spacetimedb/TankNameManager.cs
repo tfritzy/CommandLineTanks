@@ -10,38 +10,27 @@ public static partial class Module
         "Yankee", "Zulu"
     ];
 
-    public static void InitializeAvailableNamesForWorld(ReducerContext ctx, string worldId)
-    {
-        foreach (var name in NatoPhoneticAlphabet)
-        {
-            ctx.Db.available_tank_name.Insert(new AvailableTankName
-            {
-                WorldId = worldId,
-                Name = name
-            });
-        }
-    }
-
     public static string? AllocateTankName(ReducerContext ctx, string worldId)
     {
-        var availableNames = ctx.Db.available_tank_name.WorldId.Filter(worldId);
-        var availableName = availableNames.FirstOrDefault();
+        var tanksInWorld = ctx.Db.tank.WorldId.Filter(worldId);
+        var usedNames = new System.Collections.Generic.HashSet<string>();
         
-        if (availableName.Id == 0)
+        foreach (var tank in tanksInWorld)
         {
-            return null;
+            if (tank.Name != null)
+            {
+                usedNames.Add(tank.Name);
+            }
         }
 
-        ctx.Db.available_tank_name.Id.Delete(availableName.Id);
-        return availableName.Name;
-    }
-
-    public static void ReleaseTankName(ReducerContext ctx, string worldId, string name)
-    {
-        ctx.Db.available_tank_name.Insert(new AvailableTankName
+        foreach (var name in NatoPhoneticAlphabet)
         {
-            WorldId = worldId,
-            Name = name
-        });
+            if (!usedNames.Contains(name))
+            {
+                return name;
+            }
+        }
+
+        return null;
     }
 }

@@ -55,17 +55,4 @@ public static partial class Module
         public float TargetBodyRotation;
         public float TurretRotation;
     }
-
-    [Table(Name = "available_tank_name", Public = true)]
-    public partial struct AvailableTankName
-    {
-        [PrimaryKey]
-        [AutoInc]
-        public uint Id;
-
-        [SpacetimeDB.Index.BTree]
-        public string WorldId;
-
-        public string Name;
-    }
 }
