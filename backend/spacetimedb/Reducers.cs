@@ -120,6 +120,11 @@ public static partial class Module
             return;
         }
 
+        if (targetTank.Value.WorldId != tank.WorldId)
+        {
+            return;
+        }
+
         tank.Target = targetTank.Value.Id;
         ctx.Db.tank.Id.Update(tank);
     }
