@@ -40,6 +40,8 @@ public static partial class Module
 
         public string Name;
 
+        public string? Target;
+
         public PathEntry[] Path;
         public float TopSpeed;
         public float BodyRotationSpeed;
