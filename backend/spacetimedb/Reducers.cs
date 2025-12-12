@@ -23,6 +23,7 @@ public static partial class Module
         });
 
         ctx.Db.world.Insert(world);
+        InitializeAvailableNamesForWorld(ctx, worldId);
         Log.Info($"Initialized world {worldId}");
     }
 
@@ -103,9 +104,16 @@ public static partial class Module
             return;
         }
 
-        Tank existingTank = ctx.Db.tank.WorldId.Filter(world.Value.Id).FirstOrDefault();
+        Tank existingTank = ctx.Db.tank.Owner.Find(ctx.Sender);
         if (existingTank.Id != null)
         {
+            return;
+        }
+
+        var tankName = AllocateTankName(ctx, world.Value.Id);
+        if (tankName == null)
+        {
+            Log.Error($"No available tank names in world {world.Value.Name}");
             return;
         }
 
@@ -115,6 +123,7 @@ public static partial class Module
             Id = tankId,
             WorldId = world.Value.Id,
             Owner = ctx.Sender,
+            Name = tankName,
             Path = [],
             PositionX = 0.0f,
             PositionY = 0.0f,
@@ -126,6 +135,6 @@ public static partial class Module
         };
 
         ctx.Db.tank.Insert(tank);
-        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId}");
+        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName}");
     }
 }

@@ -38,6 +38,8 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public Identity Owner;
 
+        public string Name;
+
         public PathEntry[] Path;
         public float TopSpeed;
         public float BodyRotationSpeed;
@@ -52,5 +54,18 @@ public static partial class Module
         public float BodyRotation;
         public float TargetBodyRotation;
         public float TurretRotation;
+    }
+
+    [Table(Name = "available_tank_name", Public = true)]
+    public partial struct AvailableTankName
+    {
+        [PrimaryKey]
+        [AutoInc]
+        public uint Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public string Name;
     }
 }
