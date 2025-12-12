@@ -60,11 +60,19 @@ const directionAliases: Record<string, { x: number; y: number; name: string; sym
 
 const validDirections = Object.keys(directionAliases);
 
+function directionToAngle(direction: string): number {
+  const dir = directionAliases[direction.toLowerCase()];
+  if (!dir) return NaN;
+  const mathAngle = Math.atan2(dir.y, dir.x);
+  return mathAngle - Math.PI / 2;
+}
+
 export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       "Commands:",
       "  drive, d, dr    Move your tank in a direction",
+      "  aim, a          Aim turret at an angle or direction",
       "  clear, c        Clear the terminal output",
       "  help, h         Display help information",
     ];
@@ -105,6 +113,31 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  d n 5",
         "  drive southeast 3 75",
         "  d se 3 75 -a"
+      ];
+    
+    case "aim":
+    case "a":
+      return [
+        "aim, a - Aim turret at an angle or direction",
+        "",
+        "Usage: aim <angle|direction>",
+        "",
+        "Arguments:",
+        "  <angle|direction>   Angle in degrees (0-360) or direction name",
+        "                      Angles: 0=north, 90=east, 180=south, 270=west",
+        "                      Directions:",
+        "                        ↑: north, up, n, u",
+        "                        ↗: northeast, upright, rightup, ne, ur, ru",
+        "                        →: east, right, e, r",
+        "                        ↘: southeast, downright, rightdown, se, dr, rd",
+        "                        ↓: south, down, s, d",
+        "                        ↙: southwest, downleft, leftdown, sw, dl, ld",
+        "                        ←: west, left, w, l",
+        "                        ↖: northwest, upleft, leftup, nw, ul, lu",
+        "",
+        "Examples:",
+        "  aim 90",
+        "  aim northeast"
       ];
     
     case "help":
@@ -171,8 +204,8 @@ export function drive(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  let directionInfo = directionAliases[direction];
-  let offset = { x: directionInfo.x, y: directionInfo.y };
+  const directionInfo = directionAliases[direction];
+  const offset = { x: directionInfo.x, y: directionInfo.y };
 
   let distance = 1;
   if (args.length > 1) {
@@ -215,4 +248,54 @@ export function drive(connection: DbConnection, args: string[]): string[] {
   return [
     `Driving ${explanation}`,
   ];
+}
+
+export function aim(connection: DbConnection, args: string[]): string[] {
+  if (args.length < 1) {
+    return [
+      "aim: error: missing required argument '<angle|direction>'",
+      "",
+      "Usage: aim <angle|direction>",
+      "       aim 45",
+      "       aim northeast"
+    ];
+  }
+
+  const input = args[0].toLowerCase();
+
+  if (validDirections.includes(input)) {
+    const angleRadians = directionToAngle(input);
+    const dirInfo = directionAliases[input];
+    const description = `${dirInfo.symbol} ${dirInfo.name}`;
+    
+    connection.reducers.aim({ angleRadians });
+    return [`Aiming turret to ${description}`];
+  } else {
+    const degrees = Number.parseFloat(input);
+    if (Number.isNaN(degrees)) {
+      return [
+        `aim: error: invalid value '${args[0]}' for '<angle|direction>'`,
+        "Must be a number (degrees) or valid direction",
+        "Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu",
+        "",
+        "Usage: aim <angle|direction>",
+        "       aim 90"
+      ];
+    }
+    if (degrees < 0 || degrees > 360) {
+      return [
+        `aim: error: angle '${degrees}' out of range`,
+        "Angle must be between 0 and 360 degrees",
+        "",
+        "Usage: aim <angle|direction>",
+        "       aim 90"
+      ];
+    }
+    
+    const angleRadians = (degrees * Math.PI) / 180 - Math.PI / 2;
+    const description = `${degrees}°`;
+    
+    connection.reducers.aim({ angleRadians });
+    return [`Aiming turret to ${description}`];
+  }
 }

@@ -29,7 +29,9 @@ export default __t.row({
     return Vector2Float;
   },
   bodyAngularVelocity: __t.f32(),
+  turretAngularVelocity: __t.f32(),
   bodyRotation: __t.f32(),
   targetBodyRotation: __t.f32(),
   turretRotation: __t.f32(),
+  targetTurretRotation: __t.f32(),
 });
