@@ -149,7 +149,10 @@ public static partial class TankUpdater
                     var deltaY = targetY - tank.PositionY;
                     var aimAngle = Math.Atan2(deltaY, deltaX);
                     
-                    tank.TargetTurretRotation = (float)aimAngle;
+                    if (Math.Abs(tank.TargetTurretRotation - (float)aimAngle) > 0.001)
+                    {
+                        tank = tank with { TargetTurretRotation = (float)aimAngle };
+                    }
                 }
             }
 
