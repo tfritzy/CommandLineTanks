@@ -32,12 +32,13 @@ public static partial class Module
         [PrimaryKey]
         public string Id;
 
-        [SpacetimeDB.Index.BTree]
+        [SpacetimeDB.Index.BTree(Name = "world_name_idx")]
         public string WorldId;
 
         [SpacetimeDB.Index.BTree]
         public Identity Owner;
 
+        [SpacetimeDB.Index.BTree(Name = "world_name_idx")]
         public string Name;
 
         public string? Target;

@@ -334,11 +334,7 @@ export function target(connection: DbConnection, args: string[]): string[] {
   }
 
   if (!connection.identity) {
-    return [
-      "target: error: not connected",
-      "",
-      "Connection required to target tanks"
-    ];
+    return ["target: error: no connection"];
   }
 
   const targetName = args[0];
