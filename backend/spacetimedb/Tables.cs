@@ -38,7 +38,6 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public Identity Owner;
 
-        [SpacetimeDB.Index.BTree]
         public string Name;
 
         public string? Target;

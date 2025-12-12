@@ -114,13 +114,17 @@ public static partial class Module
         Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (tank.Id == null) return;
 
-        var targetTank = ctx.Db.tank.Name.Find(targetName);
-        if (targetTank == null)
+        Tank? targetTank = null;
+        foreach (var t in ctx.Db.tank.WorldId.Filter(tank.WorldId))
         {
-            return;
+            if (t.Name == targetName)
+            {
+                targetTank = t;
+                break;
+            }
         }
-
-        if (targetTank.Value.WorldId != tank.WorldId)
+        
+        if (targetTank == null)
         {
             return;
         }

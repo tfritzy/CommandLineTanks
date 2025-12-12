@@ -361,29 +361,16 @@ export function target(connection: DbConnection, args: string[]): string[] {
   const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
   
   if (!myTank) {
-    return [
-      "target: error: you don't have a tank yet",
-      "",
-      "Use 'findWorld' to spawn a tank first"
-    ];
+    return ["target: error: no connection"];
   }
   
   if (targetName === myTank.name) {
-    return [
-      "target: error: cannot target your own tank",
-      "",
-      `Your tank name is '${myTank.name}'`
-    ];
+    return ["target: error: cannot target your own tank"];
   }
   
   const targetTank = allTanks.find(t => t.name === targetName);
   if (!targetTank) {
-    return [
-      `target: error: tank '${targetName}' not found`,
-      "",
-      "Available tanks:",
-      ...allTanks.filter(t => !t.owner.isEqual(connection.identity!)).map(t => `  ${t.name}`)
-    ];
+    return [`target: error: tank '${targetName}' not found`];
   }
   
   connection.reducers.targetTank({ targetName, lead });
