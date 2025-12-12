@@ -27,18 +27,17 @@ public static partial class Module
     }
 
     [Table(Name = "tank", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Name) })]
     public partial struct Tank
     {
         [PrimaryKey]
         public string Id;
 
-        [SpacetimeDB.Index.BTree(Name = "world_name_idx")]
         public string WorldId;
 
         [SpacetimeDB.Index.BTree]
         public Identity Owner;
 
-        [SpacetimeDB.Index.BTree(Name = "world_name_idx")]
         public string Name;
 
         public string? Target;
