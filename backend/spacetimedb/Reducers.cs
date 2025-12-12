@@ -109,7 +109,7 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void targetTank(ReducerContext ctx, string targetName)
+    public static void targetTank(ReducerContext ctx, string targetName, float lead)
     {
         Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (tank.Id == null) return;
@@ -126,6 +126,7 @@ public static partial class Module
         }
 
         tank.Target = targetTank.Value.Id;
+        tank.TargetLead = lead;
         ctx.Db.tank.Id.Update(tank);
     }
 
@@ -173,6 +174,7 @@ public static partial class Module
             Owner = ctx.Sender,
             Name = tankName,
             Target = null,
+            TargetLead = 0.0f,
             Path = [],
             PositionX = 0.0f,
             PositionY = 0.0f,

@@ -4,4 +4,5 @@ import {
 
 export default {
   targetName: __t.string(),
+  lead: __t.f32(),
 };

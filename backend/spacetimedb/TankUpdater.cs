@@ -135,13 +135,23 @@ public static partial class TankUpdater
                 var targetTank = ctx.Db.tank.Id.Find(tank.Target);
                 if (targetTank != null)
                 {
-                    var deltaX = targetTank.Value.PositionX - tank.PositionX;
-                    var deltaY = targetTank.Value.PositionY - tank.PositionY;
-                    var targetAngle = Math.Atan2(deltaY, deltaX);
+                    var targetX = targetTank.Value.PositionX;
+                    var targetY = targetTank.Value.PositionY;
+                    
+                    if (tank.TargetLead > 0)
+                    {
+                        var targetAngle = targetTank.Value.BodyRotation;
+                        targetX += (float)(Math.Cos(targetAngle) * tank.TargetLead);
+                        targetY += (float)(Math.Sin(targetAngle) * tank.TargetLead);
+                    }
+                    
+                    var deltaX = targetX - tank.PositionX;
+                    var deltaY = targetY - tank.PositionY;
+                    var aimAngle = Math.Atan2(deltaY, deltaX);
                     
                     tank = tank with
                     {
-                        TargetTurretRotation = (float)targetAngle
+                        TargetTurretRotation = (float)aimAngle
                     };
                     ctx.Db.tank.Id.Update(tank);
                 }

@@ -38,10 +38,11 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public Identity Owner;
 
-        [SpacetimeDB.Index.BTree(Name = "name_index")]
+        [SpacetimeDB.Index.BTree]
         public string Name;
 
         public string? Target;
+        public float TargetLead;
 
         public PathEntry[] Path;
         public float TopSpeed;

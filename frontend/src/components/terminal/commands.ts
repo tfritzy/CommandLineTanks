@@ -73,6 +73,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "Commands:",
       "  drive, d, dr    Move your tank in a direction",
       "  aim, a          Aim turret at an angle or direction",
+      "  target, t       Target another tank by name",
       "  clear, c        Clear the terminal output",
       "  help, h         Display help information",
     ];
@@ -118,13 +119,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "aim":
     case "a":
       return [
-        "aim, a - Aim turret at an angle, direction, or tank",
+        "aim, a - Aim turret at an angle or direction",
         "",
-        "Usage: aim <angle|direction|tank_name>",
+        "Usage: aim <angle|direction>",
         "",
         "Arguments:",
-        "  <angle|direction|tank_name>",
-        "                      Angle in degrees (0-360), direction name, or tank name",
+        "  <angle|direction>   Angle in degrees (0-360) or direction name",
         "                      Angles: 0=north, 90=east, 180=south, 270=west",
         "                      Directions:",
         "                        ↑: north, up, n, u",
@@ -135,12 +135,28 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                        ↙: southwest, downleft, leftdown, sw, dl, ld",
         "                        ←: west, left, w, l",
         "                        ↖: northwest, upleft, leftup, nw, ul, lu",
-        "                      Tank names: Target another tank by their name",
         "",
         "Examples:",
         "  aim 90",
-        "  aim northeast",
-        "  aim Alpha"
+        "  aim northeast"
+      ];
+    
+    case "target":
+    case "t":
+      return [
+        "target, t - Target another tank by name",
+        "",
+        "Usage: target <tank_name> [lead]",
+        "",
+        "Arguments:",
+        "  <tank_name>     Name of the tank to target (required)",
+        "  [lead]          Distance in units to lead the target (default: 0)",
+        "                  Aims ahead of the target based on their body direction",
+        "",
+        "Examples:",
+        "  target Alpha",
+        "  target Bravo 3",
+        "  t Charlie 5"
       ];
     
     case "help":
@@ -256,12 +272,11 @@ export function drive(connection: DbConnection, args: string[]): string[] {
 export function aim(connection: DbConnection, args: string[]): string[] {
   if (args.length < 1) {
     return [
-      "aim: error: missing required argument '<angle|direction|tank_name>'",
+      "aim: error: missing required argument '<angle|direction>'",
       "",
-      "Usage: aim <angle|direction|tank_name>",
+      "Usage: aim <angle|direction>",
       "       aim 45",
-      "       aim northeast",
-      "       aim Alpha"
+      "       aim northeast"
     ];
   }
 
@@ -278,52 +293,23 @@ export function aim(connection: DbConnection, args: string[]): string[] {
   } else {
     const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
-      if (!connection.identity) {
-        return [
-          "aim: error: not connected",
-          "",
-          "Connection required to target tanks"
-        ];
-      }
-      
-      const allTanks = Array.from(connection.db.tank.iter());
-      const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
-      
-      if (!myTank) {
-        return [
-          "aim: error: you don't have a tank yet",
-          "",
-          "Use 'findWorld' to spawn a tank first"
-        ];
-      }
-      
-      if (input === myTank.name) {
-        return [
-          "aim: error: cannot target your own tank",
-          "",
-          `Your tank name is '${myTank.name}'`
-        ];
-      }
-      
-      const targetTank = allTanks.find(t => t.name === input);
-      if (!targetTank) {
-        return [
-          `aim: error: tank '${input}' not found`,
-          "",
-          "Available tanks:",
-          ...allTanks.filter(t => !t.owner.isEqual(connection.identity!)).map(t => `  ${t.name}`)
-        ];
-      }
-      
-      connection.reducers.targetTank({ targetName: input });
-      return [`Targeting tank '${input}'`];
+      return [
+        `aim: error: invalid value '${args[0]}' for '<angle|direction>'`,
+        "Must be a number (degrees) or valid direction",
+        "Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu",
+        "",
+        "To target a tank by name, use: target <tank_name>",
+        "",
+        "Usage: aim <angle|direction>",
+        "       aim 90"
+      ];
     }
     if (degrees < 0 || degrees > 360) {
       return [
         `aim: error: angle '${degrees}' out of range`,
         "Angle must be between 0 and 360 degrees",
         "",
-        "Usage: aim <angle|direction|tank_name>",
+        "Usage: aim <angle|direction>",
         "       aim 90"
       ];
     }
@@ -333,5 +319,78 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     
     connection.reducers.aim({ angleRadians });
     return [`Aiming turret to ${description}`];
+  }
+}
+
+export function target(connection: DbConnection, args: string[]): string[] {
+  if (args.length < 1) {
+    return [
+      "target: error: missing required argument '<tank_name>'",
+      "",
+      "Usage: target <tank_name> [lead]",
+      "       target Alpha",
+      "       target Bravo 3"
+    ];
+  }
+
+  if (!connection.identity) {
+    return [
+      "target: error: not connected",
+      "",
+      "Connection required to target tanks"
+    ];
+  }
+
+  const targetName = args[0];
+  let lead = 0;
+
+  if (args.length > 1) {
+    const parsedLead = Number.parseFloat(args[1]);
+    if (Number.isNaN(parsedLead)) {
+      return [
+        `target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`,
+        "",
+        "Usage: target <tank_name> [lead]",
+        "       target Alpha 3"
+      ];
+    }
+    lead = parsedLead;
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter());
+  const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+  
+  if (!myTank) {
+    return [
+      "target: error: you don't have a tank yet",
+      "",
+      "Use 'findWorld' to spawn a tank first"
+    ];
+  }
+  
+  if (targetName === myTank.name) {
+    return [
+      "target: error: cannot target your own tank",
+      "",
+      `Your tank name is '${myTank.name}'`
+    ];
+  }
+  
+  const targetTank = allTanks.find(t => t.name === targetName);
+  if (!targetTank) {
+    return [
+      `target: error: tank '${targetName}' not found`,
+      "",
+      "Available tanks:",
+      ...allTanks.filter(t => !t.owner.isEqual(connection.identity!)).map(t => `  ${t.name}`)
+    ];
+  }
+  
+  connection.reducers.targetTank({ targetName, lead });
+  
+  if (lead > 0) {
+    return [`Targeting tank '${targetName}' with ${lead} unit${lead !== 1 ? 's' : ''} lead`];
+  } else {
+    return [`Targeting tank '${targetName}'`];
   }
 }
