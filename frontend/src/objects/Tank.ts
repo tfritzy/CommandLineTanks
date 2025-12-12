@@ -15,6 +15,7 @@ export class Tank {
   private velocityY: number;
   private bodyAngularVelocity: number;
   private path: PathEntry[];
+  private name: string;
 
   constructor(
     x: number,
@@ -22,6 +23,7 @@ export class Tank {
     bodyRotation: number,
     targetBodyRotation: number,
     turretRotation: number,
+    name: string,
     velocityX: number = 0,
     velocityY: number = 0,
     bodyAngularVelocity: number = 0,
@@ -32,6 +34,7 @@ export class Tank {
     this.bodyRotation = bodyRotation;
     this.targetBodyRotation = targetBodyRotation;
     this.turretRotation = turretRotation;
+    this.name = name;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
     this.bodyAngularVelocity = bodyAngularVelocity;
@@ -74,6 +77,15 @@ export class Tank {
     ctx.lineWidth = 2;
     ctx.strokeRect(15, -3, 25, 6);
 
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(this.x * UNIT_TO_PIXEL + offset, this.y * UNIT_TO_PIXEL + offset);
+    ctx.scale(1, -1);
+    ctx.font = '14px monospace';
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'center';
+    ctx.fillText(this.name, 0, -45);
     ctx.restore();
   }
 

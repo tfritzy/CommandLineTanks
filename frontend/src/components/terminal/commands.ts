@@ -118,12 +118,13 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "aim":
     case "a":
       return [
-        "aim, a - Aim turret at an angle or direction",
+        "aim, a - Aim turret at an angle, direction, or tank",
         "",
-        "Usage: aim <angle|direction>",
+        "Usage: aim <angle|direction|tank_name>",
         "",
         "Arguments:",
-        "  <angle|direction>   Angle in degrees (0-360) or direction name",
+        "  <angle|direction|tank_name>",
+        "                      Angle in degrees (0-360), direction name, or tank name",
         "                      Angles: 0=north, 90=east, 180=south, 270=west",
         "                      Directions:",
         "                        ↑: north, up, n, u",
@@ -134,10 +135,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                        ↙: southwest, downleft, leftdown, sw, dl, ld",
         "                        ←: west, left, w, l",
         "                        ↖: northwest, upleft, leftup, nw, ul, lu",
+        "                      Tank names: Target another tank by their name",
         "",
         "Examples:",
         "  aim 90",
-        "  aim northeast"
+        "  aim northeast",
+        "  aim Tank_A"
       ];
     
     case "help":
@@ -253,41 +256,37 @@ export function drive(connection: DbConnection, args: string[]): string[] {
 export function aim(connection: DbConnection, args: string[]): string[] {
   if (args.length < 1) {
     return [
-      "aim: error: missing required argument '<angle|direction>'",
+      "aim: error: missing required argument '<angle|direction|tank_name>'",
       "",
-      "Usage: aim <angle|direction>",
+      "Usage: aim <angle|direction|tank_name>",
       "       aim 45",
-      "       aim northeast"
+      "       aim northeast",
+      "       aim Tank_A"
     ];
   }
 
-  const input = args[0].toLowerCase();
+  const input = args[0];
+  const inputLower = input.toLowerCase();
 
-  if (validDirections.includes(input)) {
-    const angleRadians = directionToAngle(input);
-    const dirInfo = directionAliases[input];
+  if (validDirections.includes(inputLower)) {
+    const angleRadians = directionToAngle(inputLower);
+    const dirInfo = directionAliases[inputLower];
     const description = `${dirInfo.symbol} ${dirInfo.name}`;
     
-    connection.reducers.aim({ angleRadians });
+    connection.reducers.aim({ angleRadians, targetName: null });
     return [`Aiming turret to ${description}`];
   } else {
     const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
-      return [
-        `aim: error: invalid value '${args[0]}' for '<angle|direction>'`,
-        "Must be a number (degrees) or valid direction",
-        "Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu",
-        "",
-        "Usage: aim <angle|direction>",
-        "       aim 90"
-      ];
+      connection.reducers.aim({ angleRadians: null, targetName: input });
+      return [`Targeting tank '${input}'`];
     }
     if (degrees < 0 || degrees > 360) {
       return [
         `aim: error: angle '${degrees}' out of range`,
         "Angle must be between 0 and 360 degrees",
         "",
-        "Usage: aim <angle|direction>",
+        "Usage: aim <angle|direction|tank_name>",
         "       aim 90"
       ];
     }
@@ -295,7 +294,7 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     const angleRadians = (degrees * Math.PI) / 180 - Math.PI / 2;
     const description = `${degrees}°`;
     
-    connection.reducers.aim({ angleRadians });
+    connection.reducers.aim({ angleRadians, targetName: null });
     return [`Aiming turret to ${description}`];
   }
 }

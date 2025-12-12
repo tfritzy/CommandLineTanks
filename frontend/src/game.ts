@@ -42,6 +42,7 @@ export class Game {
         tank.bodyRotation,
         tank.targetBodyRotation,
         tank.turretRotation,
+        tank.name,
         tank.velocity.x,
         tank.velocity.y,
         tank.bodyAngularVelocity,
