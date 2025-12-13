@@ -7,11 +7,18 @@ public static partial class Module
     public static void Init(ReducerContext ctx)
     {
         var worldId = GenerateId(ctx, "wld");
+        
+        var (baseTerrain, terrainDetail) = TerrainGenerator.GenerateTerrain(ctx.Rng);
+        
         var world = new World
         {
             Id = worldId,
             Name = "Default World",
-            CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+            CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+            Width = TerrainGenerator.GetWorldWidth(),
+            Height = TerrainGenerator.GetWorldHeight(),
+            BaseTerrainLayer = baseTerrain,
+            TerrainDetailLayer = terrainDetail
         };
 
         ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates

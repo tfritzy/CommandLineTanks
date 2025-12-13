@@ -24,6 +24,10 @@ public static partial class Module
 
         public string Name;
         public ulong CreatedAt;
+        public int Width;
+        public int Height;
+        public BaseTerrain[] BaseTerrainLayer;
+        public TerrainDetail[] TerrainDetailLayer;
     }
 
     [Table(Name = "tank", Public = true)]
