@@ -188,6 +188,7 @@ public static partial class Module
             Id = projectileId,
             WorldId = tank.WorldId,
             ShooterTankId = tank.Id,
+            Alliance = tank.Alliance,
             PositionX = barrelTipX,
             PositionY = barrelTipY,
             Speed = PROJECTILE_SPEED,
@@ -235,6 +236,22 @@ public static partial class Module
             return;
         }
 
+        int alliance0Count = 0;
+        int alliance1Count = 0;
+        foreach (var existingTank in ctx.Db.tank.WorldId.Filter(world.Value.Id))
+        {
+            if (existingTank.Alliance == 0)
+            {
+                alliance0Count++;
+            }
+            else if (existingTank.Alliance == 1)
+            {
+                alliance1Count++;
+            }
+        }
+
+        int assignedAlliance = alliance0Count <= alliance1Count ? 0 : 1;
+
         var tankId = GenerateId(ctx, "tnk");
         var tank = new Tank
         {
@@ -242,6 +259,7 @@ public static partial class Module
             WorldId = world.Value.Id,
             Owner = ctx.Sender,
             Name = tankName,
+            Alliance = assignedAlliance,
             Target = null,
             TargetLead = 0.0f,
             Path = [],
@@ -256,6 +274,6 @@ public static partial class Module
         };
 
         ctx.Db.tank.Insert(tank);
-        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName}");
+        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName} in alliance {assignedAlliance}");
     }
 }

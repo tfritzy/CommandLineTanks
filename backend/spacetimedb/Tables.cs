@@ -45,6 +45,8 @@ public static partial class Module
 
         public string Name;
 
+        public int Alliance;
+
         public string? Target;
         public float TargetLead;
 
@@ -76,6 +78,8 @@ public static partial class Module
         public string WorldId;
 
         public string ShooterTankId;
+
+        public int Alliance;
 
         public float PositionX;
         public float PositionY;
