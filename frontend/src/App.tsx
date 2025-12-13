@@ -32,7 +32,8 @@ function App() {
 
     subscriptionHandleRef.current = subscription;
 
-    connection.db.tank.onInsert((_ctx, tank) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleTankInsert = (_ctx: any, tank: any) => {
       if (connection.identity && tank.owner.isEqual(connection.identity)) {
         if (pendingJoinCodeRef.current && tank.joinCode === pendingJoinCodeRef.current) {
           console.log(`Found tank with joinCode ${pendingJoinCodeRef.current}, worldId: ${tank.worldId}`);
@@ -41,12 +42,15 @@ function App() {
           pendingJoinCodeRef.current = null;
         }
       }
-    });
+    };
+
+    connection.db.tank.onInsert(handleTankInsert);
 
     return () => {
       if (subscriptionHandleRef.current) {
         subscriptionHandleRef.current.unsubscribe();
       }
+      connection.db.tank.removeOnInsert(handleTankInsert);
     };
   }, [isSpacetimeConnected]);
 
@@ -78,7 +82,11 @@ function App() {
     return <MainMenuPage onJoinWorld={handleJoinWorld} />;
   }
 
-  return <GamePage worldId={worldId || ''} />;
+  if (!worldId) {
+    return null;
+  }
+
+  return <GamePage worldId={worldId} />;
 }
 
 export default App;
