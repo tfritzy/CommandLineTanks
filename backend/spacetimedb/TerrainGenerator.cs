@@ -436,4 +436,31 @@ public static partial class TerrainGenerator
     {
         return WORLD_HEIGHT;
     }
+
+    public static bool[] CalculateTraversibility(BaseTerrain[] baseTerrain, TerrainDetail[] terrainDetail)
+    {
+        var traversibility = new bool[baseTerrain.Length];
+        
+        for (int i = 0; i < baseTerrain.Length; i++)
+        {
+            bool baseTraversible = baseTerrain[i] != BaseTerrain.Stream;
+            
+            bool detailTraversible = terrainDetail[i] switch
+            {
+                TerrainDetail.None => true,
+                TerrainDetail.Field => true,
+                TerrainDetail.Bridge => true,
+                TerrainDetail.Cliff => false,
+                TerrainDetail.Rock => false,
+                TerrainDetail.Tree => false,
+                TerrainDetail.Fence => false,
+                TerrainDetail.HayBale => false,
+                _ => true
+            };
+            
+            traversibility[i] = baseTraversible && detailTraversible;
+        }
+        
+        return traversibility;
+    }
 }

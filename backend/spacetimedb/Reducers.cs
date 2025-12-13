@@ -9,6 +9,7 @@ public static partial class Module
         var worldId = GenerateId(ctx, "wld");
         
         var (baseTerrain, terrainDetail) = TerrainGenerator.GenerateTerrain(ctx.Rng);
+        var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetail);
         
         var world = new World
         {
@@ -18,7 +19,8 @@ public static partial class Module
             Width = TerrainGenerator.GetWorldWidth(),
             Height = TerrainGenerator.GetWorldHeight(),
             BaseTerrainLayer = baseTerrain,
-            TerrainDetailLayer = terrainDetail
+            TerrainDetailLayer = terrainDetail,
+            TraversibilityMap = traversibilityMap
         };
 
         ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
