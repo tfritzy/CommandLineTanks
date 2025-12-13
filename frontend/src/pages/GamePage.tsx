@@ -28,22 +28,17 @@ export default function GamePage({ worldId }: GamePageProps) {
         const connection = getConnection();
         if (!connection) return;
 
-        const unsubscribe = connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
+        connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
             if (connection.identity && newTank.owner.isEqual(connection.identity)) {
                 setIsDead(newTank.isDead);
             }
         });
 
-        const unsubscribeInsert = connection.db.tank.onInsert((_ctx, tank) => {
+        connection.db.tank.onInsert((_ctx, tank) => {
             if (connection.identity && tank.owner.isEqual(connection.identity)) {
                 setIsDead(tank.isDead);
             }
         });
-
-        return () => {
-            unsubscribe();
-            unsubscribeInsert();
-        };
     }, []);
 
     return (
