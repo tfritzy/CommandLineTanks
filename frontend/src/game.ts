@@ -1,5 +1,4 @@
-import { Tank } from "./objects/Tank";
-import { getConnection } from "./spacetimedb-connection";
+import { TankManager } from "./TankManager";
 
 export const UNIT_TO_PIXEL = 50;
 
@@ -9,8 +8,7 @@ export class Game {
   private animationFrameId: number | null = null;
   private time: number = 0;
   private lastFrameTime: number = 0;
-  private tanks: Map<string, Tank> = new Map();
-  private playerTankId: string | null = null;
+  private tankManager: TankManager;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -23,62 +21,7 @@ export class Game {
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
 
-    this.subscribeToTanks();
-  }
-
-  private subscribeToTanks() {
-    const connection = getConnection();
-    if (!connection) return;
-
-    connection
-      .subscriptionBuilder()
-      .onError((e) => console.log("Ah fuck", e))
-      .subscribe([`SELECT * FROM tank`]);
-
-    connection.db.tank.onInsert((_ctx, tank) => {
-      console.log(tank);
-      const newTank = new Tank(
-        tank.positionX,
-        tank.positionY,
-        tank.bodyRotation,
-        tank.targetBodyRotation,
-        tank.turretRotation,
-        tank.name,
-        tank.velocity.x,
-        tank.velocity.y,
-        tank.bodyAngularVelocity,
-        tank.turretAngularVelocity,
-        tank.path
-      );
-      this.tanks.set(tank.id, newTank);
-      
-      if (connection.identity && tank.owner.isEqual(connection.identity)) {
-        this.playerTankId = tank.id;
-      }
-    });
-
-    connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
-      console.log(newTank);
-      const tank = this.tanks.get(newTank.id);
-      if (tank) {
-        tank.setPosition(newTank.positionX, newTank.positionY);
-        tank.setBodyRotation(newTank.bodyRotation);
-        tank.setTargetBodyRotation(newTank.targetBodyRotation);
-        tank.setTargetTurretRotation(newTank.targetTurretRotation);
-        tank.setVelocity(newTank.velocity.x, newTank.velocity.y);
-        tank.setBodyAngularVelocity(newTank.bodyAngularVelocity);
-        tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
-        tank.setPath(newTank.path);
-      }
-    });
-
-    connection.db.tank.onDelete((_ctx, tank) => {
-      console.log(tank);
-      this.tanks.delete(tank.id);
-      if (this.playerTankId === tank.id) {
-        this.playerTankId = null;
-      }
-    });
+    this.tankManager = new TankManager();
   }
 
   private resizeCanvas() {
@@ -119,9 +62,7 @@ export class Game {
     this.lastFrameTime = currentTime;
     this.time += deltaTime;
 
-    for (const tank of this.tanks.values()) {
-      tank.update(deltaTime);
-    }
+    this.tankManager.update(deltaTime);
 
     this.ctx.fillStyle = "#ffffff";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -130,7 +71,7 @@ export class Game {
     this.ctx.translate(0, this.canvas.height);
     this.ctx.scale(1, -1);
 
-    const playerTank = this.playerTankId ? this.tanks.get(this.playerTankId) : null;
+    const playerTank = this.tankManager.getPlayerTank();
     let cameraX = 0;
     let cameraY = 0;
     
@@ -144,7 +85,7 @@ export class Game {
 
     this.drawGrid(cameraX, cameraY);
 
-    for (const tank of this.tanks.values()) {
+    for (const tank of this.tankManager.getAllTanks()) {
       tank.draw(this.ctx);
     }
 
