@@ -37,6 +37,8 @@ import Drive from "./drive_reducer";
 export { Drive };
 import FindWorld from "./find_world_reducer";
 export { FindWorld };
+import Fire from "./fire_reducer";
+export { Fire };
 import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
 import HandleDisconnect from "./handle_disconnect_reducer";
@@ -147,6 +149,7 @@ const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
   __reducerSchema("drive", Drive),
   __reducerSchema("findWorld", FindWorld),
+  __reducerSchema("fire", Fire),
   __reducerSchema("reverse", Reverse),
   __reducerSchema("targetTank", TargetTank),
   __reducerSchema("UpdateTanks", UpdateTanks),

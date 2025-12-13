@@ -75,6 +75,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  reverse, r      Reverse in the direction the tank is facing",
       "  aim, a          Aim turret at an angle or direction",
       "  target, t       Target another tank by name",
+      "  fire, f         Fire a projectile from your tank",
       "  clear, c        Clear the terminal output",
       "  help, h         Display help information",
     ];
@@ -174,6 +175,21 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  target Alpha",
         "  target Bravo 3",
         "  t Charlie 5"
+      ];
+    
+    case "fire":
+    case "f":
+      return [
+        "fire, f - Fire a projectile from your tank",
+        "",
+        "Usage: fire",
+        "",
+        "Fires a projectile from the tip of your tank's gun barrel in the",
+        "direction the turret is currently facing.",
+        "",
+        "Examples:",
+        "  fire",
+        "  f"
       ];
     
     case "help":
@@ -421,5 +437,22 @@ export function reverse(connection: DbConnection, args: string[]): string[] {
 
   return [
     `Reversing ${distance} ${distance != 1 ? "units" : "unit"}`,
+  ];
+}
+
+export function fire(connection: DbConnection, args: string[]): string[] {
+  if (args.length > 0) {
+    return [
+      "fire: error: fire command takes no arguments",
+      "",
+      "Usage: fire",
+      "       f"
+    ];
+  }
+
+  connection.reducers.fire({});
+
+  return [
+    "Firing projectile",
   ];
 }
