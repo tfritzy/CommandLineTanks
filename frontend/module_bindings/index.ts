@@ -73,6 +73,10 @@ import Vector2Float from "./vector_2_float_type";
 export { Vector2Float };
 import World from "./world_type";
 export { World };
+import { BaseTerrain } from "./base_terrain_type";
+export { BaseTerrain };
+import { TerrainDetail } from "./terrain_detail_type";
+export { TerrainDetail };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(

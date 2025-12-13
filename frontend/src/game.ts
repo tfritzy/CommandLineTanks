@@ -1,4 +1,6 @@
 import { TankManager } from "./TankManager";
+import { TerrainManager } from "./TerrainManager";
+import { getConnection } from "./spacetimedb-connection";
 
 export const UNIT_TO_PIXEL = 50;
 
@@ -9,6 +11,7 @@ export class Game {
   private time: number = 0;
   private lastFrameTime: number = 0;
   private tankManager: TankManager;
+  private terrainManager: TerrainManager | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -22,6 +25,20 @@ export class Game {
     window.addEventListener("resize", () => this.resizeCanvas());
 
     this.tankManager = new TankManager();
+    this.initializeTerrainManager();
+  }
+
+  private initializeTerrainManager() {
+    const connection = getConnection();
+    if (!connection) return;
+
+    connection.db.tank.onInsert((_ctx, tank) => {
+      if (connection.identity && tank.owner.isEqual(connection.identity)) {
+        if (!this.terrainManager) {
+          this.terrainManager = new TerrainManager(tank.worldId);
+        }
+      }
+    });
   }
 
   private resizeCanvas() {
@@ -82,6 +99,17 @@ export class Game {
     }
 
     this.ctx.translate(-cameraX, -cameraY);
+
+    if (this.terrainManager) {
+      this.terrainManager.draw(
+        this.ctx,
+        cameraX,
+        cameraY,
+        this.canvas.width,
+        this.canvas.height,
+        UNIT_TO_PIXEL
+      );
+    }
 
     this.drawGrid(cameraX, cameraY);
 
