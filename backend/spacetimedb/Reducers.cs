@@ -105,6 +105,32 @@ public static partial class Module
     }
 
     [Reducer]
+    public static void reverse(ReducerContext ctx, float distance)
+    {
+        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        Vector2 rootPos = tank.Path.Length > 0 ? tank.Path[^1].Position : new Vector2((int)tank.PositionX, (int)tank.PositionY);
+        
+        float angle = tank.BodyRotation;
+        int offsetX = (int)Math.Round(-Math.Cos(angle) * distance);
+        int offsetY = (int)Math.Round(-Math.Sin(angle) * distance);
+        
+        Vector2 nextPos = new(rootPos.X + offsetX, rootPos.Y + offsetY);
+        Log.Info(tank + " reversing to " + nextPos + ". because " + rootPos + " and offset (" + offsetX + ", " + offsetY + ")");
+
+        PathEntry entry = new()
+        {
+            ThrottlePercent = 1.0f,
+            Position = nextPos
+        };
+
+        tank.Path = [entry];
+        ctx.Db.tank.Id.Update(tank);
+    }
+
+    [Reducer]
     public static void aim(ReducerContext ctx, float angleRadians)
     {
         Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
