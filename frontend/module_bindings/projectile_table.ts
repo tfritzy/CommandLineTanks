@@ -9,6 +9,7 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import Alliance from "./alliance_type";
 import Vector2Float from "./vector_2_float_type";
 
 
@@ -16,6 +17,9 @@ export default __t.row({
   id: __t.string().primaryKey(),
   worldId: __t.string(),
   shooterTankId: __t.string(),
+  get alliance() {
+    return Alliance;
+  },
   positionX: __t.f32(),
   positionY: __t.f32(),
   speed: __t.f32(),

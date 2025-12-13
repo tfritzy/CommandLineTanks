@@ -190,6 +190,7 @@ public static partial class Module
             Id = projectileId,
             WorldId = tank.WorldId,
             ShooterTankId = tank.Id,
+            Alliance = tank.Alliance,
             PositionX = barrelTipX,
             PositionY = barrelTipY,
             Speed = PROJECTILE_SPEED,
@@ -238,6 +239,7 @@ public static partial class Module
         }
 
         var tankId = GenerateId(ctx, "tnk");
+        var alliance = string.IsNullOrEmpty(joinCode) || joinCode.ToUpper().StartsWith("R") ? Alliance.Red : Alliance.Blue;
         var tank = new Tank
         {
             Id = tankId,
@@ -245,6 +247,7 @@ public static partial class Module
             Owner = ctx.Sender,
             Name = tankName,
             JoinCode = joinCode,
+            Alliance = alliance,
             Health = Module.TANK_HEALTH,
             CollisionRegionX = 0,
             CollisionRegionY = 0,

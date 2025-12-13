@@ -27,6 +27,7 @@ export class TankManager {
         tank.targetBodyRotation,
         tank.turretRotation,
         tank.name,
+        tank.alliance,
         tank.velocity.x,
         tank.velocity.y,
         tank.bodyAngularVelocity,

@@ -65,6 +65,8 @@ import WorldRow from "./world_table";
 export { WorldRow };
 
 // Import and reexport all types
+import Alliance from "./alliance_type";
+export { Alliance };
 import PathEntry from "./path_entry_type";
 export { PathEntry };
 import Player from "./player_type";

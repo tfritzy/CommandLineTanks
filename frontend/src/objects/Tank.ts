@@ -18,6 +18,7 @@ export class Tank {
   private turretAngularVelocity: number;
   private path: PathEntry[];
   private name: string;
+  private alliance: number;
 
   constructor(
     x: number,
@@ -26,6 +27,7 @@ export class Tank {
     targetBodyRotation: number,
     turretRotation: number,
     name: string,
+    alliance: number,
     velocityX: number = 0,
     velocityY: number = 0,
     bodyAngularVelocity: number = 0,
@@ -39,6 +41,7 @@ export class Tank {
     this.turretRotation = turretRotation;
     this.targetTurretRotation = turretRotation;
     this.name = name;
+    this.alliance = alliance;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
     this.bodyAngularVelocity = bodyAngularVelocity;
@@ -52,22 +55,50 @@ export class Tank {
     ctx.translate(this.x * UNIT_TO_PIXEL + offset, this.y * UNIT_TO_PIXEL + offset);
     ctx.rotate(this.bodyRotation);
 
-    // Draw tank tracks (bottom)
-    this.drawTrack(ctx, -25, -20, 50, 10);
-    this.drawTrack(ctx, -25, 10, 50, 10);
+    const bodyColor = this.alliance === 0 ? '#ff6b6b' : '#6b8cff';
+    const turretColor = this.alliance === 0 ? '#ff4444' : '#4466ff';
+    const barrelColor = this.alliance === 0 ? '#cc3333' : '#3355cc';
+    const trackColor = this.alliance === 0 ? '#dd5555' : '#5577dd';
 
-    // Draw tank body (main rectangle)
-    ctx.fillStyle = '#e8e8e8';
+    ctx.fillStyle = trackColor;
+    ctx.fillRect(-25, -20, 50, 10);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-25, -20, 50, 10);
+
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 50; i += 8) {
+      ctx.beginPath();
+      ctx.moveTo(-25 + i, -20);
+      ctx.lineTo(-25 + i, -10);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = trackColor;
+    ctx.fillRect(-25, 10, 50, 10);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-25, 10, 50, 10);
+
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 50; i += 8) {
+      ctx.beginPath();
+      ctx.moveTo(-25 + i, 10);
+      ctx.lineTo(-25 + i, 20);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = bodyColor;
     ctx.fillRect(-23, -15, 46, 30);
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2;
     ctx.strokeRect(-23, -15, 46, 30);
 
-    // Draw turret
     ctx.rotate(this.turretRotation - this.bodyRotation);
     
-    // Turret base (rounded rectangle)
-    ctx.fillStyle = '#f0f0f0';
+    ctx.fillStyle = turretColor;
     ctx.beginPath();
     ctx.roundRect(-15, -10, 30, 20, 5);
     ctx.fill();
@@ -75,8 +106,7 @@ export class Tank {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Turret barrel
-    ctx.fillStyle = '#d0d0d0';
+    ctx.fillStyle = barrelColor;
     ctx.fillRect(15, -3, 25, 6);
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2;
@@ -94,25 +124,6 @@ export class Tank {
     ctx.restore();
   }
 
-  private drawTrack(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
-    ctx.fillStyle = '#c0c0c0';
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x, y, width, height);
-
-    // Draw track segments
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < width; i += 8) {
-      ctx.beginPath();
-      ctx.moveTo(x + i, y);
-      ctx.lineTo(x + i, y + height);
-      ctx.stroke();
-    }
-  }
-
-  // Setters for updating tank state
   public setPosition(x: number, y: number) {
     this.x = x;
     this.y = y;

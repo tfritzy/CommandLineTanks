@@ -57,4 +57,11 @@ public static partial class Types
         HayBale = 6,
         Field = 7
     }
+
+    [Type]
+    public enum Alliance
+    {
+        Red,
+        Blue
+    }
 }

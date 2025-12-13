@@ -9,6 +9,7 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import Alliance from "./alliance_type";
 import PathEntry from "./path_entry_type";
 import Vector2Float from "./vector_2_float_type";
 
@@ -19,6 +20,12 @@ export default __t.row({
   owner: __t.identity(),
   name: __t.string(),
   joinCode: __t.option(__t.string()),
+  get alliance() {
+    return Alliance;
+  },
+  health: __t.i32(),
+  collisionRegionX: __t.i32(),
+  collisionRegionY: __t.i32(),
   target: __t.option(__t.string()),
   targetLead: __t.f32(),
   get path() {
