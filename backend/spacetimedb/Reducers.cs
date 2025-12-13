@@ -152,6 +152,8 @@ public static partial class Module
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
+        if (tank.IsDead) return;
+
         Vector2 rootPos = tank.Path.Length > 0 && append ? tank.Path[^1].Position : new Vector2((int)tank.PositionX, (int)tank.PositionY);
         Vector2 nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
         Log.Info(tank + " driving to " + nextPos + ". because " + rootPos + " and " + offset);
@@ -182,6 +184,8 @@ public static partial class Module
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
+        if (tank.IsDead) return;
+
         Vector2 rootPos = new Vector2((int)tank.PositionX, (int)tank.PositionY);
         
         float angle = tank.BodyRotation;
@@ -208,6 +212,8 @@ public static partial class Module
         Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (tank.Id == null) return;
 
+        if (tank.IsDead) return;
+
         tank.TargetTurretRotation = angleRadians;
         tank.Target = null;
         ctx.Db.tank.Id.Update(tank);
@@ -218,6 +224,8 @@ public static partial class Module
     {
         Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (tank.Id == null) return;
+
+        if (tank.IsDead) return;
 
         var targetTank = ctx.Db.tank.WorldId_Name.Filter((tank.WorldId, targetName)).FirstOrDefault();
 
@@ -237,6 +245,8 @@ public static partial class Module
         Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
+
+        if (tank.IsDead) return;
 
         float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
         float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
@@ -326,6 +336,7 @@ public static partial class Module
             JoinCode = joinCode,
             Alliance = assignedAlliance,
             Health = Module.TANK_HEALTH,
+            IsDead = false,
             CollisionRegionX = 0,
             CollisionRegionY = 0,
             Target = null,
@@ -343,5 +354,36 @@ public static partial class Module
 
         ctx.Db.tank.Insert(tank);
         Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName} (joinCode: {joinCode})");
+    }
+
+    [Reducer]
+    public static void respawn(ReducerContext ctx)
+    {
+        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        if (!tank.IsDead) return;
+
+        World? maybeWorld = ctx.Db.world.Id.Find(tank.WorldId);
+        if (maybeWorld == null) return;
+        var world = maybeWorld.Value;
+
+        var (spawnX, spawnY) = FindSpawnPosition(world, tank.Alliance, ctx.Rng);
+
+        var respawnedTank = tank with
+        {
+            Health = Module.TANK_HEALTH,
+            IsDead = false,
+            PositionX = spawnX,
+            PositionY = spawnY,
+            Path = [],
+            Velocity = new Vector2Float(0, 0),
+            BodyAngularVelocity = 0,
+            TurretAngularVelocity = 0
+        };
+
+        ctx.Db.tank.Id.Update(respawnedTank);
+        Log.Info($"Tank {tank.Name} respawned at position ({spawnX}, {spawnY})");
     }
 }

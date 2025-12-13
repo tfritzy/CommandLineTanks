@@ -33,6 +33,11 @@ public static partial class TankUpdater
             bool needsUpdate = false;
             var tank = iTank;
 
+            if (tank.IsDead)
+            {
+                continue;
+            }
+
             int newCollisionRegionX = (int)Math.Floor(tank.PositionX / Module.COLLISION_REGION_SIZE);
             int newCollisionRegionY = (int)Math.Floor(tank.PositionY / Module.COLLISION_REGION_SIZE);
 

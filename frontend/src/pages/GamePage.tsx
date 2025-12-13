@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
+import { getConnection } from '../spacetimedb-connection';
 
 interface GamePageProps {
     worldId: string;
@@ -9,6 +10,7 @@ interface GamePageProps {
 export default function GamePage({ worldId }: GamePageProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const gameRef = useRef<Game | null>(null);
+    const [isDead, setIsDead] = useState(false);
 
     useEffect(() => {
         if (canvasRef.current && !gameRef.current) {
@@ -22,6 +24,28 @@ export default function GamePage({ worldId }: GamePageProps) {
         };
     }, [worldId]);
 
+    useEffect(() => {
+        const connection = getConnection();
+        if (!connection) return;
+
+        const unsubscribe = connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
+            if (connection.identity && newTank.owner.isEqual(connection.identity)) {
+                setIsDead(newTank.isDead);
+            }
+        });
+
+        const unsubscribeInsert = connection.db.tank.onInsert((_ctx, tank) => {
+            if (connection.identity && tank.owner.isEqual(connection.identity)) {
+                setIsDead(tank.isDead);
+            }
+        });
+
+        return () => {
+            unsubscribe();
+            unsubscribeInsert();
+        };
+    }, []);
+
     return (
         <div style={{
             display: 'flex',
@@ -32,7 +56,7 @@ export default function GamePage({ worldId }: GamePageProps) {
             padding: 0,
             overflow: 'hidden'
         }}>
-            <div style={{ flex: 1, overflow: 'hidden' }}>
+            <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
                 <canvas
                     ref={canvasRef}
                     style={{
@@ -43,6 +67,31 @@ export default function GamePage({ worldId }: GamePageProps) {
                         height: '100%'
                     }}
                 />
+                {isDead && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        background: 'rgba(0, 0, 0, 0.8)',
+                        padding: '40px 60px',
+                        borderRadius: '10px',
+                        textAlign: 'center',
+                        color: 'white',
+                        fontFamily: 'monospace',
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        border: '3px solid red',
+                        zIndex: 1000
+                    }}>
+                        <div style={{ fontSize: '36px', marginBottom: '20px', color: 'red' }}>
+                            YOU DIED
+                        </div>
+                        <div style={{ fontSize: '18px', color: '#ccc' }}>
+                            Call the respawn command to respawn
+                        </div>
+                    </div>
+                )}
             </div>
             <TerminalComponent />
         </div>

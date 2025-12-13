@@ -76,6 +76,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  aim, a          Aim turret at an angle or direction",
       "  target, t       Target another tank by name",
       "  fire, f         Fire a projectile from your tank",
+      "  respawn         Respawn after death",
       "  clear, c        Clear the terminal output",
       "  help, h         Display help information",
     ];
@@ -190,6 +191,19 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  fire",
         "  f"
+      ];
+    
+    case "respawn":
+      return [
+        "respawn - Respawn after death",
+        "",
+        "Usage: respawn",
+        "",
+        "Respawns your tank at a new spawn point after being destroyed.",
+        "Can only be used when your tank is dead.",
+        "",
+        "Examples:",
+        "  respawn"
       ];
     
     case "help":
@@ -454,5 +468,21 @@ export function fire(connection: DbConnection, args: string[]): string[] {
 
   return [
     "Firing projectile",
+  ];
+}
+
+export function respawn(connection: DbConnection, args: string[]): string[] {
+  if (args.length > 0) {
+    return [
+      "respawn: error: respawn command takes no arguments",
+      "",
+      "Usage: respawn"
+    ];
+  }
+
+  connection.reducers.respawn({});
+
+  return [
+    "Respawning...",
   ];
 }

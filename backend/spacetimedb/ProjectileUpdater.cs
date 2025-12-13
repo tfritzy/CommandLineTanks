@@ -51,9 +51,11 @@ public static partial class ProjectileUpdater
 
                     if (distanceSquared <= projectile.Size * projectile.Size)
                     {
+                        var newHealth = tank.Health - Module.PROJECTILE_DAMAGE;
                         var updatedTank = tank with
                         {
-                            Health = tank.Health - Module.PROJECTILE_DAMAGE
+                            Health = newHealth,
+                            IsDead = newHealth <= 0
                         };
                         ctx.Db.tank.Id.Update(updatedTank);
 
