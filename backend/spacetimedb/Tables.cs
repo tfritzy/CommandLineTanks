@@ -28,6 +28,7 @@ public static partial class Module
         public int Height;
         public BaseTerrain[] BaseTerrainLayer;
         public TerrainDetail[] TerrainDetailLayer;
+        public bool[] TraversibilityMap;
     }
 
     [Table(Name = "tank", Public = true)]
