@@ -182,9 +182,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                Aims ahead of the target based on their body direction",
         "",
         "Examples:",
-        "  target Alpha",
-        "  target Bravo 3",
-        "  t Charlie 5"
+        "  target alpha",
+        "  target bravo 3",
+        "  t charlie 5"
       ];
     
     case "fire":
@@ -408,8 +408,8 @@ export function target(connection: DbConnection, args: string[]): string[] {
       "target: error: missing required argument '<tank_name>'",
       "",
       "Usage: target <tank_name> [lead]",
-      "       target Alpha",
-      "       target Bravo 3"
+      "       target alpha",
+      "       target bravo 3"
     ];
   }
 
@@ -427,7 +427,7 @@ export function target(connection: DbConnection, args: string[]): string[] {
         `target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`,
         "",
         "Usage: target <tank_name> [lead]",
-        "       target Alpha 3"
+        "       target alpha 3"
       ];
     }
     lead = parsedLead;
@@ -452,9 +452,9 @@ export function target(connection: DbConnection, args: string[]): string[] {
   connection.reducers.targetTank({ targetName, lead });
 
   if (lead > 0) {
-    return [`Targeting tank '${targetName}' with ${lead} unit${lead !== 1 ? 's' : ''} lead`];
+    return [`Targeting tank '${targetTank.name}' with ${lead} unit${lead !== 1 ? 's' : ''} lead`];
   } else {
-    return [`Targeting tank '${targetName}'`];
+    return [`Targeting tank '${targetTank.name}'`];
   }
 }
 
