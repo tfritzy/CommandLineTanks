@@ -82,6 +82,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "Commands:",
       "  drive, d, dr    Move your tank in a direction",
       "  reverse, r      Reverse in the direction the tank is facing",
+      "  stop, s         Stop the tank immediately",
       "  aim, a          Aim turret at an angle or direction",
       "  target, t       Target another tank by name",
       "  fire, f         Fire a projectile from your tank",
@@ -142,6 +143,21 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  reverse 3",
         "  r 2"
+      ];
+    
+    case "stop":
+    case "s":
+      return [
+        "stop, s - Stop the tank immediately",
+        "",
+        "Usage: stop",
+        "",
+        "Immediately halts the tank's movement by clearing its path and setting",
+        "velocity to zero. The tank will stop at its current position.",
+        "",
+        "Examples:",
+        "  stop",
+        "  s"
       ];
     
     case "aim":
@@ -492,6 +508,31 @@ export function reverse(connection: DbConnection, args: string[]): string[] {
 
   return [
     `Reversing ${distance} ${distance != 1 ? "units" : "unit"}`,
+  ];
+}
+
+export function stop(connection: DbConnection, args: string[]): string[] {
+  if (isPlayerDead(connection)) {
+    return [
+      "stop: error: cannot stop while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
+  if (args.length > 0) {
+    return [
+      "stop: error: stop command takes no arguments",
+      "",
+      "Usage: stop",
+      "       s"
+    ];
+  }
+
+  connection.reducers.stop({});
+
+  return [
+    "Tank stopped",
   ];
 }
 
