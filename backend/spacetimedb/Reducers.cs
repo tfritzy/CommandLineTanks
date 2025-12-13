@@ -104,8 +104,7 @@ public static partial class Module
         ctx.Db.score.Insert(new Score
         {
             WorldId = worldId,
-            Alliance0Kills = 0,
-            Alliance1Kills = 0
+            Kills = new int[] { 0, 0 }
         });
 
         Log.Info($"Initialized world {worldId}");

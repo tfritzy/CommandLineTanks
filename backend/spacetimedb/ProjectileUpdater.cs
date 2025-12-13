@@ -66,15 +66,11 @@ public static partial class ProjectileUpdater
                             if (score != null)
                             {
                                 var updatedScore = score.Value;
-                                if (projectile.Alliance == 0)
+                                if (projectile.Alliance >= 0 && projectile.Alliance < updatedScore.Kills.Length)
                                 {
-                                    updatedScore.Alliance0Kills++;
+                                    updatedScore.Kills[projectile.Alliance]++;
+                                    ctx.Db.score.WorldId.Update(updatedScore);
                                 }
-                                else if (projectile.Alliance == 1)
-                                {
-                                    updatedScore.Alliance1Kills++;
-                                }
-                                ctx.Db.score.WorldId.Update(updatedScore);
                             }
                         }
 

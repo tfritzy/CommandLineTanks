@@ -108,7 +108,6 @@ public static partial class Module
         [PrimaryKey]
         public string WorldId;
 
-        public int Alliance0Kills;
-        public int Alliance1Kills;
+        public int[] Kills;
     }
 }
