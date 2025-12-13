@@ -32,6 +32,20 @@ public static partial class TankUpdater
         {
             bool needsUpdate = false;
             var tank = iTank;
+
+            int newCollisionRegionX = (int)Math.Floor(tank.PositionX / Module.COLLISION_REGION_SIZE);
+            int newCollisionRegionY = (int)Math.Floor(tank.PositionY / Module.COLLISION_REGION_SIZE);
+
+            if (newCollisionRegionX != tank.CollisionRegionX || newCollisionRegionY != tank.CollisionRegionY)
+            {
+                tank = tank with
+                {
+                    CollisionRegionX = newCollisionRegionX,
+                    CollisionRegionY = newCollisionRegionY
+                };
+                needsUpdate = true;
+            }
+
             if (tank.Path.Length > 0)
             {
                 var targetPos = tank.Path[0];

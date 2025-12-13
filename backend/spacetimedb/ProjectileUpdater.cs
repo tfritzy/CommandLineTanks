@@ -36,7 +36,38 @@ public static partial class ProjectileUpdater
                 PositionY = (float)(projectile.PositionY + projectile.Velocity.Y * deltaTime)
             };
 
-            ctx.Db.projectile.Id.Update(projectile);
+            int projectileCollisionRegionX = (int)Math.Floor(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+            int projectileCollisionRegionY = (int)Math.Floor(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+
+            bool collided = false;
+
+            foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, projectileCollisionRegionX, projectileCollisionRegionY)))
+            {
+                if (tank.Alliance != projectile.Alliance)
+                {
+                    float dx = tank.PositionX - projectile.PositionX;
+                    float dy = tank.PositionY - projectile.PositionY;
+                    float distanceSquared = dx * dx + dy * dy;
+
+                    if (distanceSquared <= projectile.Size * projectile.Size)
+                    {
+                        var updatedTank = tank with
+                        {
+                            Health = tank.Health - Module.PROJECTILE_DAMAGE
+                        };
+                        ctx.Db.tank.Id.Update(updatedTank);
+
+                        ctx.Db.projectile.Id.Delete(projectile.Id);
+                        collided = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!collided)
+            {
+                ctx.Db.projectile.Id.Update(projectile);
+            }
         }
     }
 }
