@@ -260,7 +260,7 @@ public static partial class Module
             Owner = ctx.Sender,
             Name = tankName,
             Alliance = assignedAlliance,
-            Health = TANK_HEALTH,
+            Health = Module.TANK_HEALTH,
             CollisionRegionX = 0,
             CollisionRegionY = 0,
             Target = null,

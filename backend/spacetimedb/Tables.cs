@@ -50,10 +50,8 @@ public static partial class Module
 
         public int Health;
 
-        [SpacetimeDB.Index.BTree]
         public int CollisionRegionX;
 
-        [SpacetimeDB.Index.BTree]
         public int CollisionRegionY;
 
         public string? Target;
