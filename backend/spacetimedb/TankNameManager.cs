@@ -4,11 +4,11 @@ using System.Collections.Generic;
 public static partial class Module
 {
     private static readonly string[] NatoPhoneticAlphabet = [
-        "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot",
-        "Golf", "Hotel", "India", "Juliet", "Kilo", "Lima",
-        "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo",
-        "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray",
-        "Yankee", "Zulu"
+        "alpha", "bravo", "charlie", "delta", "echo", "foxtrot",
+        "golf", "hotel", "india", "juliet", "kilo", "lima",
+        "mike", "november", "oscar", "papa", "quebec", "romeo",
+        "sierra", "tango", "uniform", "victor", "whiskey", "xray",
+        "yankee", "zulu"
     ];
 
     public static string? AllocateTankName(ReducerContext ctx, string worldId)
