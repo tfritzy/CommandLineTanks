@@ -1,4 +1,5 @@
 import { TankManager } from "./TankManager";
+import { ProjectileManager } from "./ProjectileManager";
 import { TerrainManager } from "./TerrainManager";
 import { getConnection } from "./spacetimedb-connection";
 
@@ -11,6 +12,7 @@ export class Game {
   private time: number = 0;
   private lastFrameTime: number = 0;
   private tankManager: TankManager;
+  private projectileManager: ProjectileManager;
   private terrainManager: TerrainManager | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -25,6 +27,7 @@ export class Game {
     window.addEventListener("resize", () => this.resizeCanvas());
 
     this.tankManager = new TankManager();
+    this.projectileManager = new ProjectileManager();
     this.initializeTerrainManager();
   }
 
@@ -80,6 +83,7 @@ export class Game {
     this.time += deltaTime;
 
     this.tankManager.update(deltaTime);
+    this.projectileManager.update(deltaTime);
 
     this.ctx.fillStyle = "#ffffff";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -115,6 +119,10 @@ export class Game {
 
     for (const tank of this.tankManager.getAllTanks()) {
       tank.draw(this.ctx);
+    }
+
+    for (const projectile of this.projectileManager.getAllProjectiles()) {
+      projectile.draw(this.ctx);
     }
 
     this.ctx.restore();

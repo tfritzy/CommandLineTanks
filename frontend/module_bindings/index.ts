@@ -57,6 +57,8 @@ import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import PlayerRow from "./player_table";
 export { PlayerRow };
+import ProjectileRow from "./projectile_table";
+export { ProjectileRow };
 import TankRow from "./tank_table";
 export { TankRow };
 import WorldRow from "./world_table";
@@ -67,6 +69,8 @@ import PathEntry from "./path_entry_type";
 export { PathEntry };
 import Player from "./player_type";
 export { Player };
+import Projectile from "./projectile_type";
+export { Projectile };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 export { ScheduledTankUpdates };
 import Tank from "./tank_type";
@@ -110,6 +114,20 @@ const tablesSchema = __schema(
       { name: 'player_Identity_key', constraint: 'unique', columns: ['identity'] },
     ],
   }, PlayerRow),
+  __table({
+    name: 'projectile',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'projectile_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, ProjectileRow),
   __table({
     name: 'tank',
     indexes: [
