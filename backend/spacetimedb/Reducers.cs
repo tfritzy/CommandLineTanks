@@ -235,22 +235,15 @@ public static partial class Module
 
         if (tank.IsDead) return;
 
-        Tank? targetTank = null;
-        foreach (var t in ctx.Db.tank.WorldId.Filter(tank.WorldId))
-        {
-            if (t.Name != null && t.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase))
-            {
-                targetTank = t;
-                break;
-            }
-        }
+        var targetTank = ctx.Db.tank.WorldId.Filter(tank.WorldId)
+            .FirstOrDefault(t => t.Name != null && t.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
 
-        if (targetTank == null || targetTank.Value.Id == null)
+        if (targetTank.Id == null)
         {
             return;
         }
 
-        tank.Target = targetTank.Value.Id;
+        tank.Target = targetTank.Id;
         tank.TargetLead = lead;
         ctx.Db.tank.Id.Update(tank);
     }
