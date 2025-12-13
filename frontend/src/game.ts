@@ -95,23 +95,48 @@ export class Game {
 
   private drawScores() {
     const scores = this.scoreManager.getScores();
+    const maxScore = 100;
     
     this.ctx.save();
     
-    this.ctx.font = 'bold 24px monospace';
+    this.ctx.font = 'bold 20px monospace';
     this.ctx.textAlign = 'right';
     
     const padding = 20;
-    const lineHeight = 30;
+    const barWidth = 200;
+    const barHeight = 20;
+    const spacing = 10;
+    
     const x = this.canvas.width - padding;
-    let y = padding + 24;
+    let y = padding + 20;
     
     this.ctx.fillStyle = '#ff6666';
-    this.ctx.fillText(`Team Red: ${scores[0] || 0}`, x, y);
+    this.ctx.fillText(`Team Red: ${scores[0] || 0}/100`, x, y);
     
-    y += lineHeight;
+    y += spacing;
+    
+    this.ctx.strokeStyle = '#ff6666';
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(x - barWidth, y, barWidth, barHeight);
+    
+    const redProgress = Math.min((scores[0] || 0) / maxScore, 1);
+    this.ctx.fillStyle = '#ff6666';
+    this.ctx.fillRect(x - barWidth, y, barWidth * redProgress, barHeight);
+    
+    y += barHeight + spacing + 20;
+    
     this.ctx.fillStyle = '#6666ff';
-    this.ctx.fillText(`Team Blue: ${scores[1] || 0}`, x, y);
+    this.ctx.fillText(`Team Blue: ${scores[1] || 0}/100`, x, y);
+    
+    y += spacing;
+    
+    this.ctx.strokeStyle = '#6666ff';
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(x - barWidth, y, barWidth, barHeight);
+    
+    const blueProgress = Math.min((scores[1] || 0) / maxScore, 1);
+    this.ctx.fillStyle = '#6666ff';
+    this.ctx.fillRect(x - barWidth, y, barWidth * blueProgress, barHeight);
     
     this.ctx.restore();
   }
