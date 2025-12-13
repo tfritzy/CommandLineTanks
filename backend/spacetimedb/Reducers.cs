@@ -29,6 +29,14 @@ public static partial class Module
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
+        ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
+            WorldId = worldId,
+            LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+        });
+
         ctx.Db.world.Insert(world);
         Log.Info($"Initialized world {worldId}");
     }
