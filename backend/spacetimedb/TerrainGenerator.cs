@@ -7,10 +7,10 @@ public static partial class TerrainGenerator
     private const int WORLD_HEIGHT = 100;
     private const float STREAM_PROBABILITY = 0.25f;
     private const int MIN_BRIDGES = 3;
-    private const int BRIDGE_WIDTH = 2;
     private const int FIELD_MIN_SIZE = 5;
     private const int FIELD_MAX_SIZE = 10;
     private const int CLIFF_POCKET_SIZE = 4;
+    private const int HAY_BALE_DENSITY_DIVISOR = 10;
 
     public static (BaseTerrain[], TerrainDetail[]) GenerateTerrain(RandomContext random)
     {
@@ -31,7 +31,7 @@ public static partial class TerrainGenerator
             streamPath = GenerateStream(baseTerrain, random);
         }
 
-        Vector2[] roadTiles = GenerateRoadsWithBridges(baseTerrain, streamPath, random);
+        Vector2[] roadTiles = GenerateRoadsWithBridges(baseTerrain, terrainDetail, streamPath, random);
 
         GenerateCliffs(terrainDetail, baseTerrain, random);
 
@@ -77,7 +77,7 @@ public static partial class TerrainGenerator
         return streamPath;
     }
 
-    private static Vector2[] GenerateRoadsWithBridges(BaseTerrain[] baseTerrain, Vector2[] streamPath, RandomContext random)
+    private static Vector2[] GenerateRoadsWithBridges(BaseTerrain[] baseTerrain, TerrainDetail[] terrainDetail, Vector2[] streamPath, RandomContext random)
     {
         var roadTilesList = new Vector2[WORLD_WIDTH * WORLD_HEIGHT];
         int roadTilesCount = 0;
@@ -108,13 +108,14 @@ public static partial class TerrainGenerator
                 
                 bridgeLocations[bridgesPlaced] = streamPos;
                 
-                for (int dx = -1; dx <= 1; dx++)
+                for (int dx = 0; dx < 2; dx++)
                 {
                     int bridgeX = streamPos.X + dx;
                     if (bridgeX >= 0 && bridgeX < WORLD_WIDTH)
                     {
                         int index = streamPos.Y * WORLD_WIDTH + bridgeX;
                         baseTerrain[index] = BaseTerrain.Road;
+                        terrainDetail[index] = TerrainDetail.Bridge;
                     }
                 }
                 
@@ -343,7 +344,7 @@ public static partial class TerrainGenerator
                         }
                     }
                     
-                    int numHayBales = (fieldWidth * fieldHeight) / 10;
+                    int numHayBales = (fieldWidth * fieldHeight) / HAY_BALE_DENSITY_DIVISOR;
                     for (int i = 0; i < numHayBales; i++)
                     {
                         int hx = startX + random.Next(fieldWidth);
