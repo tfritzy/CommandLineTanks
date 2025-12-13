@@ -1,5 +1,14 @@
 import { type DbConnection } from "../../../module_bindings";
 
+function isPlayerDead(connection: DbConnection): boolean {
+  if (!connection.identity) {
+    return false;
+  }
+  const allTanks = Array.from(connection.db.tank.iter());
+  const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+  return myTank?.isDead ?? false;
+}
+
 const directionAliases: Record<string, { x: number; y: number; name: string; symbol: string }> = {
   // North
   north: { x: 0, y: 1, name: "north", symbol: "↑" },
@@ -76,6 +85,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  aim, a          Aim turret at an angle or direction",
       "  target, t       Target another tank by name",
       "  fire, f         Fire a projectile from your tank",
+      "  respawn         Respawn after death",
       "  clear, c        Clear the terminal output",
       "  help, h         Display help information",
     ];
@@ -192,6 +202,19 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  f"
       ];
     
+    case "respawn":
+      return [
+        "respawn - Respawn after death",
+        "",
+        "Usage: respawn",
+        "",
+        "Respawns your tank at a new spawn point after being destroyed.",
+        "Can only be used when your tank is dead.",
+        "",
+        "Examples:",
+        "  respawn"
+      ];
+    
     case "help":
     case "h":
       return [
@@ -218,6 +241,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 }
 
 export function drive(connection: DbConnection, args: string[]): string[] {
+  if (isPlayerDead(connection)) {
+    return [
+      "drive: error: cannot drive while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
   const recognizedFlags = ["--append", "-a"];
   const unrecognizedFlag = args.find(arg => arg.startsWith('-') && !recognizedFlags.includes(arg));
   
@@ -303,6 +334,14 @@ export function drive(connection: DbConnection, args: string[]): string[] {
 }
 
 export function aim(connection: DbConnection, args: string[]): string[] {
+  if (isPlayerDead(connection)) {
+    return [
+      "aim: error: cannot aim while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
   if (args.length < 1) {
     return [
       "aim: error: missing required argument '<angle|direction>'",
@@ -356,6 +395,14 @@ export function aim(connection: DbConnection, args: string[]): string[] {
 }
 
 export function target(connection: DbConnection, args: string[]): string[] {
+  if (isPlayerDead(connection)) {
+    return [
+      "target: error: cannot target while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
   if (args.length < 1) {
     return [
       "target: error: missing required argument '<tank_name>'",
@@ -412,6 +459,14 @@ export function target(connection: DbConnection, args: string[]): string[] {
 }
 
 export function reverse(connection: DbConnection, args: string[]): string[] {
+  if (isPlayerDead(connection)) {
+    return [
+      "reverse: error: cannot reverse while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
   if (args.length < 1) {
     return [
       "reverse: error: missing required argument '<distance>'",
@@ -441,6 +496,14 @@ export function reverse(connection: DbConnection, args: string[]): string[] {
 }
 
 export function fire(connection: DbConnection, args: string[]): string[] {
+  if (isPlayerDead(connection)) {
+    return [
+      "fire: error: cannot fire while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
   if (args.length > 0) {
     return [
       "fire: error: fire command takes no arguments",
@@ -454,5 +517,29 @@ export function fire(connection: DbConnection, args: string[]): string[] {
 
   return [
     "Firing projectile",
+  ];
+}
+
+export function respawn(connection: DbConnection, args: string[]): string[] {
+  if (!isPlayerDead(connection)) {
+    return [
+      "respawn: error: cannot respawn while alive",
+      "",
+      "You must be dead to respawn"
+    ];
+  }
+
+  if (args.length > 0) {
+    return [
+      "respawn: error: respawn command takes no arguments",
+      "",
+      "Usage: respawn"
+    ];
+  }
+
+  connection.reducers.respawn({});
+
+  return [
+    "Respawning...",
   ];
 }

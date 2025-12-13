@@ -53,6 +53,8 @@ public static partial class Module
 
         public int Health;
 
+        public bool IsDead;
+
         public int CollisionRegionX;
 
         public int CollisionRegionY;
