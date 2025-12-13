@@ -19,10 +19,15 @@ public static partial class Module
             minX = paddingX;
             maxX = halfWidth - paddingX;
         }
-        else
+        else if (alliance == 1)
         {
             minX = halfWidth + paddingX;
             maxX = worldWidth - paddingX;
+        }
+        else
+        {
+            minX = paddingX;
+            maxX = halfWidth - paddingX;
         }
         
         minY = paddingY;
@@ -35,7 +40,7 @@ public static partial class Module
             int y = minY + random.Next(maxY - minY);
             
             int index = y * worldWidth + x;
-            if (index >= 0 && index < world.TraversibilityMap.Length && world.TraversibilityMap[index])
+            if (index < world.TraversibilityMap.Length && world.TraversibilityMap[index])
             {
                 return (x, y);
             }
