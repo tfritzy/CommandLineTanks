@@ -101,4 +101,13 @@ public static partial class Module
 
         public Vector2Float Velocity;
     }
+
+    [Table(Name = "score", Public = true)]
+    public partial struct Score
+    {
+        [PrimaryKey]
+        public string WorldId;
+
+        public int[] Kills;
+    }
 }

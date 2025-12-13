@@ -52,12 +52,27 @@ public static partial class ProjectileUpdater
                     if (distanceSquared <= projectile.Size * projectile.Size)
                     {
                         var newHealth = tank.Health - Module.PROJECTILE_DAMAGE;
+                        var isDead = newHealth <= 0;
                         var updatedTank = tank with
                         {
                             Health = newHealth,
-                            IsDead = newHealth <= 0
+                            IsDead = isDead
                         };
                         ctx.Db.tank.Id.Update(updatedTank);
+
+                        if (isDead)
+                        {
+                            var score = ctx.Db.score.WorldId.Find(args.WorldId);
+                            if (score != null)
+                            {
+                                var updatedScore = score.Value;
+                                if (projectile.Alliance >= 0 && projectile.Alliance < updatedScore.Kills.Length)
+                                {
+                                    updatedScore.Kills[projectile.Alliance]++;
+                                    ctx.Db.score.WorldId.Update(updatedScore);
+                                }
+                            }
+                        }
 
                         ctx.Db.projectile.Id.Delete(projectile.Id);
                         collided = true;

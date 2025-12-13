@@ -101,6 +101,13 @@ public static partial class Module
         });
 
         ctx.Db.world.Insert(world);
+
+        ctx.Db.score.Insert(new Score
+        {
+            WorldId = worldId,
+            Kills = new int[] { 0, 0 }
+        });
+
         Log.Info($"Initialized world {worldId}");
     }
 
