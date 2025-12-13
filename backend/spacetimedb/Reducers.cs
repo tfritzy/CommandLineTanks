@@ -17,14 +17,14 @@ public static partial class Module
         if (alliance == "left")
         {
             int sideWidth = worldWidth / 2;
-            int padding = sideWidth / 2;
+            int padding = sideWidth / 4;
             minX = padding;
             maxX = sideWidth - padding;
         }
         else
         {
             int sideWidth = worldWidth / 2;
-            int padding = sideWidth / 2;
+            int padding = sideWidth / 4;
             minX = worldWidth / 2 + padding;
             maxX = worldWidth - padding;
         }
