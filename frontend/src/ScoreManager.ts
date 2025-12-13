@@ -9,11 +9,14 @@ export class ScoreManager {
 
   private subscribeToScore(worldId: string) {
     const connection = getConnection();
-    if (!connection) return;
+    if (!connection) {
+      console.warn("Cannot subscribe to score: connection not available");
+      return;
+    }
 
     connection
       .subscriptionBuilder()
-      .onError((e) => console.log("Score subscription error", e))
+      .onError((e) => console.error("Score subscription error", e))
       .subscribe([`SELECT * FROM score WHERE worldId = '${worldId}'`]);
 
     connection.db.score.onInsert((_ctx, score) => {
