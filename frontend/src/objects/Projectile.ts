@@ -6,19 +6,22 @@ export class Projectile {
   private velocityX: number;
   private velocityY: number;
   private size: number;
+  private alliance: number;
 
   constructor(
     x: number,
     y: number,
     velocityX: number,
     velocityY: number,
-    size: number
+    size: number,
+    alliance: number
   ) {
     this.x = x;
     this.y = y;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
     this.size = size;
+    this.alliance = alliance;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -28,7 +31,7 @@ export class Projectile {
     const centerY = this.y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
     const radius = this.size * UNIT_TO_PIXEL;
     
-    ctx.fillStyle = '#ff0000';
+    ctx.fillStyle = this.alliance === 0 ? '#ff0000' : '#0000ff';
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     ctx.fill();
