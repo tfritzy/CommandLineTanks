@@ -30,8 +30,6 @@ public static partial class ProjectileUpdater
         {
             var projectile = iProjectile;
 
-            var moveDistance = projectile.Speed * deltaTime;
-
             projectile = projectile with
             {
                 PositionX = (float)(projectile.PositionX + projectile.Velocity.X * deltaTime),
