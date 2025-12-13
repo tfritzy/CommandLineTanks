@@ -4,7 +4,6 @@ import { TerrainManager } from "./TerrainManager";
 import { ScoreManager } from "./ScoreManager";
 
 export const UNIT_TO_PIXEL = 50;
-const MAX_SCORE = 100;
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -89,57 +88,9 @@ export class Game {
 
     this.ctx.restore();
 
-    this.drawScores();
+    this.scoreManager.draw(this.ctx, this.canvas.width);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
-  }
-
-  private drawScores() {
-    const scores = this.scoreManager.getScores();
-    
-    this.ctx.save();
-    
-    const padding = 20;
-    const barWidth = 200;
-    const barHeight = 20;
-    const spacing = 10;
-    const x = this.canvas.width - padding;
-    
-    let y = padding + 20;
-    y = this.drawTeamScore('Team Red', scores[0] || 0, '#ff6666', x, y, barWidth, barHeight, spacing);
-    
-    y += spacing + 20;
-    this.drawTeamScore('Team Blue', scores[1] || 0, '#6666ff', x, y, barWidth, barHeight, spacing);
-    
-    this.ctx.restore();
-  }
-
-  private drawTeamScore(
-    teamName: string,
-    score: number,
-    color: string,
-    x: number,
-    y: number,
-    barWidth: number,
-    barHeight: number,
-    spacing: number
-  ): number {
-    this.ctx.font = 'bold 20px monospace';
-    this.ctx.textAlign = 'right';
-    this.ctx.fillStyle = color;
-    this.ctx.fillText(`${teamName}: ${score}/${MAX_SCORE}`, x, y);
-    
-    y += spacing;
-    
-    this.ctx.strokeStyle = color;
-    this.ctx.lineWidth = 2;
-    this.ctx.strokeRect(x - barWidth, y, barWidth, barHeight);
-    
-    const progress = Math.min(score / MAX_SCORE, 1);
-    this.ctx.fillStyle = color;
-    this.ctx.fillRect(x - barWidth, y, barWidth * progress, barHeight);
-    
-    return y + barHeight;
   }
 
   public start() {
