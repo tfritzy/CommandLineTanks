@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getConnection } from '../../spacetimedb-connection';
-import { aim, drive, help, reverse, target } from './commands';
+import { aim, drive, fire, help, reverse, target } from './commands';
 
 function TerminalComponent() {
     const [output, setOutput] = useState<string[]>([]);
@@ -87,6 +87,12 @@ function TerminalComponent() {
                     case 'r': {
                         const reverseOutput = reverse(connection, args);
                         newOutput.push(...reverseOutput);
+                        break;
+                    }
+                    case 'fire':
+                    case 'f': {
+                        const fireOutput = fire(connection, args);
+                        newOutput.push(...fireOutput);
                         break;
                     }
                     case 'help':

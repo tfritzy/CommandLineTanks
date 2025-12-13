@@ -170,6 +170,36 @@ public static partial class Module
     }
 
     [Reducer]
+    public static void fire(ReducerContext ctx)
+    {
+        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
+        float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
+
+        float velocityX = (float)Math.Cos(tank.TurretRotation) * PROJECTILE_SPEED;
+        float velocityY = (float)Math.Sin(tank.TurretRotation) * PROJECTILE_SPEED;
+
+        var projectileId = GenerateId(ctx, "prj");
+        var projectile = new Projectile
+        {
+            Id = projectileId,
+            WorldId = tank.WorldId,
+            ShooterTankId = tank.Id,
+            PositionX = barrelTipX,
+            PositionY = barrelTipY,
+            Speed = PROJECTILE_SPEED,
+            Size = PROJECTILE_SIZE,
+            Velocity = new Vector2Float(velocityX, velocityY)
+        };
+
+        ctx.Db.projectile.Insert(projectile);
+        Log.Info($"Tank {tank.Name} fired projectile {projectileId} from position ({barrelTipX}, {barrelTipY}) with velocity ({velocityX}, {velocityY})");
+    }
+
+    [Reducer]
     public static void findWorld(ReducerContext ctx)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
