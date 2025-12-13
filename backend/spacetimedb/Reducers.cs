@@ -251,7 +251,8 @@ public static partial class Module
 
         if (tank.IsDead) return;
 
-        var targetTank = ctx.Db.tank.WorldId_Name.Filter((tank.WorldId, targetName)).FirstOrDefault();
+        var targetNameLower = targetName.ToLower();
+        var targetTank = ctx.Db.tank.WorldId_Name.Filter((tank.WorldId, targetNameLower)).FirstOrDefault();
 
         if (targetTank.Id == null)
         {
