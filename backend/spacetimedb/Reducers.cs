@@ -3,6 +3,49 @@ using static Types;
 
 public static partial class Module
 {
+    private static (float, float) FindSpawnPosition(World world, int alliance, RandomContext random)
+    {
+        int worldWidth = world.Width;
+        int worldHeight = world.Height;
+        
+        int halfWidth = worldWidth / 2;
+        int paddingX = (int)(halfWidth * 0.25f);
+        int paddingY = (int)(worldHeight * 0.25f);
+        
+        int minX, maxX, minY, maxY;
+        
+        if (alliance == 0)
+        {
+            minX = paddingX;
+            maxX = halfWidth - paddingX;
+        }
+        else
+        {
+            minX = halfWidth + paddingX;
+            maxX = worldWidth - paddingX;
+        }
+        
+        minY = paddingY;
+        maxY = worldHeight - paddingY;
+        
+        int maxAttempts = 100;
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            int x = minX + random.Next(maxX - minX);
+            int y = minY + random.Next(maxY - minY);
+            
+            int index = y * worldWidth + x;
+            if (index >= 0 && index < world.TraversibilityMap.Length && world.TraversibilityMap[index])
+            {
+                return (x, y);
+            }
+        }
+        
+        float centerX = (minX + maxX) / 2.0f;
+        float centerY = (minY + maxY) / 2.0f;
+        return (centerX, centerY);
+    }
+
     [Reducer(ReducerKind.Init)]
     public static void Init(ReducerContext ctx)
     {
@@ -254,6 +297,8 @@ public static partial class Module
 
         int assignedAlliance = alliance0Count <= alliance1Count ? 0 : 1;
 
+        var (spawnX, spawnY) = FindSpawnPosition(world.Value, assignedAlliance, ctx.Rng);
+
         var tankId = GenerateId(ctx, "tnk");
         var tank = new Tank
         {
@@ -269,8 +314,8 @@ public static partial class Module
             Target = null,
             TargetLead = 0.0f,
             Path = [],
-            PositionX = 0.0f,
-            PositionY = 0.0f,
+            PositionX = spawnX,
+            PositionY = spawnY,
             BodyRotation = 0.0f,
             TurretRotation = 0.0f,
             TargetTurretRotation = 0.0f,
