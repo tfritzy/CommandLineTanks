@@ -215,6 +215,22 @@ public static partial class Module
     }
 
     [Reducer]
+    public static void stop(ReducerContext ctx)
+    {
+        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        if (tank.IsDead) return;
+
+        tank.Path = [];
+        tank.Velocity = new Vector2Float(0, 0);
+        tank.BodyAngularVelocity = 0;
+        ctx.Db.tank.Id.Update(tank);
+        Log.Info($"Tank {tank.Name} stopped");
+    }
+
+    [Reducer]
     public static void aim(ReducerContext ctx, float angleRadians)
     {
         Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();

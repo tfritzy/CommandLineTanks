@@ -47,6 +47,8 @@ import Respawn from "./respawn_reducer";
 export { Respawn };
 import Reverse from "./reverse_reducer";
 export { Reverse };
+import Stop from "./stop_reducer";
+export { Stop };
 import TargetTank from "./target_tank_reducer";
 export { TargetTank };
 import UpdateProjectiles from "./update_projectiles_reducer";
@@ -194,6 +196,7 @@ const reducersSchema = __reducers(
   __reducerSchema("fire", Fire),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("reverse", Reverse),
+  __reducerSchema("stop", Stop),
   __reducerSchema("targetTank", TargetTank),
   __reducerSchema("UpdateProjectiles", UpdateProjectiles),
   __reducerSchema("UpdateTanks", UpdateTanks),
