@@ -9,7 +9,18 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import Vector2Float from "./vector_2_float_type";
 
-export default {
-  joinCode: __t.string(),
-};
+
+export default __t.row({
+  id: __t.string().primaryKey(),
+  worldId: __t.string(),
+  shooterTankId: __t.string(),
+  positionX: __t.f32(),
+  positionY: __t.f32(),
+  speed: __t.f32(),
+  size: __t.f32(),
+  get velocity() {
+    return Vector2Float;
+  },
+});

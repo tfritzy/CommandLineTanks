@@ -47,7 +47,7 @@ public static partial class Module
 
         public string Name;
 
-        public int Alliance;
+        public string? JoinCode;
 
         public int Health;
 
@@ -86,8 +86,6 @@ public static partial class Module
         public string WorldId;
 
         public string ShooterTankId;
-
-        public int Alliance;
 
         public float PositionX;
         public float PositionY;

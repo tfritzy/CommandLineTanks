@@ -190,7 +190,6 @@ public static partial class Module
             Id = projectileId,
             WorldId = tank.WorldId,
             ShooterTankId = tank.Id,
-            Alliance = tank.Alliance,
             PositionX = barrelTipX,
             PositionY = barrelTipY,
             Speed = PROJECTILE_SPEED,
@@ -203,7 +202,7 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void findWorld(ReducerContext ctx)
+    public static void findWorld(ReducerContext ctx, string joinCode)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -238,22 +237,6 @@ public static partial class Module
             return;
         }
 
-        int alliance0Count = 0;
-        int alliance1Count = 0;
-        foreach (var existingTank in ctx.Db.tank.WorldId.Filter(world.Value.Id))
-        {
-            if (existingTank.Alliance == 0)
-            {
-                alliance0Count++;
-            }
-            else if (existingTank.Alliance == 1)
-            {
-                alliance1Count++;
-            }
-        }
-
-        int assignedAlliance = alliance0Count <= alliance1Count ? 0 : 1;
-
         var tankId = GenerateId(ctx, "tnk");
         var tank = new Tank
         {
@@ -261,7 +244,7 @@ public static partial class Module
             WorldId = world.Value.Id,
             Owner = ctx.Sender,
             Name = tankName,
-            Alliance = assignedAlliance,
+            JoinCode = joinCode,
             Health = Module.TANK_HEALTH,
             CollisionRegionX = 0,
             CollisionRegionY = 0,
@@ -279,6 +262,6 @@ public static partial class Module
         };
 
         ctx.Db.tank.Insert(tank);
-        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName} in alliance {assignedAlliance}");
+        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName} (joinCode: {joinCode})");
     }
 }

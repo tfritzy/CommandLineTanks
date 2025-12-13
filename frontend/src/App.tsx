@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import MainMenuPage from './pages/MainMenuPage';
 import GamePage from './pages/GamePage';
 import { connectToSpacetimeDB, getConnection } from './spacetimedb-connection';
+import type { SubscriptionHandle } from '../module_bindings';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<'menu' | 'game'>('menu');
   const [isSpacetimeConnected, setIsSpacetimeConnected] = useState(false);
+  const [worldId, setWorldId] = useState<string | null>(null);
+  const subscriptionHandleRef = useRef<SubscriptionHandle | null>(null);
+  const pendingJoinCodeRef = useRef<string | null>(null);
 
   useEffect(() => {
     connectToSpacetimeDB().then(() => {
@@ -15,9 +19,47 @@ function App() {
     });
   }, []);
 
-  const handleJoinWorld = () => {
-    getConnection()?.reducers.findWorld({});
-    setCurrentPage('game');
+  useEffect(() => {
+    if (!isSpacetimeConnected) return;
+
+    const connection = getConnection();
+    if (!connection) return;
+
+    const subscription = connection
+      .subscriptionBuilder()
+      .onError((e) => console.log("Tank subscription error", e))
+      .subscribe([`SELECT * FROM tank WHERE owner = Sender`]);
+
+    subscriptionHandleRef.current = subscription;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleTankInsert = (_ctx: any, tank: any) => {
+      if (connection.identity && tank.owner.isEqual(connection.identity)) {
+        if (pendingJoinCodeRef.current && tank.joinCode === pendingJoinCodeRef.current) {
+          console.log(`Found tank with joinCode ${pendingJoinCodeRef.current}, worldId: ${tank.worldId}`);
+          setWorldId(tank.worldId);
+          setCurrentPage('game');
+          pendingJoinCodeRef.current = null;
+        }
+      }
+    };
+
+    connection.db.tank.onInsert(handleTankInsert);
+
+    return () => {
+      if (subscriptionHandleRef.current) {
+        subscriptionHandleRef.current.unsubscribe();
+      }
+      connection.db.tank.removeOnInsert(handleTankInsert);
+    };
+  }, [isSpacetimeConnected]);
+
+  const handleJoinWorld = (joinCode: string) => {
+    const connection = getConnection();
+    if (!connection) return;
+
+    pendingJoinCodeRef.current = joinCode;
+    connection.reducers.findWorld({ joinCode });
   };
 
   if (!isSpacetimeConnected) {
@@ -40,7 +82,11 @@ function App() {
     return <MainMenuPage onJoinWorld={handleJoinWorld} />;
   }
 
-  return <GamePage />;
+  if (!worldId) {
+    return null;
+  }
+
+  return <GamePage worldId={worldId} />;
 }
 
 export default App;

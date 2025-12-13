@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { getConnection } from '../spacetimedb-connection';
 
 interface MainMenuPageProps {
-    onJoinWorld: () => void;
+    onJoinWorld: (joinCode: string) => void;
 }
 
 export default function MainMenuPage({ onJoinWorld }: MainMenuPageProps) {
@@ -14,15 +13,8 @@ export default function MainMenuPage({ onJoinWorld }: MainMenuPageProps) {
         setError(null);
 
         try {
-            const connection = getConnection();
-            console.log("connection", connection);
-            if (!connection) {
-                throw new Error('Not connected to SpacetimeDB');
-            }
-
-            connection.reducers.findWorld({});
-
-            onJoinWorld();
+            const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            onJoinWorld(joinCode);
         } catch (err) {
             console.error('Failed to join world:', err);
             setError(err instanceof Error ? err.message : 'Failed to join world');

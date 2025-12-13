@@ -2,13 +2,17 @@ import { useEffect, useRef } from 'react';
 import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
 
-export default function GamePage() {
+interface GamePageProps {
+    worldId: string;
+}
+
+export default function GamePage({ worldId }: GamePageProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const gameRef = useRef<Game | null>(null);
 
     useEffect(() => {
         if (canvasRef.current && !gameRef.current) {
-            gameRef.current = new Game(canvasRef.current);
+            gameRef.current = new Game(canvasRef.current, worldId);
             gameRef.current.start();
         }
 
@@ -16,7 +20,7 @@ export default function GamePage() {
             gameRef.current?.destroy();
             gameRef.current = null;
         };
-    }, []);
+    }, [worldId]);
 
     return (
         <div style={{
