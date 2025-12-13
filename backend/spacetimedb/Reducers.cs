@@ -111,7 +111,7 @@ public static partial class Module
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
-        Vector2 rootPos = tank.Path.Length > 0 ? tank.Path[^1].Position : new Vector2((int)tank.PositionX, (int)tank.PositionY);
+        Vector2 rootPos = new Vector2((int)tank.PositionX, (int)tank.PositionY);
         
         float angle = tank.BodyRotation;
         int offsetX = (int)Math.Round(-Math.Cos(angle) * distance);

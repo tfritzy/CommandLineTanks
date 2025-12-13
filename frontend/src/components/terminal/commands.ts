@@ -422,6 +422,6 @@ export function reverse(connection: DbConnection, args: string[]): string[] {
   connection.reducers.reverse({ distance });
 
   return [
-    `Reversing ${distance} ${distance !== 1 ? "units" : "unit"}`,
+    `Reversing ${distance} ${distance != 1 ? "units" : "unit"}`,
   ];
 }
