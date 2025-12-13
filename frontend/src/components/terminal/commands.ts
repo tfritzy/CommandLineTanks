@@ -440,11 +440,13 @@ export function target(connection: DbConnection, args: string[]): string[] {
     return ["target: error: no connection"];
   }
 
-  if (targetName.toLowerCase() === myTank.name?.toLowerCase()) {
+  const targetNameLower = targetName.toLowerCase();
+
+  if (targetNameLower === myTank.name) {
     return ["target: error: cannot target your own tank"];
   }
 
-  const targetTank = allTanks.find(t => t.name?.toLowerCase() === targetName.toLowerCase());
+  const targetTank = allTanks.find(t => t.name === targetNameLower);
   if (!targetTank) {
     return [`target: error: tank '${targetName}' not found`];
   }
