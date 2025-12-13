@@ -104,6 +104,25 @@ public static partial class Module
         if (tank.Id == null) return;
 
         tank.TargetTurretRotation = angleRadians;
+        tank.Target = null;
+        ctx.Db.tank.Id.Update(tank);
+    }
+
+    [Reducer]
+    public static void targetTank(ReducerContext ctx, string targetName, float lead)
+    {
+        Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (tank.Id == null) return;
+
+        var targetTank = ctx.Db.tank.WorldId_Name.Filter((tank.WorldId, targetName)).FirstOrDefault();
+
+        if (targetTank.Id == null)
+        {
+            return;
+        }
+
+        tank.Target = targetTank.Id;
+        tank.TargetLead = lead;
         ctx.Db.tank.Id.Update(tank);
     }
 
@@ -150,6 +169,8 @@ public static partial class Module
             WorldId = world.Value.Id,
             Owner = ctx.Sender,
             Name = tankName,
+            Target = null,
+            TargetLead = 0.0f,
             Path = [],
             PositionX = 0.0f,
             PositionY = 0.0f,

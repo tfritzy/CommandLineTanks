@@ -41,6 +41,8 @@ import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
 import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
+import TargetTank from "./target_tank_reducer";
+export { TargetTank };
 import UpdateTanks from "./update_tanks_reducer";
 export { UpdateTanks };
 
@@ -109,6 +111,10 @@ const tablesSchema = __schema(
       { name: 'Owner', algorithm: 'btree', columns: [
         'owner',
       ] },
+      { name: 'WorldId_Name', algorithm: 'btree', columns: [
+        'worldId',
+        'name',
+      ] },
       { name: 'WorldId', algorithm: 'btree', columns: [
         'worldId',
       ] },
@@ -135,6 +141,7 @@ const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
   __reducerSchema("drive", Drive),
   __reducerSchema("findWorld", FindWorld),
+  __reducerSchema("targetTank", TargetTank),
   __reducerSchema("UpdateTanks", UpdateTanks),
 );
 

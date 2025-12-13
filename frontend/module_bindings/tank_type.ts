@@ -18,6 +18,8 @@ export default __t.object("Tank", {
   worldId: __t.string(),
   owner: __t.identity(),
   name: __t.string(),
+  target: __t.option(__t.string()),
+  targetLead: __t.f32(),
   get path() {
     return __t.array(PathEntry);
   },

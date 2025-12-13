@@ -27,6 +27,7 @@ public static partial class Module
     }
 
     [Table(Name = "tank", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Name) })]
     public partial struct Tank
     {
         [PrimaryKey]
@@ -39,6 +40,9 @@ public static partial class Module
         public Identity Owner;
 
         public string Name;
+
+        public string? Target;
+        public float TargetLead;
 
         public PathEntry[] Path;
         public float TopSpeed;

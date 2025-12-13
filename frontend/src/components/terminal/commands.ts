@@ -73,6 +73,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "Commands:",
       "  drive, d, dr    Move your tank in a direction",
       "  aim, a          Aim turret at an angle or direction",
+      "  target, t       Target another tank by name",
       "  clear, c        Clear the terminal output",
       "  help, h         Display help information",
     ];
@@ -138,6 +139,24 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  aim 90",
         "  aim northeast"
+      ];
+
+    case "target":
+    case "t":
+      return [
+        "target, t - Target another tank by name",
+        "",
+        "Usage: target <tank_name> [lead]",
+        "",
+        "Arguments:",
+        "  <tank_name>   Name of the tank to target (required)",
+        "  [lead]        Distance in units to lead the target (default: 0)",
+        "                Aims ahead of the target based on their body direction",
+        "",
+        "Examples:",
+        "  target Alpha",
+        "  target Bravo 3",
+        "  t Charlie 5"
       ];
     
     case "help":
@@ -261,11 +280,12 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  const input = args[0].toLowerCase();
+  const input = args[0];
+  const inputLower = input.toLowerCase();
 
-  if (validDirections.includes(input)) {
-    const angleRadians = directionToAngle(input);
-    const dirInfo = directionAliases[input];
+  if (validDirections.includes(inputLower)) {
+    const angleRadians = directionToAngle(inputLower);
+    const dirInfo = directionAliases[inputLower];
     const description = `${dirInfo.symbol} ${dirInfo.name}`;
     
     connection.reducers.aim({ angleRadians });
@@ -277,6 +297,8 @@ export function aim(connection: DbConnection, args: string[]): string[] {
         `aim: error: invalid value '${args[0]}' for '<angle|direction>'`,
         "Must be a number (degrees) or valid direction",
         "Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu",
+        "",
+        "To target a tank by name, use: target <tank_name>",
         "",
         "Usage: aim <angle|direction>",
         "       aim 90"
@@ -297,5 +319,61 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     
     connection.reducers.aim({ angleRadians });
     return [`Aiming turret to ${description}`];
+  }
+}
+
+export function target(connection: DbConnection, args: string[]): string[] {
+  if (args.length < 1) {
+    return [
+      "target: error: missing required argument '<tank_name>'",
+      "",
+      "Usage: target <tank_name> [lead]",
+      "       target Alpha",
+      "       target Bravo 3"
+    ];
+  }
+
+  if (!connection.identity) {
+    return ["target: error: no connection"];
+  }
+
+  const targetName = args[0];
+  let lead = 0;
+
+  if (args.length > 1) {
+    const parsedLead = Number.parseFloat(args[1]);
+    if (Number.isNaN(parsedLead)) {
+      return [
+        `target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`,
+        "",
+        "Usage: target <tank_name> [lead]",
+        "       target Alpha 3"
+      ];
+    }
+    lead = parsedLead;
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter());
+  const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+
+  if (!myTank) {
+    return ["target: error: no connection"];
+  }
+
+  if (targetName === myTank.name) {
+    return ["target: error: cannot target your own tank"];
+  }
+
+  const targetTank = allTanks.find(t => t.name === targetName);
+  if (!targetTank) {
+    return [`target: error: tank '${targetName}' not found`];
+  }
+
+  connection.reducers.targetTank({ targetName, lead });
+
+  if (lead > 0) {
+    return [`Targeting tank '${targetName}' with ${lead} unit${lead !== 1 ? 's' : ''} lead`];
+  } else {
+    return [`Targeting tank '${targetName}'`];
   }
 }
