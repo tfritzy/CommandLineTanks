@@ -60,35 +60,8 @@ export class Tank {
     const barrelColor = this.alliance === 0 ? '#cc3333' : '#3355cc';
     const trackColor = this.alliance === 0 ? '#dd5555' : '#5577dd';
 
-    ctx.fillStyle = trackColor;
-    ctx.fillRect(-25, -20, 50, 10);
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(-25, -20, 50, 10);
-
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 50; i += 8) {
-      ctx.beginPath();
-      ctx.moveTo(-25 + i, -20);
-      ctx.lineTo(-25 + i, -10);
-      ctx.stroke();
-    }
-
-    ctx.fillStyle = trackColor;
-    ctx.fillRect(-25, 10, 50, 10);
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(-25, 10, 50, 10);
-
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 50; i += 8) {
-      ctx.beginPath();
-      ctx.moveTo(-25 + i, 10);
-      ctx.lineTo(-25 + i, 20);
-      ctx.stroke();
-    }
+    this.drawTrack(ctx, -25, -20, 50, 10, trackColor);
+    this.drawTrack(ctx, -25, 10, 50, 10, trackColor);
 
     ctx.fillStyle = bodyColor;
     ctx.fillRect(-23, -15, 46, 30);
@@ -122,6 +95,23 @@ export class Tank {
     ctx.textAlign = 'center';
     ctx.fillText(this.name, 0, -45);
     ctx.restore();
+  }
+
+  private drawTrack(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, color: string) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, width, height);
+
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < width; i += 8) {
+      ctx.beginPath();
+      ctx.moveTo(x + i, y);
+      ctx.lineTo(x + i, y + height);
+      ctx.stroke();
+    }
   }
 
   public setPosition(x: number, y: number) {
