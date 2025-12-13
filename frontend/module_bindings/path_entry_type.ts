@@ -17,6 +17,7 @@ export default __t.object("PathEntry", {
     return Vector2;
   },
   throttlePercent: __t.f32(),
+  reverse: __t.bool(),
 });
 
 

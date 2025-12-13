@@ -89,7 +89,8 @@ public static partial class Module
         PathEntry entry = new()
         {
             ThrottlePercent = throttle,
-            Position = nextPos
+            Position = nextPos,
+            Reverse = false
         };
 
         if (append)
@@ -123,7 +124,8 @@ public static partial class Module
         PathEntry entry = new()
         {
             ThrottlePercent = 1.0f,
-            Position = nextPos
+            Position = nextPos,
+            Reverse = true
         };
 
         tank.Path = [entry];

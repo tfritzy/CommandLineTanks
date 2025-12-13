@@ -21,6 +21,7 @@ public static partial class Types
     {
         public Vector2 Position;
         public float ThrottlePercent;
+        public bool Reverse;
     }
 
     [Type]
