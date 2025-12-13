@@ -1,6 +1,7 @@
 import { TankManager } from "./TankManager";
 import { ProjectileManager } from "./ProjectileManager";
 import { TerrainManager } from "./TerrainManager";
+import { ScoreManager } from "./ScoreManager";
 
 export const UNIT_TO_PIXEL = 50;
 
@@ -13,6 +14,7 @@ export class Game {
   private tankManager: TankManager;
   private projectileManager: ProjectileManager;
   private terrainManager: TerrainManager;
+  private scoreManager: ScoreManager;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -28,6 +30,7 @@ export class Game {
     this.tankManager = new TankManager();
     this.terrainManager = new TerrainManager(worldId);
     this.projectileManager = new ProjectileManager(worldId);
+    this.scoreManager = new ScoreManager(worldId);
   }
 
   private resizeCanvas() {
@@ -85,7 +88,32 @@ export class Game {
 
     this.ctx.restore();
 
+    this.drawScores();
+
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
+  }
+
+  private drawScores() {
+    const scores = this.scoreManager.getScores();
+    
+    this.ctx.save();
+    
+    this.ctx.font = 'bold 24px monospace';
+    this.ctx.textAlign = 'right';
+    
+    const padding = 20;
+    const lineHeight = 30;
+    const x = this.canvas.width - padding;
+    let y = padding + 24;
+    
+    this.ctx.fillStyle = '#ff6666';
+    this.ctx.fillText(`Team Red: ${scores[0] || 0}`, x, y);
+    
+    y += lineHeight;
+    this.ctx.fillStyle = '#6666ff';
+    this.ctx.fillText(`Team Blue: ${scores[1] || 0}`, x, y);
+    
+    this.ctx.restore();
   }
 
   public start() {
