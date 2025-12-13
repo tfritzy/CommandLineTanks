@@ -16,6 +16,7 @@ export default __t.object("Projectile", {
   id: __t.string(),
   worldId: __t.string(),
   shooterTankId: __t.string(),
+  alliance: __t.i32(),
   positionX: __t.f32(),
   positionY: __t.f32(),
   speed: __t.f32(),

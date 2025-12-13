@@ -19,6 +19,7 @@ export default __t.row({
   owner: __t.identity(),
   name: __t.string(),
   joinCode: __t.option(__t.string()),
+  alliance: __t.i32(),
   target: __t.option(__t.string()),
   targetLead: __t.f32(),
   get path() {

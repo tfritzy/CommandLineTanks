@@ -18,6 +18,7 @@ export class Tank {
   private turretAngularVelocity: number;
   private path: PathEntry[];
   private name: string;
+  private alliance: number;
 
   constructor(
     x: number,
@@ -26,6 +27,7 @@ export class Tank {
     targetBodyRotation: number,
     turretRotation: number,
     name: string,
+    alliance: number,
     velocityX: number = 0,
     velocityY: number = 0,
     bodyAngularVelocity: number = 0,
@@ -39,6 +41,7 @@ export class Tank {
     this.turretRotation = turretRotation;
     this.targetTurretRotation = turretRotation;
     this.name = name;
+    this.alliance = alliance;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
     this.bodyAngularVelocity = bodyAngularVelocity;
@@ -52,22 +55,22 @@ export class Tank {
     ctx.translate(this.x * UNIT_TO_PIXEL + offset, this.y * UNIT_TO_PIXEL + offset);
     ctx.rotate(this.bodyRotation);
 
-    // Draw tank tracks (bottom)
+    const bodyColor = this.alliance === 0 ? '#ff6666' : '#6666ff';
+    const turretColor = this.alliance === 0 ? '#ff8888' : '#8888ff';
+    const barrelColor = this.alliance === 0 ? '#cc5555' : '#5555cc';
+
     this.drawTrack(ctx, -25, -20, 50, 10);
     this.drawTrack(ctx, -25, 10, 50, 10);
 
-    // Draw tank body (main rectangle)
-    ctx.fillStyle = '#e8e8e8';
+    ctx.fillStyle = bodyColor;
     ctx.fillRect(-23, -15, 46, 30);
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2;
     ctx.strokeRect(-23, -15, 46, 30);
 
-    // Draw turret
     ctx.rotate(this.turretRotation - this.bodyRotation);
     
-    // Turret base (rounded rectangle)
-    ctx.fillStyle = '#f0f0f0';
+    ctx.fillStyle = turretColor;
     ctx.beginPath();
     ctx.roundRect(-15, -10, 30, 20, 5);
     ctx.fill();
@@ -75,8 +78,7 @@ export class Tank {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Turret barrel
-    ctx.fillStyle = '#d0d0d0';
+    ctx.fillStyle = barrelColor;
     ctx.fillRect(15, -3, 25, 6);
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2;
