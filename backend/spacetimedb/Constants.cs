@@ -6,4 +6,7 @@ public static partial class Module
     public const float PROJECTILE_SPEED = 7.0f;
     public const float PROJECTILE_SIZE = 0.3f;
     public const float GUN_BARREL_LENGTH = 0.4f;
+    public const int TANK_HEALTH = 100;
+    public const int PROJECTILE_DAMAGE = 20;
+    public const int COLLISION_REGION_SIZE = 4;
 }
