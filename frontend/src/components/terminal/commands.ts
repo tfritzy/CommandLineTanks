@@ -451,7 +451,7 @@ export function target(connection: DbConnection, args: string[]): string[] {
     return [`target: error: tank '${targetName}' not found`];
   }
 
-  connection.reducers.targetTank({ targetName, lead });
+  connection.reducers.targetTank({ targetName: targetNameLower, lead });
 
   if (lead > 0) {
     return [`Targeting tank '${targetTank.name}' with ${lead} unit${lead !== 1 ? 's' : ''} lead`];
