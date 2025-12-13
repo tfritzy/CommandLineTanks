@@ -1,4 +1,5 @@
 import { TankManager } from "./TankManager";
+import { TerrainManager } from "./TerrainManager";
 
 export const UNIT_TO_PIXEL = 50;
 
@@ -9,6 +10,7 @@ export class Game {
   private time: number = 0;
   private lastFrameTime: number = 0;
   private tankManager: TankManager;
+  private terrainManager: TerrainManager;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -22,6 +24,7 @@ export class Game {
     window.addEventListener("resize", () => this.resizeCanvas());
 
     this.tankManager = new TankManager();
+    this.terrainManager = new TerrainManager();
   }
 
   private resizeCanvas() {
@@ -82,6 +85,15 @@ export class Game {
     }
 
     this.ctx.translate(-cameraX, -cameraY);
+
+    this.terrainManager.draw(
+      this.ctx,
+      cameraX,
+      cameraY,
+      this.canvas.width,
+      this.canvas.height,
+      UNIT_TO_PIXEL
+    );
 
     this.drawGrid(cameraX, cameraY);
 

@@ -9,9 +9,15 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import BaseTerrain from "./base_terrain_type";
+import TerrainDetail from "./terrain_detail_type";
 
 export default __t.row({
   id: __t.string().primaryKey(),
   name: __t.string(),
   createdAt: __t.u64(),
+  width: __t.i32(),
+  height: __t.i32(),
+  baseTerrainLayer: __t.array(BaseTerrain),
+  terrainDetailLayer: __t.array(TerrainDetail),
 });
