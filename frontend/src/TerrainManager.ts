@@ -1,13 +1,18 @@
 import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, TerrainDetail } from "../module_bindings";
+import { TerrainDetailObject } from "./objects/TerrainDetailObject";
+import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field } from "./objects/TerrainDetails";
 
 export class TerrainManager {
   private worldWidth: number = 0;
   private worldHeight: number = 0;
   private baseTerrainLayer: number[] = [];
   private terrainDetailLayer: number[] = [];
+  private worldId: string;
+  private detailObjects: TerrainDetailObject[] = [];
 
-  constructor() {
+  constructor(worldId: string) {
+    this.worldId = worldId;
     this.subscribeToWorld();
   }
 
@@ -18,7 +23,7 @@ export class TerrainManager {
     connection
       .subscriptionBuilder()
       .onError((e) => console.log("TerrainManager subscription error", e))
-      .subscribe([`SELECT * FROM world`]);
+      .subscribe([`SELECT * FROM world WHERE id = '${this.worldId}'`]);
 
     connection.db.world.onInsert((_ctx, world) => {
       console.log("World data received:", world);
@@ -26,6 +31,7 @@ export class TerrainManager {
       this.worldHeight = world.height;
       this.baseTerrainLayer = world.baseTerrainLayer;
       this.terrainDetailLayer = world.terrainDetailLayer;
+      this.createDetailObjects();
     });
 
     connection.db.world.onUpdate((_ctx, _oldWorld, newWorld) => {
@@ -34,7 +40,53 @@ export class TerrainManager {
       this.worldHeight = newWorld.height;
       this.baseTerrainLayer = newWorld.baseTerrainLayer;
       this.terrainDetailLayer = newWorld.terrainDetailLayer;
+      this.createDetailObjects();
     });
+  }
+
+  private createDetailObjects() {
+    this.detailObjects = [];
+    
+    for (let y = 0; y < this.worldHeight; y++) {
+      for (let x = 0; x < this.worldWidth; x++) {
+        const index = y * this.worldWidth + x;
+        const detail = this.terrainDetailLayer[index];
+        
+        if (detail === TerrainDetail.None) {
+          continue;
+        }
+        
+        let obj: TerrainDetailObject | null = null;
+        
+        switch (detail) {
+          case TerrainDetail.Cliff:
+            obj = new Cliff(x, y);
+            break;
+          case TerrainDetail.Rock:
+            obj = new Rock(x, y);
+            break;
+          case TerrainDetail.Tree:
+            obj = new Tree(x, y);
+            break;
+          case TerrainDetail.Bridge:
+            obj = new Bridge(x, y);
+            break;
+          case TerrainDetail.Fence:
+            obj = new Fence(x, y);
+            break;
+          case TerrainDetail.HayBale:
+            obj = new HayBale(x, y);
+            break;
+          case TerrainDetail.Field:
+            obj = new Field(x, y);
+            break;
+        }
+        
+        if (obj) {
+          this.detailObjects.push(obj);
+        }
+      }
+    }
   }
 
   public draw(
@@ -98,24 +150,12 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    for (let tileY = startTileY; tileY <= endTileY; tileY++) {
-      for (let tileX = startTileX; tileX <= endTileX; tileX++) {
-        if (tileX < 0 || tileX >= this.worldWidth || tileY < 0 || tileY >= this.worldHeight) {
-          continue;
-        }
-
-        const index = tileY * this.worldWidth + tileX;
-        const detail = this.terrainDetailLayer[index];
-
-        if (detail === TerrainDetail.None) {
-          continue;
-        }
-
-        const worldX = tileX * unitToPixel;
-        const worldY = tileY * unitToPixel;
-
-        ctx.fillStyle = this.getTerrainDetailColor(detail);
-        ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);
+    for (const obj of this.detailObjects) {
+      const x = obj.getX();
+      const y = obj.getY();
+      
+      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
+        obj.draw(ctx);
       }
     }
   }
@@ -130,27 +170,6 @@ export class TerrainManager {
         return "#808080";
       default:
         return "#90ee90";
-    }
-  }
-
-  private getTerrainDetailColor(detail: number): string {
-    switch (detail) {
-      case TerrainDetail.Cliff:
-        return "#8b7355";
-      case TerrainDetail.Rock:
-        return "#696969";
-      case TerrainDetail.Tree:
-        return "#228b22";
-      case TerrainDetail.Bridge:
-        return "#a0522d";
-      case TerrainDetail.Fence:
-        return "#d2691e";
-      case TerrainDetail.HayBale:
-        return "#f0e68c";
-      case TerrainDetail.Field:
-        return "#daa520";
-      default:
-        return "#ffffff";
     }
   }
 }
