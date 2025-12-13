@@ -65,4 +65,24 @@ public static partial class Module
         public float TurretRotation;
         public float TargetTurretRotation;
     }
+
+    [Table(Name = "projectile", Public = true)]
+    public partial struct Projectile
+    {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public string ShooterTankId;
+
+        public float PositionX;
+        public float PositionY;
+
+        public float Speed;
+        public float Size;
+
+        public Vector2Float Velocity;
+    }
 }
