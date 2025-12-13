@@ -58,7 +58,23 @@ function App() {
     return <MainMenuPage onJoinWorld={handleJoinWorld} />;
   }
 
-  return <GamePage worldId={worldId!} />;
+  if (!worldId) {
+    return (
+      <div style={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#0a0a0a',
+        color: '#ffffff'
+      }}>
+        Loading world...
+      </div>
+    );
+  }
+
+  return <GamePage worldId={worldId} />;
 }
 
 export default App;
