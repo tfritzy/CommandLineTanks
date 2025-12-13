@@ -3,6 +3,54 @@ using static Types;
 
 public static partial class Module
 {
+    private static string DetermineAlliance(string joinCode)
+    {
+        return string.IsNullOrEmpty(joinCode) ? "left" : joinCode;
+    }
+
+    private static (float, float) FindSpawnPosition(World world, string alliance, RandomContext random)
+    {
+        int worldWidth = world.Width;
+        int worldHeight = world.Height;
+        
+        int minX, maxX;
+        if (alliance == "left")
+        {
+            int sideWidth = worldWidth / 2;
+            int padding = sideWidth / 2;
+            minX = padding;
+            maxX = sideWidth - padding;
+        }
+        else
+        {
+            int sideWidth = worldWidth / 2;
+            int padding = sideWidth / 2;
+            minX = worldWidth / 2 + padding;
+            maxX = worldWidth - padding;
+        }
+        
+        int padding_y = worldHeight / 4;
+        int minY = padding_y;
+        int maxY = worldHeight - padding_y;
+        
+        for (int attempt = 0; attempt < 100; attempt++)
+        {
+            int x = random.Next(minX, maxX);
+            int y = random.Next(minY, maxY);
+            
+            if (x >= 0 && x < worldWidth && y >= 0 && y < worldHeight)
+            {
+                int index = y * worldWidth + x;
+                if (index < world.TraversibilityMap.Length && world.TraversibilityMap[index])
+                {
+                    return (x, y);
+                }
+            }
+        }
+        
+        return (alliance == "left" ? worldWidth / 4 : 3 * worldWidth / 4, worldHeight / 2);
+    }
+
     [Reducer(ReducerKind.Init)]
     public static void Init(ReducerContext ctx)
     {
@@ -190,6 +238,7 @@ public static partial class Module
             Id = projectileId,
             WorldId = tank.WorldId,
             ShooterTankId = tank.Id,
+            Alliance = tank.Alliance,
             PositionX = barrelTipX,
             PositionY = barrelTipY,
             Speed = PROJECTILE_SPEED,
@@ -237,6 +286,9 @@ public static partial class Module
             return;
         }
 
+        var alliance = DetermineAlliance(joinCode);
+        var (spawnX, spawnY) = FindSpawnPosition(world.Value, alliance, ctx.Rng);
+
         var tankId = GenerateId(ctx, "tnk");
         var tank = new Tank
         {
@@ -245,14 +297,15 @@ public static partial class Module
             Owner = ctx.Sender,
             Name = tankName,
             JoinCode = joinCode,
+            Alliance = alliance,
             Health = Module.TANK_HEALTH,
-            CollisionRegionX = 0,
-            CollisionRegionY = 0,
+            CollisionRegionX = (int)Math.Floor(spawnX / Module.COLLISION_REGION_SIZE),
+            CollisionRegionY = (int)Math.Floor(spawnY / Module.COLLISION_REGION_SIZE),
             Target = null,
             TargetLead = 0.0f,
             Path = [],
-            PositionX = 0.0f,
-            PositionY = 0.0f,
+            PositionX = spawnX,
+            PositionY = spawnY,
             BodyRotation = 0.0f,
             TurretRotation = 0.0f,
             TargetTurretRotation = 0.0f,
@@ -262,6 +315,6 @@ public static partial class Module
         };
 
         ctx.Db.tank.Insert(tank);
-        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName} (joinCode: {joinCode})");
+        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName} at position ({spawnX}, {spawnY}) alliance {alliance} (joinCode: {joinCode})");
     }
 }
