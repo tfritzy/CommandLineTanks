@@ -12,7 +12,7 @@ export class Game {
   private time: number = 0;
   private lastFrameTime: number = 0;
   private tankManager: TankManager;
-  private projectileManager: ProjectileManager;
+  private projectileManager: ProjectileManager | null = null;
   private terrainManager: TerrainManager | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -27,8 +27,8 @@ export class Game {
     window.addEventListener("resize", () => this.resizeCanvas());
 
     this.tankManager = new TankManager();
-    this.projectileManager = new ProjectileManager();
     this.initializeTerrainManager();
+    this.initializeProjectileManager();
   }
 
   private initializeTerrainManager() {
@@ -39,6 +39,19 @@ export class Game {
       if (connection.identity && tank.owner.isEqual(connection.identity)) {
         if (!this.terrainManager) {
           this.terrainManager = new TerrainManager(tank.worldId);
+        }
+      }
+    });
+  }
+
+  private initializeProjectileManager() {
+    const connection = getConnection();
+    if (!connection) return;
+
+    connection.db.tank.onInsert((_ctx, tank) => {
+      if (connection.identity && tank.owner.isEqual(connection.identity)) {
+        if (!this.projectileManager) {
+          this.projectileManager = new ProjectileManager(tank.worldId);
         }
       }
     });
@@ -83,7 +96,9 @@ export class Game {
     this.time += deltaTime;
 
     this.tankManager.update(deltaTime);
-    this.projectileManager.update(deltaTime);
+    if (this.projectileManager) {
+      this.projectileManager.update(deltaTime);
+    }
 
     this.ctx.fillStyle = "#ffffff";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -121,8 +136,10 @@ export class Game {
       tank.draw(this.ctx);
     }
 
-    for (const projectile of this.projectileManager.getAllProjectiles()) {
-      projectile.draw(this.ctx);
+    if (this.projectileManager) {
+      for (const projectile of this.projectileManager.getAllProjectiles()) {
+        projectile.draw(this.ctx);
+      }
     }
 
     this.ctx.restore();

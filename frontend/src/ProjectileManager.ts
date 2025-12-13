@@ -3,8 +3,10 @@ import { getConnection } from "./spacetimedb-connection";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
+  private worldId: string;
 
-  constructor() {
+  constructor(worldId: string) {
+    this.worldId = worldId;
     this.subscribeToProjectiles();
   }
 
@@ -15,7 +17,7 @@ export class ProjectileManager {
     connection
       .subscriptionBuilder()
       .onError((e) => console.log("Projectile subscription error", e))
-      .subscribe([`SELECT * FROM projectile`]);
+      .subscribe([`SELECT * FROM projectile WHERE worldId = '${this.worldId}'`]);
 
     connection.db.projectile.onInsert((_ctx, projectile) => {
       console.log(projectile);
