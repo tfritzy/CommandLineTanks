@@ -35,7 +35,7 @@ public static partial class TankUpdater
             if (tank.Path.Length > 0)
             {
                 var targetPos = tank.Path[0];
-                if (IsTankFacingTarget(tank, targetPos.Position))
+                if (IsTankFacingTarget(tank, targetPos.Position, targetPos.Reverse))
                 {
                     var deltaX = targetPos.Position.X - tank.PositionX;
                     var deltaY = targetPos.Position.Y - tank.PositionY;
@@ -90,6 +90,12 @@ public static partial class TankUpdater
                     var deltaX = targetPos.Position.X - tank.PositionX;
                     var deltaY = targetPos.Position.Y - tank.PositionY;
                     var targetAngle = Math.Atan2(deltaY, deltaX);
+                    
+                    if (targetPos.Reverse)
+                    {
+                        targetAngle += Math.PI;
+                        if (targetAngle > Math.PI) targetAngle -= 2 * Math.PI;
+                    }
 
                     var angleDiff = targetAngle - tank.BodyRotation;
                     while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
@@ -207,11 +213,17 @@ public static partial class TankUpdater
         }
     }
 
-    private static bool IsTankFacingTarget(Module.Tank tank, Vector2 target, double tolerance = 0.02)
+    private static bool IsTankFacingTarget(Module.Tank tank, Vector2 target, bool reverse = false, double tolerance = 0.02)
     {
         var deltaX = target.X - tank.PositionX;
         var deltaY = target.Y - tank.PositionY;
         var targetAngle = Math.Atan2(deltaY, deltaX);
+        
+        if (reverse)
+        {
+            targetAngle += Math.PI;
+            if (targetAngle > Math.PI) targetAngle -= 2 * Math.PI;
+        }
 
         var angleDiff = targetAngle - tank.BodyRotation;
 

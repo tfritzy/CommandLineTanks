@@ -72,6 +72,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     return [
       "Commands:",
       "  drive, d, dr    Move your tank in a direction",
+      "  reverse, r      Reverse in the direction the tank is facing",
       "  aim, a          Aim turret at an angle or direction",
       "  target, t       Target another tank by name",
       "  clear, c        Clear the terminal output",
@@ -114,6 +115,22 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  d n 5",
         "  drive southeast 3 75",
         "  d se 3 75 -a"
+      ];
+    
+    case "reverse":
+    case "r":
+      return [
+        "reverse, r - Reverse in the direction the tank is facing",
+        "",
+        "Usage: reverse <distance>",
+        "",
+        "Arguments:",
+        "  <distance>    Distance to reverse in units (required)",
+        "                Reverses in the -direction of the tank's body rotation",
+        "",
+        "Examples:",
+        "  reverse 3",
+        "  r 2"
       ];
     
     case "aim":
@@ -376,4 +393,33 @@ export function target(connection: DbConnection, args: string[]): string[] {
   } else {
     return [`Targeting tank '${targetName}'`];
   }
+}
+
+export function reverse(connection: DbConnection, args: string[]): string[] {
+  if (args.length < 1) {
+    return [
+      "reverse: error: missing required argument '<distance>'",
+      "",
+      "Usage: reverse <distance>",
+      "       reverse 3"
+    ];
+  }
+
+  const parsed = Number.parseFloat(args[0]);
+  if (Number.isNaN(parsed)) {
+    return [
+      `reverse: error: invalid value '${args[0]}' for '<distance>': must be a valid number`,
+      "",
+      "Usage: reverse <distance>",
+      "       reverse 3"
+    ];
+  }
+
+  const distance = parsed;
+
+  connection.reducers.reverse({ distance });
+
+  return [
+    `Reversing ${distance} ${distance != 1 ? "units" : "unit"}`,
+  ];
 }

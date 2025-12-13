@@ -89,7 +89,8 @@ public static partial class Module
         PathEntry entry = new()
         {
             ThrottlePercent = throttle,
-            Position = nextPos
+            Position = nextPos,
+            Reverse = false
         };
 
         if (append)
@@ -101,6 +102,33 @@ public static partial class Module
             tank.Path = [entry];
         }
 
+        ctx.Db.tank.Id.Update(tank);
+    }
+
+    [Reducer]
+    public static void reverse(ReducerContext ctx, float distance)
+    {
+        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        Vector2 rootPos = new Vector2((int)tank.PositionX, (int)tank.PositionY);
+        
+        float angle = tank.BodyRotation;
+        int offsetX = (int)Math.Round(-Math.Cos(angle) * distance);
+        int offsetY = (int)Math.Round(-Math.Sin(angle) * distance);
+        
+        Vector2 nextPos = new(rootPos.X + offsetX, rootPos.Y + offsetY);
+        Log.Info(tank + " reversing to " + nextPos + ". because " + rootPos + " and offset (" + offsetX + ", " + offsetY + ")");
+
+        PathEntry entry = new()
+        {
+            ThrottlePercent = 1.0f,
+            Position = nextPos,
+            Reverse = true
+        };
+
+        tank.Path = [entry];
         ctx.Db.tank.Id.Update(tank);
     }
 
