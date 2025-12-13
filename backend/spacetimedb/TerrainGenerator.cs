@@ -1,5 +1,6 @@
 using SpacetimeDB;
 using static Types;
+using System;
 
 public static partial class TerrainGenerator
 {
@@ -12,7 +13,7 @@ public static partial class TerrainGenerator
     private const int CLIFF_POCKET_SIZE = 4;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
 
-    public static (BaseTerrain[], TerrainDetail[]) GenerateTerrain(RandomContext random)
+    public static (BaseTerrain[], TerrainDetail[]) GenerateTerrain(Random random)
     {
         var baseTerrain = new BaseTerrain[WORLD_WIDTH * WORLD_HEIGHT];
         var terrainDetail = new TerrainDetail[WORLD_WIDTH * WORLD_HEIGHT];
@@ -23,9 +24,9 @@ public static partial class TerrainGenerator
             terrainDetail[i] = TerrainDetail.None;
         }
 
-        bool hasStream = random.NextFloat() < STREAM_PROBABILITY;
+        bool hasStream = random.NextSingle() < STREAM_PROBABILITY;
         Vector2[] streamPath = Array.Empty<Vector2>();
-        
+
         if (hasStream)
         {
             streamPath = GenerateStream(baseTerrain, random);
@@ -44,56 +45,56 @@ public static partial class TerrainGenerator
         return (baseTerrain, terrainDetail);
     }
 
-    private static Vector2[] GenerateStream(BaseTerrain[] baseTerrain, RandomContext random)
+    private static Vector2[] GenerateStream(BaseTerrain[] baseTerrain, Random random)
     {
         var streamPath = new Vector2[WORLD_HEIGHT];
-        
-        int startX = (int)(WORLD_WIDTH * 0.125f + random.NextFloat() * WORLD_WIDTH * 0.75f);
-        int endX = (int)(WORLD_WIDTH * 0.125f + random.NextFloat() * WORLD_WIDTH * 0.75f);
-        
+
+        int startX = (int)(WORLD_WIDTH * 0.125f + random.NextSingle() * WORLD_WIDTH * 0.75f);
+        int endX = (int)(WORLD_WIDTH * 0.125f + random.NextSingle() * WORLD_WIDTH * 0.75f);
+
         int currentX = startX;
-        
+
         for (int y = 0; y < WORLD_HEIGHT; y++)
         {
             float progress = (float)y / WORLD_HEIGHT;
             int targetX = (int)(startX + (endX - startX) * progress);
-            
-            if (currentX < targetX && random.NextFloat() > 0.3f)
+
+            if (currentX < targetX && random.NextSingle() > 0.3f)
             {
                 currentX++;
             }
-            else if (currentX > targetX && random.NextFloat() > 0.3f)
+            else if (currentX > targetX && random.NextSingle() > 0.3f)
             {
                 currentX--;
             }
-            
+
             currentX = Math.Max(1, Math.Min(WORLD_WIDTH - 2, currentX));
-            
+
             int index = y * WORLD_WIDTH + currentX;
             baseTerrain[index] = BaseTerrain.Stream;
             streamPath[y] = new Vector2(currentX, y);
         }
-        
+
         return streamPath;
     }
 
-    private static Vector2[] GenerateRoadsWithBridges(BaseTerrain[] baseTerrain, TerrainDetail[] terrainDetail, Vector2[] streamPath, RandomContext random)
+    private static Vector2[] GenerateRoadsWithBridges(BaseTerrain[] baseTerrain, TerrainDetail[] terrainDetail, Vector2[] streamPath, Random random)
     {
         var roadTilesList = new Vector2[WORLD_WIDTH * WORLD_HEIGHT];
         int roadTilesCount = 0;
         var bridgeLocations = new Vector2[MIN_BRIDGES];
         int bridgesPlaced = 0;
-        
+
         if (streamPath.Length > 0)
         {
             int attempts = 0;
-            
+
             while (bridgesPlaced < MIN_BRIDGES && attempts < 100)
             {
                 attempts++;
                 int streamIndex = random.Next(10, streamPath.Length - 10);
                 Vector2 streamPos = streamPath[streamIndex];
-                
+
                 bool tooClose = false;
                 for (int i = 0; i < bridgesPlaced; i++)
                 {
@@ -103,11 +104,11 @@ public static partial class TerrainGenerator
                         break;
                     }
                 }
-                
+
                 if (tooClose) continue;
-                
+
                 bridgeLocations[bridgesPlaced] = streamPos;
-                
+
                 for (int dx = 0; dx < 2; dx++)
                 {
                     int bridgeX = streamPos.X + dx;
@@ -118,14 +119,14 @@ public static partial class TerrainGenerator
                         terrainDetail[index] = TerrainDetail.Bridge;
                     }
                 }
-                
+
                 int roadLength = 20 + random.Next(20);
-                
+
                 for (int i = 1; i <= roadLength; i++)
                 {
                     int x1 = streamPos.X - i;
                     int x2 = streamPos.X + i;
-                    
+
                     if (x1 >= 0 && x1 < WORLD_WIDTH)
                     {
                         int index = streamPos.Y * WORLD_WIDTH + x1;
@@ -138,7 +139,7 @@ public static partial class TerrainGenerator
                             }
                         }
                     }
-                    
+
                     if (x2 >= 0 && x2 < WORLD_WIDTH)
                     {
                         int index = streamPos.Y * WORLD_WIDTH + x2;
@@ -152,18 +153,18 @@ public static partial class TerrainGenerator
                         }
                     }
                 }
-                
+
                 bridgesPlaced++;
             }
         }
         else
         {
             int numRoads = 2 + random.Next(3);
-            
+
             for (int i = 0; i < numRoads; i++)
             {
                 int y = random.Next(WORLD_HEIGHT);
-                
+
                 for (int x = 0; x < WORLD_WIDTH; x++)
                 {
                     int index = y * WORLD_WIDTH + x;
@@ -175,33 +176,33 @@ public static partial class TerrainGenerator
                 }
             }
         }
-        
+
         var result = new Vector2[roadTilesCount];
         Array.Copy(roadTilesList, result, roadTilesCount);
         return result;
     }
 
-    private static void GenerateCliffs(TerrainDetail[] terrainDetail, BaseTerrain[] baseTerrain, RandomContext random)
+    private static void GenerateCliffs(TerrainDetail[] terrainDetail, BaseTerrain[] baseTerrain, Random random)
     {
         int numCliffPockets = 8 + random.Next(8);
-        
+
         for (int i = 0; i < numCliffPockets; i++)
         {
             int centerX = random.Next(WORLD_WIDTH);
             int centerY = random.Next(WORLD_HEIGHT);
             int size = CLIFF_POCKET_SIZE + random.Next(3);
-            
+
             for (int dy = -size / 2; dy <= size / 2; dy++)
             {
                 for (int dx = -size / 2; dx <= size / 2; dx++)
                 {
                     int x = centerX + dx;
                     int y = centerY + dy;
-                    
+
                     if (x >= 0 && x < WORLD_WIDTH && y >= 0 && y < WORLD_HEIGHT)
                     {
                         int index = y * WORLD_WIDTH + x;
-                        if (baseTerrain[index] == BaseTerrain.Ground && random.NextFloat() > 0.3f)
+                        if (baseTerrain[index] == BaseTerrain.Ground && random.NextSingle() > 0.3f)
                         {
                             terrainDetail[index] = TerrainDetail.Cliff;
                         }
@@ -211,16 +212,16 @@ public static partial class TerrainGenerator
         }
     }
 
-    private static void GenerateRocks(TerrainDetail[] terrainDetail, BaseTerrain[] baseTerrain, RandomContext random)
+    private static void GenerateRocks(TerrainDetail[] terrainDetail, BaseTerrain[] baseTerrain, Random random)
     {
         int numRocks = 100 + random.Next(100);
-        
+
         for (int i = 0; i < numRocks; i++)
         {
             int x = random.Next(WORLD_WIDTH);
             int y = random.Next(WORLD_HEIGHT);
             int index = y * WORLD_WIDTH + x;
-            
+
             if (baseTerrain[index] == BaseTerrain.Ground && terrainDetail[index] == TerrainDetail.None)
             {
                 terrainDetail[index] = TerrainDetail.Rock;
@@ -228,28 +229,28 @@ public static partial class TerrainGenerator
         }
     }
 
-    private static Vector2[] GenerateFields(TerrainDetail[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] roadTiles, RandomContext random)
+    private static Vector2[] GenerateFields(TerrainDetail[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] roadTiles, Random random)
     {
         var fieldTilesList = new Vector2[WORLD_WIDTH * WORLD_HEIGHT];
         int fieldTilesCount = 0;
         int numFields = 5 + random.Next(5);
-        
+
         for (int fieldIdx = 0; fieldIdx < numFields; fieldIdx++)
         {
             int attempts = 0;
             bool placed = false;
-            
+
             while (!placed && attempts < 100)
             {
                 attempts++;
-                
+
                 int fieldWidth = FIELD_MIN_SIZE + random.Next(FIELD_MAX_SIZE - FIELD_MIN_SIZE + 1);
                 int fieldHeight = FIELD_MIN_SIZE + random.Next(FIELD_MAX_SIZE - FIELD_MIN_SIZE + 1);
                 int startX = random.Next(WORLD_WIDTH - fieldWidth);
                 int startY = random.Next(WORLD_HEIGHT - fieldHeight);
-                
+
                 bool validLocation = true;
-                
+
                 for (int y = startY - 1; y <= startY + fieldHeight; y++)
                 {
                     for (int x = startX - 1; x <= startX + fieldWidth; x++)
@@ -259,14 +260,14 @@ public static partial class TerrainGenerator
                             validLocation = false;
                             break;
                         }
-                        
+
                         int index = y * WORLD_WIDTH + x;
                         if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetail.None)
                         {
                             validLocation = false;
                             break;
                         }
-                        
+
                         bool onRoad = false;
                         for (int r = 0; r < roadTiles.Length; r++)
                         {
@@ -276,17 +277,17 @@ public static partial class TerrainGenerator
                                 break;
                             }
                         }
-                        
+
                         if (onRoad)
                         {
                             validLocation = false;
                             break;
                         }
                     }
-                    
+
                     if (!validLocation) break;
                 }
-                
+
                 if (validLocation)
                 {
                     for (int y = startY; y < startY + fieldHeight; y++)
@@ -301,7 +302,7 @@ public static partial class TerrainGenerator
                             }
                         }
                     }
-                    
+
                     for (int x = startX; x < startX + fieldWidth; x++)
                     {
                         if (startY > 0)
@@ -312,7 +313,7 @@ public static partial class TerrainGenerator
                                 terrainDetail[fenceIndex] = TerrainDetail.Fence;
                             }
                         }
-                        
+
                         if (startY + fieldHeight < WORLD_HEIGHT)
                         {
                             int fenceIndex = (startY + fieldHeight) * WORLD_WIDTH + x;
@@ -322,7 +323,7 @@ public static partial class TerrainGenerator
                             }
                         }
                     }
-                    
+
                     for (int y = startY; y < startY + fieldHeight; y++)
                     {
                         if (startX > 0)
@@ -333,7 +334,7 @@ public static partial class TerrainGenerator
                                 terrainDetail[fenceIndex] = TerrainDetail.Fence;
                             }
                         }
-                        
+
                         if (startX + fieldWidth < WORLD_WIDTH)
                         {
                             int fenceIndex = y * WORLD_WIDTH + (startX + fieldWidth);
@@ -343,45 +344,45 @@ public static partial class TerrainGenerator
                             }
                         }
                     }
-                    
+
                     int numHayBales = (fieldWidth * fieldHeight) / HAY_BALE_DENSITY_DIVISOR;
                     for (int i = 0; i < numHayBales; i++)
                     {
                         int hx = startX + random.Next(fieldWidth);
                         int hy = startY + random.Next(fieldHeight);
                         int hIndex = hy * WORLD_WIDTH + hx;
-                        
+
                         if (terrainDetail[hIndex] == TerrainDetail.Field)
                         {
                             terrainDetail[hIndex] = TerrainDetail.HayBale;
                         }
                     }
-                    
+
                     placed = true;
                 }
             }
         }
-        
+
         var result = new Vector2[fieldTilesCount];
         Array.Copy(fieldTilesList, result, fieldTilesCount);
         return result;
     }
 
-    private static void GenerateTrees(TerrainDetail[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] roadTiles, Vector2[] streamPath, Vector2[] fieldTiles, RandomContext random)
+    private static void GenerateTrees(TerrainDetail[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] roadTiles, Vector2[] streamPath, Vector2[] fieldTiles, Random random)
     {
         int numTrees = 200 + random.Next(200);
-        
+
         for (int i = 0; i < numTrees; i++)
         {
             int x = random.Next(WORLD_WIDTH);
             int y = random.Next(WORLD_HEIGHT);
             int index = y * WORLD_WIDTH + x;
-            
+
             if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetail.None)
             {
                 continue;
             }
-            
+
             bool nearRoadOrStream = false;
             for (int dy = -1; dy <= 1; dy++)
             {
@@ -389,7 +390,7 @@ public static partial class TerrainGenerator
                 {
                     int checkX = x + dx;
                     int checkY = y + dy;
-                    
+
                     if (checkX >= 0 && checkX < WORLD_WIDTH && checkY >= 0 && checkY < WORLD_HEIGHT)
                     {
                         int checkIndex = checkY * WORLD_WIDTH + checkX;
@@ -402,12 +403,12 @@ public static partial class TerrainGenerator
                 }
                 if (nearRoadOrStream) break;
             }
-            
+
             if (nearRoadOrStream)
             {
                 continue;
             }
-            
+
             bool nearField = false;
             for (int f = 0; f < fieldTiles.Length; f++)
             {
@@ -417,12 +418,12 @@ public static partial class TerrainGenerator
                     break;
                 }
             }
-            
+
             if (nearField)
             {
                 continue;
             }
-            
+
             terrainDetail[index] = TerrainDetail.Tree;
         }
     }
@@ -440,11 +441,11 @@ public static partial class TerrainGenerator
     public static bool[] CalculateTraversibility(BaseTerrain[] baseTerrain, TerrainDetail[] terrainDetail)
     {
         var traversibility = new bool[baseTerrain.Length];
-        
+
         for (int i = 0; i < baseTerrain.Length; i++)
         {
             bool baseTraversible = baseTerrain[i] != BaseTerrain.Stream;
-            
+
             bool detailTraversible = terrainDetail[i] switch
             {
                 TerrainDetail.None => true,
@@ -457,10 +458,10 @@ public static partial class TerrainGenerator
                 TerrainDetail.HayBale => false,
                 _ => true
             };
-            
+
             traversibility[i] = baseTraversible && detailTraversible;
         }
-        
+
         return traversibility;
     }
 }

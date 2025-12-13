@@ -10,6 +10,11 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  distance: __t.f32(),
-};
+export default __t.object("ScheduledProjectileUpdates", {
+  scheduledId: __t.u64(),
+  scheduledAt: __t.scheduleAt(),
+  worldId: __t.string(),
+  lastTickAt: __t.u64(),
+});
+
+

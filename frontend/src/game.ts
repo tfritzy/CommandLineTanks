@@ -38,30 +38,6 @@ export class Game {
     }
   }
 
-  private drawGrid(cameraX: number, cameraY: number) {
-    this.ctx.strokeStyle = "#dddddd";
-    this.ctx.lineWidth = 1;
-
-    const startX = Math.floor(cameraX / UNIT_TO_PIXEL) * UNIT_TO_PIXEL;
-    const endX = cameraX + this.canvas.width;
-    const startY = Math.floor(cameraY / UNIT_TO_PIXEL) * UNIT_TO_PIXEL;
-    const endY = cameraY + this.canvas.height;
-
-    for (let x = startX; x <= endX; x += UNIT_TO_PIXEL) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, cameraY);
-      this.ctx.lineTo(x, endY);
-      this.ctx.stroke();
-    }
-
-    for (let y = startY; y <= endY; y += UNIT_TO_PIXEL) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(cameraX, y);
-      this.ctx.lineTo(endX, y);
-      this.ctx.stroke();
-    }
-  }
-
   private update(currentTime: number = 0) {
     const deltaTime =
       this.lastFrameTime === 0 ? 0 : (currentTime - this.lastFrameTime) / 1000;
@@ -98,8 +74,6 @@ export class Game {
       this.canvas.height,
       UNIT_TO_PIXEL
     );
-
-    this.drawGrid(cameraX, cameraY);
 
     for (const tank of this.tankManager.getAllTanks()) {
       tank.draw(this.ctx);

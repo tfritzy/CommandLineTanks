@@ -9,8 +9,8 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import PathEntry from "./path_entry_type";
 import Vector2Float from "./vector_2_float_type";
+import PathEntry from "./path_entry_type";
 
 
 export default __t.row({

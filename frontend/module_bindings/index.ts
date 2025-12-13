@@ -49,12 +49,16 @@ import Reverse from "./reverse_reducer";
 export { Reverse };
 import TargetTank from "./target_tank_reducer";
 export { TargetTank };
+import UpdateProjectiles from "./update_projectiles_reducer";
+export { UpdateProjectiles };
 import UpdateTanks from "./update_tanks_reducer";
 export { UpdateTanks };
 
 // Import and reexport all procedure arg types
 
 // Import and reexport all table handle types
+import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
+export { ScheduledProjectileUpdatesRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import PlayerRow from "./player_table";
@@ -67,29 +71,42 @@ import WorldRow from "./world_table";
 export { WorldRow };
 
 // Import and reexport all types
+import BaseTerrain from "./base_terrain_type";
+export { BaseTerrain };
 import PathEntry from "./path_entry_type";
 export { PathEntry };
 import Player from "./player_type";
 export { Player };
 import Projectile from "./projectile_type";
 export { Projectile };
+import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
+export { ScheduledProjectileUpdates };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 export { ScheduledTankUpdates };
 import Tank from "./tank_type";
 export { Tank };
+import TerrainDetail from "./terrain_detail_type";
+export { TerrainDetail };
 import Vector2 from "./vector_2_type";
 export { Vector2 };
 import Vector2Float from "./vector_2_float_type";
 export { Vector2Float };
 import World from "./world_type";
 export { World };
-import { BaseTerrain } from "./base_terrain_type";
-export { BaseTerrain };
-import { TerrainDetail } from "./terrain_detail_type";
-export { TerrainDetail };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
+  __table({
+    name: 'ScheduledProjectileUpdates',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledProjectileUpdates_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledProjectileUpdatesRow),
   __table({
     name: 'ScheduledTankUpdates',
     indexes: [
@@ -139,6 +156,11 @@ const tablesSchema = __schema(
       { name: 'Owner', algorithm: 'btree', columns: [
         'owner',
       ] },
+      { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
+        'worldId',
+        'collisionRegionX',
+        'collisionRegionY',
+      ] },
       { name: 'WorldId_Name', algorithm: 'btree', columns: [
         'worldId',
         'name',
@@ -173,6 +195,7 @@ const reducersSchema = __reducers(
   __reducerSchema("respawn", Respawn),
   __reducerSchema("reverse", Reverse),
   __reducerSchema("targetTank", TargetTank),
+  __reducerSchema("UpdateProjectiles", UpdateProjectiles),
   __reducerSchema("UpdateTanks", UpdateTanks),
 );
 

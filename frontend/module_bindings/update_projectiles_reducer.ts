@@ -10,6 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
+
 export default {
-  distance: __t.f32(),
+  get args() {
+    return ScheduledProjectileUpdates;
+  },
 };

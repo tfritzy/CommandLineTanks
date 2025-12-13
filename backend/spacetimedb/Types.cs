@@ -40,21 +40,21 @@ public static partial class Types
     [Type]
     public enum BaseTerrain : byte
     {
-        Ground = 0,
-        Stream = 1,
-        Road = 2
+        Ground,
+        Stream,
+        Road
     }
 
     [Type]
     public enum TerrainDetail : byte
     {
-        None = 0,
-        Cliff = 1,
-        Rock = 2,
-        Tree = 3,
-        Bridge = 4,
-        Fence = 5,
-        HayBale = 6,
-        Field = 7
+        None,
+        Cliff,
+        Rock,
+        Tree,
+        Bridge,
+        Fence,
+        HayBale,
+        Field
     }
 }

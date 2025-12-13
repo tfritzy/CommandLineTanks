@@ -25,36 +25,38 @@ export async function connectToSpacetimeDB(): Promise<DbConnection> {
   // Get stored token if available
   const token = localStorage.getItem(CREDS_KEY) || undefined;
 
-  try {
-    // Create connection using the generated DbConnection builder
-    const connection = DbConnection.builder()
-      .withUri(SPACETIMEDB_HOST)
-      .withModuleName(MODULE_NAME)
-      .withToken(token)
-      .onConnect((conn: DbConnection, identity: Identity, authToken: string) => {
-        console.log('✓ Connected to SpacetimeDB');
-        console.log('  Identity:', identity.toHexString());
-        
-        // Save the token for future connections
-        localStorage.setItem(CREDS_KEY, authToken);
-        
-        dbConnection = conn;
-      })
-      .onConnectError((_ctx: ErrorContext, error: Error) => {
-        console.error('✗ Failed to connect to SpacetimeDB:', error);
-        dbConnection = null;
-      })
-      .onDisconnect(() => {
-        console.log('Disconnected from SpacetimeDB');
-        dbConnection = null;
-      })
-      .build();
-
-    return connection;
-  } catch (error) {
-    console.error('Error creating SpacetimeDB connection:', error);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    try {
+      // Create connection using the generated DbConnection builder
+      DbConnection.builder()
+        .withUri(SPACETIMEDB_HOST)
+        .withModuleName(MODULE_NAME)
+        .withToken(token)
+        .onConnect((conn: DbConnection, identity: Identity, authToken: string) => {
+          console.log('✓ Connected to SpacetimeDB');
+          console.log('  Identity:', identity.toHexString());
+          
+          // Save the token for future connections
+          localStorage.setItem(CREDS_KEY, authToken);
+          
+          dbConnection = conn;
+          resolve(conn);
+        })
+        .onConnectError((_ctx: ErrorContext, error: Error) => {
+          console.error('✗ Failed to connect to SpacetimeDB:', error);
+          dbConnection = null;
+          reject(error);
+        })
+        .onDisconnect(() => {
+          console.log('Disconnected from SpacetimeDB');
+          dbConnection = null;
+        })
+        .build();
+    } catch (error) {
+      console.error('Error creating SpacetimeDB connection:', error);
+      reject(error);
+    }
+  });
 }
 
 /**

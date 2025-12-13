@@ -2,12 +2,16 @@ import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, TerrainDetail } from "../module_bindings";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
 import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field } from "./objects/TerrainDetails";
+import type { Infer } from "spacetimedb";
+
+type BaseTerrainType = Infer<typeof BaseTerrain>;
+type TerrainDetailType = Infer<typeof TerrainDetail>;
 
 export class TerrainManager {
   private worldWidth: number = 0;
   private worldHeight: number = 0;
-  private baseTerrainLayer: number[] = [];
-  private terrainDetailLayer: number[] = [];
+  private baseTerrainLayer: BaseTerrainType[] = [];
+  private terrainDetailLayer: TerrainDetailType[] = [];
   private worldId: string;
   private detailObjects: TerrainDetailObject[] = [];
 
@@ -23,7 +27,7 @@ export class TerrainManager {
     connection
       .subscriptionBuilder()
       .onError((e) => console.log("TerrainManager subscription error", e))
-      .subscribe([`SELECT * FROM world WHERE id = '${this.worldId}'`]);
+      .subscribe([`SELECT * FROM world WHERE Id = '${this.worldId}'`]);
 
     connection.db.world.onInsert((_ctx, world) => {
       console.log("World data received:", world);
@@ -52,32 +56,32 @@ export class TerrainManager {
         const index = y * this.worldWidth + x;
         const detail = this.terrainDetailLayer[index];
         
-        if (detail === TerrainDetail.None) {
+        if (detail.tag === "None") {
           continue;
         }
         
         let obj: TerrainDetailObject | null = null;
         
-        switch (detail) {
-          case TerrainDetail.Cliff:
+        switch (detail.tag) {
+          case "Cliff":
             obj = new Cliff(x, y);
             break;
-          case TerrainDetail.Rock:
+          case "Rock":
             obj = new Rock(x, y);
             break;
-          case TerrainDetail.Tree:
+          case "Tree":
             obj = new Tree(x, y);
             break;
-          case TerrainDetail.Bridge:
+          case "Bridge":
             obj = new Bridge(x, y);
             break;
-          case TerrainDetail.Fence:
+          case "Fence":
             obj = new Fence(x, y);
             break;
-          case TerrainDetail.HayBale:
+          case "HayBale":
             obj = new HayBale(x, y);
             break;
-          case TerrainDetail.Field:
+          case "Field":
             obj = new Field(x, y);
             break;
         }
@@ -160,13 +164,13 @@ export class TerrainManager {
     }
   }
 
-  private getBaseTerrainColor(terrain: number): string {
-    switch (terrain) {
-      case BaseTerrain.Ground:
+  private getBaseTerrainColor(terrain: BaseTerrainType): string {
+    switch (terrain.tag) {
+      case "Ground":
         return "#90ee90";
-      case BaseTerrain.Stream:
+      case "Stream":
         return "#4682b4";
-      case BaseTerrain.Road:
+      case "Road":
         return "#808080";
       default:
         return "#90ee90";

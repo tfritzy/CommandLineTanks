@@ -1,22 +1,23 @@
 using SpacetimeDB;
 using static Types;
+using System;
 
 public static partial class Module
 {
     private const float SPAWN_PADDING_RATIO = 0.25f;
     private const int MAX_SPAWN_ATTEMPTS = 100;
 
-    private static (float, float) FindSpawnPosition(World world, int alliance, RandomContext random)
+    private static (float, float) FindSpawnPosition(World world, int alliance, Random random)
     {
         int worldWidth = world.Width;
         int worldHeight = world.Height;
-        
+
         int halfWidth = worldWidth / 2;
         int paddingX = (int)(halfWidth * SPAWN_PADDING_RATIO);
         int paddingY = (int)(worldHeight * SPAWN_PADDING_RATIO);
-        
+
         int minX, maxX, minY, maxY;
-        
+
         if (alliance == 0)
         {
             minX = paddingX;
@@ -32,32 +33,32 @@ public static partial class Module
             minX = paddingX;
             maxX = halfWidth - paddingX;
         }
-        
+
         minY = paddingY;
         maxY = worldHeight - paddingY;
-        
+
         for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++)
         {
             int x = minX;
             int y = minY;
-            
+
             if (maxX > minX)
             {
                 x = minX + random.Next(maxX - minX);
             }
-            
+
             if (maxY > minY)
             {
                 y = minY + random.Next(maxY - minY);
             }
-            
+
             int index = y * worldWidth + x;
             if (index < world.TraversibilityMap.Length && world.TraversibilityMap[index])
             {
                 return (x, y);
             }
         }
-        
+
         float centerX = (minX + maxX) / 2.0f;
         float centerY = (minY + maxY) / 2.0f;
         return (centerX, centerY);
@@ -67,10 +68,10 @@ public static partial class Module
     public static void Init(ReducerContext ctx)
     {
         var worldId = GenerateId(ctx, "wld");
-        
+
         var (baseTerrain, terrainDetail) = TerrainGenerator.GenerateTerrain(ctx.Rng);
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetail);
-        
+
         var world = new World
         {
             Id = worldId,
@@ -187,11 +188,11 @@ public static partial class Module
         if (tank.IsDead) return;
 
         Vector2 rootPos = new Vector2((int)tank.PositionX, (int)tank.PositionY);
-        
+
         float angle = tank.BodyRotation;
         int offsetX = (int)Math.Round(-Math.Cos(angle) * distance);
         int offsetY = (int)Math.Round(-Math.Sin(angle) * distance);
-        
+
         Vector2 nextPos = new(rootPos.X + offsetX, rootPos.Y + offsetY);
         Log.Info(tank + " reversing to " + nextPos + ". because " + rootPos + " and offset (" + offsetX + ", " + offsetY + ")");
 
@@ -310,13 +311,13 @@ public static partial class Module
 
         int alliance0Count = 0;
         int alliance1Count = 0;
-        foreach (var existingTank in ctx.Db.tank.WorldId.Filter(world.Value.Id))
+        foreach (var t in ctx.Db.tank.WorldId.Filter(world.Value.Id))
         {
-            if (existingTank.Alliance == 0)
+            if (t.Alliance == 0)
             {
                 alliance0Count++;
             }
-            else if (existingTank.Alliance == 1)
+            else if (t.Alliance == 1)
             {
                 alliance1Count++;
             }
