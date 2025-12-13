@@ -3,14 +3,17 @@ using static Types;
 
 public static partial class Module
 {
+    private const float SPAWN_PADDING_RATIO = 0.25f;
+    private const int MAX_SPAWN_ATTEMPTS = 100;
+
     private static (float, float) FindSpawnPosition(World world, int alliance, RandomContext random)
     {
         int worldWidth = world.Width;
         int worldHeight = world.Height;
         
         int halfWidth = worldWidth / 2;
-        int paddingX = (int)(halfWidth * 0.25f);
-        int paddingY = (int)(worldHeight * 0.25f);
+        int paddingX = (int)(halfWidth * SPAWN_PADDING_RATIO);
+        int paddingY = (int)(worldHeight * SPAWN_PADDING_RATIO);
         
         int minX, maxX, minY, maxY;
         
@@ -33,11 +36,20 @@ public static partial class Module
         minY = paddingY;
         maxY = worldHeight - paddingY;
         
-        int maxAttempts = 100;
-        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++)
         {
-            int x = minX + random.Next(maxX - minX);
-            int y = minY + random.Next(maxY - minY);
+            int x = minX;
+            int y = minY;
+            
+            if (maxX > minX)
+            {
+                x = minX + random.Next(maxX - minX);
+            }
+            
+            if (maxY > minY)
+            {
+                y = minY + random.Next(maxY - minY);
+            }
             
             int index = y * worldWidth + x;
             if (index < world.TraversibilityMap.Length && world.TraversibilityMap[index])
