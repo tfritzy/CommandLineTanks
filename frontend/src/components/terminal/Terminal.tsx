@@ -84,7 +84,6 @@ function TerminalComponent() {
                         break;
                     }
                     case 'reverse':
-                    case 'rev':
                     case 'r': {
                         const reverseOutput = reverse(connection, args);
                         newOutput.push(...reverseOutput);

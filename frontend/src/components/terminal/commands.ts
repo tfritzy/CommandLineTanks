@@ -72,7 +72,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     return [
       "Commands:",
       "  drive, d, dr    Move your tank in a direction",
-      "  reverse, rev, r Reverse in the direction the tank is facing",
+      "  reverse, r      Reverse in the direction the tank is facing",
       "  aim, a          Aim turret at an angle or direction",
       "  target, t       Target another tank by name",
       "  clear, c        Clear the terminal output",
@@ -118,10 +118,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       ];
     
     case "reverse":
-    case "rev":
     case "r":
       return [
-        "reverse, rev, r - Reverse in the direction the tank is facing",
+        "reverse, r - Reverse in the direction the tank is facing",
         "",
         "Usage: reverse <distance>",
         "",
@@ -131,7 +130,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  reverse 3",
-        "  rev 5",
         "  r 2"
       ];
     
