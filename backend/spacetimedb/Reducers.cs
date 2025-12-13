@@ -100,6 +100,14 @@ public static partial class Module
         });
 
         ctx.Db.world.Insert(world);
+
+        ctx.Db.score.Insert(new Score
+        {
+            WorldId = worldId,
+            Alliance0Kills = 0,
+            Alliance1Kills = 0
+        });
+
         Log.Info($"Initialized world {worldId}");
     }
 
