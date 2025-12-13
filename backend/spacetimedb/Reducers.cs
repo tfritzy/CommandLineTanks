@@ -200,7 +200,7 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void findWorld(ReducerContext ctx)
+    public static void findWorld(ReducerContext ctx, string joinCode)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -242,6 +242,7 @@ public static partial class Module
             WorldId = world.Value.Id,
             Owner = ctx.Sender,
             Name = tankName,
+            JoinCode = joinCode,
             Target = null,
             TargetLead = 0.0f,
             Path = [],
@@ -256,6 +257,6 @@ public static partial class Module
         };
 
         ctx.Db.tank.Insert(tank);
-        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName}");
+        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName} (joinCode: {joinCode})");
     }
 }

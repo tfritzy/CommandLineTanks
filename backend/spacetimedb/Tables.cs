@@ -45,6 +45,8 @@ public static partial class Module
 
         public string Name;
 
+        public string? JoinCode;
+
         public string? Target;
         public float TargetLead;
 

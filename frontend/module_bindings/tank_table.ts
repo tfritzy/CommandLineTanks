@@ -18,6 +18,7 @@ export default __t.row({
   worldId: __t.string(),
   owner: __t.identity(),
   name: __t.string(),
+  joinCode: __t.option(__t.string()),
   target: __t.option(__t.string()),
   targetLead: __t.f32(),
   get path() {

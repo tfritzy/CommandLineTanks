@@ -1,7 +1,6 @@
 import { TankManager } from "./TankManager";
 import { ProjectileManager } from "./ProjectileManager";
 import { TerrainManager } from "./TerrainManager";
-import { getConnection } from "./spacetimedb-connection";
 
 export const UNIT_TO_PIXEL = 50;
 
@@ -12,10 +11,10 @@ export class Game {
   private time: number = 0;
   private lastFrameTime: number = 0;
   private tankManager: TankManager;
-  private projectileManager: ProjectileManager | null = null;
-  private terrainManager: TerrainManager | null = null;
+  private projectileManager: ProjectileManager;
+  private terrainManager: TerrainManager;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
@@ -27,34 +26,8 @@ export class Game {
     window.addEventListener("resize", () => this.resizeCanvas());
 
     this.tankManager = new TankManager();
-    this.initializeTerrainManager();
-    this.initializeProjectileManager();
-  }
-
-  private initializeTerrainManager() {
-    const connection = getConnection();
-    if (!connection) return;
-
-    connection.db.tank.onInsert((_ctx, tank) => {
-      if (connection.identity && tank.owner.isEqual(connection.identity)) {
-        if (!this.terrainManager) {
-          this.terrainManager = new TerrainManager(tank.worldId);
-        }
-      }
-    });
-  }
-
-  private initializeProjectileManager() {
-    const connection = getConnection();
-    if (!connection) return;
-
-    connection.db.tank.onInsert((_ctx, tank) => {
-      if (connection.identity && tank.owner.isEqual(connection.identity)) {
-        if (!this.projectileManager) {
-          this.projectileManager = new ProjectileManager(tank.worldId);
-        }
-      }
-    });
+    this.terrainManager = new TerrainManager(worldId);
+    this.projectileManager = new ProjectileManager(worldId);
   }
 
   private resizeCanvas() {
@@ -96,9 +69,7 @@ export class Game {
     this.time += deltaTime;
 
     this.tankManager.update(deltaTime);
-    if (this.projectileManager) {
-      this.projectileManager.update(deltaTime);
-    }
+    this.projectileManager.update(deltaTime);
 
     this.ctx.fillStyle = "#ffffff";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -119,16 +90,14 @@ export class Game {
 
     this.ctx.translate(-cameraX, -cameraY);
 
-    if (this.terrainManager) {
-      this.terrainManager.draw(
-        this.ctx,
-        cameraX,
-        cameraY,
-        this.canvas.width,
-        this.canvas.height,
-        UNIT_TO_PIXEL
-      );
-    }
+    this.terrainManager.draw(
+      this.ctx,
+      cameraX,
+      cameraY,
+      this.canvas.width,
+      this.canvas.height,
+      UNIT_TO_PIXEL
+    );
 
     this.drawGrid(cameraX, cameraY);
 
@@ -136,10 +105,8 @@ export class Game {
       tank.draw(this.ctx);
     }
 
-    if (this.projectileManager) {
-      for (const projectile of this.projectileManager.getAllProjectiles()) {
-        projectile.draw(this.ctx);
-      }
+    for (const projectile of this.projectileManager.getAllProjectiles()) {
+      projectile.draw(this.ctx);
     }
 
     this.ctx.restore();
