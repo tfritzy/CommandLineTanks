@@ -41,6 +41,8 @@ import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
 import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
+import Reverse from "./reverse_reducer";
+export { Reverse };
 import TargetTank from "./target_tank_reducer";
 export { TargetTank };
 import UpdateTanks from "./update_tanks_reducer";
@@ -141,6 +143,7 @@ const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
   __reducerSchema("drive", Drive),
   __reducerSchema("findWorld", FindWorld),
+  __reducerSchema("reverse", Reverse),
   __reducerSchema("targetTank", TargetTank),
   __reducerSchema("UpdateTanks", UpdateTanks),
 );
