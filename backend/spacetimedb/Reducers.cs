@@ -598,8 +598,9 @@ public static partial class Module
 
         if (gunIndex < 0 || gunIndex >= tank.Guns.Length) return;
 
+        var selectedGun = tank.Guns[gunIndex];
         tank.SelectedGunIndex = gunIndex;
         ctx.Db.tank.Id.Update(tank);
-        Log.Info($"Tank {tank.Name} switched to gun at index {gunIndex} ({tank.Guns[gunIndex].GunType})");
+        Log.Info($"Tank {tank.Name} switched to gun at index {gunIndex} ({selectedGun.GunType})");
     }
 }
