@@ -28,8 +28,16 @@ public static partial class Module
         public int Height;
         public BaseTerrain[] BaseTerrainLayer;
         public TerrainDetail[] TerrainDetailLayer;
-        public bool[] TraversibilityMap;
         public GameState GameState;
+    }
+
+    [Table(Name = "traversibility_map", Public = true)]
+    public partial struct TraversibilityMap
+    {
+        [PrimaryKey]
+        public string WorldId;
+
+        public bool[] Map;
     }
 
     [Table(Name = "tank", Public = true)]

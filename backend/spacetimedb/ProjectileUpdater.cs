@@ -133,10 +133,27 @@ public static partial class ProjectileUpdater
         {
             BaseTerrainLayer = baseTerrain,
             TerrainDetailLayer = terrainDetail,
-            TraversibilityMap = traversibilityMap,
             GameState = GameState.Playing
         };
         ctx.Db.world.Id.Update(updatedWorld);
+
+        var existingTraversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
+        if (existingTraversibilityMap != null)
+        {
+            ctx.Db.traversibility_map.WorldId.Update(new Module.TraversibilityMap
+            {
+                WorldId = args.WorldId,
+                Map = traversibilityMap
+            });
+        }
+        else
+        {
+            ctx.Db.traversibility_map.Insert(new Module.TraversibilityMap
+            {
+                WorldId = args.WorldId,
+                Map = traversibilityMap
+            });
+        }
 
         var score = ctx.Db.score.WorldId.Find(args.WorldId);
         if (score != null)
@@ -176,7 +193,7 @@ public static partial class ProjectileUpdater
 
             int newAlliance = i < (totalTanks + 1) / 2 ? 0 : 1;
 
-            var (spawnX, spawnY) = Module.FindSpawnPosition(updatedWorld, newAlliance, ctx.Rng);
+            var (spawnX, spawnY) = Module.FindSpawnPosition(ctx, updatedWorld, newAlliance, ctx.Rng);
 
             var resetTank = tank with
             {
