@@ -1,11 +1,19 @@
 import { getConnection } from "./spacetimedb-connection";
-import { BaseTerrain, TerrainDetailType } from "../module_bindings";
+import { BaseTerrain, TerrainDetailType, type Infer } from "../module_bindings";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
 import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field } from "./objects/TerrainDetails";
-import type { Infer } from "spacetimedb";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 type TerrainDetailTypeEnum = Infer<typeof TerrainDetailType>;
+
+interface TerrainDetailData {
+  id: string;
+  positionX: number;
+  positionY: number;
+  type: TerrainDetailTypeEnum;
+  health: number;
+  label: string | null;
+}
 
 export class TerrainManager {
   private worldWidth: number = 0;
@@ -67,7 +75,7 @@ export class TerrainManager {
     });
   }
 
-  private createDetailObject(detail: any) {
+  private createDetailObject(detail: TerrainDetailData) {
     let obj: TerrainDetailObject | null = null;
     
     const label = detail.label || null;
