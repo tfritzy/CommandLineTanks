@@ -452,6 +452,21 @@ public static partial class TerrainGenerator
         return WORLD_HEIGHT;
     }
 
+    public static TerrainDetailType[] ConvertToArray(List<(int x, int y, TerrainDetailType type)> terrainDetails, int width, int height)
+    {
+        var terrainDetailArray = new TerrainDetailType[width * height];
+        for (int i = 0; i < terrainDetailArray.Length; i++)
+        {
+            terrainDetailArray[i] = TerrainDetailType.None;
+        }
+        foreach (var detail in terrainDetails)
+        {
+            int index = detail.y * width + detail.x;
+            terrainDetailArray[index] = detail.type;
+        }
+        return terrainDetailArray;
+    }
+
     public static bool[] CalculateTraversibility(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail)
     {
         var traversibility = new bool[baseTerrain.Length];

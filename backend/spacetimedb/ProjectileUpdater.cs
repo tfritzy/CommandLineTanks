@@ -137,16 +137,11 @@ public static partial class ProjectileUpdater
         Log.Info($"Resetting world {args.WorldId}...");
 
         var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
-        var terrainDetailArray = new TerrainDetailType[baseTerrain.Length];
-        for (int i = 0; i < terrainDetailArray.Length; i++)
-        {
-            terrainDetailArray[i] = TerrainDetailType.None;
-        }
-        foreach (var detail in terrainDetails)
-        {
-            int index = detail.y * TerrainGenerator.GetWorldWidth() + detail.x;
-            terrainDetailArray[index] = detail.type;
-        }
+        var terrainDetailArray = TerrainGenerator.ConvertToArray(
+            terrainDetails,
+            TerrainGenerator.GetWorldWidth(),
+            TerrainGenerator.GetWorldHeight()
+        );
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
 
         var updatedWorld = world.Value with

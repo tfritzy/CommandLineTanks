@@ -131,16 +131,11 @@ public static partial class Module
         var worldId = GenerateId(ctx, "wld");
 
         var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
-        var terrainDetailArray = new TerrainDetailType[baseTerrain.Length];
-        for (int i = 0; i < terrainDetailArray.Length; i++)
-        {
-            terrainDetailArray[i] = TerrainDetailType.None;
-        }
-        foreach (var detail in terrainDetails)
-        {
-            int index = detail.y * TerrainGenerator.GetWorldWidth() + detail.x;
-            terrainDetailArray[index] = detail.type;
-        }
+        var terrainDetailArray = TerrainGenerator.ConvertToArray(
+            terrainDetails, 
+            TerrainGenerator.GetWorldWidth(), 
+            TerrainGenerator.GetWorldHeight()
+        );
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
 
         var world = new World
