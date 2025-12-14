@@ -95,7 +95,7 @@ export function setPendingJoinCode(joinCode: string): void {
 }
 
 /**
- * Get and clear pending join code
+ * Get pending join code
  */
 export function getPendingJoinCode(): string | null {
   return pendingJoinCode;
