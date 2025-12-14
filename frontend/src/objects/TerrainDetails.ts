@@ -174,3 +174,9 @@ export class Field extends TerrainDetailObject {
     this.drawLabel(ctx);
   }
 }
+
+export class Label extends TerrainDetailObject {
+  public draw(ctx: CanvasRenderingContext2D): void {
+    this.drawLabel(ctx);
+  }
+}

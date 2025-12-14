@@ -1,7 +1,7 @@
 import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, TerrainDetailType, type Infer } from "../module_bindings";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
-import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field } from "./objects/TerrainDetails";
+import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field, Label } from "./objects/TerrainDetails";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 type TerrainDetailTypeEnum = Infer<typeof TerrainDetailType>;
@@ -102,6 +102,9 @@ export class TerrainManager {
         break;
       case "Field":
         obj = new Field(detail.positionX, detail.positionY, label, health);
+        break;
+      case "Label":
+        obj = new Label(detail.positionX, detail.positionY, label, health);
         break;
     }
     

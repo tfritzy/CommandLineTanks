@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
 import ResultsScreen from '../components/ResultsScreen';
-import { getConnection } from '../spacetimedb-connection';
+import { getConnection, getPendingJoinCode, clearPendingJoinCode } from '../spacetimedb-connection';
 
 interface GamePageProps {
     worldId: string;
+    onWorldChange: (worldId: string) => void;
 }
 
-export default function GamePage({ worldId }: GamePageProps) {
+export default function GamePage({ worldId, onWorldChange }: GamePageProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const gameRef = useRef<Game | null>(null);
     const [isDead, setIsDead] = useState(false);
@@ -29,18 +30,35 @@ export default function GamePage({ worldId }: GamePageProps) {
         const connection = getConnection();
         if (!connection) return;
 
-        connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
+        const handleTankInsert = (_ctx: any, tank: any) => {
+            if (connection.identity && tank.owner.isEqual(connection.identity)) {
+                const pendingJoinCode = getPendingJoinCode();
+                if (pendingJoinCode && tank.joinCode === pendingJoinCode) {
+                    console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${tank.worldId}`);
+                    if (tank.worldId !== worldId) {
+                        console.log(`Switching to new world: ${tank.worldId}`);
+                        onWorldChange(tank.worldId);
+                    }
+                    clearPendingJoinCode();
+                }
+                setIsDead(tank.isDead);
+            }
+        };
+
+        const handleTankUpdate = (_ctx: any, _oldTank: any, newTank: any) => {
             if (connection.identity && newTank.owner.isEqual(connection.identity)) {
                 setIsDead(newTank.isDead);
             }
-        });
+        };
 
-        connection.db.tank.onInsert((_ctx, tank) => {
-            if (connection.identity && tank.owner.isEqual(connection.identity)) {
-                setIsDead(tank.isDead);
-            }
-        });
-    }, [worldId]);
+        connection.db.tank.onUpdate(handleTankUpdate);
+        connection.db.tank.onInsert(handleTankInsert);
+
+        return () => {
+            connection.db.tank.removeOnUpdate(handleTankUpdate);
+            connection.db.tank.removeOnInsert(handleTankInsert);
+        };
+    }, [worldId, onWorldChange]);
 
     return (
         <div style={{

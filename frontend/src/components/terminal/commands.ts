@@ -1,4 +1,5 @@
 import { type DbConnection } from "../../../module_bindings";
+import { setPendingJoinCode } from "../../spacetimedb-connection";
 
 function isPlayerDead(connection: DbConnection): boolean {
   if (!connection.identity) {
@@ -87,6 +88,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  target, t       Target another tank by name",
       "  fire, f         Fire a projectile from your tank",
       "  respawn         Respawn after death",
+      "  findgame        Join a game world",
       "  clear, c        Clear the terminal output",
       "  help, h         Display help information",
     ];
@@ -229,6 +231,18 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  respawn"
+      ];
+    
+    case "findgame":
+      return [
+        "findgame - Join a game world",
+        "",
+        "Usage: findgame",
+        "",
+        "Finds and joins an available game world to place you in a match.",
+        "",
+        "Examples:",
+        "  findgame"
       ];
     
     case "help":
@@ -584,5 +598,23 @@ export function respawn(connection: DbConnection, args: string[]): string[] {
 
   return [
     "Respawning...",
+  ];
+}
+
+export function findGame(connection: DbConnection, args: string[]): string[] {
+  if (args.length > 0) {
+    return [
+      "findgame: error: findgame command takes no arguments",
+      "",
+      "Usage: findgame"
+    ];
+  }
+
+  const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  setPendingJoinCode(joinCode);
+  connection.reducers.findWorld({ joinCode });
+
+  return [
+    "Searching for a game world...",
   ];
 }

@@ -9,6 +9,9 @@ const CREDS_KEY = 'spacetimedb_token';
 // Store the connection instance
 let dbConnection: DbConnection | null = null;
 
+// Store pending join code for world switching
+let pendingJoinCode: string | null = null;
+
 /**
  * Connect to the SpacetimeDB module
  */
@@ -82,4 +85,25 @@ export function getConnection(): DbConnection | null {
  */
 export function isConnected(): boolean {
   return dbConnection !== null;
+}
+
+/**
+ * Set pending join code for world switching
+ */
+export function setPendingJoinCode(joinCode: string): void {
+  pendingJoinCode = joinCode;
+}
+
+/**
+ * Get pending join code
+ */
+export function getPendingJoinCode(): string | null {
+  return pendingJoinCode;
+}
+
+/**
+ * Clear pending join code
+ */
+export function clearPendingJoinCode(): void {
+  pendingJoinCode = null;
 }

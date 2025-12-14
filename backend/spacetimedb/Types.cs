@@ -55,7 +55,8 @@ public static partial class Types
         Bridge,
         Fence,
         HayBale,
-        Field
+        Field,
+        Label
     }
 
     [Type]
