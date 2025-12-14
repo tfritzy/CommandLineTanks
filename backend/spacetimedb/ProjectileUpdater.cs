@@ -37,9 +37,6 @@ public static partial class ProjectileUpdater
             LastTickAt = currentTime
         });
 
-        var world = ctx.Db.world.Id.Find(args.WorldId);
-        if (world == null) return;
-
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
         if (traversibilityMap == null) return;
 
@@ -58,10 +55,10 @@ public static partial class ProjectileUpdater
 
             bool collided = false;
 
-            if (projectileTileX >= 0 && projectileTileX < world.Value.Width && 
-                projectileTileY >= 0 && projectileTileY < world.Value.Height)
+            if (projectileTileX >= 0 && projectileTileX < traversibilityMap.Value.Width && 
+                projectileTileY >= 0 && projectileTileY < traversibilityMap.Value.Height)
             {
-                int tileIndex = projectileTileY * world.Value.Width + projectileTileX;
+                int tileIndex = projectileTileY * traversibilityMap.Value.Width + projectileTileX;
                 if (tileIndex < traversibilityMap.Value.Map.Length && !traversibilityMap.Value.Map[tileIndex])
                 {
                     foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId.Filter(args.WorldId))
@@ -73,13 +70,8 @@ public static partial class ProjectileUpdater
                             {
                                 ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
 
-                                var updatedMap = new bool[traversibilityMap.Value.Map.Length];
-                                Array.Copy(traversibilityMap.Value.Map, updatedMap, traversibilityMap.Value.Map.Length);
-                                updatedMap[tileIndex] = true;
-                                ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value with
-                                {
-                                    Map = updatedMap
-                                });
+                                traversibilityMap.Value.Map[tileIndex] = true;
+                                ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
                             }
                             else
                             {
@@ -227,7 +219,9 @@ public static partial class ProjectileUpdater
             ctx.Db.traversibility_map.WorldId.Update(new Module.TraversibilityMap
             {
                 WorldId = args.WorldId,
-                Map = traversibilityMap
+                Map = traversibilityMap,
+                Width = TerrainGenerator.GetWorldWidth(),
+                Height = TerrainGenerator.GetWorldHeight()
             });
         }
         else
@@ -235,7 +229,9 @@ public static partial class ProjectileUpdater
             ctx.Db.traversibility_map.Insert(new Module.TraversibilityMap
             {
                 WorldId = args.WorldId,
-                Map = traversibilityMap
+                Map = traversibilityMap,
+                Width = TerrainGenerator.GetWorldWidth(),
+                Height = TerrainGenerator.GetWorldHeight()
             });
         }
 

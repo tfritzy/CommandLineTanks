@@ -37,6 +37,8 @@ public static partial class Module
         public string WorldId;
 
         public bool[] Map;
+        public int Width;
+        public int Height;
     }
 
     [Table(Name = "tank", Public = true)]
