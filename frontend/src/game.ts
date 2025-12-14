@@ -1,6 +1,7 @@
 import { TankManager } from "./TankManager";
 import { ProjectileManager } from "./ProjectileManager";
 import { TerrainManager } from "./TerrainManager";
+import { ScoreManager } from "./ScoreManager";
 
 export const UNIT_TO_PIXEL = 50;
 
@@ -13,6 +14,7 @@ export class Game {
   private tankManager: TankManager;
   private projectileManager: ProjectileManager;
   private terrainManager: TerrainManager;
+  private scoreManager: ScoreManager;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -28,6 +30,7 @@ export class Game {
     this.tankManager = new TankManager();
     this.terrainManager = new TerrainManager(worldId);
     this.projectileManager = new ProjectileManager(worldId);
+    this.scoreManager = new ScoreManager(worldId);
   }
 
   private resizeCanvas() {
@@ -84,6 +87,8 @@ export class Game {
     }
 
     this.ctx.restore();
+
+    this.scoreManager.draw(this.ctx, this.canvas.width);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }
