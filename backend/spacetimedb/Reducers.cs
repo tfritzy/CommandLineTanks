@@ -588,7 +588,7 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void switchGun(ReducerContext ctx, GunType gunType)
+    public static void switchGun(ReducerContext ctx, int gunIndex)
     {
         Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
         if (maybeTank == null) return;
@@ -596,20 +596,10 @@ public static partial class Module
 
         if (tank.IsDead) return;
 
-        int targetIndex = -1;
-        for (int i = 0; i < tank.Guns.Length; i++)
-        {
-            if (tank.Guns[i].GunType == gunType)
-            {
-                targetIndex = i;
-                break;
-            }
-        }
+        if (gunIndex < 0 || gunIndex >= tank.Guns.Length) return;
 
-        if (targetIndex == -1) return;
-
-        tank.SelectedGunIndex = targetIndex;
+        tank.SelectedGunIndex = gunIndex;
         ctx.Db.tank.Id.Update(tank);
-        Log.Info($"Tank {tank.Name} switched to {gunType}");
+        Log.Info($"Tank {tank.Name} switched to gun at index {gunIndex} ({tank.Guns[gunIndex].GunType})");
     }
 }
