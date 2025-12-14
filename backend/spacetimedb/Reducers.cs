@@ -7,7 +7,7 @@ public static partial class Module
     private const float SPAWN_PADDING_RATIO = 0.25f;
     private const int MAX_SPAWN_ATTEMPTS = 100;
 
-    public static (float, float) FindSpawnPosition(World world, int alliance, Random random)
+    public static (float, float) FindSpawnPosition(ReducerContext ctx, World world, int alliance, Random random)
     {
         int worldWidth = world.Width;
         int worldHeight = world.Height;
@@ -37,6 +37,8 @@ public static partial class Module
         minY = paddingY;
         maxY = worldHeight - paddingY;
 
+        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(world.Id).Value;
+
         for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++)
         {
             int x = minX;
@@ -53,7 +55,7 @@ public static partial class Module
             }
 
             int index = y * worldWidth + x;
-            if (index < world.TraversibilityMap.Length && world.TraversibilityMap[index])
+            if (index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
             {
                 return (x, y);
             }
@@ -81,7 +83,6 @@ public static partial class Module
             Height = TerrainGenerator.GetWorldHeight(),
             BaseTerrainLayer = baseTerrain,
             TerrainDetailLayer = terrainDetail,
-            TraversibilityMap = traversibilityMap,
             GameState = GameState.Playing
         };
 
@@ -102,6 +103,12 @@ public static partial class Module
         });
 
         ctx.Db.world.Insert(world);
+
+        ctx.Db.traversibility_map.Insert(new TraversibilityMap
+        {
+            WorldId = worldId,
+            Map = traversibilityMap
+        });
 
         ctx.Db.score.Insert(new Score
         {
@@ -350,7 +357,7 @@ public static partial class Module
 
         int assignedAlliance = alliance0Count <= alliance1Count ? 0 : 1;
 
-        var (spawnX, spawnY) = FindSpawnPosition(world.Value, assignedAlliance, ctx.Rng);
+        var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
 
         var tankId = GenerateId(ctx, "tnk");
         var tank = new Tank
@@ -395,7 +402,7 @@ public static partial class Module
         if (maybeWorld == null) return;
         var world = maybeWorld.Value;
 
-        var (spawnX, spawnY) = FindSpawnPosition(world, tank.Alliance, ctx.Rng);
+        var (spawnX, spawnY) = FindSpawnPosition(ctx, world, tank.Alliance, ctx.Rng);
 
         var respawnedTank = tank with
         {
