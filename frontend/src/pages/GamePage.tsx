@@ -1,16 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
 import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
+import ResultsScreen from '../components/ResultsScreen';
 import { getConnection } from '../spacetimedb-connection';
+
+const WORLD_RESET_DELAY_SECONDS = 30;
 
 interface GamePageProps {
     worldId: string;
+}
+
+interface Tank {
+    id: string;
+    name: string;
+    alliance: number;
+    kills: number;
 }
 
 export default function GamePage({ worldId }: GamePageProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const gameRef = useRef<Game | null>(null);
     const [isDead, setIsDead] = useState(false);
+    const [showResults, setShowResults] = useState(false);
+    const [winningTeam, setWinningTeam] = useState(0);
+    const [tanks, setTanks] = useState<Tank[]>([]);
+    const resultsStartTimeRef = useRef<number | null>(null);
 
     useEffect(() => {
         if (canvasRef.current && !gameRef.current) {
@@ -39,7 +53,69 @@ export default function GamePage({ worldId }: GamePageProps) {
                 setIsDead(tank.isDead);
             }
         });
-    }, []);
+
+        connection
+            .subscriptionBuilder()
+            .onError((e) => console.error("World subscription error", e))
+            .subscribe([`SELECT * FROM world WHERE id = '${worldId}'`]);
+
+        connection.db.world.onUpdate((_ctx, oldWorld, newWorld) => {
+            if (newWorld.id === worldId) {
+                if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
+                    resultsStartTimeRef.current = Date.now();
+                    setShowResults(true);
+
+                    const allTanks = Array.from(connection.db.tank.iter())
+                        .filter(t => t.worldId === worldId)
+                        .map(t => ({
+                            id: t.id,
+                            name: t.name,
+                            alliance: t.alliance,
+                            kills: t.kills
+                        }));
+
+                    setTanks(allTanks);
+
+                    const score = connection.db.score.WorldId.find(worldId);
+                    if (score) {
+                        const team0Kills = score.kills[0] || 0;
+                        const team1Kills = score.kills[1] || 0;
+                        setWinningTeam(team0Kills > team1Kills ? 0 : 1);
+                    }
+                } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
+                    setShowResults(false);
+                    resultsStartTimeRef.current = null;
+                }
+            }
+        });
+
+        connection.db.world.onInsert((_ctx, world) => {
+            if (world.id === worldId) {
+                if (world.gameState.tag === 'Results') {
+                    resultsStartTimeRef.current = Date.now();
+                    setShowResults(true);
+
+                    const allTanks = Array.from(connection.db.tank.iter())
+                        .filter(t => t.worldId === worldId)
+                        .map(t => ({
+                            id: t.id,
+                            name: t.name,
+                            alliance: t.alliance,
+                            kills: t.kills
+                        }));
+
+                    setTanks(allTanks);
+
+                    const score = connection.db.score.WorldId.find(worldId);
+                    if (score) {
+                        const team0Kills = score.kills[0] || 0;
+                        const team1Kills = score.kills[1] || 0;
+                        setWinningTeam(team0Kills > team1Kills ? 0 : 1);
+                    }
+                }
+            }
+        });
+    }, [worldId]);
 
     return (
         <div style={{
@@ -62,7 +138,7 @@ export default function GamePage({ worldId }: GamePageProps) {
                         height: '100%'
                     }}
                 />
-                {isDead && (
+                {isDead && !showResults && (
                     <div style={{
                         position: 'absolute',
                         top: '50%',
@@ -86,6 +162,14 @@ export default function GamePage({ worldId }: GamePageProps) {
                             Call the respawn command to respawn
                         </div>
                     </div>
+                )}
+                {showResults && (
+                    <ResultsScreen
+                        worldId={worldId}
+                        countdownSeconds={WORLD_RESET_DELAY_SECONDS}
+                        winningTeam={winningTeam}
+                        tanks={tanks}
+                    />
                 )}
             </div>
             <TerminalComponent />
