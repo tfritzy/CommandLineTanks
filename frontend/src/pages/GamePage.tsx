@@ -40,15 +40,17 @@ export default function GamePage({ worldId, onWorldChange }: GamePageProps) {
             }
         };
 
-        connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
+        const handleTankUpdate = (_ctx: any, _oldTank: any, newTank: any) => {
             if (connection.identity && newTank.owner.isEqual(connection.identity)) {
                 setIsDead(newTank.isDead);
             }
-        });
+        };
 
+        connection.db.tank.onUpdate(handleTankUpdate);
         connection.db.tank.onInsert(handleTankInsert);
 
         return () => {
+            connection.db.tank.removeOnUpdate(handleTankUpdate);
             connection.db.tank.removeOnInsert(handleTankInsert);
         };
     }, [worldId, onWorldChange]);
