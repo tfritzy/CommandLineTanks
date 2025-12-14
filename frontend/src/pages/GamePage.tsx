@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
 import ResultsScreen from '../components/ResultsScreen';
@@ -13,8 +13,10 @@ export default function GamePage({ worldId }: GamePageProps) {
     const gameRef = useRef<Game | null>(null);
     const [isDead, setIsDead] = useState(false);
 
-    const connection = getConnection();
-    const isHomeworld = connection?.identity ? worldId === connection.identity.toHexString() : false;
+    const isHomeworld = useMemo(() => {
+        const connection = getConnection();
+        return connection?.identity ? worldId === connection.identity.toHexString() : false;
+    }, [worldId]);
 
     useEffect(() => {
         if (canvasRef.current && !gameRef.current) {
