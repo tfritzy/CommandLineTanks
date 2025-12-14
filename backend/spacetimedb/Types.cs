@@ -59,7 +59,7 @@ public static partial class Types
     }
 
     [Type]
-    public enum GameMode : byte
+    public enum GameState : byte
     {
         Playing,
         Results

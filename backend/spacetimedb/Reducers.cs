@@ -82,7 +82,7 @@ public static partial class Module
             BaseTerrainLayer = baseTerrain,
             TerrainDetailLayer = terrainDetail,
             TraversibilityMap = traversibilityMap,
-            GameMode = GameMode.Playing
+            GameState = GameState.Playing
         };
 
         ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates

@@ -85,9 +85,9 @@ public static partial class ProjectileUpdater
                                     if (updatedScore.Kills[projectile.Alliance] >= Module.KILL_LIMIT)
                                     {
                                         var world = ctx.Db.world.Id.Find(args.WorldId);
-                                        if (world != null && world.Value.GameMode == GameMode.Playing)
+                                        if (world != null && world.Value.GameState == GameState.Playing)
                                         {
-                                            var updatedWorld = world.Value with { GameMode = GameMode.Results };
+                                            var updatedWorld = world.Value with { GameState = GameState.Results };
                                             ctx.Db.world.Id.Update(updatedWorld);
 
                                             ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
@@ -134,7 +134,7 @@ public static partial class ProjectileUpdater
             BaseTerrainLayer = baseTerrain,
             TerrainDetailLayer = terrainDetail,
             TraversibilityMap = traversibilityMap,
-            GameMode = GameMode.Playing
+            GameState = GameState.Playing
         };
         ctx.Db.world.Id.Update(updatedWorld);
 
