@@ -26,7 +26,7 @@ public static partial class Module
         Damage = PROJECTILE_DAMAGE,
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Normal,
-        Selected = true
+        Selected = false
     };
 
     public static readonly Gun TRIPLE_SHOOTER_GUN = new Gun

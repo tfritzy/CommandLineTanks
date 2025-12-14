@@ -438,14 +438,10 @@ public static partial class Module
                     if (i != selectedIndex)
                     {
                         newGuns[newIndex] = tank.Guns[i];
-                        if (i == 0 && selectedIndex != 0)
-                        {
-                            newGuns[newIndex].Selected = true;
-                        }
                         newIndex++;
                     }
                 }
-                if (newGuns.Length > 0 && selectedIndex == 0)
+                if (newGuns.Length > 0)
                 {
                     newGuns[0].Selected = true;
                 }
@@ -567,7 +563,7 @@ public static partial class Module
             TopSpeed = 3f,
             BodyRotationSpeed = 3f,
             TurretRotationSpeed = 3f,
-            Guns = [BASE_GUN]
+            Guns = [BASE_GUN with { Selected = true }]
         };
 
         ctx.Db.tank.Insert(tank);
@@ -599,7 +595,7 @@ public static partial class Module
             Velocity = new Vector2Float(0, 0),
             BodyAngularVelocity = 0,
             TurretAngularVelocity = 0,
-            Guns = [BASE_GUN]
+            Guns = [BASE_GUN with { Selected = true }]
         };
 
         ctx.Db.tank.Id.Update(respawnedTank);
