@@ -263,6 +263,7 @@ public static partial class TankUpdater
                                 updatedGuns[existingGunIndex] = existingGun;
                                 tank = tank with { Guns = updatedGuns };
                                 needsUpdate = true;
+                                ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
                             }
                         }
                         else
@@ -276,9 +277,9 @@ public static partial class TankUpdater
                                 SelectedGunIndex = tank.Guns.Length
                             };
                             needsUpdate = true;
+                            ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
                         }
 
-                        ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
                         break;
                     }
                 }
