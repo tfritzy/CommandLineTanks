@@ -22,7 +22,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             setTimeRemaining((prev) => Math.max(0, prev - 1));
         }, 1000);
 
-        connection
+        const subscriptionHandle = connection
             .subscriptionBuilder()
             .onError((e) => console.error("Results subscription error", e))
             .subscribe([
@@ -53,31 +53,47 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
         updateTanks();
         updateScores();
 
-        connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const handleTankUpdate = (_ctx: any, _oldTank: any, newTank: any) => {
             if (newTank.worldId === worldId) {
                 updateTanks();
             }
-        });
+        };
 
-        connection.db.tank.onInsert((_ctx, tank) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const handleTankInsert = (_ctx: any, tank: any) => {
             if (tank.worldId === worldId) {
                 updateTanks();
             }
-        });
+        };
 
-        connection.db.tank.onDelete((_ctx, tank) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const handleTankDelete = (_ctx: any, tank: any) => {
             if (tank.worldId === worldId) {
                 updateTanks();
             }
-        });
+        };
 
-        connection.db.score.onUpdate((_ctx, _oldScore, newScore) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const handleScoreUpdate = (_ctx: any, _oldScore: any, newScore: any) => {
             if (newScore.worldId === worldId) {
                 updateScores();
             }
-        });
+        };
 
-        return () => clearInterval(interval);
+        connection.db.tank.onUpdate(handleTankUpdate);
+        connection.db.tank.onInsert(handleTankInsert);
+        connection.db.tank.onDelete(handleTankDelete);
+        connection.db.score.onUpdate(handleScoreUpdate);
+
+        return () => {
+            clearInterval(interval);
+            subscriptionHandle.unsubscribe();
+            connection.db.tank.removeOnUpdate(handleTankUpdate);
+            connection.db.tank.removeOnInsert(handleTankInsert);
+            connection.db.tank.removeOnDelete(handleTankDelete);
+            connection.db.score.removeOnUpdate(handleScoreUpdate);
+        };
     }, [worldId]);
 
     const team0Tanks = tanks.filter(t => t.alliance === 0).sort((a, b) => b.kills - a.kills);
