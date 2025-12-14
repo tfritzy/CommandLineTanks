@@ -89,7 +89,7 @@ public static partial class Module
         public float TurretRotation;
         public float TargetTurretRotation;
 
-        public Gun Gun;
+        public Gun[] Guns;
     }
 
     [Table(Name = "projectile", Public = true)]
@@ -115,6 +115,7 @@ public static partial class Module
 
         public int Damage;
         public float TrackingStrength;
+        public ProjectileType ProjectileType;
     }
 
     [Table(Name = "score", Public = true)]

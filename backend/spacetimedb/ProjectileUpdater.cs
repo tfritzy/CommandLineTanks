@@ -302,15 +302,7 @@ public static partial class ProjectileUpdater
                 TurretAngularVelocity = 0,
                 Target = null,
                 TargetLead = 0.0f,
-                Gun = new Types.Gun 
-                { 
-                    GunType = Types.GunType.Base, 
-                    Ammo = null, 
-                    ProjectileCount = 1, 
-                    SpreadAngle = 0, 
-                    Damage = Module.PROJECTILE_DAMAGE, 
-                    TrackingStrength = 0 
-                }
+                Guns = [Module.BASE_GUN]
             };
 
             ctx.Db.tank.Id.Update(resetTank);

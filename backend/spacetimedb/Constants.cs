@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using static Types;
 
 public static partial class Module
 {
@@ -15,4 +16,40 @@ public static partial class Module
     public const int TRIPLE_SHOOTER_AMMO = 30;
     public const int MISSILE_LAUNCHER_AMMO = 10;
     public const float MISSILE_TRACKING_RADIUS = 8.0f;
+
+    public static readonly Gun BASE_GUN = new Gun
+    {
+        GunType = GunType.Base,
+        Ammo = null,
+        ProjectileCount = 1,
+        SpreadAngle = 0,
+        Damage = PROJECTILE_DAMAGE,
+        TrackingStrength = 0,
+        ProjectileType = ProjectileType.Normal,
+        Selected = true
+    };
+
+    public static readonly Gun TRIPLE_SHOOTER_GUN = new Gun
+    {
+        GunType = GunType.TripleShooter,
+        Ammo = TRIPLE_SHOOTER_AMMO,
+        ProjectileCount = 3,
+        SpreadAngle = 0.2f,
+        Damage = PROJECTILE_DAMAGE,
+        TrackingStrength = 0,
+        ProjectileType = ProjectileType.Normal,
+        Selected = false
+    };
+
+    public static readonly Gun MISSILE_LAUNCHER_GUN = new Gun
+    {
+        GunType = GunType.MissileLauncher,
+        Ammo = MISSILE_LAUNCHER_AMMO,
+        ProjectileCount = 1,
+        SpreadAngle = 0,
+        Damage = MISSILE_DAMAGE,
+        TrackingStrength = 2.0f,
+        ProjectileType = ProjectileType.Missile,
+        Selected = false
+    };
 }

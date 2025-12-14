@@ -390,7 +390,21 @@ public static partial class Module
 
         if (tank.IsDead) return;
 
-        var gun = tank.Gun;
+        Gun? selectedGun = null;
+        int selectedIndex = -1;
+        for (int i = 0; i < tank.Guns.Length; i++)
+        {
+            if (tank.Guns[i].Selected)
+            {
+                selectedGun = tank.Guns[i];
+                selectedIndex = i;
+                break;
+            }
+        }
+
+        if (selectedGun == null) return;
+        var gun = selectedGun.Value;
+
         if (gun.Ammo != null && gun.Ammo <= 0) return;
 
         float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
@@ -398,7 +412,7 @@ public static partial class Module
 
         if (gun.ProjectileCount == 1)
         {
-            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, gun.Damage, gun.TrackingStrength);
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, gun.Damage, gun.TrackingStrength, gun.ProjectileType);
         }
         else
         {
@@ -406,21 +420,50 @@ public static partial class Module
             for (int i = 0; i < gun.ProjectileCount; i++)
             {
                 float angle = tank.TurretRotation - halfSpread + (i * gun.SpreadAngle);
-                CreateProjectile(ctx, tank, barrelTipX, barrelTipY, angle, gun.Damage, gun.TrackingStrength);
+                CreateProjectile(ctx, tank, barrelTipX, barrelTipY, angle, gun.Damage, gun.TrackingStrength, gun.ProjectileType);
             }
         }
 
         if (gun.Ammo != null)
         {
             gun.Ammo = gun.Ammo.Value - 1;
-            tank.Gun = gun;
+            var updatedGuns = tank.Guns.ToArray();
+
+            if (gun.Ammo <= 0)
+            {
+                var newGuns = new Gun[tank.Guns.Length - 1];
+                int newIndex = 0;
+                for (int i = 0; i < tank.Guns.Length; i++)
+                {
+                    if (i != selectedIndex)
+                    {
+                        newGuns[newIndex] = tank.Guns[i];
+                        if (i == 0 && selectedIndex != 0)
+                        {
+                            newGuns[newIndex].Selected = true;
+                        }
+                        newIndex++;
+                    }
+                }
+                if (newGuns.Length > 0 && selectedIndex == 0)
+                {
+                    newGuns[0].Selected = true;
+                }
+                tank.Guns = newGuns;
+            }
+            else
+            {
+                updatedGuns[selectedIndex] = gun;
+                tank.Guns = updatedGuns;
+            }
+
             ctx.Db.tank.Id.Update(tank);
         }
 
         Log.Info($"Tank {tank.Name} fired {gun.GunType}. Ammo remaining: {gun.Ammo?.ToString() ?? "unlimited"}");
     }
 
-    private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, int damage, float trackingStrength)
+    private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, int damage, float trackingStrength, ProjectileType projectileType)
     {
         float velocityX = (float)Math.Cos(angle) * PROJECTILE_SPEED;
         float velocityY = (float)Math.Sin(angle) * PROJECTILE_SPEED;
@@ -438,7 +481,8 @@ public static partial class Module
             Size = PROJECTILE_SIZE,
             Velocity = new Vector2Float(velocityX, velocityY),
             Damage = damage,
-            TrackingStrength = trackingStrength
+            TrackingStrength = trackingStrength,
+            ProjectileType = projectileType
         };
 
         ctx.Db.projectile.Insert(projectile);
@@ -523,15 +567,7 @@ public static partial class Module
             TopSpeed = 3f,
             BodyRotationSpeed = 3f,
             TurretRotationSpeed = 3f,
-            Gun = new Gun 
-            { 
-                GunType = GunType.Base, 
-                Ammo = null, 
-                ProjectileCount = 1, 
-                SpreadAngle = 0, 
-                Damage = PROJECTILE_DAMAGE, 
-                TrackingStrength = 0 
-            }
+            Guns = [BASE_GUN]
         };
 
         ctx.Db.tank.Insert(tank);
@@ -563,15 +599,7 @@ public static partial class Module
             Velocity = new Vector2Float(0, 0),
             BodyAngularVelocity = 0,
             TurretAngularVelocity = 0,
-            Gun = new Gun 
-            { 
-                GunType = GunType.Base, 
-                Ammo = null, 
-                ProjectileCount = 1, 
-                SpreadAngle = 0, 
-                Damage = PROJECTILE_DAMAGE, 
-                TrackingStrength = 0 
-            }
+            Guns = [BASE_GUN]
         };
 
         ctx.Db.tank.Id.Update(respawnedTank);
@@ -587,40 +615,26 @@ public static partial class Module
 
         if (tank.IsDead) return;
 
-        Gun newGun = gunType switch
+        int targetIndex = -1;
+        for (int i = 0; i < tank.Guns.Length; i++)
         {
-            GunType.Base => new Gun 
-            { 
-                GunType = GunType.Base, 
-                Ammo = null, 
-                ProjectileCount = 1, 
-                SpreadAngle = 0, 
-                Damage = PROJECTILE_DAMAGE, 
-                TrackingStrength = 0 
-            },
-            GunType.TripleShooter => new Gun 
-            { 
-                GunType = GunType.TripleShooter, 
-                Ammo = TRIPLE_SHOOTER_AMMO, 
-                ProjectileCount = 3, 
-                SpreadAngle = 0.2f, 
-                Damage = PROJECTILE_DAMAGE, 
-                TrackingStrength = 0 
-            },
-            GunType.MissileLauncher => new Gun 
-            { 
-                GunType = GunType.MissileLauncher, 
-                Ammo = MISSILE_LAUNCHER_AMMO, 
-                ProjectileCount = 1, 
-                SpreadAngle = 0, 
-                Damage = MISSILE_DAMAGE, 
-                TrackingStrength = 2.0f 
-            },
-            _ => tank.Gun
-        };
+            if (tank.Guns[i].GunType == gunType)
+            {
+                targetIndex = i;
+                break;
+            }
+        }
 
-        tank.Gun = newGun;
+        if (targetIndex == -1) return;
+
+        var updatedGuns = tank.Guns.ToArray();
+        for (int i = 0; i < updatedGuns.Length; i++)
+        {
+            updatedGuns[i].Selected = (i == targetIndex);
+        }
+
+        tank.Guns = updatedGuns;
         ctx.Db.tank.Id.Update(tank);
-        Log.Info($"Tank {tank.Name} switched to {gunType} with {newGun.Ammo?.ToString() ?? "unlimited"} ammo");
+        Log.Info($"Tank {tank.Name} switched to {gunType}");
     }
 }
