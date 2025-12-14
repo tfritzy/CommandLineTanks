@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import MainMenuPage from './pages/MainMenuPage';
 import GamePage from './pages/GamePage';
-import { connectToSpacetimeDB, getConnection } from './spacetimedb-connection';
+import { connectToSpacetimeDB } from './spacetimedb-connection';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<'menu' | 'game'>('menu');
@@ -15,28 +15,31 @@ function App() {
       const subscription = conn
         .subscriptionBuilder()
         .onError((e) => console.log("Player subscription error", e))
+        .onApplied(() => {
+          for (const player of conn.db.player) {
+            if (conn.identity && player.identity.isEqual(conn.identity)) {
+              console.log(`Existing player found with ID ${player.id}, setting homeworld`);
+              setWorldId(player.id);
+              setCurrentPage('game');
+              break;
+            }
+          }
+        })
         .subscribe([`SELECT * FROM player WHERE Identity = '${conn.identity}'`]);
 
-      conn.db.player.onInsert((_ctx, player) => {
+      const handlePlayerInsert = (_ctx: any, player: any) => {
         if (conn.identity && player.identity.isEqual(conn.identity)) {
           console.log(`Player created with ID ${player.id}, setting homeworld`);
           setWorldId(player.id);
           setCurrentPage('game');
         }
-      });
+      };
 
-      const existingPlayer = conn.db.player.getIterIdentity().filter(p => 
-        conn.identity && p.identity.isEqual(conn.identity)
-      );
-      for (const player of existingPlayer) {
-        console.log(`Existing player found with ID ${player.id}, setting homeworld`);
-        setWorldId(player.id);
-        setCurrentPage('game');
-        break;
-      }
+      conn.db.player.onInsert(handlePlayerInsert);
 
       return () => {
         subscription.unsubscribe();
+        conn.db.player.removeOnInsert(handlePlayerInsert);
       };
     }).catch((error) => {
       console.error('Failed to establish SpacetimeDB connection:', error);
