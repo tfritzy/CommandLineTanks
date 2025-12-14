@@ -250,7 +250,6 @@ public static partial class TankUpdater
                         {
                             existingGun.Ammo = existingGun.Ammo.Value + gunToAdd.Value.Ammo.Value;
                             tank.Guns[existingGunIndex] = existingGun;
-                            tank = tank with { Guns = tank.Guns };
                             needsUpdate = true;
                             ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
                         }
