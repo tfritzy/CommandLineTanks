@@ -37,13 +37,7 @@ public static partial class Module
         minY = paddingY;
         maxY = worldHeight - paddingY;
 
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(world.Id);
-        if (traversibilityMap == null)
-        {
-            float fallbackX = (minX + maxX) / 2.0f;
-            float fallbackY = (minY + maxY) / 2.0f;
-            return (fallbackX, fallbackY);
-        }
+        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(world.Id).Value;
 
         for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++)
         {
@@ -61,7 +55,7 @@ public static partial class Module
             }
 
             int index = y * worldWidth + x;
-            if (index < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[index])
+            if (index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
             {
                 return (x, y);
             }
