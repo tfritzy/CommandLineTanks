@@ -230,21 +230,13 @@ public static partial class TankUpdater
 
             foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, tankTileX, tankTileY)))
             {
-                if (terrainDetail.Type == TerrainDetailType.TripleShooterPickup || 
-                    terrainDetail.Type == TerrainDetailType.MissileLauncherPickup)
+                var gunToAdd = GetGunFromPickup(terrainDetail.Type);
+                if (gunToAdd != null)
                 {
-                    var gunType = terrainDetail.Type == TerrainDetailType.TripleShooterPickup 
-                        ? GunType.TripleShooter 
-                        : GunType.MissileLauncher;
-
-                    var gunToAdd = gunType == GunType.TripleShooter 
-                        ? Module.TRIPLE_SHOOTER_GUN 
-                        : Module.MISSILE_LAUNCHER_GUN;
-
                     int existingGunIndex = -1;
                     for (int i = 0; i < tank.Guns.Length; i++)
                     {
-                        if (tank.Guns[i].GunType == gunType)
+                        if (tank.Guns[i].GunType == gunToAdd.Value.GunType)
                         {
                             existingGunIndex = i;
                             break;
@@ -254,24 +246,20 @@ public static partial class TankUpdater
                     if (existingGunIndex >= 0)
                     {
                         var existingGun = tank.Guns[existingGunIndex];
-                        if (existingGun.Ammo != null && gunToAdd.Ammo != null)
+                        if (existingGun.Ammo != null && gunToAdd.Value.Ammo != null)
                         {
-                            existingGun.Ammo = existingGun.Ammo.Value + gunToAdd.Ammo.Value;
-                            var updatedGuns = tank.Guns.ToArray();
-                            updatedGuns[existingGunIndex] = existingGun;
-                            tank = tank with { Guns = updatedGuns };
+                            existingGun.Ammo = existingGun.Ammo.Value + gunToAdd.Value.Ammo.Value;
+                            tank.Guns[existingGunIndex] = existingGun;
+                            tank = tank with { Guns = tank.Guns };
                             needsUpdate = true;
                             ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
                         }
                     }
                     else
                     {
-                        var newGuns = new Gun[tank.Guns.Length + 1];
-                        Array.Copy(tank.Guns, newGuns, tank.Guns.Length);
-                        newGuns[tank.Guns.Length] = gunToAdd;
                         tank = tank with 
                         { 
-                            Guns = newGuns,
+                            Guns = [.. tank.Guns, gunToAdd.Value],
                             SelectedGunIndex = tank.Guns.Length
                         };
                         needsUpdate = true;
@@ -307,6 +295,16 @@ public static partial class TankUpdater
         while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
 
         return Math.Abs(angleDiff) < tolerance;
+    }
+
+    private static Gun? GetGunFromPickup(TerrainDetailType pickupType)
+    {
+        return pickupType switch
+        {
+            TerrainDetailType.TripleShooterPickup => Module.TRIPLE_SHOOTER_GUN,
+            TerrainDetailType.MissileLauncherPickup => Module.MISSILE_LAUNCHER_GUN,
+            _ => null
+        };
     }
 
 }
