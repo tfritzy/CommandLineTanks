@@ -406,7 +406,7 @@ public static partial class Module
             CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, ProjectileType.Normal, PROJECTILE_DAMAGE, null);
             CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation + TRIPLE_SHOOTER_SPREAD_ANGLE, ProjectileType.Normal, PROJECTILE_DAMAGE, null);
 
-            gun.Ammo = gun.Ammo - 1;
+            gun.Ammo = gun.Ammo.Value - 1;
             tank.Gun = gun;
             ctx.Db.tank.Id.Update(tank);
         }
@@ -424,7 +424,7 @@ public static partial class Module
 
             CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, ProjectileType.Missile, MISSILE_DAMAGE, targetTankId);
 
-            gun.Ammo = gun.Ammo - 1;
+            gun.Ammo = gun.Ammo.Value - 1;
             tank.Gun = gun;
             ctx.Db.tank.Id.Update(tank);
         }
@@ -584,23 +584,13 @@ public static partial class Module
 
         if (tank.IsDead) return;
 
-        Gun newGun;
-        if (gunType == GunType.Base)
+        Gun newGun = gunType switch
         {
-            newGun = new Gun { GunType = GunType.Base, Ammo = null };
-        }
-        else if (gunType == GunType.TripleShooter)
-        {
-            newGun = new Gun { GunType = GunType.TripleShooter, Ammo = TRIPLE_SHOOTER_AMMO };
-        }
-        else if (gunType == GunType.MissileLauncher)
-        {
-            newGun = new Gun { GunType = GunType.MissileLauncher, Ammo = MISSILE_LAUNCHER_AMMO };
-        }
-        else
-        {
-            return;
-        }
+            GunType.Base => new Gun { GunType = GunType.Base, Ammo = null },
+            GunType.TripleShooter => new Gun { GunType = GunType.TripleShooter, Ammo = TRIPLE_SHOOTER_AMMO },
+            GunType.MissileLauncher => new Gun { GunType = GunType.MissileLauncher, Ammo = MISSILE_LAUNCHER_AMMO },
+            _ => tank.Gun
+        };
 
         tank.Gun = newGun;
         ctx.Db.tank.Id.Update(tank);
