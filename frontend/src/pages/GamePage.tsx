@@ -3,18 +3,12 @@ import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
 import ResultsScreen from '../components/ResultsScreen';
 import { getConnection } from '../spacetimedb-connection';
+import type { Tank } from '../types/tank';
 
 const WORLD_RESET_DELAY_SECONDS = 30;
 
 interface GamePageProps {
     worldId: string;
-}
-
-interface Tank {
-    id: string;
-    name: string;
-    alliance: number;
-    kills: number;
 }
 
 export default function GamePage({ worldId }: GamePageProps) {

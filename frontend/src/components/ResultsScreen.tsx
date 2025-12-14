@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
-
-interface Tank {
-    id: string;
-    name: string;
-    alliance: number;
-    kills: number;
-}
+import type { Tank } from '../types/tank';
 
 interface ResultsScreenProps {
     countdownSeconds: number;
@@ -17,12 +11,13 @@ export default function ResultsScreen({ countdownSeconds, winningTeam, tanks }: 
     const [timeRemaining, setTimeRemaining] = useState(countdownSeconds);
 
     useEffect(() => {
+        setTimeRemaining(countdownSeconds);
         const interval = setInterval(() => {
             setTimeRemaining((prev) => Math.max(0, prev - 1));
         }, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [countdownSeconds]);
 
     const team0Tanks = tanks.filter(t => t.alliance === 0).sort((a, b) => b.kills - a.kills);
     const team1Tanks = tanks.filter(t => t.alliance === 1).sort((a, b) => b.kills - a.kills);
