@@ -6,6 +6,68 @@ public static partial class Module
 {
     private const float SPAWN_PADDING_RATIO = 0.25f;
     private const int MAX_SPAWN_ATTEMPTS = 100;
+    private const int HOMEWORLD_SIZE = 20;
+
+    private static void CreateHomeworld(ReducerContext ctx, string identityString)
+    {
+        int worldSize = HOMEWORLD_SIZE;
+        int totalTiles = worldSize * worldSize;
+
+        var baseTerrain = new BaseTerrain[totalTiles];
+        var terrainDetail = new TerrainDetail[totalTiles];
+        var traversibilityMap = new bool[totalTiles];
+
+        for (int i = 0; i < totalTiles; i++)
+        {
+            baseTerrain[i] = BaseTerrain.Ground;
+            terrainDetail[i] = TerrainDetail.None;
+            traversibilityMap[i] = true;
+        }
+
+        var world = new World
+        {
+            Id = identityString,
+            Name = $"Homeworld",
+            CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+            Width = worldSize,
+            Height = worldSize,
+            BaseTerrainLayer = baseTerrain,
+            TerrainDetailLayer = terrainDetail,
+            GameState = GameState.Playing
+        };
+
+        ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
+            WorldId = identityString,
+            LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+        });
+
+        ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
+            WorldId = identityString,
+            LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+        });
+
+        ctx.Db.world.Insert(world);
+
+        ctx.Db.traversibility_map.Insert(new TraversibilityMap
+        {
+            WorldId = identityString,
+            Map = traversibilityMap
+        });
+
+        ctx.Db.score.Insert(new Score
+        {
+            WorldId = identityString,
+            Kills = new int[] { 0, 0 }
+        });
+
+        Log.Info($"Created homeworld for identity {identityString}");
+    }
 
     public static (float, float) FindSpawnPosition(ReducerContext ctx, World world, int alliance, Random random)
     {
@@ -141,6 +203,13 @@ public static partial class Module
 
             ctx.Db.player.Insert(player);
             Log.Info($"New player connected with ID {playerId}");
+        }
+
+        var identityString = ctx.Sender.ToHexString();
+        var existingHomeworld = ctx.Db.world.Id.Find(identityString);
+        if (existingHomeworld == null)
+        {
+            CreateHomeworld(ctx, identityString);
         }
     }
 

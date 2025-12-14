@@ -9,8 +9,15 @@ function App() {
   const [worldId, setWorldId] = useState<string | null>(null);
 
   useEffect(() => {
-    connectToSpacetimeDB().then(() => {
+    connectToSpacetimeDB().then((conn) => {
       setIsSpacetimeConnected(true);
+      
+      if (conn.identity) {
+        const identityString = conn.identity.toHexString();
+        console.log(`Setting homeworld to identity: ${identityString}`);
+        setWorldId(identityString);
+        setCurrentPage('game');
+      }
     }).catch((error) => {
       console.error('Failed to establish SpacetimeDB connection:', error);
     });
