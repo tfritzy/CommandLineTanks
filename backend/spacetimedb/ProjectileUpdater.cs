@@ -136,16 +136,45 @@ public static partial class ProjectileUpdater
 
         Log.Info($"Resetting world {args.WorldId}...");
 
-        var (baseTerrain, terrainDetail) = TerrainGenerator.GenerateTerrain(ctx.Rng);
-        var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetail);
+        var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
+        var terrainDetailArray = new TerrainDetailType[baseTerrain.Length];
+        for (int i = 0; i < terrainDetailArray.Length; i++)
+        {
+            terrainDetailArray[i] = TerrainDetailType.None;
+        }
+        foreach (var detail in terrainDetails)
+        {
+            int index = detail.y * TerrainGenerator.GetWorldWidth() + detail.x;
+            terrainDetailArray[index] = detail.type;
+        }
+        var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
 
         var updatedWorld = world.Value with
         {
             BaseTerrainLayer = baseTerrain,
-            TerrainDetailLayer = terrainDetail,
             GameState = GameState.Playing
         };
         ctx.Db.world.Id.Update(updatedWorld);
+
+        foreach (var existingDetail in ctx.Db.terrain_detail.WorldId.Filter(args.WorldId))
+        {
+            ctx.Db.terrain_detail.Id.Delete(existingDetail.Id);
+        }
+
+        foreach (var detail in terrainDetails)
+        {
+            var terrainDetailId = Module.GenerateId(ctx, "td");
+            ctx.Db.terrain_detail.Insert(new Module.TerrainDetail
+            {
+                Id = terrainDetailId,
+                WorldId = args.WorldId,
+                PositionX = detail.x,
+                PositionY = detail.y,
+                Type = detail.type,
+                Health = 100,
+                Label = null
+            });
+        }
 
         var existingTraversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
         if (existingTraversibilityMap != null)
