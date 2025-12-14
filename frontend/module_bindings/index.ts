@@ -77,6 +77,8 @@ export { ScoreRow };
 // Import and reexport all types
 import BaseTerrain from "./base_terrain_type";
 export { BaseTerrain };
+import GameState from "./game_state_type";
+export { GameState };
 import PathEntry from "./path_entry_type";
 export { PathEntry };
 import Player from "./player_type";

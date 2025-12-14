@@ -370,6 +370,7 @@ public static partial class Module
             Alliance = assignedAlliance,
             Health = Module.TANK_HEALTH,
             IsDead = false,
+            Kills = 0,
             CollisionRegionX = 0,
             CollisionRegionY = 0,
             Target = null,

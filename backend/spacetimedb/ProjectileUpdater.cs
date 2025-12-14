@@ -73,6 +73,16 @@ public static partial class ProjectileUpdater
 
                         if (isDead)
                         {
+                            var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
+                            if (shooterTank != null)
+                            {
+                                var updatedShooterTank = shooterTank.Value with
+                                {
+                                    Kills = shooterTank.Value.Kills + 1
+                                };
+                                ctx.Db.tank.Id.Update(updatedShooterTank);
+                            }
+
                             var score = ctx.Db.score.WorldId.Find(args.WorldId);
                             if (score != null)
                             {
@@ -200,6 +210,7 @@ public static partial class ProjectileUpdater
                 Alliance = newAlliance,
                 Health = Module.TANK_HEALTH,
                 IsDead = false,
+                Kills = 0,
                 PositionX = spawnX,
                 PositionY = spawnY,
                 Path = Array.Empty<PathEntry>(),

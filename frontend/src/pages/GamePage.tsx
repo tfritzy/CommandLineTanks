@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
+import ResultsScreen from '../components/ResultsScreen';
 import { getConnection } from '../spacetimedb-connection';
 
 interface GamePageProps {
@@ -39,7 +40,7 @@ export default function GamePage({ worldId }: GamePageProps) {
                 setIsDead(tank.isDead);
             }
         });
-    }, []);
+    }, [worldId]);
 
     return (
         <div style={{
@@ -87,6 +88,7 @@ export default function GamePage({ worldId }: GamePageProps) {
                         </div>
                     </div>
                 )}
+                <ResultsScreen worldId={worldId} />
             </div>
             <TerminalComponent />
         </div>

@@ -11,6 +11,7 @@ import {
 } from "spacetimedb";
 import BaseTerrain from "./base_terrain_type";
 import TerrainDetail from "./terrain_detail_type";
+import GameState from "./game_state_type";
 
 
 export default __t.row({
@@ -26,4 +27,7 @@ export default __t.row({
     return __t.array(TerrainDetail);
   },
   traversibilityMap: __t.array(__t.bool()),
+  get gameState() {
+    return GameState;
+  },
 });
