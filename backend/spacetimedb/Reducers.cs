@@ -390,11 +390,52 @@ public static partial class Module
 
         if (tank.IsDead) return;
 
+        var gun = tank.Gun;
+        if (gun.Ammo != null && gun.Ammo <= 0) return;
+
         float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
         float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
 
-        float velocityX = (float)Math.Cos(tank.TurretRotation) * PROJECTILE_SPEED;
-        float velocityY = (float)Math.Sin(tank.TurretRotation) * PROJECTILE_SPEED;
+        if (gun.GunType == GunType.Base)
+        {
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, ProjectileType.Normal, PROJECTILE_DAMAGE, null);
+        }
+        else if (gun.GunType == GunType.TripleShooter)
+        {
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation - TRIPLE_SHOOTER_SPREAD_ANGLE, ProjectileType.Normal, PROJECTILE_DAMAGE, null);
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, ProjectileType.Normal, PROJECTILE_DAMAGE, null);
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation + TRIPLE_SHOOTER_SPREAD_ANGLE, ProjectileType.Normal, PROJECTILE_DAMAGE, null);
+
+            gun.Ammo = gun.Ammo - 1;
+            tank.Gun = gun;
+            ctx.Db.tank.Id.Update(tank);
+        }
+        else if (gun.GunType == GunType.MissileLauncher)
+        {
+            string? targetTankId = null;
+            if (tank.Target != null)
+            {
+                var targetTank = ctx.Db.tank.Id.Find(tank.Target);
+                if (targetTank != null && targetTank.Value.Alliance != tank.Alliance && !targetTank.Value.IsDead)
+                {
+                    targetTankId = tank.Target;
+                }
+            }
+
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, ProjectileType.Missile, MISSILE_DAMAGE, targetTankId);
+
+            gun.Ammo = gun.Ammo - 1;
+            tank.Gun = gun;
+            ctx.Db.tank.Id.Update(tank);
+        }
+
+        Log.Info($"Tank {tank.Name} fired {gun.GunType}. Ammo remaining: {gun.Ammo?.ToString() ?? "unlimited"}");
+    }
+
+    private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, ProjectileType projectileType, int damage, string? targetTankId)
+    {
+        float velocityX = (float)Math.Cos(angle) * PROJECTILE_SPEED;
+        float velocityY = (float)Math.Sin(angle) * PROJECTILE_SPEED;
 
         var projectileId = GenerateId(ctx, "prj");
         var projectile = new Projectile
@@ -403,15 +444,17 @@ public static partial class Module
             WorldId = tank.WorldId,
             ShooterTankId = tank.Id,
             Alliance = tank.Alliance,
-            PositionX = barrelTipX,
-            PositionY = barrelTipY,
+            PositionX = startX,
+            PositionY = startY,
             Speed = PROJECTILE_SPEED,
             Size = PROJECTILE_SIZE,
-            Velocity = new Vector2Float(velocityX, velocityY)
+            Velocity = new Vector2Float(velocityX, velocityY),
+            ProjectileType = projectileType,
+            Damage = damage,
+            TargetTankId = targetTankId
         };
 
         ctx.Db.projectile.Insert(projectile);
-        Log.Info($"Tank {tank.Name} fired projectile {projectileId} from position ({barrelTipX}, {barrelTipY}) with velocity ({velocityX}, {velocityY})");
     }
 
     [Reducer]
@@ -492,7 +535,8 @@ public static partial class Module
             TargetTurretRotation = 0.0f,
             TopSpeed = 3f,
             BodyRotationSpeed = 3f,
-            TurretRotationSpeed = 3f
+            TurretRotationSpeed = 3f,
+            Gun = new Gun { GunType = GunType.Base, Ammo = null }
         };
 
         ctx.Db.tank.Insert(tank);
@@ -523,10 +567,43 @@ public static partial class Module
             Path = [],
             Velocity = new Vector2Float(0, 0),
             BodyAngularVelocity = 0,
-            TurretAngularVelocity = 0
+            TurretAngularVelocity = 0,
+            Gun = new Gun { GunType = GunType.Base, Ammo = null }
         };
 
         ctx.Db.tank.Id.Update(respawnedTank);
         Log.Info($"Tank {tank.Name} respawned at position ({spawnX}, {spawnY})");
+    }
+
+    [Reducer]
+    public static void switchGun(ReducerContext ctx, GunType gunType)
+    {
+        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        if (tank.IsDead) return;
+
+        Gun newGun;
+        if (gunType == GunType.Base)
+        {
+            newGun = new Gun { GunType = GunType.Base, Ammo = null };
+        }
+        else if (gunType == GunType.TripleShooter)
+        {
+            newGun = new Gun { GunType = GunType.TripleShooter, Ammo = TRIPLE_SHOOTER_AMMO };
+        }
+        else if (gunType == GunType.MissileLauncher)
+        {
+            newGun = new Gun { GunType = GunType.MissileLauncher, Ammo = MISSILE_LAUNCHER_AMMO };
+        }
+        else
+        {
+            return;
+        }
+
+        tank.Gun = newGun;
+        ctx.Db.tank.Id.Update(tank);
+        Log.Info($"Tank {tank.Name} switched to {gunType} with {newGun.Ammo?.ToString() ?? "unlimited"} ammo");
     }
 }

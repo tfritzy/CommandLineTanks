@@ -41,6 +41,33 @@ public static partial class ProjectileUpdater
         {
             var projectile = iProjectile;
 
+            if (projectile.ProjectileType == Types.ProjectileType.Missile && projectile.TargetTankId != null)
+            {
+                var targetTank = ctx.Db.tank.Id.Find(projectile.TargetTankId);
+                if (targetTank != null && !targetTank.Value.IsDead)
+                {
+                    var dx = targetTank.Value.PositionX - projectile.PositionX;
+                    var dy = targetTank.Value.PositionY - projectile.PositionY;
+                    var targetAngle = Math.Atan2(dy, dx);
+
+                    var currentAngle = Math.Atan2(projectile.Velocity.Y, projectile.Velocity.X);
+                    var angleDiff = targetAngle - currentAngle;
+                    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+                    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+                    var turnAmount = Math.Sign(angleDiff) * Math.Min(Math.Abs(angleDiff), Module.MISSILE_TRACKING_STRENGTH * deltaTime);
+                    var newAngle = currentAngle + turnAmount;
+
+                    projectile = projectile with
+                    {
+                        Velocity = new Vector2Float(
+                            (float)(Math.Cos(newAngle) * projectile.Speed),
+                            (float)(Math.Sin(newAngle) * projectile.Speed)
+                        )
+                    };
+                }
+            }
+
             projectile = projectile with
             {
                 PositionX = (float)(projectile.PositionX + projectile.Velocity.X * deltaTime),
@@ -62,7 +89,7 @@ public static partial class ProjectileUpdater
 
                     if (distanceSquared <= projectile.Size * projectile.Size)
                     {
-                        var newHealth = tank.Health - Module.PROJECTILE_DAMAGE;
+                        var newHealth = tank.Health - projectile.Damage;
                         var isDead = newHealth <= 0;
                         var updatedTank = tank with
                         {
@@ -242,7 +269,8 @@ public static partial class ProjectileUpdater
                 BodyAngularVelocity = 0,
                 TurretAngularVelocity = 0,
                 Target = null,
-                TargetLead = 0.0f
+                TargetLead = 0.0f,
+                Gun = new Types.Gun { GunType = Types.GunType.Base, Ammo = null }
             };
 
             ctx.Db.tank.Id.Update(resetTank);
