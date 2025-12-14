@@ -63,6 +63,30 @@ public static partial class Module
             Kills = new int[] { 0, 0 }
         });
 
+        var welcomeSignId = GenerateId(ctx, "td");
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = welcomeSignId,
+            WorldId = identityString,
+            PositionX = worldSize / 2,
+            PositionY = worldSize / 2 + 3,
+            Type = TerrainDetailType.Field,
+            Health = 100,
+            Label = "Welcome to Command Line Tanks"
+        });
+
+        var instructionSignId = GenerateId(ctx, "td");
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = instructionSignId,
+            WorldId = identityString,
+            PositionX = worldSize / 2,
+            PositionY = worldSize / 2 + 1,
+            Type = TerrainDetailType.Field,
+            Health = 100,
+            Label = "When you're ready to find a game, call the find_game command"
+        });
+
         Log.Info($"Created homeworld for identity {identityString}");
     }
 
