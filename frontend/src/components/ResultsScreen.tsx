@@ -1,30 +1,89 @@
 import { useEffect, useState } from 'react';
 import type { Tank } from '../types/tank';
+import { getConnection } from '../spacetimedb-connection';
+
+const WORLD_RESET_DELAY_SECONDS = 30;
 
 interface ResultsScreenProps {
-    countdownSeconds: number;
-    winningTeam: number;
-    tanks: Tank[];
+    worldId: string;
 }
 
-export default function ResultsScreen({ countdownSeconds, winningTeam, tanks }: ResultsScreenProps) {
-    const [timeRemaining, setTimeRemaining] = useState(countdownSeconds);
+export default function ResultsScreen({ worldId }: ResultsScreenProps) {
+    const [timeRemaining, setTimeRemaining] = useState(WORLD_RESET_DELAY_SECONDS);
+    const [tanks, setTanks] = useState<Tank[]>([]);
+    const [team0Kills, setTeam0Kills] = useState(0);
+    const [team1Kills, setTeam1Kills] = useState(0);
 
     useEffect(() => {
-        setTimeRemaining(countdownSeconds);
+        const connection = getConnection();
+        if (!connection) return;
+
         const interval = setInterval(() => {
             setTimeRemaining((prev) => Math.max(0, prev - 1));
         }, 1000);
 
+        connection
+            .subscriptionBuilder()
+            .onError((e) => console.error("Results subscription error", e))
+            .subscribe([
+                `SELECT * FROM tank WHERE worldId = '${worldId}'`,
+                `SELECT * FROM score WHERE worldId = '${worldId}'`
+            ]);
+
+        const updateTanks = () => {
+            const allTanks = Array.from(connection.db.tank.iter())
+                .filter(t => t.worldId === worldId)
+                .map(t => ({
+                    id: t.id,
+                    name: t.name,
+                    alliance: t.alliance,
+                    kills: t.kills
+                }));
+            setTanks(allTanks);
+        };
+
+        const updateScores = () => {
+            const score = connection.db.score.WorldId.find(worldId);
+            if (score) {
+                setTeam0Kills(score.kills[0] || 0);
+                setTeam1Kills(score.kills[1] || 0);
+            }
+        };
+
+        updateTanks();
+        updateScores();
+
+        connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
+            if (newTank.worldId === worldId) {
+                updateTanks();
+            }
+        });
+
+        connection.db.tank.onInsert((_ctx, tank) => {
+            if (tank.worldId === worldId) {
+                updateTanks();
+            }
+        });
+
+        connection.db.tank.onDelete((_ctx, tank) => {
+            if (tank.worldId === worldId) {
+                updateTanks();
+            }
+        });
+
+        connection.db.score.onUpdate((_ctx, _oldScore, newScore) => {
+            if (newScore.worldId === worldId) {
+                updateScores();
+            }
+        });
+
         return () => clearInterval(interval);
-    }, [countdownSeconds]);
+    }, [worldId]);
 
     const team0Tanks = tanks.filter(t => t.alliance === 0).sort((a, b) => b.kills - a.kills);
     const team1Tanks = tanks.filter(t => t.alliance === 1).sort((a, b) => b.kills - a.kills);
 
-    const team0Kills = team0Tanks.reduce((sum, t) => sum + t.kills, 0);
-    const team1Kills = team1Tanks.reduce((sum, t) => sum + t.kills, 0);
-
+    const winningTeam = team0Kills > team1Kills ? 0 : 1;
     const winnerText = winningTeam === 0 ? 'Team Red Wins!' : 'Team Blue Wins!';
     const winnerColor = winningTeam === 0 ? '#ff6666' : '#6666ff';
 

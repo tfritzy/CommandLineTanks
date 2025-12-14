@@ -3,9 +3,6 @@ import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
 import ResultsScreen from '../components/ResultsScreen';
 import { getConnection } from '../spacetimedb-connection';
-import type { Tank } from '../types/tank';
-
-const WORLD_RESET_DELAY_SECONDS = 30;
 
 interface GamePageProps {
     worldId: string;
@@ -16,9 +13,6 @@ export default function GamePage({ worldId }: GamePageProps) {
     const gameRef = useRef<Game | null>(null);
     const [isDead, setIsDead] = useState(false);
     const [showResults, setShowResults] = useState(false);
-    const [winningTeam, setWinningTeam] = useState(0);
-    const [tanks, setTanks] = useState<Tank[]>([]);
-    const resultsStartTimeRef = useRef<number | null>(null);
 
     useEffect(() => {
         if (canvasRef.current && !gameRef.current) {
@@ -35,26 +29,6 @@ export default function GamePage({ worldId }: GamePageProps) {
     useEffect(() => {
         const connection = getConnection();
         if (!connection) return;
-
-        const updateTanksAndWinner = () => {
-            const allTanks = Array.from(connection.db.tank.iter())
-                .filter(t => t.worldId === worldId)
-                .map(t => ({
-                    id: t.id,
-                    name: t.name,
-                    alliance: t.alliance,
-                    kills: t.kills
-                }));
-
-            setTanks(allTanks);
-
-            const score = connection.db.score.WorldId.find(worldId);
-            if (score) {
-                const team0Kills = score.kills[0] || 0;
-                const team1Kills = score.kills[1] || 0;
-                setWinningTeam(team0Kills > team1Kills ? 0 : 1);
-            }
-        };
 
         connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
             if (connection.identity && newTank.owner.isEqual(connection.identity)) {
@@ -76,12 +50,9 @@ export default function GamePage({ worldId }: GamePageProps) {
         connection.db.world.onUpdate((_ctx, oldWorld, newWorld) => {
             if (newWorld.id === worldId) {
                 if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
-                    resultsStartTimeRef.current = Date.now();
                     setShowResults(true);
-                    updateTanksAndWinner();
                 } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
                     setShowResults(false);
-                    resultsStartTimeRef.current = null;
                 }
             }
         });
@@ -89,9 +60,7 @@ export default function GamePage({ worldId }: GamePageProps) {
         connection.db.world.onInsert((_ctx, world) => {
             if (world.id === worldId) {
                 if (world.gameState.tag === 'Results') {
-                    resultsStartTimeRef.current = Date.now();
                     setShowResults(true);
-                    updateTanksAndWinner();
                 }
             }
         });
@@ -144,11 +113,7 @@ export default function GamePage({ worldId }: GamePageProps) {
                     </div>
                 )}
                 {showResults && (
-                    <ResultsScreen
-                        countdownSeconds={WORLD_RESET_DELAY_SECONDS}
-                        winningTeam={winningTeam}
-                        tanks={tanks}
-                    />
+                    <ResultsScreen worldId={worldId} />
                 )}
             </div>
             <TerminalComponent />
