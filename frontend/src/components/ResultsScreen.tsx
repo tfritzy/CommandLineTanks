@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import type { Tank } from '../types/tank';
 import { getConnection } from '../spacetimedb-connection';
 
 const WORLD_RESET_DELAY_SECONDS = 30;
@@ -8,11 +7,19 @@ interface ResultsScreenProps {
     worldId: string;
 }
 
+interface SimpleTank {
+    id: string;
+    name: string;
+    alliance: number;
+    kills: number;
+}
+
 export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const [timeRemaining, setTimeRemaining] = useState(WORLD_RESET_DELAY_SECONDS);
-    const [tanks, setTanks] = useState<Tank[]>([]);
+    const [tanks, setTanks] = useState<SimpleTank[]>([]);
     const [team0Kills, setTeam0Kills] = useState(0);
     const [team1Kills, setTeam1Kills] = useState(0);
+    const [showResults, setShowResults] = useState(false);
 
     useEffect(() => {
         const connection = getConnection();
@@ -27,7 +34,8 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             .onError((e) => console.error("Results subscription error", e))
             .subscribe([
                 `SELECT * FROM tank WHERE worldId = '${worldId}'`,
-                `SELECT * FROM score WHERE worldId = '${worldId}'`
+                `SELECT * FROM score WHERE worldId = '${worldId}'`,
+                `SELECT * FROM world WHERE id = '${worldId}'`
             ]);
 
         const updateTanks = () => {
@@ -50,51 +58,75 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             }
         };
 
+        const updateVisibility = () => {
+            const world = connection.db.world.Id.find(worldId);
+            if (world && world.gameState.tag === 'Results') {
+                setShowResults(true);
+                setTimeRemaining(WORLD_RESET_DELAY_SECONDS);
+            } else {
+                setShowResults(false);
+            }
+        };
+
         updateTanks();
         updateScores();
+        updateVisibility();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const handleTankUpdate = (_ctx: any, _oldTank: any, newTank: any) => {
+        connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
             if (newTank.worldId === worldId) {
                 updateTanks();
             }
-        };
+        });
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const handleTankInsert = (_ctx: any, tank: any) => {
+        connection.db.tank.onInsert((_ctx, tank) => {
             if (tank.worldId === worldId) {
                 updateTanks();
             }
-        };
+        });
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const handleTankDelete = (_ctx: any, tank: any) => {
+        connection.db.tank.onDelete((_ctx, tank) => {
             if (tank.worldId === worldId) {
                 updateTanks();
             }
-        };
+        });
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const handleScoreUpdate = (_ctx: any, _oldScore: any, newScore: any) => {
+        connection.db.score.onUpdate((_ctx, _oldScore, newScore) => {
             if (newScore.worldId === worldId) {
                 updateScores();
             }
-        };
+        });
 
-        connection.db.tank.onUpdate(handleTankUpdate);
-        connection.db.tank.onInsert(handleTankInsert);
-        connection.db.tank.onDelete(handleTankDelete);
-        connection.db.score.onUpdate(handleScoreUpdate);
+        connection.db.world.onUpdate((_ctx, oldWorld, newWorld) => {
+            if (newWorld.id === worldId) {
+                if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
+                    setShowResults(true);
+                    setTimeRemaining(WORLD_RESET_DELAY_SECONDS);
+                    updateTanks();
+                    updateScores();
+                } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
+                    setShowResults(false);
+                }
+            }
+        });
+
+        connection.db.world.onInsert((_ctx, world) => {
+            if (world.id === worldId && world.gameState.tag === 'Results') {
+                setShowResults(true);
+                setTimeRemaining(WORLD_RESET_DELAY_SECONDS);
+                updateTanks();
+                updateScores();
+            }
+        });
 
         return () => {
             clearInterval(interval);
             subscriptionHandle.unsubscribe();
-            connection.db.tank.removeOnUpdate(handleTankUpdate);
-            connection.db.tank.removeOnInsert(handleTankInsert);
-            connection.db.tank.removeOnDelete(handleTankDelete);
-            connection.db.score.removeOnUpdate(handleScoreUpdate);
         };
     }, [worldId]);
+
+    if (!showResults) {
+        return null;
+    }
 
     const team0Tanks = tanks.filter(t => t.alliance === 0).sort((a, b) => b.kills - a.kills);
     const team1Tanks = tanks.filter(t => t.alliance === 1).sort((a, b) => b.kills - a.kills);

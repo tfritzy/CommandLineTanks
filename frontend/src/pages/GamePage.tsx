@@ -12,7 +12,6 @@ export default function GamePage({ worldId }: GamePageProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const gameRef = useRef<Game | null>(null);
     const [isDead, setIsDead] = useState(false);
-    const [showResults, setShowResults] = useState(false);
 
     useEffect(() => {
         if (canvasRef.current && !gameRef.current) {
@@ -41,29 +40,6 @@ export default function GamePage({ worldId }: GamePageProps) {
                 setIsDead(tank.isDead);
             }
         });
-
-        connection
-            .subscriptionBuilder()
-            .onError((e) => console.error("World subscription error", e))
-            .subscribe([`SELECT * FROM world WHERE id = '${worldId}'`]);
-
-        connection.db.world.onUpdate((_ctx, oldWorld, newWorld) => {
-            if (newWorld.id === worldId) {
-                if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
-                    setShowResults(true);
-                } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
-                    setShowResults(false);
-                }
-            }
-        });
-
-        connection.db.world.onInsert((_ctx, world) => {
-            if (world.id === worldId) {
-                if (world.gameState.tag === 'Results') {
-                    setShowResults(true);
-                }
-            }
-        });
     }, [worldId]);
 
     return (
@@ -87,7 +63,7 @@ export default function GamePage({ worldId }: GamePageProps) {
                         height: '100%'
                     }}
                 />
-                {isDead && !showResults && (
+                {isDead && (
                     <div style={{
                         position: 'absolute',
                         top: '50%',
@@ -112,9 +88,7 @@ export default function GamePage({ worldId }: GamePageProps) {
                         </div>
                     </div>
                 )}
-                {showResults && (
-                    <ResultsScreen worldId={worldId} />
-                )}
+                <ResultsScreen worldId={worldId} />
             </div>
             <TerminalComponent />
         </div>
