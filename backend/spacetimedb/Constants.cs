@@ -9,4 +9,6 @@ public static partial class Module
     public const int TANK_HEALTH = 100;
     public const int PROJECTILE_DAMAGE = 20;
     public const int COLLISION_REGION_SIZE = 4;
+    public const int KILL_LIMIT = 100;
+    public const long WORLD_RESET_DELAY_MICROS = 30_000_000;
 }

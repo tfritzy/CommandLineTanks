@@ -7,7 +7,7 @@ public static partial class Module
     private const float SPAWN_PADDING_RATIO = 0.25f;
     private const int MAX_SPAWN_ATTEMPTS = 100;
 
-    private static (float, float) FindSpawnPosition(World world, int alliance, Random random)
+    public static (float, float) FindSpawnPosition(World world, int alliance, Random random)
     {
         int worldWidth = world.Width;
         int worldHeight = world.Height;
@@ -81,7 +81,8 @@ public static partial class Module
             Height = TerrainGenerator.GetWorldHeight(),
             BaseTerrainLayer = baseTerrain,
             TerrainDetailLayer = terrainDetail,
-            TraversibilityMap = traversibilityMap
+            TraversibilityMap = traversibilityMap,
+            GameMode = GameMode.Playing
         };
 
         ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates

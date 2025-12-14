@@ -57,4 +57,11 @@ public static partial class Types
         HayBale,
         Field
     }
+
+    [Type]
+    public enum GameMode : byte
+    {
+        Playing,
+        Results
+    }
 }
