@@ -29,6 +29,7 @@ public static partial class Module
         public BaseTerrain[] BaseTerrainLayer;
         public TerrainDetail[] TerrainDetailLayer;
         public bool[] TraversibilityMap;
+        public GameState GameState;
     }
 
     [Table(Name = "tank", Public = true)]
