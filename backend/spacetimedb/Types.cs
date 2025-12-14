@@ -56,7 +56,9 @@ public static partial class Types
         Fence,
         HayBale,
         Field,
-        Label
+        Label,
+        TripleShooterPickup,
+        MissileLauncherPickup
     }
 
     [Type]

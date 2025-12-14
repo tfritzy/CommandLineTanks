@@ -225,6 +225,65 @@ public static partial class TankUpdater
                 }
             }
 
+            int tankTileX = (int)Math.Floor(tank.PositionX);
+            int tankTileY = (int)Math.Floor(tank.PositionY);
+
+            foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId.Filter(args.WorldId))
+            {
+                if (terrainDetail.PositionX == tankTileX && terrainDetail.PositionY == tankTileY)
+                {
+                    if (terrainDetail.Type == TerrainDetailType.TripleShooterPickup || 
+                        terrainDetail.Type == TerrainDetailType.MissileLauncherPickup)
+                    {
+                        var gunType = terrainDetail.Type == TerrainDetailType.TripleShooterPickup 
+                            ? GunType.TripleShooter 
+                            : GunType.MissileLauncher;
+
+                        var gunToAdd = gunType == GunType.TripleShooter 
+                            ? Module.TRIPLE_SHOOTER_GUN 
+                            : Module.MISSILE_LAUNCHER_GUN;
+
+                        int existingGunIndex = -1;
+                        for (int i = 0; i < tank.Guns.Length; i++)
+                        {
+                            if (tank.Guns[i].GunType == gunType)
+                            {
+                                existingGunIndex = i;
+                                break;
+                            }
+                        }
+
+                        if (existingGunIndex >= 0)
+                        {
+                            var existingGun = tank.Guns[existingGunIndex];
+                            if (existingGun.Ammo != null && gunToAdd.Ammo != null)
+                            {
+                                existingGun.Ammo = existingGun.Ammo.Value + gunToAdd.Ammo.Value;
+                                var updatedGuns = tank.Guns.ToArray();
+                                updatedGuns[existingGunIndex] = existingGun;
+                                tank = tank with { Guns = updatedGuns };
+                                needsUpdate = true;
+                            }
+                        }
+                        else
+                        {
+                            var newGuns = new Gun[tank.Guns.Length + 1];
+                            Array.Copy(tank.Guns, newGuns, tank.Guns.Length);
+                            newGuns[tank.Guns.Length] = gunToAdd;
+                            tank = tank with 
+                            { 
+                                Guns = newGuns,
+                                SelectedGunIndex = tank.Guns.Length
+                            };
+                            needsUpdate = true;
+                        }
+
+                        ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                        break;
+                    }
+                }
+            }
+
             if (needsUpdate)
             {
                 ctx.Db.tank.Id.Update(tank);
