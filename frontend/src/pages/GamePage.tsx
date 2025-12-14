@@ -13,10 +13,10 @@ export default function GamePage({ worldId }: GamePageProps) {
     const gameRef = useRef<Game | null>(null);
     const [isDead, setIsDead] = useState(false);
 
+    const connection = getConnection();
     const isHomeworld = useMemo(() => {
-        const connection = getConnection();
         return connection?.identity ? worldId === connection.identity.toHexString() : false;
-    }, [worldId]);
+    }, [worldId, connection?.identity]);
 
     useEffect(() => {
         if (canvasRef.current && !gameRef.current) {
