@@ -106,8 +106,7 @@ function TerminalComponent() {
                         newOutput.push(...respawnOutput);
                         break;
                     }
-                    case 'find_game':
-                    case 'fg': {
+                    case 'findgame': {
                         const findGameOutput = findGame(connection, args);
                         newOutput.push(...findGameOutput);
                         break;

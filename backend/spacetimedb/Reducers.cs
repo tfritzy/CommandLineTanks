@@ -70,7 +70,7 @@ public static partial class Module
             WorldId = identityString,
             PositionX = worldSize / 2,
             PositionY = worldSize / 2 + 3,
-            Type = TerrainDetailType.Field,
+            Type = TerrainDetailType.Label,
             Health = 100,
             Label = "Welcome to Command Line Tanks"
         });
@@ -82,9 +82,9 @@ public static partial class Module
             WorldId = identityString,
             PositionX = worldSize / 2,
             PositionY = worldSize / 2 + 1,
-            Type = TerrainDetailType.Field,
+            Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "When you're ready to find a game, call the find_game command"
+            Label = "When you're ready to find a game, call the findgame command"
         });
 
         Log.Info($"Created homeworld for identity {identityString}");

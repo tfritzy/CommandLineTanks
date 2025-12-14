@@ -52,7 +52,7 @@ function App() {
     return null;
   }
 
-  return <GamePage worldId={worldId} />;
+  return <GamePage worldId={worldId} onWorldChange={handleWorldReady} />;
 }
 
 export default App;

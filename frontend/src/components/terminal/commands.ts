@@ -87,7 +87,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  target, t       Target another tank by name",
       "  fire, f         Fire a projectile from your tank",
       "  respawn         Respawn after death",
-      "  find_game, fg   Join a game world",
+      "  findgame        Join a game world",
       "  clear, c        Clear the terminal output",
       "  help, h         Display help information",
     ];
@@ -232,19 +232,16 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  respawn"
       ];
     
-    case "find_game":
-    case "fg":
+    case "findgame":
       return [
-        "find_game, fg - Join a game world",
+        "findgame - Join a game world",
         "",
-        "Usage: find_game",
+        "Usage: findgame",
         "",
-        "Finds and joins an available game world with other players.",
-        "This will leave your homeworld and place you in a competitive match.",
+        "Finds and joins an available game world to place you in a match.",
         "",
         "Examples:",
-        "  find_game",
-        "  fg"
+        "  findgame"
       ];
     
     case "help":
@@ -606,10 +603,9 @@ export function respawn(connection: DbConnection, args: string[]): string[] {
 export function findGame(connection: DbConnection, args: string[]): string[] {
   if (args.length > 0) {
     return [
-      "find_game: error: find_game command takes no arguments",
+      "findgame: error: findgame command takes no arguments",
       "",
-      "Usage: find_game",
-      "       fg"
+      "Usage: findgame"
     ];
   }
 

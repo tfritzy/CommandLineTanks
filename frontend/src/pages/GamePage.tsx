@@ -6,9 +6,10 @@ import { getConnection } from '../spacetimedb-connection';
 
 interface GamePageProps {
     worldId: string;
+    onWorldChange: (worldId: string) => void;
 }
 
-export default function GamePage({ worldId }: GamePageProps) {
+export default function GamePage({ worldId, onWorldChange }: GamePageProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const gameRef = useRef<Game | null>(null);
     const [isDead, setIsDead] = useState(false);
@@ -29,18 +30,28 @@ export default function GamePage({ worldId }: GamePageProps) {
         const connection = getConnection();
         if (!connection) return;
 
+        const handleTankInsert = (_ctx: any, tank: any) => {
+            if (connection.identity && tank.owner.isEqual(connection.identity)) {
+                if (tank.worldId !== worldId) {
+                    console.log(`Switching to new world: ${tank.worldId}`);
+                    onWorldChange(tank.worldId);
+                }
+                setIsDead(tank.isDead);
+            }
+        };
+
         connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
             if (connection.identity && newTank.owner.isEqual(connection.identity)) {
                 setIsDead(newTank.isDead);
             }
         });
 
-        connection.db.tank.onInsert((_ctx, tank) => {
-            if (connection.identity && tank.owner.isEqual(connection.identity)) {
-                setIsDead(tank.isDead);
-            }
-        });
-    }, [worldId]);
+        connection.db.tank.onInsert(handleTankInsert);
+
+        return () => {
+            connection.db.tank.removeOnInsert(handleTankInsert);
+        };
+    }, [worldId, onWorldChange]);
 
     return (
         <div style={{
