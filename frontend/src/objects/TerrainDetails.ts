@@ -19,6 +19,7 @@ export class Cliff extends TerrainDetailObject {
     ctx.stroke();
     
     ctx.restore();
+    this.drawLabel(ctx);
   }
 }
 
@@ -40,6 +41,7 @@ export class Rock extends TerrainDetailObject {
     ctx.stroke();
     
     ctx.restore();
+    this.drawLabel(ctx);
   }
 }
 
@@ -63,6 +65,7 @@ export class Tree extends TerrainDetailObject {
     ctx.stroke();
     
     ctx.restore();
+    this.drawLabel(ctx);
   }
 }
 
@@ -86,6 +89,7 @@ export class Bridge extends TerrainDetailObject {
     }
     
     ctx.restore();
+    this.drawLabel(ctx);
   }
 }
 
@@ -111,6 +115,7 @@ export class Fence extends TerrainDetailObject {
     }
     
     ctx.restore();
+    this.drawLabel(ctx);
   }
 }
 
@@ -142,6 +147,7 @@ export class HayBale extends TerrainDetailObject {
     ctx.stroke();
     
     ctx.restore();
+    this.drawLabel(ctx);
   }
 }
 
@@ -165,5 +171,6 @@ export class Field extends TerrainDetailObject {
     }
     
     ctx.restore();
+    this.drawLabel(ctx);
   }
 }

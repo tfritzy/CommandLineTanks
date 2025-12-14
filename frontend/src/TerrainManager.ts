@@ -70,27 +70,30 @@ export class TerrainManager {
   private createDetailObject(detail: any) {
     let obj: TerrainDetailObject | null = null;
     
+    const label = detail.label || null;
+    const health = detail.health || 100;
+    
     switch (detail.type.tag) {
       case "Cliff":
-        obj = new Cliff(detail.positionX, detail.positionY);
+        obj = new Cliff(detail.positionX, detail.positionY, label, health);
         break;
       case "Rock":
-        obj = new Rock(detail.positionX, detail.positionY);
+        obj = new Rock(detail.positionX, detail.positionY, label, health);
         break;
       case "Tree":
-        obj = new Tree(detail.positionX, detail.positionY);
+        obj = new Tree(detail.positionX, detail.positionY, label, health);
         break;
       case "Bridge":
-        obj = new Bridge(detail.positionX, detail.positionY);
+        obj = new Bridge(detail.positionX, detail.positionY, label, health);
         break;
       case "Fence":
-        obj = new Fence(detail.positionX, detail.positionY);
+        obj = new Fence(detail.positionX, detail.positionY, label, health);
         break;
       case "HayBale":
-        obj = new HayBale(detail.positionX, detail.positionY);
+        obj = new HayBale(detail.positionX, detail.positionY, label, health);
         break;
       case "Field":
-        obj = new Field(detail.positionX, detail.positionY);
+        obj = new Field(detail.positionX, detail.positionY, label, health);
         break;
     }
     
