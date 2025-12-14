@@ -13,6 +13,9 @@ export default function GamePage({ worldId }: GamePageProps) {
     const gameRef = useRef<Game | null>(null);
     const [isDead, setIsDead] = useState(false);
 
+    const connection = getConnection();
+    const isHomeworld = connection?.identity ? worldId === connection.identity.toHexString() : false;
+
     useEffect(() => {
         if (canvasRef.current && !gameRef.current) {
             gameRef.current = new Game(canvasRef.current, worldId);
@@ -85,6 +88,30 @@ export default function GamePage({ worldId }: GamePageProps) {
                         </div>
                         <div style={{ fontSize: '18px', color: '#ccc' }}>
                             Call the respawn command to respawn
+                        </div>
+                    </div>
+                )}
+                {isHomeworld && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '20px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        padding: '15px 30px',
+                        borderRadius: '8px',
+                        textAlign: 'center',
+                        color: 'white',
+                        fontFamily: 'monospace',
+                        fontSize: '18px',
+                        zIndex: 1000,
+                        border: '2px solid #10b981'
+                    }}>
+                        <div style={{ fontSize: '24px', marginBottom: '10px', fontWeight: 'bold' }}>
+                            Welcome to Command Line Tanks
+                        </div>
+                        <div style={{ fontSize: '16px', color: '#ccc' }}>
+                            When you're ready to find a game, call the find_game command
                         </div>
                     </div>
                 )}

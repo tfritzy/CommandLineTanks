@@ -87,6 +87,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  target, t       Target another tank by name",
       "  fire, f         Fire a projectile from your tank",
       "  respawn         Respawn after death",
+      "  find_game, fg   Join a game world",
       "  clear, c        Clear the terminal output",
       "  help, h         Display help information",
     ];
@@ -229,6 +230,21 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  respawn"
+      ];
+    
+    case "find_game":
+    case "fg":
+      return [
+        "find_game, fg - Join a game world",
+        "",
+        "Usage: find_game",
+        "",
+        "Finds and joins an available game world with other players.",
+        "This will leave your homeworld and place you in a competitive match.",
+        "",
+        "Examples:",
+        "  find_game",
+        "  fg"
       ];
     
     case "help":
@@ -584,5 +600,23 @@ export function respawn(connection: DbConnection, args: string[]): string[] {
 
   return [
     "Respawning...",
+  ];
+}
+
+export function findGame(connection: DbConnection, args: string[]): string[] {
+  if (args.length > 0) {
+    return [
+      "find_game: error: find_game command takes no arguments",
+      "",
+      "Usage: find_game",
+      "       fg"
+    ];
+  }
+
+  const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  connection.reducers.findWorld({ joinCode });
+
+  return [
+    "Searching for a game world...",
   ];
 }
