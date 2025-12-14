@@ -56,6 +56,8 @@ public static partial class Module
 
         public bool IsDead;
 
+        public int Kills;
+
         public int CollisionRegionX;
 
         public int CollisionRegionY;
