@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Game } from '../game';
 import TerminalComponent from '../components/terminal/Terminal';
 import ResultsScreen from '../components/ResultsScreen';
-import { getConnection } from '../spacetimedb-connection';
+import { getConnection, getPendingJoinCode, clearPendingJoinCode } from '../spacetimedb-connection';
 
 interface GamePageProps {
     worldId: string;
@@ -32,9 +32,14 @@ export default function GamePage({ worldId, onWorldChange }: GamePageProps) {
 
         const handleTankInsert = (_ctx: any, tank: any) => {
             if (connection.identity && tank.owner.isEqual(connection.identity)) {
-                if (tank.worldId !== worldId) {
-                    console.log(`Switching to new world: ${tank.worldId}`);
-                    onWorldChange(tank.worldId);
+                const pendingJoinCode = getPendingJoinCode();
+                if (pendingJoinCode && tank.joinCode === pendingJoinCode) {
+                    console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${tank.worldId}`);
+                    if (tank.worldId !== worldId) {
+                        console.log(`Switching to new world: ${tank.worldId}`);
+                        onWorldChange(tank.worldId);
+                    }
+                    clearPendingJoinCode();
                 }
                 setIsDead(tank.isDead);
             }

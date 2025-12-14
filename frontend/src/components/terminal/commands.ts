@@ -1,4 +1,5 @@
 import { type DbConnection } from "../../../module_bindings";
+import { setPendingJoinCode } from "../../spacetimedb-connection";
 
 function isPlayerDead(connection: DbConnection): boolean {
   if (!connection.identity) {
@@ -610,6 +611,7 @@ export function findGame(connection: DbConnection, args: string[]): string[] {
   }
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  setPendingJoinCode(joinCode);
   connection.reducers.findWorld({ joinCode });
 
   return [
