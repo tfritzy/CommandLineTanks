@@ -46,7 +46,7 @@ public static partial class Types
     }
 
     [Type]
-    public enum TerrainDetail : byte
+    public enum TerrainDetailType : byte
     {
         None,
         Cliff,

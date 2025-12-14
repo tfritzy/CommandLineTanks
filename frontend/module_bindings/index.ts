@@ -73,6 +73,8 @@ import WorldRow from "./world_table";
 export { WorldRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
+import TerrainDetailRow from "./terrain_detail_table";
+export { TerrainDetailRow };
 
 // Import and reexport all types
 import BaseTerrain from "./base_terrain_type";
@@ -93,6 +95,8 @@ import Tank from "./tank_type";
 export { Tank };
 import TerrainDetail from "./terrain_detail_type";
 export { TerrainDetail };
+import TerrainDetailType from "./terrain_detail_type_type";
+export { TerrainDetailType };
 import Vector2 from "./vector_2_type";
 export { Vector2 };
 import Vector2Float from "./vector_2_float_type";
@@ -203,6 +207,20 @@ const tablesSchema = __schema(
       { name: 'score_WorldId_key', constraint: 'unique', columns: ['worldId'] },
     ],
   }, ScoreRow),
+  __table({
+    name: 'terrain_detail',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'terrain_detail_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, TerrainDetailRow),
 );
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */

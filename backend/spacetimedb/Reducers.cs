@@ -14,13 +14,11 @@ public static partial class Module
         int totalTiles = worldSize * worldSize;
 
         var baseTerrain = new BaseTerrain[totalTiles];
-        var terrainDetail = new TerrainDetail[totalTiles];
         var traversibilityMap = new bool[totalTiles];
 
         for (int i = 0; i < totalTiles; i++)
         {
             baseTerrain[i] = BaseTerrain.Ground;
-            terrainDetail[i] = TerrainDetail.None;
             traversibilityMap[i] = true;
         }
 
@@ -32,7 +30,6 @@ public static partial class Module
             Width = worldSize,
             Height = worldSize,
             BaseTerrainLayer = baseTerrain,
-            TerrainDetailLayer = terrainDetail,
             GameState = GameState.Playing
         };
 
@@ -133,8 +130,13 @@ public static partial class Module
     {
         var worldId = GenerateId(ctx, "wld");
 
-        var (baseTerrain, terrainDetail) = TerrainGenerator.GenerateTerrain(ctx.Rng);
-        var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetail);
+        var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
+        var terrainDetailArray = TerrainGenerator.ConvertToArray(
+            terrainDetails, 
+            TerrainGenerator.GetWorldWidth(), 
+            TerrainGenerator.GetWorldHeight()
+        );
+        var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
 
         var world = new World
         {
@@ -144,7 +146,6 @@ public static partial class Module
             Width = TerrainGenerator.GetWorldWidth(),
             Height = TerrainGenerator.GetWorldHeight(),
             BaseTerrainLayer = baseTerrain,
-            TerrainDetailLayer = terrainDetail,
             GameState = GameState.Playing
         };
 
@@ -165,6 +166,21 @@ public static partial class Module
         });
 
         ctx.Db.world.Insert(world);
+
+        foreach (var detail in terrainDetails)
+        {
+            var terrainDetailId = GenerateId(ctx, "td");
+            ctx.Db.terrain_detail.Insert(new TerrainDetail
+            {
+                Id = terrainDetailId,
+                WorldId = worldId,
+                PositionX = detail.x,
+                PositionY = detail.y,
+                Type = detail.type,
+                Health = 100,
+                Label = null
+            });
+        }
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {

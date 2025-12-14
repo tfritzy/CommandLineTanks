@@ -1,23 +1,31 @@
 import { getConnection } from "./spacetimedb-connection";
-import { BaseTerrain, TerrainDetail } from "../module_bindings";
+import { BaseTerrain, TerrainDetailType, type Infer } from "../module_bindings";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
 import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field } from "./objects/TerrainDetails";
-import type { Infer } from "spacetimedb";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
-type TerrainDetailType = Infer<typeof TerrainDetail>;
+type TerrainDetailTypeEnum = Infer<typeof TerrainDetailType>;
+
+interface TerrainDetailData {
+  id: string;
+  positionX: number;
+  positionY: number;
+  type: TerrainDetailTypeEnum;
+  health: number;
+  label: string | null;
+}
 
 export class TerrainManager {
   private worldWidth: number = 0;
   private worldHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
-  private terrainDetailLayer: TerrainDetailType[] = [];
   private worldId: string;
-  private detailObjects: TerrainDetailObject[] = [];
+  private detailObjects: Map<string, TerrainDetailObject> = new Map();
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.subscribeToWorld();
+    this.subscribeToTerrainDetails();
   }
 
   private subscribeToWorld() {
@@ -34,8 +42,6 @@ export class TerrainManager {
       this.worldWidth = world.width;
       this.worldHeight = world.height;
       this.baseTerrainLayer = world.baseTerrainLayer;
-      this.terrainDetailLayer = world.terrainDetailLayer;
-      this.createDetailObjects();
     });
 
     connection.db.world.onUpdate((_ctx, _oldWorld, newWorld) => {
@@ -43,53 +49,64 @@ export class TerrainManager {
       this.worldWidth = newWorld.width;
       this.worldHeight = newWorld.height;
       this.baseTerrainLayer = newWorld.baseTerrainLayer;
-      this.terrainDetailLayer = newWorld.terrainDetailLayer;
-      this.createDetailObjects();
     });
   }
 
-  private createDetailObjects() {
-    this.detailObjects = [];
+  private subscribeToTerrainDetails() {
+    const connection = getConnection();
+    if (!connection) return;
+
+    connection
+      .subscriptionBuilder()
+      .onError((e) => console.log("TerrainDetails subscription error", e))
+      .subscribe([`SELECT * FROM terrain_detail WHERE WorldId = '${this.worldId}'`]);
+
+    connection.db.terrain_detail.onInsert((_ctx, detail) => {
+      this.createDetailObject(detail);
+    });
+
+    connection.db.terrain_detail.onUpdate((_ctx, _oldDetail, newDetail) => {
+      this.detailObjects.delete(newDetail.id);
+      this.createDetailObject(newDetail);
+    });
+
+    connection.db.terrain_detail.onDelete((_ctx, detail) => {
+      this.detailObjects.delete(detail.id);
+    });
+  }
+
+  private createDetailObject(detail: TerrainDetailData) {
+    let obj: TerrainDetailObject | null = null;
     
-    for (let y = 0; y < this.worldHeight; y++) {
-      for (let x = 0; x < this.worldWidth; x++) {
-        const index = y * this.worldWidth + x;
-        const detail = this.terrainDetailLayer[index];
-        
-        if (detail.tag === "None") {
-          continue;
-        }
-        
-        let obj: TerrainDetailObject | null = null;
-        
-        switch (detail.tag) {
-          case "Cliff":
-            obj = new Cliff(x, y);
-            break;
-          case "Rock":
-            obj = new Rock(x, y);
-            break;
-          case "Tree":
-            obj = new Tree(x, y);
-            break;
-          case "Bridge":
-            obj = new Bridge(x, y);
-            break;
-          case "Fence":
-            obj = new Fence(x, y);
-            break;
-          case "HayBale":
-            obj = new HayBale(x, y);
-            break;
-          case "Field":
-            obj = new Field(x, y);
-            break;
-        }
-        
-        if (obj) {
-          this.detailObjects.push(obj);
-        }
-      }
+    const label = detail.label || null;
+    const health = detail.health || 100;
+    
+    switch (detail.type.tag) {
+      case "Cliff":
+        obj = new Cliff(detail.positionX, detail.positionY, label, health);
+        break;
+      case "Rock":
+        obj = new Rock(detail.positionX, detail.positionY, label, health);
+        break;
+      case "Tree":
+        obj = new Tree(detail.positionX, detail.positionY, label, health);
+        break;
+      case "Bridge":
+        obj = new Bridge(detail.positionX, detail.positionY, label, health);
+        break;
+      case "Fence":
+        obj = new Fence(detail.positionX, detail.positionY, label, health);
+        break;
+      case "HayBale":
+        obj = new HayBale(detail.positionX, detail.positionY, label, health);
+        break;
+      case "Field":
+        obj = new Field(detail.positionX, detail.positionY, label, health);
+        break;
+    }
+    
+    if (obj) {
+      this.detailObjects.set(detail.id, obj);
     }
   }
 
@@ -154,7 +171,7 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    for (const obj of this.detailObjects) {
+    for (const obj of this.detailObjects.values()) {
       const x = obj.getX();
       const y = obj.getY();
       

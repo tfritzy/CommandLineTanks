@@ -27,7 +27,6 @@ public static partial class Module
         public int Width;
         public int Height;
         public BaseTerrain[] BaseTerrainLayer;
-        public TerrainDetail[] TerrainDetailLayer;
         public GameState GameState;
     }
 
@@ -120,5 +119,24 @@ public static partial class Module
         public string WorldId;
 
         public int[] Kills;
+    }
+
+    [Table(Name = "terrain_detail", Public = true)]
+    public partial struct TerrainDetail
+    {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public int PositionX;
+        public int PositionY;
+
+        public TerrainDetailType Type;
+
+        public int Health;
+
+        public string? Label;
     }
 }

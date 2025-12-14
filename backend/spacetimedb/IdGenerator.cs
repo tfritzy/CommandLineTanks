@@ -2,7 +2,7 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-    private static string GenerateId(ReducerContext ctx, string prefix)
+    internal static string GenerateId(ReducerContext ctx, string prefix)
     {
         var timestampMicros = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
 
