@@ -1,5 +1,6 @@
 using SpacetimeDB;
 using static Types;
+using System.Collections.Generic;
 
 public static partial class ProjectileUpdater
 {
@@ -147,7 +148,7 @@ public static partial class ProjectileUpdater
             ctx.Db.score.WorldId.Update(resetScore);
         }
 
-        var tanks = new System.Collections.Generic.List<Module.Tank>();
+        var tanks = new List<Module.Tank>();
         foreach (var tank in ctx.Db.tank.WorldId.Filter(args.WorldId))
         {
             tanks.Add(tank);
@@ -173,7 +174,7 @@ public static partial class ProjectileUpdater
             int tankIndex = shuffledIndices[i];
             var tank = tanks[tankIndex];
 
-            int newAlliance = i < totalTanks / 2 ? 0 : 1;
+            int newAlliance = i < (totalTanks + 1) / 2 ? 0 : 1;
 
             var (spawnX, spawnY) = Module.FindSpawnPosition(updatedWorld, newAlliance, ctx.Rng);
 
@@ -184,7 +185,7 @@ public static partial class ProjectileUpdater
                 IsDead = false,
                 PositionX = spawnX,
                 PositionY = spawnY,
-                Path = new PathEntry[0],
+                Path = Array.Empty<PathEntry>(),
                 Velocity = new Vector2Float(0, 0),
                 BodyAngularVelocity = 0,
                 TurretAngularVelocity = 0,
