@@ -54,7 +54,9 @@ public static partial class Module
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
             WorldId = identityString,
-            Map = traversibilityMap
+            Map = traversibilityMap,
+            Width = worldSize,
+            Height = worldSize
         });
 
         ctx.Db.score.Insert(new Score
@@ -209,7 +211,9 @@ public static partial class Module
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
             WorldId = worldId,
-            Map = traversibilityMap
+            Map = traversibilityMap,
+            Width = TerrainGenerator.GetWorldWidth(),
+            Height = TerrainGenerator.GetWorldHeight()
         });
 
         ctx.Db.score.Insert(new Score
