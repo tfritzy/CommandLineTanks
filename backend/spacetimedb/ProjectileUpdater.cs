@@ -302,7 +302,8 @@ public static partial class ProjectileUpdater
                 TurretAngularVelocity = 0,
                 Target = null,
                 TargetLead = 0.0f,
-                Guns = [Module.BASE_GUN with { Selected = true }]
+                Guns = [Module.BASE_GUN],
+                SelectedGunIndex = 0
             };
 
             ctx.Db.tank.Id.Update(resetTank);

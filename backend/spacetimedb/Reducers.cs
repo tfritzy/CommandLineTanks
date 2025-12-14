@@ -390,20 +390,9 @@ public static partial class Module
 
         if (tank.IsDead) return;
 
-        Gun? selectedGun = null;
-        int selectedIndex = -1;
-        for (int i = 0; i < tank.Guns.Length; i++)
-        {
-            if (tank.Guns[i].Selected)
-            {
-                selectedGun = tank.Guns[i];
-                selectedIndex = i;
-                break;
-            }
-        }
+        if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return;
 
-        if (selectedGun == null) return;
-        var gun = selectedGun.Value;
+        var gun = tank.Guns[tank.SelectedGunIndex];
 
         if (gun.Ammo != null && gun.Ammo <= 0) return;
 
@@ -431,25 +420,19 @@ public static partial class Module
 
             if (gun.Ammo <= 0)
             {
-                var newGuns = new Gun[tank.Guns.Length - 1];
-                int newIndex = 0;
-                for (int i = 0; i < tank.Guns.Length; i++)
+                tank.Guns = tank.Guns.Where((_, index) => index != tank.SelectedGunIndex).ToArray();
+                if (tank.Guns.Length > 0)
                 {
-                    if (i != selectedIndex)
-                    {
-                        newGuns[newIndex] = tank.Guns[i];
-                        newIndex++;
-                    }
+                    tank.SelectedGunIndex = 0;
                 }
-                if (newGuns.Length > 0)
+                else
                 {
-                    newGuns[0] = newGuns[0] with { Selected = true };
+                    tank.SelectedGunIndex = -1;
                 }
-                tank.Guns = newGuns;
             }
             else
             {
-                updatedGuns[selectedIndex] = gun;
+                updatedGuns[tank.SelectedGunIndex] = gun;
                 tank.Guns = updatedGuns;
             }
 
@@ -563,7 +546,8 @@ public static partial class Module
             TopSpeed = 3f,
             BodyRotationSpeed = 3f,
             TurretRotationSpeed = 3f,
-            Guns = [BASE_GUN with { Selected = true }]
+            Guns = [BASE_GUN],
+            SelectedGunIndex = 0
         };
 
         ctx.Db.tank.Insert(tank);
@@ -595,7 +579,8 @@ public static partial class Module
             Velocity = new Vector2Float(0, 0),
             BodyAngularVelocity = 0,
             TurretAngularVelocity = 0,
-            Guns = [BASE_GUN with { Selected = true }]
+            Guns = [BASE_GUN],
+            SelectedGunIndex = 0
         };
 
         ctx.Db.tank.Id.Update(respawnedTank);
@@ -623,13 +608,7 @@ public static partial class Module
 
         if (targetIndex == -1) return;
 
-        var updatedGuns = tank.Guns.ToArray();
-        for (int i = 0; i < updatedGuns.Length; i++)
-        {
-            updatedGuns[i] = updatedGuns[i] with { Selected = (i == targetIndex) };
-        }
-
-        tank.Guns = updatedGuns;
+        tank.SelectedGunIndex = targetIndex;
         ctx.Db.tank.Id.Update(tank);
         Log.Info($"Tank {tank.Name} switched to {gunType}");
     }

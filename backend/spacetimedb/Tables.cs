@@ -90,6 +90,7 @@ public static partial class Module
         public float TargetTurretRotation;
 
         public Gun[] Guns;
+        public int SelectedGunIndex;
     }
 
     [Table(Name = "projectile", Public = true)]
