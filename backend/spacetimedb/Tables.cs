@@ -113,9 +113,8 @@ public static partial class Module
 
         public Vector2Float Velocity;
 
-        public ProjectileType ProjectileType;
         public int Damage;
-        public string? TargetTankId;
+        public float TrackingStrength;
     }
 
     [Table(Name = "score", Public = true)]

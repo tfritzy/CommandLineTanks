@@ -41,13 +41,45 @@ public static partial class ProjectileUpdater
         {
             var projectile = iProjectile;
 
-            if (projectile.ProjectileType == Types.ProjectileType.Missile && projectile.TargetTankId != null)
+            if (projectile.TrackingStrength > 0)
             {
-                var targetTank = ctx.Db.tank.Id.Find(projectile.TargetTankId);
-                if (targetTank != null && !targetTank.Value.IsDead)
+                int projectileCollisionRegionX = (int)Math.Floor(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+                int projectileCollisionRegionY = (int)Math.Floor(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+
+                int searchRadius = (int)Math.Ceiling(Module.MISSILE_TRACKING_RADIUS / Module.COLLISION_REGION_SIZE);
+
+                Module.Tank? closestTarget = null;
+                float closestDistanceSquared = Module.MISSILE_TRACKING_RADIUS * Module.MISSILE_TRACKING_RADIUS;
+
+                for (int dx = -searchRadius; dx <= searchRadius; dx++)
                 {
-                    var dx = targetTank.Value.PositionX - projectile.PositionX;
-                    var dy = targetTank.Value.PositionY - projectile.PositionY;
+                    for (int dy = -searchRadius; dy <= searchRadius; dy++)
+                    {
+                        int regionX = projectileCollisionRegionX + dx;
+                        int regionY = projectileCollisionRegionY + dy;
+
+                        foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, regionX, regionY)))
+                        {
+                            if (tank.Alliance != projectile.Alliance && !tank.IsDead)
+                            {
+                                var dx_tank = tank.PositionX - projectile.PositionX;
+                                var dy_tank = tank.PositionY - projectile.PositionY;
+                                var distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
+
+                                if (distanceSquared < closestDistanceSquared)
+                                {
+                                    closestDistanceSquared = distanceSquared;
+                                    closestTarget = tank;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (closestTarget != null)
+                {
+                    var dx = closestTarget.Value.PositionX - projectile.PositionX;
+                    var dy = closestTarget.Value.PositionY - projectile.PositionY;
                     var targetAngle = Math.Atan2(dy, dx);
 
                     var currentAngle = Math.Atan2(projectile.Velocity.Y, projectile.Velocity.X);
@@ -55,7 +87,7 @@ public static partial class ProjectileUpdater
                     while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
                     while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
 
-                    var turnAmount = Math.Sign(angleDiff) * Math.Min(Math.Abs(angleDiff), Module.MISSILE_TRACKING_STRENGTH * deltaTime);
+                    var turnAmount = Math.Sign(angleDiff) * Math.Min(Math.Abs(angleDiff), projectile.TrackingStrength * deltaTime);
                     var newAngle = currentAngle + turnAmount;
 
                     projectile = projectile with
@@ -270,7 +302,15 @@ public static partial class ProjectileUpdater
                 TurretAngularVelocity = 0,
                 Target = null,
                 TargetLead = 0.0f,
-                Gun = new Types.Gun { GunType = Types.GunType.Base, Ammo = null }
+                Gun = new Types.Gun 
+                { 
+                    GunType = Types.GunType.Base, 
+                    Ammo = null, 
+                    ProjectileCount = 1, 
+                    SpreadAngle = 0, 
+                    Damage = Module.PROJECTILE_DAMAGE, 
+                    TrackingStrength = 0 
+                }
             };
 
             ctx.Db.tank.Id.Update(resetTank);

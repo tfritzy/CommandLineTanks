@@ -75,16 +75,13 @@ public static partial class Types
     }
 
     [Type]
-    public enum ProjectileType : byte
-    {
-        Normal,
-        Missile
-    }
-
-    [Type]
     public partial struct Gun
     {
         public GunType GunType;
         public int? Ammo;
+        public int ProjectileCount;
+        public float SpreadAngle;
+        public int Damage;
+        public float TrackingStrength;
     }
 }

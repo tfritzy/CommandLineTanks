@@ -12,8 +12,7 @@ public static partial class Module
     public const int COLLISION_REGION_SIZE = 4;
     public const int KILL_LIMIT = 100;
     public const long WORLD_RESET_DELAY_MICROS = 30_000_000;
-    public const float TRIPLE_SHOOTER_SPREAD_ANGLE = 0.2f;
     public const int TRIPLE_SHOOTER_AMMO = 30;
     public const int MISSILE_LAUNCHER_AMMO = 10;
-    public const float MISSILE_TRACKING_STRENGTH = 2.0f;
+    public const float MISSILE_TRACKING_RADIUS = 8.0f;
 }
