@@ -443,7 +443,7 @@ public static partial class Module
                 }
                 if (newGuns.Length > 0)
                 {
-                    newGuns[0].Selected = true;
+                    newGuns[0] = newGuns[0] with { Selected = true };
                 }
                 tank.Guns = newGuns;
             }
@@ -626,7 +626,7 @@ public static partial class Module
         var updatedGuns = tank.Guns.ToArray();
         for (int i = 0; i < updatedGuns.Length; i++)
         {
-            updatedGuns[i].Selected = (i == targetIndex);
+            updatedGuns[i] = updatedGuns[i] with { Selected = (i == targetIndex) };
         }
 
         tank.Guns = updatedGuns;
