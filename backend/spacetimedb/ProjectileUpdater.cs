@@ -37,6 +37,12 @@ public static partial class ProjectileUpdater
             LastTickAt = currentTime
         });
 
+        var world = ctx.Db.world.Id.Find(args.WorldId);
+        if (world == null) return;
+
+        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
+        if (traversibilityMap == null) return;
+
         foreach (var iProjectile in ctx.Db.projectile.WorldId.Filter(args.WorldId))
         {
             var projectile = iProjectile;
@@ -47,10 +53,54 @@ public static partial class ProjectileUpdater
                 PositionY = (float)(projectile.PositionY + projectile.Velocity.Y * deltaTime)
             };
 
-            int projectileCollisionRegionX = (int)Math.Floor(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-            int projectileCollisionRegionY = (int)Math.Floor(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+            int projectileTileX = (int)Math.Floor(projectile.PositionX);
+            int projectileTileY = (int)Math.Floor(projectile.PositionY);
 
             bool collided = false;
+
+            if (projectileTileX >= 0 && projectileTileX < world.Value.Width && 
+                projectileTileY >= 0 && projectileTileY < world.Value.Height)
+            {
+                int tileIndex = projectileTileY * world.Value.Width + projectileTileX;
+                if (tileIndex < traversibilityMap.Value.Map.Length && !traversibilityMap.Value.Map[tileIndex])
+                {
+                    foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId.Filter(args.WorldId))
+                    {
+                        if (terrainDetail.PositionX == projectileTileX && terrainDetail.PositionY == projectileTileY)
+                        {
+                            var newHealth = terrainDetail.Health - Module.PROJECTILE_DAMAGE;
+                            if (newHealth <= 0)
+                            {
+                                ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+
+                                var updatedMap = new bool[traversibilityMap.Value.Map.Length];
+                                Array.Copy(traversibilityMap.Value.Map, updatedMap, traversibilityMap.Value.Map.Length);
+                                updatedMap[tileIndex] = true;
+                                ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value with
+                                {
+                                    Map = updatedMap
+                                });
+                            }
+                            else
+                            {
+                                ctx.Db.terrain_detail.Id.Update(terrainDetail with
+                                {
+                                    Health = newHealth
+                                });
+                            }
+
+                            ctx.Db.projectile.Id.Delete(projectile.Id);
+                            collided = true;
+                            break;
+                        }
+                    }
+
+                    if (collided) continue;
+                }
+            }
+
+            int projectileCollisionRegionX = (int)Math.Floor(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+            int projectileCollisionRegionY = (int)Math.Floor(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
             foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, projectileCollisionRegionX, projectileCollisionRegionY)))
             {
