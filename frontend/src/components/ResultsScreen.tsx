@@ -1,22 +1,19 @@
 import { useEffect, useState } from 'react';
 import { getConnection } from '../spacetimedb-connection';
+import type { Infer } from 'spacetimedb';
+import Tank from '../../module_bindings/tank_type';
 
 const WORLD_RESET_DELAY_SECONDS = 30;
+
+type TankType = Infer<typeof Tank>;
 
 interface ResultsScreenProps {
     worldId: string;
 }
 
-interface SimpleTank {
-    id: string;
-    name: string;
-    alliance: number;
-    kills: number;
-}
-
 export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const [timeRemaining, setTimeRemaining] = useState(WORLD_RESET_DELAY_SECONDS);
-    const [tanks, setTanks] = useState<SimpleTank[]>([]);
+    const [tanks, setTanks] = useState<TankType[]>([]);
     const [team0Kills, setTeam0Kills] = useState(0);
     const [team1Kills, setTeam1Kills] = useState(0);
     const [showResults, setShowResults] = useState(false);
@@ -40,13 +37,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
 
         const updateTanks = () => {
             const allTanks = Array.from(connection.db.tank.iter())
-                .filter(t => t.worldId === worldId)
-                .map(t => ({
-                    id: t.id,
-                    name: t.name,
-                    alliance: t.alliance,
-                    kills: t.kills
-                }));
+                .filter(t => t.worldId === worldId);
             setTanks(allTanks);
         };
 

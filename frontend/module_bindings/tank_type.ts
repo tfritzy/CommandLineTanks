@@ -22,6 +22,7 @@ export default __t.object("Tank", {
   alliance: __t.i32(),
   health: __t.i32(),
   isDead: __t.bool(),
+  kills: __t.i32(),
   collisionRegionX: __t.i32(),
   collisionRegionY: __t.i32(),
   target: __t.option(__t.string()),
