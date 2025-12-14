@@ -90,6 +90,9 @@ public static partial class Module
         public float TargetBodyRotation;
         public float TurretRotation;
         public float TargetTurretRotation;
+
+        public Gun[] Guns;
+        public int SelectedGunIndex;
     }
 
     [Table(Name = "projectile", Public = true)]
@@ -112,6 +115,10 @@ public static partial class Module
         public float Size;
 
         public Vector2Float Velocity;
+
+        public int Damage;
+        public float TrackingStrength;
+        public ProjectileType ProjectileType;
     }
 
     [Table(Name = "score", Public = true)]

@@ -394,11 +394,62 @@ public static partial class Module
 
         if (tank.IsDead) return;
 
+        if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return;
+
+        var gun = tank.Guns[tank.SelectedGunIndex];
+
+        if (gun.Ammo != null && gun.Ammo <= 0) return;
+
         float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
         float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
 
-        float velocityX = (float)Math.Cos(tank.TurretRotation) * PROJECTILE_SPEED;
-        float velocityY = (float)Math.Sin(tank.TurretRotation) * PROJECTILE_SPEED;
+        if (gun.ProjectileCount == 1)
+        {
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, gun.Damage, gun.TrackingStrength, gun.ProjectileType);
+        }
+        else
+        {
+            float halfSpread = gun.SpreadAngle * (gun.ProjectileCount - 1) / 2.0f;
+            for (int i = 0; i < gun.ProjectileCount; i++)
+            {
+                float angle = tank.TurretRotation - halfSpread + (i * gun.SpreadAngle);
+                CreateProjectile(ctx, tank, barrelTipX, barrelTipY, angle, gun.Damage, gun.TrackingStrength, gun.ProjectileType);
+            }
+        }
+
+        if (gun.Ammo != null)
+        {
+            gun.Ammo = gun.Ammo.Value - 1;
+            var updatedGuns = tank.Guns.ToArray();
+
+            if (gun.Ammo <= 0)
+            {
+                tank.Guns = tank.Guns.Where((_, index) => index != tank.SelectedGunIndex).ToArray();
+                if (tank.Guns.Length > 0)
+                {
+                    tank.SelectedGunIndex = 0;
+                }
+                else
+                {
+                    tank.SelectedGunIndex = -1;
+                }
+            }
+            else
+            {
+                updatedGuns[tank.SelectedGunIndex] = gun;
+                tank.Guns = updatedGuns;
+            }
+
+            ctx.Db.tank.Id.Update(tank);
+        }
+
+        Log.Info($"Tank {tank.Name} fired {gun.GunType}. Ammo remaining: {gun.Ammo?.ToString() ?? "unlimited"}");
+    }
+
+    private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, int damage, float trackingStrength, ProjectileType projectileType)
+    {
+        float velocityX = (float)Math.Cos(angle) * PROJECTILE_SPEED;
+        float velocityY = (float)Math.Sin(angle) * PROJECTILE_SPEED;
 
         var projectileId = GenerateId(ctx, "prj");
         var projectile = new Projectile
@@ -407,15 +458,17 @@ public static partial class Module
             WorldId = tank.WorldId,
             ShooterTankId = tank.Id,
             Alliance = tank.Alliance,
-            PositionX = barrelTipX,
-            PositionY = barrelTipY,
+            PositionX = startX,
+            PositionY = startY,
             Speed = PROJECTILE_SPEED,
             Size = PROJECTILE_SIZE,
-            Velocity = new Vector2Float(velocityX, velocityY)
+            Velocity = new Vector2Float(velocityX, velocityY),
+            Damage = damage,
+            TrackingStrength = trackingStrength,
+            ProjectileType = projectileType
         };
 
         ctx.Db.projectile.Insert(projectile);
-        Log.Info($"Tank {tank.Name} fired projectile {projectileId} from position ({barrelTipX}, {barrelTipY}) with velocity ({velocityX}, {velocityY})");
     }
 
     [Reducer]
@@ -496,7 +549,9 @@ public static partial class Module
             TargetTurretRotation = 0.0f,
             TopSpeed = 3f,
             BodyRotationSpeed = 3f,
-            TurretRotationSpeed = 3f
+            TurretRotationSpeed = 3f,
+            Guns = [BASE_GUN],
+            SelectedGunIndex = 0
         };
 
         ctx.Db.tank.Insert(tank);
@@ -527,10 +582,29 @@ public static partial class Module
             Path = [],
             Velocity = new Vector2Float(0, 0),
             BodyAngularVelocity = 0,
-            TurretAngularVelocity = 0
+            TurretAngularVelocity = 0,
+            Guns = [BASE_GUN],
+            SelectedGunIndex = 0
         };
 
         ctx.Db.tank.Id.Update(respawnedTank);
         Log.Info($"Tank {tank.Name} respawned at position ({spawnX}, {spawnY})");
+    }
+
+    [Reducer]
+    public static void switchGun(ReducerContext ctx, int gunIndex)
+    {
+        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        if (tank.IsDead) return;
+
+        if (gunIndex < 0 || gunIndex >= tank.Guns.Length) return;
+
+        var selectedGun = tank.Guns[gunIndex];
+        tank.SelectedGunIndex = gunIndex;
+        ctx.Db.tank.Id.Update(tank);
+        Log.Info($"Tank {tank.Name} switched to gun at index {gunIndex} ({selectedGun.GunType})");
     }
 }

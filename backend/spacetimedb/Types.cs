@@ -65,4 +65,31 @@ public static partial class Types
         Playing,
         Results
     }
+
+    [Type]
+    public enum GunType : byte
+    {
+        Base,
+        TripleShooter,
+        MissileLauncher
+    }
+
+    [Type]
+    public enum ProjectileType : byte
+    {
+        Normal,
+        Missile
+    }
+
+    [Type]
+    public partial struct Gun
+    {
+        public GunType GunType;
+        public int? Ammo;
+        public int ProjectileCount;
+        public float SpreadAngle;
+        public int Damage;
+        public float TrackingStrength;
+        public ProjectileType ProjectileType;
+    }
 }
