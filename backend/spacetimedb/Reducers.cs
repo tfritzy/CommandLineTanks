@@ -8,7 +8,7 @@ public static partial class Module
     private const int MAX_SPAWN_ATTEMPTS = 100;
     private const int HOMEWORLD_SIZE = 20;
 
-    private static void CreateHomeworld(ReducerContext ctx, string playerId)
+    private static void CreateHomeworld(ReducerContext ctx, string identityString)
     {
         int worldSize = HOMEWORLD_SIZE;
         int totalTiles = worldSize * worldSize;
@@ -26,7 +26,7 @@ public static partial class Module
 
         var world = new World
         {
-            Id = playerId,
+            Id = identityString,
             Name = $"Homeworld",
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             Width = worldSize,
@@ -40,7 +40,7 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            WorldId = playerId,
+            WorldId = identityString,
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
@@ -48,7 +48,7 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            WorldId = playerId,
+            WorldId = identityString,
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
@@ -56,17 +56,17 @@ public static partial class Module
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
-            WorldId = playerId,
+            WorldId = identityString,
             Map = traversibilityMap
         });
 
         ctx.Db.score.Insert(new Score
         {
-            WorldId = playerId,
+            WorldId = identityString,
             Kills = new int[] { 0, 0 }
         });
 
-        Log.Info($"Created homeworld for player {playerId}");
+        Log.Info($"Created homeworld for identity {identityString}");
     }
 
     public static (float, float) FindSpawnPosition(ReducerContext ctx, World world, int alliance, Random random)
@@ -203,12 +203,13 @@ public static partial class Module
 
             ctx.Db.player.Insert(player);
             Log.Info($"New player connected with ID {playerId}");
+        }
 
-            var existingHomeworld = ctx.Db.world.Id.Find(playerId);
-            if (existingHomeworld == null)
-            {
-                CreateHomeworld(ctx, playerId);
-            }
+        var identityString = ctx.Sender.ToHexString();
+        var existingHomeworld = ctx.Db.world.Id.Find(identityString);
+        if (existingHomeworld == null)
+        {
+            CreateHomeworld(ctx, identityString);
         }
     }
 

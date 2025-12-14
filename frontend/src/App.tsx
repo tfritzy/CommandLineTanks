@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import MainMenuPage from './pages/MainMenuPage';
 import GamePage from './pages/GamePage';
-import { connectToSpacetimeDB, getConnection } from './spacetimedb-connection';
+import { connectToSpacetimeDB } from './spacetimedb-connection';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<'menu' | 'game'>('menu');
@@ -9,51 +9,18 @@ function App() {
   const [worldId, setWorldId] = useState<string | null>(null);
 
   useEffect(() => {
-    let subscription: any = null;
-    let handlePlayerInsert: any = null;
-
     connectToSpacetimeDB().then((conn) => {
       setIsSpacetimeConnected(true);
       
-      subscription = conn
-        .subscriptionBuilder()
-        .onError((e) => console.log("Player subscription error", e))
-        .onApplied(() => {
-          for (const player of conn.db.player) {
-            if (conn.identity && player.identity.isEqual(conn.identity)) {
-              console.log(`Existing player found with ID ${player.id}, setting homeworld`);
-              setWorldId(player.id);
-              setCurrentPage('game');
-              break;
-            }
-          }
-        })
-        .subscribe([`SELECT * FROM player WHERE Identity = '${conn.identity}'`]);
-
-      handlePlayerInsert = (_ctx: any, player: any) => {
-        if (conn.identity && player.identity.isEqual(conn.identity)) {
-          console.log(`Player created with ID ${player.id}, setting homeworld`);
-          setWorldId(player.id);
-          setCurrentPage('game');
-        }
-      };
-
-      conn.db.player.onInsert(handlePlayerInsert);
+      if (conn.identity) {
+        const identityString = conn.identity.toHexString();
+        console.log(`Setting homeworld to identity: ${identityString}`);
+        setWorldId(identityString);
+        setCurrentPage('game');
+      }
     }).catch((error) => {
       console.error('Failed to establish SpacetimeDB connection:', error);
     });
-
-    return () => {
-      if (subscription) {
-        subscription.unsubscribe();
-      }
-      if (handlePlayerInsert) {
-        const conn = getConnection();
-        if (conn) {
-          conn.db.player.removeOnInsert(handlePlayerInsert);
-        }
-      }
-    };
   }, []);
 
   const handleWorldReady = (worldId: string) => {
