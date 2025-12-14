@@ -119,6 +119,8 @@ public static partial class Module
         public int Damage;
         public float TrackingStrength;
         public ProjectileType ProjectileType;
+        public ulong SpawnedAt;
+        public float LifetimeSeconds;
     }
 
     [Table(Name = "score", Public = true)]
