@@ -42,6 +42,26 @@ export default function GamePage({ worldId }: GamePageProps) {
         const connection = getConnection();
         if (!connection) return;
 
+        const updateTanksAndWinner = () => {
+            const allTanks = Array.from(connection.db.tank.iter())
+                .filter(t => t.worldId === worldId)
+                .map(t => ({
+                    id: t.id,
+                    name: t.name,
+                    alliance: t.alliance,
+                    kills: t.kills
+                }));
+
+            setTanks(allTanks);
+
+            const score = connection.db.score.WorldId.find(worldId);
+            if (score) {
+                const team0Kills = score.kills[0] || 0;
+                const team1Kills = score.kills[1] || 0;
+                setWinningTeam(team0Kills > team1Kills ? 0 : 1);
+            }
+        };
+
         connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
             if (connection.identity && newTank.owner.isEqual(connection.identity)) {
                 setIsDead(newTank.isDead);
@@ -64,24 +84,7 @@ export default function GamePage({ worldId }: GamePageProps) {
                 if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
                     resultsStartTimeRef.current = Date.now();
                     setShowResults(true);
-
-                    const allTanks = Array.from(connection.db.tank.iter())
-                        .filter(t => t.worldId === worldId)
-                        .map(t => ({
-                            id: t.id,
-                            name: t.name,
-                            alliance: t.alliance,
-                            kills: t.kills
-                        }));
-
-                    setTanks(allTanks);
-
-                    const score = connection.db.score.WorldId.find(worldId);
-                    if (score) {
-                        const team0Kills = score.kills[0] || 0;
-                        const team1Kills = score.kills[1] || 0;
-                        setWinningTeam(team0Kills > team1Kills ? 0 : 1);
-                    }
+                    updateTanksAndWinner();
                 } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
                     setShowResults(false);
                     resultsStartTimeRef.current = null;
@@ -94,24 +97,7 @@ export default function GamePage({ worldId }: GamePageProps) {
                 if (world.gameState.tag === 'Results') {
                     resultsStartTimeRef.current = Date.now();
                     setShowResults(true);
-
-                    const allTanks = Array.from(connection.db.tank.iter())
-                        .filter(t => t.worldId === worldId)
-                        .map(t => ({
-                            id: t.id,
-                            name: t.name,
-                            alliance: t.alliance,
-                            kills: t.kills
-                        }));
-
-                    setTanks(allTanks);
-
-                    const score = connection.db.score.WorldId.find(worldId);
-                    if (score) {
-                        const team0Kills = score.kills[0] || 0;
-                        const team1Kills = score.kills[1] || 0;
-                        setWinningTeam(team0Kills > team1Kills ? 0 : 1);
-                    }
+                    updateTanksAndWinner();
                 }
             }
         });
@@ -165,7 +151,6 @@ export default function GamePage({ worldId }: GamePageProps) {
                 )}
                 {showResults && (
                     <ResultsScreen
-                        worldId={worldId}
                         countdownSeconds={WORLD_RESET_DELAY_SECONDS}
                         winningTeam={winningTeam}
                         tanks={tanks}

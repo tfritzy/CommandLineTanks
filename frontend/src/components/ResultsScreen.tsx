@@ -8,7 +8,6 @@ interface Tank {
 }
 
 interface ResultsScreenProps {
-    worldId: string;
     countdownSeconds: number;
     winningTeam: number;
     tanks: Tank[];
