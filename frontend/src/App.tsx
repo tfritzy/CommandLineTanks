@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import MainMenuPage from './pages/MainMenuPage';
 import GamePage from './pages/GamePage';
-import { connectToSpacetimeDB } from './spacetimedb-connection';
+import { connectToSpacetimeDB, getConnection } from './spacetimedb-connection';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<'menu' | 'game'>('menu');
@@ -9,10 +9,13 @@ function App() {
   const [worldId, setWorldId] = useState<string | null>(null);
 
   useEffect(() => {
+    let subscription: any = null;
+    let handlePlayerInsert: any = null;
+
     connectToSpacetimeDB().then((conn) => {
       setIsSpacetimeConnected(true);
       
-      const subscription = conn
+      subscription = conn
         .subscriptionBuilder()
         .onError((e) => console.log("Player subscription error", e))
         .onApplied(() => {
@@ -27,7 +30,7 @@ function App() {
         })
         .subscribe([`SELECT * FROM player WHERE Identity = '${conn.identity}'`]);
 
-      const handlePlayerInsert = (_ctx: any, player: any) => {
+      handlePlayerInsert = (_ctx: any, player: any) => {
         if (conn.identity && player.identity.isEqual(conn.identity)) {
           console.log(`Player created with ID ${player.id}, setting homeworld`);
           setWorldId(player.id);
@@ -36,14 +39,21 @@ function App() {
       };
 
       conn.db.player.onInsert(handlePlayerInsert);
-
-      return () => {
-        subscription.unsubscribe();
-        conn.db.player.removeOnInsert(handlePlayerInsert);
-      };
     }).catch((error) => {
       console.error('Failed to establish SpacetimeDB connection:', error);
     });
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+      if (handlePlayerInsert) {
+        const conn = getConnection();
+        if (conn) {
+          conn.db.player.removeOnInsert(handlePlayerInsert);
+        }
+      }
+    };
   }, []);
 
   const handleWorldReady = (worldId: string) => {
