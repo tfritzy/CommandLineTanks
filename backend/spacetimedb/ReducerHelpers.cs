@@ -230,59 +230,58 @@ public static partial class Module
 
         for (int attempt = 0; attempt < maxAttempts && spawnedCount < initialPickupCount; attempt++)
         {
-            var (spawnX, spawnY) = GenerateNormalDistributedPosition(
-                ctx.Rng, 
-                traversibilityMap.Value.Width, 
-                traversibilityMap.Value.Height
-            );
-
-            if (spawnX < 0 || spawnX >= traversibilityMap.Value.Width || spawnY < 0 || spawnY >= traversibilityMap.Value.Height)
-                continue;
-
-            int tileIndex = spawnY * traversibilityMap.Value.Width + spawnX;
-            if (tileIndex >= traversibilityMap.Value.Map.Length || !traversibilityMap.Value.Map[tileIndex])
-                continue;
-
-            var existingDetail = ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((worldId, spawnX, spawnY));
-            bool tileOccupied = false;
-            foreach (var detail in existingDetail)
+            if (TrySpawnPickup(ctx, worldId, traversibilityMap.Value))
             {
-                tileOccupied = true;
-                break;
+                spawnedCount++;
             }
-
-            if (tileOccupied)
-                continue;
-
-            var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((worldId, spawnX, spawnY));
-            bool pickupExists = false;
-            foreach (var p in existingPickup)
-            {
-                pickupExists = true;
-                break;
-            }
-
-            if (pickupExists)
-                continue;
-
-            TerrainDetailType pickupType = ctx.Rng.NextSingle() < 0.5f
-                ? TerrainDetailType.TripleShooterPickup
-                : TerrainDetailType.MissileLauncherPickup;
-
-            var pickupId = GenerateId(ctx, "pickup");
-            ctx.Db.pickup.Insert(new Pickup
-            {
-                Id = pickupId,
-                WorldId = worldId,
-                PositionX = spawnX,
-                PositionY = spawnY,
-                Type = pickupType
-            });
-
-            spawnedCount++;
         }
 
         Log.Info($"Initialized {spawnedCount} pickups for world {worldId}");
+    }
+
+    public static bool TrySpawnPickup(ReducerContext ctx, string worldId, TraversibilityMap traversibilityMap)
+    {
+        var (spawnX, spawnY) = GenerateNormalDistributedPosition(
+            ctx.Rng, 
+            traversibilityMap.Width, 
+            traversibilityMap.Height
+        );
+
+        if (spawnX < 0 || spawnX >= traversibilityMap.Width || spawnY < 0 || spawnY >= traversibilityMap.Height)
+            return false;
+
+        int tileIndex = spawnY * traversibilityMap.Width + spawnX;
+        if (tileIndex >= traversibilityMap.Map.Length || !traversibilityMap.Map[tileIndex])
+            return false;
+
+        var existingDetail = ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((worldId, spawnX, spawnY));
+        foreach (var detail in existingDetail)
+        {
+            return false;
+        }
+
+        var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((worldId, spawnX, spawnY));
+        foreach (var p in existingPickup)
+        {
+            return false;
+        }
+
+        TerrainDetailType pickupType = ctx.Rng.NextSingle() < 0.5f
+            ? TerrainDetailType.TripleShooterPickup
+            : TerrainDetailType.MissileLauncherPickup;
+
+        var pickupId = GenerateId(ctx, "pickup");
+        ctx.Db.pickup.Insert(new Pickup
+        {
+            Id = pickupId,
+            WorldId = worldId,
+            PositionX = spawnX,
+            PositionY = spawnY,
+            Type = pickupType
+        });
+
+        Log.Info($"Spawned {pickupType} at ({spawnX}, {spawnY}) in world {worldId}");
+        return true;
     }
 
     public static (int x, int y) GenerateNormalDistributedPosition(Random random, int width, int height)

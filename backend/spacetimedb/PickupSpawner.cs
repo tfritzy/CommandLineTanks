@@ -40,57 +40,10 @@ public static partial class PickupSpawner
         int maxAttempts = 100;
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            var (spawnX, spawnY) = Module.GenerateNormalDistributedPosition(
-                ctx.Rng, 
-                traversibilityMap.Value.Width, 
-                traversibilityMap.Value.Height
-            );
-
-            if (spawnX < 0 || spawnX >= traversibilityMap.Value.Width || spawnY < 0 || spawnY >= traversibilityMap.Value.Height)
-                continue;
-
-            int tileIndex = spawnY * traversibilityMap.Value.Width + spawnX;
-            if (tileIndex >= traversibilityMap.Value.Map.Length || !traversibilityMap.Value.Map[tileIndex])
-                continue;
-
-            var existingDetail = ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, spawnX, spawnY));
-            bool tileOccupied = false;
-            foreach (var detail in existingDetail)
+            if (Module.TrySpawnPickup(ctx, args.WorldId, traversibilityMap.Value))
             {
-                tileOccupied = true;
                 break;
             }
-
-            if (tileOccupied)
-                continue;
-
-            var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, spawnX, spawnY));
-            bool pickupExists = false;
-            foreach (var p in existingPickup)
-            {
-                pickupExists = true;
-                break;
-            }
-
-            if (pickupExists)
-                continue;
-
-            TerrainDetailType pickupType = ctx.Rng.NextSingle() < 0.5f
-                ? TerrainDetailType.TripleShooterPickup
-                : TerrainDetailType.MissileLauncherPickup;
-
-            var pickupId = Module.GenerateId(ctx, "pickup");
-            ctx.Db.pickup.Insert(new Module.Pickup
-            {
-                Id = pickupId,
-                WorldId = args.WorldId,
-                PositionX = spawnX,
-                PositionY = spawnY,
-                Type = pickupType
-            });
-
-            Log.Info($"Spawned {pickupType} at ({spawnX}, {spawnY}) in world {args.WorldId}");
-            break;
         }
 
         ctx.Db.ScheduledPickupSpawn.ScheduledId.Update(args with
