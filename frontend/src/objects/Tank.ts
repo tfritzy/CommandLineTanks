@@ -1,9 +1,13 @@
 import { UNIT_TO_PIXEL } from "../game";
+import { type Infer } from "spacetimedb";
+import Gun from "../../module_bindings/gun_type";
 
 type PathEntry = {
   position: { x: number; y: number };
   throttlePercent: number;
 };
+
+export type GunData = Infer<typeof Gun>;
 
 export class Tank {
   private x: number;
@@ -21,6 +25,8 @@ export class Tank {
   private alliance: number;
   private health: number;
   private maxHealth: number;
+  private guns: GunData[];
+  private selectedGunIndex: number;
 
   constructor(
     x: number,
@@ -36,7 +42,9 @@ export class Tank {
     velocityY: number = 0,
     bodyAngularVelocity: number = 0,
     turretAngularVelocity: number = 0,
-    path: PathEntry[] = []
+    path: PathEntry[] = [],
+    guns: GunData[] = [],
+    selectedGunIndex: number = 0
   ) {
     this.x = x;
     this.y = y;
@@ -53,6 +61,8 @@ export class Tank {
     this.bodyAngularVelocity = bodyAngularVelocity;
     this.turretAngularVelocity = turretAngularVelocity;
     this.path = path;
+    this.guns = guns;
+    this.selectedGunIndex = selectedGunIndex;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -191,6 +201,14 @@ export class Tank {
     this.alliance = alliance;
   }
 
+  public setGuns(guns: GunData[]) {
+    this.guns = guns;
+  }
+
+  public setSelectedGunIndex(selectedGunIndex: number) {
+    this.selectedGunIndex = selectedGunIndex;
+  }
+
   public update(deltaTime: number) {
     if (this.path.length > 0) {
       const target = this.path[0].position;
@@ -262,5 +280,13 @@ export class Tank {
 
   public getTurretRotation(): number {
     return this.turretRotation;
+  }
+
+  public getGuns(): GunData[] {
+    return this.guns;
+  }
+
+  public getSelectedGunIndex(): number {
+    return this.selectedGunIndex;
   }
 }

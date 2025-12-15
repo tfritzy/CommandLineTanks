@@ -36,7 +36,9 @@ export class TankManager {
         tank.velocity.y,
         tank.bodyAngularVelocity,
         tank.turretAngularVelocity,
-        tank.path
+        tank.path,
+        tank.guns,
+        tank.selectedGunIndex
       );
       this.tanks.set(tank.id, newTank);
       
@@ -59,6 +61,8 @@ export class TankManager {
         tank.setPath(newTank.path);
         tank.setHealth(newTank.health);
         tank.setAlliance(newTank.alliance);
+        tank.setGuns(newTank.guns);
+        tank.setSelectedGunIndex(newTank.selectedGunIndex);
       }
     });
 

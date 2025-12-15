@@ -254,7 +254,7 @@ public static partial class TankUpdater
                             ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
                         }
                     }
-                    else
+                    else if (tank.Guns.Length < 3)
                     {
                         tank = tank with
                         {
