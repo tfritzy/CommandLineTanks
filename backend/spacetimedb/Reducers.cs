@@ -405,7 +405,7 @@ public static partial class Module
 
         if (gun.ProjectileCount == 1)
         {
-            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, gun.Damage, gun.TrackingStrength, gun.ProjectileType);
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, gun.Damage, gun.TrackingStrength, gun.ProjectileType, gun.LifetimeSeconds);
         }
         else
         {
@@ -413,7 +413,7 @@ public static partial class Module
             for (int i = 0; i < gun.ProjectileCount; i++)
             {
                 float angle = tank.TurretRotation - halfSpread + (i * gun.SpreadAngle);
-                CreateProjectile(ctx, tank, barrelTipX, barrelTipY, angle, gun.Damage, gun.TrackingStrength, gun.ProjectileType);
+                CreateProjectile(ctx, tank, barrelTipX, barrelTipY, angle, gun.Damage, gun.TrackingStrength, gun.ProjectileType, gun.LifetimeSeconds);
             }
         }
 
@@ -446,7 +446,7 @@ public static partial class Module
         Log.Info($"Tank {tank.Name} fired {gun.GunType}. Ammo remaining: {gun.Ammo?.ToString() ?? "unlimited"}");
     }
 
-    private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, int damage, float trackingStrength, ProjectileType projectileType)
+    private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, int damage, float trackingStrength, ProjectileType projectileType, float lifetimeSeconds)
     {
         float velocityX = (float)Math.Cos(angle) * PROJECTILE_SPEED;
         float velocityY = (float)Math.Sin(angle) * PROJECTILE_SPEED;
@@ -465,7 +465,9 @@ public static partial class Module
             Velocity = new Vector2Float(velocityX, velocityY),
             Damage = damage,
             TrackingStrength = trackingStrength,
-            ProjectileType = projectileType
+            ProjectileType = projectileType,
+            SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+            LifetimeSeconds = lifetimeSeconds
         };
 
         ctx.Db.projectile.Insert(projectile);

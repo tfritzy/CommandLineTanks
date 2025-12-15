@@ -93,5 +93,6 @@ public static partial class Types
         public int Damage;
         public float TrackingStrength;
         public ProjectileType ProjectileType;
+        public float LifetimeSeconds;
     }
 }

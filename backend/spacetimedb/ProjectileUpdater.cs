@@ -44,6 +44,15 @@ public static partial class ProjectileUpdater
         {
             var projectile = iProjectile;
 
+            var projectileAgeMicros = currentTime - projectile.SpawnedAt;
+            var projectileAgeSeconds = projectileAgeMicros / 1_000_000.0;
+            
+            if (projectileAgeSeconds >= projectile.LifetimeSeconds)
+            {
+                ctx.Db.projectile.Id.Delete(projectile.Id);
+                continue;
+            }
+
             if (projectile.TrackingStrength > 0)
             {
                 int projectileCollisionRegionX = (int)Math.Floor(projectile.PositionX / Module.COLLISION_REGION_SIZE);
