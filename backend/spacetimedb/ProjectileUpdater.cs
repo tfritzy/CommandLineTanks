@@ -368,6 +368,23 @@ public static partial class ProjectileUpdater
             ctx.Db.projectile.Id.Delete(projectile.Id);
         }
 
+        var existingPickupSpawner = ctx.Db.ScheduledPickupSpawn.Filter((spawn) => spawn.WorldId == args.WorldId);
+        bool hasPickupSpawner = false;
+        foreach (var spawner in existingPickupSpawner)
+        {
+            hasPickupSpawner = true;
+            break;
+        }
+        if (!hasPickupSpawner)
+        {
+            ctx.Db.ScheduledPickupSpawn.Insert(new PickupSpawner.ScheduledPickupSpawn
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 30_000_000 }),
+                WorldId = args.WorldId
+            });
+        }
+
         Log.Info($"World {args.WorldId} reset complete. Teams randomized, {totalTanks} tanks respawned.");
     }
 }
