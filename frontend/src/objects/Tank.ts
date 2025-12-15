@@ -7,7 +7,7 @@ type PathEntry = {
   throttlePercent: number;
 };
 
-export type GunData = Infer<typeof Gun>;
+type GunData = Infer<typeof Gun>;
 
 export class Tank {
   private x: number;

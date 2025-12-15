@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { Game } from './game';
 import TerminalComponent from './components/terminal/Terminal';
 import ResultsScreen from './components/ResultsScreen';
-import GunInventory from './components/GunInventory';
 import { connectToSpacetimeDB, getConnection } from './spacetimedb-connection';
 import { useWorldSwitcher } from './hooks/useWorldSwitcher';
 import { type Infer } from 'spacetimedb';
@@ -15,8 +14,6 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [isDead, setIsDead] = useState(false);
-  const [playerGuns, setPlayerGuns] = useState<Infer<typeof TankRow>['guns']>([]);
-  const [playerSelectedGunIndex, setPlayerSelectedGunIndex] = useState<number>(0);
 
   const handleWorldChange = (newWorldId: string) => {
     setWorldId(newWorldId);
@@ -60,16 +57,12 @@ function App() {
     const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
         setIsDead(tank.isDead);
-        setPlayerGuns(tank.guns);
-        setPlayerSelectedGunIndex(tank.selectedGunIndex);
       }
     };
 
     const handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
         setIsDead(newTank.isDead);
-        setPlayerGuns(newTank.guns);
-        setPlayerSelectedGunIndex(newTank.selectedGunIndex);
       }
     };
 
@@ -147,9 +140,6 @@ function App() {
               Call the respawn command to respawn
             </div>
           </div>
-        )}
-        {!isDead && playerGuns.length > 0 && (
-          <GunInventory guns={playerGuns} selectedGunIndex={playerSelectedGunIndex} />
         )}
         <ResultsScreen worldId={worldId} />
       </div>
