@@ -135,9 +135,7 @@ public static partial class ProjectileUpdater
                     {
                         if (terrainDetail.Health == null)
                         {
-                            ctx.Db.projectile.Id.Delete(projectile.Id);
-                            collided = true;
-                            break;
+                            continue;
                         }
 
                         var newHealth = terrainDetail.Health.Value - projectile.Damage;
