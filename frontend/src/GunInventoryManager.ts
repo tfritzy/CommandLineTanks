@@ -122,7 +122,7 @@ export class GunInventoryManager {
     if (gun) {
       this.drawGunGraphic(ctx, gun, x, y, slotSize);
 
-      if (gun.ammo !== null && gun.ammo !== undefined) {
+      if (gun.ammo != null) {
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 12px monospace';
         ctx.textAlign = 'right';
