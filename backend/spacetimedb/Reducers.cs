@@ -323,9 +323,9 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void drive(ReducerContext ctx, Vector2 offset, float throttle, bool append)
+    public static void drive(ReducerContext ctx, string worldId, Vector2 offset, float throttle, bool append)
     {
-        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
@@ -360,9 +360,9 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void reverse(ReducerContext ctx, float distance)
+    public static void reverse(ReducerContext ctx, string worldId, float distance)
     {
-        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
@@ -395,9 +395,9 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void stop(ReducerContext ctx)
+    public static void stop(ReducerContext ctx, string worldId)
     {
-        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
@@ -411,9 +411,9 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void aim(ReducerContext ctx, float angleRadians)
+    public static void aim(ReducerContext ctx, string worldId, float angleRadians)
     {
-        Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank tank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (tank.Id == null) return;
 
         if (tank.IsDead) return;
@@ -424,15 +424,15 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void targetTank(ReducerContext ctx, string targetName, float lead)
+    public static void targetTank(ReducerContext ctx, string worldId, string targetName, float lead)
     {
-        Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank tank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (tank.Id == null) return;
 
         if (tank.IsDead) return;
 
         var targetNameLower = targetName.ToLower();
-        var targetTank = ctx.Db.tank.WorldId_Name.Filter((tank.WorldId, targetNameLower)).FirstOrDefault();
+        var targetTank = ctx.Db.tank.WorldId_Name.Filter((worldId, targetNameLower)).FirstOrDefault();
 
         if (targetTank.Id == null)
         {
@@ -445,9 +445,9 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void fire(ReducerContext ctx)
+    public static void fire(ReducerContext ctx, string worldId)
     {
-        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
@@ -535,6 +535,8 @@ public static partial class Module
     [Reducer]
     public static void findWorld(ReducerContext ctx, string joinCode)
     {
+        Log.Info(ctx.Sender + " is looking for a game");
+
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
         {
@@ -555,9 +557,12 @@ public static partial class Module
             return;
         }
 
-        Tank existingTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank existingTank = ctx.Db.tank.Owner.Filter(ctx.Sender).Where(t => t.WorldId == world?.Id).FirstOrDefault();
         if (!string.IsNullOrEmpty(existingTank.Id))
         {
+            Log.Info("Player already had tank in world, so updated its join code");
+            existingTank.JoinCode = joinCode;
+            ctx.Db.tank.Id.Update(existingTank);
             return;
         }
 
@@ -592,15 +597,15 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void respawn(ReducerContext ctx)
+    public static void respawn(ReducerContext ctx, string worldId)
     {
-        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
         if (!tank.IsDead) return;
 
-        World? maybeWorld = ctx.Db.world.Id.Find(tank.WorldId);
+        World? maybeWorld = ctx.Db.world.Id.Find(worldId);
         if (maybeWorld == null) return;
         var world = maybeWorld.Value;
 
@@ -625,9 +630,9 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void switchGun(ReducerContext ctx, int gunIndex)
+    public static void switchGun(ReducerContext ctx, string worldId, int gunIndex)
     {
-        Tank? maybeTank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
+        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 

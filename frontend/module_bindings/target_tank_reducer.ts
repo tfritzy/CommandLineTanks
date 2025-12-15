@@ -11,6 +11,7 @@ import {
 } from "spacetimedb";
 
 export default {
+  worldId: __t.string(),
   targetName: __t.string(),
   lead: __t.f32(),
 };

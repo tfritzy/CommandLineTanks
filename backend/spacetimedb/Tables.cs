@@ -44,6 +44,7 @@ public static partial class Module
     [Table(Name = "tank", Public = true)]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Name) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Owner) })]
     public partial struct Tank
     {
         [PrimaryKey]

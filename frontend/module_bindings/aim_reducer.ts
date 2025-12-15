@@ -11,5 +11,6 @@ import {
 } from "spacetimedb";
 
 export default {
+  worldId: __t.string(),
   angleRadians: __t.f32(),
 };

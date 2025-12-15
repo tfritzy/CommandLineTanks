@@ -270,7 +270,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   }
 }
 
-export function drive(connection: DbConnection, args: string[]): string[] {
+export function drive(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (isPlayerDead(connection)) {
     return [
       "drive: error: cannot drive while dead",
@@ -352,7 +352,7 @@ export function drive(connection: DbConnection, args: string[]): string[] {
     }
   }
   
-  connection.reducers.drive({ offset, throttle, append });
+  connection.reducers.drive({ worldId, offset, throttle, append });
 
   const explanation =  `${distance} ${distance != 1 ? "units" : "unit"} ${directionInfo.symbol} ${directionInfo.name} at ${throttle == 1 ? "full" : throttle * 100 + "%"} throttle`;
   if (append) {
@@ -363,7 +363,7 @@ export function drive(connection: DbConnection, args: string[]): string[] {
   ];
 }
 
-export function aim(connection: DbConnection, args: string[]): string[] {
+export function aim(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (isPlayerDead(connection)) {
     return [
       "aim: error: cannot aim while dead",
@@ -390,7 +390,7 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     const dirInfo = directionAliases[inputLower];
     const description = `${dirInfo.symbol} ${dirInfo.name}`;
     
-    connection.reducers.aim({ angleRadians });
+    connection.reducers.aim({ worldId, angleRadians });
     return [`Aiming turret to ${description}`];
   } else {
     const degrees = Number.parseFloat(input);
@@ -419,12 +419,12 @@ export function aim(connection: DbConnection, args: string[]): string[] {
     const angleRadians = (degrees * Math.PI) / 180;
     const description = `${degrees}°`;
     
-    connection.reducers.aim({ angleRadians });
+    connection.reducers.aim({ worldId, angleRadians });
     return [`Aiming turret to ${description}`];
   }
 }
 
-export function target(connection: DbConnection, args: string[]): string[] {
+export function target(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (isPlayerDead(connection)) {
     return [
       "target: error: cannot target while dead",
@@ -481,7 +481,7 @@ export function target(connection: DbConnection, args: string[]): string[] {
     return [`target: error: tank '${targetName}' not found`];
   }
 
-  connection.reducers.targetTank({ targetName: targetNameLower, lead });
+  connection.reducers.targetTank({ worldId, targetName: targetNameLower, lead });
 
   if (lead > 0) {
     return [`Targeting tank '${targetTank.name}' with ${lead} unit${lead !== 1 ? 's' : ''} lead`];
@@ -490,7 +490,7 @@ export function target(connection: DbConnection, args: string[]): string[] {
   }
 }
 
-export function reverse(connection: DbConnection, args: string[]): string[] {
+export function reverse(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (isPlayerDead(connection)) {
     return [
       "reverse: error: cannot reverse while dead",
@@ -520,14 +520,14 @@ export function reverse(connection: DbConnection, args: string[]): string[] {
 
   const distance = parsed;
 
-  connection.reducers.reverse({ distance });
+  connection.reducers.reverse({ worldId, distance });
 
   return [
     `Reversing ${distance} ${distance != 1 ? "units" : "unit"}`,
   ];
 }
 
-export function stop(connection: DbConnection, args: string[]): string[] {
+export function stop(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (isPlayerDead(connection)) {
     return [
       "stop: error: cannot stop while dead",
@@ -545,14 +545,14 @@ export function stop(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  connection.reducers.stop({});
+  connection.reducers.stop({ worldId });
 
   return [
     "Tank stopped",
   ];
 }
 
-export function fire(connection: DbConnection, args: string[]): string[] {
+export function fire(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (isPlayerDead(connection)) {
     return [
       "fire: error: cannot fire while dead",
@@ -570,14 +570,14 @@ export function fire(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  connection.reducers.fire({});
+  connection.reducers.fire({ worldId });
 
   return [
     "Firing projectile",
   ];
 }
 
-export function respawn(connection: DbConnection, args: string[]): string[] {
+export function respawn(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (!isPlayerDead(connection)) {
     return [
       "respawn: error: cannot respawn while alive",
@@ -594,7 +594,7 @@ export function respawn(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  connection.reducers.respawn({});
+  connection.reducers.respawn({ worldId });
 
   return [
     "Respawning...",

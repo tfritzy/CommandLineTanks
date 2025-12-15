@@ -13,6 +13,7 @@ import {
 import Vector2 from "./vector_2_type";
 
 export default {
+  worldId: __t.string(),
   get offset() {
     return Vector2;
   },

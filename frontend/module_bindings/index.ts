@@ -217,6 +217,10 @@ const tablesSchema = __schema(
         'worldId',
         'name',
       ] },
+      { name: 'WorldId_Owner', algorithm: 'btree', columns: [
+        'worldId',
+        'owner',
+      ] },
       { name: 'WorldId', algorithm: 'btree', columns: [
         'worldId',
       ] },

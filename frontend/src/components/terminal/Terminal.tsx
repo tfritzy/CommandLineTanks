@@ -2,7 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { getConnection } from '../../spacetimedb-connection';
 import { aim, drive, fire, help, respawn, reverse, stop, target, findGame } from './commands';
 
-function TerminalComponent() {
+interface TerminalComponentProps {
+    worldId: string;
+}
+
+function TerminalComponent({ worldId }: TerminalComponentProps) {
     const [output, setOutput] = useState<string[]>([]);
     const [input, setInput] = useState('');
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
@@ -66,43 +70,43 @@ function TerminalComponent() {
                 switch (cmd.toLowerCase()) {
                     case 'aim':
                     case 'a': {
-                        const aimOutput = aim(connection, args);
+                        const aimOutput = aim(connection, worldId, args);
                         newOutput.push(...aimOutput);
                         break;
                     }
                     case 'target':
                     case 't': {
-                        const targetOutput = target(connection, args);
+                        const targetOutput = target(connection, worldId, args);
                         newOutput.push(...targetOutput);
                         break;
                     }
                     case 'drive':
                     case 'd':
                     case 'dr': {
-                        const driveOutput = drive(connection, args);
+                        const driveOutput = drive(connection, worldId, args);
                         newOutput.push(...driveOutput);
                         break;
                     }
                     case 'reverse':
                     case 'r': {
-                        const reverseOutput = reverse(connection, args);
+                        const reverseOutput = reverse(connection, worldId, args);
                         newOutput.push(...reverseOutput);
                         break;
                     }
                     case 'stop':
                     case 's': {
-                        const stopOutput = stop(connection, args);
+                        const stopOutput = stop(connection, worldId, args);
                         newOutput.push(...stopOutput);
                         break;
                     }
                     case 'fire':
                     case 'f': {
-                        const fireOutput = fire(connection, args);
+                        const fireOutput = fire(connection, worldId, args);
                         newOutput.push(...fireOutput);
                         break;
                     }
                     case 'respawn': {
-                        const respawnOutput = respawn(connection, args);
+                        const respawnOutput = respawn(connection, worldId, args);
                         newOutput.push(...respawnOutput);
                         break;
                     }

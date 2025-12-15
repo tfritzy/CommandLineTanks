@@ -20,8 +20,6 @@ export class TankManager {
       .onError((e) => console.log("Ah fuck", e))
       .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
 
-    console.log("Subscribe to tanks in ", this.worldId);
-
     connection.db.tank.onInsert((_ctx, tank) => {
       console.log(tank);
       const newTank = new Tank(
