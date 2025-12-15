@@ -225,6 +225,50 @@ public static partial class TankUpdater
                 }
             }
 
+            int tankTileX = (int)Math.Floor(tank.PositionX);
+            int tankTileY = (int)Math.Floor(tank.PositionY);
+
+            foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, tankTileX, tankTileY)))
+            {
+                var gunToAdd = GetGunFromPickup(terrainDetail.Type);
+                if (gunToAdd != null)
+                {
+                    int existingGunIndex = -1;
+                    for (int i = 0; i < tank.Guns.Length; i++)
+                    {
+                        if (tank.Guns[i].GunType == gunToAdd.Value.GunType)
+                        {
+                            existingGunIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (existingGunIndex >= 0)
+                    {
+                        var existingGun = tank.Guns[existingGunIndex];
+                        if (existingGun.Ammo != null && gunToAdd.Value.Ammo != null)
+                        {
+                            existingGun.Ammo = existingGun.Ammo.Value + gunToAdd.Value.Ammo.Value;
+                            tank.Guns[existingGunIndex] = existingGun;
+                            needsUpdate = true;
+                            ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                        }
+                    }
+                    else
+                    {
+                        tank = tank with 
+                        { 
+                            Guns = [.. tank.Guns, gunToAdd.Value],
+                            SelectedGunIndex = tank.Guns.Length
+                        };
+                        needsUpdate = true;
+                        ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                    }
+
+                    break;
+                }
+            }
+
             if (needsUpdate)
             {
                 ctx.Db.tank.Id.Update(tank);
@@ -250,6 +294,16 @@ public static partial class TankUpdater
         while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
 
         return Math.Abs(angleDiff) < tolerance;
+    }
+
+    private static Gun? GetGunFromPickup(TerrainDetailType pickupType)
+    {
+        return pickupType switch
+        {
+            TerrainDetailType.TripleShooterPickup => Module.TRIPLE_SHOOTER_GUN,
+            TerrainDetailType.MissileLauncherPickup => Module.MISSILE_LAUNCHER_GUN,
+            _ => null
+        };
     }
 
 }

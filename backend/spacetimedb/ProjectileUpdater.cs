@@ -120,30 +120,27 @@ public static partial class ProjectileUpdater
                 int tileIndex = projectileTileY * traversibilityMap.Value.Width + projectileTileX;
                 if (tileIndex < traversibilityMap.Value.Map.Length && !traversibilityMap.Value.Map[tileIndex])
                 {
-                    foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId.Filter(args.WorldId))
+                    foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
                     {
-                        if (terrainDetail.PositionX == projectileTileX && terrainDetail.PositionY == projectileTileY)
+                        var newHealth = terrainDetail.Health - projectile.Damage;
+                        if (newHealth <= 0)
                         {
-                            var newHealth = terrainDetail.Health - Module.PROJECTILE_DAMAGE;
-                            if (newHealth <= 0)
-                            {
-                                ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                            ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
 
-                                traversibilityMap.Value.Map[tileIndex] = true;
-                                ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
-                            }
-                            else
-                            {
-                                ctx.Db.terrain_detail.Id.Update(terrainDetail with
-                                {
-                                    Health = newHealth
-                                });
-                            }
-
-                            ctx.Db.projectile.Id.Delete(projectile.Id);
-                            collided = true;
-                            break;
+                            traversibilityMap.Value.Map[tileIndex] = true;
+                            ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
                         }
+                        else
+                        {
+                            ctx.Db.terrain_detail.Id.Update(terrainDetail with
+                            {
+                                Health = newHealth
+                            });
+                        }
+
+                        ctx.Db.projectile.Id.Delete(projectile.Id);
+                        collided = true;
+                        break;
                     }
 
                     if (collided) continue;

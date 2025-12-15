@@ -131,6 +131,7 @@ public static partial class Module
     }
 
     [Table(Name = "terrain_detail", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
     public partial struct TerrainDetail
     {
         [PrimaryKey]
