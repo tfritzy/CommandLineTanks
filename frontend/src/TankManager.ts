@@ -21,7 +21,6 @@ export class TankManager {
       .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
 
     connection.db.tank.onInsert((_ctx, tank) => {
-      console.log(tank);
       const newTank = new Tank(
         tank.positionX,
         tank.positionY,
@@ -40,13 +39,12 @@ export class TankManager {
       );
       this.tanks.set(tank.id, newTank);
       
-      if (connection.identity && tank.owner.isEqual(connection.identity)) {
+      if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
         this.playerTankId = tank.id;
       }
     });
 
     connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
-      console.log(newTank);
       const tank = this.tanks.get(newTank.id);
       if (tank) {
         tank.setPosition(newTank.positionX, newTank.positionY);
@@ -65,7 +63,7 @@ export class TankManager {
     connection.db.tank.onDelete((_ctx, tank) => {
       console.log(tank);
       this.tanks.delete(tank.id);
-      if (this.playerTankId === tank.id) {
+      if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
         this.playerTankId = null;
       }
     });

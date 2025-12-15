@@ -55,8 +55,8 @@ public static partial class ProjectileUpdater
 
             if (projectile.TrackingStrength > 0)
             {
-                int projectileCollisionRegionX = (int)Math.Floor(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-                int projectileCollisionRegionY = (int)Math.Floor(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+                int projectileCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+                int projectileCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
                 int searchRadius = (int)Math.Ceiling(Module.MISSILE_TRACKING_RADIUS / Module.COLLISION_REGION_SIZE);
 
@@ -118,8 +118,8 @@ public static partial class ProjectileUpdater
                 PositionY = (float)(projectile.PositionY + projectile.Velocity.Y * deltaTime)
             };
 
-            int projectileTileX = (int)Math.Floor(projectile.PositionX);
-            int projectileTileY = (int)Math.Floor(projectile.PositionY);
+            int projectileTileX = Module.GetGridPosition(projectile.PositionX);
+            int projectileTileY = Module.GetGridPosition(projectile.PositionY);
 
             bool collided = false;
 
@@ -156,8 +156,8 @@ public static partial class ProjectileUpdater
                 }
             }
 
-            int tankCollisionRegionX = (int)Math.Floor(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-            int tankCollisionRegionY = (int)Math.Floor(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+            int tankCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+            int tankCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
             foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, tankCollisionRegionX, tankCollisionRegionY)))
             {
@@ -166,9 +166,9 @@ public static partial class ProjectileUpdater
                     float dx = tank.PositionX - projectile.PositionX;
                     float dy = tank.PositionY - projectile.PositionY;
                     float distanceSquared = dx * dx + dy * dy;
+                    float collisionRadiusSquared = Module.TANK_COLLISION_RADIUS * Module.TANK_COLLISION_RADIUS;
 
-                    float collisionRadius = projectile.Size + 1.0f;
-                    if (distanceSquared <= collisionRadius * collisionRadius)
+                    if (distanceSquared <= collisionRadiusSquared)
                     {
                         var newHealth = tank.Health - projectile.Damage;
                         var isDead = newHealth <= 0;

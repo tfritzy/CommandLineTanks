@@ -150,8 +150,8 @@ export class TerrainManager {
         const index = tileY * this.worldWidth + tileX;
         const terrain = this.baseTerrainLayer[index];
 
-        const worldX = tileX * unitToPixel;
-        const worldY = tileY * unitToPixel;
+        const worldX = (tileX - 0.5) * unitToPixel;
+        const worldY = (tileY - 0.5) * unitToPixel;
 
         ctx.fillStyle = this.getBaseTerrainColor(terrain);
         ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);

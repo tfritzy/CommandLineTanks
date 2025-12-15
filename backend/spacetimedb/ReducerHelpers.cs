@@ -7,6 +7,12 @@ public static partial class Module
     private const float SPAWN_PADDING_RATIO = 0.25f;
     private const int MAX_SPAWN_ATTEMPTS = 100;
     private const int HOMEWORLD_SIZE = 20;
+    private const float GRID_POSITION_TOLERANCE = 0.0001f;
+
+    public static int GetGridPosition(float position)
+    {
+        return (int)Math.Floor(position + GRID_POSITION_TOLERANCE);
+    }
 
     private static void CreateHomeworld(ReducerContext ctx, string identityString)
     {

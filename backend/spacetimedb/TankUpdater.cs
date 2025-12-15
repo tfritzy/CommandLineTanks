@@ -38,8 +38,8 @@ public static partial class TankUpdater
                 continue;
             }
 
-            int newCollisionRegionX = (int)Math.Floor(tank.PositionX / Module.COLLISION_REGION_SIZE);
-            int newCollisionRegionY = (int)Math.Floor(tank.PositionY / Module.COLLISION_REGION_SIZE);
+            int newCollisionRegionX = Module.GetGridPosition(tank.PositionX / Module.COLLISION_REGION_SIZE);
+            int newCollisionRegionY = Module.GetGridPosition(tank.PositionY / Module.COLLISION_REGION_SIZE);
 
             if (newCollisionRegionX != tank.CollisionRegionX || newCollisionRegionY != tank.CollisionRegionY)
             {
@@ -59,17 +59,26 @@ public static partial class TankUpdater
                     var deltaX = targetPos.Position.X - tank.PositionX;
                     var deltaY = targetPos.Position.Y - tank.PositionY;
                     var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+                    var targetAngle = Math.Atan2(deltaY, deltaX);
+
+                    if (targetPos.Reverse)
+                    {
+                        targetAngle += Math.PI;
+                        if (targetAngle > Math.PI) targetAngle -= 2 * Math.PI;
+                    }
 
                     var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
                     var moveDistance = moveSpeed * deltaTime;
 
                     if (tank.Velocity.X == 0 && tank.Velocity.Y == 0)
                     {
-                        var dirX = deltaX / distance;
-                        var dirY = deltaY / distance;
+                        var dirX = Math.Cos(targetAngle);
+                        var dirY = Math.Sin(targetAngle);
 
                         tank = tank with
                         {
+                            BodyRotation = (float)targetAngle,
+                            TargetBodyRotation = (float)targetAngle,
                             Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
                             BodyAngularVelocity = 0
                         };
@@ -225,8 +234,8 @@ public static partial class TankUpdater
                 }
             }
 
-            int tankTileX = (int)Math.Floor(tank.PositionX);
-            int tankTileY = (int)Math.Floor(tank.PositionY);
+            int tankTileX = Module.GetGridPosition(tank.PositionX);
+            int tankTileY = Module.GetGridPosition(tank.PositionY);
 
             foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, tankTileX, tankTileY)))
             {

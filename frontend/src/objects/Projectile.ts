@@ -27,8 +27,8 @@ export class Projectile {
   public draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
     
-    const centerX = this.x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
-    const centerY = this.y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
+    const centerX = this.x * UNIT_TO_PIXEL;
+    const centerY = this.y * UNIT_TO_PIXEL;
     const radius = this.size * UNIT_TO_PIXEL;
     
     ctx.fillStyle = this.alliance === 0 ? '#ff0000' : '#0000ff';

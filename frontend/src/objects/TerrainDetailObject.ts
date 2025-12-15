@@ -44,10 +44,10 @@ export abstract class TerrainDetailObject {
   }
 
   protected getWorldX(): number {
-    return this.x * UNIT_TO_PIXEL;
+    return (this.x - 0.5) * UNIT_TO_PIXEL;
   }
 
   protected getWorldY(): number {
-    return this.y * UNIT_TO_PIXEL;
+    return (this.y - 0.5) * UNIT_TO_PIXEL;
   }
 }

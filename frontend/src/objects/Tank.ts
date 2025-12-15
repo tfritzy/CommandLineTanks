@@ -57,8 +57,7 @@ export class Tank {
 
   public draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    const offset = UNIT_TO_PIXEL / 2;
-    ctx.translate(this.x * UNIT_TO_PIXEL + offset, this.y * UNIT_TO_PIXEL + offset);
+    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
     ctx.rotate(this.bodyRotation);
 
     const bodyColor = this.alliance === 0 ? '#ff6666' : '#6666ff';
@@ -93,7 +92,7 @@ export class Tank {
     ctx.restore();
 
     ctx.save();
-    ctx.translate(this.x * UNIT_TO_PIXEL + offset, this.y * UNIT_TO_PIXEL + offset);
+    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
     
     ctx.font = '14px monospace';
     ctx.fillStyle = '#000000';
@@ -123,6 +122,14 @@ export class Tank {
     ctx.fillStyle = healthColor;
     ctx.fillRect(-healthBarWidth / 2, healthBarY, healthWidth, healthBarHeight);
     
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
+    ctx.fillStyle = '#ff0000';
+    ctx.beginPath();
+    ctx.arc(0, 0, 3, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 
