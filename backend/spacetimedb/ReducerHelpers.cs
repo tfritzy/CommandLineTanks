@@ -301,4 +301,71 @@ public static partial class Module
 
         return (spawnX, spawnY);
     }
+
+    public static bool HasAnyTanksInWorld(ReducerContext ctx, string worldId)
+    {
+        foreach (var _ in ctx.Db.tank.WorldId.Filter(worldId))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public static void StopWorldTickers(ReducerContext ctx, string worldId)
+    {
+        foreach (var tankUpdater in ctx.Db.ScheduledTankUpdates.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledTankUpdates.ScheduledId.Delete(tankUpdater.ScheduledId);
+        }
+
+        foreach (var projectileUpdater in ctx.Db.ScheduledProjectileUpdates.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledProjectileUpdates.ScheduledId.Delete(projectileUpdater.ScheduledId);
+        }
+
+        Log.Info($"Stopped tickers for world {worldId}");
+    }
+
+    public static void StartWorldTickers(ReducerContext ctx, string worldId)
+    {
+        var existingTankUpdater = ctx.Db.ScheduledTankUpdates.WorldId.Filter(worldId);
+        bool hasTankUpdater = false;
+        foreach (var _ in existingTankUpdater)
+        {
+            hasTankUpdater = true;
+            break;
+        }
+
+        if (!hasTankUpdater)
+        {
+            ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
+                WorldId = worldId,
+                LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+            });
+        }
+
+        var existingProjectileUpdater = ctx.Db.ScheduledProjectileUpdates.WorldId.Filter(worldId);
+        bool hasProjectileUpdater = false;
+        foreach (var _ in existingProjectileUpdater)
+        {
+            hasProjectileUpdater = true;
+            break;
+        }
+
+        if (!hasProjectileUpdater)
+        {
+            ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
+                WorldId = worldId,
+                LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+            });
+        }
+
+        Log.Info($"Started tickers for world {worldId}");
+    }
 }
