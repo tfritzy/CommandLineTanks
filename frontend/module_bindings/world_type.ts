@@ -10,7 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import BaseTerrain from "./base_terrain_type";
-import TerrainDetail from "./terrain_detail_type";
+import GameState from "./game_state_type";
 
 
 export default __t.object("World", {
@@ -22,10 +22,9 @@ export default __t.object("World", {
   get baseTerrainLayer() {
     return __t.array(BaseTerrain);
   },
-  get terrainDetailLayer() {
-    return __t.array(TerrainDetail);
+  get gameState() {
+    return GameState;
   },
-  traversibilityMap: __t.array(__t.bool()),
 });
 
 

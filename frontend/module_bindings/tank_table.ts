@@ -11,6 +11,7 @@ import {
 } from "spacetimedb";
 import Vector2Float from "./vector_2_float_type";
 import PathEntry from "./path_entry_type";
+import Gun from "./gun_type";
 
 
 export default __t.row({
@@ -44,4 +45,8 @@ export default __t.row({
   targetBodyRotation: __t.f32(),
   turretRotation: __t.f32(),
   targetTurretRotation: __t.f32(),
+  get guns() {
+    return __t.array(Gun);
+  },
+  selectedGunIndex: __t.i32(),
 });

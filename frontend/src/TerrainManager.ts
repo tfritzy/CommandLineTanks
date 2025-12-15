@@ -1,5 +1,6 @@
 import { getConnection } from "./spacetimedb-connection";
-import { BaseTerrain, TerrainDetailType, type Infer } from "../module_bindings";
+import { BaseTerrain, TerrainDetailType, type TerrainDetailRow, type EventContext } from "../module_bindings";
+import { type Infer } from "spacetimedb";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
 import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field, Label } from "./objects/TerrainDetails";
 
@@ -12,7 +13,7 @@ interface TerrainDetailData {
   positionY: number;
   type: TerrainDetailTypeEnum;
   health: number;
-  label: string | null;
+  label: string | undefined;
 }
 
 export class TerrainManager {
@@ -61,16 +62,16 @@ export class TerrainManager {
       .onError((e) => console.log("TerrainDetails subscription error", e))
       .subscribe([`SELECT * FROM terrain_detail WHERE WorldId = '${this.worldId}'`]);
 
-    connection.db.terrain_detail.onInsert((_ctx, detail) => {
+    connection.db.terrainDetail.onInsert((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       this.createDetailObject(detail);
     });
 
-    connection.db.terrain_detail.onUpdate((_ctx, _oldDetail, newDetail) => {
+    connection.db.terrainDetail.onUpdate((_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
       this.detailObjects.delete(newDetail.id);
       this.createDetailObject(newDetail);
     });
 
-    connection.db.terrain_detail.onDelete((_ctx, detail) => {
+    connection.db.terrainDetail.onDelete((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       this.detailObjects.delete(detail.id);
     });
   }

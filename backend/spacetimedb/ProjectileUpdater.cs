@@ -156,10 +156,10 @@ public static partial class ProjectileUpdater
                 }
             }
 
-            int projectileCollisionRegionX = (int)Math.Floor(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-            int projectileCollisionRegionY = (int)Math.Floor(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+            int tankCollisionRegionX = (int)Math.Floor(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+            int tankCollisionRegionY = (int)Math.Floor(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
-            foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, projectileCollisionRegionX, projectileCollisionRegionY)))
+            foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, tankCollisionRegionX, tankCollisionRegionY)))
             {
                 if (tank.Alliance != projectile.Alliance)
                 {
@@ -210,7 +210,7 @@ public static partial class ProjectileUpdater
                                             ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
                                             {
                                                 ScheduledId = 0,
-                                                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp.AddMicroseconds(Module.WORLD_RESET_DELAY_MICROS)),
+                                                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
                                                 WorldId = args.WorldId
                                             });
 

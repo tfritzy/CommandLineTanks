@@ -10,6 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+// The tagged union or sum type for the algebraic type `GameState`.
 const GameState = __t.enum("GameState", {Playing: __t.unit(),
   Results: __t.unit(),
 });

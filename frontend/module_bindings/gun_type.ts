@@ -9,27 +9,23 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2Float from "./vector_2_float_type";
 import ProjectileType from "./projectile_type_type";
+import GunType from "./gun_type_type";
 
 
-export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  shooterTankId: __t.string(),
-  alliance: __t.i32(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  speed: __t.f32(),
-  size: __t.f32(),
-  get velocity() {
-    return Vector2Float;
+export default __t.object("Gun", {
+  get gunType() {
+    return GunType;
   },
+  ammo: __t.option(__t.i32()),
+  projectileCount: __t.i32(),
+  spreadAngle: __t.f32(),
   damage: __t.i32(),
   trackingStrength: __t.f32(),
   get projectileType() {
     return ProjectileType;
   },
-  spawnedAt: __t.u64(),
   lifetimeSeconds: __t.f32(),
 });
+
+

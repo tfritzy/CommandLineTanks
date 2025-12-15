@@ -10,6 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import Vector2Float from "./vector_2_float_type";
+import ProjectileType from "./projectile_type_type";
 
 
 export default __t.object("Projectile", {
@@ -24,6 +25,13 @@ export default __t.object("Projectile", {
   get velocity() {
     return Vector2Float;
   },
+  damage: __t.i32(),
+  trackingStrength: __t.f32(),
+  get projectileType() {
+    return ProjectileType;
+  },
+  spawnedAt: __t.u64(),
+  lifetimeSeconds: __t.f32(),
 });
 
 

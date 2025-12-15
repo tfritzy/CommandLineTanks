@@ -30,9 +30,9 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             .subscriptionBuilder()
             .onError((e) => console.error("Results subscription error", e))
             .subscribe([
-                `SELECT * FROM tank WHERE worldId = '${worldId}'`,
-                `SELECT * FROM score WHERE worldId = '${worldId}'`,
-                `SELECT * FROM world WHERE id = '${worldId}'`
+                `SELECT * FROM tank WHERE WorldId = '${worldId}'`,
+                `SELECT * FROM score WHERE WorldId = '${worldId}'`,
+                `SELECT * FROM world WHERE Id = '${worldId}'`
             ]);
 
         const updateTanks = () => {

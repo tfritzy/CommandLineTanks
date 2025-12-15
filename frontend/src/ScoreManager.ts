@@ -19,7 +19,7 @@ export class ScoreManager {
     connection
       .subscriptionBuilder()
       .onError((e) => console.error("Score subscription error", e))
-      .subscribe([`SELECT * FROM score WHERE worldId = '${worldId}'`]);
+      .subscribe([`SELECT * FROM score WHERE WorldId = '${worldId}'`]);
 
     connection.db.score.onInsert((_ctx, score) => {
       console.log("Score inserted:", score);

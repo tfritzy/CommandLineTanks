@@ -9,18 +9,19 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import TerrainDetailType from "./terrain_detail_type_type";
 
-// The tagged union or sum type for the algebraic type `TerrainDetail`.
-const TerrainDetail = __t.enum("TerrainDetail", {None: __t.unit(),
-  Cliff: __t.unit(),
-  Rock: __t.unit(),
-  Tree: __t.unit(),
-  Bridge: __t.unit(),
-  Fence: __t.unit(),
-  HayBale: __t.unit(),
-  Field: __t.unit(),
+
+export default __t.object("TerrainDetail", {
+  id: __t.string(),
+  worldId: __t.string(),
+  positionX: __t.i32(),
+  positionY: __t.i32(),
+  get type() {
+    return TerrainDetailType;
+  },
+  health: __t.i32(),
+  label: __t.option(__t.string()),
 });
-
-export default TerrainDetail;
 
 

@@ -43,12 +43,16 @@ import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
 import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
+import ResetWorld from "./reset_world_reducer";
+export { ResetWorld };
 import Respawn from "./respawn_reducer";
 export { Respawn };
 import Reverse from "./reverse_reducer";
 export { Reverse };
 import Stop from "./stop_reducer";
 export { Stop };
+import SwitchGun from "./switch_gun_reducer";
+export { SwitchGun };
 import TargetTank from "./target_tank_reducer";
 export { TargetTank };
 import UpdateProjectiles from "./update_projectiles_reducer";
@@ -63,48 +67,62 @@ import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table"
 export { ScheduledProjectileUpdatesRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
+import ScheduledWorldResetRow from "./scheduled_world_reset_table";
+export { ScheduledWorldResetRow };
 import PlayerRow from "./player_table";
 export { PlayerRow };
 import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
-import TankRow from "./tank_table";
-export { TankRow };
-import WorldRow from "./world_table";
-export { WorldRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
+import TankRow from "./tank_table";
+export { TankRow };
 import TerrainDetailRow from "./terrain_detail_table";
 export { TerrainDetailRow };
+import TraversibilityMapRow from "./traversibility_map_table";
+export { TraversibilityMapRow };
+import WorldRow from "./world_table";
+export { WorldRow };
 
 // Import and reexport all types
 import BaseTerrain from "./base_terrain_type";
 export { BaseTerrain };
 import GameState from "./game_state_type";
 export { GameState };
+import Gun from "./gun_type";
+export { Gun };
+import GunType from "./gun_type_type";
+export { GunType };
 import PathEntry from "./path_entry_type";
 export { PathEntry };
 import Player from "./player_type";
 export { Player };
 import Projectile from "./projectile_type";
 export { Projectile };
+import ProjectileType from "./projectile_type_type";
+export { ProjectileType };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 export { ScheduledTankUpdates };
+import ScheduledWorldReset from "./scheduled_world_reset_type";
+export { ScheduledWorldReset };
+import Score from "./score_type";
+export { Score };
 import Tank from "./tank_type";
 export { Tank };
 import TerrainDetail from "./terrain_detail_type";
 export { TerrainDetail };
 import TerrainDetailType from "./terrain_detail_type_type";
 export { TerrainDetailType };
+import TraversibilityMap from "./traversibility_map_type";
+export { TraversibilityMap };
 import Vector2 from "./vector_2_type";
 export { Vector2 };
 import Vector2Float from "./vector_2_float_type";
 export { Vector2Float };
 import World from "./world_type";
 export { World };
-import Score from "./score_type";
-export { Score };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
@@ -130,6 +148,17 @@ const tablesSchema = __schema(
       { name: 'ScheduledTankUpdates_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledTankUpdatesRow),
+  __table({
+    name: 'ScheduledWorldReset',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledWorldReset_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledWorldResetRow),
   __table({
     name: 'player',
     indexes: [
@@ -160,6 +189,17 @@ const tablesSchema = __schema(
     ],
   }, ProjectileRow),
   __table({
+    name: 'score',
+    indexes: [
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'score_WorldId_key', constraint: 'unique', columns: ['worldId'] },
+    ],
+  }, ScoreRow),
+  __table({
     name: 'tank',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
@@ -186,6 +226,36 @@ const tablesSchema = __schema(
     ],
   }, TankRow),
   __table({
+    name: 'terrain_detail',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId_PositionX_PositionY', algorithm: 'btree', columns: [
+        'worldId',
+        'positionX',
+        'positionY',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'terrain_detail_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, TerrainDetailRow),
+  __table({
+    name: 'traversibility_map',
+    indexes: [
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'traversibility_map_WorldId_key', constraint: 'unique', columns: ['worldId'] },
+    ],
+  }, TraversibilityMapRow),
+  __table({
     name: 'world',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
@@ -196,31 +266,6 @@ const tablesSchema = __schema(
       { name: 'world_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, WorldRow),
-  __table({
-    name: 'score',
-    indexes: [
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
-      ] },
-    ],
-    constraints: [
-      { name: 'score_WorldId_key', constraint: 'unique', columns: ['worldId'] },
-    ],
-  }, ScoreRow),
-  __table({
-    name: 'terrain_detail',
-    indexes: [
-      { name: 'Id', algorithm: 'btree', columns: [
-        'id',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
-      ] },
-    ],
-    constraints: [
-      { name: 'terrain_detail_Id_key', constraint: 'unique', columns: ['id'] },
-    ],
-  }, TerrainDetailRow),
 );
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
@@ -229,9 +274,11 @@ const reducersSchema = __reducers(
   __reducerSchema("drive", Drive),
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),
+  __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("reverse", Reverse),
   __reducerSchema("stop", Stop),
+  __reducerSchema("switchGun", SwitchGun),
   __reducerSchema("targetTank", TargetTank),
   __reducerSchema("UpdateProjectiles", UpdateProjectiles),
   __reducerSchema("UpdateTanks", UpdateTanks),

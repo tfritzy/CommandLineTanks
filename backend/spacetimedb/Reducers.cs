@@ -89,7 +89,47 @@ public static partial class Module
             Label = "When you're ready to find a game, call the findgame command"
         });
 
+        var tankName = AllocateTankName(ctx, identityString);
+        if (tankName != null)
+        {
+            var tank = BuildTank(ctx, identityString, ctx.Sender, tankName, "", 0, worldSize / 2, worldSize / 2);
+            ctx.Db.tank.Insert(tank);
+            Log.Info($"Created homeworld tank {tankName} for identity {identityString}");
+        }
+
         Log.Info($"Created homeworld for identity {identityString}");
+    }
+
+    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY)
+    {
+        var tankId = GenerateId(ctx, "tnk");
+        return new Tank
+        {
+            Id = tankId,
+            WorldId = worldId,
+            Owner = owner,
+            Name = name,
+            JoinCode = joinCode,
+            Alliance = alliance,
+            Health = Module.TANK_HEALTH,
+            IsDead = false,
+            Kills = 0,
+            CollisionRegionX = 0,
+            CollisionRegionY = 0,
+            Target = null,
+            TargetLead = 0.0f,
+            Path = [],
+            PositionX = positionX,
+            PositionY = positionY,
+            BodyRotation = 0.0f,
+            TurretRotation = 0.0f,
+            TargetTurretRotation = 0.0f,
+            TopSpeed = 3f,
+            BodyRotationSpeed = 3f,
+            TurretRotationSpeed = 3f,
+            Guns = [BASE_GUN],
+            SelectedGunIndex = 0
+        };
     }
 
     public static (float, float) FindSpawnPosition(ReducerContext ctx, World world, int alliance, Random random)
@@ -122,7 +162,9 @@ public static partial class Module
         minY = paddingY;
         maxY = worldHeight - paddingY;
 
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(world.Id).Value;
+        var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(world.Id);
+        if (traversibilityMapQuery == null) return (0, 0);
+        var traversibilityMap = traversibilityMapQuery.Value;
 
         for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++)
         {
@@ -249,7 +291,7 @@ public static partial class Module
             Log.Info($"New player connected with ID {playerId}");
         }
 
-        var identityString = ctx.Sender.ToHexString();
+        var identityString = ctx.Sender.ToString();
         var existingHomeworld = ctx.Db.world.Id.Find(identityString);
         if (existingHomeworld == null)
         {
@@ -527,37 +569,9 @@ public static partial class Module
 
         var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
 
-        var tankId = GenerateId(ctx, "tnk");
-        var tank = new Tank
-        {
-            Id = tankId,
-            WorldId = world.Value.Id,
-            Owner = ctx.Sender,
-            Name = tankName,
-            JoinCode = joinCode,
-            Alliance = assignedAlliance,
-            Health = Module.TANK_HEALTH,
-            IsDead = false,
-            Kills = 0,
-            CollisionRegionX = 0,
-            CollisionRegionY = 0,
-            Target = null,
-            TargetLead = 0.0f,
-            Path = [],
-            PositionX = spawnX,
-            PositionY = spawnY,
-            BodyRotation = 0.0f,
-            TurretRotation = 0.0f,
-            TargetTurretRotation = 0.0f,
-            TopSpeed = 3f,
-            BodyRotationSpeed = 3f,
-            TurretRotationSpeed = 3f,
-            Guns = [BASE_GUN],
-            SelectedGunIndex = 0
-        };
-
+        var tank = BuildTank(ctx, world.Value.Id, ctx.Sender, tankName, joinCode, assignedAlliance, spawnX, spawnY);
         ctx.Db.tank.Insert(tank);
-        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tankId} named {tankName} (joinCode: {joinCode})");
+        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tank.Id} named {tankName} (joinCode: {joinCode})");
     }
 
     [Reducer]

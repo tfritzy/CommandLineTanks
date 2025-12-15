@@ -17,7 +17,7 @@ export class ProjectileManager {
     connection
       .subscriptionBuilder()
       .onError((e) => console.log("Projectile subscription error", e))
-      .subscribe([`SELECT * FROM projectile WHERE worldId = '${this.worldId}'`]);
+      .subscribe([`SELECT * FROM projectile WHERE WorldId = '${this.worldId}'`]);
 
     connection.db.projectile.onInsert((_ctx, projectile) => {
       console.log(projectile);
