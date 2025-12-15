@@ -187,6 +187,10 @@ export class Tank {
     this.health = health;
   }
 
+  public setAlliance(alliance: number) {
+    this.alliance = alliance;
+  }
+
   public update(deltaTime: number) {
     if (this.path.length > 0) {
       const target = this.path[0].position;
