@@ -4,8 +4,10 @@ import { getConnection } from "./spacetimedb-connection";
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
+  private worldId: string;
 
-  constructor() {
+  constructor(worldId: string) {
+    this.worldId = worldId;
     this.subscribeToTanks();
   }
 
@@ -16,7 +18,9 @@ export class TankManager {
     connection
       .subscriptionBuilder()
       .onError((e) => console.log("Ah fuck", e))
-      .subscribe([`SELECT * FROM tank`]);
+      .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
+
+    console.log("Subscribe to tanks in ", this.worldId);
 
     connection.db.tank.onInsert((_ctx, tank) => {
       console.log(tank);

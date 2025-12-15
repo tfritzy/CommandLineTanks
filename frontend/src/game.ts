@@ -27,7 +27,7 @@ export class Game {
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
 
-    this.tankManager = new TankManager();
+    this.tankManager = new TankManager(worldId);
     this.terrainManager = new TerrainManager(worldId);
     this.projectileManager = new ProjectileManager(worldId);
     this.scoreManager = new ScoreManager(worldId);
@@ -54,8 +54,6 @@ export class Game {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.save();
-    this.ctx.translate(0, this.canvas.height);
-    this.ctx.scale(1, -1);
 
     const playerTank = this.tankManager.getPlayerTank();
     let cameraX = 0;

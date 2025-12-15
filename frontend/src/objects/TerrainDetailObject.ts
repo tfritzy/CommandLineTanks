@@ -25,8 +25,7 @@ export abstract class TerrainDetailObject {
     const labelY = y - UNIT_TO_PIXEL * 0.1;
 
     ctx.font = `${UNIT_TO_PIXEL * 0.4}px sans-serif`;
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "black";
+    ctx.fillStyle = "black";
     ctx.lineWidth = 2;
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";

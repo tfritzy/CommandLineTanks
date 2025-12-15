@@ -88,7 +88,6 @@ export class Tank {
 
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL + offset, this.y * UNIT_TO_PIXEL + offset);
-    ctx.scale(1, -1);
     ctx.font = '14px monospace';
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';

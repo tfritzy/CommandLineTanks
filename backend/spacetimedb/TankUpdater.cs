@@ -109,7 +109,7 @@ public static partial class TankUpdater
                     var deltaX = targetPos.Position.X - tank.PositionX;
                     var deltaY = targetPos.Position.Y - tank.PositionY;
                     var targetAngle = Math.Atan2(deltaY, deltaX);
-                    
+
                     if (targetPos.Reverse)
                     {
                         targetAngle += Math.PI;
@@ -174,7 +174,7 @@ public static partial class TankUpdater
                     {
                         var targetAngle = targetTank.Value.BodyRotation;
                         targetX += (float)(Math.Cos(targetAngle) * tank.TargetLead);
-                        targetY += (float)(Math.Sin(targetAngle) * tank.TargetLead);
+                        targetY += (float)(-Math.Sin(targetAngle) * tank.TargetLead);
                     }
 
                     var deltaX = targetX - tank.PositionX;
@@ -256,8 +256,8 @@ public static partial class TankUpdater
                     }
                     else
                     {
-                        tank = tank with 
-                        { 
+                        tank = tank with
+                        {
                             Guns = [.. tank.Guns, gunToAdd.Value],
                             SelectedGunIndex = tank.Guns.Length
                         };
@@ -281,7 +281,7 @@ public static partial class TankUpdater
         var deltaX = target.X - tank.PositionX;
         var deltaY = target.Y - tank.PositionY;
         var targetAngle = Math.Atan2(deltaY, deltaX);
-        
+
         if (reverse)
         {
             targetAngle += Math.PI;

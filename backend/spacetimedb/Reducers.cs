@@ -71,7 +71,7 @@ public static partial class Module
             Id = welcomeSignId,
             WorldId = identityString,
             PositionX = worldSize / 2,
-            PositionY = worldSize / 2 + 3,
+            PositionY = 5,
             Type = TerrainDetailType.Label,
             Health = 100,
             Label = "Welcome to Command Line Tanks"
@@ -83,19 +83,11 @@ public static partial class Module
             Id = instructionSignId,
             WorldId = identityString,
             PositionX = worldSize / 2,
-            PositionY = worldSize / 2 + 1,
+            PositionY = 6,
             Type = TerrainDetailType.Label,
             Health = 100,
             Label = "When you're ready to find a game, call the findgame command"
         });
-
-        var tankName = AllocateTankName(ctx, identityString);
-        if (tankName != null)
-        {
-            var tank = BuildTank(ctx, identityString, ctx.Sender, tankName, "", 0, worldSize / 2, worldSize / 2);
-            ctx.Db.tank.Insert(tank);
-            Log.Info($"Created homeworld tank {tankName} for identity {identityString}");
-        }
 
         Log.Info($"Created homeworld for identity {identityString}");
     }
@@ -200,8 +192,8 @@ public static partial class Module
 
         var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
         var terrainDetailArray = TerrainGenerator.ConvertToArray(
-            terrainDetails, 
-            TerrainGenerator.GetWorldWidth(), 
+            terrainDetails,
+            TerrainGenerator.GetWorldWidth(),
             TerrainGenerator.GetWorldHeight()
         );
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
@@ -291,11 +283,25 @@ public static partial class Module
             Log.Info($"New player connected with ID {playerId}");
         }
 
-        var identityString = ctx.Sender.ToString();
+        var identityString = ctx.Sender.ToString().ToLower();
         var existingHomeworld = ctx.Db.world.Id.Find(identityString);
         if (existingHomeworld == null)
         {
             CreateHomeworld(ctx, identityString);
+        }
+
+        var existingTank = ctx.Db.tank.WorldId.Filter(identityString)
+            .Where(t => t.Owner == ctx.Sender)
+            .FirstOrDefault();
+        if (existingTank.Id == null)
+        {
+            var tankName = AllocateTankName(ctx, identityString);
+            if (tankName != null)
+            {
+                var tank = BuildTank(ctx, identityString, ctx.Sender, tankName, "", 0, HOMEWORLD_SIZE / 2, HOMEWORLD_SIZE / 2);
+                ctx.Db.tank.Insert(tank);
+                Log.Info($"Created homeworld tank {tankName} for identity {identityString}");
+            }
         }
     }
 
@@ -342,7 +348,12 @@ public static partial class Module
         }
         else
         {
-            tank.Path = [entry];
+            tank = tank with
+            {
+                Path = [entry],
+                Velocity = new Vector2Float(0, 0),
+                BodyAngularVelocity = 0
+            };
         }
 
         ctx.Db.tank.Id.Update(tank);
@@ -373,7 +384,13 @@ public static partial class Module
             Reverse = true
         };
 
-        tank.Path = [entry];
+        tank = tank with
+        {
+            Path = [entry],
+            Velocity = new Vector2Float(0, 0),
+            BodyAngularVelocity = 0
+        };
+
         ctx.Db.tank.Id.Update(tank);
     }
 
@@ -443,7 +460,7 @@ public static partial class Module
         if (gun.Ammo != null && gun.Ammo <= 0) return;
 
         float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
-        float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
+        float barrelTipY = tank.PositionY + (float)-Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
 
         if (gun.ProjectileCount == 1)
         {
@@ -491,7 +508,7 @@ public static partial class Module
     private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, int damage, float trackingStrength, ProjectileType projectileType, float lifetimeSeconds)
     {
         float velocityX = (float)Math.Cos(angle) * PROJECTILE_SPEED;
-        float velocityY = (float)Math.Sin(angle) * PROJECTILE_SPEED;
+        float velocityY = (float)-Math.Sin(angle) * PROJECTILE_SPEED;
 
         var projectileId = GenerateId(ctx, "prj");
         var projectile = new Projectile

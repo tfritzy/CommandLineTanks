@@ -46,7 +46,7 @@ public static partial class ProjectileUpdater
 
             var projectileAgeMicros = currentTime - projectile.SpawnedAt;
             var projectileAgeSeconds = projectileAgeMicros / 1_000_000.0;
-            
+
             if (projectileAgeSeconds >= projectile.LifetimeSeconds)
             {
                 ctx.Db.projectile.Id.Delete(projectile.Id);
@@ -106,7 +106,7 @@ public static partial class ProjectileUpdater
                     {
                         Velocity = new Vector2Float(
                             (float)(Math.Cos(newAngle) * projectile.Speed),
-                            (float)(Math.Sin(newAngle) * projectile.Speed)
+                            (float)(-Math.Sin(newAngle) * projectile.Speed)
                         )
                     };
                 }
@@ -123,7 +123,7 @@ public static partial class ProjectileUpdater
 
             bool collided = false;
 
-            if (projectileTileX >= 0 && projectileTileX < traversibilityMap.Value.Width && 
+            if (projectileTileX >= 0 && projectileTileX < traversibilityMap.Value.Width &&
                 projectileTileY >= 0 && projectileTileY < traversibilityMap.Value.Height)
             {
                 int tileIndex = projectileTileY * traversibilityMap.Value.Width + projectileTileX;

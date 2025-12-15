@@ -141,9 +141,6 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    const offsetX = cameraX % unitToPixel;
-    const offsetY = cameraY % unitToPixel;
-
     for (let tileY = startTileY; tileY <= endTileY; tileY++) {
       for (let tileX = startTileX; tileX <= endTileX; tileX++) {
         if (tileX < 0 || tileX >= this.worldWidth || tileY < 0 || tileY >= this.worldHeight) {
@@ -153,11 +150,15 @@ export class TerrainManager {
         const index = tileY * this.worldWidth + tileX;
         const terrain = this.baseTerrainLayer[index];
 
-        const screenX = (tileX - startTileX) * unitToPixel - offsetX;
-        const screenY = (tileY - startTileY) * unitToPixel - offsetY;
+        const worldX = tileX * unitToPixel;
+        const worldY = tileY * unitToPixel;
 
         ctx.fillStyle = this.getBaseTerrainColor(terrain);
-        ctx.fillRect(screenX, screenY, unitToPixel, unitToPixel);
+        ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);
+        
+        ctx.strokeStyle = "#eeeeee";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(worldX, worldY, unitToPixel, unitToPixel);
       }
     }
   }
@@ -188,13 +189,13 @@ export class TerrainManager {
   private getBaseTerrainColor(terrain: BaseTerrainType): string {
     switch (terrain.tag) {
       case "Ground":
-        return "#90ee90";
+        return "#ffffff";
       case "Stream":
         return "#4682b4";
       case "Road":
         return "#808080";
       default:
-        return "#90ee90";
+        return "#ffffff";
     }
   }
 }

@@ -12,18 +12,18 @@ function isPlayerDead(connection: DbConnection): boolean {
 
 const directionAliases: Record<string, { x: number; y: number; name: string; symbol: string }> = {
   // North
-  north: { x: 0, y: 1, name: "north", symbol: "↑" },
-  up: { x: 0, y: 1, name: "north", symbol: "↑" },
-  n: { x: 0, y: 1, name: "north", symbol: "↑" },
-  u: { x: 0, y: 1, name: "north", symbol: "↑" },
+  north: { x: 0, y: -1, name: "north", symbol: "↑" },
+  up: { x: 0, y: -1, name: "north", symbol: "↑" },
+  n: { x: 0, y: -1, name: "north", symbol: "↑" },
+  u: { x: 0, y: -1, name: "north", symbol: "↑" },
   
   // Northeast
-  northeast: { x: 1, y: 1, name: "northeast", symbol: "↗" },
-  upright: { x: 1, y: 1, name: "northeast", symbol: "↗" },
-  rightup: { x: 1, y: 1, name: "northeast", symbol: "↗" },
-  ne: { x: 1, y: 1, name: "northeast", symbol: "↗" },
-  ur: { x: 1, y: 1, name: "northeast", symbol: "↗" },
-  ru: { x: 1, y: 1, name: "northeast", symbol: "↗" },
+  northeast: { x: 1, y: -1, name: "northeast", symbol: "↗" },
+  upright: { x: 1, y: -1, name: "northeast", symbol: "↗" },
+  rightup: { x: 1, y: -1, name: "northeast", symbol: "↗" },
+  ne: { x: 1, y: -1, name: "northeast", symbol: "↗" },
+  ur: { x: 1, y: -1, name: "northeast", symbol: "↗" },
+  ru: { x: 1, y: -1, name: "northeast", symbol: "↗" },
   
   // East
   east: { x: 1, y: 0, name: "east", symbol: "→" },
@@ -32,26 +32,26 @@ const directionAliases: Record<string, { x: number; y: number; name: string; sym
   r: { x: 1, y: 0, name: "east", symbol: "→" },
   
   // Southeast
-  southeast: { x: 1, y: -1, name: "southeast", symbol: "↘" },
-  downright: { x: 1, y: -1, name: "southeast", symbol: "↘" },
-  rightdown: { x: 1, y: -1, name: "southeast", symbol: "↘" },
-  se: { x: 1, y: -1, name: "southeast", symbol: "↘" },
-  dr: { x: 1, y: -1, name: "southeast", symbol: "↘" },
-  rd: { x: 1, y: -1, name: "southeast", symbol: "↘" },
+  southeast: { x: 1, y: 1, name: "southeast", symbol: "↘" },
+  downright: { x: 1, y: 1, name: "southeast", symbol: "↘" },
+  rightdown: { x: 1, y: 1, name: "southeast", symbol: "↘" },
+  se: { x: 1, y: 1, name: "southeast", symbol: "↘" },
+  dr: { x: 1, y: 1, name: "southeast", symbol: "↘" },
+  rd: { x: 1, y: 1, name: "southeast", symbol: "↘" },
   
   // South
-  south: { x: 0, y: -1, name: "south", symbol: "↓" },
-  down: { x: 0, y: -1, name: "south", symbol: "↓" },
-  s: { x: 0, y: -1, name: "south", symbol: "↓" },
-  d: { x: 0, y: -1, name: "south", symbol: "↓" },
+  south: { x: 0, y: 1, name: "south", symbol: "↓" },
+  down: { x: 0, y: 1, name: "south", symbol: "↓" },
+  s: { x: 0, y: 1, name: "south", symbol: "↓" },
+  d: { x: 0, y: 1, name: "south", symbol: "↓" },
   
   // Southwest
-  southwest: { x: -1, y: -1, name: "southwest", symbol: "↙" },
-  downleft: { x: -1, y: -1, name: "southwest", symbol: "↙" },
-  leftdown: { x: -1, y: -1, name: "southwest", symbol: "↙" },
-  sw: { x: -1, y: -1, name: "southwest", symbol: "↙" },
-  dl: { x: -1, y: -1, name: "southwest", symbol: "↙" },
-  ld: { x: -1, y: -1, name: "southwest", symbol: "↙" },
+  southwest: { x: -1, y: 1, name: "southwest", symbol: "↙" },
+  downleft: { x: -1, y: 1, name: "southwest", symbol: "↙" },
+  leftdown: { x: -1, y: 1, name: "southwest", symbol: "↙" },
+  sw: { x: -1, y: 1, name: "southwest", symbol: "↙" },
+  dl: { x: -1, y: 1, name: "southwest", symbol: "↙" },
+  ld: { x: -1, y: 1, name: "southwest", symbol: "↙" },
   
   // West
   west: { x: -1, y: 0, name: "west", symbol: "←" },
@@ -60,12 +60,12 @@ const directionAliases: Record<string, { x: number; y: number; name: string; sym
   l: { x: -1, y: 0, name: "west", symbol: "←" },
   
   // Northwest
-  northwest: { x: -1, y: 1, name: "northwest", symbol: "↖" },
-  upleft: { x: -1, y: 1, name: "northwest", symbol: "↖" },
-  leftup: { x: -1, y: 1, name: "northwest", symbol: "↖" },
-  nw: { x: -1, y: 1, name: "northwest", symbol: "↖" },
-  ul: { x: -1, y: 1, name: "northwest", symbol: "↖" },
-  lu: { x: -1, y: 1, name: "northwest", symbol: "↖" },
+  northwest: { x: -1, y: -1, name: "northwest", symbol: "↖" },
+  upleft: { x: -1, y: -1, name: "northwest", symbol: "↖" },
+  leftup: { x: -1, y: -1, name: "northwest", symbol: "↖" },
+  nw: { x: -1, y: -1, name: "northwest", symbol: "↖" },
+  ul: { x: -1, y: -1, name: "northwest", symbol: "↖" },
+  lu: { x: -1, y: -1, name: "northwest", symbol: "↖" },
 };
 
 const validDirections = Object.keys(directionAliases);
