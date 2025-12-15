@@ -19,6 +19,8 @@ export class Tank {
   private path: PathEntry[];
   private name: string;
   private alliance: number;
+  private health: number;
+  private maxHealth: number;
 
   constructor(
     x: number,
@@ -28,6 +30,8 @@ export class Tank {
     turretRotation: number,
     name: string,
     alliance: number,
+    health: number,
+    maxHealth: number = 100,
     velocityX: number = 0,
     velocityY: number = 0,
     bodyAngularVelocity: number = 0,
@@ -42,6 +46,8 @@ export class Tank {
     this.targetTurretRotation = turretRotation;
     this.name = name;
     this.alliance = alliance;
+    this.health = health;
+    this.maxHealth = maxHealth;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
     this.bodyAngularVelocity = bodyAngularVelocity;
@@ -88,10 +94,35 @@ export class Tank {
 
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL + offset, this.y * UNIT_TO_PIXEL + offset);
+    
     ctx.font = '14px monospace';
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
     ctx.fillText(this.name, 0, -45);
+    
+    const healthBarWidth = 50;
+    const healthBarHeight = 6;
+    const healthBarY = -35;
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(-healthBarWidth / 2 - 1, healthBarY - 1, healthBarWidth + 2, healthBarHeight + 2);
+    
+    ctx.fillStyle = '#333333';
+    ctx.fillRect(-healthBarWidth / 2, healthBarY, healthBarWidth, healthBarHeight);
+    
+    const healthPercent = Math.max(0, this.health / this.maxHealth);
+    const healthWidth = healthBarWidth * healthPercent;
+    
+    let healthColor = '#00ff00';
+    if (healthPercent < 0.3) {
+      healthColor = '#ff0000';
+    } else if (healthPercent < 0.6) {
+      healthColor = '#ffaa00';
+    }
+    
+    ctx.fillStyle = healthColor;
+    ctx.fillRect(-healthBarWidth / 2, healthBarY, healthWidth, healthBarHeight);
+    
     ctx.restore();
   }
 
@@ -150,6 +181,10 @@ export class Tank {
 
   public setPath(path: PathEntry[]) {
     this.path = path;
+  }
+
+  public setHealth(health: number) {
+    this.health = health;
   }
 
   public update(deltaTime: number) {

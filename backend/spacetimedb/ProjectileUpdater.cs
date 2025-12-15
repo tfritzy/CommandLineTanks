@@ -106,7 +106,7 @@ public static partial class ProjectileUpdater
                     {
                         Velocity = new Vector2Float(
                             (float)(Math.Cos(newAngle) * projectile.Speed),
-                            (float)(-Math.Sin(newAngle) * projectile.Speed)
+                            (float)(Math.Sin(newAngle) * projectile.Speed)
                         )
                     };
                 }
@@ -167,7 +167,8 @@ public static partial class ProjectileUpdater
                     float dy = tank.PositionY - projectile.PositionY;
                     float distanceSquared = dx * dx + dy * dy;
 
-                    if (distanceSquared <= projectile.Size * projectile.Size)
+                    float collisionRadius = projectile.Size + 1.0f;
+                    if (distanceSquared <= collisionRadius * collisionRadius)
                     {
                         var newHealth = tank.Health - projectile.Damage;
                         var isDead = newHealth <= 0;
@@ -344,6 +345,7 @@ public static partial class ProjectileUpdater
             {
                 Alliance = newAlliance,
                 Health = Module.TANK_HEALTH,
+                MaxHealth = Module.TANK_HEALTH,
                 IsDead = false,
                 Kills = 0,
                 PositionX = spawnX,

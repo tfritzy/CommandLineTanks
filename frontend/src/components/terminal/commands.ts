@@ -1,11 +1,11 @@
 import { type DbConnection } from "../../../module_bindings";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 
-function isPlayerDead(connection: DbConnection): boolean {
+function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
     return false;
   }
-  const allTanks = Array.from(connection.db.tank.iter());
+  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
   const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
   return myTank?.isDead ?? false;
 }
@@ -271,7 +271,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 }
 
 export function drive(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (isPlayerDead(connection)) {
+  if (isPlayerDead(connection, worldId)) {
     return [
       "drive: error: cannot drive while dead",
       "",
@@ -364,7 +364,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
 }
 
 export function aim(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (isPlayerDead(connection)) {
+  if (isPlayerDead(connection, worldId)) {
     return [
       "aim: error: cannot aim while dead",
       "",
@@ -425,7 +425,7 @@ export function aim(connection: DbConnection, worldId: string, args: string[]): 
 }
 
 export function target(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (isPlayerDead(connection)) {
+  if (isPlayerDead(connection, worldId)) {
     return [
       "target: error: cannot target while dead",
       "",
@@ -463,7 +463,7 @@ export function target(connection: DbConnection, worldId: string, args: string[]
     lead = parsedLead;
   }
 
-  const allTanks = Array.from(connection.db.tank.iter());
+  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
   const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
@@ -491,7 +491,7 @@ export function target(connection: DbConnection, worldId: string, args: string[]
 }
 
 export function reverse(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (isPlayerDead(connection)) {
+  if (isPlayerDead(connection, worldId)) {
     return [
       "reverse: error: cannot reverse while dead",
       "",
@@ -528,7 +528,7 @@ export function reverse(connection: DbConnection, worldId: string, args: string[
 }
 
 export function stop(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (isPlayerDead(connection)) {
+  if (isPlayerDead(connection, worldId)) {
     return [
       "stop: error: cannot stop while dead",
       "",
@@ -553,7 +553,7 @@ export function stop(connection: DbConnection, worldId: string, args: string[]):
 }
 
 export function fire(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (isPlayerDead(connection)) {
+  if (isPlayerDead(connection, worldId)) {
     return [
       "fire: error: cannot fire while dead",
       "",
@@ -578,7 +578,7 @@ export function fire(connection: DbConnection, worldId: string, args: string[]):
 }
 
 export function respawn(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (!isPlayerDead(connection)) {
+  if (!isPlayerDead(connection, worldId)) {
     return [
       "respawn: error: cannot respawn while alive",
       "",

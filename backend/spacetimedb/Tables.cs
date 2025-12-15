@@ -64,6 +64,8 @@ public static partial class Module
 
         public int Health;
 
+        public int MaxHealth;
+
         public bool IsDead;
 
         public int Kills;

@@ -174,7 +174,7 @@ public static partial class TankUpdater
                     {
                         var targetAngle = targetTank.Value.BodyRotation;
                         targetX += (float)(Math.Cos(targetAngle) * tank.TargetLead);
-                        targetY += (float)(-Math.Sin(targetAngle) * tank.TargetLead);
+                        targetY += (float)(Math.Sin(targetAngle) * tank.TargetLead);
                     }
 
                     var deltaX = targetX - tank.PositionX;

@@ -30,6 +30,8 @@ export class TankManager {
         tank.turretRotation,
         tank.name,
         tank.alliance,
+        tank.health,
+        tank.maxHealth,
         tank.velocity.x,
         tank.velocity.y,
         tank.bodyAngularVelocity,
@@ -55,6 +57,7 @@ export class TankManager {
         tank.setBodyAngularVelocity(newTank.bodyAngularVelocity);
         tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
         tank.setPath(newTank.path);
+        tank.setHealth(newTank.health);
       }
     });
 

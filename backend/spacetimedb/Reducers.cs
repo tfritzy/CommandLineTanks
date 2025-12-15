@@ -104,6 +104,7 @@ public static partial class Module
             JoinCode = joinCode,
             Alliance = alliance,
             Health = Module.TANK_HEALTH,
+            MaxHealth = Module.TANK_HEALTH,
             IsDead = false,
             Kills = 0,
             CollisionRegionX = 0,
@@ -333,7 +334,6 @@ public static partial class Module
 
         Vector2 rootPos = tank.Path.Length > 0 && append ? tank.Path[^1].Position : new Vector2((int)tank.PositionX, (int)tank.PositionY);
         Vector2 nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
-        Log.Info(tank + " driving to " + nextPos + ". because " + rootPos + " and " + offset);
 
         PathEntry entry = new()
         {
@@ -372,7 +372,7 @@ public static partial class Module
 
         float angle = tank.BodyRotation;
         int offsetX = (int)Math.Round(-Math.Cos(angle) * distance);
-        int offsetY = (int)Math.Round(-Math.Sin(angle) * distance);
+        int offsetY = (int)Math.Round(Math.Sin(angle) * distance);
 
         Vector2 nextPos = new(rootPos.X + offsetX, rootPos.Y + offsetY);
         Log.Info(tank + " reversing to " + nextPos + ". because " + rootPos + " and offset (" + offsetX + ", " + offsetY + ")");
@@ -460,7 +460,7 @@ public static partial class Module
         if (gun.Ammo != null && gun.Ammo <= 0) return;
 
         float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
-        float barrelTipY = tank.PositionY + (float)-Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
+        float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
 
         if (gun.ProjectileCount == 1)
         {
@@ -508,7 +508,7 @@ public static partial class Module
     private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, int damage, float trackingStrength, ProjectileType projectileType, float lifetimeSeconds)
     {
         float velocityX = (float)Math.Cos(angle) * PROJECTILE_SPEED;
-        float velocityY = (float)-Math.Sin(angle) * PROJECTILE_SPEED;
+        float velocityY = (float)Math.Sin(angle) * PROJECTILE_SPEED;
 
         var projectileId = GenerateId(ctx, "prj");
         var projectile = new Projectile
@@ -614,6 +614,7 @@ public static partial class Module
         var respawnedTank = tank with
         {
             Health = Module.TANK_HEALTH,
+            MaxHealth = Module.TANK_HEALTH,
             IsDead = false,
             PositionX = spawnX,
             PositionY = spawnY,
