@@ -74,6 +74,8 @@ public static partial class Module
             Kills = new int[] { 0, 0 }
         });
 
+        InitializePickupSpawner(ctx, worldId, 5);
+
         Log.Info($"Initialized world {worldId}");
     }
 }

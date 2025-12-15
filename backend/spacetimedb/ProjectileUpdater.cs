@@ -127,11 +127,18 @@ public static partial class ProjectileUpdater
                 projectileTileY >= 0 && projectileTileY < traversibilityMap.Value.Height)
             {
                 int tileIndex = projectileTileY * traversibilityMap.Value.Width + projectileTileX;
-                if (tileIndex < traversibilityMap.Value.Map.Length && !traversibilityMap.Value.Map[tileIndex])
+                bool tileIsTraversable = tileIndex < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[tileIndex];
+                
+                if (!tileIsTraversable)
                 {
                     foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
                     {
-                        var newHealth = terrainDetail.Health - projectile.Damage;
+                        if (terrainDetail.Health == null)
+                        {
+                            continue;
+                        }
+
+                        var newHealth = terrainDetail.Health.Value - projectile.Damage;
                         if (newHealth <= 0)
                         {
                             ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
@@ -366,6 +373,18 @@ public static partial class ProjectileUpdater
         foreach (var projectile in ctx.Db.projectile.WorldId.Filter(args.WorldId))
         {
             ctx.Db.projectile.Id.Delete(projectile.Id);
+        }
+
+        var existingPickupSpawner = ctx.Db.ScheduledPickupSpawn.WorldId.Filter(args.WorldId);
+        bool hasPickupSpawner = false;
+        foreach (var spawner in existingPickupSpawner)
+        {
+            hasPickupSpawner = true;
+            break;
+        }
+        if (!hasPickupSpawner)
+        {
+            Module.InitializePickupSpawner(ctx, args.WorldId, 5);
         }
 
         Log.Info($"World {args.WorldId} reset complete. Teams randomized, {totalTanks} tanks respawned.");

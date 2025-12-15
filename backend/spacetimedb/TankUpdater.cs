@@ -237,9 +237,9 @@ public static partial class TankUpdater
             int tankTileX = Module.GetGridPosition(tank.PositionX);
             int tankTileY = Module.GetGridPosition(tank.PositionY);
 
-            foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, tankTileX, tankTileY)))
+            foreach (var pickup in ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, tankTileX, tankTileY)))
             {
-                var gunToAdd = GetGunFromPickup(terrainDetail.Type);
+                var gunToAdd = GetGunFromPickup(pickup.Type);
                 if (gunToAdd != null)
                 {
                     int existingGunIndex = -1;
@@ -260,7 +260,7 @@ public static partial class TankUpdater
                             existingGun.Ammo = existingGun.Ammo.Value + gunToAdd.Value.Ammo.Value;
                             tank.Guns[existingGunIndex] = existingGun;
                             needsUpdate = true;
-                            ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                            ctx.Db.pickup.Id.Delete(pickup.Id);
                         }
                     }
                     else
@@ -271,7 +271,7 @@ public static partial class TankUpdater
                             SelectedGunIndex = tank.Guns.Length
                         };
                         needsUpdate = true;
-                        ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                        ctx.Db.pickup.Id.Delete(pickup.Id);
                     }
 
                     break;

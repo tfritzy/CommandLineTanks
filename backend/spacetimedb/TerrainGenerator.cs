@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public static partial class TerrainGenerator
 {
     private const int WORLD_WIDTH = 100;
-    private const int WORLD_HEIGHT = 100;
+    private const int WORLD_HEIGHT = 54;
     private const float STREAM_PROBABILITY = 0.25f;
     private const int MIN_BRIDGES = 3;
     private const int FIELD_MIN_SIZE = 5;

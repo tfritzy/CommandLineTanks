@@ -150,8 +150,25 @@ public static partial class Module
 
         public TerrainDetailType Type;
 
-        public int Health;
+        public int? Health;
 
         public string? Label;
+    }
+
+    [Table(Name = "pickup", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
+    public partial struct Pickup
+    {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public int PositionX;
+        public int PositionY;
+
+        public TerrainDetailType Type;
     }
 }
