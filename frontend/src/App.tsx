@@ -4,6 +4,9 @@ import TerminalComponent from './components/terminal/Terminal';
 import ResultsScreen from './components/ResultsScreen';
 import { connectToSpacetimeDB, getConnection } from './spacetimedb-connection';
 import { useWorldSwitcher } from './hooks/useWorldSwitcher';
+import { type Infer } from 'spacetimedb';
+import TankRow from '../module_bindings/tank_type';
+import { type EventContext } from '../module_bindings';
 
 function App() {
   const [isSpacetimeConnected, setIsSpacetimeConnected] = useState(false);
@@ -51,13 +54,13 @@ function App() {
     const connection = getConnection();
     if (!connection) return;
 
-    const handleTankInsert = (_ctx: any, tank: any) => {
+    const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
         setIsDead(tank.isDead);
       }
     };
 
-    const handleTankUpdate = (_ctx: any, _oldTank: any, newTank: any) => {
+    const handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
         setIsDead(newTank.isDead);
       }
