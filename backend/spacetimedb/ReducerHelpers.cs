@@ -304,11 +304,7 @@ public static partial class Module
 
     public static bool HasAnyTanksInWorld(ReducerContext ctx, string worldId)
     {
-        foreach (var _ in ctx.Db.tank.WorldId.Filter(worldId))
-        {
-            return true;
-        }
-        return false;
+        return ctx.Db.tank.WorldId.Filter(worldId).Any();
     }
 
     public static void StopWorldTickers(ReducerContext ctx, string worldId)
@@ -328,15 +324,7 @@ public static partial class Module
 
     public static void StartWorldTickers(ReducerContext ctx, string worldId)
     {
-        var existingTankUpdater = ctx.Db.ScheduledTankUpdates.WorldId.Filter(worldId);
-        bool hasTankUpdater = false;
-        foreach (var _ in existingTankUpdater)
-        {
-            hasTankUpdater = true;
-            break;
-        }
-
-        if (!hasTankUpdater)
+        if (!ctx.Db.ScheduledTankUpdates.WorldId.Filter(worldId).Any())
         {
             ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
             {
@@ -347,15 +335,7 @@ public static partial class Module
             });
         }
 
-        var existingProjectileUpdater = ctx.Db.ScheduledProjectileUpdates.WorldId.Filter(worldId);
-        bool hasProjectileUpdater = false;
-        foreach (var _ in existingProjectileUpdater)
-        {
-            hasProjectileUpdater = true;
-            break;
-        }
-
-        if (!hasProjectileUpdater)
+        if (!ctx.Db.ScheduledProjectileUpdates.WorldId.Filter(worldId).Any())
         {
             ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
             {
