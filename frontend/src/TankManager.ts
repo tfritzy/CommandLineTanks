@@ -58,6 +58,7 @@ export class TankManager {
         tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
         tank.setPath(newTank.path);
         tank.setHealth(newTank.health);
+        tank.setAlliance(newTank.alliance);
       }
     });
 

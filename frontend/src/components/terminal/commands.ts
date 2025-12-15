@@ -170,8 +170,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Usage: aim <angle|direction>",
         "",
         "Arguments:",
-        "  <angle|direction>   Angle in degrees (0-360) or direction name",
+        "  <angle|direction>   Angle in degrees or direction name",
         "                      Angles: 0=east, 90=north, 180=west, 270=south",
+        "                      Negative angles are supported",
         "                      Directions:",
         "                        ↑: north, up, n, u",
         "                        ↗: northeast, upright, rightup, ne, ur, ru",
@@ -184,6 +185,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  aim 90",
+        "  aim -45",
         "  aim northeast"
       ];
 
@@ -406,17 +408,8 @@ export function aim(connection: DbConnection, worldId: string, args: string[]): 
         "       aim 90"
       ];
     }
-    if (degrees < 0 || degrees > 360) {
-      return [
-        `aim: error: angle '${degrees}' out of range`,
-        "Angle must be between 0 and 360 degrees",
-        "",
-        "Usage: aim <angle|direction>",
-        "       aim 90"
-      ];
-    }
     
-    const angleRadians = (degrees * Math.PI) / 180;
+    const angleRadians = (-degrees * Math.PI) / 180;
     const description = `${degrees}°`;
     
     connection.reducers.aim({ worldId, angleRadians });
