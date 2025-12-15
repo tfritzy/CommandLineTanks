@@ -1,8 +1,5 @@
 import { getConnection } from "./spacetimedb-connection";
-import { type Infer } from "spacetimedb";
-import Gun from "../module_bindings/gun_type";
-
-export type GunData = Infer<typeof Gun>;
+import { type GunData } from "./types/gun";
 
 export class GunInventoryManager {
   private guns: GunData[] = [];

@@ -1,13 +1,10 @@
 import { UNIT_TO_PIXEL } from "../game";
-import { type Infer } from "spacetimedb";
-import Gun from "../../module_bindings/gun_type";
+import { type GunData } from "../types/gun";
 
 type PathEntry = {
   position: { x: number; y: number };
   throttlePercent: number;
 };
-
-type GunData = Infer<typeof Gun>;
 
 export class Tank {
   private x: number;
