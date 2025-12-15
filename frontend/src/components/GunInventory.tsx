@@ -18,20 +18,16 @@ const GunInventory = ({ guns, selectedGunIndex }: GunInventoryProps) => {
   };
 
   const getGunColor = (gun: GunData): string => {
-    const gunType = gun.gunType;
-    if ('tag' in gunType) {
-      switch (gunType.tag) {
-        case 'Base':
-          return '#888888';
-        case 'TripleShooter':
-          return '#ff9900';
-        case 'MissileLauncher':
-          return '#ff0000';
-        default:
-          return '#888888';
-      }
+    switch (gun.gunType.tag) {
+      case 'Base':
+        return '#888888';
+      case 'TripleShooter':
+        return '#ff9900';
+      case 'MissileLauncher':
+        return '#ff0000';
+      default:
+        return '#888888';
     }
-    return '#888888';
   };
 
   return (
