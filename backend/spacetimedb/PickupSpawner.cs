@@ -18,7 +18,7 @@ public static partial class PickupSpawner
     [Reducer]
     public static void SpawnPickup(ReducerContext ctx, ScheduledPickupSpawn args)
     {
-        var existingPickups = ctx.Db.terrain_detail.WorldId_IsPickup.Filter((args.WorldId, true));
+        var existingPickups = ctx.Db.pickup.WorldId.Filter(args.WorldId);
         int pickupCount = 0;
         foreach (var pickup in existingPickups)
         {
@@ -64,21 +64,29 @@ public static partial class PickupSpawner
             if (tileOccupied)
                 continue;
 
+            var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, spawnX, spawnY));
+            bool pickupExists = false;
+            foreach (var p in existingPickup)
+            {
+                pickupExists = true;
+                break;
+            }
+
+            if (pickupExists)
+                continue;
+
             TerrainDetailType pickupType = ctx.Rng.NextSingle() < 0.5f
                 ? TerrainDetailType.TripleShooterPickup
                 : TerrainDetailType.MissileLauncherPickup;
 
             var pickupId = Module.GenerateId(ctx, "pickup");
-            ctx.Db.terrain_detail.Insert(new Module.TerrainDetail
+            ctx.Db.pickup.Insert(new Module.Pickup
             {
                 Id = pickupId,
                 WorldId = args.WorldId,
                 PositionX = spawnX,
                 PositionY = spawnY,
-                Type = pickupType,
-                Health = null,
-                Label = null,
-                IsPickup = true
+                Type = pickupType
             });
 
             Log.Info($"Spawned {pickupType} at ({spawnX}, {spawnY}) in world {args.WorldId}");

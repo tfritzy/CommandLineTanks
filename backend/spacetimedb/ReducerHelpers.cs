@@ -74,8 +74,7 @@ public static partial class Module
             PositionY = 5,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "Welcome to Command Line Tanks",
-            IsPickup = false
+            Label = "Welcome to Command Line Tanks"
         });
 
         var instructionSignId = GenerateId(ctx, "td");
@@ -87,8 +86,7 @@ public static partial class Module
             PositionY = 6,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "When you're ready to find a game, call the findgame command",
-            IsPickup = false
+            Label = "When you're ready to find a game, call the findgame command"
         });
 
         Log.Info($"Created homeworld for identity {identityString}");
@@ -256,21 +254,29 @@ public static partial class Module
             if (tileOccupied)
                 continue;
 
+            var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((worldId, spawnX, spawnY));
+            bool pickupExists = false;
+            foreach (var p in existingPickup)
+            {
+                pickupExists = true;
+                break;
+            }
+
+            if (pickupExists)
+                continue;
+
             TerrainDetailType pickupType = ctx.Rng.NextSingle() < 0.5f
                 ? TerrainDetailType.TripleShooterPickup
                 : TerrainDetailType.MissileLauncherPickup;
 
             var pickupId = GenerateId(ctx, "pickup");
-            ctx.Db.terrain_detail.Insert(new TerrainDetail
+            ctx.Db.pickup.Insert(new Pickup
             {
                 Id = pickupId,
                 WorldId = worldId,
                 PositionX = spawnX,
                 PositionY = spawnY,
-                Type = pickupType,
-                Health = null,
-                Label = null,
-                IsPickup = true
+                Type = pickupType
             });
 
             spawnedCount++;

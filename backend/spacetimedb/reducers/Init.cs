@@ -56,8 +56,7 @@ public static partial class Module
                 PositionY = detail.y,
                 Type = detail.type,
                 Health = 100,
-                Label = null,
-                IsPickup = false
+                Label = null
             });
         }
 

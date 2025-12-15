@@ -282,8 +282,7 @@ public static partial class ProjectileUpdater
                 PositionY = detail.y,
                 Type = detail.type,
                 Health = 100,
-                Label = null,
-                IsPickup = false
+                Label = null
             });
         }
 
