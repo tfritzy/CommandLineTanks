@@ -18,19 +18,33 @@ public static partial class PickupSpawner
     [Reducer]
     public static void SpawnPickup(ReducerContext ctx, ScheduledPickupSpawn args)
     {
+        var existingPickups = ctx.Db.terrain_detail.WorldId_IsPickup.Filter((args.WorldId, true));
+        int pickupCount = 0;
+        foreach (var pickup in existingPickups)
+        {
+            pickupCount++;
+        }
+
+        if (pickupCount >= 15)
+        {
+            ctx.Db.ScheduledPickupSpawn.ScheduledId.Update(args with
+            {
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 15_000_000 })
+            });
+            return;
+        }
+
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
         if (traversibilityMap == null) return;
-
-        float centerX = traversibilityMap.Value.Width / 2.0f;
-        float stdDevX = traversibilityMap.Value.Width / 6.0f;
 
         int maxAttempts = 100;
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            float normalX = GenerateNormalDistribution(ctx.Rng);
-            int spawnX = (int)Math.Round(centerX + normalX * stdDevX);
-
-            int spawnY = ctx.Rng.Next(traversibilityMap.Value.Height);
+            var (spawnX, spawnY) = Module.GenerateNormalDistributedPosition(
+                ctx.Rng, 
+                traversibilityMap.Value.Width, 
+                traversibilityMap.Value.Height
+            );
 
             if (spawnX < 0 || spawnX >= traversibilityMap.Value.Width || spawnY < 0 || spawnY >= traversibilityMap.Value.Height)
                 continue;
@@ -63,7 +77,8 @@ public static partial class PickupSpawner
                 PositionY = spawnY,
                 Type = pickupType,
                 Health = null,
-                Label = null
+                Label = null,
+                IsPickup = true
             });
 
             Log.Info($"Spawned {pickupType} at ({spawnX}, {spawnY}) in world {args.WorldId}");

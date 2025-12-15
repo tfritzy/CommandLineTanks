@@ -127,7 +127,9 @@ public static partial class ProjectileUpdater
                 projectileTileY >= 0 && projectileTileY < traversibilityMap.Value.Height)
             {
                 int tileIndex = projectileTileY * traversibilityMap.Value.Width + projectileTileX;
-                if (tileIndex < traversibilityMap.Value.Map.Length && !traversibilityMap.Value.Map[tileIndex])
+                bool tileIsTraversable = tileIndex < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[tileIndex];
+                
+                if (!tileIsTraversable)
                 {
                     foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
                     {
@@ -282,7 +284,8 @@ public static partial class ProjectileUpdater
                 PositionY = detail.y,
                 Type = detail.type,
                 Health = 100,
-                Label = null
+                Label = null,
+                IsPickup = false
             });
         }
 

@@ -230,6 +230,9 @@ public static partial class TankUpdater
 
             foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, tankTileX, tankTileY)))
             {
+                if (!terrainDetail.IsPickup)
+                    continue;
+
                 var gunToAdd = GetGunFromPickup(terrainDetail.Type);
                 if (gunToAdd != null)
                 {

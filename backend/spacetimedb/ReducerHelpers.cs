@@ -74,7 +74,8 @@ public static partial class Module
             PositionY = 5,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "Welcome to Command Line Tanks"
+            Label = "Welcome to Command Line Tanks",
+            IsPickup = false
         });
 
         var instructionSignId = GenerateId(ctx, "td");
@@ -86,7 +87,8 @@ public static partial class Module
             PositionY = 6,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "When you're ready to find a game, call the findgame command"
+            Label = "When you're ready to find a game, call the findgame command",
+            IsPickup = false
         });
 
         Log.Info($"Created homeworld for identity {identityString}");
@@ -225,17 +227,16 @@ public static partial class Module
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
         if (traversibilityMap == null) return;
 
-        float centerX = traversibilityMap.Value.Width / 2.0f;
-        float stdDevX = traversibilityMap.Value.Width / 6.0f;
-
         int spawnedCount = 0;
         int maxAttempts = 500;
 
         for (int attempt = 0; attempt < maxAttempts && spawnedCount < initialPickupCount; attempt++)
         {
-            float normalX = PickupSpawner.GenerateNormalDistribution(ctx.Rng);
-            int spawnX = (int)Math.Round(centerX + normalX * stdDevX);
-            int spawnY = ctx.Rng.Next(traversibilityMap.Value.Height);
+            var (spawnX, spawnY) = GenerateNormalDistributedPosition(
+                ctx.Rng, 
+                traversibilityMap.Value.Width, 
+                traversibilityMap.Value.Height
+            );
 
             if (spawnX < 0 || spawnX >= traversibilityMap.Value.Width || spawnY < 0 || spawnY >= traversibilityMap.Value.Height)
                 continue;
@@ -268,12 +269,25 @@ public static partial class Module
                 PositionY = spawnY,
                 Type = pickupType,
                 Health = null,
-                Label = null
+                Label = null,
+                IsPickup = true
             });
 
             spawnedCount++;
         }
 
         Log.Info($"Initialized {spawnedCount} pickups for world {worldId}");
+    }
+
+    public static (int x, int y) GenerateNormalDistributedPosition(Random random, int width, int height)
+    {
+        float centerX = width / 2.0f;
+        float stdDevX = width / 6.0f;
+
+        float normalX = PickupSpawner.GenerateNormalDistribution(random);
+        int spawnX = (int)Math.Round(centerX + normalX * stdDevX);
+        int spawnY = random.Next(height);
+
+        return (spawnX, spawnY);
     }
 }
