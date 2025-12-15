@@ -5,6 +5,7 @@ using System;
 public static partial class PickupSpawner
 {
     [Table(Scheduled = nameof(SpawnPickup))]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     public partial struct ScheduledPickupSpawn
     {
         [AutoInc]
@@ -17,17 +18,11 @@ public static partial class PickupSpawner
     [Reducer]
     public static void SpawnPickup(ReducerContext ctx, ScheduledPickupSpawn args)
     {
-        var world = ctx.Db.world.Id.Find(args.WorldId);
-        if (world == null) return;
-
-        var worldValue = world.Value;
-        if (worldValue.GameState != GameState.Playing) return;
-
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
         if (traversibilityMap == null) return;
 
-        float centerX = worldValue.Width / 2.0f;
-        float stdDevX = worldValue.Width / 6.0f;
+        float centerX = traversibilityMap.Value.Width / 2.0f;
+        float stdDevX = traversibilityMap.Value.Width / 6.0f;
 
         int maxAttempts = 100;
         for (int attempt = 0; attempt < maxAttempts; attempt++)
@@ -35,12 +30,12 @@ public static partial class PickupSpawner
             float normalX = GenerateNormalDistribution(ctx.Rng);
             int spawnX = (int)Math.Round(centerX + normalX * stdDevX);
 
-            int spawnY = ctx.Rng.Next(worldValue.Height);
+            int spawnY = ctx.Rng.Next(traversibilityMap.Value.Height);
 
-            if (spawnX < 0 || spawnX >= worldValue.Width || spawnY < 0 || spawnY >= worldValue.Height)
+            if (spawnX < 0 || spawnX >= traversibilityMap.Value.Width || spawnY < 0 || spawnY >= traversibilityMap.Value.Height)
                 continue;
 
-            int tileIndex = spawnY * worldValue.Width + spawnX;
+            int tileIndex = spawnY * traversibilityMap.Value.Width + spawnX;
             if (tileIndex >= traversibilityMap.Value.Map.Length || !traversibilityMap.Value.Map[tileIndex])
                 continue;
 
@@ -67,7 +62,7 @@ public static partial class PickupSpawner
                 PositionX = spawnX,
                 PositionY = spawnY,
                 Type = pickupType,
-                Health = 100,
+                Health = null,
                 Label = null
             });
 
@@ -77,11 +72,11 @@ public static partial class PickupSpawner
 
         ctx.Db.ScheduledPickupSpawn.ScheduledId.Update(args with
         {
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 30_000_000 })
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 15_000_000 })
         });
     }
 
-    private static float GenerateNormalDistribution(Random random)
+    public static float GenerateNormalDistribution(Random random)
     {
         double u1 = 1.0 - random.NextDouble();
         double u2 = 1.0 - random.NextDouble();

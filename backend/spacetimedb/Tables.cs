@@ -150,7 +150,7 @@ public static partial class Module
 
         public TerrainDetailType Type;
 
-        public int Health;
+        public int? Health;
 
         public string? Label;
     }

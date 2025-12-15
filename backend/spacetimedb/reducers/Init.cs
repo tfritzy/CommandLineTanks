@@ -43,13 +43,6 @@ public static partial class Module
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
-        ctx.Db.ScheduledPickupSpawn.Insert(new PickupSpawner.ScheduledPickupSpawn
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 30_000_000 }),
-            WorldId = worldId
-        });
-
         ctx.Db.world.Insert(world);
 
         foreach (var detail in terrainDetails)
@@ -80,6 +73,8 @@ public static partial class Module
             WorldId = worldId,
             Kills = new int[] { 0, 0 }
         });
+
+        InitializePickupSpawner(ctx, worldId, 5);
 
         Log.Info($"Initialized world {worldId}");
     }
