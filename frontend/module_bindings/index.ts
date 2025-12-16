@@ -57,6 +57,8 @@ import SwitchGun from "./switch_gun_reducer";
 export { SwitchGun };
 import TargetTank from "./target_tank_reducer";
 export { TargetTank };
+import UpdateAi from "./update_ai_reducer";
+export { UpdateAi };
 import UpdateProjectiles from "./update_projectiles_reducer";
 export { UpdateProjectiles };
 import UpdateTanks from "./update_tanks_reducer";
@@ -65,6 +67,8 @@ export { UpdateTanks };
 // Import and reexport all procedure arg types
 
 // Import and reexport all table handle types
+import ScheduledAiUpdateRow from "./scheduled_ai_update_table";
+export { ScheduledAiUpdateRow };
 import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
@@ -109,6 +113,8 @@ import Projectile from "./projectile_type";
 export { Projectile };
 import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
+import ScheduledAiUpdate from "./scheduled_ai_update_type";
+export { ScheduledAiUpdate };
 import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
@@ -136,6 +142,17 @@ export { World };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
+  __table({
+    name: 'ScheduledAIUpdate',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledAIUpdate_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledAiUpdateRow),
   __table({
     name: 'ScheduledPickupSpawn',
     indexes: [
@@ -262,6 +279,10 @@ const tablesSchema = __schema(
         'collisionRegionX',
         'collisionRegionY',
       ] },
+      { name: 'WorldId_IsBot', algorithm: 'btree', columns: [
+        'worldId',
+        'isBot',
+      ] },
       { name: 'WorldId_Name', algorithm: 'btree', columns: [
         'worldId',
         'name',
@@ -334,6 +355,7 @@ const reducersSchema = __reducers(
   __reducerSchema("stop", Stop),
   __reducerSchema("switchGun", SwitchGun),
   __reducerSchema("targetTank", TargetTank),
+  __reducerSchema("UpdateAI", UpdateAi),
   __reducerSchema("UpdateProjectiles", UpdateProjectiles),
   __reducerSchema("UpdateTanks", UpdateTanks),
 );

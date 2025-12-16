@@ -156,8 +156,8 @@ public static partial class BehaviorTreeAI
 
         for (int i = 1; i < steps; i++)
         {
-            var checkX = (int)(tank.PositionX + stepX * i);
-            var checkY = (int)(tank.PositionY + stepY * i);
+            var checkX = Module.GetGridPosition(tank.PositionX + stepX * i);
+            var checkY = Module.GetGridPosition(tank.PositionY + stepY * i);
 
             if (checkX < 0 || checkX >= traversibilityMap.Value.Width || checkY < 0 || checkY >= traversibilityMap.Value.Height)
                 return false;
@@ -208,6 +208,14 @@ public static partial class BehaviorTreeAI
         int enemySpawnY = traversibilityMap.Value.Height / 2;
 
         var (intermediateX, intermediateY) = FindPathTowards(ctx, tank, enemySpawnX, enemySpawnY);
+        
+        int currentX = Module.GetGridPosition(tank.PositionX);
+        int currentY = Module.GetGridPosition(tank.PositionY);
+        
+        if (intermediateX == currentX && intermediateY == currentY)
+        {
+            return;
+        }
 
         SetMovementPath(ctx, tank, intermediateX, intermediateY);
     }
@@ -225,8 +233,8 @@ public static partial class BehaviorTreeAI
             return (targetX, targetY);
         }
 
-        int currentX = (int)tank.PositionX;
-        int currentY = (int)tank.PositionY;
+        int currentX = Module.GetGridPosition(tank.PositionX);
+        int currentY = Module.GetGridPosition(tank.PositionY);
 
         int dx = Math.Sign(targetX - currentX);
         int dy = Math.Sign(targetY - currentY);

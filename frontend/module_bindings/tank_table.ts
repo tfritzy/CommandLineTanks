@@ -20,6 +20,7 @@ export default __t.row({
   owner: __t.identity(),
   name: __t.string(),
   joinCode: __t.option(__t.string()),
+  isBot: __t.bool(),
   alliance: __t.i32(),
   health: __t.i32(),
   maxHealth: __t.i32(),
