@@ -98,7 +98,7 @@ public static partial class Module
                 if (tankName == null) continue;
 
                 var (spawnX, spawnY) = FindSpawnPosition(ctx, world, alliance, ctx.Rng);
-                var botTank = BuildTank(ctx, worldId, ctx.Sender, $"Bot-{tankName}", "", alliance, spawnX, spawnY, true);
+                var botTank = BuildTank(ctx, worldId, ctx.Sender, tankName, "", alliance, spawnX, spawnY, true);
                 ctx.Db.tank.Insert(botTank);
             }
         }

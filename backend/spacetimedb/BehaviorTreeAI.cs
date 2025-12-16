@@ -23,6 +23,7 @@ public static partial class BehaviorTreeAI
         {
             if (tank.IsDead)
             {
+                RespawnBot(ctx, tank);
                 continue;
             }
 
@@ -35,16 +36,36 @@ public static partial class BehaviorTreeAI
         });
     }
 
+    private static void RespawnBot(ReducerContext ctx, Module.Tank tank)
+    {
+        World? maybeWorld = ctx.Db.world.Id.Find(tank.WorldId);
+        if (maybeWorld == null) return;
+        var world = maybeWorld.Value;
+
+        var (spawnX, spawnY) = Module.FindSpawnPosition(ctx, world, tank.Alliance, ctx.Rng);
+
+        var respawnedTank = tank with
+        {
+            Health = Module.TANK_HEALTH,
+            MaxHealth = Module.TANK_HEALTH,
+            IsDead = false,
+            PositionX = spawnX,
+            PositionY = spawnY,
+            Path = [],
+            Velocity = new Vector2Float(0, 0),
+            BodyAngularVelocity = 0,
+            TurretAngularVelocity = 0,
+            Guns = [Module.BASE_GUN],
+            SelectedGunIndex = 0
+        };
+
+        ctx.Db.tank.Id.Update(respawnedTank);
+    }
+
     private static void EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank)
     {
         var world = ctx.Db.world.Id.Find(tank.WorldId);
         if (world == null) return;
-
-        if (ShouldSeekCover(tank))
-        {
-            SeekCover(ctx, tank, world.Value);
-            return;
-        }
 
         var nearbyPickup = FindNearestPickup(ctx, tank);
         if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value))
@@ -66,11 +87,6 @@ public static partial class BehaviorTreeAI
         }
 
         MoveTowardsEnemySpawn(ctx, tank, world.Value);
-    }
-
-    private static bool ShouldSeekCover(Module.Tank tank)
-    {
-        return tank.Health < tank.MaxHealth * 0.3f;
     }
 
     private static bool ShouldCollectPickup(Module.Tank tank, Module.Pickup pickup)
@@ -132,9 +148,6 @@ public static partial class BehaviorTreeAI
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
         if (traversibilityMap == null) return false;
 
-        var world = ctx.Db.world.Id.Find(tank.WorldId);
-        if (world == null) return false;
-
         var dx = target.PositionX - tank.PositionX;
         var dy = target.PositionY - tank.PositionY;
         var distance = Math.Sqrt(dx * dx + dy * dy);
@@ -150,10 +163,10 @@ public static partial class BehaviorTreeAI
             var checkX = (int)(tank.PositionX + stepX * i);
             var checkY = (int)(tank.PositionY + stepY * i);
 
-            if (checkX < 0 || checkX >= world.Value.Width || checkY < 0 || checkY >= world.Value.Height)
+            if (checkX < 0 || checkX >= traversibilityMap.Value.Width || checkY < 0 || checkY >= traversibilityMap.Value.Height)
                 return false;
 
-            var index = checkY * world.Value.Width + checkX;
+            var index = checkY * traversibilityMap.Value.Width + checkX;
             if (index >= 0 && index < traversibilityMap.Value.Map.Length)
             {
                 if (!traversibilityMap.Value.Map[index])
@@ -203,61 +216,6 @@ public static partial class BehaviorTreeAI
     private static void MoveTowardsPickup(ReducerContext ctx, Module.Tank tank, Module.Pickup pickup)
     {
         SetMovementPath(ctx, tank, pickup.PositionX, pickup.PositionY);
-    }
-
-    private static void SeekCover(ReducerContext ctx, Module.Tank tank, Module.World world)
-    {
-        var coverPosition = FindNearestCover(ctx, tank, world);
-        if (coverPosition != null)
-        {
-            SetMovementPath(ctx, tank, coverPosition.Value.x, coverPosition.Value.y);
-        }
-        else
-        {
-            int safeX = tank.Alliance == 0 ? world.Width / 4 : (world.Width * 3) / 4;
-            int safeY = world.Height / 2;
-            SetMovementPath(ctx, tank, safeX, safeY);
-        }
-    }
-
-    private static (int x, int y)? FindNearestCover(ReducerContext ctx, Module.Tank tank, Module.World world)
-    {
-        (int x, int y)? nearest = null;
-        float minDistance = float.MaxValue;
-
-        int searchRadius = 10;
-        int tankX = (int)tank.PositionX;
-        int tankY = (int)tank.PositionY;
-
-        for (int dx = -searchRadius; dx <= searchRadius; dx++)
-        {
-            for (int dy = -searchRadius; dy <= searchRadius; dy++)
-            {
-                int x = tankX + dx;
-                int y = tankY + dy;
-
-                if (x < 0 || x >= world.Width || y < 0 || y >= world.Height)
-                    continue;
-
-                foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((tank.WorldId, x, y)))
-                {
-                    if (terrainDetail.Type == TerrainDetailType.Rock || 
-                        terrainDetail.Type == TerrainDetailType.Tree ||
-                        terrainDetail.Type == TerrainDetailType.Cliff)
-                    {
-                        var distance = GetDistance(tank.PositionX, tank.PositionY, x, y);
-                        if (distance < minDistance)
-                        {
-                            minDistance = distance;
-                            nearest = (x, y);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        return nearest;
     }
 
     private static (int x, int y) FindPathTowards(ReducerContext ctx, Module.Tank tank, int targetX, int targetY)

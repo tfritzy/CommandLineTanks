@@ -29,6 +29,13 @@ Before starting on a request related to spacetimedb, read: https://spacetimedb.c
 - When a method returns a non-nullable value type (like a tuple), return a default value instead of `null`
 - Example: `if (query == null) return (0, 0);` instead of `return null;`
 
+### World Dimensions
+
+- DO NOT load the world table just to get width and height
+- CORRECT: Use traversibility map dimensions: `traversibilityMap.Width` and `traversibilityMap.Height`
+- The traversibility map has Width and Height properties that match the world dimensions
+- Only load the world table if you need other world-specific data beyond dimensions
+
 ## SpacetimeDB TypeScript API Reference
 
 ### Table Accessors
