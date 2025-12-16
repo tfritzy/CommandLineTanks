@@ -159,7 +159,6 @@ public static partial class Module
     }
 
     [Table(Name = "pickup", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
     public partial struct Pickup
     {

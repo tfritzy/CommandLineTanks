@@ -16,10 +16,32 @@ public static partial class BehaviorTreeAI
         public string WorldId;
     }
 
+    private class AIContext
+    {
+        private readonly ReducerContext _ctx;
+        private readonly string _worldId;
+        private List<Module.Tank>? _allTanks;
+
+        public AIContext(ReducerContext ctx, string worldId)
+        {
+            _ctx = ctx;
+            _worldId = worldId;
+        }
+
+        public List<Module.Tank> GetAllTanks()
+        {
+            if (_allTanks == null)
+            {
+                _allTanks = _ctx.Db.tank.WorldId.Filter(_worldId).ToList();
+            }
+            return _allTanks;
+        }
+    }
+
     [Reducer]
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
-        var allTanks = ctx.Db.tank.WorldId.Filter(args.WorldId).ToList();
+        var aiContext = new AIContext(ctx, args.WorldId);
 
         foreach (var tank in ctx.Db.tank.WorldId_IsBot.Filter((args.WorldId, true)))
         {
@@ -30,7 +52,7 @@ public static partial class BehaviorTreeAI
                 continue;
             }
 
-            EvaluateBehaviorTree(ctx, tank, allTanks);
+            EvaluateBehaviorTree(ctx, tank, aiContext);
         }
 
         ctx.Db.ScheduledAIUpdate.ScheduledId.Update(args with
@@ -39,7 +61,7 @@ public static partial class BehaviorTreeAI
         });
     }
 
-    private static void EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, List<Module.Tank> allTanks)
+    private static void EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, AIContext aiContext)
     {
         var nearbyPickup = FindNearestPickup(ctx, tank);
         if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value))
@@ -48,11 +70,11 @@ public static partial class BehaviorTreeAI
             return;
         }
 
-        var target = FindNearestEnemy(tank, allTanks);
+        var target = FindNearestEnemy(tank, aiContext.GetAllTanks());
         if (target != null)
         {
             var distanceToTarget = GetDistance(tank.PositionX, tank.PositionY, target.Value.PositionX, target.Value.PositionY);
-            
+
             if (distanceToTarget < 10f && HasLineOfSight(ctx, tank, target.Value))
             {
                 AimAndFire(ctx, tank, target.Value);
@@ -66,7 +88,7 @@ public static partial class BehaviorTreeAI
     private static bool ShouldCollectPickup(Module.Tank tank, Module.Pickup pickup)
     {
         if (tank.Guns.Length >= 3) return false;
-        
+
         var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
         return distance < 15f;
     }
@@ -125,7 +147,7 @@ public static partial class BehaviorTreeAI
         var dx = target.PositionX - tank.PositionX;
         var dy = target.PositionY - tank.PositionY;
         var distance = Math.Sqrt(dx * dx + dy * dy);
-        
+
         if (distance < 0.1f) return true;
 
         var steps = (int)Math.Ceiling(distance);
@@ -170,7 +192,7 @@ public static partial class BehaviorTreeAI
         var turretAngleDiff = aimAngle - tank.TurretRotation;
         while (turretAngleDiff > Math.PI) turretAngleDiff -= 2 * Math.PI;
         while (turretAngleDiff < -Math.PI) turretAngleDiff += 2 * Math.PI;
-        
+
         if (Math.Abs(turretAngleDiff) < 0.1f)
         {
             Module.FireTankWeapon(ctx, updatedTank);
@@ -186,7 +208,7 @@ public static partial class BehaviorTreeAI
         int enemySpawnY = traversibilityMap.Value.Height / 2;
 
         var (intermediateX, intermediateY) = FindPathTowards(ctx, tank, enemySpawnX, enemySpawnY);
-        
+
         SetMovementPath(ctx, tank, intermediateX, intermediateY);
     }
 
