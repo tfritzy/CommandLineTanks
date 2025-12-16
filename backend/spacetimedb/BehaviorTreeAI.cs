@@ -186,73 +186,8 @@ public static partial class BehaviorTreeAI
         
         if (Math.Abs(turretAngleDiff) < 0.1f)
         {
-            FireWeapon(ctx, updatedTank);
+            Module.FireTankWeapon(ctx, updatedTank);
         }
-    }
-
-    private static void FireWeapon(ReducerContext ctx, Module.Tank tank)
-    {
-        if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length)
-            return;
-
-        var gun = tank.Guns[tank.SelectedGunIndex];
-        if (gun.Ammo != null && gun.Ammo <= 0)
-            return;
-
-        float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * Module.GUN_BARREL_LENGTH;
-        float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * Module.GUN_BARREL_LENGTH;
-
-        CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, gun.Damage, gun.TrackingStrength, gun.ProjectileType, gun.LifetimeSeconds);
-
-        if (gun.Ammo != null)
-        {
-            gun.Ammo = gun.Ammo.Value - 1;
-
-            if (gun.Ammo <= 0)
-            {
-                var newGuns = tank.Guns.Where((_, index) => index != tank.SelectedGunIndex).ToArray();
-                tank = tank with
-                {
-                    Guns = newGuns,
-                    SelectedGunIndex = newGuns.Length > 0 ? 0 : -1
-                };
-            }
-            else
-            {
-                var updatedGuns = tank.Guns.ToArray();
-                updatedGuns[tank.SelectedGunIndex] = gun;
-                tank = tank with { Guns = updatedGuns };
-            }
-
-            ctx.Db.tank.Id.Update(tank);
-        }
-    }
-
-    private static void CreateProjectile(ReducerContext ctx, Module.Tank tank, float startX, float startY, float angle, int damage, float trackingStrength, ProjectileType projectileType, float lifetimeSeconds)
-    {
-        float velocityX = (float)Math.Cos(angle) * Module.PROJECTILE_SPEED;
-        float velocityY = (float)Math.Sin(angle) * Module.PROJECTILE_SPEED;
-
-        var projectileId = Module.GenerateId(ctx, "prj");
-        var projectile = new Module.Projectile
-        {
-            Id = projectileId,
-            WorldId = tank.WorldId,
-            ShooterTankId = tank.Id,
-            Alliance = tank.Alliance,
-            PositionX = startX,
-            PositionY = startY,
-            Speed = Module.PROJECTILE_SPEED,
-            Size = Module.PROJECTILE_SIZE,
-            Velocity = new Vector2Float(velocityX, velocityY),
-            Damage = damage,
-            TrackingStrength = trackingStrength,
-            ProjectileType = projectileType,
-            SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            LifetimeSeconds = lifetimeSeconds
-        };
-
-        ctx.Db.projectile.Insert(projectile);
     }
 
     private static void MoveTowardsEnemySpawn(ReducerContext ctx, Module.Tank tank, Module.World world)
@@ -260,7 +195,7 @@ public static partial class BehaviorTreeAI
         int enemySpawnX = tank.Alliance == 0 ? (world.Width * 3) / 4 : world.Width / 4;
         int enemySpawnY = world.Height / 2;
 
-        var (intermediateX, intermediateY) = FindPathTowards(ctx, tank, enemySpawnX, enemySpawnY, world);
+        var (intermediateX, intermediateY) = FindPathTowards(ctx, tank, enemySpawnX, enemySpawnY);
         
         SetMovementPath(ctx, tank, intermediateX, intermediateY);
     }
@@ -325,7 +260,7 @@ public static partial class BehaviorTreeAI
         return nearest;
     }
 
-    private static (int x, int y) FindPathTowards(ReducerContext ctx, Module.Tank tank, int targetX, int targetY, Module.World world)
+    private static (int x, int y) FindPathTowards(ReducerContext ctx, Module.Tank tank, int targetX, int targetY)
     {
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
         if (traversibilityMap == null)
@@ -342,10 +277,10 @@ public static partial class BehaviorTreeAI
         int intermediateX = currentX + dx * 3;
         int intermediateY = currentY + dy * 3;
 
-        intermediateX = Math.Clamp(intermediateX, 0, world.Width - 1);
-        intermediateY = Math.Clamp(intermediateY, 0, world.Height - 1);
+        intermediateX = Math.Clamp(intermediateX, 0, traversibilityMap.Value.Width - 1);
+        intermediateY = Math.Clamp(intermediateY, 0, traversibilityMap.Value.Height - 1);
 
-        int index = intermediateY * world.Width + intermediateX;
+        int index = intermediateY * traversibilityMap.Value.Width + intermediateX;
         if (index >= 0 && index < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[index])
         {
             return (intermediateX, intermediateY);
