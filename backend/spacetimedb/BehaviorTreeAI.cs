@@ -77,7 +77,7 @@ public static partial class BehaviorTreeAI
     {
         if (tank.Guns.Length >= 3) return false;
         
-        var distance = GetDistance(tank.PositionX, tank.PositionY, pickup.PositionX, pickup.PositionY);
+        var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
         return distance < 15f;
     }
 
@@ -109,7 +109,7 @@ public static partial class BehaviorTreeAI
 
         foreach (var pickup in ctx.Db.pickup.WorldId.Filter(tank.WorldId))
         {
-            var distance = GetDistance(tank.PositionX, tank.PositionY, pickup.PositionX, pickup.PositionY);
+            var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
             if (distance < minDistance)
             {
                 minDistance = distance;
@@ -304,16 +304,19 @@ public static partial class BehaviorTreeAI
                 if (x < 0 || x >= world.Width || y < 0 || y >= world.Height)
                     continue;
 
-                var terrainDetail = ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((tank.WorldId, x, y)).FirstOrDefault();
-                if (terrainDetail.Type == TerrainDetailType.Rock || 
-                    terrainDetail.Type == TerrainDetailType.Tree ||
-                    terrainDetail.Type == TerrainDetailType.Cliff)
+                foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((tank.WorldId, x, y)))
                 {
-                    var distance = GetDistance(tank.PositionX, tank.PositionY, x, y);
-                    if (distance < minDistance)
+                    if (terrainDetail.Type == TerrainDetailType.Rock || 
+                        terrainDetail.Type == TerrainDetailType.Tree ||
+                        terrainDetail.Type == TerrainDetailType.Cliff)
                     {
-                        minDistance = distance;
-                        nearest = (x, y);
+                        var distance = GetDistance(tank.PositionX, tank.PositionY, x, y);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            nearest = (x, y);
+                        }
+                        break;
                     }
                 }
             }
