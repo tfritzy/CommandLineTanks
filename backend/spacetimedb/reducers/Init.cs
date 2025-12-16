@@ -83,6 +83,26 @@ public static partial class Module
 
         InitializePickupSpawner(ctx, worldId, 5);
 
+        SpawnInitialBots(ctx, worldId, world);
+
         Log.Info($"Initialized world {worldId}");
+    }
+
+    private static void SpawnInitialBots(ReducerContext ctx, string worldId, World world)
+    {
+        for (int alliance = 0; alliance < 2; alliance++)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                var tankName = AllocateTankName(ctx, worldId);
+                if (tankName == null) continue;
+
+                var (spawnX, spawnY) = FindSpawnPosition(ctx, world, alliance, ctx.Rng);
+                var botTank = BuildTank(ctx, worldId, ctx.Sender, $"Bot-{tankName}", "", alliance, spawnX, spawnY, true);
+                ctx.Db.tank.Insert(botTank);
+            }
+        }
+
+        Log.Info($"Spawned initial bot tanks for world {worldId}");
     }
 }

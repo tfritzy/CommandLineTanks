@@ -145,8 +145,11 @@ public static partial class BehaviorTreeAI
         };
         ctx.Db.tank.Id.Update(updatedTank);
 
-        var turretAngleDiff = Math.Abs(tank.TurretRotation - aimAngle);
-        if (turretAngleDiff < 0.1f)
+        var turretAngleDiff = aimAngle - tank.TurretRotation;
+        while (turretAngleDiff > Math.PI) turretAngleDiff -= 2 * Math.PI;
+        while (turretAngleDiff < -Math.PI) turretAngleDiff += 2 * Math.PI;
+        
+        if (Math.Abs(turretAngleDiff) < 0.1f)
         {
             FireWeapon(ctx, updatedTank);
         }
@@ -173,10 +176,11 @@ public static partial class BehaviorTreeAI
 
             if (gun.Ammo <= 0)
             {
+                var newGuns = tank.Guns.Where((_, index) => index != tank.SelectedGunIndex).ToArray();
                 tank = tank with
                 {
-                    Guns = tank.Guns.Where((_, index) => index != tank.SelectedGunIndex).ToArray(),
-                    SelectedGunIndex = tank.Guns.Length > 1 ? 0 : -1
+                    Guns = newGuns,
+                    SelectedGunIndex = newGuns.Length > 0 ? 0 : -1
                 };
             }
             else
