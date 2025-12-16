@@ -49,6 +49,8 @@ import Respawn from "./respawn_reducer";
 export { Respawn };
 import Reverse from "./reverse_reducer";
 export { Reverse };
+import SpawnPickup from "./spawn_pickup_reducer";
+export { SpawnPickup };
 import Stop from "./stop_reducer";
 export { Stop };
 import SwitchGun from "./switch_gun_reducer";
@@ -63,16 +65,18 @@ export { UpdateTanks };
 // Import and reexport all procedure arg types
 
 // Import and reexport all table handle types
+import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
+export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
 export { ScheduledProjectileUpdatesRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import ScheduledWorldResetRow from "./scheduled_world_reset_table";
 export { ScheduledWorldResetRow };
-import PlayerRow from "./player_table";
-export { PlayerRow };
 import PickupRow from "./pickup_table";
 export { PickupRow };
+import PlayerRow from "./player_table";
+export { PlayerRow };
 import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
 import ScoreRow from "./score_table";
@@ -105,6 +109,8 @@ import Projectile from "./projectile_type";
 export { Projectile };
 import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
+import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
+export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
@@ -131,10 +137,27 @@ export { World };
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
   __table({
+    name: 'ScheduledPickupSpawn',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledPickupSpawn_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledPickupSpawnRow),
+  __table({
     name: 'ScheduledProjectileUpdates',
     indexes: [
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
       ] },
     ],
     constraints: [
@@ -146,6 +169,9 @@ const tablesSchema = __schema(
     indexes: [
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
       ] },
     ],
     constraints: [
@@ -164,6 +190,25 @@ const tablesSchema = __schema(
     ],
   }, ScheduledWorldResetRow),
   __table({
+    name: 'pickup',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId_PositionX_PositionY', algorithm: 'btree', columns: [
+        'worldId',
+        'positionX',
+        'positionY',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'pickup_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, PickupRow),
+  __table({
     name: 'player',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
@@ -178,25 +223,6 @@ const tablesSchema = __schema(
       { name: 'player_Identity_key', constraint: 'unique', columns: ['identity'] },
     ],
   }, PlayerRow),
-  __table({
-    name: 'pickup',
-    indexes: [
-      { name: 'Id', algorithm: 'btree', columns: [
-        'id',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
-      ] },
-      { name: 'WorldId_PositionX_PositionY', algorithm: 'btree', columns: [
-        'worldId',
-        'positionX',
-        'positionY',
-      ] },
-    ],
-    constraints: [
-      { name: 'pickup_Id_key', constraint: 'unique', columns: ['id'] },
-    ],
-  }, PickupRow),
   __table({
     name: 'projectile',
     indexes: [
@@ -304,6 +330,7 @@ const reducersSchema = __reducers(
   __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("reverse", Reverse),
+  __reducerSchema("SpawnPickup", SpawnPickup),
   __reducerSchema("stop", Stop),
   __reducerSchema("switchGun", SwitchGun),
   __reducerSchema("targetTank", TargetTank),

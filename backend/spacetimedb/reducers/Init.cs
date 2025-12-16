@@ -52,20 +52,20 @@ public static partial class Module
 
         ctx.Db.world.Insert(world);
 
-        // foreach (var detail in terrainDetails)
-        // {
-        //     var terrainDetailId = GenerateId(ctx, "td");
-        //     ctx.Db.terrain_detail.Insert(new TerrainDetail
-        //     {
-        //         Id = terrainDetailId,
-        //         WorldId = worldId,
-        //         PositionX = detail.x,
-        //         PositionY = detail.y,
-        //         Type = detail.type,
-        //         Health = 100,
-        //         Label = null
-        //     });
-        // }
+        foreach (var detail in terrainDetails)
+        {
+            var terrainDetailId = GenerateId(ctx, "td");
+            ctx.Db.terrain_detail.Insert(new TerrainDetail
+            {
+                Id = terrainDetailId,
+                WorldId = worldId,
+                PositionX = detail.x,
+                PositionY = detail.y,
+                Type = detail.type,
+                Health = 100,
+                Label = null
+            });
+        }
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {

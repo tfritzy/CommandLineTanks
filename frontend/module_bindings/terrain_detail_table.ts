@@ -20,6 +20,6 @@ export default __t.row({
   get type() {
     return TerrainDetailType;
   },
-  health: __t.i32(),
+  health: __t.option(__t.i32()),
   label: __t.option(__t.string()),
 });

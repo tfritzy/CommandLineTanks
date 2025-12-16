@@ -10,6 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+// The tagged union or sum type for the algebraic type `TerrainDetailType`.
 const TerrainDetailType = __t.enum("TerrainDetailType", {None: __t.unit(),
   Cliff: __t.unit(),
   Rock: __t.unit(),
