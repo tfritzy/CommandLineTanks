@@ -38,6 +38,8 @@ public static partial class Module
             .FirstOrDefault();
         if (existingTank.Id == null)
         {
+            StartWorldTickers(ctx, identityString);
+
             var tankName = AllocateTankName(ctx, identityString);
             if (tankName != null)
             {
