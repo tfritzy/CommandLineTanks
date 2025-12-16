@@ -272,9 +272,20 @@ public static partial class Module
             return false;
         }
 
-        TerrainDetailType pickupType = ctx.Rng.NextSingle() < 0.5f
-            ? TerrainDetailType.TripleShooterPickup
-            : TerrainDetailType.MissileLauncherPickup;
+        float randomValue = ctx.Rng.NextSingle();
+        TerrainDetailType pickupType;
+        if (randomValue < 0.33f)
+        {
+            pickupType = TerrainDetailType.TripleShooterPickup;
+        }
+        else if (randomValue < 0.66f)
+        {
+            pickupType = TerrainDetailType.MissileLauncherPickup;
+        }
+        else
+        {
+            pickupType = TerrainDetailType.HealthPickup;
+        }
 
         var pickupId = GenerateId(ctx, "pickup");
         ctx.Db.pickup.Insert(new Pickup

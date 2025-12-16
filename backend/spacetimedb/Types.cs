@@ -58,7 +58,8 @@ public static partial class Types
         Field,
         Label,
         TripleShooterPickup,
-        MissileLauncherPickup
+        MissileLauncherPickup,
+        HealthPickup
     }
 
     [Type]

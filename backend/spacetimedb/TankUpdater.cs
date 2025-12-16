@@ -239,6 +239,18 @@ public static partial class TankUpdater
 
             foreach (var pickup in ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, tankTileX, tankTileY)))
             {
+                if (pickup.Type == TerrainDetailType.HealthPickup)
+                {
+                    int newHealth = Math.Min(tank.Health + 50, tank.MaxHealth);
+                    if (newHealth > tank.Health)
+                    {
+                        tank = tank with { Health = newHealth };
+                        needsUpdate = true;
+                        ctx.Db.pickup.Id.Delete(pickup.Id);
+                    }
+                    break;
+                }
+
                 var gunToAdd = GetGunFromPickup(pickup.Type);
                 if (gunToAdd != null)
                 {
