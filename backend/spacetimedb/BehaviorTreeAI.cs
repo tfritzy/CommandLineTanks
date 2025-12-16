@@ -2,6 +2,7 @@ using SpacetimeDB;
 using static Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public static partial class BehaviorTreeAI
 {
@@ -128,6 +129,40 @@ public static partial class BehaviorTreeAI
 
     private static bool HasLineOfSight(ReducerContext ctx, Module.Tank tank, Module.Tank target)
     {
+        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
+        if (traversibilityMap == null) return false;
+
+        var world = ctx.Db.world.Id.Find(tank.WorldId);
+        if (world == null) return false;
+
+        var dx = target.PositionX - tank.PositionX;
+        var dy = target.PositionY - tank.PositionY;
+        var distance = Math.Sqrt(dx * dx + dy * dy);
+        
+        if (distance < 0.1f) return true;
+
+        var steps = (int)Math.Ceiling(distance);
+        var stepX = dx / steps;
+        var stepY = dy / steps;
+
+        for (int i = 1; i < steps; i++)
+        {
+            var checkX = (int)(tank.PositionX + stepX * i);
+            var checkY = (int)(tank.PositionY + stepY * i);
+
+            if (checkX < 0 || checkX >= world.Value.Width || checkY < 0 || checkY >= world.Value.Height)
+                return false;
+
+            var index = checkY * world.Value.Width + checkX;
+            if (index >= 0 && index < traversibilityMap.Value.Map.Length)
+            {
+                if (!traversibilityMap.Value.Map[index])
+                {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
@@ -172,7 +207,6 @@ public static partial class BehaviorTreeAI
         if (gun.Ammo != null)
         {
             gun.Ammo = gun.Ammo.Value - 1;
-            var updatedGuns = tank.Guns.ToArray();
 
             if (gun.Ammo <= 0)
             {
@@ -185,6 +219,7 @@ public static partial class BehaviorTreeAI
             }
             else
             {
+                var updatedGuns = tank.Guns.ToArray();
                 updatedGuns[tank.SelectedGunIndex] = gun;
                 tank = tank with { Guns = updatedGuns };
             }
