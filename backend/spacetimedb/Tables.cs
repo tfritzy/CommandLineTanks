@@ -69,8 +69,6 @@ public static partial class Module
 
         public int MaxHealth;
 
-        public bool IsDead;
-
         public int Kills;
 
         public int CollisionRegionX;

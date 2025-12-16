@@ -8,7 +8,7 @@ public static partial class Module
         Tank tank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (tank.Id == null) return;
 
-        if (tank.IsDead) return;
+        if (tank.Health <= 0) return;
 
         tank.TargetTurretRotation = angleRadians;
         tank.Target = null;

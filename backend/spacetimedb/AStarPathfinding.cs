@@ -1,0 +1,179 @@
+using System;
+using System.Collections.Generic;
+using SpacetimeDB;
+
+public static class AStarPathfinding
+{
+    private class AStarNode
+    {
+        public int X;
+        public int Y;
+        public int GCost;
+        public int HCost;
+        public int FCost => GCost + HCost;
+        public AStarNode? Parent;
+    }
+
+    public static List<(int x, int y)> FindPath(
+        int startX,
+        int startY,
+        int targetX,
+        int targetY,
+        Module.TraversibilityMap traversibilityMap)
+    {
+        var emptyPath = new List<(int x, int y)>();
+
+        if (startX == targetX && startY == targetY)
+        {
+            return emptyPath;
+        }
+
+        var openSet = new List<AStarNode>();
+        var closedSet = new HashSet<int>();
+        AStarNode? closestNode = null;
+        int closestDistance = int.MaxValue;
+
+        var startNode = new AStarNode
+        {
+            X = startX,
+            Y = startY,
+            GCost = 0,
+            HCost = Math.Abs(targetX - startX) + Math.Abs(targetY - startY),
+            Parent = null
+        };
+
+        openSet.Add(startNode);
+        closestNode = startNode;
+        closestDistance = startNode.HCost;
+
+        int maxIterations = 500;
+        int iterations = 0;
+
+        while (openSet.Count > 0 && iterations < maxIterations)
+        {
+            iterations++;
+
+            openSet.Sort((a, b) => a.FCost.CompareTo(b.FCost));
+            var current = openSet[0];
+            openSet.RemoveAt(0);
+
+            int currentIndex = current.Y * traversibilityMap.Width + current.X;
+            closedSet.Add(currentIndex);
+
+            if (current.HCost < closestDistance)
+            {
+                closestNode = current;
+                closestDistance = current.HCost;
+            }
+
+            if (current.X == targetX && current.Y == targetY)
+            {
+                var fullPath = new List<(int x, int y)>();
+                var node = current;
+                while (node.Parent != null)
+                {
+                    fullPath.Add((node.X, node.Y));
+                    node = node.Parent;
+                }
+                fullPath.Reverse();
+                return SimplifyPath(fullPath);
+            }
+
+            (int dx, int dy)[] neighbors = new[] { (1, 0), (-1, 0), (0, 1), (0, -1) };
+
+            foreach (var (dx, dy) in neighbors)
+            {
+                int neighborX = current.X + dx;
+                int neighborY = current.Y + dy;
+
+                if (neighborX < 0 || neighborX >= traversibilityMap.Width ||
+                    neighborY < 0 || neighborY >= traversibilityMap.Height)
+                {
+                    continue;
+                }
+
+                int neighborIndex = neighborY * traversibilityMap.Width + neighborX;
+
+                if (closedSet.Contains(neighborIndex))
+                {
+                    continue;
+                }
+
+                if (!traversibilityMap.Map[neighborIndex])
+                {
+                    continue;
+                }
+
+                int newGCost = current.GCost + 1;
+                var existingNode = openSet.Find(n => n.X == neighborX && n.Y == neighborY);
+
+                if (existingNode != null)
+                {
+                    if (newGCost < existingNode.GCost)
+                    {
+                        existingNode.GCost = newGCost;
+                        existingNode.Parent = current;
+                    }
+                }
+                else
+                {
+                    var neighborNode = new AStarNode
+                    {
+                        X = neighborX,
+                        Y = neighborY,
+                        GCost = newGCost,
+                        HCost = Math.Abs(targetX - neighborX) + Math.Abs(targetY - neighborY),
+                        Parent = current
+                    };
+                    openSet.Add(neighborNode);
+                }
+            }
+        }
+
+        if (closestNode != null && closestNode.Parent != null)
+        {
+            var partialPath = new List<(int x, int y)>();
+            var node = closestNode;
+            while (node.Parent != null)
+            {
+                partialPath.Add((node.X, node.Y));
+                node = node.Parent;
+            }
+            partialPath.Reverse();
+            return SimplifyPath(partialPath);
+        }
+
+        return emptyPath;
+    }
+
+    private static List<(int x, int y)> SimplifyPath(List<(int x, int y)> fullPath)
+    {
+        if (fullPath.Count <= 1)
+        {
+            return fullPath;
+        }
+
+        var simplifiedPath = new List<(int x, int y)>();
+        simplifiedPath.Add(fullPath[0]);
+
+        int currentDirectionX = 0;
+        int currentDirectionY = 0;
+
+        for (int i = 1; i < fullPath.Count; i++)
+        {
+            int dirX = Math.Sign(fullPath[i].x - fullPath[i - 1].x);
+            int dirY = Math.Sign(fullPath[i].y - fullPath[i - 1].y);
+
+            if (dirX != currentDirectionX || dirY != currentDirectionY)
+            {
+                simplifiedPath.Add(fullPath[i - 1]);
+                currentDirectionX = dirX;
+                currentDirectionY = dirY;
+            }
+        }
+
+        simplifiedPath.Add(fullPath[^1]);
+
+        return simplifiedPath;
+    }
+}

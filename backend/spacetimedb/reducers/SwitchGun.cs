@@ -9,7 +9,7 @@ public static partial class Module
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
-        if (tank.IsDead) return;
+        if (tank.Health <= 0) return;
 
         if (gunIndex < 0 || gunIndex >= tank.Guns.Length) return;
 

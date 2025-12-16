@@ -483,7 +483,7 @@ public static partial class TerrainGenerator
                 TerrainDetailType.Cliff => false,
                 TerrainDetailType.Rock => false,
                 TerrainDetailType.Tree => false,
-                TerrainDetailType.Fence => false,
+                TerrainDetailType.Fence => true,
                 TerrainDetailType.HayBale => false,
                 TerrainDetailType.TripleShooterPickup => true,
                 TerrainDetailType.MissileLauncherPickup => true,

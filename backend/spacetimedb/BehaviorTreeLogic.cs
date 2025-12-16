@@ -11,9 +11,9 @@ public static class BehaviorTreeLogic
         None,
         MoveTowardsPickup,
         AimAndFire,
-        MoveTowardsEnemySpawn,
         MoveTowardsEnemy,
-        Escape
+        Escape,
+        StopMoving
     }
 
     public class AIDecision
@@ -24,11 +24,13 @@ public static class BehaviorTreeLogic
         public int TargetX { get; set; }
         public int TargetY { get; set; }
         public bool ShouldFire { get; set; }
+        public List<(int x, int y)> Path { get; set; } = new List<(int x, int y)>();
     }
 
     public static AIDecision EvaluateBehaviorTree(Module.Tank tank, BehaviorTreeAI.AIContext context)
     {
         var allTanks = context.GetAllTanks();
+        bool isCurrentlyMoving = tank.Path.Length > 0;
 
         var nearbyTank = FindNearestTank(tank, allTanks);
         if (nearbyTank != null)
@@ -37,6 +39,11 @@ public static class BehaviorTreeLogic
 
             if (distanceToNearby < 1)
             {
+                if (isCurrentlyMoving)
+                {
+                    return new AIDecision { Action = AIAction.None };
+                }
+
                 var tMap = context.GetTraversibilityMap();
                 if (tMap != null)
                 {
@@ -54,6 +61,34 @@ public static class BehaviorTreeLogic
             }
         }
 
+        bool isLowHealth = tank.Health < (tank.MaxHealth / 2);
+        if (isLowHealth)
+        {
+            var healthPickup = FindNearestHealthPickup(tank, context.GetAllPickups());
+            if (healthPickup != null)
+            {
+                if (isCurrentlyMoving)
+                {
+                    return new AIDecision { Action = AIAction.None };
+                }
+
+                var tMap = context.GetTraversibilityMap();
+                if (tMap != null)
+                {
+                    var path = FindPathTowards(tank, healthPickup.Value.PositionX, healthPickup.Value.PositionY, tMap);
+                    if (path.Count > 0)
+                    {
+                        return new AIDecision
+                        {
+                            Action = AIAction.MoveTowardsPickup,
+                            TargetPickup = healthPickup,
+                            Path = path
+                        };
+                    }
+                }
+            }
+        }
+
         var target = FindNearestEnemy(tank, allTanks);
         if (target != null)
         {
@@ -61,6 +96,15 @@ public static class BehaviorTreeLogic
 
             if (distanceToTarget < 10f && HasLineOfSight(tank, target.Value, context.GetTraversibilityMap()))
             {
+                if (isCurrentlyMoving)
+                {
+                    return new AIDecision
+                    {
+                        Action = AIAction.StopMoving,
+                        TargetTank = target
+                    };
+                }
+
                 return new AIDecision
                 {
                     Action = AIAction.AimAndFire,
@@ -69,18 +113,22 @@ public static class BehaviorTreeLogic
                 };
             }
 
-            if (distanceToTarget < 20f)
+            if (isCurrentlyMoving)
             {
-                var tMap = context.GetTraversibilityMap();
-                if (tMap != null)
+                return new AIDecision { Action = AIAction.None };
+            }
+
+            var tMap = context.GetTraversibilityMap();
+            if (tMap != null)
+            {
+                var path = FindPathTowards(tank, GetGridPosition(target.Value.PositionX), GetGridPosition(target.Value.PositionY), tMap);
+                if (path.Count > 0)
                 {
-                    var (moveX, moveY) = FindPathTowards(tank, GetGridPosition(target.Value.PositionX), GetGridPosition(target.Value.PositionY), tMap);
                     return new AIDecision
                     {
                         Action = AIAction.MoveTowardsEnemy,
                         TargetTank = target,
-                        TargetX = moveX,
-                        TargetY = moveY
+                        Path = path
                     };
                 }
             }
@@ -89,33 +137,25 @@ public static class BehaviorTreeLogic
         var nearbyPickup = FindNearestPickup(tank, context.GetAllPickups());
         if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value))
         {
-            return new AIDecision
+            if (isCurrentlyMoving)
             {
-                Action = AIAction.MoveTowardsPickup,
-                TargetPickup = nearbyPickup,
-                TargetX = nearbyPickup.Value.PositionX,
-                TargetY = nearbyPickup.Value.PositionY
-            };
-        }
+                return new AIDecision { Action = AIAction.None };
+            }
 
-        var traversibilityMap = context.GetTraversibilityMap();
-        if (traversibilityMap != null)
-        {
-            int enemySpawnX = tank.Alliance == 0
-                ? (traversibilityMap.Value.Width * 3) / 4
-                : traversibilityMap.Value.Width / 4;
-            int enemySpawnY = traversibilityMap.Value.Height / 2;
-
-            Log.Info($"[BehaviorTree] Tank {tank.Name} (Alliance {tank.Alliance}) calculating path to enemy spawn ({enemySpawnX},{enemySpawnY})");
-
-            var (intermediateX, intermediateY) = FindPathTowards(tank, enemySpawnX, enemySpawnY, traversibilityMap);
-
-            return new AIDecision
+            var tMap = context.GetTraversibilityMap();
+            if (tMap != null)
             {
-                Action = AIAction.MoveTowardsEnemySpawn,
-                TargetX = intermediateX,
-                TargetY = intermediateY
-            };
+                var path = FindPathTowards(tank, nearbyPickup.Value.PositionX, nearbyPickup.Value.PositionY, tMap);
+                if (path.Count > 0)
+                {
+                    return new AIDecision
+                    {
+                        Action = AIAction.MoveTowardsPickup,
+                        TargetPickup = nearbyPickup,
+                        Path = path
+                    };
+                }
+            }
         }
 
         return new AIDecision { Action = AIAction.None };
@@ -139,17 +179,20 @@ public static class BehaviorTreeLogic
     public static Module.Tank? FindNearestEnemy(Module.Tank tank, List<Module.Tank> allTanks)
     {
         Module.Tank? nearest = null;
-        float minDistance = float.MaxValue;
+        float minDistanceToSpawn = float.MaxValue;
+
+        float spawnX = tank.Alliance == 0 ? 15f : 45f;
+        float spawnY = 30f;
 
         foreach (var enemyTank in allTanks)
         {
-            if (enemyTank.Alliance == tank.Alliance || enemyTank.IsDead)
+            if (enemyTank.Alliance == tank.Alliance || enemyTank.Health <= 0)
                 continue;
 
-            var distance = GetDistance(tank.PositionX, tank.PositionY, enemyTank.PositionX, enemyTank.PositionY);
-            if (distance < minDistance)
+            var distanceToSpawn = GetDistance(spawnX, spawnY, enemyTank.PositionX, enemyTank.PositionY);
+            if (distanceToSpawn < minDistanceToSpawn)
             {
-                minDistance = distance;
+                minDistanceToSpawn = distanceToSpawn;
                 nearest = enemyTank;
             }
         }
@@ -164,7 +207,7 @@ public static class BehaviorTreeLogic
 
         foreach (var otherTank in allTanks)
         {
-            if (otherTank.Id == tank.Id || otherTank.IsDead)
+            if (otherTank.Id == tank.Id || otherTank.Health <= 0)
                 continue;
 
             var distance = GetDistance(tank.PositionX, tank.PositionY, otherTank.PositionX, otherTank.PositionY);
@@ -189,6 +232,24 @@ public static class BehaviorTreeLogic
         while (turretAngleDiff < -Math.PI) turretAngleDiff += 2 * Math.PI;
 
         return turretAngleDiff;
+    }
+
+    public static Module.Pickup? FindNearestHealthPickup(Module.Tank tank, List<Module.Pickup> allPickups)
+    {
+        Module.Pickup? nearest = null;
+        float minDistance = float.MaxValue;
+
+        foreach (var pickup in allPickups.Where(p => p.WorldId == tank.WorldId && p.Type == TerrainDetailType.HealthPickup))
+        {
+            var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearest = pickup;
+            }
+        }
+
+        return nearest;
     }
 
     public static Module.Pickup? FindNearestPickup(Module.Tank tank, List<Module.Pickup> allPickups)
@@ -251,12 +312,14 @@ public static class BehaviorTreeLogic
         return true;
     }
 
-    public static (int x, int y) FindPathTowards(Module.Tank tank, int targetX, int targetY, Module.TraversibilityMap? traversibilityMap)
+    public static List<(int x, int y)> FindPathTowards(Module.Tank tank, int targetX, int targetY, Module.TraversibilityMap? traversibilityMap)
     {
+        var emptyPath = new List<(int x, int y)>();
+        
         if (traversibilityMap == null)
         {
             Log.Info($"[FindPathTowards] Tank {tank.Id}: traversibilityMap is null");
-            return (targetX, targetY);
+            return emptyPath;
         }
 
         int currentX = GetGridPosition(tank.PositionX);
@@ -264,69 +327,18 @@ public static class BehaviorTreeLogic
 
         Log.Info($"[FindPathTowards] Tank {tank.Id}: current=({currentX},{currentY}), target=({targetX},{targetY})");
 
-        int dx = Math.Sign(targetX - currentX);
-        int dy = Math.Sign(targetY - currentY);
-
-        if (dx == 0 && dy == 0)
+        var path = AStarPathfinding.FindPath(currentX, currentY, targetX, targetY, traversibilityMap.Value);
+        
+        if (path.Count > 0)
         {
-            Log.Info($"[FindPathTowards] Tank {tank.Id}: Already at target position");
-            return (currentX, currentY);
+            Log.Info($"[FindPathTowards] Tank {tank.Id}: Found path with {path.Count} waypoints");
         }
-
-        (int, int)[] candidateMoves = new[]
+        else
         {
-            (dx * 3, dy * 3),
-            (dx * 2, dy * 2),
-            (dx * 3, dy * 2),
-            (dx * 2, dy * 3),
-            (dx * 1, dy * 1),
-            (dx * 2, dy * 1),
-            (dx * 1, dy * 2),
-            (dx * 3, 0),
-            (0, dy * 3),
-            (dx * 2, 0),
-            (0, dy * 2),
-            (dx * 1, 0),
-            (0, dy * 1),
-        };
-
-        int candidatesChecked = 0;
-        int candidatesTraversible = 0;
-
-        foreach (var (moveX, moveY) in candidateMoves)
-        {
-            if (moveX == 0 && moveY == 0) continue;
-
-            int checkX = currentX + moveX;
-            int checkY = currentY + moveY;
-
-            int clampedX = Math.Clamp(checkX, 0, traversibilityMap.Value.Width - 1);
-            int clampedY = Math.Clamp(checkY, 0, traversibilityMap.Value.Height - 1);
-
-            if (clampedX == currentX && clampedY == currentY) continue;
-
-            int index = clampedY * traversibilityMap.Value.Width + clampedX;
-            candidatesChecked++;
-
-            bool isTraversible = index >= 0 && index < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[index];
-            if (isTraversible)
-            {
-                candidatesTraversible++;
-            }
-
-            Log.Info($"[FindPathTowards] Tank {tank.Id}: Checking move ({moveX},{moveY}) -> ({checkX},{checkY}) clamped to ({clampedX},{clampedY}), traversible={isTraversible}");
-
-            if (isTraversible)
-            {
-                Log.Info($"[FindPathTowards] Tank {tank.Id}: Found valid move to ({clampedX},{clampedY})");
-                return (clampedX, clampedY);
-            }
+            Log.Info($"[FindPathTowards] Tank {tank.Id}: No path found");
         }
-
-        Log.Info($"[FindPathTowards] Tank {tank.Id}: Checked {candidatesChecked} candidates, {candidatesTraversible} were traversible but none selected");
-
-        Log.Info($"[FindPathTowards] Tank {tank.Id}: No valid moves found! Staying at ({currentX},{currentY})");
-        return (currentX, currentY);
+        
+        return path;
     }
 
     public static (int x, int y) FindRandomEscapePosition(Module.Tank tank, Module.TraversibilityMap traversibilityMap, Random rng)

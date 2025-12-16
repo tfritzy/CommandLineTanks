@@ -10,7 +10,7 @@ public static partial class Module
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
-        if (!tank.IsDead) return;
+        if (tank.Health > 0) return;
 
         var respawnedTank = RespawnTank(ctx, tank, worldId, tank.Alliance);
         ctx.Db.tank.Id.Update(respawnedTank);

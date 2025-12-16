@@ -5,7 +5,7 @@ public static partial class Module
 {
     public static void DriveToPosition(ReducerContext ctx, Tank tank, Vector2 offset, float throttle, bool append)
     {
-        if (tank.IsDead) return;
+        if (tank.Health <= 0) return;
 
         Vector2 rootPos = tank.Path.Length > 0 && append ? tank.Path[^1].Position : new Vector2((int)tank.PositionX, (int)tank.PositionY);
         Vector2 nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);

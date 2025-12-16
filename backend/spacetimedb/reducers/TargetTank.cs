@@ -13,7 +13,7 @@ public static partial class Module
 
     public static void TargetTankByName(ReducerContext ctx, Tank tank, string targetName, float lead)
     {
-        if (tank.IsDead) return;
+        if (tank.Health <= 0) return;
 
         var targetNameLower = targetName.ToLower();
         var targetTank = ctx.Db.tank.WorldId_Name.Filter((tank.WorldId, targetNameLower)).FirstOrDefault();

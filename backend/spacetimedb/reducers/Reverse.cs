@@ -11,7 +11,7 @@ public static partial class Module
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
-        if (tank.IsDead) return;
+        if (tank.Health <= 0) return;
 
         Vector2 rootPos = new Vector2((int)tank.PositionX, (int)tank.PositionY);
 

@@ -75,7 +75,7 @@ public static partial class BehaviorTreeAI
 
         foreach (var tank in botTanks)
         {
-            if (tank.IsDead)
+            if (tank.Health <= 0)
             {
                 Log.Info($"AI {tank.Name}: Dead, respawning");
                 var respawnedTank = Module.RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
@@ -94,10 +94,11 @@ public static partial class BehaviorTreeAI
         switch (decision.Action)
         {
             case BehaviorTreeLogic.AIAction.MoveTowardsPickup:
-                if (decision.TargetPickup != null)
+                if (decision.TargetPickup != null && decision.Path.Count > 0)
                 {
-                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards pickup at ({decision.TargetX},{decision.TargetY})");
-                    DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
+                    var lastWaypoint = decision.Path[^1];
+                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards pickup via {decision.Path.Count} waypoints");
+                    SetPath(ctx, tank, decision.Path);
                 }
                 break;
 
@@ -113,17 +114,33 @@ public static partial class BehaviorTreeAI
                 }
                 break;
 
-            case BehaviorTreeLogic.AIAction.MoveTowardsEnemySpawn:
-                Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards enemy spawn ({decision.TargetX},{decision.TargetY})");
-                DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
+            case BehaviorTreeLogic.AIAction.StopMoving:
+                if (decision.TargetTank != null)
+                {
+                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Stopping to engage {decision.TargetTank.Value.Name}");
+                    tank = tank with
+                    {
+                        Path = [],
+                        Velocity = new Vector2Float(0, 0),
+                        BodyAngularVelocity = 0
+                    };
+                    ctx.Db.tank.Id.Update(tank);
+                    
+                    Module.TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
+                    Module.FireTankWeapon(ctx, tank);
+                }
                 break;
 
             case BehaviorTreeLogic.AIAction.MoveTowardsEnemy:
-                if (decision.TargetTank != null)
+                if (decision.Path.Count > 0)
                 {
-                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards enemy {decision.TargetTank.Value.Name} via ({decision.TargetX},{decision.TargetY})");
+                    var lastWaypoint = decision.Path[^1];
+                    if (decision.TargetTank != null)
+                    {
+                        Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards enemy {decision.TargetTank.Value.Name} via {decision.Path.Count} waypoints to ({lastWaypoint.x},{lastWaypoint.y})");
+                    }
+                    SetPath(ctx, tank, decision.Path);
                 }
-                DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
                 break;
 
             case BehaviorTreeLogic.AIAction.Escape:
@@ -135,6 +152,25 @@ public static partial class BehaviorTreeAI
                 Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): No action (idle)");
                 break;
         }
+    }
+
+    private static void SetPath(ReducerContext ctx, Module.Tank tank, List<(int x, int y)> path)
+    {
+        var pathEntries = path.Select(waypoint => new PathEntry
+        {
+            Position = new Vector2(waypoint.x, waypoint.y),
+            ThrottlePercent = 1.0f,
+            Reverse = false
+        }).ToArray();
+
+        tank = tank with
+        {
+            Path = pathEntries,
+            Velocity = new Vector2Float(0, 0),
+            BodyAngularVelocity = 0
+        };
+
+        ctx.Db.tank.Id.Update(tank);
     }
 
     private static void DriveTowards(ReducerContext ctx, Module.Tank tank, int targetX, int targetY)

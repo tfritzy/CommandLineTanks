@@ -34,7 +34,7 @@ public static partial class TankUpdater
             bool needsUpdate = false;
             var tank = iTank;
 
-            if (tank.IsDead)
+            if (tank.Health <= 0)
             {
                 continue;
             }

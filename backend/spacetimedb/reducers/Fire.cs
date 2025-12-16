@@ -15,7 +15,7 @@ public static partial class Module
 
     public static bool FireTankWeapon(ReducerContext ctx, Tank tank)
     {
-        if (tank.IsDead) return false;
+        if (tank.Health <= 0) return false;
 
         if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return false;
 

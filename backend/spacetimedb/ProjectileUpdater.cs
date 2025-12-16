@@ -73,7 +73,7 @@ public static partial class ProjectileUpdater
 
                         foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, regionX, regionY)))
                         {
-                            if (tank.Alliance != projectile.Alliance && !tank.IsDead)
+                            if (tank.Alliance != projectile.Alliance && tank.Health > 0)
                             {
                                 var dx_tank = tank.PositionX - projectile.PositionX;
                                 var dy_tank = tank.PositionY - projectile.PositionY;
@@ -169,7 +169,7 @@ public static partial class ProjectileUpdater
 
             foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, tankCollisionRegionX, tankCollisionRegionY)))
             {
-                if (tank.Alliance != projectile.Alliance && !tank.IsDead)
+                if (tank.Alliance != projectile.Alliance && tank.Health > 0)
                 {
                     float dx = tank.PositionX - projectile.PositionX;
                     float dy = tank.PositionY - projectile.PositionY;
@@ -179,15 +179,13 @@ public static partial class ProjectileUpdater
                     if (distanceSquared <= collisionRadiusSquared)
                     {
                         var newHealth = tank.Health - projectile.Damage;
-                        var isDead = newHealth <= 0;
                         var updatedTank = tank with
                         {
-                            Health = newHealth,
-                            IsDead = isDead
+                            Health = newHealth
                         };
                         ctx.Db.tank.Id.Update(updatedTank);
 
-                        if (isDead)
+                        if (newHealth <= 0)
                         {
                             var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
                             if (shooterTank != null)
