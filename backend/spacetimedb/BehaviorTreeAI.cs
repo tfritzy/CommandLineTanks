@@ -19,15 +19,18 @@ public static partial class BehaviorTreeAI
     [Reducer]
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
+        var allTanks = ctx.Db.tank.WorldId.Filter(args.WorldId).ToList();
+
         foreach (var tank in ctx.Db.tank.WorldId_IsBot.Filter((args.WorldId, true)))
         {
             if (tank.IsDead)
             {
-                RespawnBot(ctx, tank);
+                var respawnedTank = Module.RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
+                ctx.Db.tank.Id.Update(respawnedTank);
                 continue;
             }
 
-            EvaluateBehaviorTree(ctx, tank);
+            EvaluateBehaviorTree(ctx, tank, allTanks);
         }
 
         ctx.Db.ScheduledAIUpdate.ScheduledId.Update(args with
@@ -36,32 +39,7 @@ public static partial class BehaviorTreeAI
         });
     }
 
-    private static void RespawnBot(ReducerContext ctx, Module.Tank tank)
-    {
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
-        if (traversibilityMap == null) return;
-
-        var (spawnX, spawnY) = Module.FindSpawnPosition(ctx, traversibilityMap.Value, tank.Alliance, ctx.Rng);
-
-        var respawnedTank = tank with
-        {
-            Health = Module.TANK_HEALTH,
-            MaxHealth = Module.TANK_HEALTH,
-            IsDead = false,
-            PositionX = spawnX,
-            PositionY = spawnY,
-            Path = [],
-            Velocity = new Vector2Float(0, 0),
-            BodyAngularVelocity = 0,
-            TurretAngularVelocity = 0,
-            Guns = [Module.BASE_GUN],
-            SelectedGunIndex = 0
-        };
-
-        ctx.Db.tank.Id.Update(respawnedTank);
-    }
-
-    private static void EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank)
+    private static void EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, List<Module.Tank> allTanks)
     {
         var nearbyPickup = FindNearestPickup(ctx, tank);
         if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value))
@@ -70,7 +48,7 @@ public static partial class BehaviorTreeAI
             return;
         }
 
-        var target = FindNearestEnemy(ctx, tank);
+        var target = FindNearestEnemy(tank, allTanks);
         if (target != null)
         {
             var distanceToTarget = GetDistance(tank.PositionX, tank.PositionY, target.Value.PositionX, target.Value.PositionY);
@@ -93,12 +71,12 @@ public static partial class BehaviorTreeAI
         return distance < 15f;
     }
 
-    private static Module.Tank? FindNearestEnemy(ReducerContext ctx, Module.Tank tank)
+    private static Module.Tank? FindNearestEnemy(Module.Tank tank, List<Module.Tank> allTanks)
     {
         Module.Tank? nearest = null;
         float minDistance = float.MaxValue;
 
-        foreach (var enemyTank in ctx.Db.tank.WorldId.Filter(tank.WorldId))
+        foreach (var enemyTank in allTanks)
         {
             if (enemyTank.Alliance == tank.Alliance || enemyTank.IsDead)
                 continue;

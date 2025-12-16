@@ -12,28 +12,8 @@ public static partial class Module
 
         if (!tank.IsDead) return;
 
-        World? maybeWorld = ctx.Db.world.Id.Find(worldId);
-        if (maybeWorld == null) return;
-        var world = maybeWorld.Value;
-
-        var (spawnX, spawnY) = FindSpawnPosition(ctx, world, tank.Alliance, ctx.Rng);
-
-        var respawnedTank = tank with
-        {
-            Health = Module.TANK_HEALTH,
-            MaxHealth = Module.TANK_HEALTH,
-            IsDead = false,
-            PositionX = spawnX,
-            PositionY = spawnY,
-            Path = [],
-            Velocity = new Vector2Float(0, 0),
-            BodyAngularVelocity = 0,
-            TurretAngularVelocity = 0,
-            Guns = [BASE_GUN],
-            SelectedGunIndex = 0
-        };
-
+        var respawnedTank = RespawnTank(ctx, tank, worldId, tank.Alliance);
         ctx.Db.tank.Id.Update(respawnedTank);
-        Log.Info($"Tank {tank.Name} respawned at position ({spawnX}, {spawnY})");
+        Log.Info($"Tank {tank.Name} respawned at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");
     }
 }

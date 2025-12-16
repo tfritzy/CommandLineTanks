@@ -14,6 +14,38 @@ public static partial class Module
         return (int)Math.Floor(position + GRID_POSITION_TOLERANCE);
     }
 
+    public static Tank RespawnTank(ReducerContext ctx, Tank tank, string worldId, int alliance, bool resetKills = false)
+    {
+        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
+        if (traversibilityMap == null)
+        {
+            return tank;
+        }
+
+        var (spawnX, spawnY) = FindSpawnPosition(ctx, traversibilityMap.Value, alliance, ctx.Rng);
+
+        var respawnedTank = tank with
+        {
+            Alliance = alliance,
+            Health = TANK_HEALTH,
+            MaxHealth = TANK_HEALTH,
+            IsDead = false,
+            Kills = resetKills ? 0 : tank.Kills,
+            PositionX = spawnX,
+            PositionY = spawnY,
+            Path = [],
+            Velocity = new Vector2Float(0, 0),
+            BodyAngularVelocity = 0,
+            TurretAngularVelocity = 0,
+            Target = null,
+            TargetLead = 0.0f,
+            Guns = [BASE_GUN],
+            SelectedGunIndex = 0
+        };
+
+        return respawnedTank;
+    }
+
     private static void CreateHomeworld(ReducerContext ctx, string identityString)
     {
         int worldSize = HOMEWORLD_SIZE;
