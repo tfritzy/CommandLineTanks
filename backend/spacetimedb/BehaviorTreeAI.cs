@@ -38,11 +38,10 @@ public static partial class BehaviorTreeAI
 
     private static void RespawnBot(ReducerContext ctx, Module.Tank tank)
     {
-        World? maybeWorld = ctx.Db.world.Id.Find(tank.WorldId);
-        if (maybeWorld == null) return;
-        var world = maybeWorld.Value;
+        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
+        if (traversibilityMap == null) return;
 
-        var (spawnX, spawnY) = Module.FindSpawnPosition(ctx, world, tank.Alliance, ctx.Rng);
+        var (spawnX, spawnY) = Module.FindSpawnPosition(ctx, traversibilityMap.Value, tank.Alliance, ctx.Rng);
 
         var respawnedTank = tank with
         {
@@ -64,9 +63,6 @@ public static partial class BehaviorTreeAI
 
     private static void EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank)
     {
-        var world = ctx.Db.world.Id.Find(tank.WorldId);
-        if (world == null) return;
-
         var nearbyPickup = FindNearestPickup(ctx, tank);
         if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value))
         {
@@ -86,7 +82,7 @@ public static partial class BehaviorTreeAI
             }
         }
 
-        MoveTowardsEnemySpawn(ctx, tank, world.Value);
+        MoveTowardsEnemySpawn(ctx, tank);
     }
 
     private static bool ShouldCollectPickup(Module.Tank tank, Module.Pickup pickup)
@@ -203,10 +199,13 @@ public static partial class BehaviorTreeAI
         }
     }
 
-    private static void MoveTowardsEnemySpawn(ReducerContext ctx, Module.Tank tank, Module.World world)
+    private static void MoveTowardsEnemySpawn(ReducerContext ctx, Module.Tank tank)
     {
-        int enemySpawnX = tank.Alliance == 0 ? (world.Width * 3) / 4 : world.Width / 4;
-        int enemySpawnY = world.Height / 2;
+        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
+        if (traversibilityMap == null) return;
+
+        int enemySpawnX = tank.Alliance == 0 ? (traversibilityMap.Value.Width * 3) / 4 : traversibilityMap.Value.Width / 4;
+        int enemySpawnY = traversibilityMap.Value.Height / 2;
 
         var (intermediateX, intermediateY) = FindPathTowards(ctx, tank, enemySpawnX, enemySpawnY);
         

@@ -134,8 +134,15 @@ public static partial class Module
 
     public static (float, float) FindSpawnPosition(ReducerContext ctx, World world, int alliance, Random random)
     {
-        int worldWidth = world.Width;
-        int worldHeight = world.Height;
+        var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(world.Id);
+        if (traversibilityMapQuery == null) return (0, 0);
+        return FindSpawnPosition(ctx, traversibilityMapQuery.Value, alliance, random);
+    }
+
+    public static (float, float) FindSpawnPosition(ReducerContext ctx, TraversibilityMap traversibilityMap, int alliance, Random random)
+    {
+        int worldWidth = traversibilityMap.Width;
+        int worldHeight = traversibilityMap.Height;
 
         int halfWidth = worldWidth / 2;
         int paddingX = (int)(halfWidth * SPAWN_PADDING_RATIO);
@@ -161,10 +168,6 @@ public static partial class Module
 
         minY = paddingY;
         maxY = worldHeight - paddingY;
-
-        var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(world.Id);
-        if (traversibilityMapQuery == null) return (0, 0);
-        var traversibilityMap = traversibilityMapQuery.Value;
 
         for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++)
         {
