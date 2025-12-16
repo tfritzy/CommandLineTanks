@@ -10,13 +10,18 @@ public static partial class Module
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
-        if (tank.IsDead) return;
+        FireTankWeapon(ctx, tank);
+    }
 
-        if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return;
+    public static bool FireTankWeapon(ReducerContext ctx, Tank tank)
+    {
+        if (tank.IsDead) return false;
+
+        if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return false;
 
         var gun = tank.Guns[tank.SelectedGunIndex];
 
-        if (gun.Ammo != null && gun.Ammo <= 0) return;
+        if (gun.Ammo != null && gun.Ammo <= 0) return false;
 
         float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
         float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
@@ -62,5 +67,6 @@ public static partial class Module
         }
 
         Log.Info($"Tank {tank.Name} fired {gun.GunType}. Ammo remaining: {gun.Ammo?.ToString() ?? "unlimited"}");
+        return true;
     }
 }

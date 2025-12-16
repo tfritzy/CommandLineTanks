@@ -14,6 +14,38 @@ public static partial class Module
         return (int)Math.Floor(position + GRID_POSITION_TOLERANCE);
     }
 
+    public static Tank RespawnTank(ReducerContext ctx, Tank tank, string worldId, int alliance, bool resetKills = false)
+    {
+        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
+        if (traversibilityMap == null)
+        {
+            return tank;
+        }
+
+        var (spawnX, spawnY) = FindSpawnPosition(ctx, traversibilityMap.Value, alliance, ctx.Rng);
+
+        var respawnedTank = tank with
+        {
+            Alliance = alliance,
+            Health = TANK_HEALTH,
+            MaxHealth = TANK_HEALTH,
+            IsDead = false,
+            Kills = resetKills ? 0 : tank.Kills,
+            PositionX = spawnX,
+            PositionY = spawnY,
+            Path = [],
+            Velocity = new Vector2Float(0, 0),
+            BodyAngularVelocity = 0,
+            TurretAngularVelocity = 0,
+            Target = null,
+            TargetLead = 0.0f,
+            Guns = [BASE_GUN],
+            SelectedGunIndex = 0
+        };
+
+        return respawnedTank;
+    }
+
     private static void CreateHomeworld(ReducerContext ctx, string identityString)
     {
         int worldSize = HOMEWORLD_SIZE;
@@ -98,7 +130,7 @@ public static partial class Module
         Log.Info($"Created homeworld for identity {identityString}");
     }
 
-    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY)
+    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY, bool isBot = false)
     {
         var tankId = GenerateId(ctx, "tnk");
         return new Tank
@@ -108,6 +140,7 @@ public static partial class Module
             Owner = owner,
             Name = name,
             JoinCode = joinCode,
+            IsBot = isBot,
             Alliance = alliance,
             Health = Module.TANK_HEALTH,
             MaxHealth = Module.TANK_HEALTH,
@@ -133,8 +166,15 @@ public static partial class Module
 
     public static (float, float) FindSpawnPosition(ReducerContext ctx, World world, int alliance, Random random)
     {
-        int worldWidth = world.Width;
-        int worldHeight = world.Height;
+        var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(world.Id);
+        if (traversibilityMapQuery == null) return (0, 0);
+        return FindSpawnPosition(ctx, traversibilityMapQuery.Value, alliance, random);
+    }
+
+    public static (float, float) FindSpawnPosition(ReducerContext ctx, TraversibilityMap traversibilityMap, int alliance, Random random)
+    {
+        int worldWidth = traversibilityMap.Width;
+        int worldHeight = traversibilityMap.Height;
 
         int halfWidth = worldWidth / 2;
         int paddingX = (int)(halfWidth * SPAWN_PADDING_RATIO);
@@ -160,10 +200,6 @@ public static partial class Module
 
         minY = paddingY;
         maxY = worldHeight - paddingY;
-
-        var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(world.Id);
-        if (traversibilityMapQuery == null) return (0, 0);
-        var traversibilityMap = traversibilityMapQuery.Value;
 
         for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++)
         {

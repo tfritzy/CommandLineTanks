@@ -347,26 +347,7 @@ public static partial class ProjectileUpdater
 
             int newAlliance = i < (totalTanks + 1) / 2 ? 0 : 1;
 
-            var (spawnX, spawnY) = Module.FindSpawnPosition(ctx, updatedWorld, newAlliance, ctx.Rng);
-
-            var resetTank = tank with
-            {
-                Alliance = newAlliance,
-                Health = Module.TANK_HEALTH,
-                MaxHealth = Module.TANK_HEALTH,
-                IsDead = false,
-                Kills = 0,
-                PositionX = spawnX,
-                PositionY = spawnY,
-                Path = Array.Empty<PathEntry>(),
-                Velocity = new Vector2Float(0, 0),
-                BodyAngularVelocity = 0,
-                TurretAngularVelocity = 0,
-                Target = null,
-                TargetLead = 0.0f,
-                Guns = [Module.BASE_GUN],
-                SelectedGunIndex = 0
-            };
+            var resetTank = Module.RespawnTank(ctx, tank, args.WorldId, newAlliance, resetKills: true);
 
             ctx.Db.tank.Id.Update(resetTank);
         }

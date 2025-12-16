@@ -45,6 +45,7 @@ public static partial class Module
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Name) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Owner) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(IsBot) })]
     public partial struct Tank
     {
         [PrimaryKey]
@@ -59,6 +60,8 @@ public static partial class Module
         public string Name;
 
         public string? JoinCode;
+
+        public bool IsBot;
 
         public int Alliance;
 
@@ -156,7 +159,6 @@ public static partial class Module
     }
 
     [Table(Name = "pickup", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
     public partial struct Pickup
     {

@@ -43,6 +43,13 @@ public static partial class Module
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
+        ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 1_000_000 }),
+            WorldId = worldId
+        });
+
         ctx.Db.world.Insert(world);
 
         // foreach (var detail in terrainDetails)
@@ -76,6 +83,26 @@ public static partial class Module
 
         InitializePickupSpawner(ctx, worldId, 5);
 
+        SpawnInitialBots(ctx, worldId, world);
+
         Log.Info($"Initialized world {worldId}");
+    }
+
+    private static void SpawnInitialBots(ReducerContext ctx, string worldId, World world)
+    {
+        for (int alliance = 0; alliance < 2; alliance++)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                var tankName = AllocateTankName(ctx, worldId);
+                if (tankName == null) continue;
+
+                var (spawnX, spawnY) = FindSpawnPosition(ctx, world, alliance, ctx.Rng);
+                var botTank = BuildTank(ctx, worldId, ctx.Sender, tankName, "", alliance, spawnX, spawnY, true);
+                ctx.Db.tank.Insert(botTank);
+            }
+        }
+
+        Log.Info($"Spawned initial bot tanks for world {worldId}");
     }
 }
