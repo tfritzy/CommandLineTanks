@@ -8,18 +8,27 @@ public static partial class Module
         Tank tank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (tank.Id == null) return;
 
+        TargetTankByName(ctx, tank, targetName, lead);
+    }
+
+    public static void TargetTankByName(ReducerContext ctx, Tank tank, string targetName, float lead)
+    {
         if (tank.IsDead) return;
 
         var targetNameLower = targetName.ToLower();
-        var targetTank = ctx.Db.tank.WorldId_Name.Filter((worldId, targetNameLower)).FirstOrDefault();
+        var targetTank = ctx.Db.tank.WorldId_Name.Filter((tank.WorldId, targetNameLower)).FirstOrDefault();
 
         if (targetTank.Id == null)
         {
             return;
         }
 
-        tank.Target = targetTank.Id;
-        tank.TargetLead = lead;
-        ctx.Db.tank.Id.Update(tank);
+        var updatedTank = tank with
+        {
+            Target = targetTank.Id,
+            TargetLead = lead
+        };
+
+        ctx.Db.tank.Id.Update(updatedTank);
     }
 }

@@ -64,11 +64,15 @@ public static partial class BehaviorTreeAI
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
         var aiContext = new AIContext(ctx, args.WorldId);
+        var botTanks = ctx.Db.tank.WorldId_IsBot.Filter((args.WorldId, true)).ToList();
 
-        foreach (var tank in ctx.Db.tank.WorldId_IsBot.Filter((args.WorldId, true)))
+        Log.Info($"=== AI Update for world {args.WorldId}: {botTanks.Count} bots (Alliance0: {botTanks.Count(t => t.Alliance == 0)}, Alliance1: {botTanks.Count(t => t.Alliance == 1)}) ===");
+
+        foreach (var tank in botTanks)
         {
             if (tank.IsDead)
             {
+                Log.Info($"AI {tank.Name}: Dead, respawning");
                 var respawnedTank = Module.RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
                 ctx.Db.tank.Id.Update(respawnedTank);
                 continue;
@@ -79,7 +83,7 @@ public static partial class BehaviorTreeAI
 
         ctx.Db.ScheduledAIUpdate.ScheduledId.Update(args with
         {
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 1_000_000 })
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 })
         });
     }
 
@@ -92,63 +96,51 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.MoveTowardsPickup:
                 if (decision.TargetPickup != null)
                 {
-                    MoveTowardsPickup(ctx, tank, decision.TargetPickup.Value);
+                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards pickup at ({decision.TargetX},{decision.TargetY})");
+                    DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
                 }
                 break;
 
             case BehaviorTreeLogic.AIAction.AimAndFire:
                 if (decision.TargetTank != null)
                 {
-                    AimAndFire(ctx, tank, decision.TargetTank.Value, decision.AimAngle, decision.ShouldFire);
+                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Targeting {decision.TargetTank.Value.Name}, shouldFire={decision.ShouldFire}");
+                    Module.TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
+                    if (decision.ShouldFire)
+                    {
+                        Module.FireTankWeapon(ctx, tank);
+                    }
                 }
                 break;
 
             case BehaviorTreeLogic.AIAction.MoveTowardsEnemySpawn:
-                SetMovementPath(ctx, tank, decision.TargetX, decision.TargetY);
+                Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards enemy spawn ({decision.TargetX},{decision.TargetY})");
+                DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
                 break;
 
             case BehaviorTreeLogic.AIAction.None:
+                Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): No action (idle)");
                 break;
         }
     }
 
-    private static void AimAndFire(ReducerContext ctx, Module.Tank tank, Module.Tank target, float aimAngle, bool shouldFire)
+    private static void DriveTowards(ReducerContext ctx, Module.Tank tank, int targetX, int targetY)
     {
-        var updatedTank = tank with
-        {
-            Target = target.Id,
-            TargetLead = 0.5f,
-            TargetTurretRotation = aimAngle
-        };
-        ctx.Db.tank.Id.Update(updatedTank);
+        int currentX = Module.GetGridPosition(tank.PositionX);
+        int currentY = Module.GetGridPosition(tank.PositionY);
 
-        if (shouldFire)
+        if (targetX == currentX && targetY == currentY)
         {
-            Module.FireTankWeapon(ctx, updatedTank);
+            Log.Info($"AI {tank.Name}: Skipping drive - already at target ({targetX},{targetY})");
+            return;
         }
-    }
 
-    private static void MoveTowardsPickup(ReducerContext ctx, Module.Tank tank, Module.Pickup pickup)
-    {
-        SetMovementPath(ctx, tank, pickup.PositionX, pickup.PositionY);
-    }
+        Log.Info($"AI {tank.Name}: Driving from ({currentX},{currentY}) to ({targetX},{targetY})");
 
-    private static void SetMovementPath(ReducerContext ctx, Module.Tank tank, int targetX, int targetY)
-    {
-        var entry = new PathEntry
-        {
-            Position = new Vector2(targetX, targetY),
-            ThrottlePercent = 1.0f,
-            Reverse = false
-        };
+        Vector2 currentPos = new Vector2(currentX, currentY);
+        Vector2 targetPos = new Vector2(targetX, targetY);
+        Vector2 offset = new Vector2(targetPos.X - currentPos.X, targetPos.Y - currentPos.Y);
 
-        var updatedTank = tank with
-        {
-            Path = [entry],
-            Velocity = new Vector2Float(0, 0),
-            BodyAngularVelocity = 0
-        };
-
-        ctx.Db.tank.Id.Update(updatedTank);
+        Module.DriveToPosition(ctx, tank, offset, 1.0f, false);
     }
 }

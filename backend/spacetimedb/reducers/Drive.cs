@@ -3,13 +3,8 @@ using static Types;
 
 public static partial class Module
 {
-    [Reducer]
-    public static void drive(ReducerContext ctx, string worldId, Vector2 offset, float throttle, bool append)
+    public static void DriveToPosition(ReducerContext ctx, Tank tank, Vector2 offset, float throttle, bool append)
     {
-        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (maybeTank == null) return;
-        var tank = maybeTank.Value;
-
         if (tank.IsDead) return;
 
         Vector2 rootPos = tank.Path.Length > 0 && append ? tank.Path[^1].Position : new Vector2((int)tank.PositionX, (int)tank.PositionY);
@@ -24,7 +19,7 @@ public static partial class Module
 
         if (append)
         {
-            tank.Path = [.. tank.Path, entry];
+            tank = tank with { Path = [.. tank.Path, entry] };
         }
         else
         {
@@ -37,5 +32,15 @@ public static partial class Module
         }
 
         ctx.Db.tank.Id.Update(tank);
+    }
+
+    [Reducer]
+    public static void drive(ReducerContext ctx, string worldId, Vector2 offset, float throttle, bool append)
+    {
+        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (maybeTank == null) return;
+        var tank = maybeTank.Value;
+
+        DriveToPosition(ctx, tank, offset, throttle, append);
     }
 }
