@@ -71,6 +71,8 @@ import ScheduledWorldResetRow from "./scheduled_world_reset_table";
 export { ScheduledWorldResetRow };
 import PlayerRow from "./player_table";
 export { PlayerRow };
+import PickupRow from "./pickup_table";
+export { PickupRow };
 import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
 import ScoreRow from "./score_table";
@@ -95,6 +97,8 @@ import GunType from "./gun_type_type";
 export { GunType };
 import PathEntry from "./path_entry_type";
 export { PathEntry };
+import Pickup from "./pickup_type";
+export { Pickup };
 import Player from "./player_type";
 export { Player };
 import Projectile from "./projectile_type";
@@ -174,6 +178,25 @@ const tablesSchema = __schema(
       { name: 'player_Identity_key', constraint: 'unique', columns: ['identity'] },
     ],
   }, PlayerRow),
+  __table({
+    name: 'pickup',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+      { name: 'WorldId_PositionX_PositionY', algorithm: 'btree', columns: [
+        'worldId',
+        'positionX',
+        'positionY',
+      ] },
+    ],
+    constraints: [
+      { name: 'pickup_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, PickupRow),
   __table({
     name: 'projectile',
     indexes: [

@@ -3,6 +3,7 @@ import { ProjectileManager } from "./ProjectileManager";
 import { TerrainManager } from "./TerrainManager";
 import { ScoreManager } from "./ScoreManager";
 import { GunInventoryManager } from "./GunInventoryManager";
+import { PickupManager } from "./PickupManager";
 
 export const UNIT_TO_PIXEL = 50;
 
@@ -17,6 +18,7 @@ export class Game {
   private terrainManager: TerrainManager;
   private scoreManager: ScoreManager;
   private gunInventoryManager: GunInventoryManager;
+  private pickupManager: PickupManager;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -34,6 +36,7 @@ export class Game {
     this.projectileManager = new ProjectileManager(worldId);
     this.scoreManager = new ScoreManager(worldId);
     this.gunInventoryManager = new GunInventoryManager(worldId);
+    this.pickupManager = new PickupManager(worldId);
   }
 
   private resizeCanvas() {
@@ -77,6 +80,14 @@ export class Game {
       this.canvas.width,
       this.canvas.height,
       UNIT_TO_PIXEL
+    );
+
+    this.pickupManager.draw(
+      this.ctx,
+      cameraX,
+      cameraY,
+      this.canvas.width,
+      this.canvas.height
     );
 
     for (const tank of this.tankManager.getAllTanks()) {

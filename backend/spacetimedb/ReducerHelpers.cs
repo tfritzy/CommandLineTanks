@@ -272,9 +272,8 @@ public static partial class Module
             return false;
         }
 
-        TerrainDetailType pickupType = ctx.Rng.NextSingle() < 0.5f
-            ? TerrainDetailType.TripleShooterPickup
-            : TerrainDetailType.MissileLauncherPickup;
+        int pickupTypeIndex = ctx.Rng.Next(PICKUP_TYPES.Length);
+        TerrainDetailType pickupType = PICKUP_TYPES[pickupTypeIndex];
 
         var pickupId = GenerateId(ctx, "pickup");
         ctx.Db.pickup.Insert(new Pickup
