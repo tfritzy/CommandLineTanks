@@ -98,7 +98,7 @@ public static partial class Module
         Log.Info($"Created homeworld for identity {identityString}");
     }
 
-    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY)
+    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY, bool isBot = false)
     {
         var tankId = GenerateId(ctx, "tnk");
         return new Tank
@@ -108,6 +108,7 @@ public static partial class Module
             Owner = owner,
             Name = name,
             JoinCode = joinCode,
+            IsBot = isBot,
             Alliance = alliance,
             Health = Module.TANK_HEALTH,
             MaxHealth = Module.TANK_HEALTH,

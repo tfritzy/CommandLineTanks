@@ -43,6 +43,13 @@ public static partial class Module
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
+        ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 1_000_000 }),
+            WorldId = worldId
+        });
+
         ctx.Db.world.Insert(world);
 
         // foreach (var detail in terrainDetails)
