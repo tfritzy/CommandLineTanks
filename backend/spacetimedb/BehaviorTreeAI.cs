@@ -16,11 +16,14 @@ public static partial class BehaviorTreeAI
         public string WorldId;
     }
 
-    private class AIContext
+    public class AIContext
     {
         private readonly ReducerContext _ctx;
         private readonly string _worldId;
         private List<Module.Tank>? _allTanks;
+        private List<Module.Pickup>? _allPickups;
+        private Module.TraversibilityMap? _traversibilityMap;
+        private bool _traversibilityMapLoaded;
 
         public AIContext(ReducerContext ctx, string worldId)
         {
@@ -35,6 +38,25 @@ public static partial class BehaviorTreeAI
                 _allTanks = _ctx.Db.tank.WorldId.Filter(_worldId).ToList();
             }
             return _allTanks;
+        }
+
+        public List<Module.Pickup> GetAllPickups()
+        {
+            if (_allPickups == null)
+            {
+                _allPickups = _ctx.Db.pickup.WorldId.Filter(_worldId).ToList();
+            }
+            return _allPickups;
+        }
+
+        public Module.TraversibilityMap? GetTraversibilityMap()
+        {
+            if (!_traversibilityMapLoaded)
+            {
+                _traversibilityMap = _ctx.Db.traversibility_map.WorldId.Find(_worldId);
+                _traversibilityMapLoaded = true;
+            }
+            return _traversibilityMap;
         }
     }
 
@@ -63,195 +85,52 @@ public static partial class BehaviorTreeAI
 
     private static void EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, AIContext aiContext)
     {
-        var nearbyPickup = FindNearestPickup(ctx, tank);
-        if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value))
+        var decision = BehaviorTreeLogic.EvaluateBehaviorTree(tank, aiContext);
+
+        switch (decision.Action)
         {
-            MoveTowardsPickup(ctx, tank, nearbyPickup.Value);
-            return;
-        }
-
-        var target = FindNearestEnemy(tank, aiContext.GetAllTanks());
-        if (target != null)
-        {
-            var distanceToTarget = GetDistance(tank.PositionX, tank.PositionY, target.Value.PositionX, target.Value.PositionY);
-
-            if (distanceToTarget < 10f && HasLineOfSight(ctx, tank, target.Value))
-            {
-                AimAndFire(ctx, tank, target.Value);
-                return;
-            }
-        }
-
-        MoveTowardsEnemySpawn(ctx, tank);
-    }
-
-    private static bool ShouldCollectPickup(Module.Tank tank, Module.Pickup pickup)
-    {
-        if (tank.Guns.Length >= 3) return false;
-
-        var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
-        return distance < 15f;
-    }
-
-    private static Module.Tank? FindNearestEnemy(Module.Tank tank, List<Module.Tank> allTanks)
-    {
-        Module.Tank? nearest = null;
-        float minDistance = float.MaxValue;
-
-        foreach (var enemyTank in allTanks)
-        {
-            if (enemyTank.Alliance == tank.Alliance || enemyTank.IsDead)
-                continue;
-
-            var distance = GetDistance(tank.PositionX, tank.PositionY, enemyTank.PositionX, enemyTank.PositionY);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                nearest = enemyTank;
-            }
-        }
-
-        return nearest;
-    }
-
-    private static Module.Pickup? FindNearestPickup(ReducerContext ctx, Module.Tank tank)
-    {
-        Module.Pickup? nearest = null;
-        float minDistance = float.MaxValue;
-
-        foreach (var pickup in ctx.Db.pickup.WorldId.Filter(tank.WorldId))
-        {
-            var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                nearest = pickup;
-            }
-        }
-
-        return nearest;
-    }
-
-    private static float GetDistance(float x1, float y1, float x2, float y2)
-    {
-        var dx = x2 - x1;
-        var dy = y2 - y1;
-        return (float)Math.Sqrt(dx * dx + dy * dy);
-    }
-
-    private static bool HasLineOfSight(ReducerContext ctx, Module.Tank tank, Module.Tank target)
-    {
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
-        if (traversibilityMap == null) return false;
-
-        var dx = target.PositionX - tank.PositionX;
-        var dy = target.PositionY - tank.PositionY;
-        var distance = Math.Sqrt(dx * dx + dy * dy);
-
-        if (distance < 0.1f) return true;
-
-        var steps = (int)Math.Ceiling(distance);
-        var stepX = dx / steps;
-        var stepY = dy / steps;
-
-        for (int i = 1; i < steps; i++)
-        {
-            var checkX = Module.GetGridPosition(tank.PositionX + stepX * i);
-            var checkY = Module.GetGridPosition(tank.PositionY + stepY * i);
-
-            if (checkX < 0 || checkX >= traversibilityMap.Value.Width || checkY < 0 || checkY >= traversibilityMap.Value.Height)
-                return false;
-
-            var index = checkY * traversibilityMap.Value.Width + checkX;
-            if (index >= 0 && index < traversibilityMap.Value.Map.Length)
-            {
-                if (!traversibilityMap.Value.Map[index])
+            case BehaviorTreeLogic.AIAction.MoveTowardsPickup:
+                if (decision.TargetPickup != null)
                 {
-                    return false;
+                    MoveTowardsPickup(ctx, tank, decision.TargetPickup.Value);
                 }
-            }
-        }
+                break;
 
-        return true;
+            case BehaviorTreeLogic.AIAction.AimAndFire:
+                if (decision.TargetTank != null)
+                {
+                    AimAndFire(ctx, tank, decision.TargetTank.Value, decision.AimAngle, decision.ShouldFire);
+                }
+                break;
+
+            case BehaviorTreeLogic.AIAction.MoveTowardsEnemySpawn:
+                SetMovementPath(ctx, tank, decision.TargetX, decision.TargetY);
+                break;
+
+            case BehaviorTreeLogic.AIAction.None:
+                break;
+        }
     }
 
-    private static void AimAndFire(ReducerContext ctx, Module.Tank tank, Module.Tank target)
+    private static void AimAndFire(ReducerContext ctx, Module.Tank tank, Module.Tank target, float aimAngle, bool shouldFire)
     {
-        var deltaX = target.PositionX - tank.PositionX;
-        var deltaY = target.PositionY - tank.PositionY;
-        var aimAngle = Math.Atan2(deltaY, deltaX);
-
         var updatedTank = tank with
         {
             Target = target.Id,
             TargetLead = 0.5f,
-            TargetTurretRotation = (float)aimAngle
+            TargetTurretRotation = aimAngle
         };
         ctx.Db.tank.Id.Update(updatedTank);
 
-        var turretAngleDiff = aimAngle - tank.TurretRotation;
-        while (turretAngleDiff > Math.PI) turretAngleDiff -= 2 * Math.PI;
-        while (turretAngleDiff < -Math.PI) turretAngleDiff += 2 * Math.PI;
-
-        if (Math.Abs(turretAngleDiff) < 0.1f)
+        if (shouldFire)
         {
             Module.FireTankWeapon(ctx, updatedTank);
         }
     }
 
-    private static void MoveTowardsEnemySpawn(ReducerContext ctx, Module.Tank tank)
-    {
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
-        if (traversibilityMap == null) return;
-
-        int enemySpawnX = tank.Alliance == 0 ? (traversibilityMap.Value.Width * 3) / 4 : traversibilityMap.Value.Width / 4;
-        int enemySpawnY = traversibilityMap.Value.Height / 2;
-
-        var (intermediateX, intermediateY) = FindPathTowards(ctx, tank, enemySpawnX, enemySpawnY);
-        
-        int currentX = Module.GetGridPosition(tank.PositionX);
-        int currentY = Module.GetGridPosition(tank.PositionY);
-        
-        if (intermediateX == currentX && intermediateY == currentY)
-        {
-            return;
-        }
-
-        SetMovementPath(ctx, tank, intermediateX, intermediateY);
-    }
-
     private static void MoveTowardsPickup(ReducerContext ctx, Module.Tank tank, Module.Pickup pickup)
     {
         SetMovementPath(ctx, tank, pickup.PositionX, pickup.PositionY);
-    }
-
-    private static (int x, int y) FindPathTowards(ReducerContext ctx, Module.Tank tank, int targetX, int targetY)
-    {
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
-        if (traversibilityMap == null)
-        {
-            return (targetX, targetY);
-        }
-
-        int currentX = Module.GetGridPosition(tank.PositionX);
-        int currentY = Module.GetGridPosition(tank.PositionY);
-
-        int dx = Math.Sign(targetX - currentX);
-        int dy = Math.Sign(targetY - currentY);
-
-        int intermediateX = currentX + dx * 3;
-        int intermediateY = currentY + dy * 3;
-
-        intermediateX = Math.Clamp(intermediateX, 0, traversibilityMap.Value.Width - 1);
-        intermediateY = Math.Clamp(intermediateY, 0, traversibilityMap.Value.Height - 1);
-
-        int index = intermediateY * traversibilityMap.Value.Width + intermediateX;
-        if (index >= 0 && index < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[index])
-        {
-            return (intermediateX, intermediateY);
-        }
-
-        return (currentX + dx, currentY + dy);
     }
 
     private static void SetMovementPath(ReducerContext ctx, Module.Tank tank, int targetX, int targetY)
