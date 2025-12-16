@@ -247,8 +247,9 @@ public static partial class TankUpdater
                         tank = tank with { Health = newHealth };
                         needsUpdate = true;
                         ctx.Db.pickup.Id.Delete(pickup.Id);
+                        break;
                     }
-                    break;
+                    continue;
                 }
 
                 var gunToAdd = GetGunFromPickup(pickup.Type);
