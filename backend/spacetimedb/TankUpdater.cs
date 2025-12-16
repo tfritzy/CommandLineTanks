@@ -239,54 +239,8 @@ public static partial class TankUpdater
 
             foreach (var pickup in ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, tankTileX, tankTileY)))
             {
-                if (pickup.Type == TerrainDetailType.HealthPickup)
+                if (Module.TryCollectPickup(ctx, ref tank, ref needsUpdate, pickup))
                 {
-                    int newHealth = Math.Min(tank.Health + 50, tank.MaxHealth);
-                    if (newHealth > tank.Health)
-                    {
-                        tank = tank with { Health = newHealth };
-                        needsUpdate = true;
-                        ctx.Db.pickup.Id.Delete(pickup.Id);
-                        break;
-                    }
-                    continue;
-                }
-
-                var gunToAdd = GetGunFromPickup(pickup.Type);
-                if (gunToAdd != null)
-                {
-                    int existingGunIndex = -1;
-                    for (int i = 0; i < tank.Guns.Length; i++)
-                    {
-                        if (tank.Guns[i].GunType == gunToAdd.Value.GunType)
-                        {
-                            existingGunIndex = i;
-                            break;
-                        }
-                    }
-
-                    if (existingGunIndex >= 0)
-                    {
-                        var existingGun = tank.Guns[existingGunIndex];
-                        if (existingGun.Ammo != null && gunToAdd.Value.Ammo != null)
-                        {
-                            existingGun.Ammo = existingGun.Ammo.Value + gunToAdd.Value.Ammo.Value;
-                            tank.Guns[existingGunIndex] = existingGun;
-                            needsUpdate = true;
-                            ctx.Db.pickup.Id.Delete(pickup.Id);
-                        }
-                    }
-                    else if (tank.Guns.Length < 3)
-                    {
-                        tank = tank with
-                        {
-                            Guns = [.. tank.Guns, gunToAdd.Value],
-                            SelectedGunIndex = tank.Guns.Length
-                        };
-                        needsUpdate = true;
-                        ctx.Db.pickup.Id.Delete(pickup.Id);
-                    }
-
                     break;
                 }
             }
@@ -318,14 +272,5 @@ public static partial class TankUpdater
         return Math.Abs(angleDiff) < tolerance;
     }
 
-    private static Gun? GetGunFromPickup(TerrainDetailType pickupType)
-    {
-        return pickupType switch
-        {
-            TerrainDetailType.TripleShooterPickup => Module.TRIPLE_SHOOTER_GUN,
-            TerrainDetailType.MissileLauncherPickup => Module.MISSILE_LAUNCHER_GUN,
-            _ => null
-        };
-    }
 
 }
