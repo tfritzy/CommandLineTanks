@@ -31,6 +31,11 @@ public static partial class BehaviorTreeAI
             _worldId = worldId;
         }
 
+        public Random GetRandom()
+        {
+            return _ctx.Rng;
+        }
+
         public List<Module.Tank> GetAllTanks()
         {
             if (_allTanks == null)
@@ -80,11 +85,6 @@ public static partial class BehaviorTreeAI
 
             EvaluateBehaviorTree(ctx, tank, aiContext);
         }
-
-        ctx.Db.ScheduledAIUpdate.ScheduledId.Update(args with
-        {
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 })
-        });
     }
 
     private static void EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, AIContext aiContext)
@@ -115,6 +115,19 @@ public static partial class BehaviorTreeAI
 
             case BehaviorTreeLogic.AIAction.MoveTowardsEnemySpawn:
                 Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards enemy spawn ({decision.TargetX},{decision.TargetY})");
+                DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
+                break;
+
+            case BehaviorTreeLogic.AIAction.MoveTowardsEnemy:
+                if (decision.TargetTank != null)
+                {
+                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards enemy {decision.TargetTank.Value.Name} via ({decision.TargetX},{decision.TargetY})");
+                }
+                DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
+                break;
+
+            case BehaviorTreeLogic.AIAction.Escape:
+                Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Escaping to ({decision.TargetX},{decision.TargetY})");
                 DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
                 break;
 

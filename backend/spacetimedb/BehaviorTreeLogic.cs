@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SpacetimeDB;
 using static Types;
 
 public static class BehaviorTreeLogic
@@ -10,7 +11,9 @@ public static class BehaviorTreeLogic
         None,
         MoveTowardsPickup,
         AimAndFire,
-        MoveTowardsEnemySpawn
+        MoveTowardsEnemySpawn,
+        MoveTowardsEnemy,
+        Escape
     }
 
     public class AIDecision
@@ -26,23 +29,23 @@ public static class BehaviorTreeLogic
     public static AIDecision EvaluateBehaviorTree(Module.Tank tank, BehaviorTreeAI.AIContext context)
     {
         var allTanks = context.GetAllTanks();
-        
+
         var nearbyTank = FindNearestTank(tank, allTanks);
         if (nearbyTank != null)
         {
             var distanceToNearby = GetDistance(tank.PositionX, tank.PositionY, nearbyTank.Value.PositionX, nearbyTank.Value.PositionY);
-            
-            if (distanceToNearby < 0.5f)
+
+            if (distanceToNearby < 1)
             {
                 var tMap = context.GetTraversibilityMap();
                 if (tMap != null)
                 {
-                    var (escapeX, escapeY) = FindRandomEscapePosition(tank, tMap.Value);
+                    var (escapeX, escapeY) = FindRandomEscapePosition(tank, tMap.Value, context.GetRandom());
                     if (escapeX != GetGridPosition(tank.PositionX) || escapeY != GetGridPosition(tank.PositionY))
                     {
                         return new AIDecision
                         {
-                            Action = AIAction.MoveTowardsEnemySpawn,
+                            Action = AIAction.Escape,
                             TargetX = escapeX,
                             TargetY = escapeY
                         };
@@ -56,7 +59,7 @@ public static class BehaviorTreeLogic
         {
             var distanceToTarget = GetDistance(tank.PositionX, tank.PositionY, target.Value.PositionX, target.Value.PositionY);
 
-            if (distanceToTarget < 15f && HasLineOfSight(tank, target.Value, context.GetTraversibilityMap()))
+            if (distanceToTarget < 10f && HasLineOfSight(tank, target.Value, context.GetTraversibilityMap()))
             {
                 return new AIDecision
                 {
@@ -64,6 +67,22 @@ public static class BehaviorTreeLogic
                     TargetTank = target,
                     ShouldFire = true
                 };
+            }
+
+            if (distanceToTarget < 20f)
+            {
+                var tMap = context.GetTraversibilityMap();
+                if (tMap != null)
+                {
+                    var (moveX, moveY) = FindPathTowards(tank, GetGridPosition(target.Value.PositionX), GetGridPosition(target.Value.PositionY), tMap);
+                    return new AIDecision
+                    {
+                        Action = AIAction.MoveTowardsEnemy,
+                        TargetTank = target,
+                        TargetX = moveX,
+                        TargetY = moveY
+                    };
+                }
             }
         }
 
@@ -86,6 +105,8 @@ public static class BehaviorTreeLogic
                 ? (traversibilityMap.Value.Width * 3) / 4
                 : traversibilityMap.Value.Width / 4;
             int enemySpawnY = traversibilityMap.Value.Height / 2;
+
+            Log.Info($"[BehaviorTree] Tank {tank.Name} (Alliance {tank.Alliance}) calculating path to enemy spawn ({enemySpawnX},{enemySpawnY})");
 
             var (intermediateX, intermediateY) = FindPathTowards(tank, enemySpawnX, enemySpawnY, traversibilityMap);
 
@@ -234,17 +255,21 @@ public static class BehaviorTreeLogic
     {
         if (traversibilityMap == null)
         {
+            Log.Info($"[FindPathTowards] Tank {tank.Id}: traversibilityMap is null");
             return (targetX, targetY);
         }
 
         int currentX = GetGridPosition(tank.PositionX);
         int currentY = GetGridPosition(tank.PositionY);
 
+        Log.Info($"[FindPathTowards] Tank {tank.Id}: current=({currentX},{currentY}), target=({targetX},{targetY})");
+
         int dx = Math.Sign(targetX - currentX);
         int dy = Math.Sign(targetY - currentY);
 
         if (dx == 0 && dy == 0)
         {
+            Log.Info($"[FindPathTowards] Tank {tank.Id}: Already at target position");
             return (currentX, currentY);
         }
 
@@ -265,29 +290,46 @@ public static class BehaviorTreeLogic
             (0, dy * 1),
         };
 
+        int candidatesChecked = 0;
+        int candidatesTraversible = 0;
+
         foreach (var (moveX, moveY) in candidateMoves)
         {
             if (moveX == 0 && moveY == 0) continue;
 
             int checkX = currentX + moveX;
             int checkY = currentY + moveY;
-            
-            checkX = Math.Clamp(checkX, 0, traversibilityMap.Value.Width - 1);
-            checkY = Math.Clamp(checkY, 0, traversibilityMap.Value.Height - 1);
 
-            if (checkX == currentX && checkY == currentY) continue;
+            int clampedX = Math.Clamp(checkX, 0, traversibilityMap.Value.Width - 1);
+            int clampedY = Math.Clamp(checkY, 0, traversibilityMap.Value.Height - 1);
 
-            int index = checkY * traversibilityMap.Value.Width + checkX;
-            if (index >= 0 && index < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[index])
+            if (clampedX == currentX && clampedY == currentY) continue;
+
+            int index = clampedY * traversibilityMap.Value.Width + clampedX;
+            candidatesChecked++;
+
+            bool isTraversible = index >= 0 && index < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[index];
+            if (isTraversible)
             {
-                return (checkX, checkY);
+                candidatesTraversible++;
+            }
+
+            Log.Info($"[FindPathTowards] Tank {tank.Id}: Checking move ({moveX},{moveY}) -> ({checkX},{checkY}) clamped to ({clampedX},{clampedY}), traversible={isTraversible}");
+
+            if (isTraversible)
+            {
+                Log.Info($"[FindPathTowards] Tank {tank.Id}: Found valid move to ({clampedX},{clampedY})");
+                return (clampedX, clampedY);
             }
         }
 
+        Log.Info($"[FindPathTowards] Tank {tank.Id}: Checked {candidatesChecked} candidates, {candidatesTraversible} were traversible but none selected");
+
+        Log.Info($"[FindPathTowards] Tank {tank.Id}: No valid moves found! Staying at ({currentX},{currentY})");
         return (currentX, currentY);
     }
 
-    public static (int x, int y) FindRandomEscapePosition(Module.Tank tank, Module.TraversibilityMap traversibilityMap)
+    public static (int x, int y) FindRandomEscapePosition(Module.Tank tank, Module.TraversibilityMap traversibilityMap, Random rng)
     {
         int currentX = GetGridPosition(tank.PositionX);
         int currentY = GetGridPosition(tank.PositionY);
@@ -306,7 +348,7 @@ public static class BehaviorTreeLogic
         {
             int checkX = currentX + moveX;
             int checkY = currentY + moveY;
-            
+
             if (checkX < 0 || checkX >= traversibilityMap.Width || checkY < 0 || checkY >= traversibilityMap.Height)
                 continue;
 
@@ -319,8 +361,7 @@ public static class BehaviorTreeLogic
 
         if (validMoves.Count > 0)
         {
-            var random = new Random();
-            return validMoves[random.Next(validMoves.Count)];
+            return validMoves[rng.Next(validMoves.Count)];
         }
 
         return (currentX, currentY);
@@ -358,7 +399,7 @@ public static class BehaviorTreeLogic
 
             int checkX = currentX + moveX;
             int checkY = currentY + moveY;
-            
+
             checkX = Math.Clamp(checkX, 0, traversibilityMap.Width - 1);
             checkY = Math.Clamp(checkY, 0, traversibilityMap.Height - 1);
 
