@@ -43,6 +43,9 @@ public static partial class Module
             {
                 var tank = BuildTank(ctx, identityString, ctx.Sender, tankName, "", 0, HOMEWORLD_SIZE / 2, HOMEWORLD_SIZE / 2);
                 ctx.Db.tank.Insert(tank);
+                
+                StartWorldTickers(ctx, identityString);
+                
                 Log.Info($"Created homeworld tank {tankName} for identity {identityString}");
             }
         }

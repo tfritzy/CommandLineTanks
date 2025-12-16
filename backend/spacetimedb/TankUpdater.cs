@@ -6,6 +6,7 @@ public static partial class TankUpdater
     private const double ARRIVAL_THRESHOLD = 0.1;
 
     [Table(Scheduled = nameof(UpdateTanks))]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     public partial struct ScheduledTankUpdates
     {
         [AutoInc]

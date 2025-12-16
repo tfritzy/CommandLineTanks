@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public static partial class ProjectileUpdater
 {
     [Table(Scheduled = nameof(UpdateProjectiles))]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     public partial struct ScheduledProjectileUpdates
     {
         [AutoInc]

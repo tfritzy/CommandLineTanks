@@ -36,6 +36,19 @@ public static partial class Module
             return;
         }
 
+        var identityString = ctx.Sender.ToString().ToLower();
+        var homeworldTanks = ctx.Db.tank.WorldId.Filter(identityString).Where(t => t.Owner == ctx.Sender);
+        foreach (var homeworldTank in homeworldTanks)
+        {
+            ctx.Db.tank.Id.Delete(homeworldTank.Id);
+            Log.Info($"Deleted homeworld tank {homeworldTank.Id} for player {player.Value.Name}");
+        }
+
+        if (!HasAnyTanksInWorld(ctx, identityString))
+        {
+            StopWorldTickers(ctx, identityString);
+        }
+
         var tankName = AllocateTankName(ctx, world.Value.Id);
         if (tankName == null)
         {
