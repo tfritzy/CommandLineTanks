@@ -67,98 +67,98 @@ export class Tank {
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
     ctx.rotate(this.bodyRotation);
 
-    const bodyColor = this.alliance === 0 ? '#ff6666' : '#6666ff';
-    const turretColor = this.alliance === 0 ? '#ff8888' : '#8888ff';
-    const barrelColor = this.alliance === 0 ? '#cc5555' : '#5555cc';
+    const bodyColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
+    const turretColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
+    const barrelColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
+    const borderColor = this.alliance === 0 ? "#330000" : "#000033";
 
-    this.drawTrack(ctx, -25, -20, 50, 10);
-    this.drawTrack(ctx, -25, 10, 50, 10);
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.shadowOffsetX = -2;
+    ctx.shadowOffsetY = 2;
 
     ctx.fillStyle = bodyColor;
-    ctx.fillRect(-23, -15, 46, 30);
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(-23, -15, 46, 30);
-
-    ctx.rotate(this.turretRotation - this.bodyRotation);
-    
-    ctx.fillStyle = turretColor;
     ctx.beginPath();
-    ctx.roundRect(-15, -10, 30, 20, 5);
+    ctx.roundRect(-25, -15, 39, 30, 5);
     ctx.fill();
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
+    ctx.shadowColor = "transparent";
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 1;
     ctx.stroke();
 
+    ctx.rotate(this.turretRotation - this.bodyRotation);
+
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.shadowOffsetX = -2;
+    ctx.shadowOffsetY = 2;
+
     ctx.fillStyle = barrelColor;
-    ctx.fillRect(15, -3, 25, 6);
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(15, -3, 25, 6);
+    ctx.beginPath();
+    ctx.roundRect(0, -4, 30, 8, 1);
+    ctx.fill();
+    ctx.shadowColor = "transparent";
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.shadowOffsetX = -2;
+    ctx.shadowOffsetY = 2;
+
+    ctx.fillStyle = turretColor;
+    ctx.beginPath();
+    ctx.roundRect(-12, -12, 24, 24, 10);
+    ctx.fill();
+    ctx.shadowColor = "transparent";
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
     ctx.restore();
 
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
-    
-    ctx.font = '14px monospace';
-    ctx.fillStyle = '#000000';
-    ctx.textAlign = 'center';
-    ctx.fillText(this.name, 0, -45);
-    
+
     const healthBarWidth = 50;
     const healthBarHeight = 6;
-    const healthBarY = -35;
-    
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(-healthBarWidth / 2 - 1, healthBarY - 1, healthBarWidth + 2, healthBarHeight + 2);
-    
-    ctx.fillStyle = '#333333';
-    ctx.fillRect(-healthBarWidth / 2, healthBarY, healthBarWidth, healthBarHeight);
-    
+    const healthBarY = -50;
+
+    ctx.fillStyle = "#666666";
+    ctx.fillRect(
+      -healthBarWidth / 2 - 1,
+      healthBarY - 1,
+      healthBarWidth + 2,
+      healthBarHeight + 2
+    );
+
+    ctx.fillStyle = "#333333";
+    ctx.fillRect(
+      -healthBarWidth / 2,
+      healthBarY,
+      healthBarWidth,
+      healthBarHeight
+    );
+
     const healthPercent = Math.max(0, this.health / this.maxHealth);
     const healthWidth = healthBarWidth * healthPercent;
-    
-    let healthColor = '#00ff00';
+
+    let healthColor = "#00ff00";
     if (healthPercent < 0.3) {
-      healthColor = '#ff0000';
+      healthColor = "#ff0000";
     } else if (healthPercent < 0.6) {
-      healthColor = '#ffaa00';
+      healthColor = "#ffaa00";
     }
-    
+
     ctx.fillStyle = healthColor;
     ctx.fillRect(-healthBarWidth / 2, healthBarY, healthWidth, healthBarHeight);
-    
-    ctx.restore();
-    
-    ctx.save();
-    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
-    ctx.fillStyle = '#ff0000';
-    ctx.beginPath();
-    ctx.arc(0, 0, 3, 0, Math.PI * 2);
-    ctx.fill();
+
+    ctx.font = "14px monospace";
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "center";
+    ctx.fillText(this.name, 0, -25);
+
     ctx.restore();
   }
 
-  private drawTrack(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
-    ctx.fillStyle = '#c0c0c0';
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x, y, width, height);
-
-    // Draw track segments
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < width; i += 8) {
-      ctx.beginPath();
-      ctx.moveTo(x + i, y);
-      ctx.lineTo(x + i, y + height);
-      ctx.stroke();
-    }
-  }
-
-  // Setters for updating tank state
   public setPosition(x: number, y: number) {
     this.x = x;
     this.y = y;
@@ -216,14 +216,15 @@ export class Tank {
   public update(deltaTime: number) {
     if (this.path.length > 0) {
       const target = this.path[0].position;
-      
+
       if (this.velocityX !== 0 || this.velocityY !== 0) {
         const newX = this.x + this.velocityX * deltaTime;
         const newY = this.y + this.velocityY * deltaTime;
-        
-        const currentDistSq = (target.x - this.x) ** 2 + (target.y - this.y) ** 2;
+
+        const currentDistSq =
+          (target.x - this.x) ** 2 + (target.y - this.y) ** 2;
         const newDistSq = (target.x - newX) ** 2 + (target.y - newY) ** 2;
-        
+
         if (newDistSq > currentDistSq) {
           this.x = target.x;
           this.y = target.y;
@@ -235,18 +236,19 @@ export class Tank {
         }
       }
     }
-    
+
     if (this.bodyAngularVelocity !== 0) {
-      const newRotation = this.bodyRotation + this.bodyAngularVelocity * deltaTime;
-      
+      const newRotation =
+        this.bodyRotation + this.bodyAngularVelocity * deltaTime;
+
       let currentDiff = this.targetBodyRotation - this.bodyRotation;
       while (currentDiff > Math.PI) currentDiff -= 2 * Math.PI;
       while (currentDiff < -Math.PI) currentDiff += 2 * Math.PI;
-      
+
       let newDiff = this.targetBodyRotation - newRotation;
       while (newDiff > Math.PI) newDiff -= 2 * Math.PI;
       while (newDiff < -Math.PI) newDiff += 2 * Math.PI;
-      
+
       if (Math.sign(currentDiff) !== Math.sign(newDiff)) {
         this.bodyRotation = this.targetBodyRotation;
         this.bodyAngularVelocity = 0;
@@ -259,16 +261,18 @@ export class Tank {
       let currentDiff = this.targetTurretRotation - this.turretRotation;
       while (currentDiff > Math.PI) currentDiff -= 2 * Math.PI;
       while (currentDiff < -Math.PI) currentDiff += 2 * Math.PI;
-      
+
       const rotationAmount = this.turretAngularVelocity * deltaTime;
-      
+
       if (Math.abs(currentDiff) <= Math.abs(rotationAmount)) {
         this.turretRotation = this.targetTurretRotation;
         this.turretAngularVelocity = 0;
       } else {
         this.turretRotation += rotationAmount;
-        while (this.turretRotation > Math.PI) this.turretRotation -= 2 * Math.PI;
-        while (this.turretRotation < -Math.PI) this.turretRotation += 2 * Math.PI;
+        while (this.turretRotation > Math.PI)
+          this.turretRotation -= 2 * Math.PI;
+        while (this.turretRotation < -Math.PI)
+          this.turretRotation += 2 * Math.PI;
       }
     }
   }
