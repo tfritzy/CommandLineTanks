@@ -261,8 +261,8 @@ public static partial class ProjectileUpdater
                 {
                     if (projectile.ProjectileType == ProjectileType.Grenade)
                     {
-                        float previousX = projectile.PositionX - (float)(projectile.Velocity.X * deltaTime);
-                        float previousY = projectile.PositionY - (float)(projectile.Velocity.Y * deltaTime);
+                        float previousX = projectile.PositionX - projectile.Velocity.X * (float)deltaTime;
+                        float previousY = projectile.PositionY - projectile.Velocity.Y * (float)deltaTime;
                         
                         int prevTileX = Module.GetGridPosition(previousX);
                         int prevTileY = Module.GetGridPosition(previousY);
