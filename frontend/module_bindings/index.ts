@@ -35,6 +35,8 @@ import Aim from "./aim_reducer";
 export { Aim };
 import Drive from "./drive_reducer";
 export { Drive };
+import DriveTo from "./drive_to_reducer";
+export { DriveTo };
 import FindWorld from "./find_world_reducer";
 export { FindWorld };
 import Fire from "./fire_reducer";
@@ -346,6 +348,7 @@ const tablesSchema = __schema(
 const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
   __reducerSchema("drive", Drive),
+  __reducerSchema("driveTo", DriveTo),
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),
   __reducerSchema("ResetWorld", ResetWorld),

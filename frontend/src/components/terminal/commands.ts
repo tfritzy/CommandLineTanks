@@ -7,7 +7,7 @@ function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   }
   const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
   const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
-  return myTank?.isDead ?? false;
+  return myTank ? myTank.health <= 0 : false;
 }
 
 const directionAliases: Record<string, { x: number; y: number; name: string; symbol: string }> = {
@@ -77,11 +77,28 @@ function directionToAngle(direction: string): number {
   return mathAngle;
 }
 
+function chessNotationToY(notation: string): number {
+  const lowerNotation = notation.toLowerCase();
+  let yCoord = 0;
+  
+  for (let i = 0; i < lowerNotation.length; i++) {
+    const charCode = lowerNotation.charCodeAt(i);
+    if (charCode >= 97 && charCode <= 122) {
+      yCoord = yCoord * 26 + (charCode - 96);
+    } else {
+      return -1;
+    }
+  }
+  
+  return yCoord - 1;
+}
+
 export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       "Commands:",
       "  drive, d, dr    Move your tank in a direction",
+      "  driveto, dt     Navigate to a coordinate using pathfinding",
       "  reverse, r      Reverse in the direction the tank is facing",
       "  stop, s         Stop the tank immediately",
       "  aim, a          Aim turret at an angle or direction",
@@ -129,6 +146,26 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  d n 5",
         "  drive southeast 3 75",
         "  d se 3 75 -a"
+      ];
+    
+    case "driveto":
+    case "dt":
+      return [
+        "driveto, dt - Navigate to a coordinate using A* pathfinding",
+        "",
+        "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
+        "",
+        "Arguments:",
+        "  <y_coordinate> Y coordinate in chess notation (required)",
+        "                 Examples: a, b, c, ..., z, aa, ab, ...",
+        "  <x_coordinate> X coordinate as a number (required)",
+        "  [throttle]     Speed as percentage 1-100 (default: 100)",
+        "",
+        "Examples:",
+        "  driveto ea 65",
+        "  driveto a 10",
+        "  driveto c 25 75",
+        "  dt aa 50"
       ];
     
     case "reverse":
@@ -611,3 +648,74 @@ export function findGame(connection: DbConnection, args: string[]): string[] {
     "Searching for a game world...",
   ];
 }
+
+export function driveto(connection: DbConnection, worldId: string, args: string[]): string[] {
+  if (isPlayerDead(connection, worldId)) {
+    return [
+      "driveto: error: cannot drive while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
+  if (args.length < 2) {
+    return [
+      "driveto: error: missing required arguments",
+      "",
+      "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
+      "       driveto ea 65",
+      "       driveto a 10 75",
+      "",
+      "Y coordinate uses chess notation (a, b, c, ..., z, aa, ab, ...)",
+      "X coordinate is a number"
+    ];
+  }
+
+  const yNotation = args[0];
+  const targetY = chessNotationToY(yNotation);
+
+  if (targetY < 0) {
+    return [
+      `driveto: error: invalid y coordinate '${yNotation}'`,
+      "",
+      "Y coordinate must be chess notation (a, b, c, ..., z, aa, ab, ...)",
+      "",
+      "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
+      "       driveto ea 65"
+    ];
+  }
+
+  const targetX = Number.parseInt(args[1]);
+  if (Number.isNaN(targetX)) {
+    return [
+      `driveto: error: invalid x coordinate '${args[1]}'`,
+      "",
+      "X coordinate must be a valid integer",
+      "",
+      "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
+      "       driveto ea 65"
+    ];
+  }
+
+  let throttle = 1;
+  if (args.length > 2) {
+    const parsed = Number.parseInt(args[2]);
+    if (Number.isNaN(parsed)) {
+      return [
+        `driveto: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
+        "",
+        "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
+        "       driveto ea 65 75"
+      ];
+    } else {
+      throttle = parsed / 100;
+    }
+  }
+
+  connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
+
+  return [
+    `Navigating to ${yNotation.toUpperCase()} ${targetX} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+  ];
+}
+
