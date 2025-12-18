@@ -77,20 +77,20 @@ function directionToAngle(direction: string): number {
   return mathAngle;
 }
 
-function chessNotationToY(notation: string): number {
+function letterToCoordinate(notation: string): number {
   const lowerNotation = notation.toLowerCase();
-  let yCoord = 0;
+  let coord = 0;
   
   for (let i = 0; i < lowerNotation.length; i++) {
     const charCode = lowerNotation.charCodeAt(i);
     if (charCode >= 97 && charCode <= 122) {
-      yCoord = yCoord * 26 + (charCode - 96);
+      coord = coord * 26 + (charCode - 96);
     } else {
       return -1;
     }
   }
   
-  return yCoord - 1;
+  return coord - 1;
 }
 
 export function help(_connection: DbConnection, args: string[]): string[] {
@@ -151,21 +151,22 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "driveto":
     case "dt":
       return [
-        "driveto, dt - Navigate to a coordinate using A* pathfinding",
+        "driveto, dt - Navigate to a coordinate using pathfinding",
         "",
-        "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
+        "Usage: driveto <x_coordinate> <y_coordinate> [throttle]",
         "",
         "Arguments:",
-        "  <y_coordinate> Y coordinate in chess notation (required)",
+        "  <x_coordinate> X coordinate as letters (required)",
         "                 Examples: a, b, c, ..., z, aa, ab, ...",
-        "  <x_coordinate> X coordinate as a number (required)",
+        "  <y_coordinate> Y coordinate as letters (required)",
+        "                 Examples: a, b, c, ..., z, aa, ab, ...",
         "  [throttle]     Speed as percentage 1-100 (default: 100)",
         "",
         "Examples:",
-        "  driveto ea 65",
-        "  driveto a 10",
-        "  driveto c 25 75",
-        "  dt aa 50"
+        "  driveto bm ea",
+        "  driveto a a",
+        "  driveto y c 75",
+        "  dt az aa"
       ];
     
     case "reverse":
@@ -662,38 +663,39 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
     return [
       "driveto: error: missing required arguments",
       "",
-      "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
-      "       driveto ea 65",
-      "       driveto a 10 75",
+      "Usage: driveto <x_coordinate> <y_coordinate> [throttle]",
+      "       driveto bm ea",
+      "       driveto a a 75",
       "",
-      "Y coordinate uses chess notation (a, b, c, ..., z, aa, ab, ...)",
-      "X coordinate is a number"
+      "Both X and Y coordinates use letters (a, b, c, ..., z, aa, ab, ...)"
     ];
   }
 
-  const yNotation = args[0];
-  const targetY = chessNotationToY(yNotation);
+  const xNotation = args[0];
+  const targetX = letterToCoordinate(xNotation);
+
+  if (targetX < 0) {
+    return [
+      `driveto: error: invalid x coordinate '${xNotation}'`,
+      "",
+      "X coordinate must use letters (a, b, c, ..., z, aa, ab, ...)",
+      "",
+      "Usage: driveto <x_coordinate> <y_coordinate> [throttle]",
+      "       driveto bm ea"
+    ];
+  }
+
+  const yNotation = args[1];
+  const targetY = letterToCoordinate(yNotation);
 
   if (targetY < 0) {
     return [
       `driveto: error: invalid y coordinate '${yNotation}'`,
       "",
-      "Y coordinate must be chess notation (a, b, c, ..., z, aa, ab, ...)",
+      "Y coordinate must use letters (a, b, c, ..., z, aa, ab, ...)",
       "",
-      "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
-      "       driveto ea 65"
-    ];
-  }
-
-  const targetX = Number.parseInt(args[1]);
-  if (Number.isNaN(targetX)) {
-    return [
-      `driveto: error: invalid x coordinate '${args[1]}'`,
-      "",
-      "X coordinate must be a valid integer",
-      "",
-      "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
-      "       driveto ea 65"
+      "Usage: driveto <x_coordinate> <y_coordinate> [throttle]",
+      "       driveto bm ea"
     ];
   }
 
@@ -704,8 +706,8 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
       return [
         `driveto: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
         "",
-        "Usage: driveto <y_coordinate> <x_coordinate> [throttle]",
-        "       driveto ea 65 75"
+        "Usage: driveto <x_coordinate> <y_coordinate> [throttle]",
+        "       driveto bm ea 75"
       ];
     } else {
       throttle = parsed / 100;
@@ -715,7 +717,7 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
   connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
   return [
-    `Navigating to ${yNotation.toUpperCase()} ${targetX} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+    `Navigating to ${xNotation.toUpperCase()} ${yNotation.toUpperCase()} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
   ];
 }
 
