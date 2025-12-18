@@ -700,7 +700,7 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
   let throttle = 1;
   if (args.length > 2) {
     const parsed = Number.parseInt(args[2]);
-    if (Number.isNaN(parsed)) {
+    if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
       return [
         `driveto: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
         "",
