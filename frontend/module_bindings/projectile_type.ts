@@ -32,6 +32,8 @@ export default __t.object("Projectile", {
   },
   spawnedAt: __t.u64(),
   lifetimeSeconds: __t.f32(),
+  returnsToShooter: __t.bool(),
+  isReturning: __t.bool(),
 });
 
 

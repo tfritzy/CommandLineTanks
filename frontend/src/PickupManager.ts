@@ -98,6 +98,22 @@ export class PickupManager {
         ctx.fillText("M", centerX, centerY);
         break;
 
+      case "BoomerangPickup":
+        ctx.fillStyle = "#8b4513";
+        ctx.strokeStyle = "#654321";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `bold ${size * 0.6}px monospace`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("B", centerX, centerY);
+        break;
+
       case "HealthPickup":
         ctx.fillStyle = "#00ff00";
         ctx.strokeStyle = "#00cc00";
