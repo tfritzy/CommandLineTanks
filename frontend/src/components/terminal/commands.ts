@@ -693,7 +693,7 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
   const firstArgLower = args[0].toLowerCase();
   const targetTank = allTanks.find(t => t.name === firstArgLower);
 
-  if (targetTank && targetTank.name !== myTank.name) {
+  if (targetTank && targetTank.id !== myTank.id) {
     let throttle = 1;
     if (args.length > 1) {
       const parsed = Number.parseInt(args[1]);
@@ -709,7 +709,9 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
       }
     }
 
-    connection.reducers.driveTo({ worldId, targetX: 0, targetY: 0, throttle, tankName: targetTank.name });
+    const targetX = Math.floor(targetTank.positionX);
+    const targetY = Math.floor(targetTank.positionY);
+    connection.reducers.driveTo({ worldId, targetX, targetY, throttle, tankName: targetTank.name });
 
     return [
       `Navigating to tank '${targetTank.name}' at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
