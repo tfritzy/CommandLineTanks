@@ -12,7 +12,7 @@ interface TerrainDetailData {
   positionX: number;
   positionY: number;
   type: TerrainDetailTypeEnum;
-  health: number;
+  health: number | undefined;
   label: string | undefined;
 }
 
@@ -197,5 +197,13 @@ export class TerrainManager {
       default:
         return "#ffffff";
     }
+  }
+
+  public getWorldWidth(): number {
+    return this.worldWidth;
+  }
+
+  public getWorldHeight(): number {
+    return this.worldHeight;
   }
 }

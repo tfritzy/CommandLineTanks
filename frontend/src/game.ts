@@ -47,6 +47,61 @@ export class Game {
     }
   }
 
+  private numberToChessNotation(num: number): string {
+    let result = '';
+    let n = num + 1;
+    
+    while (n > 0) {
+      n--;
+      result = String.fromCharCode(97 + (n % 26)) + result;
+      n = Math.floor(n / 26);
+    }
+    
+    return result.toUpperCase();
+  }
+
+  private drawCoordinateLabels(cameraX: number, cameraY: number) {
+    const worldWidth = this.terrainManager.getWorldWidth();
+    const worldHeight = this.terrainManager.getWorldHeight();
+
+    if (worldWidth === 0 || worldHeight === 0) return;
+
+    this.ctx.save();
+    this.ctx.fillStyle = "#000000";
+    this.ctx.font = "12px 'JetBrains Mono', monospace";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+
+    const startX = Math.floor(cameraX / UNIT_TO_PIXEL);
+    const endX = Math.ceil((cameraX + this.canvas.width) / UNIT_TO_PIXEL);
+    const startY = Math.floor(cameraY / UNIT_TO_PIXEL);
+    const endY = Math.ceil((cameraY + this.canvas.height) / UNIT_TO_PIXEL);
+
+    for (let x = Math.max(0, startX); x <= Math.min(worldWidth - 1, endX); x++) {
+      const screenX = x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - cameraX;
+      
+      if (screenX >= 0 && screenX <= this.canvas.width) {
+        this.ctx.fillText(x.toString(), screenX, 10);
+        this.ctx.fillText(x.toString(), screenX, this.canvas.height - 10);
+      }
+    }
+
+    this.ctx.textAlign = "left";
+    for (let y = Math.max(0, startY); y <= Math.min(worldHeight - 1, endY); y++) {
+      const screenY = y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - cameraY;
+      
+      if (screenY >= 0 && screenY <= this.canvas.height) {
+        const label = this.numberToChessNotation(y);
+        this.ctx.fillText(label, 5, screenY);
+        this.ctx.textAlign = "right";
+        this.ctx.fillText(label, this.canvas.width - 5, screenY);
+        this.ctx.textAlign = "left";
+      }
+    }
+
+    this.ctx.restore();
+  }
+
   private update(currentTime: number = 0) {
     const deltaTime =
       this.lastFrameTime === 0 ? 0 : (currentTime - this.lastFrameTime) / 1000;
@@ -99,6 +154,8 @@ export class Game {
     }
 
     this.ctx.restore();
+
+    this.drawCoordinateLabels(cameraX, cameraY);
 
     this.scoreManager.draw(this.ctx, this.canvas.width);
     this.gunInventoryManager.draw(this.ctx, this.canvas.width, this.canvas.height);

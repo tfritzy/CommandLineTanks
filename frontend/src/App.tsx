@@ -56,13 +56,13 @@ function App() {
 
     const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
-        setIsDead(tank.isDead);
+        setIsDead(tank.health <= 0);
       }
     };
 
     const handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
-        setIsDead(newTank.isDead);
+        setIsDead(newTank.health <= 0);
       }
     };
 
