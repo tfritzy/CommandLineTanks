@@ -4,7 +4,6 @@ import {
 
 export default {
   worldId: __t.string(),
-  targetX: __t.i32(),
-  targetY: __t.i32(),
+  tankName: __t.string(),
   throttle: __t.f32(),
 };

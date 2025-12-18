@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getConnection } from '../../spacetimedb-connection';
-import { aim, drive, driveto, fire, help, respawn, reverse, stop, target, findGame } from './commands';
+import { aim, drive, navigate, fire, help, respawn, reverse, stop, target, findGame } from './commands';
 
 interface TerminalComponentProps {
     worldId: string;
@@ -87,12 +87,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         newOutput.push(...driveOutput);
                         break;
                     }
-                    case 'driveto':
-                    case 'dt':
                     case 'navigate':
                     case 'nav': {
-                        const drivetoOutput = driveto(connection, worldId, args);
-                        newOutput.push(...drivetoOutput);
+                        const navigateOutput = navigate(connection, worldId, args);
+                        newOutput.push(...navigateOutput);
                         break;
                     }
                     case 'reverse':

@@ -6,7 +6,7 @@ using System.Linq;
 public static partial class Module
 {
     [Reducer]
-    public static void driveTo(ReducerContext ctx, string worldId, int targetX, int targetY, float throttle)
+    public static void navigateToTank(ReducerContext ctx, string worldId, string tankName, float throttle)
     {
         Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
@@ -14,12 +14,20 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
+        Tank? maybeTargetTank = ctx.Db.tank.WorldId_Name.Filter((worldId, tankName.ToLower())).FirstOrDefault();
+        if (maybeTargetTank == null) return;
+        var targetTank = maybeTargetTank.Value;
+
+        if (targetTank.Id == tank.Id) return;
+
         TraversibilityMap? maybeMap = ctx.Db.traversibility_map.WorldId.Filter(worldId).FirstOrDefault();
         if (maybeMap == null) return;
         var traversibilityMap = maybeMap.Value;
 
         int startX = (int)tank.PositionX;
         int startY = (int)tank.PositionY;
+        int targetX = (int)targetTank.PositionX;
+        int targetY = (int)targetTank.PositionY;
 
         var pathPoints = AStarPathfinding.FindPath(
             startX,
