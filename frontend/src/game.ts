@@ -111,7 +111,7 @@ export class Game {
     this.tankManager.update(deltaTime);
     this.projectileManager.update(deltaTime);
 
-    this.ctx.fillStyle = "#ffffff";
+    this.ctx.fillStyle = "#2e2e43";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.save();
@@ -158,7 +158,7 @@ export class Game {
     this.drawCoordinateLabels(cameraX, cameraY);
 
     this.scoreManager.draw(this.ctx, this.canvas.width);
-    this.gunInventoryManager.draw(this.ctx, this.canvas.width, this.canvas.height);
+    // this.gunInventoryManager.draw(this.ctx, this.canvas.width, this.canvas.height);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }

@@ -156,7 +156,7 @@ export class TerrainManager {
         ctx.fillStyle = this.getBaseTerrainColor(terrain);
         ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);
         
-        ctx.strokeStyle = "#eeeeee";
+        ctx.strokeStyle = "#4a4b5b";
         ctx.lineWidth = 1;
         ctx.strokeRect(worldX, worldY, unitToPixel, unitToPixel);
       }
@@ -189,7 +189,7 @@ export class TerrainManager {
   private getBaseTerrainColor(terrain: BaseTerrainType): string {
     switch (terrain.tag) {
       case "Ground":
-        return "#ffffff";
+        return "#2e2e43";
       case "Stream":
         return "#4682b4";
       case "Road":

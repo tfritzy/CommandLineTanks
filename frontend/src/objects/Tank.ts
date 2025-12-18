@@ -67,18 +67,18 @@ export class Tank {
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
     ctx.rotate(this.bodyRotation);
 
-    const bodyColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
-    const turretColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
-    const barrelColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
-    const borderColor = this.alliance === 0 ? "#330000" : "#000033";
+    const bodyColor = this.alliance === 0 ? "#e39764" : "#5a78b2";
+    const turretColor = this.alliance === 0 ? "#e39764" : "#5a78b2";
+    const barrelColor = this.alliance === 0 ? "#e39764" : "#5a78b2";
+    const borderColor = this.alliance === 0 ? "#813645" : "#3e4c7e";
 
     ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.shadowOffsetX = -2;
-    ctx.shadowOffsetY = 2;
+    ctx.shadowOffsetX = -3;
+    ctx.shadowOffsetY = 3;
 
     ctx.fillStyle = bodyColor;
     ctx.beginPath();
-    ctx.roundRect(-25, -15, 39, 30, 5);
+    ctx.roundRect(-25, -15, 39, 30, 10);
     ctx.fill();
     ctx.shadowColor = "transparent";
     ctx.strokeStyle = borderColor;
@@ -88,8 +88,8 @@ export class Tank {
     ctx.rotate(this.turretRotation - this.bodyRotation);
 
     ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.shadowOffsetX = -2;
-    ctx.shadowOffsetY = 2;
+    ctx.shadowOffsetX = -4;
+    ctx.shadowOffsetY = 4;
 
     ctx.fillStyle = barrelColor;
     ctx.beginPath();
@@ -118,43 +118,43 @@ export class Tank {
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
 
-    const healthBarWidth = 50;
-    const healthBarHeight = 6;
-    const healthBarY = -50;
+    // const healthBarWidth = 50;
+    // const healthBarHeight = 6;
+    // const healthBarY = -50;
 
-    ctx.fillStyle = "#666666";
-    ctx.fillRect(
-      -healthBarWidth / 2 - 1,
-      healthBarY - 1,
-      healthBarWidth + 2,
-      healthBarHeight + 2
-    );
+    // ctx.fillStyle = "#666666";
+    // ctx.fillRect(
+    //   -healthBarWidth / 2 - 1,
+    //   healthBarY - 1,
+    //   healthBarWidth + 2,
+    //   healthBarHeight + 2
+    // );
 
-    ctx.fillStyle = "#333333";
-    ctx.fillRect(
-      -healthBarWidth / 2,
-      healthBarY,
-      healthBarWidth,
-      healthBarHeight
-    );
+    // ctx.fillStyle = "#333333";
+    // ctx.fillRect(
+    //   -healthBarWidth / 2,
+    //   healthBarY,
+    //   healthBarWidth,
+    //   healthBarHeight
+    // );
 
-    const healthPercent = Math.max(0, this.health / this.maxHealth);
-    const healthWidth = healthBarWidth * healthPercent;
+    // const healthPercent = Math.max(0, this.health / this.maxHealth);
+    // const healthWidth = healthBarWidth * healthPercent;
 
-    let healthColor = "#00ff00";
-    if (healthPercent < 0.3) {
-      healthColor = "#ff0000";
-    } else if (healthPercent < 0.6) {
-      healthColor = "#ffaa00";
-    }
+    // let healthColor = "#00ff00";
+    // if (healthPercent < 0.3) {
+    //   healthColor = "#ff0000";
+    // } else if (healthPercent < 0.6) {
+    //   healthColor = "#ffaa00";
+    // }
 
-    ctx.fillStyle = healthColor;
-    ctx.fillRect(-healthBarWidth / 2, healthBarY, healthWidth, healthBarHeight);
+    // ctx.fillStyle = healthColor;
+    // ctx.fillRect(-healthBarWidth / 2, healthBarY, healthWidth, healthBarHeight);
 
     ctx.font = "14px monospace";
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = "#f5c47c";
     ctx.textAlign = "center";
-    ctx.fillText(this.name, 0, -25);
+    ctx.fillText(this.name, 0, -30);
 
     ctx.restore();
   }

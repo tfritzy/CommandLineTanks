@@ -25,11 +25,10 @@ export abstract class TerrainDetailObject {
     const labelY = y - UNIT_TO_PIXEL * 0.1;
 
     ctx.font = `${UNIT_TO_PIXEL * .5 }px sans-serif`;
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "#e6eeed";
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
     
-    ctx.strokeText(this.label, centerX, labelY);
     ctx.fillText(this.label, centerX, labelY);
     
     ctx.restore();
