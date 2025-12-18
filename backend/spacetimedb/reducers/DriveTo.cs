@@ -14,7 +14,7 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        TraversibilityMap? maybeMap = ctx.Db.traversibility_map.WorldId.Filter(worldId).FirstOrDefault();
+        TraversibilityMap? maybeMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
         if (maybeMap == null) return;
         var traversibilityMap = maybeMap.Value;
 
@@ -48,8 +48,7 @@ public static partial class Module
         tank = tank with
         {
             Path = pathEntries.ToArray(),
-            Velocity = new Vector2Float(0, 0),
-            BodyAngularVelocity = 0
+            Velocity = new Vector2Float(0, 0)
         };
 
         ctx.Db.tank.Id.Update(tank);

@@ -55,120 +55,74 @@ public static partial class TankUpdater
             if (tank.Path.Length > 0)
             {
                 var targetPos = tank.Path[0];
-                if (IsTankFacingTarget(tank, targetPos.Position, targetPos.Reverse))
+                var deltaX = targetPos.Position.X - tank.PositionX;
+                var deltaY = targetPos.Position.Y - tank.PositionY;
+                var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
+                var moveDistance = moveSpeed * deltaTime;
+
+                if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
                 {
-                    var deltaX = targetPos.Position.X - tank.PositionX;
-                    var deltaY = targetPos.Position.Y - tank.PositionY;
-                    var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-                    var targetAngle = Math.Atan2(deltaY, deltaX);
+                    var newPath = new PathEntry[tank.Path.Length - 1];
+                    Array.Copy(tank.Path, 1, newPath, 0, newPath.Length);
 
-                    if (targetPos.Reverse)
+                    if (newPath.Length > 0)
                     {
-                        targetAngle += Math.PI;
-                        if (targetAngle > Math.PI) targetAngle -= 2 * Math.PI;
-                    }
+                        var nextTarget = newPath[0];
+                        var nextDeltaX = nextTarget.Position.X - targetPos.Position.X;
+                        var nextDeltaY = nextTarget.Position.Y - targetPos.Position.Y;
+                        var nextDistance = Math.Sqrt(nextDeltaX * nextDeltaX + nextDeltaY * nextDeltaY);
 
-                    var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
-                    var moveDistance = moveSpeed * deltaTime;
-
-                    if (tank.Velocity.X == 0 && tank.Velocity.Y == 0)
-                    {
-                        var dirX = Math.Cos(targetAngle);
-                        var dirY = Math.Sin(targetAngle);
-
-                        tank = tank with
+                        if (nextDistance > 0)
                         {
-                            BodyRotation = (float)targetAngle,
-                            TargetBodyRotation = (float)targetAngle,
-                            Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
-                            BodyAngularVelocity = 0
-                        };
-                        needsUpdate = true;
+                            var nextDirX = nextDeltaX / nextDistance;
+                            var nextDirY = nextDeltaY / nextDistance;
+                            var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent;
+
+                            tank = tank with
+                            {
+                                PositionX = targetPos.Position.X,
+                                PositionY = targetPos.Position.Y,
+                                Velocity = new Vector2Float((float)(nextDirX * nextMoveSpeed), (float)(nextDirY * nextMoveSpeed)),
+                                Path = newPath
+                            };
+                        }
+                        else
+                        {
+                            tank = tank with
+                            {
+                                PositionX = targetPos.Position.X,
+                                PositionY = targetPos.Position.Y,
+                                Velocity = new Vector2Float(0, 0),
+                                Path = newPath
+                            };
+                        }
                     }
-                    else if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
+                    else
                     {
-                        var newPath = new PathEntry[tank.Path.Length - 1];
-                        Array.Copy(tank.Path, 1, newPath, 0, newPath.Length);
                         tank = tank with
                         {
                             PositionX = targetPos.Position.X,
                             PositionY = targetPos.Position.Y,
                             Velocity = new Vector2Float(0, 0),
-                            BodyAngularVelocity = 0,
                             Path = newPath
                         };
-                        needsUpdate = true;
                     }
-                    else
-                    {
-                        var dirX = deltaX / distance;
-                        var dirY = deltaY / distance;
-
-                        tank = tank with
-                        {
-                            PositionX = (float)(tank.PositionX + dirX * moveDistance),
-                            PositionY = (float)(tank.PositionY + dirY * moveDistance),
-                            Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
-                            BodyAngularVelocity = 0
-                        };
-                        needsUpdate = true;
-                    }
+                    needsUpdate = true;
                 }
                 else
                 {
-                    var deltaX = targetPos.Position.X - tank.PositionX;
-                    var deltaY = targetPos.Position.Y - tank.PositionY;
-                    var targetAngle = Math.Atan2(deltaY, deltaX);
+                    var dirX = deltaX / distance;
+                    var dirY = deltaY / distance;
 
-                    if (targetPos.Reverse)
+                    tank = tank with
                     {
-                        targetAngle += Math.PI;
-                        if (targetAngle > Math.PI) targetAngle -= 2 * Math.PI;
-                    }
-
-                    var angleDiff = targetAngle - tank.BodyRotation;
-                    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-                    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-
-                    var rotationAmount = tank.BodyRotationSpeed * deltaTime;
-
-                    if (tank.BodyAngularVelocity == 0)
-                    {
-                        tank = tank with
-                        {
-                            TargetBodyRotation = (float)targetAngle,
-                            Velocity = new Vector2Float(0, 0),
-                            BodyAngularVelocity = (float)(Math.Sign(angleDiff) * tank.BodyRotationSpeed)
-                        };
-                        needsUpdate = true;
-                    }
-                    else if (Math.Abs(angleDiff) <= rotationAmount)
-                    {
-                        var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
-                        var dirX = Math.Cos(targetAngle);
-                        var dirY = Math.Sin(targetAngle);
-
-                        tank = tank with
-                        {
-                            BodyRotation = (float)targetAngle,
-                            TargetBodyRotation = (float)targetAngle,
-                            Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed)),
-                            BodyAngularVelocity = 0
-                        };
-                        needsUpdate = true;
-                    }
-                    else
-                    {
-                        rotationAmount = Math.Sign(angleDiff) * rotationAmount;
-                        tank = tank with
-                        {
-                            BodyRotation = (float)(tank.BodyRotation + rotationAmount),
-                            TargetBodyRotation = (float)targetAngle,
-                            Velocity = new Vector2Float(0, 0),
-                            BodyAngularVelocity = (float)(Math.Sign(angleDiff) * tank.BodyRotationSpeed)
-                        };
-                        needsUpdate = true;
-                    }
+                        PositionX = (float)(tank.PositionX + dirX * moveDistance),
+                        PositionY = (float)(tank.PositionY + dirY * moveDistance),
+                        Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed))
+                    };
+                    needsUpdate = true;
                 }
             }
 
@@ -182,9 +136,14 @@ public static partial class TankUpdater
 
                     if (tank.TargetLead > 0)
                     {
-                        var targetAngle = targetTank.Value.BodyRotation;
-                        targetX += (float)(Math.Cos(targetAngle) * tank.TargetLead);
-                        targetY += (float)(Math.Sin(targetAngle) * tank.TargetLead);
+                        var targetVelocity = targetTank.Value.Velocity;
+                        var velocityMagnitude = Math.Sqrt(targetVelocity.X * targetVelocity.X + targetVelocity.Y * targetVelocity.Y);
+                        if (velocityMagnitude > 0)
+                        {
+                            var velocityAngle = Math.Atan2(targetVelocity.Y, targetVelocity.X);
+                            targetX += (float)(Math.Cos(velocityAngle) * tank.TargetLead);
+                            targetY += (float)(Math.Sin(velocityAngle) * tank.TargetLead);
+                        }
                     }
 
                     var deltaX = targetX - tank.PositionX;
@@ -251,26 +210,6 @@ public static partial class TankUpdater
                 ctx.Db.tank.Id.Update(tank);
             }
         }
-    }
-
-    private static bool IsTankFacingTarget(Module.Tank tank, Vector2 target, bool reverse = false, double tolerance = 0.02)
-    {
-        var deltaX = target.X - tank.PositionX;
-        var deltaY = target.Y - tank.PositionY;
-        var targetAngle = Math.Atan2(deltaY, deltaX);
-
-        if (reverse)
-        {
-            targetAngle += Math.PI;
-            if (targetAngle > Math.PI) targetAngle -= 2 * Math.PI;
-        }
-
-        var angleDiff = targetAngle - tank.BodyRotation;
-
-        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-
-        return Math.Abs(angleDiff) < tolerance;
     }
 
 

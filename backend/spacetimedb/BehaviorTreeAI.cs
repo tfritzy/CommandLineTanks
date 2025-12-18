@@ -121,11 +121,10 @@ public static partial class BehaviorTreeAI
                     tank = tank with
                     {
                         Path = [],
-                        Velocity = new Vector2Float(0, 0),
-                        BodyAngularVelocity = 0
+                        Velocity = new Vector2Float(0, 0)
                     };
                     ctx.Db.tank.Id.Update(tank);
-                    
+
                     Module.TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
                     Module.FireTankWeapon(ctx, tank);
                 }
@@ -166,8 +165,7 @@ public static partial class BehaviorTreeAI
         tank = tank with
         {
             Path = pathEntries,
-            Velocity = new Vector2Float(0, 0),
-            BodyAngularVelocity = 0
+            Velocity = new Vector2Float(0, 0)
         };
 
         ctx.Db.tank.Id.Update(tank);

@@ -46,26 +46,56 @@ export class Rock extends TerrainDetailObject {
 }
 
 export class Tree extends TerrainDetailObject {
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
     const centerX = x + UNIT_TO_PIXEL * 0.5;
     const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const radius = UNIT_TO_PIXEL * 0.7;
     
-    ctx.fillStyle = "#8b4513";
-    ctx.fillRect(centerX - UNIT_TO_PIXEL * 0.08, centerY - UNIT_TO_PIXEL * 0.1, UNIT_TO_PIXEL * 0.16, UNIT_TO_PIXEL * 0.4);
-    
-    ctx.fillStyle = "#228b22";
+    const shadowOffsetX = -radius * 0.4;
+    const shadowOffsetY = radius * 0.4;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
     ctx.beginPath();
-    ctx.arc(centerX, centerY - UNIT_TO_PIXEL * 0.15, UNIT_TO_PIXEL * 0.25, 0, Math.PI * 2);
+    ctx.arc(centerX + shadowOffsetX, centerY + shadowOffsetY, radius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = "#1a6b1a";
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    
+    ctx.restore();
+  }
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x + UNIT_TO_PIXEL * 0.5;
+    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const radius = UNIT_TO_PIXEL * 0.7;
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.clip();
+    
+    ctx.fillStyle = "#3e4c7e";
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = "#495f94";
+    ctx.beginPath();
+    const dividerCenterX = centerX + radius * 0.4;
+    const dividerCenterY = centerY - radius * 0.4;
+    const dividerRadius = radius * 1.3;
+    ctx.arc(dividerCenterX, dividerCenterY, dividerRadius, 0, Math.PI * 2);
+    ctx.fill();
     
     ctx.restore();
     this.drawLabel(ctx);
+  }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    this.drawShadow(ctx);
+    this.drawBody(ctx);
   }
 }
 

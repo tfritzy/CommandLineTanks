@@ -42,8 +42,17 @@ export class Game {
   private resizeCanvas() {
     const parent = this.canvas.parentElement;
     if (parent) {
-      this.canvas.width = parent.clientWidth;
-      this.canvas.height = parent.clientHeight;
+      const dpr = window.devicePixelRatio || 1;
+      const displayWidth = parent.clientWidth;
+      const displayHeight = parent.clientHeight;
+      
+      this.canvas.width = displayWidth * dpr;
+      this.canvas.height = displayHeight * dpr;
+      
+      this.canvas.style.width = `${displayWidth}px`;
+      this.canvas.style.height = `${displayHeight}px`;
+      
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
   }
 
@@ -66,35 +75,40 @@ export class Game {
 
     if (worldWidth === 0 || worldHeight === 0) return;
 
+    const dpr = window.devicePixelRatio || 1;
+    const displayWidth = this.canvas.width / dpr;
+    const displayHeight = this.canvas.height / dpr;
+
     this.ctx.save();
-    this.ctx.fillStyle = "#000000";
+    this.ctx.fillStyle = "#4a4b5b";
     this.ctx.font = "12px 'JetBrains Mono', monospace";
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
 
     const startX = Math.floor(cameraX / UNIT_TO_PIXEL);
-    const endX = Math.ceil((cameraX + this.canvas.width) / UNIT_TO_PIXEL);
+    const endX = Math.ceil((cameraX + displayWidth) / UNIT_TO_PIXEL);
     const startY = Math.floor(cameraY / UNIT_TO_PIXEL);
-    const endY = Math.ceil((cameraY + this.canvas.height) / UNIT_TO_PIXEL);
+    const endY = Math.ceil((cameraY + displayHeight) / UNIT_TO_PIXEL);
 
     for (let x = Math.max(0, startX); x <= Math.min(worldWidth - 1, endX); x++) {
-      const screenX = x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - cameraX;
+      const screenX = x * UNIT_TO_PIXEL - cameraX;
       
-      if (screenX >= 0 && screenX <= this.canvas.width) {
-        this.ctx.fillText(x.toString(), screenX, 10);
-        this.ctx.fillText(x.toString(), screenX, this.canvas.height - 10);
+      if (screenX >= 0 && screenX <= displayWidth) {
+        const label = this.numberToChessNotation(x);
+        this.ctx.fillText(label, screenX, 10);
+        this.ctx.fillText(label, screenX, displayHeight - 10);
       }
     }
 
     this.ctx.textAlign = "left";
     for (let y = Math.max(0, startY); y <= Math.min(worldHeight - 1, endY); y++) {
-      const screenY = y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - cameraY;
+      const screenY = y * UNIT_TO_PIXEL  - cameraY;
       
-      if (screenY >= 0 && screenY <= this.canvas.height) {
+      if (screenY >= 0 && screenY <= displayHeight) {
         const label = this.numberToChessNotation(y);
         this.ctx.fillText(label, 5, screenY);
         this.ctx.textAlign = "right";
-        this.ctx.fillText(label, this.canvas.width - 5, screenY);
+        this.ctx.fillText(label, displayWidth - 5, screenY);
         this.ctx.textAlign = "left";
       }
     }
@@ -111,8 +125,12 @@ export class Game {
     this.tankManager.update(deltaTime);
     this.projectileManager.update(deltaTime);
 
+    const dpr = window.devicePixelRatio || 1;
+    const displayWidth = this.canvas.width / dpr;
+    const displayHeight = this.canvas.height / dpr;
+
     this.ctx.fillStyle = "#2e2e43";
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillRect(0, 0, displayWidth, displayHeight);
 
     this.ctx.save();
 
@@ -122,8 +140,8 @@ export class Game {
     
     if (playerTank) {
       const playerPos = playerTank.getPosition();
-      cameraX = playerPos.x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - this.canvas.width / 2;
-      cameraY = playerPos.y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - this.canvas.height / 2;
+      cameraX = playerPos.x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - displayWidth / 2;
+      cameraY = playerPos.y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - displayHeight / 2;
     }
 
     this.ctx.translate(-cameraX, -cameraY);
@@ -132,8 +150,8 @@ export class Game {
       this.ctx,
       cameraX,
       cameraY,
-      this.canvas.width,
-      this.canvas.height,
+      displayWidth,
+      displayHeight,
       UNIT_TO_PIXEL
     );
 
@@ -141,8 +159,8 @@ export class Game {
       this.ctx,
       cameraX,
       cameraY,
-      this.canvas.width,
-      this.canvas.height
+      displayWidth,
+      displayHeight
     );
 
     for (const tank of this.tankManager.getAllTanks()) {
@@ -153,11 +171,29 @@ export class Game {
       projectile.draw(this.ctx);
     }
 
+    this.terrainManager.drawTreeShadows(
+      this.ctx,
+      cameraX,
+      cameraY,
+      displayWidth,
+      displayHeight,
+      UNIT_TO_PIXEL
+    );
+
+    this.terrainManager.drawTreeBodies(
+      this.ctx,
+      cameraX,
+      cameraY,
+      displayWidth,
+      displayHeight,
+      UNIT_TO_PIXEL
+    );
+
     this.ctx.restore();
 
     this.drawCoordinateLabels(cameraX, cameraY);
 
-    this.scoreManager.draw(this.ctx, this.canvas.width);
+    this.scoreManager.draw(this.ctx, displayWidth);
     // this.gunInventoryManager.draw(this.ctx, this.canvas.width, this.canvas.height);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));

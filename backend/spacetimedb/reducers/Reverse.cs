@@ -15,9 +15,18 @@ public static partial class Module
 
         Vector2 rootPos = new Vector2((int)tank.PositionX, (int)tank.PositionY);
 
-        float angle = tank.BodyRotation;
-        int offsetX = (int)Math.Round(-Math.Cos(angle) * distance);
-        int offsetY = (int)Math.Round(Math.Sin(angle) * distance);
+        int offsetX, offsetY;
+        if (tank.Velocity.X != 0 || tank.Velocity.Y != 0)
+        {
+            var velocityMagnitude = Math.Sqrt(tank.Velocity.X * tank.Velocity.X + tank.Velocity.Y * tank.Velocity.Y);
+            offsetX = (int)Math.Round(-(tank.Velocity.X / velocityMagnitude) * distance);
+            offsetY = (int)Math.Round(-(tank.Velocity.Y / velocityMagnitude) * distance);
+        }
+        else
+        {
+            offsetX = 0;
+            offsetY = (int)Math.Round(-distance);
+        }
 
         Vector2 nextPos = new(rootPos.X + offsetX, rootPos.Y + offsetY);
         Log.Info(tank + " reversing to " + nextPos + ". because " + rootPos + " and offset (" + offsetX + ", " + offsetY + ")");
@@ -26,14 +35,13 @@ public static partial class Module
         {
             ThrottlePercent = 1.0f,
             Position = nextPos,
-            Reverse = true
+            Reverse = false
         };
 
         tank = tank with
         {
             Path = [entry],
-            Velocity = new Vector2Float(0, 0),
-            BodyAngularVelocity = 0
+            Velocity = new Vector2Float(0, 0)
         };
 
         ctx.Db.tank.Id.Update(tank);

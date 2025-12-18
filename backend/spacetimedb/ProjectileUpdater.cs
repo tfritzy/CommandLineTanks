@@ -1,6 +1,7 @@
 using SpacetimeDB;
 using static Types;
 using System.Collections.Generic;
+using static Module;
 
 public static partial class ProjectileUpdater
 {
@@ -120,7 +121,7 @@ public static partial class ProjectileUpdater
             {
                 float progress = (float)(projectileAgeSeconds / projectile.LifetimeSeconds);
                 float speedMultiplier;
-                
+
                 if (progress < 0.5f)
                 {
                     speedMultiplier = 1.0f - (progress * 0.8f);
@@ -129,10 +130,10 @@ public static partial class ProjectileUpdater
                 {
                     speedMultiplier = 0.6f + ((progress - 0.5f) * 1.6f);
                 }
-                
+
                 float currentSpeed = projectile.Speed * speedMultiplier;
                 float angle = (float)Math.Atan2(projectile.Velocity.Y, projectile.Velocity.X);
-                
+
                 projectile = projectile with
                 {
                     Velocity = new Vector2Float(
@@ -217,7 +218,7 @@ public static partial class ProjectileUpdater
             {
                 int tileIndex = projectileTileY * traversibilityMap.Value.Width + projectileTileX;
                 bool tileIsTraversable = tileIndex < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[tileIndex];
-                
+
                 if (!tileIsTraversable && !projectile.PassThroughTerrain)
                 {
                     foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))

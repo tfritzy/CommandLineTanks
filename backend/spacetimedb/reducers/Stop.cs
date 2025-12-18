@@ -14,7 +14,6 @@ public static partial class Module
 
         tank.Path = [];
         tank.Velocity = new Vector2Float(0, 0);
-        tank.BodyAngularVelocity = 0;
         ctx.Db.tank.Id.Update(tank);
         Log.Info($"Tank {tank.Name} stopped");
     }

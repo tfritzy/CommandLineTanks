@@ -80,18 +80,14 @@ public static partial class Module
 
         public PathEntry[] Path;
         public float TopSpeed;
-        public float BodyRotationSpeed;
         public float TurretRotationSpeed;
 
         public float PositionX;
         public float PositionY;
 
         public Vector2Float Velocity;
-        public float BodyAngularVelocity;
         public float TurretAngularVelocity;
 
-        public float BodyRotation;
-        public float TargetBodyRotation;
         public float TurretRotation;
         public float TargetTurretRotation;
 

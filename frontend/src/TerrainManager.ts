@@ -156,9 +156,34 @@ export class TerrainManager {
         ctx.fillStyle = this.getBaseTerrainColor(terrain);
         ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);
         
-        ctx.strokeStyle = "#4a4b5b";
+        ctx.strokeStyle = "#4a4b5b22";
         ctx.lineWidth = 1;
         ctx.strokeRect(worldX, worldY, unitToPixel, unitToPixel);
+      }
+    }
+  }
+
+  public drawTreeShadows(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    canvasWidth: number,
+    canvasHeight: number,
+    unitToPixel: number
+  ) {
+    const startTileX = Math.floor(cameraX / unitToPixel);
+    const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
+    const startTileY = Math.floor(cameraY / unitToPixel);
+    const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
+
+    for (const obj of this.detailObjects.values()) {
+      if (!(obj instanceof Tree)) continue;
+      
+      const x = obj.getX();
+      const y = obj.getY();
+      
+      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
+        obj.drawShadow(ctx);
       }
     }
   }
@@ -177,11 +202,38 @@ export class TerrainManager {
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
     for (const obj of this.detailObjects.values()) {
+      if (obj instanceof Tree) continue;
+      
       const x = obj.getX();
       const y = obj.getY();
       
       if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
         obj.draw(ctx);
+      }
+    }
+  }
+
+  public drawTreeBodies(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    canvasWidth: number,
+    canvasHeight: number,
+    unitToPixel: number
+  ) {
+    const startTileX = Math.floor(cameraX / unitToPixel);
+    const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
+    const startTileY = Math.floor(cameraY / unitToPixel);
+    const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
+
+    for (const obj of this.detailObjects.values()) {
+      if (!(obj instanceof Tree)) continue;
+      
+      const x = obj.getX();
+      const y = obj.getY();
+      
+      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
+        obj.drawBody(ctx);
       }
     }
   }

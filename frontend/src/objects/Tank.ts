@@ -9,13 +9,10 @@ type PathEntry = {
 export class Tank {
   private x: number;
   private y: number;
-  private bodyRotation: number;
-  private targetBodyRotation: number;
   private turretRotation: number;
   private targetTurretRotation: number;
   private velocityX: number;
   private velocityY: number;
-  private bodyAngularVelocity: number;
   private turretAngularVelocity: number;
   private path: PathEntry[];
   private name: string;
@@ -28,8 +25,6 @@ export class Tank {
   constructor(
     x: number,
     y: number,
-    bodyRotation: number,
-    targetBodyRotation: number,
     turretRotation: number,
     name: string,
     alliance: number,
@@ -37,7 +32,6 @@ export class Tank {
     maxHealth: number = 100,
     velocityX: number = 0,
     velocityY: number = 0,
-    bodyAngularVelocity: number = 0,
     turretAngularVelocity: number = 0,
     path: PathEntry[] = [],
     guns: GunData[] = [],
@@ -45,8 +39,6 @@ export class Tank {
   ) {
     this.x = x;
     this.y = y;
-    this.bodyRotation = bodyRotation;
-    this.targetBodyRotation = targetBodyRotation;
     this.turretRotation = turretRotation;
     this.targetTurretRotation = turretRotation;
     this.name = name;
@@ -55,7 +47,6 @@ export class Tank {
     this.maxHealth = maxHealth;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
-    this.bodyAngularVelocity = bodyAngularVelocity;
     this.turretAngularVelocity = turretAngularVelocity;
     this.path = path;
     this.guns = guns;
@@ -65,35 +56,34 @@ export class Tank {
   public draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
-    ctx.rotate(this.bodyRotation);
 
-    const bodyColor = this.alliance === 0 ? "#e39764" : "#5a78b2";
-    const turretColor = this.alliance === 0 ? "#e39764" : "#5a78b2";
-    const barrelColor = this.alliance === 0 ? "#e39764" : "#5a78b2";
-    const borderColor = this.alliance === 0 ? "#813645" : "#3e4c7e";
+    const bodyColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
+    const turretColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
+    const barrelColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
+    const borderColor = this.alliance === 0 ? "#330000" : "#000033";
 
     ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.shadowOffsetX = -3;
-    ctx.shadowOffsetY = 3;
+    ctx.shadowOffsetX = -5;
+    ctx.shadowOffsetY = 5;
 
     ctx.fillStyle = bodyColor;
     ctx.beginPath();
-    ctx.roundRect(-25, -15, 39, 30, 10);
+    ctx.roundRect(-16, -16, 32, 32, 5);
     ctx.fill();
     ctx.shadowColor = "transparent";
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    ctx.rotate(this.turretRotation - this.bodyRotation);
+    ctx.rotate(this.turretRotation);
 
     ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.shadowOffsetX = -4;
-    ctx.shadowOffsetY = 4;
+    ctx.shadowOffsetX = -12;
+    ctx.shadowOffsetY = 12;
 
     ctx.fillStyle = barrelColor;
     ctx.beginPath();
-    ctx.roundRect(0, -4, 30, 8, 1);
+    ctx.roundRect(0, -5, 24, 10, 3);
     ctx.fill();
     ctx.shadowColor = "transparent";
     ctx.strokeStyle = borderColor;
@@ -101,8 +91,8 @@ export class Tank {
     ctx.stroke();
 
     ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.shadowOffsetX = -2;
-    ctx.shadowOffsetY = 2;
+    ctx.shadowOffsetX = -5;
+    ctx.shadowOffsetY = 5;
 
     ctx.fillStyle = turretColor;
     ctx.beginPath();
@@ -118,39 +108,6 @@ export class Tank {
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
 
-    // const healthBarWidth = 50;
-    // const healthBarHeight = 6;
-    // const healthBarY = -50;
-
-    // ctx.fillStyle = "#666666";
-    // ctx.fillRect(
-    //   -healthBarWidth / 2 - 1,
-    //   healthBarY - 1,
-    //   healthBarWidth + 2,
-    //   healthBarHeight + 2
-    // );
-
-    // ctx.fillStyle = "#333333";
-    // ctx.fillRect(
-    //   -healthBarWidth / 2,
-    //   healthBarY,
-    //   healthBarWidth,
-    //   healthBarHeight
-    // );
-
-    // const healthPercent = Math.max(0, this.health / this.maxHealth);
-    // const healthWidth = healthBarWidth * healthPercent;
-
-    // let healthColor = "#00ff00";
-    // if (healthPercent < 0.3) {
-    //   healthColor = "#ff0000";
-    // } else if (healthPercent < 0.6) {
-    //   healthColor = "#ffaa00";
-    // }
-
-    // ctx.fillStyle = healthColor;
-    // ctx.fillRect(-healthBarWidth / 2, healthBarY, healthWidth, healthBarHeight);
-
     ctx.font = "14px monospace";
     ctx.fillStyle = "#f5c47c";
     ctx.textAlign = "center";
@@ -164,14 +121,6 @@ export class Tank {
     this.y = y;
   }
 
-  public setBodyRotation(rotation: number) {
-    this.bodyRotation = rotation;
-  }
-
-  public setTargetBodyRotation(rotation: number) {
-    this.targetBodyRotation = rotation;
-  }
-
   public setTurretRotation(rotation: number) {
     this.turretRotation = rotation;
   }
@@ -183,10 +132,6 @@ export class Tank {
   public setVelocity(velocityX: number, velocityY: number) {
     this.velocityX = velocityX;
     this.velocityY = velocityY;
-  }
-
-  public setBodyAngularVelocity(bodyAngularVelocity: number) {
-    this.bodyAngularVelocity = bodyAngularVelocity;
   }
 
   public setTurretAngularVelocity(turretAngularVelocity: number) {
@@ -237,26 +182,6 @@ export class Tank {
       }
     }
 
-    if (this.bodyAngularVelocity !== 0) {
-      const newRotation =
-        this.bodyRotation + this.bodyAngularVelocity * deltaTime;
-
-      let currentDiff = this.targetBodyRotation - this.bodyRotation;
-      while (currentDiff > Math.PI) currentDiff -= 2 * Math.PI;
-      while (currentDiff < -Math.PI) currentDiff += 2 * Math.PI;
-
-      let newDiff = this.targetBodyRotation - newRotation;
-      while (newDiff > Math.PI) newDiff -= 2 * Math.PI;
-      while (newDiff < -Math.PI) newDiff += 2 * Math.PI;
-
-      if (Math.sign(currentDiff) !== Math.sign(newDiff)) {
-        this.bodyRotation = this.targetBodyRotation;
-        this.bodyAngularVelocity = 0;
-      } else {
-        this.bodyRotation = newRotation;
-      }
-    }
-
     if (this.turretAngularVelocity !== 0) {
       let currentDiff = this.targetTurretRotation - this.turretRotation;
       while (currentDiff > Math.PI) currentDiff -= 2 * Math.PI;
@@ -280,10 +205,6 @@ export class Tank {
   // Getters
   public getPosition(): { x: number; y: number } {
     return { x: this.x, y: this.y };
-  }
-
-  public getBodyRotation(): number {
-    return this.bodyRotation;
   }
 
   public getTurretRotation(): number {

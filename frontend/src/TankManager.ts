@@ -24,8 +24,6 @@ export class TankManager {
       const newTank = new Tank(
         tank.positionX,
         tank.positionY,
-        tank.bodyRotation,
-        tank.targetBodyRotation,
         tank.turretRotation,
         tank.name,
         tank.alliance,
@@ -33,7 +31,6 @@ export class TankManager {
         tank.maxHealth,
         tank.velocity.x,
         tank.velocity.y,
-        tank.bodyAngularVelocity,
         tank.turretAngularVelocity,
         tank.path,
         tank.guns,
@@ -50,11 +47,8 @@ export class TankManager {
       const tank = this.tanks.get(newTank.id);
       if (tank) {
         tank.setPosition(newTank.positionX, newTank.positionY);
-        tank.setBodyRotation(newTank.bodyRotation);
-        tank.setTargetBodyRotation(newTank.targetBodyRotation);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
         tank.setVelocity(newTank.velocity.x, newTank.velocity.y);
-        tank.setBodyAngularVelocity(newTank.bodyAngularVelocity);
         tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
         tank.setPath(newTank.path);
         tank.setHealth(newTank.health);

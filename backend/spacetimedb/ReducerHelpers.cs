@@ -34,7 +34,6 @@ public static partial class Module
             PositionY = spawnY,
             Path = [],
             Velocity = new Vector2Float(0, 0),
-            BodyAngularVelocity = 0,
             TurretAngularVelocity = 0,
             Target = null,
             TargetLead = 0.0f,
@@ -151,11 +150,9 @@ public static partial class Module
             Path = [],
             PositionX = positionX,
             PositionY = positionY,
-            BodyRotation = 0.0f,
             TurretRotation = 0.0f,
             TargetTurretRotation = 0.0f,
             TopSpeed = 3f,
-            BodyRotationSpeed = 3f,
             TurretRotationSpeed = 3f,
             Guns = [BASE_GUN],
             SelectedGunIndex = 0
@@ -287,8 +284,8 @@ public static partial class Module
     public static bool TrySpawnPickup(ReducerContext ctx, string worldId, TraversibilityMap traversibilityMap)
     {
         var (spawnX, spawnY) = GenerateNormalDistributedPosition(
-            ctx.Rng, 
-            traversibilityMap.Width, 
+            ctx.Rng,
+            traversibilityMap.Width,
             traversibilityMap.Height
         );
 

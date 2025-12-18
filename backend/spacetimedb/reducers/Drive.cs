@@ -26,8 +26,7 @@ public static partial class Module
             tank = tank with
             {
                 Path = [entry],
-                Velocity = new Vector2Float(0, 0),
-                BodyAngularVelocity = 0
+                Velocity = new Vector2Float(0, 0)
             };
         }
 
