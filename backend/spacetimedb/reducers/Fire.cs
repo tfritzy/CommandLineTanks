@@ -28,7 +28,7 @@ public static partial class Module
 
         if (gun.ProjectileCount == 1)
         {
-            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, gun.Damage, gun.TrackingStrength, gun.ProjectileType, gun.LifetimeSeconds);
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, gun);
         }
         else
         {
@@ -36,7 +36,7 @@ public static partial class Module
             for (int i = 0; i < gun.ProjectileCount; i++)
             {
                 float angle = tank.TurretRotation - halfSpread + (i * gun.SpreadAngle);
-                CreateProjectile(ctx, tank, barrelTipX, barrelTipY, angle, gun.Damage, gun.TrackingStrength, gun.ProjectileType, gun.LifetimeSeconds);
+                CreateProjectile(ctx, tank, barrelTipX, barrelTipY, angle, gun);
             }
         }
 

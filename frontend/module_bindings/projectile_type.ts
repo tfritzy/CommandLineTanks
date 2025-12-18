@@ -34,6 +34,9 @@ export default __t.object("Projectile", {
   lifetimeSeconds: __t.f32(),
   returnsToShooter: __t.bool(),
   isReturning: __t.bool(),
+  maxCollisions: __t.i32(),
+  collisionCount: __t.i32(),
+  passThroughTerrain: __t.bool(),
 });
 
 

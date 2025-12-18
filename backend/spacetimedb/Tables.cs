@@ -127,6 +127,9 @@ public static partial class Module
         public float LifetimeSeconds;
         public bool ReturnsToShooter;
         public bool IsReturning;
+        public int MaxCollisions;
+        public int CollisionCount;
+        public bool PassThroughTerrain;
     }
 
     [Table(Name = "score", Public = true)]

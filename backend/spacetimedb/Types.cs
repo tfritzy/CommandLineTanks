@@ -98,5 +98,7 @@ public static partial class Types
         public float TrackingStrength;
         public ProjectileType ProjectileType;
         public float LifetimeSeconds;
+        public int MaxCollisions;
+        public bool PassThroughTerrain;
     }
 }

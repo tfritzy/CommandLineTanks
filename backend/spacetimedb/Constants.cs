@@ -23,7 +23,9 @@ public static partial class Module
         Damage = 20,
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Normal,
-        LifetimeSeconds = 10.0f
+        LifetimeSeconds = 10.0f,
+        MaxCollisions = 1,
+        PassThroughTerrain = false
     };
 
     public static readonly Gun TRIPLE_SHOOTER_GUN = new Gun
@@ -35,7 +37,9 @@ public static partial class Module
         Damage = 20,
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Normal,
-        LifetimeSeconds = 10.0f
+        LifetimeSeconds = 10.0f,
+        MaxCollisions = 1,
+        PassThroughTerrain = false
     };
 
     public static readonly Gun MISSILE_LAUNCHER_GUN = new Gun
@@ -47,7 +51,9 @@ public static partial class Module
         Damage = 40,
         TrackingStrength = 2.0f,
         ProjectileType = ProjectileType.Missile,
-        LifetimeSeconds = 15.0f
+        LifetimeSeconds = 15.0f,
+        MaxCollisions = 1,
+        PassThroughTerrain = false
     };
 
     public static readonly Gun BOOMERANG_GUN = new Gun
@@ -56,9 +62,11 @@ public static partial class Module
         Ammo = 1,
         ProjectileCount = 1,
         SpreadAngle = 0,
-        Damage = 30,
+        Damage = 50,
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Boomerang,
-        LifetimeSeconds = 8.0f
+        LifetimeSeconds = 8.0f,
+        MaxCollisions = 10,
+        PassThroughTerrain = true
     };
 }

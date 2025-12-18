@@ -116,6 +116,32 @@ public static partial class ProjectileUpdater
                 };
             }
 
+            if (projectile.ReturnsToShooter)
+            {
+                float progress = (float)(projectileAgeSeconds / projectile.LifetimeSeconds);
+                float speedMultiplier;
+                
+                if (progress < 0.5f)
+                {
+                    speedMultiplier = 1.0f - (progress * 0.8f);
+                }
+                else
+                {
+                    speedMultiplier = 0.6f + ((progress - 0.5f) * 1.6f);
+                }
+                
+                float currentSpeed = projectile.Speed * speedMultiplier;
+                float angle = (float)Math.Atan2(projectile.Velocity.Y, projectile.Velocity.X);
+                
+                projectile = projectile with
+                {
+                    Velocity = new Vector2Float(
+                        (float)(Math.Cos(angle) * currentSpeed),
+                        (float)(Math.Sin(angle) * currentSpeed)
+                    )
+                };
+            }
+
             if (projectile.TrackingStrength > 0)
             {
                 int projectileCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
@@ -192,7 +218,7 @@ public static partial class ProjectileUpdater
                 int tileIndex = projectileTileY * traversibilityMap.Value.Width + projectileTileX;
                 bool tileIsTraversable = tileIndex < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[tileIndex];
                 
-                if (!tileIsTraversable && !projectile.ReturnsToShooter)
+                if (!tileIsTraversable && !projectile.PassThroughTerrain)
                 {
                     foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
                     {
@@ -265,7 +291,12 @@ public static partial class ProjectileUpdater
                     {
                         HandleTankDamage(ctx, tank, projectile, args.WorldId);
 
-                        if (!projectile.ReturnsToShooter)
+                        projectile = projectile with
+                        {
+                            CollisionCount = projectile.CollisionCount + 1
+                        };
+
+                        if (projectile.CollisionCount >= projectile.MaxCollisions)
                         {
                             ctx.Db.projectile.Id.Delete(projectile.Id);
                             collided = true;
