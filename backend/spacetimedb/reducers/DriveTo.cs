@@ -6,7 +6,7 @@ using System.Linq;
 public static partial class Module
 {
     [Reducer]
-    public static void driveTo(ReducerContext ctx, string worldId, int targetX, int targetY, float throttle)
+    public static void driveTo(ReducerContext ctx, string worldId, int targetX, int targetY, float throttle, string? tankName)
     {
         Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
@@ -20,6 +20,17 @@ public static partial class Module
 
         int startX = (int)tank.PositionX;
         int startY = (int)tank.PositionY;
+
+        if (!string.IsNullOrEmpty(tankName))
+        {
+            Tank? maybeTargetTank = ctx.Db.tank.WorldId_Name.Filter((worldId, tankName)).FirstOrDefault();
+            if (maybeTargetTank != null)
+            {
+                var targetTank = maybeTargetTank.Value;
+                targetX = (int)targetTank.PositionX;
+                targetY = (int)targetTank.PositionY;
+            }
+        }
 
         var pathPoints = AStarPathfinding.FindPath(
             startX,

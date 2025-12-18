@@ -97,17 +97,17 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       "Commands:",
-      "  drive, d, dr    Move your tank in a direction",
-      "  driveto, dt     Navigate to a coordinate using pathfinding",
-      "  reverse, r      Reverse in the direction the tank is facing",
-      "  stop, s         Stop the tank immediately",
-      "  aim, a          Aim turret at an angle or direction",
-      "  target, t       Target another tank by name",
-      "  fire, f         Fire a projectile from your tank",
-      "  respawn         Respawn after death",
-      "  findgame        Join a game world",
-      "  clear, c        Clear the terminal output",
-      "  help, h         Display help information",
+      "  drive, d, dr         Move your tank in a direction",
+      "  driveto, dt, nav     Navigate to a coordinate or tank using pathfinding",
+      "  reverse, r           Reverse in the direction the tank is facing",
+      "  stop, s              Stop the tank immediately",
+      "  aim, a               Aim turret at an angle or direction",
+      "  target, t            Target another tank by name",
+      "  fire, f              Fire a projectile from your tank",
+      "  respawn              Respawn after death",
+      "  findgame             Join a game world",
+      "  clear, c             Clear the terminal output",
+      "  help, h              Display help information",
     ];
   }
 
@@ -150,22 +150,27 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     
     case "driveto":
     case "dt":
+    case "navigate":
+    case "nav":
       return [
-        "driveto, dt - Navigate to a coordinate using pathfinding",
+        "driveto, dt, navigate, nav - Navigate to a coordinate or tank using pathfinding",
         "",
-        "Usage: driveto <x_coordinate> <y_coordinate> [throttle]",
+        "Usage: driveto <tank_name> [throttle]",
+        "       driveto <x_coordinate> <y_coordinate> [throttle]",
         "",
         "Arguments:",
-        "  <x_coordinate> X coordinate as letters (required)",
-        "                 Examples: a, b, c, ..., z, aa, ab, ...",
-        "  <y_coordinate> Y coordinate as letters (required)",
-        "                 Examples: a, b, c, ..., z, aa, ab, ...",
+        "  <tank_name>    Name of the tank to navigate to (e.g., alpha, bravo)",
+        "  <x_coordinate> X coordinate as letters (a, b, c, ..., z, aa, ab, ...)",
+        "  <y_coordinate> Y coordinate as letters (a, b, c, ..., z, aa, ab, ...)",
         "  [throttle]     Speed as percentage 1-100 (default: 100)",
         "",
         "Examples:",
+        "  driveto alpha",
+        "  navigate bravo 75",
         "  driveto bm ea",
         "  driveto a a",
         "  driveto y c 75",
+        "  nav charlie",
         "  dt az aa"
       ];
     
@@ -659,15 +664,68 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
     ];
   }
 
+  if (args.length < 1) {
+    return [
+      "driveto: error: missing required arguments",
+      "",
+      "Usage: driveto <tank_name> [throttle]",
+      "       driveto <x_coordinate> <y_coordinate> [throttle]",
+      "",
+      "Examples:",
+      "  driveto alpha",
+      "  driveto bravo 75",
+      "  driveto bm ea",
+      "  driveto a a 75"
+    ];
+  }
+
+  if (!connection.identity) {
+    return ["driveto: error: no connection"];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
+  const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+
+  if (!myTank) {
+    return ["driveto: error: no connection"];
+  }
+
+  const firstArgLower = args[0].toLowerCase();
+  const targetTank = allTanks.find(t => t.name === firstArgLower);
+
+  if (targetTank && targetTank.name !== myTank.name) {
+    let throttle = 1;
+    if (args.length > 1) {
+      const parsed = Number.parseInt(args[1]);
+      if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
+        return [
+          `driveto: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`,
+          "",
+          "Usage: driveto <tank_name> [throttle]",
+          "       driveto alpha 75"
+        ];
+      } else {
+        throttle = parsed / 100;
+      }
+    }
+
+    connection.reducers.driveTo({ worldId, targetX: 0, targetY: 0, throttle, tankName: targetTank.name });
+
+    return [
+      `Navigating to tank '${targetTank.name}' at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+    ];
+  }
+
   if (args.length < 2) {
     return [
       "driveto: error: missing required arguments",
       "",
-      "Usage: driveto <x_coordinate> <y_coordinate> [throttle]",
-      "       driveto bm ea",
-      "       driveto a a 75",
+      "Usage: driveto <tank_name> [throttle]",
+      "       driveto <x_coordinate> <y_coordinate> [throttle]",
       "",
-      "Both X and Y coordinates use letters (a, b, c, ..., z, aa, ab, ...)"
+      "Tank name not found. If you meant coordinates, provide both X and Y:",
+      "  driveto bm ea",
+      "  driveto a a 75"
     ];
   }
 
@@ -714,7 +772,7 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
     }
   }
 
-  connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
+  connection.reducers.driveTo({ worldId, targetX, targetY, throttle, tankName: null });
 
   return [
     `Navigating to ${xNotation.toUpperCase()} ${yNotation.toUpperCase()} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,

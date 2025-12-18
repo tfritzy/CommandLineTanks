@@ -88,7 +88,9 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         break;
                     }
                     case 'driveto':
-                    case 'dt': {
+                    case 'dt':
+                    case 'navigate':
+                    case 'nav': {
                         const drivetoOutput = driveto(connection, worldId, args);
                         newOutput.push(...drivetoOutput);
                         break;

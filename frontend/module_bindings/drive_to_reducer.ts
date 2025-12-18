@@ -7,4 +7,5 @@ export default {
   targetX: __t.i32(),
   targetY: __t.i32(),
   throttle: __t.f32(),
+  tankName: __t.option(__t.string()),
 };
