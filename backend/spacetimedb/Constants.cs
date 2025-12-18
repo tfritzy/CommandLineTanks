@@ -49,4 +49,16 @@ public static partial class Module
         ProjectileType = ProjectileType.Missile,
         LifetimeSeconds = 15.0f
     };
+
+    public static readonly Gun BOOMERANG_GUN = new Gun
+    {
+        GunType = GunType.Boomerang,
+        Ammo = 1,
+        ProjectileCount = 1,
+        SpreadAngle = 0,
+        Damage = 30,
+        TrackingStrength = 0,
+        ProjectileType = ProjectileType.Boomerang,
+        LifetimeSeconds = 8.0f
+    };
 }

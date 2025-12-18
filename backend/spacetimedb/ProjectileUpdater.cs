@@ -54,6 +54,15 @@ public static partial class ProjectileUpdater
                 continue;
             }
 
+            if (projectile.ReturnsToShooter && !projectile.IsReturning && projectileAgeSeconds >= projectile.LifetimeSeconds / 2.0)
+            {
+                projectile = projectile with
+                {
+                    Velocity = new Vector2Float(-projectile.Velocity.X, -projectile.Velocity.Y),
+                    IsReturning = true
+                };
+            }
+
             if (projectile.TrackingStrength > 0)
             {
                 int projectileCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
@@ -130,7 +139,7 @@ public static partial class ProjectileUpdater
                 int tileIndex = projectileTileY * traversibilityMap.Value.Width + projectileTileX;
                 bool tileIsTraversable = tileIndex < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[tileIndex];
                 
-                if (!tileIsTraversable)
+                if (!tileIsTraversable && !projectile.ReturnsToShooter)
                 {
                     foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
                     {
@@ -169,68 +178,149 @@ public static partial class ProjectileUpdater
 
             foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, tankCollisionRegionX, tankCollisionRegionY)))
             {
-                if (tank.Alliance != projectile.Alliance && tank.Health > 0)
+                float dx = tank.PositionX - projectile.PositionX;
+                float dy = tank.PositionY - projectile.PositionY;
+                float distanceSquared = dx * dx + dy * dy;
+                float collisionRadiusSquared = Module.TANK_COLLISION_RADIUS * Module.TANK_COLLISION_RADIUS;
+
+                if (distanceSquared <= collisionRadiusSquared)
                 {
-                    float dx = tank.PositionX - projectile.PositionX;
-                    float dy = tank.PositionY - projectile.PositionY;
-                    float distanceSquared = dx * dx + dy * dy;
-                    float collisionRadiusSquared = Module.TANK_COLLISION_RADIUS * Module.TANK_COLLISION_RADIUS;
-
-                    if (distanceSquared <= collisionRadiusSquared)
+                    if (projectile.ReturnsToShooter && projectile.IsReturning && tank.Id == projectile.ShooterTankId)
                     {
-                        var newHealth = tank.Health - projectile.Damage;
-                        var updatedTank = tank with
+                        for (int i = 0; i < tank.Guns.Length; i++)
                         {
-                            Health = newHealth
-                        };
-                        ctx.Db.tank.Id.Update(updatedTank);
-
-                        if (newHealth <= 0)
-                        {
-                            var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
-                            if (shooterTank != null)
+                            if (tank.Guns[i].GunType == GunType.Boomerang)
                             {
-                                var updatedShooterTank = shooterTank.Value with
+                                var gun = tank.Guns[i];
+                                if (gun.Ammo != null)
                                 {
-                                    Kills = shooterTank.Value.Kills + 1
-                                };
-                                ctx.Db.tank.Id.Update(updatedShooterTank);
-                            }
-
-                            var score = ctx.Db.score.WorldId.Find(args.WorldId);
-                            if (score != null)
-                            {
-                                var updatedScore = score.Value;
-                                if (projectile.Alliance >= 0 && projectile.Alliance < updatedScore.Kills.Length)
-                                {
-                                    updatedScore.Kills[projectile.Alliance]++;
-                                    ctx.Db.score.WorldId.Update(updatedScore);
-
-                                    if (updatedScore.Kills[projectile.Alliance] >= Module.KILL_LIMIT)
-                                    {
-                                        var world = ctx.Db.world.Id.Find(args.WorldId);
-                                        if (world != null && world.Value.GameState == GameState.Playing)
-                                        {
-                                            var updatedWorld = world.Value with { GameState = GameState.Results };
-                                            ctx.Db.world.Id.Update(updatedWorld);
-
-                                            ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
-                                            {
-                                                ScheduledId = 0,
-                                                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
-                                                WorldId = args.WorldId
-                                            });
-
-                                            Log.Info($"Team {projectile.Alliance} reached {Module.KILL_LIMIT} kills! Game ending in 30 seconds...");
-                                        }
-                                    }
+                                    gun.Ammo = gun.Ammo.Value + 1;
+                                    tank.Guns[i] = gun;
+                                    ctx.Db.tank.Id.Update(tank);
+                                    Log.Info($"Tank {tank.Name} caught the boomerang! Ammo restored.");
                                 }
+                                break;
                             }
                         }
 
                         ctx.Db.projectile.Id.Delete(projectile.Id);
                         collided = true;
                         break;
+                    }
+
+                    if (tank.Alliance != projectile.Alliance && tank.Health > 0)
+                    {
+                        if (projectile.ReturnsToShooter)
+                        {
+                            var newHealth = tank.Health - projectile.Damage;
+                            var updatedTank = tank with
+                            {
+                                Health = newHealth
+                            };
+                            ctx.Db.tank.Id.Update(updatedTank);
+
+                            if (newHealth <= 0)
+                            {
+                                var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
+                                if (shooterTank != null)
+                                {
+                                    var updatedShooterTank = shooterTank.Value with
+                                    {
+                                        Kills = shooterTank.Value.Kills + 1
+                                    };
+                                    ctx.Db.tank.Id.Update(updatedShooterTank);
+                                }
+
+                                var score = ctx.Db.score.WorldId.Find(args.WorldId);
+                                if (score != null)
+                                {
+                                    var updatedScore = score.Value;
+                                    if (projectile.Alliance >= 0 && projectile.Alliance < updatedScore.Kills.Length)
+                                    {
+                                        updatedScore.Kills[projectile.Alliance]++;
+                                        ctx.Db.score.WorldId.Update(updatedScore);
+
+                                        if (updatedScore.Kills[projectile.Alliance] >= Module.KILL_LIMIT)
+                                        {
+                                            var world = ctx.Db.world.Id.Find(args.WorldId);
+                                            if (world != null && world.Value.GameState == GameState.Playing)
+                                            {
+                                                var updatedWorld = world.Value with { GameState = GameState.Results };
+                                                ctx.Db.world.Id.Update(updatedWorld);
+
+                                                ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
+                                                {
+                                                    ScheduledId = 0,
+                                                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
+                                                    WorldId = args.WorldId
+                                                });
+
+                                                Log.Info($"Team {projectile.Alliance} reached {Module.KILL_LIMIT} kills! Game ending in 30 seconds...");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var newHealth = tank.Health - projectile.Damage;
+                            var updatedTank = tank with
+                            {
+                                Health = newHealth
+                            };
+                            ctx.Db.tank.Id.Update(updatedTank);
+
+                            if (newHealth <= 0)
+                            {
+                                var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
+                                if (shooterTank != null)
+                                {
+                                    var updatedShooterTank = shooterTank.Value with
+                                    {
+                                        Kills = shooterTank.Value.Kills + 1
+                                    };
+                                    ctx.Db.tank.Id.Update(updatedShooterTank);
+                                }
+
+                                var score = ctx.Db.score.WorldId.Find(args.WorldId);
+                                if (score != null)
+                                {
+                                    var updatedScore = score.Value;
+                                    if (projectile.Alliance >= 0 && projectile.Alliance < updatedScore.Kills.Length)
+                                    {
+                                        updatedScore.Kills[projectile.Alliance]++;
+                                        ctx.Db.score.WorldId.Update(updatedScore);
+
+                                        if (updatedScore.Kills[projectile.Alliance] >= Module.KILL_LIMIT)
+                                        {
+                                            var world = ctx.Db.world.Id.Find(args.WorldId);
+                                            if (world != null && world.Value.GameState == GameState.Playing)
+                                            {
+                                                var updatedWorld = world.Value with { GameState = GameState.Results };
+                                                ctx.Db.world.Id.Update(updatedWorld);
+
+                                                ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
+                                                {
+                                                    ScheduledId = 0,
+                                                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
+                                                    WorldId = args.WorldId
+                                                });
+
+                                                Log.Info($"Team {projectile.Alliance} reached {Module.KILL_LIMIT} kills! Game ending in 30 seconds...");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            ctx.Db.projectile.Id.Delete(projectile.Id);
+                            collided = true;
+                            break;
+                        }
+                    }
+                }
+            }
                     }
                 }
             }

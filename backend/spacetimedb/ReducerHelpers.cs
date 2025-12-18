@@ -247,7 +247,9 @@ public static partial class Module
             TrackingStrength = trackingStrength,
             ProjectileType = projectileType,
             SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            LifetimeSeconds = lifetimeSeconds
+            LifetimeSeconds = lifetimeSeconds,
+            ReturnsToShooter = projectileType == ProjectileType.Boomerang,
+            IsReturning = false
         };
 
         ctx.Db.projectile.Insert(projectile);

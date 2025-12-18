@@ -59,7 +59,8 @@ public static partial class Types
         Label,
         TripleShooterPickup,
         MissileLauncherPickup,
-        HealthPickup
+        HealthPickup,
+        BoomerangPickup
     }
 
     [Type]
@@ -74,14 +75,16 @@ public static partial class Types
     {
         Base,
         TripleShooter,
-        MissileLauncher
+        MissileLauncher,
+        Boomerang
     }
 
     [Type]
     public enum ProjectileType : byte
     {
         Normal,
-        Missile
+        Missile,
+        Boomerang
     }
 
     [Type]
