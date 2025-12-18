@@ -23,7 +23,7 @@ public static partial class Module
 
         if (!string.IsNullOrEmpty(tankName))
         {
-            Tank? maybeTargetTank = ctx.Db.tank.WorldId_Name.Filter((worldId, tankName)).FirstOrDefault();
+            Tank? maybeTargetTank = ctx.Db.tank.WorldId_Name.Filter((worldId, tankName.ToLower())).FirstOrDefault();
             if (maybeTargetTank != null)
             {
                 var targetTank = maybeTargetTank.Value;

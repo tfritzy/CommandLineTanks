@@ -691,7 +691,7 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
   }
 
   const firstArgLower = args[0].toLowerCase();
-  const targetTank = allTanks.find(t => t.name === firstArgLower);
+  const targetTank = allTanks.find(t => t.name.toLowerCase() === firstArgLower);
 
   if (targetTank && targetTank.id !== myTank.id) {
     let throttle = 1;
