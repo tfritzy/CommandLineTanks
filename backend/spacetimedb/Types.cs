@@ -60,7 +60,8 @@ public static partial class Types
         TripleShooterPickup,
         MissileLauncherPickup,
         HealthPickup,
-        BoomerangPickup
+        BoomerangPickup,
+        GrenadePickup
     }
 
     [Type]
@@ -76,7 +77,8 @@ public static partial class Types
         Base,
         TripleShooter,
         MissileLauncher,
-        Boomerang
+        Boomerang,
+        Grenade
     }
 
     [Type]
@@ -84,7 +86,8 @@ public static partial class Types
     {
         Normal,
         Missile,
-        Boomerang
+        Boomerang,
+        Grenade
     }
 
     [Type]

@@ -26,6 +26,41 @@ public static partial class ProjectileUpdater
         public string WorldId;
     }
 
+    private static void ExplodeGrenade(ReducerContext ctx, Projectile grenade, string worldId)
+    {
+        int grenadeCollisionRegionX = Module.GetGridPosition(grenade.PositionX / Module.COLLISION_REGION_SIZE);
+        int grenadeCollisionRegionY = Module.GetGridPosition(grenade.PositionY / Module.COLLISION_REGION_SIZE);
+
+        int searchRadius = (int)Math.Ceiling(Module.GRENADE_EXPLOSION_RADIUS / Module.COLLISION_REGION_SIZE);
+
+        for (int dx = -searchRadius; dx <= searchRadius; dx++)
+        {
+            for (int dy = -searchRadius; dy <= searchRadius; dy++)
+            {
+                int regionX = grenadeCollisionRegionX + dx;
+                int regionY = grenadeCollisionRegionY + dy;
+
+                foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                {
+                    if (tank.Health > 0)
+                    {
+                        float dx_tank = tank.PositionX - grenade.PositionX;
+                        float dy_tank = tank.PositionY - grenade.PositionY;
+                        float distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
+                        float explosionRadiusSquared = Module.GRENADE_EXPLOSION_RADIUS * Module.GRENADE_EXPLOSION_RADIUS;
+
+                        if (distanceSquared <= explosionRadiusSquared)
+                        {
+                            HandleTankDamage(ctx, tank, grenade, worldId);
+                        }
+                    }
+                }
+            }
+        }
+
+        Log.Info($"Grenade exploded at ({grenade.PositionX}, {grenade.PositionY})");
+    }
+
     private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Projectile projectile, string worldId)
     {
         var newHealth = tank.Health - projectile.Damage;
@@ -103,6 +138,10 @@ public static partial class ProjectileUpdater
 
             if (projectileAgeSeconds >= projectile.LifetimeSeconds)
             {
+                if (projectile.ProjectileType == ProjectileType.Grenade)
+                {
+                    ExplodeGrenade(ctx, projectile, args.WorldId);
+                }
                 ctx.Db.projectile.Id.Delete(projectile.Id);
                 continue;
             }
@@ -220,32 +259,66 @@ public static partial class ProjectileUpdater
                 
                 if (!tileIsTraversable && !projectile.PassThroughTerrain)
                 {
-                    foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
+                    if (projectile.ProjectileType == ProjectileType.Grenade)
                     {
-                        if (terrainDetail.Health == null)
+                        float previousX = projectile.PositionX - (float)(projectile.Velocity.X * deltaTime);
+                        float previousY = projectile.PositionY - (float)(projectile.Velocity.Y * deltaTime);
+                        
+                        int prevTileX = Module.GetGridPosition(previousX);
+                        int prevTileY = Module.GetGridPosition(previousY);
+                        
+                        bool bounceX = prevTileX != projectileTileX;
+                        bool bounceY = prevTileY != projectileTileY;
+                        
+                        float newVelX = projectile.Velocity.X;
+                        float newVelY = projectile.Velocity.Y;
+                        
+                        if (bounceX)
                         {
-                            continue;
+                            newVelX = -projectile.Velocity.X * Module.GRENADE_BOUNCE_DAMPING;
+                            projectile = projectile with { PositionX = previousX };
                         }
-
-                        var newHealth = terrainDetail.Health.Value - projectile.Damage;
-                        if (newHealth <= 0)
+                        if (bounceY)
                         {
-                            ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
-
-                            traversibilityMap.Value.Map[tileIndex] = true;
-                            ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
+                            newVelY = -projectile.Velocity.Y * Module.GRENADE_BOUNCE_DAMPING;
+                            projectile = projectile with { PositionY = previousY };
                         }
-                        else
+                        
+                        projectile = projectile with
                         {
-                            ctx.Db.terrain_detail.Id.Update(terrainDetail with
+                            Velocity = new Vector2Float(newVelX, newVelY),
+                            Speed = (float)Math.Sqrt(newVelX * newVelX + newVelY * newVelY)
+                        };
+                    }
+                    else
+                    {
+                        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
+                        {
+                            if (terrainDetail.Health == null)
                             {
-                                Health = newHealth
-                            });
-                        }
+                                continue;
+                            }
 
-                        ctx.Db.projectile.Id.Delete(projectile.Id);
-                        collided = true;
-                        break;
+                            var newHealth = terrainDetail.Health.Value - projectile.Damage;
+                            if (newHealth <= 0)
+                            {
+                                ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+
+                                traversibilityMap.Value.Map[tileIndex] = true;
+                                ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
+                            }
+                            else
+                            {
+                                ctx.Db.terrain_detail.Id.Update(terrainDetail with
+                                {
+                                    Health = newHealth
+                                });
+                            }
+
+                            ctx.Db.projectile.Id.Delete(projectile.Id);
+                            collided = true;
+                            break;
+                        }
                     }
 
                     if (collided) continue;

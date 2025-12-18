@@ -13,6 +13,9 @@ public static partial class Module
     public const int KILL_LIMIT = 100;
     public const long WORLD_RESET_DELAY_MICROS = 30_000_000;
     public const float MISSILE_TRACKING_RADIUS = 8.0f;
+    public const float GRENADE_EXPLOSION_RADIUS = 2.0f;
+    public const float GRENADE_BOUNCE_DAMPING = 0.7f;
+
 
     public static readonly Gun BASE_GUN = new Gun
     {
@@ -68,5 +71,19 @@ public static partial class Module
         LifetimeSeconds = 8.0f,
         MaxCollisions = 10,
         PassThroughTerrain = true
+    };
+
+    public static readonly Gun GRENADE_GUN = new Gun
+    {
+        GunType = GunType.Grenade,
+        Ammo = 5,
+        ProjectileCount = 1,
+        SpreadAngle = 0,
+        Damage = 100,
+        TrackingStrength = 0,
+        ProjectileType = ProjectileType.Grenade,
+        LifetimeSeconds = 3.0f,
+        MaxCollisions = 999,
+        PassThroughTerrain = false
     };
 }
