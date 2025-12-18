@@ -91,6 +91,14 @@ public static partial class Types
     }
 
     [Type]
+    public enum ExplosionTrigger : byte
+    {
+        None,
+        OnExpiration,
+        OnHit
+    }
+
+    [Type]
     public partial struct Gun
     {
         public GunType GunType;
@@ -103,5 +111,7 @@ public static partial class Types
         public float LifetimeSeconds;
         public int MaxCollisions;
         public bool PassThroughTerrain;
+        public float? ExplosionRadius;
+        public ExplosionTrigger ExplosionTrigger;
     }
 }

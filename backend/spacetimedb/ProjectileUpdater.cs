@@ -26,39 +26,45 @@ public static partial class ProjectileUpdater
         public string WorldId;
     }
 
-    private static void ExplodeGrenade(ReducerContext ctx, Projectile grenade, string worldId)
+    private static void ExplodeProjectile(ReducerContext ctx, Projectile projectile, string worldId)
     {
-        int grenadeCollisionRegionX = Module.GetGridPosition(grenade.PositionX / Module.COLLISION_REGION_SIZE);
-        int grenadeCollisionRegionY = Module.GetGridPosition(grenade.PositionY / Module.COLLISION_REGION_SIZE);
+        if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
+        {
+            return;
+        }
 
-        int searchRadius = (int)Math.Ceiling(Module.GRENADE_EXPLOSION_RADIUS / Module.COLLISION_REGION_SIZE);
+        float explosionRadius = projectile.ExplosionRadius.Value;
+        int projectileCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+        int projectileCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+
+        int searchRadius = (int)Math.Ceiling(explosionRadius / Module.COLLISION_REGION_SIZE);
 
         for (int dx = -searchRadius; dx <= searchRadius; dx++)
         {
             for (int dy = -searchRadius; dy <= searchRadius; dy++)
             {
-                int regionX = grenadeCollisionRegionX + dx;
-                int regionY = grenadeCollisionRegionY + dy;
+                int regionX = projectileCollisionRegionX + dx;
+                int regionY = projectileCollisionRegionY + dy;
 
                 foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
                 {
                     if (tank.Health > 0)
                     {
-                        float dx_tank = tank.PositionX - grenade.PositionX;
-                        float dy_tank = tank.PositionY - grenade.PositionY;
+                        float dx_tank = tank.PositionX - projectile.PositionX;
+                        float dy_tank = tank.PositionY - projectile.PositionY;
                         float distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
-                        float explosionRadiusSquared = Module.GRENADE_EXPLOSION_RADIUS * Module.GRENADE_EXPLOSION_RADIUS;
+                        float explosionRadiusSquared = explosionRadius * explosionRadius;
 
                         if (distanceSquared <= explosionRadiusSquared)
                         {
-                            HandleTankDamage(ctx, tank, grenade, worldId);
+                            HandleTankDamage(ctx, tank, projectile, worldId);
                         }
                     }
                 }
             }
         }
 
-        Log.Info($"Grenade exploded at ({grenade.PositionX}, {grenade.PositionY})");
+        Log.Info($"Projectile exploded at ({projectile.PositionX}, {projectile.PositionY})");
     }
 
     private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Projectile projectile, string worldId)
@@ -138,9 +144,9 @@ public static partial class ProjectileUpdater
 
             if (projectileAgeSeconds >= projectile.LifetimeSeconds)
             {
-                if (projectile.ProjectileType == ProjectileType.Grenade)
+                if (projectile.ExplosionTrigger == ExplosionTrigger.OnExpiration)
                 {
-                    ExplodeGrenade(ctx, projectile, args.WorldId);
+                    ExplodeProjectile(ctx, projectile, args.WorldId);
                 }
                 ctx.Db.projectile.Id.Delete(projectile.Id);
                 continue;
@@ -366,7 +372,20 @@ public static partial class ProjectileUpdater
 
                     if (tank.Alliance != projectile.Alliance && tank.Health > 0)
                     {
-                        HandleTankDamage(ctx, tank, projectile, args.WorldId);
+                        if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0)
+                        {
+                            if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
+                            {
+                                ExplodeProjectile(ctx, projectile, args.WorldId);
+                                ctx.Db.projectile.Id.Delete(projectile.Id);
+                                collided = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            HandleTankDamage(ctx, tank, projectile, args.WorldId);
+                        }
 
                         projectile = projectile with
                         {

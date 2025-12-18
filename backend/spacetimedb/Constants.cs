@@ -29,7 +29,9 @@ public static partial class Module
         ProjectileType = ProjectileType.Normal,
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
-        PassThroughTerrain = false
+        PassThroughTerrain = false,
+        ExplosionRadius = null,
+        ExplosionTrigger = ExplosionTrigger.None
     };
 
     public static readonly Gun TRIPLE_SHOOTER_GUN = new Gun
@@ -43,7 +45,9 @@ public static partial class Module
         ProjectileType = ProjectileType.Normal,
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
-        PassThroughTerrain = false
+        PassThroughTerrain = false,
+        ExplosionRadius = null,
+        ExplosionTrigger = ExplosionTrigger.None
     };
 
     public static readonly Gun MISSILE_LAUNCHER_GUN = new Gun
@@ -57,7 +61,9 @@ public static partial class Module
         ProjectileType = ProjectileType.Missile,
         LifetimeSeconds = 15.0f,
         MaxCollisions = 1,
-        PassThroughTerrain = false
+        PassThroughTerrain = false,
+        ExplosionRadius = null,
+        ExplosionTrigger = ExplosionTrigger.None
     };
 
     public static readonly Gun BOOMERANG_GUN = new Gun
@@ -71,7 +77,9 @@ public static partial class Module
         ProjectileType = ProjectileType.Boomerang,
         LifetimeSeconds = 8.0f,
         MaxCollisions = 10,
-        PassThroughTerrain = true
+        PassThroughTerrain = true,
+        ExplosionRadius = null,
+        ExplosionTrigger = ExplosionTrigger.None
     };
 
     public static readonly Gun GRENADE_GUN = new Gun
@@ -85,6 +93,8 @@ public static partial class Module
         ProjectileType = ProjectileType.Grenade,
         LifetimeSeconds = 3.0f,
         MaxCollisions = MAX_GRENADE_BOUNCES,
-        PassThroughTerrain = false
+        PassThroughTerrain = false,
+        ExplosionRadius = GRENADE_EXPLOSION_RADIUS,
+        ExplosionTrigger = ExplosionTrigger.OnExpiration
     };
 }

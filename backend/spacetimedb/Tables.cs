@@ -130,6 +130,8 @@ public static partial class Module
         public int MaxCollisions;
         public int CollisionCount;
         public bool PassThroughTerrain;
+        public float? ExplosionRadius;
+        public ExplosionTrigger ExplosionTrigger;
     }
 
     [Table(Name = "score", Public = true)]
