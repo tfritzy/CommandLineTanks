@@ -772,7 +772,7 @@ export function driveto(connection: DbConnection, worldId: string, args: string[
     }
   }
 
-  connection.reducers.driveTo({ worldId, targetX, targetY, throttle, tankName: null });
+  connection.reducers.driveTo({ worldId, targetX, targetY, throttle, tankName: undefined });
 
   return [
     `Navigating to ${xNotation.toUpperCase()} ${yNotation.toUpperCase()} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
