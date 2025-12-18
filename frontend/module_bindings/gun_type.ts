@@ -26,6 +26,8 @@ export default __t.object("Gun", {
     return ProjectileType;
   },
   lifetimeSeconds: __t.f32(),
+  maxCollisions: __t.i32(),
+  passThroughTerrain: __t.bool(),
 });
 
 

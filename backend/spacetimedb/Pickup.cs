@@ -9,7 +9,8 @@ public static partial class Module
     {
         TerrainDetailType.TripleShooterPickup,
         TerrainDetailType.MissileLauncherPickup,
-        TerrainDetailType.HealthPickup
+        TerrainDetailType.HealthPickup,
+        TerrainDetailType.BoomerangPickup
     };
 
     public static bool TryCollectPickup(ReducerContext ctx, ref Tank tank, ref bool needsUpdate, Module.Pickup pickup)
@@ -24,6 +25,9 @@ public static partial class Module
 
             case TerrainDetailType.MissileLauncherPickup:
                 return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, MISSILE_LAUNCHER_GUN);
+
+            case TerrainDetailType.BoomerangPickup:
+                return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, BOOMERANG_GUN);
 
             default:
                 return false;

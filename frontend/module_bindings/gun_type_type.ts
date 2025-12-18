@@ -14,6 +14,7 @@ import {
 const GunType = __t.enum("GunType", {Base: __t.unit(),
   TripleShooter: __t.unit(),
   MissileLauncher: __t.unit(),
+  Boomerang: __t.unit(),
 });
 
 export default GunType;

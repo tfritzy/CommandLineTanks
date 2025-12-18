@@ -13,6 +13,7 @@ import {
 // The tagged union or sum type for the algebraic type `ProjectileType`.
 const ProjectileType = __t.enum("ProjectileType", {Normal: __t.unit(),
   Missile: __t.unit(),
+  Boomerang: __t.unit(),
 });
 
 export default ProjectileType;
