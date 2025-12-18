@@ -26,6 +26,59 @@ public static partial class ProjectileUpdater
         public string WorldId;
     }
 
+    private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Projectile projectile, string worldId)
+    {
+        var newHealth = tank.Health - projectile.Damage;
+        var updatedTank = tank with
+        {
+            Health = newHealth
+        };
+        ctx.Db.tank.Id.Update(updatedTank);
+
+        if (newHealth <= 0)
+        {
+            var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
+            if (shooterTank != null)
+            {
+                var updatedShooterTank = shooterTank.Value with
+                {
+                    Kills = shooterTank.Value.Kills + 1
+                };
+                ctx.Db.tank.Id.Update(updatedShooterTank);
+            }
+
+            var score = ctx.Db.score.WorldId.Find(worldId);
+            if (score != null)
+            {
+                var updatedScore = score.Value;
+                if (projectile.Alliance >= 0 && projectile.Alliance < updatedScore.Kills.Length)
+                {
+                    updatedScore.Kills[projectile.Alliance]++;
+                    ctx.Db.score.WorldId.Update(updatedScore);
+
+                    if (updatedScore.Kills[projectile.Alliance] >= Module.KILL_LIMIT)
+                    {
+                        var world = ctx.Db.world.Id.Find(worldId);
+                        if (world != null && world.Value.GameState == GameState.Playing)
+                        {
+                            var updatedWorld = world.Value with { GameState = GameState.Results };
+                            ctx.Db.world.Id.Update(updatedWorld);
+
+                            ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
+                            {
+                                ScheduledId = 0,
+                                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
+                                WorldId = worldId
+                            });
+
+                            Log.Info($"Team {projectile.Alliance} reached {Module.KILL_LIMIT} kills! Game ending in 30 seconds...");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     [Reducer]
     public static void UpdateProjectiles(ReducerContext ctx, ScheduledProjectileUpdates args)
     {
@@ -210,117 +263,14 @@ public static partial class ProjectileUpdater
 
                     if (tank.Alliance != projectile.Alliance && tank.Health > 0)
                     {
-                        if (projectile.ReturnsToShooter)
+                        HandleTankDamage(ctx, tank, projectile, args.WorldId);
+
+                        if (!projectile.ReturnsToShooter)
                         {
-                            var newHealth = tank.Health - projectile.Damage;
-                            var updatedTank = tank with
-                            {
-                                Health = newHealth
-                            };
-                            ctx.Db.tank.Id.Update(updatedTank);
-
-                            if (newHealth <= 0)
-                            {
-                                var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
-                                if (shooterTank != null)
-                                {
-                                    var updatedShooterTank = shooterTank.Value with
-                                    {
-                                        Kills = shooterTank.Value.Kills + 1
-                                    };
-                                    ctx.Db.tank.Id.Update(updatedShooterTank);
-                                }
-
-                                var score = ctx.Db.score.WorldId.Find(args.WorldId);
-                                if (score != null)
-                                {
-                                    var updatedScore = score.Value;
-                                    if (projectile.Alliance >= 0 && projectile.Alliance < updatedScore.Kills.Length)
-                                    {
-                                        updatedScore.Kills[projectile.Alliance]++;
-                                        ctx.Db.score.WorldId.Update(updatedScore);
-
-                                        if (updatedScore.Kills[projectile.Alliance] >= Module.KILL_LIMIT)
-                                        {
-                                            var world = ctx.Db.world.Id.Find(args.WorldId);
-                                            if (world != null && world.Value.GameState == GameState.Playing)
-                                            {
-                                                var updatedWorld = world.Value with { GameState = GameState.Results };
-                                                ctx.Db.world.Id.Update(updatedWorld);
-
-                                                ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
-                                                {
-                                                    ScheduledId = 0,
-                                                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
-                                                    WorldId = args.WorldId
-                                                });
-
-                                                Log.Info($"Team {projectile.Alliance} reached {Module.KILL_LIMIT} kills! Game ending in 30 seconds...");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var newHealth = tank.Health - projectile.Damage;
-                            var updatedTank = tank with
-                            {
-                                Health = newHealth
-                            };
-                            ctx.Db.tank.Id.Update(updatedTank);
-
-                            if (newHealth <= 0)
-                            {
-                                var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
-                                if (shooterTank != null)
-                                {
-                                    var updatedShooterTank = shooterTank.Value with
-                                    {
-                                        Kills = shooterTank.Value.Kills + 1
-                                    };
-                                    ctx.Db.tank.Id.Update(updatedShooterTank);
-                                }
-
-                                var score = ctx.Db.score.WorldId.Find(args.WorldId);
-                                if (score != null)
-                                {
-                                    var updatedScore = score.Value;
-                                    if (projectile.Alliance >= 0 && projectile.Alliance < updatedScore.Kills.Length)
-                                    {
-                                        updatedScore.Kills[projectile.Alliance]++;
-                                        ctx.Db.score.WorldId.Update(updatedScore);
-
-                                        if (updatedScore.Kills[projectile.Alliance] >= Module.KILL_LIMIT)
-                                        {
-                                            var world = ctx.Db.world.Id.Find(args.WorldId);
-                                            if (world != null && world.Value.GameState == GameState.Playing)
-                                            {
-                                                var updatedWorld = world.Value with { GameState = GameState.Results };
-                                                ctx.Db.world.Id.Update(updatedWorld);
-
-                                                ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
-                                                {
-                                                    ScheduledId = 0,
-                                                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
-                                                    WorldId = args.WorldId
-                                                });
-
-                                                Log.Info($"Team {projectile.Alliance} reached {Module.KILL_LIMIT} kills! Game ending in 30 seconds...");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
                             ctx.Db.projectile.Id.Delete(projectile.Id);
                             collided = true;
                             break;
                         }
-                    }
-                }
-            }
                     }
                 }
             }
