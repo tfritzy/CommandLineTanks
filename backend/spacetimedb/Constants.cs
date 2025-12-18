@@ -15,6 +15,7 @@ public static partial class Module
     public const float MISSILE_TRACKING_RADIUS = 8.0f;
     public const float GRENADE_EXPLOSION_RADIUS = 2.0f;
     public const float GRENADE_BOUNCE_DAMPING = 0.7f;
+    public const int MAX_GRENADE_BOUNCES = 9999;
 
 
     public static readonly Gun BASE_GUN = new Gun
@@ -83,7 +84,7 @@ public static partial class Module
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Grenade,
         LifetimeSeconds = 3.0f,
-        MaxCollisions = 999,
+        MaxCollisions = MAX_GRENADE_BOUNCES,
         PassThroughTerrain = false
     };
 }

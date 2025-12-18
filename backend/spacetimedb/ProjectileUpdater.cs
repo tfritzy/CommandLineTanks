@@ -272,20 +272,24 @@ public static partial class ProjectileUpdater
                         
                         float newVelX = projectile.Velocity.X;
                         float newVelY = projectile.Velocity.Y;
+                        float newPosX = projectile.PositionX;
+                        float newPosY = projectile.PositionY;
                         
                         if (bounceX)
                         {
                             newVelX = -projectile.Velocity.X * Module.GRENADE_BOUNCE_DAMPING;
-                            projectile = projectile with { PositionX = previousX };
+                            newPosX = previousX;
                         }
                         if (bounceY)
                         {
                             newVelY = -projectile.Velocity.Y * Module.GRENADE_BOUNCE_DAMPING;
-                            projectile = projectile with { PositionY = previousY };
+                            newPosY = previousY;
                         }
                         
                         projectile = projectile with
                         {
+                            PositionX = newPosX,
+                            PositionY = newPosY,
                             Velocity = new Vector2Float(newVelX, newVelY),
                             Speed = (float)Math.Sqrt(newVelX * newVelX + newVelY * newVelY)
                         };
