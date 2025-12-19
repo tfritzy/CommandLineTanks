@@ -108,6 +108,21 @@ public static class AStarPathfinding
                 }
 
                 bool isDiagonal = dx != 0 && dy != 0;
+                if (isDiagonal)
+                {
+                    int horizontalX = current.X + dx;
+                    int horizontalY = current.Y;
+                    int verticalX = current.X;
+                    int verticalY = current.Y + dy;
+
+                    int horizontalIndex = horizontalY * traversibilityMap.Width + horizontalX;
+                    int verticalIndex = verticalY * traversibilityMap.Width + verticalX;
+
+                    if (!traversibilityMap.Map[horizontalIndex] && !traversibilityMap.Map[verticalIndex])
+                    {
+                        continue;
+                    }
+                }
                 int newGCost = current.GCost + (isDiagonal ? 14 : 10);
                 var existingNode = openSet.Find(n => n.X == neighborX && n.Y == neighborY);
 
