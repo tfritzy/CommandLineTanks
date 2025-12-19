@@ -346,6 +346,7 @@ public static partial class TerrainGenerator
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
                                 terrainDetails.Add((x, topY, TerrainDetailType.FenceEdge, ROTATION_NORTH));
+                                terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
                             }
                         }
 
@@ -355,6 +356,7 @@ public static partial class TerrainGenerator
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
                                 terrainDetails.Add((x, bottomY, TerrainDetailType.FenceEdge, ROTATION_SOUTH));
+                                terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
                             }
                         }
                     }
@@ -367,6 +369,7 @@ public static partial class TerrainGenerator
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
                                 terrainDetails.Add((leftX, y, TerrainDetailType.FenceEdge, ROTATION_WEST));
+                                terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
                             }
                         }
 
@@ -376,6 +379,7 @@ public static partial class TerrainGenerator
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
                                 terrainDetails.Add((rightX, y, TerrainDetailType.FenceEdge, ROTATION_EAST));
+                                terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
                             }
                         }
                     }
@@ -386,6 +390,7 @@ public static partial class TerrainGenerator
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
                             terrainDetails.Add((leftX, topY, TerrainDetailType.FenceCorner, ROTATION_WEST));
+                            terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
                         }
                     }
 
@@ -395,6 +400,7 @@ public static partial class TerrainGenerator
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
                             terrainDetails.Add((rightX, topY, TerrainDetailType.FenceCorner, ROTATION_NORTH));
+                            terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
                         }
                     }
 
@@ -404,6 +410,7 @@ public static partial class TerrainGenerator
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
                             terrainDetails.Add((leftX, bottomY, TerrainDetailType.FenceCorner, ROTATION_SOUTH));
+                            terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
                         }
                     }
 
@@ -413,6 +420,7 @@ public static partial class TerrainGenerator
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
                             terrainDetails.Add((rightX, bottomY, TerrainDetailType.FenceCorner, ROTATION_EAST));
+                            terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
                         }
                     }
 
