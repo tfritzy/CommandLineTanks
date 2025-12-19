@@ -563,7 +563,7 @@ public static partial class TerrainGenerator
 
                     if (terrainDetail[topIndex] != TerrainDetailType.None)
                     {
-                        if (terrainDetail[topIndex] == TerrainDetailType.Field || terrainDetail[topIndex] == TerrainDetailType.Fence || terrainDetail[topIndex] == TerrainDetailType.FenceEdge || terrainDetail[topIndex] == TerrainDetailType.FenceCorner)
+                        if (terrainDetail[topIndex] == TerrainDetailType.Field || terrainDetail[topIndex] == TerrainDetailType.FenceEdge || terrainDetail[topIndex] == TerrainDetailType.FenceCorner)
                         {
                             validLocation = false;
                             break;
@@ -578,7 +578,7 @@ public static partial class TerrainGenerator
 
                     if (terrainDetail[bottomIndex] != TerrainDetailType.None)
                     {
-                        if (terrainDetail[bottomIndex] == TerrainDetailType.Field || terrainDetail[bottomIndex] == TerrainDetailType.Fence || terrainDetail[bottomIndex] == TerrainDetailType.FenceEdge || terrainDetail[bottomIndex] == TerrainDetailType.FenceCorner)
+                        if (terrainDetail[bottomIndex] == TerrainDetailType.Field || terrainDetail[bottomIndex] == TerrainDetailType.FenceEdge || terrainDetail[bottomIndex] == TerrainDetailType.FenceCorner)
                         {
                             validLocation = false;
                             break;
@@ -612,7 +612,7 @@ public static partial class TerrainGenerator
 
                         if (terrainDetail[leftIndex] != TerrainDetailType.None)
                         {
-                            if (terrainDetail[leftIndex] == TerrainDetailType.Field || terrainDetail[leftIndex] == TerrainDetailType.Fence || terrainDetail[leftIndex] == TerrainDetailType.FenceEdge || terrainDetail[leftIndex] == TerrainDetailType.FenceCorner)
+                            if (terrainDetail[leftIndex] == TerrainDetailType.Field || terrainDetail[leftIndex] == TerrainDetailType.FenceEdge || terrainDetail[leftIndex] == TerrainDetailType.FenceCorner)
                             {
                                 validLocation = false;
                                 break;
@@ -627,7 +627,7 @@ public static partial class TerrainGenerator
 
                         if (terrainDetail[rightIndex] != TerrainDetailType.None)
                         {
-                            if (terrainDetail[rightIndex] == TerrainDetailType.Field || terrainDetail[rightIndex] == TerrainDetailType.Fence || terrainDetail[rightIndex] == TerrainDetailType.FenceEdge || terrainDetail[rightIndex] == TerrainDetailType.FenceCorner)
+                            if (terrainDetail[rightIndex] == TerrainDetailType.Field || terrainDetail[rightIndex] == TerrainDetailType.FenceEdge || terrainDetail[rightIndex] == TerrainDetailType.FenceCorner)
                             {
                                 validLocation = false;
                                 break;
@@ -792,7 +792,6 @@ public static partial class TerrainGenerator
                 TerrainDetailType.Cliff => false,
                 TerrainDetailType.Rock => false,
                 TerrainDetailType.Tree => false,
-                TerrainDetailType.Fence => true,
                 TerrainDetailType.HayBale => false,
                 TerrainDetailType.TripleShooterPickup => true,
                 TerrainDetailType.MissileLauncherPickup => true,

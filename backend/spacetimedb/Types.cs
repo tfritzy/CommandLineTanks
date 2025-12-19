@@ -53,7 +53,6 @@ public static partial class Types
         Rock,
         Tree,
         Bridge,
-        Fence,
         HayBale,
         Field,
         Label,
