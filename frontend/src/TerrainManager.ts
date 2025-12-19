@@ -172,10 +172,9 @@ export class TerrainManager {
   ): TerrainDetailObject[] {
     return Array.from(this.detailObjects.values())
       .filter(obj => {
-        if (!filterFn(obj)) return false;
         const x = obj.getX();
         const y = obj.getY();
-        return x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY;
+        return filterFn(obj) && x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY;
       })
       .sort((a, b) => {
         const yDiff = a.getY() - b.getY();
