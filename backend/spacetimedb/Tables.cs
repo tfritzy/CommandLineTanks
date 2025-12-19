@@ -132,6 +132,7 @@ public static partial class Module
         public bool PassThroughTerrain;
         public float? ExplosionRadius;
         public ExplosionTrigger ExplosionTrigger;
+        public float? BounceDamping;
     }
 
     [Table(Name = "score", Public = true)]

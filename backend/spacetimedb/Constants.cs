@@ -13,9 +13,6 @@ public static partial class Module
     public const int KILL_LIMIT = 100;
     public const long WORLD_RESET_DELAY_MICROS = 30_000_000;
     public const float MISSILE_TRACKING_RADIUS = 8.0f;
-    public const float GRENADE_EXPLOSION_RADIUS = 2.0f;
-    public const float GRENADE_BOUNCE_DAMPING = 0.7f;
-    public const int MAX_GRENADE_BOUNCES = 9999;
 
 
     public static readonly Gun BASE_GUN = new Gun
@@ -31,7 +28,8 @@ public static partial class Module
         MaxCollisions = 1,
         PassThroughTerrain = false,
         ExplosionRadius = null,
-        ExplosionTrigger = ExplosionTrigger.None
+        ExplosionTrigger = ExplosionTrigger.None,
+        BounceDamping = null
     };
 
     public static readonly Gun TRIPLE_SHOOTER_GUN = new Gun
@@ -47,7 +45,8 @@ public static partial class Module
         MaxCollisions = 1,
         PassThroughTerrain = false,
         ExplosionRadius = null,
-        ExplosionTrigger = ExplosionTrigger.None
+        ExplosionTrigger = ExplosionTrigger.None,
+        BounceDamping = null
     };
 
     public static readonly Gun MISSILE_LAUNCHER_GUN = new Gun
@@ -63,7 +62,8 @@ public static partial class Module
         MaxCollisions = 1,
         PassThroughTerrain = false,
         ExplosionRadius = null,
-        ExplosionTrigger = ExplosionTrigger.None
+        ExplosionTrigger = ExplosionTrigger.None,
+        BounceDamping = null
     };
 
     public static readonly Gun BOOMERANG_GUN = new Gun
@@ -79,7 +79,8 @@ public static partial class Module
         MaxCollisions = 10,
         PassThroughTerrain = true,
         ExplosionRadius = null,
-        ExplosionTrigger = ExplosionTrigger.None
+        ExplosionTrigger = ExplosionTrigger.None,
+        BounceDamping = null
     };
 
     public static readonly Gun GRENADE_GUN = new Gun
@@ -92,9 +93,10 @@ public static partial class Module
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Grenade,
         LifetimeSeconds = 3.0f,
-        MaxCollisions = MAX_GRENADE_BOUNCES,
+        MaxCollisions = 9999,
         PassThroughTerrain = false,
-        ExplosionRadius = GRENADE_EXPLOSION_RADIUS,
-        ExplosionTrigger = ExplosionTrigger.OnExpiration
+        ExplosionRadius = 2.0f,
+        ExplosionTrigger = ExplosionTrigger.OnExpiration,
+        BounceDamping = 0.7f
     };
 }

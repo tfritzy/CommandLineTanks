@@ -265,7 +265,7 @@ public static partial class ProjectileUpdater
                 
                 if (!tileIsTraversable && !projectile.PassThroughTerrain)
                 {
-                    if (projectile.ProjectileType == ProjectileType.Grenade)
+                    if (projectile.BounceDamping != null && projectile.BounceDamping > 0)
                     {
                         float previousX = projectile.PositionX - projectile.Velocity.X * (float)deltaTime;
                         float previousY = projectile.PositionY - projectile.Velocity.Y * (float)deltaTime;
@@ -283,12 +283,12 @@ public static partial class ProjectileUpdater
                         
                         if (bounceX)
                         {
-                            newVelX = -projectile.Velocity.X * Module.GRENADE_BOUNCE_DAMPING;
+                            newVelX = -projectile.Velocity.X * projectile.BounceDamping.Value;
                             newPosX = previousX;
                         }
                         if (bounceY)
                         {
-                            newVelY = -projectile.Velocity.Y * Module.GRENADE_BOUNCE_DAMPING;
+                            newVelY = -projectile.Velocity.Y * projectile.BounceDamping.Value;
                             newPosY = previousY;
                         }
                         

@@ -254,7 +254,8 @@ public static partial class Module
             CollisionCount = 0,
             PassThroughTerrain = gun.PassThroughTerrain,
             ExplosionRadius = gun.ExplosionRadius,
-            ExplosionTrigger = gun.ExplosionTrigger
+            ExplosionTrigger = gun.ExplosionTrigger,
+            BounceDamping = gun.BounceDamping
         };
 
         ctx.Db.projectile.Insert(projectile);

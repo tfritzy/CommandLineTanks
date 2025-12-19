@@ -113,5 +113,6 @@ public static partial class Types
         public bool PassThroughTerrain;
         public float? ExplosionRadius;
         public ExplosionTrigger ExplosionTrigger;
+        public float? BounceDamping;
     }
 }
