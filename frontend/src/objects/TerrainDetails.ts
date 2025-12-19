@@ -171,40 +171,6 @@ export class Bridge extends TerrainDetailObject {
   }
 }
 
-export class Fence extends TerrainDetailObject {
-  public drawShadow(ctx: CanvasRenderingContext2D): void {
-  }
-
-  public drawBody(ctx: CanvasRenderingContext2D): void {
-    ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
-    
-    ctx.strokeStyle = "#d2691e";
-    ctx.lineWidth = 3;
-    
-    ctx.beginPath();
-    ctx.moveTo(x + UNIT_TO_PIXEL * 0.1, y + UNIT_TO_PIXEL * 0.5);
-    ctx.lineTo(x + UNIT_TO_PIXEL * 0.9, y + UNIT_TO_PIXEL * 0.5);
-    ctx.stroke();
-    
-    for (let i = 0.2; i < 1; i += 0.2) {
-      ctx.beginPath();
-      ctx.moveTo(x + UNIT_TO_PIXEL * i, y + UNIT_TO_PIXEL * 0.3);
-      ctx.lineTo(x + UNIT_TO_PIXEL * i, y + UNIT_TO_PIXEL * 0.7);
-      ctx.stroke();
-    }
-    
-    ctx.restore();
-    this.drawLabel(ctx);
-  }
-
-  public draw(ctx: CanvasRenderingContext2D): void {
-    this.drawShadow(ctx);
-    this.drawBody(ctx);
-  }
-}
-
 export class HayBale extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
   }
@@ -340,6 +306,90 @@ export class FoundationCorner extends TerrainDetailObject {
     ctx.lineWidth = 2;
     ctx.strokeRect(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.2);
     ctx.strokeRect(x + UNIT_TO_PIXEL * 0.4, y + UNIT_TO_PIXEL * 0.6, UNIT_TO_PIXEL * 0.2, UNIT_TO_PIXEL * 0.3);
+
+    ctx.restore();
+    this.drawLabel(ctx);
+  }
+
+  public drawShadow(ctx: CanvasRenderingContext2D): void {}
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {}
+}
+
+export class FenceEdge extends TerrainDetailObject {
+  public draw(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x + UNIT_TO_PIXEL * 0.5;
+    const centerY = y + UNIT_TO_PIXEL * 0.5;
+
+    ctx.translate(centerX, centerY);
+    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
+    ctx.translate(-centerX, -centerY);
+
+    ctx.strokeStyle = "#d2691e";
+    ctx.lineWidth = 3;
+    
+    ctx.beginPath();
+    ctx.moveTo(x + UNIT_TO_PIXEL * 0.1, y + UNIT_TO_PIXEL * 0.5);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.9, y + UNIT_TO_PIXEL * 0.5);
+    ctx.stroke();
+    
+    for (let i = 0.2; i < 1; i += 0.2) {
+      ctx.beginPath();
+      ctx.moveTo(x + UNIT_TO_PIXEL * i, y + UNIT_TO_PIXEL * 0.3);
+      ctx.lineTo(x + UNIT_TO_PIXEL * i, y + UNIT_TO_PIXEL * 0.7);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+    this.drawLabel(ctx);
+  }
+
+  public drawShadow(ctx: CanvasRenderingContext2D): void {}
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {}
+}
+
+export class FenceCorner extends TerrainDetailObject {
+  public draw(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x + UNIT_TO_PIXEL * 0.5;
+    const centerY = y + UNIT_TO_PIXEL * 0.5;
+
+    ctx.translate(centerX, centerY);
+    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
+    ctx.translate(-centerX, -centerY);
+
+    ctx.strokeStyle = "#d2691e";
+    ctx.lineWidth = 3;
+    
+    ctx.beginPath();
+    ctx.moveTo(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.5);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.9, y + UNIT_TO_PIXEL * 0.5);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.5);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.9);
+    ctx.stroke();
+    
+    for (let i = 0.6; i < 1; i += 0.2) {
+      ctx.beginPath();
+      ctx.moveTo(x + UNIT_TO_PIXEL * i, y + UNIT_TO_PIXEL * 0.3);
+      ctx.lineTo(x + UNIT_TO_PIXEL * i, y + UNIT_TO_PIXEL * 0.7);
+      ctx.stroke();
+    }
+    
+    for (let i = 0.6; i < 1; i += 0.2) {
+      ctx.beginPath();
+      ctx.moveTo(x + UNIT_TO_PIXEL * 0.3, y + UNIT_TO_PIXEL * i);
+      ctx.lineTo(x + UNIT_TO_PIXEL * 0.7, y + UNIT_TO_PIXEL * i);
+      ctx.stroke();
+    }
 
     ctx.restore();
     this.drawLabel(ctx);

@@ -53,7 +53,6 @@ public static partial class Types
         Rock,
         Tree,
         Bridge,
-        Fence,
         HayBale,
         Field,
         Label,
@@ -64,7 +63,9 @@ public static partial class Types
         GrenadePickup,
         RocketPickup,
         FoundationEdge,
-        FoundationCorner
+        FoundationCorner,
+        FenceEdge,
+        FenceCorner
     }
 
     [Type]

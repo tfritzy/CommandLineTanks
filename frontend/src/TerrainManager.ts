@@ -2,7 +2,7 @@ import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, TerrainDetailType, type TerrainDetailRow, type EventContext } from "../module_bindings";
 import { type Infer } from "spacetimedb";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
-import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field, Label, FoundationEdge, FoundationCorner } from "./objects/TerrainDetails";
+import { Cliff, Rock, Tree, Bridge, HayBale, Field, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner } from "./objects/TerrainDetails";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 type TerrainDetailTypeEnum = Infer<typeof TerrainDetailType>;
@@ -123,9 +123,6 @@ export class TerrainManager {
       case "Bridge":
         obj = new Bridge(detail.positionX, detail.positionY, label, health, rotation);
         break;
-      case "Fence":
-        obj = new Fence(detail.positionX, detail.positionY, label, health, rotation);
-        break;
       case "HayBale":
         obj = new HayBale(detail.positionX, detail.positionY, label, health, rotation);
         break;
@@ -140,6 +137,12 @@ export class TerrainManager {
         break;
       case "FoundationCorner":
         obj = new FoundationCorner(detail.positionX, detail.positionY, label, health, rotation);
+        break;
+      case "FenceEdge":
+        obj = new FenceEdge(detail.positionX, detail.positionY, label, health, rotation);
+        break;
+      case "FenceCorner":
+        obj = new FenceCorner(detail.positionX, detail.positionY, label, health, rotation);
         break;
     }
     
