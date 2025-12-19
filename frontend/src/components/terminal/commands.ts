@@ -82,7 +82,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     return [
       "Commands:",
       "  drive, d, dr         Move your tank in a direction",
-      "  navigate, nav        Navigate to a relative coordinate or tank using pathfinding",
+      "  navigate, nav        Navigate to a tank, direction, or coordinate using pathfinding",
       "  reverse, r           Reverse in the direction the tank is facing",
       "  stop, s              Stop the tank immediately",
       "  aim, a               Aim turret at an angle or direction",
@@ -138,10 +138,22 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "navigate, nav - Navigate to a relative coordinate or tank using pathfinding",
         "",
         "Usage: navigate <tank_name> [throttle]",
+        "       navigate <direction> [distance] [throttle]",
         "       navigate <relative_x> <relative_y> [throttle]",
         "",
         "Arguments:",
         "  <tank_name>    Name of the tank to navigate to (e.g., alpha, bravo)",
+        "  <direction>    Direction to navigate (with pathfinding)",
+        "                 Directions:",
+        "                   ↑: north, up, n, u",
+        "                   ↗: northeast, upright, rightup, ne, ur, ru",
+        "                   →: east, right, e, r",
+        "                   ↘: southeast, downright, rightdown, se, dr, rd",
+        "                   ↓: south, down, s, d",
+        "                   ↙: southwest, downleft, leftdown, sw, dl, ld",
+        "                   ←: west, left, w, l",
+        "                   ↖: northwest, upleft, leftup, nw, ul, lu",
+        "  [distance]     Distance to navigate in units (default: 1)",
         "  <relative_x>   X offset from your position (e.g., -10, 0, +15)",
         "  <relative_y>   Y offset from your position (e.g., -5, 0, +20)",
         "  [throttle]     Speed as percentage 1-100 (default: 100)",
@@ -149,6 +161,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  navigate alpha",
         "  navigate bravo 75",
+        "  navigate northeast 5",
+        "  navigate up 3 75",
         "  navigate 10 5      (10 units right, 5 units down)",
         "  navigate -10 0     (10 units left)",
         "  navigate 0 -15 75  (15 units up at 75% throttle)",
@@ -650,11 +664,14 @@ export function navigate(connection: DbConnection, worldId: string, args: string
       "navigate: error: missing required arguments",
       "",
       "Usage: navigate <tank_name> [throttle]",
+      "       navigate <direction> [distance] [throttle]",
       "       navigate <relative_x> <relative_y> [throttle]",
       "",
       "Examples:",
       "  navigate alpha",
       "  navigate bravo 75",
+      "  navigate northeast 5",
+      "  navigate up 3 75",
       "  navigate 10 5      (10 units right, 5 units down)",
       "  navigate -10 0     (10 units left)",
       "  navigate 0 -15 75  (15 units up at 75% throttle)"
@@ -698,11 +715,67 @@ export function navigate(connection: DbConnection, worldId: string, args: string
     ];
   }
 
+  if (validDirections.includes(firstArgLower)) {
+    const directionInfo = directionAliases[firstArgLower];
+    
+    let distance = 1;
+    if (args.length > 1) {
+      const parsed = Number.parseInt(args[1]);
+      if (Number.isNaN(parsed)) {
+        return [
+          `navigate: error: invalid value '${args[1]}' for '[distance]': must be a valid integer`,
+          "",
+          "Usage: navigate <direction> [distance] [throttle]",
+          "       navigate northeast 5"
+        ];
+      } else {
+        distance = parsed;
+      }
+    }
+
+    let throttle = 1;
+    if (args.length > 2) {
+      const parsed = Number.parseInt(args[2]);
+      if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
+        return [
+          `navigate: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
+          "",
+          "Usage: navigate <direction> [distance] [throttle]",
+          "       navigate northeast 5 75"
+        ];
+      } else {
+        throttle = parsed / 100;
+      }
+    }
+
+    const relativeX = directionInfo.x * distance;
+    const relativeY = directionInfo.y * distance;
+    
+    const targetX = Math.floor(myTank.positionX) + relativeX;
+    const targetY = Math.floor(myTank.positionY) - relativeY;
+
+    if (targetX < 0 || targetY < 0) {
+      return [
+        `navigate: error: target coordinates (${targetX}, ${targetY}) are out of bounds`,
+        "",
+        "Calculated absolute coordinates must be non-negative"
+      ];
+    }
+
+    connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
+
+    const explanation = `${distance} ${distance !== 1 ? "units" : "unit"} ${directionInfo.symbol} ${directionInfo.name}`;
+    return [
+      `Navigating ${explanation} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+    ];
+  }
+
   if (args.length < 2) {
     return [
       "navigate: error: missing required arguments",
       "",
       "Usage: navigate <tank_name> [throttle]",
+      "       navigate <direction> [distance] [throttle]",
       "       navigate <relative_x> <relative_y> [throttle]",
       "",
       "Tank name not found. If you meant coordinates, provide both X and Y:",
