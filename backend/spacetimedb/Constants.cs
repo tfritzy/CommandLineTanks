@@ -99,4 +99,21 @@ public static partial class Module
         ExplosionTrigger = ExplosionTrigger.OnExpiration,
         BounceDamping = 0.7f
     };
+
+    public static readonly Gun ROCKET_GUN = new Gun
+    {
+        GunType = GunType.Rocket,
+        Ammo = 8,
+        ProjectileCount = 1,
+        SpreadAngle = 0,
+        Damage = 100,
+        TrackingStrength = 0,
+        ProjectileType = ProjectileType.Rocket,
+        LifetimeSeconds = 10.0f,
+        MaxCollisions = 1,
+        PassThroughTerrain = false,
+        ExplosionRadius = 1.5f,
+        ExplosionTrigger = ExplosionTrigger.OnHit,
+        BounceDamping = null
+    };
 }

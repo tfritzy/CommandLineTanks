@@ -24,6 +24,8 @@ const TerrainDetailType = __t.enum("TerrainDetailType", {None: __t.unit(),
   MissileLauncherPickup: __t.unit(),
   HealthPickup: __t.unit(),
   BoomerangPickup: __t.unit(),
+  GrenadePickup: __t.unit(),
+  RocketPickup: __t.unit(),
 });
 
 export default TerrainDetailType;
