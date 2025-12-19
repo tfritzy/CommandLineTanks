@@ -64,7 +64,9 @@ public static partial class Types
         GrenadePickup,
         RocketPickup,
         FoundationEdge,
-        FoundationCorner
+        FoundationCorner,
+        FenceEdge,
+        FenceCorner
     }
 
     [Type]
