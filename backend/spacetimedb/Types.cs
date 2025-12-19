@@ -63,6 +63,7 @@ public static partial class Types
         BoomerangPickup,
         GrenadePickup,
         RocketPickup,
+        LaserBeamPickup,
         FoundationEdge,
         FoundationCorner
     }
@@ -82,7 +83,8 @@ public static partial class Types
         MissileLauncher,
         Boomerang,
         Grenade,
-        Rocket
+        Rocket,
+        LaserBeam
     }
 
     [Type]
@@ -92,7 +94,8 @@ public static partial class Types
         Missile,
         Boomerang,
         Grenade,
-        Rocket
+        Rocket,
+        LaserBeam
     }
 
     [Type]
@@ -119,5 +122,6 @@ public static partial class Types
         public float? ExplosionRadius;
         public ExplosionTrigger ExplosionTrigger;
         public float? BounceDamping;
+        public float? RaycastRange;
     }
 }

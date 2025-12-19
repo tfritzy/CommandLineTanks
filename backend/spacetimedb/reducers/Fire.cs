@@ -23,6 +23,21 @@ public static partial class Module
 
         if (gun.Ammo != null && gun.Ammo <= 0) return false;
 
+        if (gun.RaycastRange != null)
+        {
+            ctx.Db.ScheduledLaserBeamFire.Insert(new Module.ScheduledLaserBeamFire
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 1_000_000 }),
+                TankId = tank.Id,
+                TurretRotation = tank.TurretRotation,
+                SelectedGunIndex = tank.SelectedGunIndex
+            });
+
+            Log.Info($"Tank {tank.Name} charging {gun.GunType}...");
+            return true;
+        }
+
         float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
         float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
 

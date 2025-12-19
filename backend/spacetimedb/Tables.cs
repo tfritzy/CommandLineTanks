@@ -177,4 +177,16 @@ public static partial class Module
 
         public TerrainDetailType Type;
     }
+
+    [Table(Scheduled = nameof(ProjectileUpdater.FireLaserBeam))]
+    public partial struct ScheduledLaserBeamFire
+    {
+        [AutoInc]
+        [PrimaryKey]
+        public ulong ScheduledId;
+        public ScheduleAt ScheduledAt;
+        public string TankId;
+        public float TurretRotation;
+        public int SelectedGunIndex;
+    }
 }
