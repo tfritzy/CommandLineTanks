@@ -16,9 +16,9 @@ public static partial class TerrainGenerator
     private const int MIN_STRUCTURES = 3;
     private const int STRUCTURE_COUNT_RANGE = 4;
     private const int ROTATION_NORTH = 0;
-    private const int ROTATION_EAST = 90;
-    private const int ROTATION_SOUTH = 180;
-    private const int ROTATION_WEST = 270;
+    private const int ROTATION_EAST = 1;
+    private const int ROTATION_SOUTH = 2;
+    private const int ROTATION_WEST = 3;
 
     public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random)
     {
@@ -486,137 +486,214 @@ public static partial class TerrainGenerator
                 int startY = random.Next(2, WORLD_HEIGHT - structureHeight - 2);
 
                 bool validLocation = true;
+                int objectsToReplace = 0;
 
-                for (int y = startY - 2; y < startY + structureHeight + 2; y++)
+                for (int x = startX; x < startX + structureWidth; x++)
                 {
-                    for (int x = startX - 2; x < startX + structureWidth + 2; x++)
+                    int topIndex = startY * WORLD_WIDTH + x;
+                    int bottomIndex = (startY + structureHeight - 1) * WORLD_WIDTH + x;
+
+                    if (baseTerrain[topIndex] != BaseTerrain.Ground)
                     {
-                        if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT)
+                        validLocation = false;
+                        break;
+                    }
+                    if (baseTerrain[bottomIndex] != BaseTerrain.Ground)
+                    {
+                        validLocation = false;
+                        break;
+                    }
+
+                    if (terrainDetail[topIndex] != TerrainDetailType.None)
+                    {
+                        if (terrainDetail[topIndex] == TerrainDetailType.Field || terrainDetail[topIndex] == TerrainDetailType.Fence)
                         {
                             validLocation = false;
                             break;
                         }
-
-                        int index = y * WORLD_WIDTH + x;
-                        if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
-                        {
-                            validLocation = false;
-                            break;
-                        }
-
-                        bool tooCloseToRoad = false;
-                        for (int r = 0; r < roadTiles.Length; r++)
-                        {
-                            if (Math.Abs(roadTiles[r].X - x) <= 1 && Math.Abs(roadTiles[r].Y - y) <= 1)
-                            {
-                                tooCloseToRoad = true;
-                                break;
-                            }
-                        }
-
-                        if (tooCloseToRoad)
-                        {
-                            validLocation = false;
-                            break;
-                        }
-
-                        bool tooCloseToStream = false;
-                        for (int s = 0; s < streamPath.Length; s++)
-                        {
-                            if (Math.Abs(streamPath[s].X - x) <= 1 && Math.Abs(streamPath[s].Y - y) <= 1)
-                            {
-                                tooCloseToStream = true;
-                                break;
-                            }
-                        }
-
-                        if (tooCloseToStream)
-                        {
-                            validLocation = false;
-                            break;
-                        }
-
-                        bool tooCloseToField = false;
-                        for (int f = 0; f < fieldTiles.Length; f++)
-                        {
-                            if (Math.Abs(fieldTiles[f].X - x) <= 1 && Math.Abs(fieldTiles[f].Y - y) <= 1)
-                            {
-                                tooCloseToField = true;
-                                break;
-                            }
-                        }
-
-                        if (tooCloseToField)
+                        objectsToReplace++;
+                        if (objectsToReplace > 2)
                         {
                             validLocation = false;
                             break;
                         }
                     }
 
-                    if (!validLocation) break;
+                    if (terrainDetail[bottomIndex] != TerrainDetailType.None)
+                    {
+                        if (terrainDetail[bottomIndex] == TerrainDetailType.Field || terrainDetail[bottomIndex] == TerrainDetailType.Fence)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+                        objectsToReplace++;
+                        if (objectsToReplace > 2)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+                    }
                 }
 
                 if (validLocation)
                 {
-                    bool removeLeftSide = random.NextSingle() < 0.3f;
-                    bool removeRightSide = random.NextSingle() < 0.3f;
-                    bool removeTopSide = random.NextSingle() < 0.3f;
-                    bool removeBottomSide = random.NextSingle() < 0.3f;
-
-                    for (int x = startX; x < startX + structureWidth; x++)
+                    for (int y = startY; y < startY + structureHeight; y++)
                     {
-                        if (!removeTopSide)
+                        int leftIndex = y * WORLD_WIDTH + startX;
+                        int rightIndex = y * WORLD_WIDTH + (startX + structureWidth - 1);
+
+                        if (baseTerrain[leftIndex] != BaseTerrain.Ground)
                         {
-                            if (random.NextSingle() > 0.2f)
+                            validLocation = false;
+                            break;
+                        }
+                        if (baseTerrain[rightIndex] != BaseTerrain.Ground)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+
+                        if (terrainDetail[leftIndex] != TerrainDetailType.None)
+                        {
+                            if (terrainDetail[leftIndex] == TerrainDetailType.Field || terrainDetail[leftIndex] == TerrainDetailType.Fence)
                             {
-                                terrainDetails.Add((x, startY, TerrainDetailType.FoundationEdge, ROTATION_NORTH));
+                                validLocation = false;
+                                break;
+                            }
+                            objectsToReplace++;
+                            if (objectsToReplace > 2)
+                            {
+                                validLocation = false;
+                                break;
                             }
                         }
 
-                        if (!removeBottomSide)
+                        if (terrainDetail[rightIndex] != TerrainDetailType.None)
                         {
-                            if (random.NextSingle() > 0.2f)
+                            if (terrainDetail[rightIndex] == TerrainDetailType.Field || terrainDetail[rightIndex] == TerrainDetailType.Fence)
                             {
-                                terrainDetails.Add((x, startY + structureHeight - 1, TerrainDetailType.FoundationEdge, ROTATION_SOUTH));
+                                validLocation = false;
+                                break;
+                            }
+                            objectsToReplace++;
+                            if (objectsToReplace > 2)
+                            {
+                                validLocation = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (validLocation)
+                {
+                    bool tooCloseToRoadOrStream = false;
+                    for (int x = startX - 1; x < startX + structureWidth + 1; x++)
+                    {
+                        for (int y = startY - 1; y < startY + structureHeight + 1; y++)
+                        {
+                            for (int r = 0; r < roadTiles.Length; r++)
+                            {
+                                if (roadTiles[r].X == x && roadTiles[r].Y == y)
+                                {
+                                    tooCloseToRoadOrStream = true;
+                                    break;
+                                }
+                            }
+                            if (tooCloseToRoadOrStream) break;
+
+                            for (int s = 0; s < streamPath.Length; s++)
+                            {
+                                if (streamPath[s].X == x && streamPath[s].Y == y)
+                                {
+                                    tooCloseToRoadOrStream = true;
+                                    break;
+                                }
+                            }
+                            if (tooCloseToRoadOrStream) break;
+                        }
+                        if (tooCloseToRoadOrStream) break;
+                    }
+
+                    if (tooCloseToRoadOrStream)
+                    {
+                        validLocation = false;
+                    }
+                }
+
+                if (validLocation)
+                {
+                    bool removeTopLeftCorner = random.NextSingle() < 0.3f;
+                    bool removeTopRightCorner = random.NextSingle() < 0.3f;
+                    bool removeBottomLeftCorner = random.NextSingle() < 0.3f;
+                    bool removeBottomRightCorner = random.NextSingle() < 0.3f;
+
+                    for (int x = startX; x < startX + structureWidth; x++)
+                    {
+                        if (!removeTopLeftCorner || x > startX)
+                        {
+                            if (!removeTopRightCorner || x < startX + structureWidth - 1)
+                            {
+                                if (random.NextSingle() > 0.2f)
+                                {
+                                    terrainDetails.Add((x, startY, TerrainDetailType.FoundationEdge, ROTATION_NORTH));
+                                }
+                            }
+                        }
+
+                        if (!removeBottomLeftCorner || x > startX)
+                        {
+                            if (!removeBottomRightCorner || x < startX + structureWidth - 1)
+                            {
+                                if (random.NextSingle() > 0.2f)
+                                {
+                                    terrainDetails.Add((x, startY + structureHeight - 1, TerrainDetailType.FoundationEdge, ROTATION_SOUTH));
+                                }
                             }
                         }
                     }
 
                     for (int y = startY; y < startY + structureHeight; y++)
                     {
-                        if (!removeLeftSide)
+                        if (!removeTopLeftCorner || y > startY)
                         {
-                            if (random.NextSingle() > 0.2f)
+                            if (!removeBottomLeftCorner || y < startY + structureHeight - 1)
                             {
-                                terrainDetails.Add((startX, y, TerrainDetailType.FoundationEdge, ROTATION_WEST));
+                                if (random.NextSingle() > 0.2f)
+                                {
+                                    terrainDetails.Add((startX, y, TerrainDetailType.FoundationEdge, ROTATION_WEST));
+                                }
                             }
                         }
 
-                        if (!removeRightSide)
+                        if (!removeTopRightCorner || y > startY)
                         {
-                            if (random.NextSingle() > 0.2f)
+                            if (!removeBottomRightCorner || y < startY + structureHeight - 1)
                             {
-                                terrainDetails.Add((startX + structureWidth - 1, y, TerrainDetailType.FoundationEdge, ROTATION_EAST));
+                                if (random.NextSingle() > 0.2f)
+                                {
+                                    terrainDetails.Add((startX + structureWidth - 1, y, TerrainDetailType.FoundationEdge, ROTATION_EAST));
+                                }
                             }
                         }
                     }
 
-                    if (!removeTopSide && !removeLeftSide)
+                    if (!removeTopLeftCorner)
                     {
                         terrainDetails.Add((startX, startY, TerrainDetailType.FoundationCorner, ROTATION_WEST));
                     }
 
-                    if (!removeTopSide && !removeRightSide)
+                    if (!removeTopRightCorner)
                     {
                         terrainDetails.Add((startX + structureWidth - 1, startY, TerrainDetailType.FoundationCorner, ROTATION_NORTH));
                     }
 
-                    if (!removeBottomSide && !removeLeftSide)
+                    if (!removeBottomLeftCorner)
                     {
                         terrainDetails.Add((startX, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, ROTATION_SOUTH));
                     }
 
-                    if (!removeBottomSide && !removeRightSide)
+                    if (!removeBottomRightCorner)
                     {
                         terrainDetails.Add((startX + structureWidth - 1, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, ROTATION_EAST));
                     }

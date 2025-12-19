@@ -236,7 +236,7 @@ export class FoundationEdge extends TerrainDetailObject {
     const centerY = y + UNIT_TO_PIXEL * 0.5;
 
     ctx.translate(centerX, centerY);
-    ctx.rotate((this.rotation * Math.PI) / 180);
+    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
     ctx.translate(-centerX, -centerY);
 
     ctx.fillStyle = "#8b7355";
@@ -260,7 +260,7 @@ export class FoundationCorner extends TerrainDetailObject {
     const centerY = y + UNIT_TO_PIXEL * 0.5;
 
     ctx.translate(centerX, centerY);
-    ctx.rotate((this.rotation * Math.PI) / 180);
+    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
     ctx.translate(-centerX, -centerY);
 
     ctx.fillStyle = "#8b7355";

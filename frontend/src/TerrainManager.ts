@@ -2,7 +2,7 @@ import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, TerrainDetailType, type TerrainDetailRow, type EventContext } from "../module_bindings";
 import { type Infer } from "spacetimedb";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
-import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field, Label, FoundationEdge, FoundationCorner } from "./objects/TerrainDetails";
+import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field, Label } from "./objects/TerrainDetails";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 type TerrainDetailTypeEnum = Infer<typeof TerrainDetailType>;
@@ -108,13 +108,6 @@ export class TerrainManager {
         break;
       case "Label":
         obj = new Label(detail.positionX, detail.positionY, label, health, rotation);
-        break;
-      default:
-        if ((detail.type as any).tag === "FoundationEdge") {
-          obj = new FoundationEdge(detail.positionX, detail.positionY, label, health, rotation);
-        } else if ((detail.type as any).tag === "FoundationCorner") {
-          obj = new FoundationCorner(detail.positionX, detail.positionY, label, health, rotation);
-        }
         break;
     }
     

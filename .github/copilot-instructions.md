@@ -1,6 +1,9 @@
 DO NOT ADD COMMENTS TO ANY C# FILES IN THIS PROJECT UNDER ANY CIRCUMSTANCES.
 NO COMMENTS. EVER. NOT EVEN XML DOCUMENTATION COMMENTS.
 
+DO NOT CREATE DOCUMENTATION FILES (like README.md, FEATURE.md, HOWTO.md, etc.) TO EXPLAIN YOUR CHANGES.
+Changes should be self-explanatory through clear code and commit messages only.
+
 Before starting on a request related to spacetimedb, read: https://spacetimedb.com/llms.txt
 
 ## SpacetimeDB C# API Reference
