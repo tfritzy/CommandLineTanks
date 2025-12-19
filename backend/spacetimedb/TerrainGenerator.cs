@@ -82,10 +82,14 @@ public static partial class TerrainGenerator
                 currentX--;
             }
 
-            currentX = Math.Max(1, Math.Min(WORLD_WIDTH - 2, currentX));
+            currentX = Math.Max(1, Math.Min(WORLD_WIDTH - 3, currentX));
 
             int index = y * WORLD_WIDTH + currentX;
             baseTerrain[index] = BaseTerrain.Stream;
+            
+            int indexNext = y * WORLD_WIDTH + (currentX + 1);
+            baseTerrain[indexNext] = BaseTerrain.Stream;
+            
             streamPath[y] = new Vector2(currentX, y);
         }
 
