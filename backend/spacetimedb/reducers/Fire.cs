@@ -115,10 +115,56 @@ public static partial class Module
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
         if (traversibilityMap == null) return;
 
-        float hitDistance = raycastRange;
-        Module.Tank? hitTank = null;
+        float endX = startX + dirX * raycastRange;
+        float endY = startY + dirY * raycastRange;
 
-        float stepSize = 0.1f;
+        int startRegionX = Module.GetGridPosition(startX / Module.COLLISION_REGION_SIZE);
+        int startRegionY = Module.GetGridPosition(startY / Module.COLLISION_REGION_SIZE);
+        int endRegionX = Module.GetGridPosition(endX / Module.COLLISION_REGION_SIZE);
+        int endRegionY = Module.GetGridPosition(endY / Module.COLLISION_REGION_SIZE);
+
+        int minRegionX = Math.Min(startRegionX, endRegionX);
+        int maxRegionX = Math.Max(startRegionX, endRegionX);
+        int minRegionY = Math.Min(startRegionY, endRegionY);
+        int maxRegionY = Math.Max(startRegionY, endRegionY);
+
+        var hitTanks = new List<(Module.Tank tank, float distance)>();
+
+        for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
+        {
+            for (int regionY = minRegionY; regionY <= maxRegionY; regionY++)
+            {
+                foreach (var targetTank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((tank.WorldId, regionX, regionY)))
+                {
+                    if (targetTank.Alliance != tank.Alliance && targetTank.Health > 0)
+                    {
+                        float dx = targetTank.PositionX - startX;
+                        float dy = targetTank.PositionY - startY;
+                        float projectionLength = dx * dirX + dy * dirY;
+
+                        if (projectionLength >= 0 && projectionLength <= raycastRange)
+                        {
+                            float perpX = dx - dirX * projectionLength;
+                            float perpY = dy - dirY * projectionLength;
+                            float perpDistanceSquared = perpX * perpX + perpY * perpY;
+
+                            if (perpDistanceSquared <= Module.TANK_COLLISION_RADIUS * Module.TANK_COLLISION_RADIUS)
+                            {
+                                hitTanks.Add((targetTank, projectionLength));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        hitTanks.Sort((a, b) => a.distance.CompareTo(b.distance));
+
+        int collisionCount = 0;
+        float hitDistance = raycastRange;
+        bool hitTerrain = false;
+
+        float stepSize = 0.5f;
         for (float distance = 0; distance < raycastRange; distance += stepSize)
         {
             float checkX = startX + dirX * distance;
@@ -136,45 +182,29 @@ public static partial class Module
                 if (!tileIsTraversable)
                 {
                     hitDistance = distance;
+                    hitTerrain = true;
                     break;
                 }
             }
-
-            int collisionRegionX = Module.GetGridPosition(checkX / Module.COLLISION_REGION_SIZE);
-            int collisionRegionY = Module.GetGridPosition(checkY / Module.COLLISION_REGION_SIZE);
-
-            foreach (var targetTank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((tank.WorldId, collisionRegionX, collisionRegionY)))
-            {
-                if (targetTank.Alliance != tank.Alliance && targetTank.Health > 0)
-                {
-                    float dx = targetTank.PositionX - checkX;
-                    float dy = targetTank.PositionY - checkY;
-                    float distanceSquared = dx * dx + dy * dy;
-                    float collisionRadiusSquared = Module.TANK_COLLISION_RADIUS * Module.TANK_COLLISION_RADIUS;
-
-                    if (distanceSquared <= collisionRadiusSquared)
-                    {
-                        hitDistance = distance;
-                        hitTank = targetTank;
-                        break;
-                    }
-                }
-            }
-
-            if (hitTank != null)
-            {
-                break;
-            }
         }
 
-        if (hitTank != null)
+        int tanksHit = 0;
+        foreach (var (hitTank, distance) in hitTanks)
         {
-            var newHealth = hitTank.Value.Health - gun.Damage;
-            var updatedTank = hitTank.Value with
+            if (distance >= hitDistance)
+                break;
+
+            if (collisionCount >= gun.MaxCollisions)
+                break;
+
+            var newHealth = hitTank.Health - gun.Damage;
+            var updatedTank = hitTank with
             {
                 Health = newHealth
             };
             ctx.Db.tank.Id.Update(updatedTank);
+            collisionCount++;
+            tanksHit++;
 
             if (newHealth <= 0)
             {
@@ -215,11 +245,23 @@ public static partial class Module
                 }
             }
 
-            Log.Info($"Raycast weapon hit {hitTank.Value.Name} for {gun.Damage} damage at distance {hitDistance}");
+            Log.Info($"Raycast weapon hit {hitTank.Name} for {gun.Damage} damage at distance {distance}");
+        }
+
+        if (tanksHit == 0)
+        {
+            if (hitTerrain)
+            {
+                Log.Info($"Raycast weapon hit terrain at {hitDistance} units");
+            }
+            else
+            {
+                Log.Info($"Raycast weapon missed, traveled {raycastRange} units");
+            }
         }
         else
         {
-            Log.Info($"Raycast weapon missed, traveled {hitDistance} units");
+            Log.Info($"Raycast weapon hit {tanksHit} tank(s)");
         }
     }
 }
