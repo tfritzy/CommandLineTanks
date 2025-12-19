@@ -11,6 +11,7 @@ import {
 } from "spacetimedb";
 import Vector2Float from "./vector_2_float_type";
 import ProjectileType from "./projectile_type_type";
+import ExplosionTrigger from "./explosion_trigger_type";
 
 
 export default __t.object("Projectile", {
@@ -37,6 +38,11 @@ export default __t.object("Projectile", {
   maxCollisions: __t.i32(),
   collisionCount: __t.i32(),
   passThroughTerrain: __t.bool(),
+  explosionRadius: __t.option(__t.f32()),
+  get explosionTrigger() {
+    return ExplosionTrigger;
+  },
+  bounceDamping: __t.option(__t.f32()),
 });
 
 

@@ -14,6 +14,7 @@ import {
 const ProjectileType = __t.enum("ProjectileType", {Normal: __t.unit(),
   Missile: __t.unit(),
   Boomerang: __t.unit(),
+  Grenade: __t.unit(),
 });
 
 export default ProjectileType;

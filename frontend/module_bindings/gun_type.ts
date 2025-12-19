@@ -10,6 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import ProjectileType from "./projectile_type_type";
+import ExplosionTrigger from "./explosion_trigger_type";
 import GunType from "./gun_type_type";
 
 
@@ -28,6 +29,11 @@ export default __t.object("Gun", {
   lifetimeSeconds: __t.f32(),
   maxCollisions: __t.i32(),
   passThroughTerrain: __t.bool(),
+  explosionRadius: __t.option(__t.f32()),
+  get explosionTrigger() {
+    return ExplosionTrigger;
+  },
+  bounceDamping: __t.option(__t.f32()),
 });
 
 
