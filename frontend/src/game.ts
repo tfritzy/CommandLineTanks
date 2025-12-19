@@ -45,13 +45,13 @@ export class Game {
       const dpr = window.devicePixelRatio || 1;
       const displayWidth = parent.clientWidth;
       const displayHeight = parent.clientHeight;
-      
+
       this.canvas.width = displayWidth * dpr;
       this.canvas.height = displayHeight * dpr;
-      
+
       this.canvas.style.width = `${displayWidth}px`;
       this.canvas.style.height = `${displayHeight}px`;
-      
+
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
   }
@@ -86,7 +86,7 @@ export class Game {
 
     for (let x = Math.max(0, startX); x <= Math.min(worldWidth - 1, endX); x++) {
       const relativeX = x - playerGridX;
-      
+
       if (relativeX % LABEL_INTERVAL === 0 && relativeX !== 0) {
         const worldX = x * UNIT_TO_PIXEL;
         const worldY = playerGridY * UNIT_TO_PIXEL;
@@ -97,7 +97,7 @@ export class Game {
 
     for (let y = Math.max(0, startY); y <= Math.min(worldHeight - 1, endY); y++) {
       const relativeY = playerGridY - y;
-      
+
       if (relativeY % LABEL_INTERVAL === 0 && relativeY !== 0) {
         const worldX = playerGridX * UNIT_TO_PIXEL;
         const worldY = y * UNIT_TO_PIXEL;
@@ -117,6 +117,7 @@ export class Game {
 
     this.tankManager.update(deltaTime);
     this.projectileManager.update(deltaTime);
+    this.terrainManager.update(deltaTime);
 
     const dpr = window.devicePixelRatio || 1;
     const displayWidth = this.canvas.width / dpr;
@@ -130,7 +131,7 @@ export class Game {
     const playerTank = this.tankManager.getPlayerTank();
     let cameraX = 0;
     let cameraY = 0;
-    
+
     if (playerTank) {
       const playerPos = playerTank.getPosition();
       cameraX = playerPos.x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - displayWidth / 2;
@@ -156,13 +157,8 @@ export class Game {
       displayHeight
     );
 
-    for (const tank of this.tankManager.getAllTanks()) {
-      tank.drawPath(this.ctx);
-    }
-
-    for (const tank of this.tankManager.getAllTanks()) {
-      tank.draw(this.ctx);
-    }
+    this.tankManager.drawPaths(this.ctx);
+    this.tankManager.drawShadows(this.ctx);
 
     this.drawRelativeDistanceLabels(cameraX, cameraY);
 
@@ -187,6 +183,8 @@ export class Game {
       displayHeight,
       UNIT_TO_PIXEL
     );
+
+    this.tankManager.drawBodies(this.ctx);
 
     this.ctx.restore();
 

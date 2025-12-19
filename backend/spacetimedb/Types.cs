@@ -42,7 +42,8 @@ public static partial class Types
     {
         Ground,
         Stream,
-        Road
+        Road,
+        Farm
     }
 
     [Type]
@@ -54,7 +55,6 @@ public static partial class Types
         Tree,
         Bridge,
         HayBale,
-        Field,
         Label,
         TripleShooterPickup,
         MissileLauncherPickup,
@@ -65,7 +65,8 @@ public static partial class Types
         FoundationEdge,
         FoundationCorner,
         FenceEdge,
-        FenceCorner
+        FenceCorner,
+        DeadTank
     }
 
     [Type]

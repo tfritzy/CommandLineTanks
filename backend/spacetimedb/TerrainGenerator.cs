@@ -25,11 +25,13 @@ public static partial class TerrainGenerator
         var baseTerrain = new BaseTerrain[WORLD_WIDTH * WORLD_HEIGHT];
         var terrainDetails = new List<(int x, int y, TerrainDetailType type, int rotation)>();
         var terrainDetailArray = new TerrainDetailType[WORLD_WIDTH * WORLD_HEIGHT];
+        var rotationArray = new int[WORLD_WIDTH * WORLD_HEIGHT];
 
         for (int i = 0; i < baseTerrain.Length; i++)
         {
             baseTerrain[i] = BaseTerrain.Ground;
             terrainDetailArray[i] = TerrainDetailType.None;
+            rotationArray[i] = 0;
         }
 
         bool hasStream = random.NextSingle() < STREAM_PROBABILITY;
@@ -46,20 +48,21 @@ public static partial class TerrainGenerator
 
         GenerateRocks(terrainDetailArray, baseTerrain, random);
 
-        Vector2[] fieldTiles = GenerateFields(terrainDetails, terrainDetailArray, baseTerrain, roadTiles, random);
+        Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, roadTiles, random);
 
         GenerateTrees(terrainDetailArray, baseTerrain, roadTiles, streamPath, fieldTiles, random);
 
-        GenerateStructures(terrainDetails, terrainDetailArray, baseTerrain, roadTiles, streamPath, fieldTiles, random);
+        GenerateStructures(rotationArray, terrainDetailArray, baseTerrain, roadTiles, streamPath, fieldTiles, random);
 
         for (int y = 0; y < WORLD_HEIGHT; y++)
         {
             for (int x = 0; x < WORLD_WIDTH; x++)
             {
                 int index = y * WORLD_WIDTH + x;
-                if (terrainDetailArray[index] != TerrainDetailType.None)
+                var type = terrainDetailArray[index];
+                if (type != TerrainDetailType.None)
                 {
-                    terrainDetails.Add((x, y, terrainDetailArray[index], 0));
+                    terrainDetails.Add((x, y, type, rotationArray[index]));
                 }
             }
         }
@@ -258,7 +261,7 @@ public static partial class TerrainGenerator
         }
     }
 
-    private static Vector2[] GenerateFields(List<(int x, int y, TerrainDetailType type, int rotation)> terrainDetails, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] roadTiles, Random random)
+    private static Vector2[] GenerateFields(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] roadTiles, Random random)
     {
         var fieldTilesList = new Vector2[WORLD_WIDTH * WORLD_HEIGHT];
         int fieldTilesCount = 0;
@@ -324,7 +327,7 @@ public static partial class TerrainGenerator
                         for (int x = startX; x < startX + fieldWidth; x++)
                         {
                             int index = y * WORLD_WIDTH + x;
-                            terrainDetail[index] = TerrainDetailType.Field;
+                            baseTerrain[index] = BaseTerrain.Farm;
                             if (fieldTilesCount < fieldTilesList.Length)
                             {
                                 fieldTilesList[fieldTilesCount++] = new Vector2(x, y);
@@ -345,8 +348,8 @@ public static partial class TerrainGenerator
                             int fenceIndex = topY * WORLD_WIDTH + x;
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
-                                terrainDetails.Add((x, topY, TerrainDetailType.FenceEdge, ROTATION_NORTH));
                                 terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
+                                rotationArray[fenceIndex] = ROTATION_NORTH;
                             }
                         }
 
@@ -355,8 +358,8 @@ public static partial class TerrainGenerator
                             int fenceIndex = bottomY * WORLD_WIDTH + x;
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
-                                terrainDetails.Add((x, bottomY, TerrainDetailType.FenceEdge, ROTATION_SOUTH));
                                 terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
+                                rotationArray[fenceIndex] = ROTATION_SOUTH;
                             }
                         }
                     }
@@ -368,8 +371,8 @@ public static partial class TerrainGenerator
                             int fenceIndex = y * WORLD_WIDTH + leftX;
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
-                                terrainDetails.Add((leftX, y, TerrainDetailType.FenceEdge, ROTATION_WEST));
                                 terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
+                                rotationArray[fenceIndex] = ROTATION_WEST;
                             }
                         }
 
@@ -378,8 +381,8 @@ public static partial class TerrainGenerator
                             int fenceIndex = y * WORLD_WIDTH + rightX;
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
-                                terrainDetails.Add((rightX, y, TerrainDetailType.FenceEdge, ROTATION_EAST));
                                 terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
+                                rotationArray[fenceIndex] = ROTATION_EAST;
                             }
                         }
                     }
@@ -389,8 +392,8 @@ public static partial class TerrainGenerator
                         int cornerIndex = topY * WORLD_WIDTH + leftX;
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
-                            terrainDetails.Add((leftX, topY, TerrainDetailType.FenceCorner, ROTATION_WEST));
                             terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
+                            rotationArray[cornerIndex] = 0; // Top-Left
                         }
                     }
 
@@ -399,8 +402,8 @@ public static partial class TerrainGenerator
                         int cornerIndex = topY * WORLD_WIDTH + rightX;
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
-                            terrainDetails.Add((rightX, topY, TerrainDetailType.FenceCorner, ROTATION_NORTH));
                             terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
+                            rotationArray[cornerIndex] = 1; // Top-Right
                         }
                     }
 
@@ -409,8 +412,8 @@ public static partial class TerrainGenerator
                         int cornerIndex = bottomY * WORLD_WIDTH + leftX;
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
-                            terrainDetails.Add((leftX, bottomY, TerrainDetailType.FenceCorner, ROTATION_SOUTH));
                             terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
+                            rotationArray[cornerIndex] = 3; // Bottom-Left
                         }
                     }
 
@@ -419,8 +422,8 @@ public static partial class TerrainGenerator
                         int cornerIndex = bottomY * WORLD_WIDTH + rightX;
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
-                            terrainDetails.Add((rightX, bottomY, TerrainDetailType.FenceCorner, ROTATION_EAST));
                             terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
+                            rotationArray[cornerIndex] = 2; // Bottom-Right
                         }
                     }
 
@@ -431,7 +434,7 @@ public static partial class TerrainGenerator
                         int hy = startY + random.Next(fieldHeight);
                         int hIndex = hy * WORLD_WIDTH + hx;
 
-                        if (terrainDetail[hIndex] == TerrainDetailType.Field)
+                        if (baseTerrain[hIndex] == BaseTerrain.Farm)
                         {
                             terrainDetail[hIndex] = TerrainDetailType.HayBale;
                         }
@@ -518,7 +521,7 @@ public static partial class TerrainGenerator
     }
 
     private static void GenerateStructures(
-        List<(int x, int y, TerrainDetailType type, int rotation)> terrainDetails,
+        int[] rotationArray,
         TerrainDetailType[] terrainDetail,
         BaseTerrain[] baseTerrain,
         Vector2[] roadTiles,
@@ -563,7 +566,7 @@ public static partial class TerrainGenerator
 
                     if (terrainDetail[topIndex] != TerrainDetailType.None)
                     {
-                        if (terrainDetail[topIndex] == TerrainDetailType.Field || terrainDetail[topIndex] == TerrainDetailType.FenceEdge || terrainDetail[topIndex] == TerrainDetailType.FenceCorner)
+                        if (baseTerrain[topIndex] == BaseTerrain.Farm || terrainDetail[topIndex] == TerrainDetailType.FenceEdge || terrainDetail[topIndex] == TerrainDetailType.FenceCorner)
                         {
                             validLocation = false;
                             break;
@@ -578,7 +581,7 @@ public static partial class TerrainGenerator
 
                     if (terrainDetail[bottomIndex] != TerrainDetailType.None)
                     {
-                        if (terrainDetail[bottomIndex] == TerrainDetailType.Field || terrainDetail[bottomIndex] == TerrainDetailType.FenceEdge || terrainDetail[bottomIndex] == TerrainDetailType.FenceCorner)
+                        if (baseTerrain[bottomIndex] == BaseTerrain.Farm || terrainDetail[bottomIndex] == TerrainDetailType.FenceEdge || terrainDetail[bottomIndex] == TerrainDetailType.FenceCorner)
                         {
                             validLocation = false;
                             break;
@@ -612,7 +615,7 @@ public static partial class TerrainGenerator
 
                         if (terrainDetail[leftIndex] != TerrainDetailType.None)
                         {
-                            if (terrainDetail[leftIndex] == TerrainDetailType.Field || terrainDetail[leftIndex] == TerrainDetailType.FenceEdge || terrainDetail[leftIndex] == TerrainDetailType.FenceCorner)
+                            if (baseTerrain[leftIndex] == BaseTerrain.Farm || terrainDetail[leftIndex] == TerrainDetailType.FenceEdge || terrainDetail[leftIndex] == TerrainDetailType.FenceCorner)
                             {
                                 validLocation = false;
                                 break;
@@ -627,7 +630,7 @@ public static partial class TerrainGenerator
 
                         if (terrainDetail[rightIndex] != TerrainDetailType.None)
                         {
-                            if (terrainDetail[rightIndex] == TerrainDetailType.Field || terrainDetail[rightIndex] == TerrainDetailType.FenceEdge || terrainDetail[rightIndex] == TerrainDetailType.FenceCorner)
+                            if (baseTerrain[rightIndex] == BaseTerrain.Farm || terrainDetail[rightIndex] == TerrainDetailType.FenceEdge || terrainDetail[rightIndex] == TerrainDetailType.FenceCorner)
                             {
                                 validLocation = false;
                                 break;
@@ -693,7 +696,9 @@ public static partial class TerrainGenerator
                             {
                                 if (random.NextSingle() > 0.2f)
                                 {
-                                    terrainDetails.Add((x, startY, TerrainDetailType.FoundationEdge, ROTATION_NORTH));
+                                    int index = startY * WORLD_WIDTH + x;
+                                    terrainDetail[index] = TerrainDetailType.FoundationEdge;
+                                    rotationArray[index] = ROTATION_NORTH;
                                 }
                             }
                         }
@@ -704,7 +709,9 @@ public static partial class TerrainGenerator
                             {
                                 if (random.NextSingle() > 0.2f)
                                 {
-                                    terrainDetails.Add((x, startY + structureHeight - 1, TerrainDetailType.FoundationEdge, ROTATION_SOUTH));
+                                    int index = (startY + structureHeight - 1) * WORLD_WIDTH + x;
+                                    terrainDetail[index] = TerrainDetailType.FoundationEdge;
+                                    rotationArray[index] = ROTATION_SOUTH;
                                 }
                             }
                         }
@@ -718,7 +725,9 @@ public static partial class TerrainGenerator
                             {
                                 if (random.NextSingle() > 0.2f)
                                 {
-                                    terrainDetails.Add((startX, y, TerrainDetailType.FoundationEdge, ROTATION_WEST));
+                                    int index = y * WORLD_WIDTH + startX;
+                                    terrainDetail[index] = TerrainDetailType.FoundationEdge;
+                                    rotationArray[index] = ROTATION_WEST;
                                 }
                             }
                         }
@@ -729,7 +738,9 @@ public static partial class TerrainGenerator
                             {
                                 if (random.NextSingle() > 0.2f)
                                 {
-                                    terrainDetails.Add((startX + structureWidth - 1, y, TerrainDetailType.FoundationEdge, ROTATION_EAST));
+                                    int index = y * WORLD_WIDTH + (startX + structureWidth - 1);
+                                    terrainDetail[index] = TerrainDetailType.FoundationEdge;
+                                    rotationArray[index] = ROTATION_EAST;
                                 }
                             }
                         }
@@ -737,22 +748,30 @@ public static partial class TerrainGenerator
 
                     if (!removeTopLeftCorner)
                     {
-                        terrainDetails.Add((startX, startY, TerrainDetailType.FoundationCorner, ROTATION_WEST));
+                        int index = startY * WORLD_WIDTH + startX;
+                        terrainDetail[index] = TerrainDetailType.FoundationCorner;
+                        rotationArray[index] = 0;
                     }
 
                     if (!removeTopRightCorner)
                     {
-                        terrainDetails.Add((startX + structureWidth - 1, startY, TerrainDetailType.FoundationCorner, ROTATION_NORTH));
+                        int index = startY * WORLD_WIDTH + (startX + structureWidth - 1);
+                        terrainDetail[index] = TerrainDetailType.FoundationCorner;
+                        rotationArray[index] = 1;
                     }
 
                     if (!removeBottomLeftCorner)
                     {
-                        terrainDetails.Add((startX, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, ROTATION_SOUTH));
+                        int index = (startY + structureHeight - 1) * WORLD_WIDTH + startX;
+                        terrainDetail[index] = TerrainDetailType.FoundationCorner;
+                        rotationArray[index] = 3;
                     }
 
                     if (!removeBottomRightCorner)
                     {
-                        terrainDetails.Add((startX + structureWidth - 1, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, ROTATION_EAST));
+                        int index = (startY + structureHeight - 1) * WORLD_WIDTH + (startX + structureWidth - 1);
+                        terrainDetail[index] = TerrainDetailType.FoundationCorner;
+                        rotationArray[index] = 2;
                     }
 
                     placed = true;
@@ -787,7 +806,6 @@ public static partial class TerrainGenerator
             bool detailTraversible = terrainDetail[i] switch
             {
                 TerrainDetailType.None => true,
-                TerrainDetailType.Field => true,
                 TerrainDetailType.Bridge => true,
                 TerrainDetailType.Cliff => false,
                 TerrainDetailType.Rock => false,
@@ -799,6 +817,7 @@ public static partial class TerrainGenerator
                 TerrainDetailType.FoundationCorner => true,
                 TerrainDetailType.FenceEdge => true,
                 TerrainDetailType.FenceCorner => true,
+                TerrainDetailType.DeadTank => false,
                 _ => true
             };
 

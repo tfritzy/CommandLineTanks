@@ -160,6 +160,8 @@ public static partial class Module
         public string? Label;
 
         public int Rotation;
+        
+        public Vector2Float RenderOffset;
     }
 
     [Table(Name = "pickup", Public = true)]

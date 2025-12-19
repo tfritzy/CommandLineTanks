@@ -22,6 +22,7 @@ export class TankManager {
 
     connection.db.tank.onInsert((_ctx, tank) => {
       const newTank = new Tank(
+        tank.id,
         tank.positionX,
         tank.positionY,
         tank.turretRotation,
@@ -37,7 +38,7 @@ export class TankManager {
         tank.selectedGunIndex
       );
       this.tanks.set(tank.id, newTank);
-      
+
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
         this.playerTankId = tank.id;
       }
@@ -59,8 +60,8 @@ export class TankManager {
     });
 
     connection.db.tank.onDelete((_ctx, tank) => {
-      console.log(tank);
       this.tanks.delete(tank.id);
+
       if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
         this.playerTankId = null;
       }
@@ -77,7 +78,21 @@ export class TankManager {
     return this.playerTankId ? this.tanks.get(this.playerTankId) || null : null;
   }
 
-  public getAllTanks(): IterableIterator<Tank> {
-    return this.tanks.values();
+  public drawPaths(ctx: CanvasRenderingContext2D) {
+    for (const tank of this.tanks.values()) {
+      tank.drawPath(ctx);
+    }
+  }
+
+  public drawShadows(ctx: CanvasRenderingContext2D) {
+    for (const tank of this.tanks.values()) {
+      tank.drawShadow(ctx);
+    }
+  }
+
+  public drawBodies(ctx: CanvasRenderingContext2D) {
+    for (const tank of this.tanks.values()) {
+      tank.drawBody(ctx);
+    }
   }
 }

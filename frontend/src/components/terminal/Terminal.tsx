@@ -88,7 +88,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         break;
                     }
                     case 'navigate':
-                    case 'nav': {
+                    case 'nav':
+                    case 'n': {
                         const navigateOutput = navigate(connection, worldId, args);
                         newOutput.push(...navigateOutput);
                         break;

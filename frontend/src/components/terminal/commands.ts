@@ -16,7 +16,7 @@ const directionAliases: Record<string, { x: number; y: number; name: string; sym
   up: { x: 0, y: -1, name: "north", symbol: "↑" },
   n: { x: 0, y: -1, name: "north", symbol: "↑" },
   u: { x: 0, y: -1, name: "north", symbol: "↑" },
-  
+
   // Northeast
   northeast: { x: 1, y: -1, name: "northeast", symbol: "↗" },
   upright: { x: 1, y: -1, name: "northeast", symbol: "↗" },
@@ -24,13 +24,13 @@ const directionAliases: Record<string, { x: number; y: number; name: string; sym
   ne: { x: 1, y: -1, name: "northeast", symbol: "↗" },
   ur: { x: 1, y: -1, name: "northeast", symbol: "↗" },
   ru: { x: 1, y: -1, name: "northeast", symbol: "↗" },
-  
+
   // East
   east: { x: 1, y: 0, name: "east", symbol: "→" },
   right: { x: 1, y: 0, name: "east", symbol: "→" },
   e: { x: 1, y: 0, name: "east", symbol: "→" },
   r: { x: 1, y: 0, name: "east", symbol: "→" },
-  
+
   // Southeast
   southeast: { x: 1, y: 1, name: "southeast", symbol: "↘" },
   downright: { x: 1, y: 1, name: "southeast", symbol: "↘" },
@@ -38,13 +38,13 @@ const directionAliases: Record<string, { x: number; y: number; name: string; sym
   se: { x: 1, y: 1, name: "southeast", symbol: "↘" },
   dr: { x: 1, y: 1, name: "southeast", symbol: "↘" },
   rd: { x: 1, y: 1, name: "southeast", symbol: "↘" },
-  
+
   // South
   south: { x: 0, y: 1, name: "south", symbol: "↓" },
   down: { x: 0, y: 1, name: "south", symbol: "↓" },
   s: { x: 0, y: 1, name: "south", symbol: "↓" },
   d: { x: 0, y: 1, name: "south", symbol: "↓" },
-  
+
   // Southwest
   southwest: { x: -1, y: 1, name: "southwest", symbol: "↙" },
   downleft: { x: -1, y: 1, name: "southwest", symbol: "↙" },
@@ -52,13 +52,13 @@ const directionAliases: Record<string, { x: number; y: number; name: string; sym
   sw: { x: -1, y: 1, name: "southwest", symbol: "↙" },
   dl: { x: -1, y: 1, name: "southwest", symbol: "↙" },
   ld: { x: -1, y: 1, name: "southwest", symbol: "↙" },
-  
+
   // West
   west: { x: -1, y: 0, name: "west", symbol: "←" },
   left: { x: -1, y: 0, name: "west", symbol: "←" },
   w: { x: -1, y: 0, name: "west", symbol: "←" },
   l: { x: -1, y: 0, name: "west", symbol: "←" },
-  
+
   // Northwest
   northwest: { x: -1, y: -1, name: "northwest", symbol: "↖" },
   upleft: { x: -1, y: -1, name: "northwest", symbol: "↖" },
@@ -82,7 +82,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     return [
       "Commands:",
       "  drive, d, dr         Move your tank in a direction",
-      "  navigate, nav        Navigate to a tank, direction, or coordinate using pathfinding",
+      "  navigate, nav, n     Navigate to a tank, direction, or coordinate using pathfinding",
       "  reverse, r           Reverse in the direction the tank is facing",
       "  stop, s              Stop the tank immediately",
       "  aim, a               Aim turret at an angle or direction",
@@ -96,7 +96,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   }
 
   const command = args[0].toLowerCase();
-  
+
   switch (command) {
     case "drive":
     case "d":
@@ -131,11 +131,11 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  drive southeast 3 75",
         "  d se 3 75 -a"
       ];
-    
+
     case "navigate":
     case "nav":
       return [
-        "navigate, nav - Navigate to a relative coordinate or tank using pathfinding",
+        "navigate, nav, n - Navigate to a relative coordinate or tank using pathfinding",
         "",
         "Usage: navigate <tank_name> [throttle]",
         "       navigate <direction> [distance] [throttle]",
@@ -166,9 +166,10 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  navigate 10 5      (10 units right, 5 units down)",
         "  navigate -10 0     (10 units left)",
         "  navigate 0 -15 75  (15 units up at 75% throttle)",
-        "  nav charlie"
+        "  nav charlie",
+        "  n ne 5"
       ];
-    
+
     case "reverse":
     case "r":
       return [
@@ -184,7 +185,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  reverse 3",
         "  r 2"
       ];
-    
+
     case "stop":
     case "s":
       return [
@@ -199,7 +200,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  stop",
         "  s"
       ];
-    
+
     case "aim":
     case "a":
       return [
@@ -244,7 +245,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  target bravo 3",
         "  t charlie 5"
       ];
-    
+
     case "fire":
     case "f":
       return [
@@ -259,7 +260,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  fire",
         "  f"
       ];
-    
+
     case "respawn":
       return [
         "respawn - Respawn after death",
@@ -272,7 +273,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  respawn"
       ];
-    
+
     case "findgame":
       return [
         "findgame - Join a game world",
@@ -284,7 +285,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  findgame"
       ];
-    
+
     case "help":
     case "h":
       return [
@@ -300,7 +301,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  help drive",
         "  h d"
       ];
-    
+
     default:
       return [
         `help: error: unknown command '${command}'`,
@@ -321,7 +322,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
 
   const recognizedFlags = ["--append", "-a"];
   const unrecognizedFlag = args.find(arg => arg.startsWith('-') && !recognizedFlags.includes(arg));
-  
+
   if (unrecognizedFlag) {
     return [
       `drive: error: unrecognized flag '${unrecognizedFlag}'`,
@@ -332,10 +333,10 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
       "       drive east 3 75 --append"
     ];
   }
-  
+
   const append = args.some(arg => arg === "--append" || arg === "-a");
   args = args.filter(arg => !arg.startsWith('-'))
-  
+
   if (args.length < 1) {
     return [
       "drive: error: missing required argument '<direction>'",
@@ -391,10 +392,10 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
       throttle = parsed / 100;
     }
   }
-  
+
   connection.reducers.drive({ worldId, offset, throttle, append });
 
-  const explanation =  `${distance} ${distance != 1 ? "units" : "unit"} ${directionInfo.symbol} ${directionInfo.name} at ${throttle == 1 ? "full" : throttle * 100 + "%"} throttle`;
+  const explanation = `${distance} ${distance != 1 ? "units" : "unit"} ${directionInfo.symbol} ${directionInfo.name} at ${throttle == 1 ? "full" : throttle * 100 + "%"} throttle`;
   if (append) {
     return [`Added drive ${explanation} to path`];
   }
@@ -429,7 +430,7 @@ export function aim(connection: DbConnection, worldId: string, args: string[]): 
     const angleRadians = directionToAngle(inputLower);
     const dirInfo = directionAliases[inputLower];
     const description = `${dirInfo.symbol} ${dirInfo.name}`;
-    
+
     connection.reducers.aim({ worldId, angleRadians });
     return [`Aiming turret to ${description}`];
   } else {
@@ -446,10 +447,10 @@ export function aim(connection: DbConnection, worldId: string, args: string[]): 
         "       aim 90"
       ];
     }
-    
+
     const angleRadians = (-degrees * Math.PI) / 180;
     const description = `${degrees}°`;
-    
+
     connection.reducers.aim({ worldId, angleRadians });
     return [`Aiming turret to ${description}`];
   }
@@ -668,13 +669,10 @@ export function navigate(connection: DbConnection, worldId: string, args: string
       "       navigate <relative_x> <relative_y> [throttle]",
       "",
       "Examples:",
-      "  navigate alpha",
-      "  navigate bravo 75",
       "  navigate northeast 5",
       "  navigate up 3 75",
+      "  navigate alpha",
       "  navigate 10 5      (10 units right, 5 units down)",
-      "  navigate -10 0     (10 units left)",
-      "  navigate 0 -15 75  (15 units up at 75% throttle)"
     ];
   }
 
@@ -717,7 +715,7 @@ export function navigate(connection: DbConnection, worldId: string, args: string
 
   if (validDirections.includes(firstArgLower)) {
     const directionInfo = directionAliases[firstArgLower];
-    
+
     let distance = 1;
     if (args.length > 1) {
       const parsed = Number.parseInt(args[1]);
@@ -750,17 +748,9 @@ export function navigate(connection: DbConnection, worldId: string, args: string
 
     const relativeX = directionInfo.x * distance;
     const relativeY = directionInfo.y * distance;
-    
+
     const targetX = Math.floor(myTank.positionX) + relativeX;
     const targetY = Math.floor(myTank.positionY) + relativeY;
-
-    if (targetX < 0 || targetY < 0) {
-      return [
-        `navigate: error: target coordinates (${targetX}, ${targetY}) are out of bounds`,
-        "",
-        "Calculated absolute coordinates must be non-negative"
-      ];
-    }
 
     connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
@@ -813,14 +803,6 @@ export function navigate(connection: DbConnection, worldId: string, args: string
 
   const targetX = Math.floor(myTank.positionX) + relativeX;
   const targetY = Math.floor(myTank.positionY) - relativeY;
-
-  if (targetX < 0 || targetY < 0) {
-    return [
-      `navigate: error: target coordinates (${targetX}, ${targetY}) are out of bounds`,
-      "",
-      "Calculated absolute coordinates must be non-negative"
-    ];
-  }
 
   let throttle = 1;
   if (args.length > 2) {

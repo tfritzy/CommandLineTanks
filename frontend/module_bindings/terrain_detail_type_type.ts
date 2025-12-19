@@ -17,7 +17,6 @@ const TerrainDetailType = __t.enum("TerrainDetailType", {None: __t.unit(),
   Tree: __t.unit(),
   Bridge: __t.unit(),
   HayBale: __t.unit(),
-  Field: __t.unit(),
   Label: __t.unit(),
   TripleShooterPickup: __t.unit(),
   MissileLauncherPickup: __t.unit(),
@@ -29,6 +28,7 @@ const TerrainDetailType = __t.enum("TerrainDetailType", {None: __t.unit(),
   FoundationCorner: __t.unit(),
   FenceEdge: __t.unit(),
   FenceCorner: __t.unit(),
+  DeadTank: __t.unit(),
 });
 
 export default TerrainDetailType;

@@ -1,21 +1,13 @@
 import { getConnection } from "./spacetimedb-connection";
-import { BaseTerrain, TerrainDetailType, type TerrainDetailRow, type EventContext } from "../module_bindings";
+import { BaseTerrain, type TerrainDetailRow, type EventContext } from "../module_bindings";
 import { type Infer } from "spacetimedb";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
-import { Cliff, Rock, Tree, Bridge, HayBale, Field, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner } from "./objects/TerrainDetails";
+import { Cliff, Rock, Tree, Bridge, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, DeadTank } from "./objects/TerrainDetails";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
-type TerrainDetailTypeEnum = Infer<typeof TerrainDetailType>;
 
-interface TerrainDetailData {
-  id: string;
-  positionX: number;
-  positionY: number;
-  type: TerrainDetailTypeEnum;
-  health: number | undefined;
-  label: string | null | undefined;
-  rotation?: number;
-}
+
+
 
 export class TerrainManager {
   private worldWidth: number = 0;
@@ -77,17 +69,13 @@ export class TerrainManager {
       this.createDetailObject(detail);
     });
 
-    connection.db.terrainDetail.onUpdate((_ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
-      const oldObj = this.detailObjects.get(newDetail.id);
-      if (oldObj) {
-        const oldX = oldObj.getX();
-        const oldY = oldObj.getY();
-        if (oldY >= 0 && oldY < this.worldHeight && oldX >= 0 && oldX < this.worldWidth) {
-          this.detailObjectsByPosition[oldY][oldX] = null;
-        }
+    connection.db.terrainDetail.onUpdate((_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
+      const existingObj = this.detailObjects.get(newDetail.id);
+      if (existingObj) {
+        existingObj.setData(newDetail);
+      } else {
+        this.createDetailObject(newDetail);
       }
-      this.detailObjects.delete(newDetail.id);
-      this.createDetailObject(newDetail);
     });
 
     connection.db.terrainDetail.onDelete((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
@@ -103,49 +91,52 @@ export class TerrainManager {
     });
   }
 
-  private createDetailObject(detail: TerrainDetailData) {
+  public update(deltaTime: number) {
+    for (const obj of this.detailObjects.values()) {
+      obj.update(deltaTime);
+    }
+  }
+
+  private createDetailObject(detail: Infer<typeof TerrainDetailRow>) {
     let obj: TerrainDetailObject | null = null;
-    
-    const label = detail.label || null;
-    const health = detail.health || 100;
-    const rotation = detail.rotation || 0;
-    
-    switch (detail.type.tag) {
+    const { positionX: x, positionY: y, label, health, rotation, renderOffset, type } = detail;
+
+    switch (type.tag) {
       case "Cliff":
-        obj = new Cliff(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new Cliff(x, y, label, health, rotation, renderOffset);
         break;
       case "Rock":
-        obj = new Rock(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new Rock(x, y, label, health, rotation, renderOffset);
         break;
       case "Tree":
-        obj = new Tree(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new Tree(x, y, label, health, rotation, renderOffset);
         break;
       case "Bridge":
-        obj = new Bridge(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new Bridge(x, y, label, health, rotation, renderOffset);
         break;
       case "HayBale":
-        obj = new HayBale(detail.positionX, detail.positionY, label, health, rotation);
-        break;
-      case "Field":
-        obj = new Field(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new HayBale(x, y, label, health, rotation, renderOffset);
         break;
       case "Label":
-        obj = new Label(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new Label(x, y, label, health, rotation, renderOffset);
         break;
       case "FoundationEdge":
-        obj = new FoundationEdge(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new FoundationEdge(x, y, label, health, rotation, renderOffset);
         break;
       case "FoundationCorner":
-        obj = new FoundationCorner(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new FoundationCorner(x, y, label, health, rotation, renderOffset);
         break;
       case "FenceEdge":
-        obj = new FenceEdge(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new FenceEdge(x, y, label, health, rotation, renderOffset);
         break;
       case "FenceCorner":
-        obj = new FenceCorner(detail.positionX, detail.positionY, label, health, rotation);
+        obj = new FenceCorner(x, y, label, health, rotation, renderOffset);
+        break;
+      case "DeadTank":
+        obj = new DeadTank(x, y, label, health, rotation, renderOffset);
         break;
     }
-    
+
     if (obj) {
       this.detailObjects.set(detail.id, obj);
       const x = obj.getX();
@@ -196,7 +187,18 @@ export class TerrainManager {
 
         ctx.fillStyle = this.getBaseTerrainColor(terrain);
         ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);
-        
+
+        if (terrain.tag === "Farm") {
+          ctx.fillStyle = "#313148"; // Subtle offset from ground color
+          const numGrooves = 2;
+          const grooveHeight = unitToPixel * 0.15;
+
+          for (let i = 0; i < numGrooves; i++) {
+            const grooveY = worldY + unitToPixel * ((i + 0.5) / numGrooves) - grooveHeight / 2;
+            ctx.fillRect(worldX, grooveY, unitToPixel, grooveHeight);
+          }
+        }
+
         ctx.strokeStyle = "#4a4b5b22";
         ctx.lineWidth = 1;
         ctx.strokeRect(worldX, worldY, unitToPixel, unitToPixel);
@@ -257,7 +259,9 @@ export class TerrainManager {
       case "Stream":
         return "#3e4c7e";
       case "Road":
-        return "#808080";
+        return "#405967";
+      case "Farm":
+        return "#2e2e43";
       default:
         return "#ffffff";
     }

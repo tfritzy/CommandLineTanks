@@ -1,5 +1,6 @@
 import { UNIT_TO_PIXEL } from "../game";
 import { type GunData } from "../types/gun";
+import { FLASH_DURATION, getFlashColor } from "../utils/colors";
 
 type PathEntry = {
   position: { x: number; y: number };
@@ -7,6 +8,8 @@ type PathEntry = {
 };
 
 export class Tank {
+  public arrayIndex: number = -1;
+  public readonly id: string;
   private x: number;
   private y: number;
   private turretRotation: number;
@@ -24,6 +27,7 @@ export class Tank {
   private flashTimer: number = 0;
 
   constructor(
+    id: string,
     x: number,
     y: number,
     turretRotation: number,
@@ -38,6 +42,7 @@ export class Tank {
     guns: GunData[] = [],
     selectedGunIndex: number = 0
   ) {
+    this.id = id;
     this.x = x;
     this.y = y;
     this.turretRotation = turretRotation;
@@ -55,66 +60,90 @@ export class Tank {
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
+    this.drawShadow(ctx);
+    this.drawBody(ctx);
+  }
+
+  public drawShadow(ctx: CanvasRenderingContext2D) {
+    if (this.health <= 0) return;
+
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
 
-    const isFlashing = this.flashTimer > 0;
-    const bodyColor = isFlashing ? "#ffffff" : (this.alliance === 0 ? "#ff5555ff" : "#5555ff");
-    const turretColor = isFlashing ? "#ffffff" : (this.alliance === 0 ? "#ff5555ff" : "#5555ff");
-    const barrelColor = isFlashing ? "#ffffff" : (this.alliance === 0 ? "#ff5555ff" : "#5555ff");
-    const borderColor = isFlashing ? "#ffffff" : (this.alliance === 0 ? "#330000" : "#000033");
+    const shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.fillStyle = shadowColor;
 
-    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.shadowOffsetX = -5;
-    ctx.shadowOffsetY = 5;
+    ctx.save();
+    ctx.translate(-4, 4);
+    ctx.beginPath();
+    ctx.roundRect(-16, -16, 32, 32, 5);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  public drawBody(ctx: CanvasRenderingContext2D) {
+    if (this.health <= 0) return;
+
+    ctx.save();
+    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
+
+    const allianceColor = this.alliance === 0 ? "#ff5555" : "#5555ff";
+    const bodyColor = getFlashColor(allianceColor, this.flashTimer);
+    const borderColor = getFlashColor(this.alliance === 0 ? "#330000" : "#000033", this.flashTimer);
+    const selfShadowColor = "rgba(0, 0, 0, 0.35)";
 
     ctx.fillStyle = bodyColor;
     ctx.beginPath();
     ctx.roundRect(-16, -16, 32, 32, 5);
     ctx.fill();
-    ctx.shadowColor = "transparent";
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = 1;
     ctx.stroke();
 
+    ctx.fillStyle = selfShadowColor;
+
+    ctx.save();
+    ctx.translate(-2, 2);
     ctx.rotate(this.turretRotation);
-
-    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.shadowOffsetX = -12;
-    ctx.shadowOffsetY = 12;
-
-    ctx.fillStyle = barrelColor;
     ctx.beginPath();
     ctx.roundRect(0, -5, 24, 10, 3);
     ctx.fill();
-    ctx.shadowColor = "transparent";
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    ctx.restore();
 
-    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.shadowOffsetX = -5;
-    ctx.shadowOffsetY = 5;
-
-    ctx.fillStyle = turretColor;
+    ctx.save();
+    ctx.translate(-1.5, 1.5);
+    ctx.rotate(this.turretRotation);
     ctx.beginPath();
     ctx.roundRect(-12, -12, 24, 24, 10);
     ctx.fill();
-    ctx.shadowColor = "transparent";
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 1;
+    ctx.restore();
+
+    ctx.save();
+    ctx.rotate(this.turretRotation);
+
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath();
+    ctx.roundRect(0, -5, 24, 10, 3);
+    ctx.fill();
     ctx.stroke();
+
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath();
+    ctx.roundRect(-12, -12, 24, 24, 10);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
 
     ctx.restore();
 
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
-
     ctx.font = "14px monospace";
     ctx.fillStyle = "#f5c47c";
     ctx.textAlign = "center";
     ctx.fillText(this.name, 0, -30);
-
     ctx.restore();
   }
 
@@ -185,7 +214,7 @@ export class Tank {
 
   public setHealth(health: number) {
     if (health < this.health && this.health > 0) {
-      this.flashTimer = 0.03;
+      this.flashTimer = FLASH_DURATION;
     }
     this.health = health;
   }
@@ -265,5 +294,9 @@ export class Tank {
 
   public getSelectedGunIndex(): number {
     return this.selectedGunIndex;
+  }
+
+  public getHealth(): number {
+    return this.health;
   }
 }

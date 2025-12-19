@@ -10,6 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import TerrainDetailType from "./terrain_detail_type_type";
+import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.row({
@@ -23,4 +24,7 @@ export default __t.row({
   health: __t.option(__t.i32()),
   label: __t.option(__t.string()),
   rotation: __t.i32(),
+  get renderOffset() {
+    return Vector2Float;
+  },
 });

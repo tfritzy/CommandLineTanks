@@ -1,5 +1,6 @@
 using SpacetimeDB;
 using static Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,6 +9,14 @@ public static partial class Module
     [Reducer]
     public static void driveTo(ReducerContext ctx, string worldId, int targetX, int targetY, float throttle)
     {
+        World? maybeWorld = ctx.Db.world.Id.Find(worldId);
+        if (maybeWorld != null)
+        {
+            var world = maybeWorld.Value;
+            targetX = Math.Max(0, Math.Min(world.Width - 1, targetX));
+            targetY = Math.Max(0, Math.Min(world.Height - 1, targetY));
+        }
+
         Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
         var tank = maybeTank.Value;

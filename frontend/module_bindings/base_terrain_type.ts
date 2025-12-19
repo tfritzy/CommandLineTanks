@@ -14,6 +14,7 @@ import {
 const BaseTerrain = __t.enum("BaseTerrain", {Ground: __t.unit(),
   Stream: __t.unit(),
   Road: __t.unit(),
+  Farm: __t.unit(),
 });
 
 export default BaseTerrain;
