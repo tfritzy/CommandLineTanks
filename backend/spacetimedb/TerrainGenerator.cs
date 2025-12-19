@@ -46,7 +46,7 @@ public static partial class TerrainGenerator
 
         GenerateRocks(terrainDetailArray, baseTerrain, random);
 
-        Vector2[] fieldTiles = GenerateFields(terrainDetailArray, baseTerrain, roadTiles, random);
+        Vector2[] fieldTiles = GenerateFields(terrainDetails, terrainDetailArray, baseTerrain, roadTiles, random);
 
         GenerateTrees(terrainDetailArray, baseTerrain, roadTiles, streamPath, fieldTiles, random);
 
@@ -94,13 +94,13 @@ public static partial class TerrainGenerator
 
             int index = y * WORLD_WIDTH + currentX;
             baseTerrain[index] = BaseTerrain.Stream;
-            
+
             if (currentX + 1 < WORLD_WIDTH)
             {
                 int indexNext = y * WORLD_WIDTH + (currentX + 1);
                 baseTerrain[indexNext] = BaseTerrain.Stream;
             }
-            
+
             streamPath[y] = new Vector2(currentX, y);
         }
 
@@ -258,7 +258,7 @@ public static partial class TerrainGenerator
         }
     }
 
-    private static Vector2[] GenerateFields(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] roadTiles, Random random)
+    private static Vector2[] GenerateFields(List<(int x, int y, TerrainDetailType type, int rotation)> terrainDetails, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] roadTiles, Random random)
     {
         var fieldTilesList = new Vector2[WORLD_WIDTH * WORLD_HEIGHT];
         int fieldTilesCount = 0;

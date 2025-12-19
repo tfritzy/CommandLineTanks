@@ -13,14 +13,14 @@ import TerrainDetailType from "./terrain_detail_type_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey().name("Id"),
-  worldId: __t.string().name("WorldId"),
-  positionX: __t.i32().name("PositionX"),
-  positionY: __t.i32().name("PositionY"),
+  id: __t.string().primaryKey(),
+  worldId: __t.string(),
+  positionX: __t.i32(),
+  positionY: __t.i32(),
   get type() {
-    return TerrainDetailType.name("Type");
+    return TerrainDetailType;
   },
-  health: __t.option(__t.i32()).name("Health"),
-  label: __t.option(__t.string()).name("Label"),
-  rotation: __t.i32().name("Rotation"),
+  health: __t.option(__t.i32()),
+  label: __t.option(__t.string()),
+  rotation: __t.i32(),
 });

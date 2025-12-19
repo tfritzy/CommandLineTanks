@@ -752,7 +752,7 @@ export function navigate(connection: DbConnection, worldId: string, args: string
     const relativeY = directionInfo.y * distance;
     
     const targetX = Math.floor(myTank.positionX) + relativeX;
-    const targetY = Math.floor(myTank.positionY) - relativeY;
+    const targetY = Math.floor(myTank.positionY) + relativeY;
 
     if (targetX < 0 || targetY < 0) {
       return [
