@@ -721,9 +721,9 @@ export function navigate(connection: DbConnection, worldId: string, args: string
     let distance = 1;
     if (args.length > 1) {
       const parsed = Number.parseInt(args[1]);
-      if (Number.isNaN(parsed)) {
+      if (Number.isNaN(parsed) || parsed <= 0) {
         return [
-          `navigate: error: invalid value '${args[1]}' for '[distance]': must be a valid integer`,
+          `navigate: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`,
           "",
           "Usage: navigate <direction> [distance] [throttle]",
           "       navigate northeast 5"
