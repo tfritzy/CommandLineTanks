@@ -22,4 +22,5 @@ export default __t.row({
   },
   health: __t.option(__t.i32()).name("Health"),
   label: __t.option(__t.string()).name("Label"),
+  rotation: __t.i32().name("Rotation"),
 });

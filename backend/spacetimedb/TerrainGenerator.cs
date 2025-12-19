@@ -13,11 +13,17 @@ public static partial class TerrainGenerator
     private const int FIELD_MAX_SIZE = 10;
     private const int CLIFF_POCKET_SIZE = 4;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
+    private const int MIN_STRUCTURES = 3;
+    private const int STRUCTURE_COUNT_RANGE = 4;
+    private const int ROTATION_NORTH = 0;
+    private const int ROTATION_EAST = 1;
+    private const int ROTATION_SOUTH = 2;
+    private const int ROTATION_WEST = 3;
 
-    public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type)>) GenerateTerrain(Random random)
+    public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random)
     {
         var baseTerrain = new BaseTerrain[WORLD_WIDTH * WORLD_HEIGHT];
-        var terrainDetails = new List<(int x, int y, TerrainDetailType type)>();
+        var terrainDetails = new List<(int x, int y, TerrainDetailType type, int rotation)>();
         var terrainDetailArray = new TerrainDetailType[WORLD_WIDTH * WORLD_HEIGHT];
 
         for (int i = 0; i < baseTerrain.Length; i++)
@@ -44,6 +50,8 @@ public static partial class TerrainGenerator
 
         GenerateTrees(terrainDetailArray, baseTerrain, roadTiles, streamPath, fieldTiles, random);
 
+        GenerateStructures(terrainDetails, terrainDetailArray, baseTerrain, roadTiles, streamPath, fieldTiles, random);
+
         for (int y = 0; y < WORLD_HEIGHT; y++)
         {
             for (int x = 0; x < WORLD_WIDTH; x++)
@@ -51,7 +59,7 @@ public static partial class TerrainGenerator
                 int index = y * WORLD_WIDTH + x;
                 if (terrainDetailArray[index] != TerrainDetailType.None)
                 {
-                    terrainDetails.Add((x, y, terrainDetailArray[index]));
+                    terrainDetails.Add((x, y, terrainDetailArray[index], 0));
                 }
             }
         }
@@ -459,7 +467,251 @@ public static partial class TerrainGenerator
         return WORLD_HEIGHT;
     }
 
-    public static TerrainDetailType[] ConvertToArray(List<(int x, int y, TerrainDetailType type)> terrainDetails, int width, int height)
+    private static void GenerateStructures(
+        List<(int x, int y, TerrainDetailType type, int rotation)> terrainDetails,
+        TerrainDetailType[] terrainDetail,
+        BaseTerrain[] baseTerrain,
+        Vector2[] roadTiles,
+        Vector2[] streamPath,
+        Vector2[] fieldTiles,
+        Random random)
+    {
+        int numStructures = MIN_STRUCTURES + random.Next(STRUCTURE_COUNT_RANGE);
+
+        for (int structureIdx = 0; structureIdx < numStructures; structureIdx++)
+        {
+            int attempts = 0;
+            bool placed = false;
+
+            while (!placed && attempts < 100)
+            {
+                attempts++;
+
+                int structureWidth = 4 + random.Next(5);
+                int structureHeight = 4 + random.Next(5);
+                int startX = random.Next(2, WORLD_WIDTH - structureWidth - 2);
+                int startY = random.Next(2, WORLD_HEIGHT - structureHeight - 2);
+
+                bool validLocation = true;
+                int objectsToReplace = 0;
+
+                for (int x = startX; x < startX + structureWidth; x++)
+                {
+                    int topIndex = startY * WORLD_WIDTH + x;
+                    int bottomIndex = (startY + structureHeight - 1) * WORLD_WIDTH + x;
+
+                    if (baseTerrain[topIndex] != BaseTerrain.Ground)
+                    {
+                        validLocation = false;
+                        break;
+                    }
+                    if (baseTerrain[bottomIndex] != BaseTerrain.Ground)
+                    {
+                        validLocation = false;
+                        break;
+                    }
+
+                    if (terrainDetail[topIndex] != TerrainDetailType.None)
+                    {
+                        if (terrainDetail[topIndex] == TerrainDetailType.Field || terrainDetail[topIndex] == TerrainDetailType.Fence)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+                        objectsToReplace++;
+                        if (objectsToReplace > 2)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+                    }
+
+                    if (terrainDetail[bottomIndex] != TerrainDetailType.None)
+                    {
+                        if (terrainDetail[bottomIndex] == TerrainDetailType.Field || terrainDetail[bottomIndex] == TerrainDetailType.Fence)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+                        objectsToReplace++;
+                        if (objectsToReplace > 2)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (validLocation)
+                {
+                    for (int y = startY; y < startY + structureHeight; y++)
+                    {
+                        int leftIndex = y * WORLD_WIDTH + startX;
+                        int rightIndex = y * WORLD_WIDTH + (startX + structureWidth - 1);
+
+                        if (baseTerrain[leftIndex] != BaseTerrain.Ground)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+                        if (baseTerrain[rightIndex] != BaseTerrain.Ground)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+
+                        if (terrainDetail[leftIndex] != TerrainDetailType.None)
+                        {
+                            if (terrainDetail[leftIndex] == TerrainDetailType.Field || terrainDetail[leftIndex] == TerrainDetailType.Fence)
+                            {
+                                validLocation = false;
+                                break;
+                            }
+                            objectsToReplace++;
+                            if (objectsToReplace > 2)
+                            {
+                                validLocation = false;
+                                break;
+                            }
+                        }
+
+                        if (terrainDetail[rightIndex] != TerrainDetailType.None)
+                        {
+                            if (terrainDetail[rightIndex] == TerrainDetailType.Field || terrainDetail[rightIndex] == TerrainDetailType.Fence)
+                            {
+                                validLocation = false;
+                                break;
+                            }
+                            objectsToReplace++;
+                            if (objectsToReplace > 2)
+                            {
+                                validLocation = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (validLocation)
+                {
+                    bool tooCloseToRoadOrStream = false;
+                    for (int x = startX - 1; x < startX + structureWidth + 1; x++)
+                    {
+                        for (int y = startY - 1; y < startY + structureHeight + 1; y++)
+                        {
+                            for (int r = 0; r < roadTiles.Length; r++)
+                            {
+                                if (roadTiles[r].X == x && roadTiles[r].Y == y)
+                                {
+                                    tooCloseToRoadOrStream = true;
+                                    break;
+                                }
+                            }
+                            if (tooCloseToRoadOrStream) break;
+
+                            for (int s = 0; s < streamPath.Length; s++)
+                            {
+                                if (streamPath[s].X == x && streamPath[s].Y == y)
+                                {
+                                    tooCloseToRoadOrStream = true;
+                                    break;
+                                }
+                            }
+                            if (tooCloseToRoadOrStream) break;
+                        }
+                        if (tooCloseToRoadOrStream) break;
+                    }
+
+                    if (tooCloseToRoadOrStream)
+                    {
+                        validLocation = false;
+                    }
+                }
+
+                if (validLocation)
+                {
+                    bool removeTopLeftCorner = random.NextSingle() < 0.3f;
+                    bool removeTopRightCorner = random.NextSingle() < 0.3f;
+                    bool removeBottomLeftCorner = random.NextSingle() < 0.3f;
+                    bool removeBottomRightCorner = random.NextSingle() < 0.3f;
+
+                    for (int x = startX; x < startX + structureWidth; x++)
+                    {
+                        if (!removeTopLeftCorner || x > startX)
+                        {
+                            if (!removeTopRightCorner || x < startX + structureWidth - 1)
+                            {
+                                if (random.NextSingle() > 0.2f)
+                                {
+                                    terrainDetails.Add((x, startY, TerrainDetailType.FoundationEdge, ROTATION_NORTH));
+                                }
+                            }
+                        }
+
+                        if (!removeBottomLeftCorner || x > startX)
+                        {
+                            if (!removeBottomRightCorner || x < startX + structureWidth - 1)
+                            {
+                                if (random.NextSingle() > 0.2f)
+                                {
+                                    terrainDetails.Add((x, startY + structureHeight - 1, TerrainDetailType.FoundationEdge, ROTATION_SOUTH));
+                                }
+                            }
+                        }
+                    }
+
+                    for (int y = startY; y < startY + structureHeight; y++)
+                    {
+                        if (!removeTopLeftCorner || y > startY)
+                        {
+                            if (!removeBottomLeftCorner || y < startY + structureHeight - 1)
+                            {
+                                if (random.NextSingle() > 0.2f)
+                                {
+                                    terrainDetails.Add((startX, y, TerrainDetailType.FoundationEdge, ROTATION_WEST));
+                                }
+                            }
+                        }
+
+                        if (!removeTopRightCorner || y > startY)
+                        {
+                            if (!removeBottomRightCorner || y < startY + structureHeight - 1)
+                            {
+                                if (random.NextSingle() > 0.2f)
+                                {
+                                    terrainDetails.Add((startX + structureWidth - 1, y, TerrainDetailType.FoundationEdge, ROTATION_EAST));
+                                }
+                            }
+                        }
+                    }
+
+                    if (!removeTopLeftCorner)
+                    {
+                        terrainDetails.Add((startX, startY, TerrainDetailType.FoundationCorner, ROTATION_WEST));
+                    }
+
+                    if (!removeTopRightCorner)
+                    {
+                        terrainDetails.Add((startX + structureWidth - 1, startY, TerrainDetailType.FoundationCorner, ROTATION_NORTH));
+                    }
+
+                    if (!removeBottomLeftCorner)
+                    {
+                        terrainDetails.Add((startX, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, ROTATION_SOUTH));
+                    }
+
+                    if (!removeBottomRightCorner)
+                    {
+                        terrainDetails.Add((startX + structureWidth - 1, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, ROTATION_EAST));
+                    }
+
+                    placed = true;
+                }
+            }
+        }
+    }
+
+    public static TerrainDetailType[] ConvertToArray(List<(int x, int y, TerrainDetailType type, int rotation)> terrainDetails, int width, int height)
     {
         var terrainDetailArray = new TerrainDetailType[width * height];
         for (int i = 0; i < terrainDetailArray.Length; i++)
@@ -494,6 +746,8 @@ public static partial class TerrainGenerator
                 TerrainDetailType.HayBale => false,
                 TerrainDetailType.TripleShooterPickup => true,
                 TerrainDetailType.MissileLauncherPickup => true,
+                TerrainDetailType.FoundationEdge => true,
+                TerrainDetailType.FoundationCorner => true,
                 _ => true
             };
 

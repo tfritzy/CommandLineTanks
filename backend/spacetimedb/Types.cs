@@ -62,7 +62,9 @@ public static partial class Types
         HealthPickup,
         BoomerangPickup,
         GrenadePickup,
-        RocketPickup
+        RocketPickup,
+        FoundationEdge,
+        FoundationCorner
     }
 
     [Type]

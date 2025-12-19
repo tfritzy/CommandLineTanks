@@ -158,6 +158,8 @@ public static partial class Module
         public int? Health;
 
         public string? Label;
+
+        public int Rotation;
     }
 
     [Table(Name = "pickup", Public = true)]

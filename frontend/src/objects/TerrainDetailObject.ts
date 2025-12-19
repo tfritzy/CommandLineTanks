@@ -5,12 +5,14 @@ export abstract class TerrainDetailObject {
   protected y: number;
   protected label: string | null;
   protected health: number;
+  protected rotation: number;
 
-  constructor(x: number, y: number, label: string | null = null, health: number = 100) {
+  constructor(x: number, y: number, label: string | null = null, health: number = 100, rotation: number = 0) {
     this.x = x;
     this.y = y;
     this.label = label;
     this.health = health;
+    this.rotation = rotation;
   }
 
   public abstract draw(ctx: CanvasRenderingContext2D): void;
@@ -44,6 +46,10 @@ export abstract class TerrainDetailObject {
 
   public getY(): number {
     return this.y;
+  }
+
+  public getRotation(): number {
+    return this.rotation;
   }
 
   protected getWorldX(): number {
