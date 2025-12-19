@@ -87,8 +87,11 @@ public static partial class TerrainGenerator
             int index = y * WORLD_WIDTH + currentX;
             baseTerrain[index] = BaseTerrain.Stream;
             
-            int indexNext = y * WORLD_WIDTH + (currentX + 1);
-            baseTerrain[indexNext] = BaseTerrain.Stream;
+            if (currentX + 1 < WORLD_WIDTH)
+            {
+                int indexNext = y * WORLD_WIDTH + (currentX + 1);
+                baseTerrain[indexNext] = BaseTerrain.Stream;
+            }
             
             streamPath[y] = new Vector2(currentX, y);
         }
