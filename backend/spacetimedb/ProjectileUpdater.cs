@@ -539,7 +539,7 @@ public static partial class ProjectileUpdater
     }
 
     [Reducer]
-    public static void FireLaserBeam(ReducerContext ctx, Module.ScheduledLaserBeamFire args)
+    public static void FireChargedWeapon(ReducerContext ctx, Module.ScheduledChargedWeaponFire args)
     {
         Tank? maybeTank = ctx.Db.tank.Id.Find(args.TankId);
         if (maybeTank == null) return;
@@ -552,126 +552,145 @@ public static partial class ProjectileUpdater
 
         var gun = tank.Guns[args.SelectedGunIndex];
 
-        if (gun.RaycastRange == null) return;
-
         if (gun.Ammo != null && gun.Ammo <= 0) return;
-
-        float raycastRange = gun.RaycastRange.Value;
 
         float barrelTipX = tank.PositionX + (float)Math.Cos(args.TurretRotation) * Module.GUN_BARREL_LENGTH;
         float barrelTipY = tank.PositionY + (float)Math.Sin(args.TurretRotation) * Module.GUN_BARREL_LENGTH;
 
-        float dirX = (float)Math.Cos(args.TurretRotation);
-        float dirY = (float)Math.Sin(args.TurretRotation);
-
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
-        if (traversibilityMap == null) return;
-
-        float hitDistance = raycastRange;
-        Module.Tank? hitTank = null;
-
-        float stepSize = 0.1f;
-        for (float distance = 0; distance < raycastRange; distance += stepSize)
+        if (gun.RaycastRange != null)
         {
-            float checkX = barrelTipX + dirX * distance;
-            float checkY = barrelTipY + dirY * distance;
+            float raycastRange = gun.RaycastRange.Value;
 
-            int tileX = Module.GetGridPosition(checkX);
-            int tileY = Module.GetGridPosition(checkY);
+            float dirX = (float)Math.Cos(args.TurretRotation);
+            float dirY = (float)Math.Sin(args.TurretRotation);
 
-            if (tileX >= 0 && tileX < traversibilityMap.Value.Width &&
-                tileY >= 0 && tileY < traversibilityMap.Value.Height)
+            var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(tank.WorldId);
+            if (traversibilityMap == null) return;
+
+            float hitDistance = raycastRange;
+            Module.Tank? hitTank = null;
+
+            float stepSize = 0.1f;
+            for (float distance = 0; distance < raycastRange; distance += stepSize)
             {
-                int tileIndex = tileY * traversibilityMap.Value.Width + tileX;
-                bool tileIsTraversable = tileIndex < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[tileIndex];
+                float checkX = barrelTipX + dirX * distance;
+                float checkY = barrelTipY + dirY * distance;
 
-                if (!tileIsTraversable)
+                int tileX = Module.GetGridPosition(checkX);
+                int tileY = Module.GetGridPosition(checkY);
+
+                if (tileX >= 0 && tileX < traversibilityMap.Value.Width &&
+                    tileY >= 0 && tileY < traversibilityMap.Value.Height)
                 {
-                    hitDistance = distance;
-                    break;
-                }
-            }
+                    int tileIndex = tileY * traversibilityMap.Value.Width + tileX;
+                    bool tileIsTraversable = tileIndex < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[tileIndex];
 
-            int collisionRegionX = Module.GetGridPosition(checkX / Module.COLLISION_REGION_SIZE);
-            int collisionRegionY = Module.GetGridPosition(checkY / Module.COLLISION_REGION_SIZE);
-
-            foreach (var targetTank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((tank.WorldId, collisionRegionX, collisionRegionY)))
-            {
-                if (targetTank.Alliance != tank.Alliance && targetTank.Health > 0)
-                {
-                    float dx = targetTank.PositionX - checkX;
-                    float dy = targetTank.PositionY - checkY;
-                    float distanceSquared = dx * dx + dy * dy;
-                    float collisionRadiusSquared = Module.TANK_COLLISION_RADIUS * Module.TANK_COLLISION_RADIUS;
-
-                    if (distanceSquared <= collisionRadiusSquared)
+                    if (!tileIsTraversable)
                     {
                         hitDistance = distance;
-                        hitTank = targetTank;
                         break;
                     }
+                }
+
+                int collisionRegionX = Module.GetGridPosition(checkX / Module.COLLISION_REGION_SIZE);
+                int collisionRegionY = Module.GetGridPosition(checkY / Module.COLLISION_REGION_SIZE);
+
+                foreach (var targetTank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((tank.WorldId, collisionRegionX, collisionRegionY)))
+                {
+                    if (targetTank.Alliance != tank.Alliance && targetTank.Health > 0)
+                    {
+                        float dx = targetTank.PositionX - checkX;
+                        float dy = targetTank.PositionY - checkY;
+                        float distanceSquared = dx * dx + dy * dy;
+                        float collisionRadiusSquared = Module.TANK_COLLISION_RADIUS * Module.TANK_COLLISION_RADIUS;
+
+                        if (distanceSquared <= collisionRadiusSquared)
+                        {
+                            hitDistance = distance;
+                            hitTank = targetTank;
+                            break;
+                        }
+                    }
+                }
+
+                if (hitTank != null)
+                {
+                    break;
                 }
             }
 
             if (hitTank != null)
             {
-                break;
-            }
-        }
-
-        if (hitTank != null)
-        {
-            var newHealth = hitTank.Value.Health - gun.Damage;
-            var updatedTank = hitTank.Value with
-            {
-                Health = newHealth
-            };
-            ctx.Db.tank.Id.Update(updatedTank);
-
-            if (newHealth <= 0)
-            {
-                var updatedShooterTank = tank with
+                var newHealth = hitTank.Value.Health - gun.Damage;
+                var updatedTank = hitTank.Value with
                 {
-                    Kills = tank.Kills + 1
+                    Health = newHealth
                 };
-                ctx.Db.tank.Id.Update(updatedShooterTank);
+                ctx.Db.tank.Id.Update(updatedTank);
 
-                var score = ctx.Db.score.WorldId.Find(tank.WorldId);
-                if (score != null)
+                if (newHealth <= 0)
                 {
-                    var updatedScore = score.Value;
-                    if (tank.Alliance >= 0 && tank.Alliance < updatedScore.Kills.Length)
+                    var updatedShooterTank = tank with
                     {
-                        updatedScore.Kills[tank.Alliance]++;
-                        ctx.Db.score.WorldId.Update(updatedScore);
+                        Kills = tank.Kills + 1
+                    };
+                    ctx.Db.tank.Id.Update(updatedShooterTank);
 
-                        if (updatedScore.Kills[tank.Alliance] >= Module.KILL_LIMIT)
+                    var score = ctx.Db.score.WorldId.Find(tank.WorldId);
+                    if (score != null)
+                    {
+                        var updatedScore = score.Value;
+                        if (tank.Alliance >= 0 && tank.Alliance < updatedScore.Kills.Length)
                         {
-                            var world = ctx.Db.world.Id.Find(tank.WorldId);
-                            if (world != null && world.Value.GameState == GameState.Playing)
+                            updatedScore.Kills[tank.Alliance]++;
+                            ctx.Db.score.WorldId.Update(updatedScore);
+
+                            if (updatedScore.Kills[tank.Alliance] >= Module.KILL_LIMIT)
                             {
-                                var updatedWorld = world.Value with { GameState = GameState.Results };
-                                ctx.Db.world.Id.Update(updatedWorld);
-
-                                ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
+                                var world = ctx.Db.world.Id.Find(tank.WorldId);
+                                if (world != null && world.Value.GameState == GameState.Playing)
                                 {
-                                    ScheduledId = 0,
-                                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
-                                    WorldId = tank.WorldId
-                                });
+                                    var updatedWorld = world.Value with { GameState = GameState.Results };
+                                    ctx.Db.world.Id.Update(updatedWorld);
 
-                                Log.Info($"Team {tank.Alliance} reached {Module.KILL_LIMIT} kills! Game ending in 30 seconds...");
+                                    ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
+                                    {
+                                        ScheduledId = 0,
+                                        ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
+                                        WorldId = tank.WorldId
+                                    });
+
+                                    Log.Info($"Team {tank.Alliance} reached {Module.KILL_LIMIT} kills! Game ending in 30 seconds...");
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            Log.Info($"Laser beam hit {hitTank.Value.Name} for {gun.Damage} damage at distance {hitDistance}");
+                Log.Info($"Raycast weapon hit {hitTank.Value.Name} for {gun.Damage} damage at distance {hitDistance}");
+            }
+            else
+            {
+                Log.Info($"Raycast weapon missed, traveled {hitDistance} units");
+            }
         }
         else
         {
-            Log.Info($"Laser beam missed, traveled {hitDistance} units");
+            if (gun.ProjectileCount == 1)
+            {
+                Module.CreateProjectile(ctx, tank, barrelTipX, barrelTipY, args.TurretRotation, gun);
+            }
+            else
+            {
+                float halfSpread = gun.SpreadAngle * (gun.ProjectileCount - 1) / 2.0f;
+                for (int i = 0; i < gun.ProjectileCount; i++)
+                {
+                    float angle = args.TurretRotation - halfSpread + (i * gun.SpreadAngle);
+                    Module.CreateProjectile(ctx, tank, barrelTipX, barrelTipY, angle, gun);
+                }
+            }
+
+            Log.Info($"Tank {tank.Name} fired charged {gun.GunType}");
         }
 
         if (gun.Ammo != null)
@@ -701,6 +720,6 @@ public static partial class ProjectileUpdater
             ctx.Db.tank.Id.Update(tank);
         }
 
-        Log.Info($"Tank {tank.Name} fired laser beam. Ammo remaining: {gun.Ammo?.ToString() ?? "unlimited"}");
+        Log.Info($"Tank {tank.Name} fired weapon. Ammo remaining: {gun.Ammo?.ToString() ?? "unlimited"}");
     }
 }

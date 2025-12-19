@@ -178,8 +178,8 @@ public static partial class Module
         public TerrainDetailType Type;
     }
 
-    [Table(Scheduled = nameof(ProjectileUpdater.FireLaserBeam))]
-    public partial struct ScheduledLaserBeamFire
+    [Table(Scheduled = nameof(ProjectileUpdater.FireChargedWeapon))]
+    public partial struct ScheduledChargedWeaponFire
     {
         [AutoInc]
         [PrimaryKey]

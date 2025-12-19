@@ -225,7 +225,7 @@ public static partial class Module
         return (centerX, centerY);
     }
 
-    private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, Gun gun)
+    public static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, Gun gun)
     {
         float velocityX = (float)Math.Cos(angle) * PROJECTILE_SPEED;
         float velocityY = (float)Math.Sin(angle) * PROJECTILE_SPEED;

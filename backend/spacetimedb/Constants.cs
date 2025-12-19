@@ -30,7 +30,8 @@ public static partial class Module
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null,
-        RaycastRange = null
+        RaycastRange = null,
+        ChargeTimeSeconds = null
     };
 
     public static readonly Gun TRIPLE_SHOOTER_GUN = new Gun
@@ -48,7 +49,8 @@ public static partial class Module
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null,
-        RaycastRange = null
+        RaycastRange = null,
+        ChargeTimeSeconds = null
     };
 
     public static readonly Gun MISSILE_LAUNCHER_GUN = new Gun
@@ -66,7 +68,8 @@ public static partial class Module
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null,
-        RaycastRange = null
+        RaycastRange = null,
+        ChargeTimeSeconds = null
     };
 
     public static readonly Gun BOOMERANG_GUN = new Gun
@@ -84,7 +87,8 @@ public static partial class Module
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null,
-        RaycastRange = null
+        RaycastRange = null,
+        ChargeTimeSeconds = null
     };
 
     public static readonly Gun GRENADE_GUN = new Gun
@@ -102,7 +106,8 @@ public static partial class Module
         ExplosionRadius = 2.0f,
         ExplosionTrigger = ExplosionTrigger.OnExpiration,
         BounceDamping = 0.7f,
-        RaycastRange = null
+        RaycastRange = null,
+        ChargeTimeSeconds = null
     };
 
     public static readonly Gun ROCKET_GUN = new Gun
@@ -120,7 +125,8 @@ public static partial class Module
         ExplosionRadius = 1.5f,
         ExplosionTrigger = ExplosionTrigger.OnHit,
         BounceDamping = null,
-        RaycastRange = null
+        RaycastRange = null,
+        ChargeTimeSeconds = null
     };
 
     public static readonly Gun LASER_BEAM_GUN = new Gun
@@ -129,15 +135,16 @@ public static partial class Module
         Ammo = 3,
         ProjectileCount = 1,
         SpreadAngle = 0,
-        Damage = 80,
+        Damage = 100,
         TrackingStrength = 0,
         ProjectileType = ProjectileType.LaserBeam,
-        LifetimeSeconds = 1.0f,
-        MaxCollisions = 1,
+        LifetimeSeconds = 0,
+        MaxCollisions = 9999,
         PassThroughTerrain = false,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null,
-        RaycastRange = 20.0f
+        RaycastRange = 20.0f,
+        ChargeTimeSeconds = 1.0f
     };
 }

@@ -123,5 +123,6 @@ public static partial class Types
         public ExplosionTrigger ExplosionTrigger;
         public float? BounceDamping;
         public float? RaycastRange;
+        public float? ChargeTimeSeconds;
     }
 }

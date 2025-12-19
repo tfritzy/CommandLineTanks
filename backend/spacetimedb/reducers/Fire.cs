@@ -23,12 +23,13 @@ public static partial class Module
 
         if (gun.Ammo != null && gun.Ammo <= 0) return false;
 
-        if (gun.RaycastRange != null)
+        if (gun.ChargeTimeSeconds != null && gun.ChargeTimeSeconds > 0)
         {
-            ctx.Db.ScheduledLaserBeamFire.Insert(new Module.ScheduledLaserBeamFire
+            long chargeTimeMicros = (long)(gun.ChargeTimeSeconds.Value * 1_000_000);
+            ctx.Db.ScheduledChargedWeaponFire.Insert(new Module.ScheduledChargedWeaponFire
             {
                 ScheduledId = 0,
-                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 1_000_000 }),
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = chargeTimeMicros }),
                 TankId = tank.Id,
                 TurretRotation = tank.TurretRotation,
                 SelectedGunIndex = tank.SelectedGunIndex
