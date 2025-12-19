@@ -243,7 +243,7 @@ export class TerrainManager {
       case "Ground":
         return "#2e2e43";
       case "Stream":
-        return "#4682b4";
+        return "#3e4c7e";
       case "Road":
         return "#808080";
       default:

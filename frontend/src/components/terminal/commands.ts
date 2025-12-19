@@ -77,28 +77,12 @@ function directionToAngle(direction: string): number {
   return mathAngle;
 }
 
-function letterToCoordinate(notation: string): number {
-  const lowerNotation = notation.toLowerCase();
-  let coord = 0;
-  
-  for (let i = 0; i < lowerNotation.length; i++) {
-    const charCode = lowerNotation.charCodeAt(i);
-    if (charCode >= 97 && charCode <= 122) {
-      coord = coord * 26 + (charCode - 96);
-    } else {
-      return -1;
-    }
-  }
-  
-  return coord - 1;
-}
-
 export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       "Commands:",
       "  drive, d, dr         Move your tank in a direction",
-      "  navigate, nav        Navigate to a coordinate or tank using pathfinding",
+      "  navigate, nav        Navigate to a relative coordinate or tank using pathfinding",
       "  reverse, r           Reverse in the direction the tank is facing",
       "  stop, s              Stop the tank immediately",
       "  aim, a               Aim turret at an angle or direction",
@@ -151,23 +135,23 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "navigate":
     case "nav":
       return [
-        "navigate, nav - Navigate to a coordinate or tank using pathfinding",
+        "navigate, nav - Navigate to a relative coordinate or tank using pathfinding",
         "",
         "Usage: navigate <tank_name> [throttle]",
-        "       navigate <x_coordinate> <y_coordinate> [throttle]",
+        "       navigate <relative_x> <relative_y> [throttle]",
         "",
         "Arguments:",
         "  <tank_name>    Name of the tank to navigate to (e.g., alpha, bravo)",
-        "  <x_coordinate> X coordinate as letters (a, b, c, ..., z, aa, ab, ...)",
-        "  <y_coordinate> Y coordinate as letters (a, b, c, ..., z, aa, ab, ...)",
+        "  <relative_x>   X offset from your position (e.g., -10, 0, +15)",
+        "  <relative_y>   Y offset from your position (e.g., -5, 0, +20)",
         "  [throttle]     Speed as percentage 1-100 (default: 100)",
         "",
         "Examples:",
         "  navigate alpha",
         "  navigate bravo 75",
-        "  navigate bm ea",
-        "  navigate a a",
-        "  navigate y c 75",
+        "  navigate 10 5      (10 units right, 5 units down)",
+        "  navigate -10 0     (10 units left)",
+        "  navigate 0 -15 75  (15 units up at 75% throttle)",
         "  nav charlie"
       ];
     
@@ -666,13 +650,14 @@ export function navigate(connection: DbConnection, worldId: string, args: string
       "navigate: error: missing required arguments",
       "",
       "Usage: navigate <tank_name> [throttle]",
-      "       navigate <x_coordinate> <y_coordinate> [throttle]",
+      "       navigate <relative_x> <relative_y> [throttle]",
       "",
       "Examples:",
       "  navigate alpha",
       "  navigate bravo 75",
-      "  navigate bm ea",
-      "  navigate a a 75"
+      "  navigate 10 5      (10 units right, 5 units down)",
+      "  navigate -10 0     (10 units left)",
+      "  navigate 0 -15 75  (15 units up at 75% throttle)"
     ];
   }
 
@@ -718,39 +703,49 @@ export function navigate(connection: DbConnection, worldId: string, args: string
       "navigate: error: missing required arguments",
       "",
       "Usage: navigate <tank_name> [throttle]",
-      "       navigate <x_coordinate> <y_coordinate> [throttle]",
+      "       navigate <relative_x> <relative_y> [throttle]",
       "",
       "Tank name not found. If you meant coordinates, provide both X and Y:",
-      "  navigate bm ea",
-      "  navigate a a 75"
+      "  navigate 10 5      (10 units right, 5 units down)",
+      "  navigate -10 0     (10 units left)",
+      "  navigate 0 -15 75  (15 units up at 75% throttle)"
     ];
   }
 
-  const xNotation = args[0];
-  const targetX = letterToCoordinate(xNotation);
+  const relativeX = Number.parseInt(args[0]);
 
-  if (targetX < 0) {
+  if (Number.isNaN(relativeX)) {
     return [
-      `navigate: error: invalid x coordinate '${xNotation}'`,
+      `navigate: error: invalid relative x coordinate '${args[0]}'`,
       "",
-      "X coordinate must use letters (a, b, c, ..., z, aa, ab, ...)",
+      "Relative X coordinate must be an integer (can be negative)",
       "",
-      "Usage: navigate <x_coordinate> <y_coordinate> [throttle]",
-      "       navigate bm ea"
+      "Usage: navigate <relative_x> <relative_y> [throttle]",
+      "       navigate 10 5"
     ];
   }
 
-  const yNotation = args[1];
-  const targetY = letterToCoordinate(yNotation);
+  const relativeY = Number.parseInt(args[1]);
 
-  if (targetY < 0) {
+  if (Number.isNaN(relativeY)) {
     return [
-      `navigate: error: invalid y coordinate '${yNotation}'`,
+      `navigate: error: invalid relative y coordinate '${args[1]}'`,
       "",
-      "Y coordinate must use letters (a, b, c, ..., z, aa, ab, ...)",
+      "Relative Y coordinate must be an integer (can be negative)",
       "",
-      "Usage: navigate <x_coordinate> <y_coordinate> [throttle]",
-      "       navigate bm ea"
+      "Usage: navigate <relative_x> <relative_y> [throttle]",
+      "       navigate 10 5"
+    ];
+  }
+
+  const targetX = Math.floor(myTank.positionX) + relativeX;
+  const targetY = Math.floor(myTank.positionY) - relativeY;
+
+  if (targetX < 0 || targetY < 0) {
+    return [
+      `navigate: error: target coordinates (${targetX}, ${targetY}) are out of bounds`,
+      "",
+      "Calculated absolute coordinates must be non-negative"
     ];
   }
 
@@ -761,8 +756,8 @@ export function navigate(connection: DbConnection, worldId: string, args: string
       return [
         `navigate: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
         "",
-        "Usage: navigate <x_coordinate> <y_coordinate> [throttle]",
-        "       navigate bm ea 75"
+        "Usage: navigate <relative_x> <relative_y> [throttle]",
+        "       navigate 10 5 75"
       ];
     } else {
       throttle = parsed / 100;
@@ -771,8 +766,9 @@ export function navigate(connection: DbConnection, worldId: string, args: string
 
   connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
+  const relativeStr = `(${relativeX > 0 ? '+' : ''}${relativeX}, ${relativeY > 0 ? '+' : ''}${relativeY})`;
   return [
-    `Navigating to ${xNotation.toUpperCase()} ${yNotation.toUpperCase()} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+    `Navigating to ${relativeStr} -> ${targetX} ${targetY} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
   ];
 }
 

@@ -30,15 +30,31 @@ export class Rock extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x + UNIT_TO_PIXEL * 0.5;
     const centerY = y + UNIT_TO_PIXEL * 0.5;
-    const radius = UNIT_TO_PIXEL * 0.3;
+    const radius = UNIT_TO_PIXEL * 0.4;
     
-    ctx.fillStyle = "#696969";
+    const shadowOffsetX = -radius * 0.4;
+    const shadowOffsetY = radius * 0.4;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx.beginPath();
+    ctx.arc(centerX + shadowOffsetX, centerY + shadowOffsetY, radius, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.clip();
+    
+    ctx.fillStyle = "#4a4b5b";
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = "#404040";
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    
+    ctx.fillStyle = "#707b89";
+    ctx.beginPath();
+    const lightCenterX = centerX + radius * 0.4;
+    const lightCenterY = centerY - radius * 0.4;
+    const lightRadius = radius * 1.3;
+    ctx.arc(lightCenterX, lightCenterY, lightRadius, 0, Math.PI * 2);
+    ctx.fill();
     
     ctx.restore();
     this.drawLabel(ctx);

@@ -38,7 +38,7 @@ public static class AStarPathfinding
             X = startX,
             Y = startY,
             GCost = 0,
-            HCost = Math.Abs(targetX - startX) + Math.Abs(targetY - startY),
+            HCost = CalculateHeuristic(startX, startY, targetX, targetY),
             Parent = null
         };
 
@@ -79,7 +79,10 @@ public static class AStarPathfinding
                 return SimplifyPath(fullPath);
             }
 
-            (int dx, int dy)[] neighbors = new[] { (1, 0), (-1, 0), (0, 1), (0, -1) };
+            (int dx, int dy)[] neighbors = new[] {
+                (1, 0), (-1, 0), (0, 1), (0, -1),
+                (1, 1), (-1, 1), (1, -1), (-1, -1)
+            };
 
             foreach (var (dx, dy) in neighbors)
             {
@@ -104,7 +107,8 @@ public static class AStarPathfinding
                     continue;
                 }
 
-                int newGCost = current.GCost + 1;
+                bool isDiagonal = dx != 0 && dy != 0;
+                int newGCost = current.GCost + (isDiagonal ? 14 : 10);
                 var existingNode = openSet.Find(n => n.X == neighborX && n.Y == neighborY);
 
                 if (existingNode != null)
@@ -122,7 +126,7 @@ public static class AStarPathfinding
                         X = neighborX,
                         Y = neighborY,
                         GCost = newGCost,
-                        HCost = Math.Abs(targetX - neighborX) + Math.Abs(targetY - neighborY),
+                        HCost = CalculateHeuristic(neighborX, neighborY, targetX, targetY),
                         Parent = current
                     };
                     openSet.Add(neighborNode);
@@ -144,6 +148,13 @@ public static class AStarPathfinding
         }
 
         return emptyPath;
+    }
+
+    private static int CalculateHeuristic(int fromX, int fromY, int toX, int toY)
+    {
+        int dx = Math.Abs(toX - fromX);
+        int dy = Math.Abs(toY - fromY);
+        return 10 * (dx + dy) + (14 - 2 * 10) * Math.Min(dx, dy);
     }
 
     private static List<(int x, int y)> SimplifyPath(List<(int x, int y)> fullPath)

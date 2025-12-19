@@ -21,6 +21,7 @@ export class Tank {
   private maxHealth: number;
   private guns: GunData[];
   private selectedGunIndex: number;
+  private flashTimer: number = 0;
 
   constructor(
     x: number,
@@ -57,10 +58,11 @@ export class Tank {
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
 
-    const bodyColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
-    const turretColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
-    const barrelColor = this.alliance === 0 ? "#ff5555ff" : "#5555ff";
-    const borderColor = this.alliance === 0 ? "#330000" : "#000033";
+    const isFlashing = this.flashTimer > 0;
+    const bodyColor = isFlashing ? "#ffffff" : (this.alliance === 0 ? "#ff5555ff" : "#5555ff");
+    const turretColor = isFlashing ? "#ffffff" : (this.alliance === 0 ? "#ff5555ff" : "#5555ff");
+    const barrelColor = isFlashing ? "#ffffff" : (this.alliance === 0 ? "#ff5555ff" : "#5555ff");
+    const borderColor = isFlashing ? "#ffffff" : (this.alliance === 0 ? "#330000" : "#000033");
 
     ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
     ctx.shadowOffsetX = -5;
@@ -116,6 +118,45 @@ export class Tank {
     ctx.restore();
   }
 
+  public drawPath(ctx: CanvasRenderingContext2D) {
+    if (this.path.length === 0) return;
+
+    const lineColor = this.alliance === 0 ? "#ff555566" : "#5555ff66";
+    const dotColor = this.alliance === 0 ? "#ff5555ff" : "#5555ffff";
+    const dotRadius = 5;
+
+    ctx.save();
+
+    if (this.path.length > 0) {
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+
+      const startX = this.x * UNIT_TO_PIXEL;
+      const startY = this.y * UNIT_TO_PIXEL;
+      ctx.moveTo(startX, startY);
+
+      for (const pathEntry of this.path) {
+        const worldX = pathEntry.position.x * UNIT_TO_PIXEL;
+        const worldY = pathEntry.position.y * UNIT_TO_PIXEL;
+        ctx.lineTo(worldX, worldY);
+      }
+
+      ctx.stroke();
+
+      const lastEntry = this.path[this.path.length - 1];
+      const endX = lastEntry.position.x * UNIT_TO_PIXEL;
+      const endY = lastEntry.position.y * UNIT_TO_PIXEL;
+
+      ctx.fillStyle = dotColor;
+      ctx.beginPath();
+      ctx.arc(endX, endY, dotRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
   public setPosition(x: number, y: number) {
     this.x = x;
     this.y = y;
@@ -143,6 +184,9 @@ export class Tank {
   }
 
   public setHealth(health: number) {
+    if (health < this.health && this.health > 0) {
+      this.flashTimer = 0.03;
+    }
     this.health = health;
   }
 
@@ -159,6 +203,10 @@ export class Tank {
   }
 
   public update(deltaTime: number) {
+    if (this.flashTimer > 0) {
+      this.flashTimer = Math.max(0, this.flashTimer - deltaTime);
+    }
+
     if (this.path.length > 0) {
       const target = this.path[0].position;
 

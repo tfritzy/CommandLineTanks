@@ -56,60 +56,53 @@ export class Game {
     }
   }
 
-  private numberToChessNotation(num: number): string {
-    let result = '';
-    let n = num + 1;
-    
-    while (n > 0) {
-      n--;
-      result = String.fromCharCode(97 + (n % 26)) + result;
-      n = Math.floor(n / 26);
-    }
-    
-    return result.toUpperCase();
-  }
+  private drawRelativeDistanceLabels(cameraX: number, cameraY: number) {
+    const playerTank = this.tankManager.getPlayerTank();
+    if (!playerTank) return;
 
-  private drawCoordinateLabels(cameraX: number, cameraY: number) {
     const worldWidth = this.terrainManager.getWorldWidth();
     const worldHeight = this.terrainManager.getWorldHeight();
-
     if (worldWidth === 0 || worldHeight === 0) return;
 
     const dpr = window.devicePixelRatio || 1;
     const displayWidth = this.canvas.width / dpr;
     const displayHeight = this.canvas.height / dpr;
 
-    this.ctx.save();
-    this.ctx.fillStyle = "#4a4b5b";
-    this.ctx.font = "12px 'JetBrains Mono', monospace";
-    this.ctx.textAlign = "center";
-    this.ctx.textBaseline = "middle";
+    const playerPos = playerTank.getPosition();
+    const playerGridX = Math.floor(playerPos.x);
+    const playerGridY = Math.floor(playerPos.y);
+    const LABEL_INTERVAL = 5;
 
     const startX = Math.floor(cameraX / UNIT_TO_PIXEL);
     const endX = Math.ceil((cameraX + displayWidth) / UNIT_TO_PIXEL);
     const startY = Math.floor(cameraY / UNIT_TO_PIXEL);
     const endY = Math.ceil((cameraY + displayHeight) / UNIT_TO_PIXEL);
 
+    this.ctx.save();
+    this.ctx.fillStyle = "#6a6b7b";
+    this.ctx.font = "10px 'JetBrains Mono', monospace";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+
     for (let x = Math.max(0, startX); x <= Math.min(worldWidth - 1, endX); x++) {
-      const screenX = x * UNIT_TO_PIXEL - cameraX;
+      const relativeX = x - playerGridX;
       
-      if (screenX >= 0 && screenX <= displayWidth) {
-        const label = this.numberToChessNotation(x);
-        this.ctx.fillText(label, screenX, 10);
-        this.ctx.fillText(label, screenX, displayHeight - 10);
+      if (relativeX % LABEL_INTERVAL === 0 && relativeX !== 0) {
+        const worldX = x * UNIT_TO_PIXEL;
+        const worldY = playerGridY * UNIT_TO_PIXEL;
+        const label = relativeX > 0 ? `+${relativeX}` : relativeX.toString();
+        this.ctx.fillText(label, worldX, worldY);
       }
     }
 
-    this.ctx.textAlign = "left";
     for (let y = Math.max(0, startY); y <= Math.min(worldHeight - 1, endY); y++) {
-      const screenY = y * UNIT_TO_PIXEL  - cameraY;
+      const relativeY = playerGridY - y;
       
-      if (screenY >= 0 && screenY <= displayHeight) {
-        const label = this.numberToChessNotation(y);
-        this.ctx.fillText(label, 5, screenY);
-        this.ctx.textAlign = "right";
-        this.ctx.fillText(label, displayWidth - 5, screenY);
-        this.ctx.textAlign = "left";
+      if (relativeY % LABEL_INTERVAL === 0 && relativeY !== 0) {
+        const worldX = playerGridX * UNIT_TO_PIXEL;
+        const worldY = y * UNIT_TO_PIXEL;
+        const label = relativeY > 0 ? `+${relativeY}` : relativeY.toString();
+        this.ctx.fillText(label, worldX, worldY);
       }
     }
 
@@ -164,8 +157,14 @@ export class Game {
     );
 
     for (const tank of this.tankManager.getAllTanks()) {
+      tank.drawPath(this.ctx);
+    }
+
+    for (const tank of this.tankManager.getAllTanks()) {
       tank.draw(this.ctx);
     }
+
+    this.drawRelativeDistanceLabels(cameraX, cameraY);
 
     for (const projectile of this.projectileManager.getAllProjectiles()) {
       projectile.draw(this.ctx);
@@ -190,8 +189,6 @@ export class Game {
     );
 
     this.ctx.restore();
-
-    this.drawCoordinateLabels(cameraX, cameraY);
 
     this.scoreManager.draw(this.ctx, displayWidth);
     // this.gunInventoryManager.draw(this.ctx, this.canvas.width, this.canvas.height);
