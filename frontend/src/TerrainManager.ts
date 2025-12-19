@@ -2,7 +2,7 @@ import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, TerrainDetailType, type TerrainDetailRow, type EventContext } from "../module_bindings";
 import { type Infer } from "spacetimedb";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
-import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field, Label } from "./objects/TerrainDetails";
+import { Cliff, Rock, Tree, Bridge, Fence, HayBale, Field, Label, FoundationEdge, FoundationCorner } from "./objects/TerrainDetails";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 type TerrainDetailTypeEnum = Infer<typeof TerrainDetailType>;
@@ -13,7 +13,8 @@ interface TerrainDetailData {
   positionY: number;
   type: TerrainDetailTypeEnum;
   health: number | undefined;
-  label: string | undefined;
+  label: string | null | undefined;
+  rotation?: number;
 }
 
 export class TerrainManager {
@@ -81,31 +82,39 @@ export class TerrainManager {
     
     const label = detail.label || null;
     const health = detail.health || 100;
+    const rotation = detail.rotation || 0;
     
     switch (detail.type.tag) {
       case "Cliff":
-        obj = new Cliff(detail.positionX, detail.positionY, label, health);
+        obj = new Cliff(detail.positionX, detail.positionY, label, health, rotation);
         break;
       case "Rock":
-        obj = new Rock(detail.positionX, detail.positionY, label, health);
+        obj = new Rock(detail.positionX, detail.positionY, label, health, rotation);
         break;
       case "Tree":
-        obj = new Tree(detail.positionX, detail.positionY, label, health);
+        obj = new Tree(detail.positionX, detail.positionY, label, health, rotation);
         break;
       case "Bridge":
-        obj = new Bridge(detail.positionX, detail.positionY, label, health);
+        obj = new Bridge(detail.positionX, detail.positionY, label, health, rotation);
         break;
       case "Fence":
-        obj = new Fence(detail.positionX, detail.positionY, label, health);
+        obj = new Fence(detail.positionX, detail.positionY, label, health, rotation);
         break;
       case "HayBale":
-        obj = new HayBale(detail.positionX, detail.positionY, label, health);
+        obj = new HayBale(detail.positionX, detail.positionY, label, health, rotation);
         break;
       case "Field":
-        obj = new Field(detail.positionX, detail.positionY, label, health);
+        obj = new Field(detail.positionX, detail.positionY, label, health, rotation);
         break;
       case "Label":
-        obj = new Label(detail.positionX, detail.positionY, label, health);
+        obj = new Label(detail.positionX, detail.positionY, label, health, rotation);
+        break;
+      default:
+        if ((detail.type as any).tag === "FoundationEdge") {
+          obj = new FoundationEdge(detail.positionX, detail.positionY, label, health, rotation);
+        } else if ((detail.type as any).tag === "FoundationCorner") {
+          obj = new FoundationCorner(detail.positionX, detail.positionY, label, health, rotation);
+        }
         break;
     }
     
