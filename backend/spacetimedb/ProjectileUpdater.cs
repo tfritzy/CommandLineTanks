@@ -395,8 +395,12 @@ public static partial class ProjectileUpdater
 
             for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
             {
+                if (regionX < 0) continue;
+
                 for (int regionY = minRegionY; regionY <= maxRegionY; regionY++)
                 {
+                    if (regionY < 0) continue;
+
                     foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, regionX, regionY)))
                     {
                         float dx = tank.PositionX - projectile.PositionX;
