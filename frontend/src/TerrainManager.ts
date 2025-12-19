@@ -22,7 +22,7 @@ export class TerrainManager {
   private baseTerrainLayer: BaseTerrainType[] = [];
   private worldId: string;
   private detailObjects: Map<string, TerrainDetailObject> = new Map();
-  private sortedDetailObjects: TerrainDetailObject[] = [];
+  private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -44,6 +44,7 @@ export class TerrainManager {
       this.worldWidth = world.width;
       this.worldHeight = world.height;
       this.baseTerrainLayer = world.baseTerrainLayer;
+      this.initializeDetailObjectsArray();
     });
 
     connection.db.world.onUpdate((_ctx, _oldWorld, newWorld) => {
@@ -51,7 +52,15 @@ export class TerrainManager {
       this.worldWidth = newWorld.width;
       this.worldHeight = newWorld.height;
       this.baseTerrainLayer = newWorld.baseTerrainLayer;
+      this.initializeDetailObjectsArray();
     });
+  }
+
+  private initializeDetailObjectsArray() {
+    this.detailObjectsByPosition = [];
+    for (let y = 0; y < this.worldHeight; y++) {
+      this.detailObjectsByPosition[y] = new Array(this.worldWidth).fill(null);
+    }
   }
 
   private subscribeToTerrainDetails() {
@@ -73,8 +82,15 @@ export class TerrainManager {
     });
 
     connection.db.terrainDetail.onDelete((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+      const obj = this.detailObjects.get(detail.id);
+      if (obj) {
+        const x = obj.getX();
+        const y = obj.getY();
+        if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
+          this.detailObjectsByPosition[y][x] = null;
+        }
+      }
       this.detailObjects.delete(detail.id);
-      this.rebuildSortedArray();
     });
   }
 
@@ -113,16 +129,12 @@ export class TerrainManager {
     
     if (obj) {
       this.detailObjects.set(detail.id, obj);
-      this.rebuildSortedArray();
+      const x = obj.getX();
+      const y = obj.getY();
+      if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
+        this.detailObjectsByPosition[y][x] = obj;
+      }
     }
-  }
-
-  private rebuildSortedArray() {
-    this.sortedDetailObjects = Array.from(this.detailObjects.values()).sort((a, b) => {
-      const yDiff = a.getY() - b.getY();
-      if (yDiff !== 0) return yDiff;
-      return b.getX() - a.getX();
-    });
   }
 
   public draw(
@@ -186,12 +198,12 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    for (const obj of this.sortedDetailObjects) {
-      const x = obj.getX();
-      const y = obj.getY();
-      
-      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
-        obj.drawShadow(ctx);
+    for (let y = Math.max(0, startTileY); y <= Math.min(this.worldHeight - 1, endTileY); y++) {
+      for (let x = Math.min(this.worldWidth - 1, endTileX); x >= Math.max(0, startTileX); x--) {
+        const obj = this.detailObjectsByPosition[y][x];
+        if (obj) {
+          obj.drawShadow(ctx);
+        }
       }
     }
   }
@@ -209,12 +221,12 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    for (const obj of this.sortedDetailObjects) {
-      const x = obj.getX();
-      const y = obj.getY();
-      
-      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
-        obj.drawBody(ctx);
+    for (let y = Math.max(0, startTileY); y <= Math.min(this.worldHeight - 1, endTileY); y++) {
+      for (let x = Math.min(this.worldWidth - 1, endTileX); x >= Math.max(0, startTileX); x--) {
+        const obj = this.detailObjectsByPosition[y][x];
+        if (obj) {
+          obj.drawBody(ctx);
+        }
       }
     }
   }
