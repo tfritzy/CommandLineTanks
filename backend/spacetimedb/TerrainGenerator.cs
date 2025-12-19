@@ -13,6 +13,12 @@ public static partial class TerrainGenerator
     private const int FIELD_MAX_SIZE = 10;
     private const int CLIFF_POCKET_SIZE = 4;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
+    private const int MIN_STRUCTURES = 3;
+    private const int STRUCTURE_COUNT_RANGE = 4;
+    private const int ROTATION_NORTH = 0;
+    private const int ROTATION_EAST = 90;
+    private const int ROTATION_SOUTH = 180;
+    private const int ROTATION_WEST = 270;
 
     public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random)
     {
@@ -463,7 +469,7 @@ public static partial class TerrainGenerator
         Vector2[] fieldTiles,
         Random random)
     {
-        int numStructures = 3 + random.Next(4);
+        int numStructures = MIN_STRUCTURES + random.Next(STRUCTURE_COUNT_RANGE);
 
         for (int structureIdx = 0; structureIdx < numStructures; structureIdx++)
         {
@@ -563,7 +569,7 @@ public static partial class TerrainGenerator
                         {
                             if (random.NextSingle() > 0.2f)
                             {
-                                terrainDetails.Add((x, startY, TerrainDetailType.FoundationEdge, 0));
+                                terrainDetails.Add((x, startY, TerrainDetailType.FoundationEdge, ROTATION_NORTH));
                             }
                         }
 
@@ -571,7 +577,7 @@ public static partial class TerrainGenerator
                         {
                             if (random.NextSingle() > 0.2f)
                             {
-                                terrainDetails.Add((x, startY + structureHeight - 1, TerrainDetailType.FoundationEdge, 180));
+                                terrainDetails.Add((x, startY + structureHeight - 1, TerrainDetailType.FoundationEdge, ROTATION_SOUTH));
                             }
                         }
                     }
@@ -582,7 +588,7 @@ public static partial class TerrainGenerator
                         {
                             if (random.NextSingle() > 0.2f)
                             {
-                                terrainDetails.Add((startX, y, TerrainDetailType.FoundationEdge, 270));
+                                terrainDetails.Add((startX, y, TerrainDetailType.FoundationEdge, ROTATION_WEST));
                             }
                         }
 
@@ -590,29 +596,29 @@ public static partial class TerrainGenerator
                         {
                             if (random.NextSingle() > 0.2f)
                             {
-                                terrainDetails.Add((startX + structureWidth - 1, y, TerrainDetailType.FoundationEdge, 90));
+                                terrainDetails.Add((startX + structureWidth - 1, y, TerrainDetailType.FoundationEdge, ROTATION_EAST));
                             }
                         }
                     }
 
                     if (!removeTopSide && !removeLeftSide)
                     {
-                        terrainDetails.Add((startX, startY, TerrainDetailType.FoundationCorner, 270));
+                        terrainDetails.Add((startX, startY, TerrainDetailType.FoundationCorner, ROTATION_WEST));
                     }
 
                     if (!removeTopSide && !removeRightSide)
                     {
-                        terrainDetails.Add((startX + structureWidth - 1, startY, TerrainDetailType.FoundationCorner, 0));
+                        terrainDetails.Add((startX + structureWidth - 1, startY, TerrainDetailType.FoundationCorner, ROTATION_NORTH));
                     }
 
                     if (!removeBottomSide && !removeLeftSide)
                     {
-                        terrainDetails.Add((startX, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, 180));
+                        terrainDetails.Add((startX, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, ROTATION_SOUTH));
                     }
 
                     if (!removeBottomSide && !removeRightSide)
                     {
-                        terrainDetails.Add((startX + structureWidth - 1, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, 90));
+                        terrainDetails.Add((startX + structureWidth - 1, startY + structureHeight - 1, TerrainDetailType.FoundationCorner, ROTATION_EAST));
                     }
 
                     placed = true;

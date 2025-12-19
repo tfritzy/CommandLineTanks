@@ -266,12 +266,12 @@ export class FoundationCorner extends TerrainDetailObject {
     ctx.fillStyle = "#8b7355";
     
     ctx.fillRect(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.2);
-    ctx.fillRect(x + UNIT_TO_PIXEL * 0.4, y + UNIT_TO_PIXEL * 0.5, UNIT_TO_PIXEL * 0.2, UNIT_TO_PIXEL * 0.4);
+    ctx.fillRect(x + UNIT_TO_PIXEL * 0.4, y + UNIT_TO_PIXEL * 0.6, UNIT_TO_PIXEL * 0.2, UNIT_TO_PIXEL * 0.3);
 
     ctx.strokeStyle = "#654321";
     ctx.lineWidth = 2;
     ctx.strokeRect(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.2);
-    ctx.strokeRect(x + UNIT_TO_PIXEL * 0.4, y + UNIT_TO_PIXEL * 0.5, UNIT_TO_PIXEL * 0.2, UNIT_TO_PIXEL * 0.4);
+    ctx.strokeRect(x + UNIT_TO_PIXEL * 0.4, y + UNIT_TO_PIXEL * 0.6, UNIT_TO_PIXEL * 0.2, UNIT_TO_PIXEL * 0.3);
 
     ctx.restore();
     this.drawLabel(ctx);
