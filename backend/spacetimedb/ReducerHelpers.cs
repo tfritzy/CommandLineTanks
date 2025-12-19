@@ -249,7 +249,10 @@ public static partial class Module
             IsReturning = false,
             MaxCollisions = gun.MaxCollisions,
             CollisionCount = 0,
-            PassThroughTerrain = gun.PassThroughTerrain
+            PassThroughTerrain = gun.PassThroughTerrain,
+            ExplosionRadius = gun.ExplosionRadius,
+            ExplosionTrigger = gun.ExplosionTrigger,
+            BounceDamping = gun.BounceDamping
         };
 
         ctx.Db.projectile.Insert(projectile);

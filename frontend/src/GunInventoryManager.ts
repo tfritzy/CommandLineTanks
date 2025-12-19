@@ -51,6 +51,8 @@ export class GunInventoryManager {
         return '#ff0000';
       case 'Boomerang':
         return '#8b4513';
+      case 'Grenade':
+        return '#228b22';
       default:
         return '#888888';
     }
@@ -102,6 +104,18 @@ export class GunInventoryManager {
         ctx.strokeStyle = '#654321';
         ctx.stroke();
         ctx.lineWidth = 2;
+        break;
+      case 'Grenade':
+        ctx.fillStyle = '#2d5016';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(centerX - 2, centerY - 10, 4, 6);
+        ctx.strokeRect(centerX - 2, centerY - 10, 4, 6);
         break;
     }
 

@@ -27,6 +27,47 @@ public static partial class ProjectileUpdater
         public string WorldId;
     }
 
+    private static void ExplodeProjectile(ReducerContext ctx, Projectile projectile, string worldId)
+    {
+        if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
+        {
+            return;
+        }
+
+        float explosionRadius = projectile.ExplosionRadius.Value;
+        int projectileCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+        int projectileCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+
+        int searchRadius = (int)Math.Ceiling(explosionRadius / Module.COLLISION_REGION_SIZE);
+
+        for (int dx = -searchRadius; dx <= searchRadius; dx++)
+        {
+            for (int dy = -searchRadius; dy <= searchRadius; dy++)
+            {
+                int regionX = projectileCollisionRegionX + dx;
+                int regionY = projectileCollisionRegionY + dy;
+
+                foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                {
+                    if (tank.Health > 0)
+                    {
+                        float dx_tank = tank.PositionX - projectile.PositionX;
+                        float dy_tank = tank.PositionY - projectile.PositionY;
+                        float distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
+                        float explosionRadiusSquared = explosionRadius * explosionRadius;
+
+                        if (distanceSquared <= explosionRadiusSquared)
+                        {
+                            HandleTankDamage(ctx, tank, projectile, worldId);
+                        }
+                    }
+                }
+            }
+        }
+
+        Log.Info($"Projectile exploded at ({projectile.PositionX}, {projectile.PositionY})");
+    }
+
     private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Projectile projectile, string worldId)
     {
         var newHealth = tank.Health - projectile.Damage;
@@ -104,6 +145,10 @@ public static partial class ProjectileUpdater
 
             if (projectileAgeSeconds >= projectile.LifetimeSeconds)
             {
+                if (projectile.ExplosionTrigger == ExplosionTrigger.OnExpiration)
+                {
+                    ExplodeProjectile(ctx, projectile, args.WorldId);
+                }
                 ctx.Db.projectile.Id.Delete(projectile.Id);
                 continue;
             }
@@ -221,32 +266,70 @@ public static partial class ProjectileUpdater
 
                 if (!tileIsTraversable && !projectile.PassThroughTerrain)
                 {
-                    foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
+                    if (projectile.BounceDamping != null && projectile.BounceDamping > 0)
                     {
-                        if (terrainDetail.Health == null)
+                        float previousX = projectile.PositionX - projectile.Velocity.X * (float)deltaTime;
+                        float previousY = projectile.PositionY - projectile.Velocity.Y * (float)deltaTime;
+                        
+                        int prevTileX = Module.GetGridPosition(previousX);
+                        int prevTileY = Module.GetGridPosition(previousY);
+                        
+                        bool bounceX = prevTileX != projectileTileX;
+                        bool bounceY = prevTileY != projectileTileY;
+                        
+                        float newVelX = projectile.Velocity.X;
+                        float newVelY = projectile.Velocity.Y;
+                        float newPosX = projectile.PositionX;
+                        float newPosY = projectile.PositionY;
+                        
+                        if (bounceX)
                         {
-                            continue;
+                            newVelX = -projectile.Velocity.X * projectile.BounceDamping.Value;
+                            newPosX = previousX;
                         }
-
-                        var newHealth = terrainDetail.Health.Value - projectile.Damage;
-                        if (newHealth <= 0)
+                        if (bounceY)
                         {
-                            ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
-
-                            traversibilityMap.Value.Map[tileIndex] = true;
-                            ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
+                            newVelY = -projectile.Velocity.Y * projectile.BounceDamping.Value;
+                            newPosY = previousY;
                         }
-                        else
+                        
+                        projectile = projectile with
                         {
-                            ctx.Db.terrain_detail.Id.Update(terrainDetail with
+                            PositionX = newPosX,
+                            PositionY = newPosY,
+                            Velocity = new Vector2Float(newVelX, newVelY),
+                            Speed = (float)Math.Sqrt(newVelX * newVelX + newVelY * newVelY)
+                        };
+                    }
+                    else
+                    {
+                        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
+                        {
+                            if (terrainDetail.Health == null)
                             {
-                                Health = newHealth
-                            });
-                        }
+                                continue;
+                            }
 
-                        ctx.Db.projectile.Id.Delete(projectile.Id);
-                        collided = true;
-                        break;
+                            var newHealth = terrainDetail.Health.Value - projectile.Damage;
+                            if (newHealth <= 0)
+                            {
+                                ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+
+                                traversibilityMap.Value.Map[tileIndex] = true;
+                                ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
+                            }
+                            else
+                            {
+                                ctx.Db.terrain_detail.Id.Update(terrainDetail with
+                                {
+                                    Health = newHealth
+                                });
+                            }
+
+                            ctx.Db.projectile.Id.Delete(projectile.Id);
+                            collided = true;
+                            break;
+                        }
                     }
 
                     if (collided) continue;
@@ -290,7 +373,20 @@ public static partial class ProjectileUpdater
 
                     if (tank.Alliance != projectile.Alliance && tank.Health > 0)
                     {
-                        HandleTankDamage(ctx, tank, projectile, args.WorldId);
+                        if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0)
+                        {
+                            if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
+                            {
+                                ExplodeProjectile(ctx, projectile, args.WorldId);
+                                ctx.Db.projectile.Id.Delete(projectile.Id);
+                                collided = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            HandleTankDamage(ctx, tank, projectile, args.WorldId);
+                        }
 
                         projectile = projectile with
                         {

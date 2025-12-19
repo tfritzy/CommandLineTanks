@@ -60,7 +60,8 @@ public static partial class Types
         TripleShooterPickup,
         MissileLauncherPickup,
         HealthPickup,
-        BoomerangPickup
+        BoomerangPickup,
+        GrenadePickup
     }
 
     [Type]
@@ -76,7 +77,8 @@ public static partial class Types
         Base,
         TripleShooter,
         MissileLauncher,
-        Boomerang
+        Boomerang,
+        Grenade
     }
 
     [Type]
@@ -84,7 +86,16 @@ public static partial class Types
     {
         Normal,
         Missile,
-        Boomerang
+        Boomerang,
+        Grenade
+    }
+
+    [Type]
+    public enum ExplosionTrigger : byte
+    {
+        None,
+        OnExpiration,
+        OnHit
     }
 
     [Type]
@@ -100,5 +111,8 @@ public static partial class Types
         public float LifetimeSeconds;
         public int MaxCollisions;
         public bool PassThroughTerrain;
+        public float? ExplosionRadius;
+        public ExplosionTrigger ExplosionTrigger;
+        public float? BounceDamping;
     }
 }
