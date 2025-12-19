@@ -22,6 +22,7 @@ export class TerrainManager {
   private baseTerrainLayer: BaseTerrainType[] = [];
   private worldId: string;
   private detailObjects: Map<string, TerrainDetailObject> = new Map();
+  private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -43,6 +44,7 @@ export class TerrainManager {
       this.worldWidth = world.width;
       this.worldHeight = world.height;
       this.baseTerrainLayer = world.baseTerrainLayer;
+      this.initializeDetailObjectsArray();
     });
 
     connection.db.world.onUpdate((_ctx, _oldWorld, newWorld) => {
@@ -50,7 +52,15 @@ export class TerrainManager {
       this.worldWidth = newWorld.width;
       this.worldHeight = newWorld.height;
       this.baseTerrainLayer = newWorld.baseTerrainLayer;
+      this.initializeDetailObjectsArray();
     });
+  }
+
+  private initializeDetailObjectsArray() {
+    this.detailObjectsByPosition = [];
+    for (let y = 0; y < this.worldHeight; y++) {
+      this.detailObjectsByPosition[y] = new Array(this.worldWidth).fill(null);
+    }
   }
 
   private subscribeToTerrainDetails() {
@@ -66,12 +76,28 @@ export class TerrainManager {
       this.createDetailObject(detail);
     });
 
-    connection.db.terrainDetail.onUpdate((_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
+    connection.db.terrainDetail.onUpdate((_ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
+      const oldObj = this.detailObjects.get(newDetail.id);
+      if (oldObj) {
+        const oldX = oldObj.getX();
+        const oldY = oldObj.getY();
+        if (oldY >= 0 && oldY < this.worldHeight && oldX >= 0 && oldX < this.worldWidth) {
+          this.detailObjectsByPosition[oldY][oldX] = null;
+        }
+      }
       this.detailObjects.delete(newDetail.id);
       this.createDetailObject(newDetail);
     });
 
     connection.db.terrainDetail.onDelete((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+      const obj = this.detailObjects.get(detail.id);
+      if (obj) {
+        const x = obj.getX();
+        const y = obj.getY();
+        if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
+          this.detailObjectsByPosition[y][x] = null;
+        }
+      }
       this.detailObjects.delete(detail.id);
     });
   }
@@ -111,6 +137,11 @@ export class TerrainManager {
     
     if (obj) {
       this.detailObjects.set(detail.id, obj);
+      const x = obj.getX();
+      const y = obj.getY();
+      if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
+        this.detailObjectsByPosition[y][x] = obj;
+      }
     }
   }
 
@@ -125,7 +156,6 @@ export class TerrainManager {
     if (this.baseTerrainLayer.length === 0) return;
 
     this.drawBaseLayer(ctx, cameraX, cameraY, canvasWidth, canvasHeight, unitToPixel);
-    this.drawDetailLayer(ctx, cameraX, cameraY, canvasWidth, canvasHeight, unitToPixel);
   }
 
   private drawBaseLayer(
@@ -163,7 +193,7 @@ export class TerrainManager {
     }
   }
 
-  public drawTreeShadows(
+  public drawShadows(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
     cameraY: number,
@@ -176,19 +206,17 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    for (const obj of this.detailObjects.values()) {
-      if (!(obj instanceof Tree)) continue;
-      
-      const x = obj.getX();
-      const y = obj.getY();
-      
-      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
-        obj.drawShadow(ctx);
+    for (let y = Math.max(0, startTileY); y <= Math.min(this.worldHeight - 1, endTileY); y++) {
+      for (let x = Math.min(this.worldWidth - 1, endTileX); x >= Math.max(0, startTileX); x--) {
+        const obj = this.detailObjectsByPosition[y][x];
+        if (obj) {
+          obj.drawShadow(ctx);
+        }
       }
     }
   }
 
-  private drawDetailLayer(
+  public drawBodies(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
     cameraY: number,
@@ -201,39 +229,12 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    for (const obj of this.detailObjects.values()) {
-      if (obj instanceof Tree) continue;
-      
-      const x = obj.getX();
-      const y = obj.getY();
-      
-      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
-        obj.draw(ctx);
-      }
-    }
-  }
-
-  public drawTreeBodies(
-    ctx: CanvasRenderingContext2D,
-    cameraX: number,
-    cameraY: number,
-    canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
-  ) {
-    const startTileX = Math.floor(cameraX / unitToPixel);
-    const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
-    const startTileY = Math.floor(cameraY / unitToPixel);
-    const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
-
-    for (const obj of this.detailObjects.values()) {
-      if (!(obj instanceof Tree)) continue;
-      
-      const x = obj.getX();
-      const y = obj.getY();
-      
-      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
-        obj.drawBody(ctx);
+    for (let y = Math.max(0, startTileY); y <= Math.min(this.worldHeight - 1, endTileY); y++) {
+      for (let x = Math.min(this.worldWidth - 1, endTileX); x >= Math.max(0, startTileX); x--) {
+        const obj = this.detailObjectsByPosition[y][x];
+        if (obj) {
+          obj.drawBody(ctx);
+        }
       }
     }
   }

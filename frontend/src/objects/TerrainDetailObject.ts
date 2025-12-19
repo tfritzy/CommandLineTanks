@@ -15,12 +15,9 @@ export abstract class TerrainDetailObject {
 
   public abstract draw(ctx: CanvasRenderingContext2D): void;
 
-  public drawShadow(_ctx: CanvasRenderingContext2D): void {
-  }
+  public abstract drawShadow(ctx: CanvasRenderingContext2D): void;
 
-  public drawBody(ctx: CanvasRenderingContext2D): void {
-    this.draw(ctx);
-  }
+  public abstract drawBody(ctx: CanvasRenderingContext2D): void;
 
   protected drawLabel(ctx: CanvasRenderingContext2D): void {
     if (!this.label) return;

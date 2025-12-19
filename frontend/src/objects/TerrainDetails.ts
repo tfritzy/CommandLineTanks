@@ -2,7 +2,10 @@ import { UNIT_TO_PIXEL } from "../game";
 import { TerrainDetailObject } from "./TerrainDetailObject";
 
 export class Cliff extends TerrainDetailObject {
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
+  }
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
@@ -21,10 +24,15 @@ export class Cliff extends TerrainDetailObject {
     ctx.restore();
     this.drawLabel(ctx);
   }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    this.drawShadow(ctx);
+    this.drawBody(ctx);
+  }
 }
 
 export class Rock extends TerrainDetailObject {
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
@@ -38,6 +46,17 @@ export class Rock extends TerrainDetailObject {
     ctx.beginPath();
     ctx.arc(centerX + shadowOffsetX, centerY + shadowOffsetY, radius, 0, Math.PI * 2);
     ctx.fill();
+    
+    ctx.restore();
+  }
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x + UNIT_TO_PIXEL * 0.5;
+    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const radius = UNIT_TO_PIXEL * 0.4;
     
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
@@ -58,6 +77,11 @@ export class Rock extends TerrainDetailObject {
     
     ctx.restore();
     this.drawLabel(ctx);
+  }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    this.drawShadow(ctx);
+    this.drawBody(ctx);
   }
 }
 
@@ -116,7 +140,10 @@ export class Tree extends TerrainDetailObject {
 }
 
 export class Bridge extends TerrainDetailObject {
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
+  }
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
@@ -137,10 +164,18 @@ export class Bridge extends TerrainDetailObject {
     ctx.restore();
     this.drawLabel(ctx);
   }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    this.drawShadow(ctx);
+    this.drawBody(ctx);
+  }
 }
 
 export class Fence extends TerrainDetailObject {
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
+  }
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
@@ -163,10 +198,18 @@ export class Fence extends TerrainDetailObject {
     ctx.restore();
     this.drawLabel(ctx);
   }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    this.drawShadow(ctx);
+    this.drawBody(ctx);
+  }
 }
 
 export class HayBale extends TerrainDetailObject {
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
+  }
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
@@ -195,10 +238,18 @@ export class HayBale extends TerrainDetailObject {
     ctx.restore();
     this.drawLabel(ctx);
   }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    this.drawShadow(ctx);
+    this.drawBody(ctx);
+  }
 }
 
 export class Field extends TerrainDetailObject {
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
+  }
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
@@ -219,10 +270,23 @@ export class Field extends TerrainDetailObject {
     ctx.restore();
     this.drawLabel(ctx);
   }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    this.drawShadow(ctx);
+    this.drawBody(ctx);
+  }
 }
 
 export class Label extends TerrainDetailObject {
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
+  }
+
+  public drawBody(ctx: CanvasRenderingContext2D): void {
     this.drawLabel(ctx);
+  }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    this.drawShadow(ctx);
+    this.drawBody(ctx);
   }
 }
