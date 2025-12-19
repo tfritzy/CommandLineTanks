@@ -118,7 +118,7 @@ public static class AStarPathfinding
                     int horizontalIndex = horizontalY * traversibilityMap.Width + horizontalX;
                     int verticalIndex = verticalY * traversibilityMap.Width + verticalX;
 
-                    if (!traversibilityMap.Map[horizontalIndex] || !traversibilityMap.Map[verticalIndex])
+                    if (!traversibilityMap.Map[horizontalIndex] && !traversibilityMap.Map[verticalIndex])
                     {
                         continue;
                     }
