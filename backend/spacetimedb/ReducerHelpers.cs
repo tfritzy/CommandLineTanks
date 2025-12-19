@@ -129,6 +129,62 @@ public static partial class Module
             RenderOffset = new Vector2Float(0, 0)
         });
 
+        var targetDummy1Id = GenerateId(ctx, "td");
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = targetDummy1Id,
+            WorldId = identityString,
+            PositionX = 6,
+            PositionY = 6,
+            Type = TerrainDetailType.TargetDummy,
+            Health = 100,
+            Label = null,
+            Rotation = 0,
+            RenderOffset = new Vector2Float(0, 0)
+        });
+
+        var targetDummy2Id = GenerateId(ctx, "td");
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = targetDummy2Id,
+            WorldId = identityString,
+            PositionX = 14,
+            PositionY = 6,
+            Type = TerrainDetailType.TargetDummy,
+            Health = 100,
+            Label = null,
+            Rotation = 0,
+            RenderOffset = new Vector2Float(0, 0)
+        });
+
+        var targetDummy3Id = GenerateId(ctx, "td");
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = targetDummy3Id,
+            WorldId = identityString,
+            PositionX = 6,
+            PositionY = 14,
+            Type = TerrainDetailType.TargetDummy,
+            Health = 100,
+            Label = null,
+            Rotation = 0,
+            RenderOffset = new Vector2Float(0, 0)
+        });
+
+        var targetDummy4Id = GenerateId(ctx, "td");
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = targetDummy4Id,
+            WorldId = identityString,
+            PositionX = 14,
+            PositionY = 14,
+            Type = TerrainDetailType.TargetDummy,
+            Health = 100,
+            Label = null,
+            Rotation = 0,
+            RenderOffset = new Vector2Float(0, 0)
+        });
+
         Log.Info($"Created homeworld for identity {identityString}");
     }
 
