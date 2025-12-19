@@ -9,15 +9,13 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import TerrainDetailType from "./terrain_detail_type_type";
 
-
-export default __t.row({
-  id: __t.string().primaryKey().name("Id"),
-  worldId: __t.string().name("WorldId"),
-  positionX: __t.i32().name("PositionX"),
-  positionY: __t.i32().name("PositionY"),
-  get type() {
-    return TerrainDetailType.name("Type");
-  },
+// The tagged union or sum type for the algebraic type `ExplosionTrigger`.
+const ExplosionTrigger = __t.enum("ExplosionTrigger", {None: __t.unit(),
+  OnExpiration: __t.unit(),
+  OnHit: __t.unit(),
 });
+
+export default ExplosionTrigger;
+
+
