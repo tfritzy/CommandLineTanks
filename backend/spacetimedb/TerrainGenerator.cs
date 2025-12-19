@@ -46,7 +46,7 @@ public static partial class TerrainGenerator
 
         for (int y = 0; y < WORLD_HEIGHT; y++)
         {
-            for (int x = WORLD_WIDTH - 1; x >= 0; x--)
+            for (int x = 0; x < WORLD_WIDTH; x++)
             {
                 int index = y * WORLD_WIDTH + x;
                 if (terrainDetailArray[index] != TerrainDetailType.None)
