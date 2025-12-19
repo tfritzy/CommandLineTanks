@@ -676,10 +676,9 @@ public static partial class ProjectileUpdater
 
         if (gun.Ammo != null)
         {
-            gun.Ammo = gun.Ammo.Value - 1;
-            var updatedGuns = tank.Guns.ToArray();
+            var newAmmo = gun.Ammo.Value - 1;
 
-            if (gun.Ammo <= 0)
+            if (newAmmo <= 0)
             {
                 tank.Guns = tank.Guns.Where((_, index) => index != args.SelectedGunIndex).ToArray();
                 if (tank.Guns.Length > 0)
@@ -693,6 +692,8 @@ public static partial class ProjectileUpdater
             }
             else
             {
+                gun.Ammo = newAmmo;
+                var updatedGuns = tank.Guns.ToArray();
                 updatedGuns[args.SelectedGunIndex] = gun;
                 tank.Guns = updatedGuns;
             }
