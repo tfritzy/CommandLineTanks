@@ -367,68 +367,108 @@ public static partial class ProjectileUpdater
             int tankCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
             int tankCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
-            foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, tankCollisionRegionX, tankCollisionRegionY)))
+            float regionLocalX = projectile.PositionX - (tankCollisionRegionX * Module.COLLISION_REGION_SIZE);
+            float regionLocalY = projectile.PositionY - (tankCollisionRegionY * Module.COLLISION_REGION_SIZE);
+
+            int minRegionX = tankCollisionRegionX;
+            int maxRegionX = tankCollisionRegionX;
+            int minRegionY = tankCollisionRegionY;
+            int maxRegionY = tankCollisionRegionY;
+
+            if (regionLocalX < Module.TANK_COLLISION_RADIUS)
             {
-                float dx = tank.PositionX - projectile.PositionX;
-                float dy = tank.PositionY - projectile.PositionY;
-                float distanceSquared = dx * dx + dy * dy;
-                float collisionRadiusSquared = Module.TANK_COLLISION_RADIUS * Module.TANK_COLLISION_RADIUS;
+                minRegionX = tankCollisionRegionX - 1;
+            }
+            else if (regionLocalX > Module.COLLISION_REGION_SIZE - Module.TANK_COLLISION_RADIUS)
+            {
+                maxRegionX = tankCollisionRegionX + 1;
+            }
 
-                if (distanceSquared <= collisionRadiusSquared)
+            if (regionLocalY < Module.TANK_COLLISION_RADIUS)
+            {
+                minRegionY = tankCollisionRegionY - 1;
+            }
+            else if (regionLocalY > Module.COLLISION_REGION_SIZE - Module.TANK_COLLISION_RADIUS)
+            {
+                maxRegionY = tankCollisionRegionY + 1;
+            }
+
+            for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
+            {
+                if (regionX < 0) continue;
+
+                for (int regionY = minRegionY; regionY <= maxRegionY; regionY++)
                 {
-                    if (projectile.ReturnsToShooter && projectile.IsReturning && tank.Id == projectile.ShooterTankId)
+                    if (regionY < 0) continue;
+
+                    foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, regionX, regionY)))
                     {
-                        for (int i = 0; i < tank.Guns.Length; i++)
+                        float dx = tank.PositionX - projectile.PositionX;
+                        float dy = tank.PositionY - projectile.PositionY;
+                        float distanceSquared = dx * dx + dy * dy;
+                        float collisionRadiusSquared = Module.TANK_COLLISION_RADIUS * Module.TANK_COLLISION_RADIUS;
+
+                        if (distanceSquared <= collisionRadiusSquared)
                         {
-                            if (tank.Guns[i].GunType == GunType.Boomerang)
+                            if (projectile.ReturnsToShooter && projectile.IsReturning && tank.Id == projectile.ShooterTankId)
                             {
-                                var gun = tank.Guns[i];
-                                if (gun.Ammo != null)
+                                for (int i = 0; i < tank.Guns.Length; i++)
                                 {
-                                    gun.Ammo = gun.Ammo.Value + 1;
-                                    tank.Guns[i] = gun;
-                                    ctx.Db.tank.Id.Update(tank);
-                                    Log.Info($"Tank {tank.Name} caught the boomerang! Ammo restored.");
+                                    if (tank.Guns[i].GunType == GunType.Boomerang)
+                                    {
+                                        var gun = tank.Guns[i];
+                                        if (gun.Ammo != null)
+                                        {
+                                            gun.Ammo = gun.Ammo.Value + 1;
+                                            tank.Guns[i] = gun;
+                                            ctx.Db.tank.Id.Update(tank);
+                                            Log.Info($"Tank {tank.Name} caught the boomerang! Ammo restored.");
+                                        }
+                                        break;
+                                    }
                                 }
-                                break;
-                            }
-                        }
 
-                        ctx.Db.projectile.Id.Delete(projectile.Id);
-                        collided = true;
-                        break;
-                    }
-
-                    if (tank.Alliance != projectile.Alliance && tank.Health > 0)
-                    {
-                        if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0)
-                        {
-                            if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
-                            {
-                                ExplodeProjectile(ctx, projectile, args.WorldId);
                                 ctx.Db.projectile.Id.Delete(projectile.Id);
                                 collided = true;
                                 break;
                             }
-                        }
-                        else
-                        {
-                            HandleTankDamage(ctx, tank, projectile, args.WorldId);
-                        }
 
-                        projectile = projectile with
-                        {
-                            CollisionCount = projectile.CollisionCount + 1
-                        };
+                            if (tank.Alliance != projectile.Alliance && tank.Health > 0)
+                            {
+                                if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0)
+                                {
+                                    if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
+                                    {
+                                        ExplodeProjectile(ctx, projectile, args.WorldId);
+                                        ctx.Db.projectile.Id.Delete(projectile.Id);
+                                        collided = true;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    HandleTankDamage(ctx, tank, projectile, args.WorldId);
+                                }
 
-                        if (projectile.CollisionCount >= projectile.MaxCollisions)
-                        {
-                            ctx.Db.projectile.Id.Delete(projectile.Id);
-                            collided = true;
-                            break;
+                                projectile = projectile with
+                                {
+                                    CollisionCount = projectile.CollisionCount + 1
+                                };
+
+                                if (projectile.CollisionCount >= projectile.MaxCollisions)
+                                {
+                                    ctx.Db.projectile.Id.Delete(projectile.Id);
+                                    collided = true;
+                                    break;
+                                }
+                            }
                         }
                     }
+
+                    if (collided) break;
                 }
+
+                if (collided) break;
             }
 
             if (!collided)
