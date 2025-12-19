@@ -129,6 +129,7 @@ public static partial class Module
         int maxRegionY = Math.Max(startRegionY, endRegionY);
 
         var hitTanks = new List<(Module.Tank tank, float distance)>();
+        var processedTankIds = new HashSet<string>();
 
         for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
         {
@@ -136,8 +137,10 @@ public static partial class Module
             {
                 foreach (var targetTank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((tank.WorldId, regionX, regionY)))
                 {
-                    if (targetTank.Alliance != tank.Alliance && targetTank.Health > 0)
+                    if (targetTank.Alliance != tank.Alliance && targetTank.Health > 0 && !processedTankIds.Contains(targetTank.Id))
                     {
+                        processedTankIds.Add(targetTank.Id);
+
                         float dx = targetTank.PositionX - startX;
                         float dy = targetTank.PositionY - startY;
                         float projectionLength = dx * dirX + dy * dirY;
