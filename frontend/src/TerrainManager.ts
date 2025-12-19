@@ -22,6 +22,7 @@ export class TerrainManager {
   private baseTerrainLayer: BaseTerrainType[] = [];
   private worldId: string;
   private detailObjects: Map<string, TerrainDetailObject> = new Map();
+  private sortedDetailObjects: TerrainDetailObject[] = [];
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -73,6 +74,7 @@ export class TerrainManager {
 
     connection.db.terrainDetail.onDelete((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       this.detailObjects.delete(detail.id);
+      this.rebuildSortedArray();
     });
   }
 
@@ -111,7 +113,16 @@ export class TerrainManager {
     
     if (obj) {
       this.detailObjects.set(detail.id, obj);
+      this.rebuildSortedArray();
     }
+  }
+
+  private rebuildSortedArray() {
+    this.sortedDetailObjects = Array.from(this.detailObjects.values()).sort((a, b) => {
+      const yDiff = a.getY() - b.getY();
+      if (yDiff !== 0) return yDiff;
+      return b.getX() - a.getX();
+    });
   }
 
   public draw(
@@ -125,7 +136,6 @@ export class TerrainManager {
     if (this.baseTerrainLayer.length === 0) return;
 
     this.drawBaseLayer(ctx, cameraX, cameraY, canvasWidth, canvasHeight, unitToPixel);
-    this.drawDetailLayer(ctx, cameraX, cameraY, canvasWidth, canvasHeight, unitToPixel);
   }
 
   private drawBaseLayer(
@@ -163,27 +173,7 @@ export class TerrainManager {
     }
   }
 
-  private getVisibleObjectsSorted(
-    startTileX: number,
-    endTileX: number,
-    startTileY: number,
-    endTileY: number,
-    filterFn: (obj: TerrainDetailObject) => boolean
-  ): TerrainDetailObject[] {
-    return Array.from(this.detailObjects.values())
-      .filter(obj => {
-        const x = obj.getX();
-        const y = obj.getY();
-        return filterFn(obj) && x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY;
-      })
-      .sort((a, b) => {
-        const yDiff = a.getY() - b.getY();
-        if (yDiff !== 0) return yDiff;
-        return b.getX() - a.getX();
-      });
-  }
-
-  public drawTreeShadows(
+  public drawShadows(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
     cameraY: number,
@@ -196,20 +186,17 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    const visibleTrees = this.getVisibleObjectsSorted(
-      startTileX,
-      endTileX,
-      startTileY,
-      endTileY,
-      (obj) => obj instanceof Tree
-    );
-
-    for (const obj of visibleTrees) {
-      obj.drawShadow(ctx);
+    for (const obj of this.sortedDetailObjects) {
+      const x = obj.getX();
+      const y = obj.getY();
+      
+      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
+        obj.drawShadow(ctx);
+      }
     }
   }
 
-  private drawDetailLayer(
+  public drawBodies(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
     cameraY: number,
@@ -222,42 +209,13 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    const visibleObjects = this.getVisibleObjectsSorted(
-      startTileX,
-      endTileX,
-      startTileY,
-      endTileY,
-      (obj) => !(obj instanceof Tree)
-    );
-
-    for (const obj of visibleObjects) {
-      obj.draw(ctx);
-    }
-  }
-
-  public drawTreeBodies(
-    ctx: CanvasRenderingContext2D,
-    cameraX: number,
-    cameraY: number,
-    canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
-  ) {
-    const startTileX = Math.floor(cameraX / unitToPixel);
-    const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
-    const startTileY = Math.floor(cameraY / unitToPixel);
-    const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
-
-    const visibleTrees = this.getVisibleObjectsSorted(
-      startTileX,
-      endTileX,
-      startTileY,
-      endTileY,
-      (obj) => obj instanceof Tree
-    );
-
-    for (const obj of visibleTrees) {
-      obj.drawBody(ctx);
+    for (const obj of this.sortedDetailObjects) {
+      const x = obj.getX();
+      const y = obj.getY();
+      
+      if (x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY) {
+        obj.drawBody(ctx);
+      }
     }
   }
 

@@ -170,7 +170,7 @@ export class Game {
       projectile.draw(this.ctx);
     }
 
-    this.terrainManager.drawTreeShadows(
+    this.terrainManager.drawShadows(
       this.ctx,
       cameraX,
       cameraY,
@@ -179,7 +179,7 @@ export class Game {
       UNIT_TO_PIXEL
     );
 
-    this.terrainManager.drawTreeBodies(
+    this.terrainManager.drawBodies(
       this.ctx,
       cameraX,
       cameraY,
