@@ -226,3 +226,54 @@ export class Label extends TerrainDetailObject {
     this.drawLabel(ctx);
   }
 }
+
+export class FoundationEdge extends TerrainDetailObject {
+  public draw(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x + UNIT_TO_PIXEL * 0.5;
+    const centerY = y + UNIT_TO_PIXEL * 0.5;
+
+    ctx.translate(centerX, centerY);
+    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
+    ctx.translate(-centerX, -centerY);
+
+    ctx.fillStyle = "#8b7355";
+    ctx.fillRect(x + UNIT_TO_PIXEL * 0.1, y + UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.8, UNIT_TO_PIXEL * 0.2);
+    
+    ctx.strokeStyle = "#654321";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + UNIT_TO_PIXEL * 0.1, y + UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.8, UNIT_TO_PIXEL * 0.2);
+
+    ctx.restore();
+    this.drawLabel(ctx);
+  }
+}
+
+export class FoundationCorner extends TerrainDetailObject {
+  public draw(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x + UNIT_TO_PIXEL * 0.5;
+    const centerY = y + UNIT_TO_PIXEL * 0.5;
+
+    ctx.translate(centerX, centerY);
+    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
+    ctx.translate(-centerX, -centerY);
+
+    ctx.fillStyle = "#8b7355";
+    
+    ctx.fillRect(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.2);
+    ctx.fillRect(x + UNIT_TO_PIXEL * 0.4, y + UNIT_TO_PIXEL * 0.6, UNIT_TO_PIXEL * 0.2, UNIT_TO_PIXEL * 0.3);
+
+    ctx.strokeStyle = "#654321";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.4, UNIT_TO_PIXEL * 0.2);
+    ctx.strokeRect(x + UNIT_TO_PIXEL * 0.4, y + UNIT_TO_PIXEL * 0.6, UNIT_TO_PIXEL * 0.2, UNIT_TO_PIXEL * 0.3);
+
+    ctx.restore();
+    this.drawLabel(ctx);
+  }
+}
