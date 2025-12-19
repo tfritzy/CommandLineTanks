@@ -60,7 +60,9 @@ public static partial class Types
         TripleShooterPickup,
         MissileLauncherPickup,
         HealthPickup,
-        BoomerangPickup
+        BoomerangPickup,
+        FoundationEdge,
+        FoundationCorner
     }
 
     [Type]

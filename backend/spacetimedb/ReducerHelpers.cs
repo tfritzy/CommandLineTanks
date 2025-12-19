@@ -110,7 +110,8 @@ public static partial class Module
             PositionY = 5,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "Welcome to Command Line Tanks"
+            Label = "Welcome to Command Line Tanks",
+            Rotation = 0
         });
 
         var instructionSignId = GenerateId(ctx, "td");
@@ -122,7 +123,8 @@ public static partial class Module
             PositionY = 6,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "When you're ready to find a game, call the findgame command"
+            Label = "When you're ready to find a game, call the findgame command",
+            Rotation = 0
         });
 
         Log.Info($"Created homeworld for identity {identityString}");
