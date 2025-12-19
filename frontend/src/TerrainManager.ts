@@ -76,7 +76,15 @@ export class TerrainManager {
       this.createDetailObject(detail);
     });
 
-    connection.db.terrainDetail.onUpdate((_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
+    connection.db.terrainDetail.onUpdate((_ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
+      const oldObj = this.detailObjects.get(newDetail.id);
+      if (oldObj) {
+        const oldX = oldObj.getX();
+        const oldY = oldObj.getY();
+        if (oldY >= 0 && oldY < this.worldHeight && oldX >= 0 && oldX < this.worldWidth) {
+          this.detailObjectsByPosition[oldY][oldX] = null;
+        }
+      }
       this.detailObjects.delete(newDetail.id);
       this.createDetailObject(newDetail);
     });
