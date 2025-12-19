@@ -163,6 +163,27 @@ export class TerrainManager {
     }
   }
 
+  private getVisibleObjectsSorted(
+    startTileX: number,
+    endTileX: number,
+    startTileY: number,
+    endTileY: number,
+    filterFn: (obj: TerrainDetailObject) => boolean
+  ): TerrainDetailObject[] {
+    return Array.from(this.detailObjects.values())
+      .filter(obj => {
+        if (!filterFn(obj)) return false;
+        const x = obj.getX();
+        const y = obj.getY();
+        return x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY;
+      })
+      .sort((a, b) => {
+        const yDiff = a.getY() - b.getY();
+        if (yDiff !== 0) return yDiff;
+        return b.getX() - a.getX();
+      });
+  }
+
   public drawTreeShadows(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
@@ -176,18 +197,13 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    const visibleTrees = Array.from(this.detailObjects.values())
-      .filter(obj => {
-        if (!(obj instanceof Tree)) return false;
-        const x = obj.getX();
-        const y = obj.getY();
-        return x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY;
-      })
-      .sort((a, b) => {
-        const yDiff = a.getY() - b.getY();
-        if (yDiff !== 0) return yDiff;
-        return b.getX() - a.getX();
-      });
+    const visibleTrees = this.getVisibleObjectsSorted(
+      startTileX,
+      endTileX,
+      startTileY,
+      endTileY,
+      (obj) => obj instanceof Tree
+    );
 
     for (const obj of visibleTrees) {
       obj.drawShadow(ctx);
@@ -207,18 +223,13 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    const visibleObjects = Array.from(this.detailObjects.values())
-      .filter(obj => {
-        if (obj instanceof Tree) return false;
-        const x = obj.getX();
-        const y = obj.getY();
-        return x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY;
-      })
-      .sort((a, b) => {
-        const yDiff = a.getY() - b.getY();
-        if (yDiff !== 0) return yDiff;
-        return b.getX() - a.getX();
-      });
+    const visibleObjects = this.getVisibleObjectsSorted(
+      startTileX,
+      endTileX,
+      startTileY,
+      endTileY,
+      (obj) => !(obj instanceof Tree)
+    );
 
     for (const obj of visibleObjects) {
       obj.draw(ctx);
@@ -238,18 +249,13 @@ export class TerrainManager {
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    const visibleTrees = Array.from(this.detailObjects.values())
-      .filter(obj => {
-        if (!(obj instanceof Tree)) return false;
-        const x = obj.getX();
-        const y = obj.getY();
-        return x >= startTileX && x <= endTileX && y >= startTileY && y <= endTileY;
-      })
-      .sort((a, b) => {
-        const yDiff = a.getY() - b.getY();
-        if (yDiff !== 0) return yDiff;
-        return b.getX() - a.getX();
-      });
+    const visibleTrees = this.getVisibleObjectsSorted(
+      startTileX,
+      endTileX,
+      startTileY,
+      endTileY,
+      (obj) => obj instanceof Tree
+    );
 
     for (const obj of visibleTrees) {
       obj.drawBody(ctx);
