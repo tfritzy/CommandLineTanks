@@ -427,16 +427,18 @@ public static partial class TerrainGenerator
                         }
                     }
 
-                    int numHayBales = (fieldWidth * fieldHeight) / HAY_BALE_DENSITY_DIVISOR;
-                    for (int i = 0; i < numHayBales; i++)
+                    for (int y = startY; y < startY + fieldHeight; y++)
                     {
-                        int hx = startX + random.Next(fieldWidth);
-                        int hy = startY + random.Next(fieldHeight);
-                        int hIndex = hy * WORLD_WIDTH + hx;
-
-                        if (baseTerrain[hIndex] == BaseTerrain.Farm)
+                        for (int x = startX; x < startX + fieldWidth; x++)
                         {
-                            terrainDetail[hIndex] = TerrainDetailType.HayBale;
+                            if ((x + y) % 2 == 0)
+                            {
+                                int hIndex = y * WORLD_WIDTH + x;
+                                if (baseTerrain[hIndex] == BaseTerrain.Farm)
+                                {
+                                    terrainDetail[hIndex] = TerrainDetailType.HayBale;
+                                }
+                            }
                         }
                     }
 
