@@ -133,8 +133,8 @@ export class CollisionVisualizationManager {
     }
 
     ctx.save();
-    ctx.strokeStyle = "rgba(0, 255, 0, 0.6)";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(0, 255, 0, 0.8)";
+    ctx.lineWidth = 3;
 
     for (const regionKey of collisionRegions) {
       const [regionX, regionY] = regionKey.split(',').map(Number);
