@@ -129,6 +129,24 @@ public static partial class Module
             RenderOffset = new Vector2Float(0, 0)
         });
 
+        var targetDummyPositions = new[] { (6, 6), (14, 6), (6, 14), (14, 14) };
+        foreach (var (x, y) in targetDummyPositions)
+        {
+            var targetDummyId = GenerateId(ctx, "td");
+            ctx.Db.terrain_detail.Insert(new TerrainDetail
+            {
+                Id = targetDummyId,
+                WorldId = identityString,
+                PositionX = x,
+                PositionY = y,
+                Type = TerrainDetailType.TargetDummy,
+                Health = int.MaxValue,
+                Label = null,
+                Rotation = 0,
+                RenderOffset = new Vector2Float(0, 0)
+            });
+        }
+
         Log.Info($"Created homeworld for identity {identityString}");
     }
 
