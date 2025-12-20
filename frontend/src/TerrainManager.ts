@@ -3,6 +3,7 @@ import { BaseTerrain, type TerrainDetailRow, type EventContext } from "../module
 import { type Infer } from "spacetimedb";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
 import { Cliff, Rock, Tree, Bridge, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, DeadTank, TargetDummy } from "./objects/TerrainDetails";
+import { UNIT_TO_PIXEL } from "./game";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -65,8 +66,8 @@ export class TerrainManager {
   private initializeAtlasCanvases() {
     if (this.worldWidth === 0 || this.worldHeight === 0) return;
 
-    const atlasWidth = this.worldWidth * 50;
-    const atlasHeight = this.worldHeight * 50;
+    const atlasWidth = this.worldWidth * UNIT_TO_PIXEL;
+    const atlasHeight = this.worldHeight * UNIT_TO_PIXEL;
 
     this.shadowAtlasCanvas = document.createElement('canvas');
     this.shadowAtlasCanvas.width = atlasWidth;
@@ -405,20 +406,20 @@ export class TerrainManager {
     const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
     const endTileY = Math.min(this.worldHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
 
-    const atlasWidth = endTileX - startTileX + 1;
-    const atlasHeight = endTileY - startTileY + 1;
+    const atlasTileWidth = endTileX - startTileX + 1;
+    const atlasTileHeight = endTileY - startTileY + 1;
 
-    if (atlasWidth > 0 && atlasHeight > 0) {
+    if (atlasTileWidth > 0 && atlasTileHeight > 0) {
       ctx.drawImage(
         this.shadowAtlasCanvas,
         startTileX * unitToPixel,
         startTileY * unitToPixel,
-        atlasWidth * unitToPixel,
-        atlasHeight * unitToPixel,
+        atlasTileWidth * unitToPixel,
+        atlasTileHeight * unitToPixel,
         startTileX * unitToPixel,
         startTileY * unitToPixel,
-        atlasWidth * unitToPixel,
-        atlasHeight * unitToPixel
+        atlasTileWidth * unitToPixel,
+        atlasTileHeight * unitToPixel
       );
     }
   }
@@ -440,20 +441,20 @@ export class TerrainManager {
     const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
     const endTileY = Math.min(this.worldHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
 
-    const atlasWidth = endTileX - startTileX + 1;
-    const atlasHeight = endTileY - startTileY + 1;
+    const atlasTileWidth = endTileX - startTileX + 1;
+    const atlasTileHeight = endTileY - startTileY + 1;
 
-    if (atlasWidth > 0 && atlasHeight > 0) {
+    if (atlasTileWidth > 0 && atlasTileHeight > 0) {
       ctx.drawImage(
         this.bodyAtlasCanvas,
         startTileX * unitToPixel,
         startTileY * unitToPixel,
-        atlasWidth * unitToPixel,
-        atlasHeight * unitToPixel,
+        atlasTileWidth * unitToPixel,
+        atlasTileHeight * unitToPixel,
         startTileX * unitToPixel,
         startTileY * unitToPixel,
-        atlasWidth * unitToPixel,
-        atlasHeight * unitToPixel
+        atlasTileWidth * unitToPixel,
+        atlasTileHeight * unitToPixel
       );
     }
   }
