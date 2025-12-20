@@ -4,6 +4,7 @@ import { TerrainManager } from "./TerrainManager";
 import { ScoreManager } from "./ScoreManager";
 import { GunInventoryManager } from "./GunInventoryManager";
 import { PickupManager } from "./PickupManager";
+import { CollisionVisualizationManager } from "./CollisionVisualizationManager";
 
 export const UNIT_TO_PIXEL = 50;
 
@@ -19,6 +20,7 @@ export class Game {
   private scoreManager: ScoreManager;
   private gunInventoryManager: GunInventoryManager;
   private pickupManager: PickupManager;
+  private collisionVisualizationManager: CollisionVisualizationManager;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -37,6 +39,7 @@ export class Game {
     this.scoreManager = new ScoreManager(worldId);
     this.gunInventoryManager = new GunInventoryManager(worldId);
     this.pickupManager = new PickupManager(worldId);
+    this.collisionVisualizationManager = new CollisionVisualizationManager(worldId);
   }
 
   private resizeCanvas() {
@@ -185,6 +188,15 @@ export class Game {
     );
 
     this.tankManager.drawBodies(this.ctx);
+
+    this.collisionVisualizationManager.draw(
+      this.ctx,
+      cameraX,
+      cameraY,
+      displayWidth,
+      displayHeight,
+      UNIT_TO_PIXEL
+    );
 
     this.ctx.restore();
 
