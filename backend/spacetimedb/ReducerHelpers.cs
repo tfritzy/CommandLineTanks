@@ -140,7 +140,7 @@ public static partial class Module
                 PositionX = x,
                 PositionY = y,
                 Type = TerrainDetailType.TargetDummy,
-                Health = 100,
+                Health = int.MaxValue,
                 Label = null,
                 Rotation = 0,
                 RenderOffset = new Vector2Float(0, 0)
