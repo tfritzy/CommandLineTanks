@@ -79,8 +79,9 @@ export class TankManager {
   }
 
   public drawPaths(ctx: CanvasRenderingContext2D) {
-    for (const tank of this.tanks.values()) {
-      tank.drawPath(ctx);
+    const playerTank = this.getPlayerTank();
+    if (playerTank) {
+      playerTank.drawPath(ctx);
     }
   }
 
