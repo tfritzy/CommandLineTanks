@@ -297,32 +297,40 @@ export class TerrainManager {
 
     if (this.shouldRenderTransition(terrain, northWest) && !this.shouldRenderTransition(terrain, north) && !this.shouldRenderTransition(terrain, west)) {
       ctx.beginPath();
-      ctx.arc(worldX, worldY, cornerSize, 0, Math.PI / 2);
-      ctx.lineTo(worldX, worldY);
+      ctx.moveTo(worldX, worldY);
+      ctx.lineTo(worldX + cornerSize, worldY);
+      ctx.arc(worldX + cornerSize, worldY + cornerSize, cornerSize, -Math.PI / 2, Math.PI, true);
+      ctx.lineTo(worldX, worldY + cornerSize);
       ctx.closePath();
       ctx.fill();
     }
 
     if (this.shouldRenderTransition(terrain, northEast) && !this.shouldRenderTransition(terrain, north) && !this.shouldRenderTransition(terrain, east)) {
       ctx.beginPath();
-      ctx.arc(worldX + unitToPixel, worldY, cornerSize, Math.PI / 2, Math.PI);
-      ctx.lineTo(worldX + unitToPixel, worldY);
+      ctx.moveTo(worldX + unitToPixel, worldY);
+      ctx.lineTo(worldX + unitToPixel - cornerSize, worldY);
+      ctx.arc(worldX + unitToPixel - cornerSize, worldY + cornerSize, cornerSize, -Math.PI / 2, 0, false);
+      ctx.lineTo(worldX + unitToPixel, worldY + cornerSize);
       ctx.closePath();
       ctx.fill();
     }
 
     if (this.shouldRenderTransition(terrain, southWest) && !this.shouldRenderTransition(terrain, south) && !this.shouldRenderTransition(terrain, west)) {
       ctx.beginPath();
-      ctx.arc(worldX, worldY + unitToPixel, cornerSize, -Math.PI / 2, 0);
-      ctx.lineTo(worldX, worldY + unitToPixel);
+      ctx.moveTo(worldX, worldY + unitToPixel);
+      ctx.lineTo(worldX, worldY + unitToPixel - cornerSize);
+      ctx.arc(worldX + cornerSize, worldY + unitToPixel - cornerSize, cornerSize, Math.PI, Math.PI / 2, true);
+      ctx.lineTo(worldX + cornerSize, worldY + unitToPixel);
       ctx.closePath();
       ctx.fill();
     }
 
     if (this.shouldRenderTransition(terrain, southEast) && !this.shouldRenderTransition(terrain, south) && !this.shouldRenderTransition(terrain, east)) {
       ctx.beginPath();
-      ctx.arc(worldX + unitToPixel, worldY + unitToPixel, cornerSize, Math.PI, Math.PI * 1.5);
-      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel);
+      ctx.moveTo(worldX + unitToPixel, worldY + unitToPixel);
+      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel - cornerSize);
+      ctx.arc(worldX + unitToPixel - cornerSize, worldY + unitToPixel - cornerSize, cornerSize, 0, Math.PI / 2, false);
+      ctx.lineTo(worldX + unitToPixel - cornerSize, worldY + unitToPixel);
       ctx.closePath();
       ctx.fill();
     }
