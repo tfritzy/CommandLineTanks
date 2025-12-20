@@ -12,7 +12,6 @@ import {
 
 // The tagged union or sum type for the algebraic type `TerrainDetailType`.
 const TerrainDetailType = __t.enum("TerrainDetailType", {None: __t.unit(),
-  Cliff: __t.unit(),
   Rock: __t.unit(),
   Tree: __t.unit(),
   Bridge: __t.unit(),

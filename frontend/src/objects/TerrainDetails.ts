@@ -2,36 +2,6 @@ import { UNIT_TO_PIXEL } from "../game";
 import { TerrainDetailObject } from "./TerrainDetailObject";
 import { getFlashColor } from "../utils/colors";
 
-export class Cliff extends TerrainDetailObject {
-  public drawShadow(ctx: CanvasRenderingContext2D): void {
-  }
-
-  public drawBody(ctx: CanvasRenderingContext2D): void {
-    ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
-
-    ctx.fillStyle = getFlashColor("#c06852", this.flashTimer);
-    ctx.beginPath();
-    ctx.moveTo(x + UNIT_TO_PIXEL * 0.2, y + UNIT_TO_PIXEL * 0.8);
-    ctx.lineTo(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.2);
-    ctx.lineTo(x + UNIT_TO_PIXEL * 0.8, y + UNIT_TO_PIXEL * 0.8);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = getFlashColor("#813645", this.flashTimer);
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.restore();
-    this.drawLabel(ctx);
-  }
-
-  public draw(ctx: CanvasRenderingContext2D): void {
-    this.drawShadow(ctx);
-    this.drawBody(ctx);
-  }
-}
-
 export class Rock extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();
