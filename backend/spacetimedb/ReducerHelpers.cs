@@ -175,7 +175,7 @@ public static partial class Module
             TurretRotation = 0.0f,
             TargetTurretRotation = 0.0f,
             TopSpeed = 3f,
-            TurretRotationSpeed = 3f,
+            TurretRotationSpeed = 12f,
             Guns = [BASE_GUN],
             SelectedGunIndex = 0
         };
