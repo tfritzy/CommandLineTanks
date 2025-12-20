@@ -61,7 +61,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                 const currentCommand = commandHistory[historyIndex];
                 let nextIndex = newIndex;
 
-                while (nextIndex < commandHistory.length - 1 && commandHistory[nextIndex] === currentCommand) {
+                while (nextIndex < commandHistory.length && commandHistory[nextIndex] === currentCommand) {
                     nextIndex++;
                 }
 
