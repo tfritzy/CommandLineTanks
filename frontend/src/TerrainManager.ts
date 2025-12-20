@@ -16,6 +16,11 @@ export class TerrainManager {
   private worldId: string;
   private detailObjects: Map<string, TerrainDetailObject> = new Map();
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
+  private shadowAtlasCanvas: HTMLCanvasElement | null = null;
+  private shadowAtlasCtx: CanvasRenderingContext2D | null = null;
+  private bodyAtlasCanvas: HTMLCanvasElement | null = null;
+  private bodyAtlasCtx: CanvasRenderingContext2D | null = null;
+  private atlasNeedsUpdate: boolean = true;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -54,6 +59,41 @@ export class TerrainManager {
     for (let y = 0; y < this.worldHeight; y++) {
       this.detailObjectsByPosition[y] = new Array(this.worldWidth).fill(null);
     }
+    this.initializeAtlasCanvases();
+  }
+
+  private initializeAtlasCanvases() {
+    if (this.worldWidth === 0 || this.worldHeight === 0) return;
+
+    const atlasWidth = this.worldWidth * 50;
+    const atlasHeight = this.worldHeight * 50;
+
+    this.shadowAtlasCanvas = document.createElement('canvas');
+    this.shadowAtlasCanvas.width = atlasWidth;
+    this.shadowAtlasCanvas.height = atlasHeight;
+    this.shadowAtlasCtx = this.shadowAtlasCanvas.getContext('2d');
+
+    this.bodyAtlasCanvas = document.createElement('canvas');
+    this.bodyAtlasCanvas.width = atlasWidth;
+    this.bodyAtlasCanvas.height = atlasHeight;
+    this.bodyAtlasCtx = this.bodyAtlasCanvas.getContext('2d');
+
+    this.atlasNeedsUpdate = true;
+  }
+
+  private updateAtlas() {
+    if (!this.shadowAtlasCtx || !this.bodyAtlasCtx) return;
+    if (!this.atlasNeedsUpdate) return;
+
+    this.shadowAtlasCtx.clearRect(0, 0, this.shadowAtlasCanvas!.width, this.shadowAtlasCanvas!.height);
+    this.bodyAtlasCtx.clearRect(0, 0, this.bodyAtlasCanvas!.width, this.bodyAtlasCanvas!.height);
+
+    for (const obj of this.detailObjects.values()) {
+      obj.drawShadow(this.shadowAtlasCtx);
+      obj.drawBody(this.bodyAtlasCtx);
+    }
+
+    this.atlasNeedsUpdate = false;
   }
 
   private subscribeToTerrainDetails() {
@@ -67,6 +107,7 @@ export class TerrainManager {
 
     connection.db.terrainDetail.onInsert((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       this.createDetailObject(detail);
+      this.atlasNeedsUpdate = true;
     });
 
     connection.db.terrainDetail.onUpdate((_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
@@ -76,6 +117,7 @@ export class TerrainManager {
       } else {
         this.createDetailObject(newDetail);
       }
+      this.atlasNeedsUpdate = true;
     });
 
     connection.db.terrainDetail.onDelete((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
@@ -88,12 +130,22 @@ export class TerrainManager {
         }
       }
       this.detailObjects.delete(detail.id);
+      this.atlasNeedsUpdate = true;
     });
   }
 
   public update(deltaTime: number) {
+    let needsUpdate = false;
     for (const obj of this.detailObjects.values()) {
+      const hadFlash = obj.getFlashTimer() > 0;
       obj.update(deltaTime);
+      const hasFlash = obj.getFlashTimer() > 0;
+      if (hadFlash || hasFlash) {
+        needsUpdate = true;
+      }
+    }
+    if (needsUpdate) {
+      this.atlasNeedsUpdate = true;
     }
   }
 
@@ -344,18 +396,30 @@ export class TerrainManager {
     canvasHeight: number,
     unitToPixel: number
   ) {
-    const startTileX = Math.floor(cameraX / unitToPixel);
-    const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
-    const startTileY = Math.floor(cameraY / unitToPixel);
-    const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
+    if (!this.shadowAtlasCanvas || !this.shadowAtlasCtx) return;
 
-    for (let y = Math.max(0, startTileY); y <= Math.min(this.worldHeight - 1, endTileY); y++) {
-      for (let x = Math.min(this.worldWidth - 1, endTileX); x >= Math.max(0, startTileX); x--) {
-        const obj = this.detailObjectsByPosition[y][x];
-        if (obj) {
-          obj.drawShadow(ctx);
-        }
-      }
+    this.updateAtlas();
+
+    const startTileX = Math.max(0, Math.floor(cameraX / unitToPixel));
+    const endTileX = Math.min(this.worldWidth - 1, Math.ceil((cameraX + canvasWidth) / unitToPixel));
+    const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
+    const endTileY = Math.min(this.worldHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
+
+    const atlasWidth = endTileX - startTileX + 1;
+    const atlasHeight = endTileY - startTileY + 1;
+
+    if (atlasWidth > 0 && atlasHeight > 0) {
+      ctx.drawImage(
+        this.shadowAtlasCanvas,
+        startTileX * unitToPixel,
+        startTileY * unitToPixel,
+        atlasWidth * unitToPixel,
+        atlasHeight * unitToPixel,
+        startTileX * unitToPixel,
+        startTileY * unitToPixel,
+        atlasWidth * unitToPixel,
+        atlasHeight * unitToPixel
+      );
     }
   }
 
@@ -367,18 +431,30 @@ export class TerrainManager {
     canvasHeight: number,
     unitToPixel: number
   ) {
-    const startTileX = Math.floor(cameraX / unitToPixel);
-    const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
-    const startTileY = Math.floor(cameraY / unitToPixel);
-    const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
+    if (!this.bodyAtlasCanvas || !this.bodyAtlasCtx) return;
 
-    for (let y = Math.max(0, startTileY); y <= Math.min(this.worldHeight - 1, endTileY); y++) {
-      for (let x = Math.min(this.worldWidth - 1, endTileX); x >= Math.max(0, startTileX); x--) {
-        const obj = this.detailObjectsByPosition[y][x];
-        if (obj) {
-          obj.drawBody(ctx);
-        }
-      }
+    this.updateAtlas();
+
+    const startTileX = Math.max(0, Math.floor(cameraX / unitToPixel));
+    const endTileX = Math.min(this.worldWidth - 1, Math.ceil((cameraX + canvasWidth) / unitToPixel));
+    const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
+    const endTileY = Math.min(this.worldHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
+
+    const atlasWidth = endTileX - startTileX + 1;
+    const atlasHeight = endTileY - startTileY + 1;
+
+    if (atlasWidth > 0 && atlasHeight > 0) {
+      ctx.drawImage(
+        this.bodyAtlasCanvas,
+        startTileX * unitToPixel,
+        startTileY * unitToPixel,
+        atlasWidth * unitToPixel,
+        atlasHeight * unitToPixel,
+        startTileX * unitToPixel,
+        startTileY * unitToPixel,
+        atlasWidth * unitToPixel,
+        atlasHeight * unitToPixel
+      );
     }
   }
 
