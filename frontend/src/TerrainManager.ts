@@ -23,6 +23,7 @@ export class TerrainManager {
   private bodyAtlasCtx: CanvasRenderingContext2D | null = null;
   private shadowAtlasNeedsUpdate: boolean = true;
   private bodyAtlasNeedsUpdate: boolean = true;
+  private atlasInitialized: boolean = false;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -95,6 +96,7 @@ export class TerrainManager {
     }
 
     this.shadowAtlasNeedsUpdate = false;
+    this.atlasInitialized = true;
   }
 
   private updateBodyAtlas() {
@@ -108,6 +110,7 @@ export class TerrainManager {
     }
 
     this.bodyAtlasNeedsUpdate = false;
+    this.atlasInitialized = true;
   }
 
   private subscribeToTerrainDetails() {
@@ -121,6 +124,10 @@ export class TerrainManager {
 
     connection.db.terrainDetail.onInsert((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       this.createDetailObject(detail);
+      if (this.atlasInitialized) {
+        this.shadowAtlasNeedsUpdate = true;
+        this.bodyAtlasNeedsUpdate = true;
+      }
     });
 
     connection.db.terrainDetail.onUpdate((_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
