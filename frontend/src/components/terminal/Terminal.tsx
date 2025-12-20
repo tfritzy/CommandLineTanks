@@ -152,8 +152,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             style={{
                 width: '100%',
                 height: '500px',
-                background: '#0f1419',
-                color: '#e6edf3',
+                background: '#2a152d',
+                color: '#e6eeed',
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: '12px',
                 lineHeight: '1.5',
@@ -161,7 +161,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                 display: 'flex',
                 flexDirection: 'column',
                 overflowY: 'auto',
-                borderTop: '1px solid #10b981',
+                borderTop: '1px solid #5a78b2',
             }}
             onClick={() => inputRef.current?.focus()}
         >
@@ -171,7 +171,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                 ))}
             </div>
             <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ marginRight: '8px', color: '#10b981', fontWeight: 'bold' }}>❯</span>
+                <span style={{ marginRight: '8px', color: '#96dc7f', fontWeight: 'bold' }}>❯</span>
                 <input
                     ref={inputRef}
                     type="text"
@@ -183,10 +183,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         background: 'transparent',
                         border: 'none',
                         outline: 'none',
-                        color: '#e6edf3',
+                        color: '#e6eeed',
                         fontFamily: "'JetBrains Mono', monospace",
                         fontSize: '12px',
-                        caretColor: '#10b981',
+                        caretColor: '#96dc7f',
                     }}
                 />
             </form>
