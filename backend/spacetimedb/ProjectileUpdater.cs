@@ -370,7 +370,7 @@ public static partial class ProjectileUpdater
             float regionLocalX = projectile.PositionX - (tankCollisionRegionX * Module.COLLISION_REGION_SIZE);
             float regionLocalY = projectile.PositionY - (tankCollisionRegionY * Module.COLLISION_REGION_SIZE);
 
-            float effectiveCollisionRadius = projectile.ExplosionRadius ?? Module.TANK_COLLISION_RADIUS;
+            float effectiveCollisionRadius = projectile.CollisionRadius ?? Module.TANK_COLLISION_RADIUS;
 
             int minRegionX = tankCollisionRegionX;
             int maxRegionX = tankCollisionRegionX;

@@ -126,6 +126,7 @@ public static partial class Module
         public int MaxCollisions;
         public int CollisionCount;
         public bool PassThroughTerrain;
+        public float? CollisionRadius;
         public float? ExplosionRadius;
         public ExplosionTrigger ExplosionTrigger;
         public float? BounceDamping;

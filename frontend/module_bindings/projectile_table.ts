@@ -38,6 +38,7 @@ export default __t.row({
   maxCollisions: __t.i32().name("MaxCollisions"),
   collisionCount: __t.i32().name("CollisionCount"),
   passThroughTerrain: __t.bool().name("PassThroughTerrain"),
+  collisionRadius: __t.option(__t.f32()).name("CollisionRadius"),
   explosionRadius: __t.option(__t.f32()).name("ExplosionRadius"),
   get explosionTrigger() {
     return ExplosionTrigger.name("ExplosionTrigger");

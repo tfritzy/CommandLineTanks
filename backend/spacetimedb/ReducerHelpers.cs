@@ -272,6 +272,7 @@ public static partial class Module
             MaxCollisions = gun.MaxCollisions,
             CollisionCount = 0,
             PassThroughTerrain = gun.PassThroughTerrain,
+            CollisionRadius = gun.CollisionRadius,
             ExplosionRadius = gun.ExplosionRadius,
             ExplosionTrigger = gun.ExplosionTrigger,
             BounceDamping = gun.BounceDamping

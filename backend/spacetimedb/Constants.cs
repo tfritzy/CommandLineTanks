@@ -27,6 +27,7 @@ public static partial class Module
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
+        CollisionRadius = null,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -44,6 +45,7 @@ public static partial class Module
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
+        CollisionRadius = null,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -61,6 +63,7 @@ public static partial class Module
         LifetimeSeconds = 15.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
+        CollisionRadius = null,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -78,6 +81,7 @@ public static partial class Module
         LifetimeSeconds = 8.0f,
         MaxCollisions = 10,
         PassThroughTerrain = true,
+        CollisionRadius = null,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -95,6 +99,7 @@ public static partial class Module
         LifetimeSeconds = 3.0f,
         MaxCollisions = 9999,
         PassThroughTerrain = false,
+        CollisionRadius = null,
         ExplosionRadius = 2.0f,
         ExplosionTrigger = ExplosionTrigger.OnExpiration,
         BounceDamping = 0.7f
@@ -112,6 +117,7 @@ public static partial class Module
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
+        CollisionRadius = null,
         ExplosionRadius = 1.5f,
         ExplosionTrigger = ExplosionTrigger.OnHit,
         BounceDamping = null
@@ -127,10 +133,11 @@ public static partial class Module
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Moag,
         LifetimeSeconds = 20.0f,
-        MaxCollisions = 1,
+        MaxCollisions = 999,
         PassThroughTerrain = true,
-        ExplosionRadius = 2.5f,
-        ExplosionTrigger = ExplosionTrigger.OnHit,
+        CollisionRadius = 2.5f,
+        ExplosionRadius = null,
+        ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
     };
 }
