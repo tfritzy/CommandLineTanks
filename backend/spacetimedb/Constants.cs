@@ -27,7 +27,7 @@ public static partial class Module
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
-        CollisionRadius = null,
+        CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -45,7 +45,7 @@ public static partial class Module
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
-        CollisionRadius = null,
+        CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -63,7 +63,7 @@ public static partial class Module
         LifetimeSeconds = 15.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
-        CollisionRadius = null,
+        CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -81,7 +81,7 @@ public static partial class Module
         LifetimeSeconds = 8.0f,
         MaxCollisions = 10,
         PassThroughTerrain = true,
-        CollisionRadius = null,
+        CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -99,7 +99,7 @@ public static partial class Module
         LifetimeSeconds = 3.0f,
         MaxCollisions = 9999,
         PassThroughTerrain = false,
-        CollisionRadius = null,
+        CollisionRadius = 0.1f,
         ExplosionRadius = 2.0f,
         ExplosionTrigger = ExplosionTrigger.OnExpiration,
         BounceDamping = 0.7f
@@ -117,7 +117,7 @@ public static partial class Module
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
-        CollisionRadius = null,
+        CollisionRadius = 0.1f,
         ExplosionRadius = 1.5f,
         ExplosionTrigger = ExplosionTrigger.OnHit,
         BounceDamping = null

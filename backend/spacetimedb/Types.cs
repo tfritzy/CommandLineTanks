@@ -122,7 +122,7 @@ public static partial class Types
         public float LifetimeSeconds;
         public int MaxCollisions;
         public bool PassThroughTerrain;
-        public float? CollisionRadius;
+        public float CollisionRadius;
         public float? ExplosionRadius;
         public ExplosionTrigger ExplosionTrigger;
         public float? BounceDamping;
