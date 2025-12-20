@@ -87,6 +87,10 @@ export abstract class TerrainDetailObject {
     return this.rotation;
   }
 
+  public getFlashTimer(): number {
+    return this.flashTimer;
+  }
+
   protected getWorldX(): number {
     return (this.x - 0.5 + this.renderOffset.x) * UNIT_TO_PIXEL;
   }
