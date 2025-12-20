@@ -163,6 +163,22 @@ export class TerrainManager {
     this.drawBaseLayer(ctx, cameraX, cameraY, canvasWidth, canvasHeight, unitToPixel);
   }
 
+  private getTerrainAt(x: number, y: number): BaseTerrainType | null {
+    if (x < 0 || x >= this.worldWidth || y < 0 || y >= this.worldHeight) {
+      return null;
+    }
+    const index = y * this.worldWidth + x;
+    return this.baseTerrainLayer[index];
+  }
+
+  private shouldRenderTransition(currentTerrain: BaseTerrainType, neighborTerrain: BaseTerrainType | null): boolean {
+    if (!neighborTerrain) return false;
+    if (currentTerrain.tag === neighborTerrain.tag) return false;
+    if (currentTerrain.tag === "Ground") return false;
+    if (currentTerrain.tag === "Road" && neighborTerrain.tag === "Stream") return false;
+    return true;
+  }
+
   private drawBaseLayer(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
@@ -192,7 +208,7 @@ export class TerrainManager {
         ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);
 
         if (terrain.tag === "Farm") {
-          ctx.fillStyle = "#313148"; // Subtle offset from ground color
+          ctx.fillStyle = "#313148";
           const numGrooves = 2;
           const grooveHeight = unitToPixel * 0.15;
 
@@ -202,10 +218,113 @@ export class TerrainManager {
           }
         }
 
+        this.drawOffsetTile(ctx, tileX, tileY, terrain, worldX, worldY, unitToPixel);
+
         ctx.strokeStyle = "#4a4b5b22";
         ctx.lineWidth = 1;
         ctx.strokeRect(worldX, worldY, unitToPixel, unitToPixel);
       }
+    }
+  }
+
+  private drawOffsetTile(
+    ctx: CanvasRenderingContext2D,
+    tileX: number,
+    tileY: number,
+    terrain: BaseTerrainType,
+    worldX: number,
+    worldY: number,
+    unitToPixel: number
+  ) {
+    if (terrain.tag === "Ground" || terrain.tag === "Farm") {
+      return;
+    }
+
+    const north = this.getTerrainAt(tileX, tileY - 1);
+    const south = this.getTerrainAt(tileX, tileY + 1);
+    const east = this.getTerrainAt(tileX + 1, tileY);
+    const west = this.getTerrainAt(tileX - 1, tileY);
+    const northEast = this.getTerrainAt(tileX + 1, tileY - 1);
+    const northWest = this.getTerrainAt(tileX - 1, tileY - 1);
+    const southEast = this.getTerrainAt(tileX + 1, tileY + 1);
+    const southWest = this.getTerrainAt(tileX - 1, tileY + 1);
+
+    const groundColor = this.getBaseTerrainColor({ tag: "Ground" } as BaseTerrainType);
+    const edgeSize = unitToPixel * 0.25;
+    const cornerSize = unitToPixel * 0.35;
+
+    ctx.fillStyle = groundColor;
+
+    if (this.shouldRenderTransition(terrain, north)) {
+      ctx.beginPath();
+      ctx.moveTo(worldX, worldY);
+      ctx.lineTo(worldX + unitToPixel, worldY);
+      ctx.lineTo(worldX + unitToPixel, worldY + edgeSize);
+      ctx.lineTo(worldX, worldY + edgeSize);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (this.shouldRenderTransition(terrain, south)) {
+      ctx.beginPath();
+      ctx.moveTo(worldX, worldY + unitToPixel - edgeSize);
+      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel - edgeSize);
+      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel);
+      ctx.lineTo(worldX, worldY + unitToPixel);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (this.shouldRenderTransition(terrain, west)) {
+      ctx.beginPath();
+      ctx.moveTo(worldX, worldY);
+      ctx.lineTo(worldX + edgeSize, worldY);
+      ctx.lineTo(worldX + edgeSize, worldY + unitToPixel);
+      ctx.lineTo(worldX, worldY + unitToPixel);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (this.shouldRenderTransition(terrain, east)) {
+      ctx.beginPath();
+      ctx.moveTo(worldX + unitToPixel - edgeSize, worldY);
+      ctx.lineTo(worldX + unitToPixel, worldY);
+      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel);
+      ctx.lineTo(worldX + unitToPixel - edgeSize, worldY + unitToPixel);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (this.shouldRenderTransition(terrain, northWest) && !this.shouldRenderTransition(terrain, north) && !this.shouldRenderTransition(terrain, west)) {
+      ctx.beginPath();
+      ctx.arc(worldX, worldY, cornerSize, 0, Math.PI / 2);
+      ctx.lineTo(worldX, worldY);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (this.shouldRenderTransition(terrain, northEast) && !this.shouldRenderTransition(terrain, north) && !this.shouldRenderTransition(terrain, east)) {
+      ctx.beginPath();
+      ctx.arc(worldX + unitToPixel, worldY, cornerSize, Math.PI / 2, Math.PI);
+      ctx.lineTo(worldX + unitToPixel, worldY);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (this.shouldRenderTransition(terrain, southWest) && !this.shouldRenderTransition(terrain, south) && !this.shouldRenderTransition(terrain, west)) {
+      ctx.beginPath();
+      ctx.arc(worldX, worldY + unitToPixel, cornerSize, -Math.PI / 2, 0);
+      ctx.lineTo(worldX, worldY + unitToPixel);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (this.shouldRenderTransition(terrain, southEast) && !this.shouldRenderTransition(terrain, south) && !this.shouldRenderTransition(terrain, east)) {
+      ctx.beginPath();
+      ctx.arc(worldX + unitToPixel, worldY + unitToPixel, cornerSize, Math.PI, Math.PI * 1.5);
+      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel);
+      ctx.closePath();
+      ctx.fill();
     }
   }
 
