@@ -50,7 +50,6 @@ public static partial class Types
     public enum TerrainDetailType : byte
     {
         None,
-        Cliff,
         Rock,
         Tree,
         Bridge,

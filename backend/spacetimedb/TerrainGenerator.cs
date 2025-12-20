@@ -11,7 +11,6 @@ public static partial class TerrainGenerator
     private const int MIN_BRIDGES = 3;
     private const int FIELD_MIN_SIZE = 5;
     private const int FIELD_MAX_SIZE = 10;
-    private const int CLIFF_POCKET_SIZE = 4;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
     private const int MIN_STRUCTURES = 3;
     private const int STRUCTURE_COUNT_RANGE = 4;
@@ -43,8 +42,6 @@ public static partial class TerrainGenerator
         }
 
         Vector2[] roadTiles = GenerateRoadsWithBridges(baseTerrain, terrainDetailArray, streamPath, random);
-
-        GenerateCliffs(terrainDetailArray, baseTerrain, random);
 
         GenerateRocks(terrainDetailArray, baseTerrain, random);
 
@@ -212,36 +209,6 @@ public static partial class TerrainGenerator
         var result = new Vector2[roadTilesCount];
         Array.Copy(roadTilesList, result, roadTilesCount);
         return result;
-    }
-
-    private static void GenerateCliffs(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random)
-    {
-        int numCliffPockets = 8 + random.Next(8);
-
-        for (int i = 0; i < numCliffPockets; i++)
-        {
-            int centerX = random.Next(WORLD_WIDTH);
-            int centerY = random.Next(WORLD_HEIGHT);
-            int size = CLIFF_POCKET_SIZE + random.Next(3);
-
-            for (int dy = -size / 2; dy <= size / 2; dy++)
-            {
-                for (int dx = -size / 2; dx <= size / 2; dx++)
-                {
-                    int x = centerX + dx;
-                    int y = centerY + dy;
-
-                    if (x >= 0 && x < WORLD_WIDTH && y >= 0 && y < WORLD_HEIGHT)
-                    {
-                        int index = y * WORLD_WIDTH + x;
-                        if (baseTerrain[index] == BaseTerrain.Ground && random.NextSingle() > 0.3f)
-                        {
-                            terrainDetail[index] = TerrainDetailType.Cliff;
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private static void GenerateRocks(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random)
@@ -809,7 +776,6 @@ public static partial class TerrainGenerator
             {
                 TerrainDetailType.None => true,
                 TerrainDetailType.Bridge => true,
-                TerrainDetailType.Cliff => false,
                 TerrainDetailType.Rock => false,
                 TerrainDetailType.Tree => false,
                 TerrainDetailType.HayBale => false,
