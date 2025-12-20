@@ -164,6 +164,9 @@ public static partial class ProjectileUpdater
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
         if (traversibilityMap == null) return;
 
+        var world = ctx.Db.world.Id.Find(args.WorldId);
+        if (world == null) return;
+
         foreach (var iProjectile in ctx.Db.projectile.WorldId.Filter(args.WorldId))
         {
             var projectile = iProjectile;
@@ -343,8 +346,7 @@ public static partial class ProjectileUpdater
                             {
                                 ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
 
-                                var world = ctx.Db.world.Id.Find(args.WorldId);
-                                if (world != null && tileIndex < world.Value.BaseTerrainLayer.Length)
+                                if (tileIndex < world.Value.BaseTerrainLayer.Length)
                                 {
                                     bool baseTraversible = world.Value.BaseTerrainLayer[tileIndex] != BaseTerrain.Stream;
                                     traversibilityMap.Value.Map[tileIndex] = baseTraversible;
