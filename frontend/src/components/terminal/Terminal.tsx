@@ -29,9 +29,22 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             e.preventDefault();
             if (commandHistory.length === 0) return;
 
-            const newIndex = historyIndex === -1
-                ? commandHistory.length - 1
-                : Math.max(0, historyIndex - 1);
+            const startIndex = historyIndex === -1 
+                ? commandHistory.length - 1 
+                : historyIndex - 1;
+
+            if (startIndex < 0) return;
+
+            const currentCommand = historyIndex === -1 ? input : commandHistory[historyIndex];
+            let newIndex = startIndex;
+
+            while (newIndex > 0 && commandHistory[newIndex] === currentCommand) {
+                newIndex--;
+            }
+
+            if (newIndex === 0 && commandHistory[newIndex] === currentCommand) {
+                return;
+            }
 
             setHistoryIndex(newIndex);
             setInput(commandHistory[newIndex]);
@@ -45,8 +58,20 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                 setHistoryIndex(-1);
                 setInput('');
             } else {
-                setHistoryIndex(newIndex);
-                setInput(commandHistory[newIndex]);
+                const currentCommand = commandHistory[historyIndex];
+                let nextIndex = newIndex;
+
+                while (nextIndex < commandHistory.length - 1 && commandHistory[nextIndex] === currentCommand) {
+                    nextIndex++;
+                }
+
+                if (nextIndex >= commandHistory.length) {
+                    setHistoryIndex(-1);
+                    setInput('');
+                } else {
+                    setHistoryIndex(nextIndex);
+                    setInput(commandHistory[nextIndex]);
+                }
             }
         }
     };
