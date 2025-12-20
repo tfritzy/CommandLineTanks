@@ -65,7 +65,9 @@ export class CollisionVisualizationManager {
     });
 
     connection.db.tank.onDelete((_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-      this.tanks.delete(tank.id);
+      if (tank.worldId === this.worldId) {
+        this.tanks.delete(tank.id);
+      }
     });
   }
 
