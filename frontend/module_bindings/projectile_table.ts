@@ -15,33 +15,33 @@ import ExplosionTrigger from "./explosion_trigger_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey().name("Id"),
-  worldId: __t.string().name("WorldId"),
-  shooterTankId: __t.string().name("ShooterTankId"),
-  alliance: __t.i32().name("Alliance"),
-  positionX: __t.f32().name("PositionX"),
-  positionY: __t.f32().name("PositionY"),
-  speed: __t.f32().name("Speed"),
-  size: __t.f32().name("Size"),
+  id: __t.string().primaryKey(),
+  worldId: __t.string(),
+  shooterTankId: __t.string(),
+  alliance: __t.i32(),
+  positionX: __t.f32(),
+  positionY: __t.f32(),
+  speed: __t.f32(),
+  size: __t.f32(),
   get velocity() {
-    return Vector2Float.name("Velocity");
+    return Vector2Float;
   },
-  damage: __t.i32().name("Damage"),
-  trackingStrength: __t.f32().name("TrackingStrength"),
+  damage: __t.i32(),
+  trackingStrength: __t.f32(),
   get projectileType() {
-    return ProjectileType.name("ProjectileType");
+    return ProjectileType;
   },
-  spawnedAt: __t.u64().name("SpawnedAt"),
-  lifetimeSeconds: __t.f32().name("LifetimeSeconds"),
-  returnsToShooter: __t.bool().name("ReturnsToShooter"),
-  isReturning: __t.bool().name("IsReturning"),
-  maxCollisions: __t.i32().name("MaxCollisions"),
-  collisionCount: __t.i32().name("CollisionCount"),
-  passThroughTerrain: __t.bool().name("PassThroughTerrain"),
-  collisionRadius: __t.option(__t.f32()).name("CollisionRadius"),
-  explosionRadius: __t.option(__t.f32()).name("ExplosionRadius"),
+  spawnedAt: __t.u64(),
+  lifetimeSeconds: __t.f32(),
+  returnsToShooter: __t.bool(),
+  isReturning: __t.bool(),
+  maxCollisions: __t.i32(),
+  collisionCount: __t.i32(),
+  passThroughTerrain: __t.bool(),
+  collisionRadius: __t.option(__t.f32()),
+  explosionRadius: __t.option(__t.f32()),
   get explosionTrigger() {
-    return ExplosionTrigger.name("ExplosionTrigger");
+    return ExplosionTrigger;
   },
-  bounceDamping: __t.option(__t.f32()).name("BounceDamping"),
+  bounceDamping: __t.option(__t.f32()),
 });

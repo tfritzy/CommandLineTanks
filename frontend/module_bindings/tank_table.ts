@@ -15,35 +15,35 @@ import Gun from "./gun_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey().name("Id"),
-  worldId: __t.string().name("WorldId"),
-  owner: __t.identity().name("Owner"),
-  name: __t.string().name("Name"),
-  joinCode: __t.option(__t.string()).name("JoinCode"),
-  isBot: __t.bool().name("IsBot"),
-  alliance: __t.i32().name("Alliance"),
-  health: __t.i32().name("Health"),
-  maxHealth: __t.i32().name("MaxHealth"),
-  kills: __t.i32().name("Kills"),
-  collisionRegionX: __t.i32().name("CollisionRegionX"),
-  collisionRegionY: __t.i32().name("CollisionRegionY"),
-  target: __t.option(__t.string()).name("Target"),
-  targetLead: __t.f32().name("TargetLead"),
+  id: __t.string().primaryKey(),
+  worldId: __t.string(),
+  owner: __t.identity(),
+  name: __t.string(),
+  joinCode: __t.option(__t.string()),
+  isBot: __t.bool(),
+  alliance: __t.i32(),
+  health: __t.i32(),
+  maxHealth: __t.i32(),
+  kills: __t.i32(),
+  collisionRegionX: __t.i32(),
+  collisionRegionY: __t.i32(),
+  target: __t.option(__t.string()),
+  targetLead: __t.f32(),
   get path() {
-    return __t.array(PathEntry).name("Path");
+    return __t.array(PathEntry);
   },
-  topSpeed: __t.f32().name("TopSpeed"),
-  turretRotationSpeed: __t.f32().name("TurretRotationSpeed"),
-  positionX: __t.f32().name("PositionX"),
-  positionY: __t.f32().name("PositionY"),
+  topSpeed: __t.f32(),
+  turretRotationSpeed: __t.f32(),
+  positionX: __t.f32(),
+  positionY: __t.f32(),
   get velocity() {
-    return Vector2Float.name("Velocity");
+    return Vector2Float;
   },
-  turretAngularVelocity: __t.f32().name("TurretAngularVelocity"),
-  turretRotation: __t.f32().name("TurretRotation"),
-  targetTurretRotation: __t.f32().name("TargetTurretRotation"),
+  turretAngularVelocity: __t.f32(),
+  turretRotation: __t.f32(),
+  targetTurretRotation: __t.f32(),
   get guns() {
-    return __t.array(Gun).name("Guns");
+    return __t.array(Gun);
   },
-  selectedGunIndex: __t.i32().name("SelectedGunIndex"),
+  selectedGunIndex: __t.i32(),
 });

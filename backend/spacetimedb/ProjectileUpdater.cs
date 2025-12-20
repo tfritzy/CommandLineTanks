@@ -370,27 +370,28 @@ public static partial class ProjectileUpdater
             float regionLocalX = projectile.PositionX - (tankCollisionRegionX * Module.COLLISION_REGION_SIZE);
             float regionLocalY = projectile.PositionY - (tankCollisionRegionY * Module.COLLISION_REGION_SIZE);
 
-            float effectiveCollisionRadius = projectile.CollisionRadius ?? Module.TANK_COLLISION_RADIUS;
+            float projectileRadius = projectile.CollisionRadius ?? projectile.Size;
+            float totalCollisionRadius = projectileRadius + Module.TANK_COLLISION_RADIUS;
 
             int minRegionX = tankCollisionRegionX;
             int maxRegionX = tankCollisionRegionX;
             int minRegionY = tankCollisionRegionY;
             int maxRegionY = tankCollisionRegionY;
 
-            if (regionLocalX < effectiveCollisionRadius)
+            if (regionLocalX < totalCollisionRadius)
             {
                 minRegionX = tankCollisionRegionX - 1;
             }
-            else if (regionLocalX > Module.COLLISION_REGION_SIZE - effectiveCollisionRadius)
+            else if (regionLocalX > Module.COLLISION_REGION_SIZE - totalCollisionRadius)
             {
                 maxRegionX = tankCollisionRegionX + 1;
             }
 
-            if (regionLocalY < effectiveCollisionRadius)
+            if (regionLocalY < totalCollisionRadius)
             {
                 minRegionY = tankCollisionRegionY - 1;
             }
-            else if (regionLocalY > Module.COLLISION_REGION_SIZE - effectiveCollisionRadius)
+            else if (regionLocalY > Module.COLLISION_REGION_SIZE - totalCollisionRadius)
             {
                 maxRegionY = tankCollisionRegionY + 1;
             }
@@ -408,7 +409,7 @@ public static partial class ProjectileUpdater
                         float dx = tank.PositionX - projectile.PositionX;
                         float dy = tank.PositionY - projectile.PositionY;
                         float distanceSquared = dx * dx + dy * dy;
-                        float collisionRadiusSquared = effectiveCollisionRadius * effectiveCollisionRadius;
+                        float collisionRadiusSquared = totalCollisionRadius * totalCollisionRadius;
 
                         if (distanceSquared <= collisionRadiusSquared)
                         {
