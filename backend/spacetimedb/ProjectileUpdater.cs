@@ -343,8 +343,13 @@ public static partial class ProjectileUpdater
                             {
                                 ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
 
-                                traversibilityMap.Value.Map[tileIndex] = true;
-                                ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
+                                var world = ctx.Db.world.Id.Find(args.WorldId);
+                                if (world != null && tileIndex < world.Value.BaseTerrainLayer.Length)
+                                {
+                                    bool baseTraversible = world.Value.BaseTerrainLayer[tileIndex] != BaseTerrain.Stream;
+                                    traversibilityMap.Value.Map[tileIndex] = baseTraversible;
+                                    ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
+                                }
                             }
                             else
                             {
