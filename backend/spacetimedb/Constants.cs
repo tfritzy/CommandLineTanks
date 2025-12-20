@@ -27,6 +27,7 @@ public static partial class Module
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
+        CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -44,6 +45,7 @@ public static partial class Module
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
+        CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -61,6 +63,7 @@ public static partial class Module
         LifetimeSeconds = 15.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
+        CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -78,6 +81,7 @@ public static partial class Module
         LifetimeSeconds = 8.0f,
         MaxCollisions = 10,
         PassThroughTerrain = true,
+        CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
@@ -95,6 +99,7 @@ public static partial class Module
         LifetimeSeconds = 3.0f,
         MaxCollisions = 9999,
         PassThroughTerrain = false,
+        CollisionRadius = 0.1f,
         ExplosionRadius = 2.0f,
         ExplosionTrigger = ExplosionTrigger.OnExpiration,
         BounceDamping = 0.7f
@@ -112,8 +117,27 @@ public static partial class Module
         LifetimeSeconds = 10.0f,
         MaxCollisions = 1,
         PassThroughTerrain = false,
+        CollisionRadius = 0.1f,
         ExplosionRadius = 1.5f,
         ExplosionTrigger = ExplosionTrigger.OnHit,
+        BounceDamping = null
+    };
+
+    public static readonly Gun MOAG_GUN = new Gun
+    {
+        GunType = GunType.Moag,
+        Ammo = 1,
+        ProjectileCount = 1,
+        SpreadAngle = 0,
+        Damage = 100,
+        TrackingStrength = 0,
+        ProjectileType = ProjectileType.Moag,
+        LifetimeSeconds = 20.0f,
+        MaxCollisions = 999,
+        PassThroughTerrain = true,
+        CollisionRadius = 2.5f,
+        ExplosionRadius = null,
+        ExplosionTrigger = ExplosionTrigger.None,
         BounceDamping = null
     };
 }

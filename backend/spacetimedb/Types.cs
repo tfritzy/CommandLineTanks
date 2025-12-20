@@ -61,6 +61,7 @@ public static partial class Types
         BoomerangPickup,
         GrenadePickup,
         RocketPickup,
+        MoagPickup,
         FoundationEdge,
         FoundationCorner,
         FenceEdge,
@@ -84,7 +85,8 @@ public static partial class Types
         MissileLauncher,
         Boomerang,
         Grenade,
-        Rocket
+        Rocket,
+        Moag
     }
 
     [Type]
@@ -94,7 +96,8 @@ public static partial class Types
         Missile,
         Boomerang,
         Grenade,
-        Rocket
+        Rocket,
+        Moag
     }
 
     [Type]
@@ -118,6 +121,7 @@ public static partial class Types
         public float LifetimeSeconds;
         public int MaxCollisions;
         public bool PassThroughTerrain;
+        public float CollisionRadius;
         public float? ExplosionRadius;
         public ExplosionTrigger ExplosionTrigger;
         public float? BounceDamping;

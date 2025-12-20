@@ -38,6 +38,7 @@ export default __t.object("Projectile", {
   maxCollisions: __t.i32(),
   collisionCount: __t.i32(),
   passThroughTerrain: __t.bool(),
+  collisionRadius: __t.f32(),
   explosionRadius: __t.option(__t.f32()),
   get explosionTrigger() {
     return ExplosionTrigger;
