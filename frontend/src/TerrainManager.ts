@@ -17,12 +17,9 @@ export class TerrainManager {
   private worldId: string;
   private detailObjects: Map<string, TerrainDetailObject> = new Map();
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
-  private shadowAtlasCanvas: HTMLCanvasElement | null = null;
-  private shadowAtlasCtx: CanvasRenderingContext2D | null = null;
-  private bodyAtlasCanvas: HTMLCanvasElement | null = null;
-  private bodyAtlasCtx: CanvasRenderingContext2D | null = null;
-  private shadowAtlasNeedsUpdate: boolean = true;
-  private bodyAtlasNeedsUpdate: boolean = true;
+  private detailAtlasCanvas: HTMLCanvasElement | null = null;
+  private detailAtlasCtx: CanvasRenderingContext2D | null = null;
+  private detailAtlasNeedsUpdate: boolean = true;
   private atlasInitialized: boolean = false;
 
   constructor(worldId: string) {
@@ -71,45 +68,29 @@ export class TerrainManager {
     const atlasWidth = this.worldWidth * UNIT_TO_PIXEL;
     const atlasHeight = this.worldHeight * UNIT_TO_PIXEL;
 
-    this.shadowAtlasCanvas = document.createElement('canvas');
-    this.shadowAtlasCanvas.width = atlasWidth;
-    this.shadowAtlasCanvas.height = atlasHeight;
-    this.shadowAtlasCtx = this.shadowAtlasCanvas.getContext('2d');
+    this.detailAtlasCanvas = document.createElement('canvas');
+    this.detailAtlasCanvas.width = atlasWidth;
+    this.detailAtlasCanvas.height = atlasHeight;
+    this.detailAtlasCtx = this.detailAtlasCanvas.getContext('2d');
 
-    this.bodyAtlasCanvas = document.createElement('canvas');
-    this.bodyAtlasCanvas.width = atlasWidth;
-    this.bodyAtlasCanvas.height = atlasHeight;
-    this.bodyAtlasCtx = this.bodyAtlasCanvas.getContext('2d');
-
-    this.shadowAtlasNeedsUpdate = true;
-    this.bodyAtlasNeedsUpdate = true;
+    this.detailAtlasNeedsUpdate = true;
   }
 
-  private updateShadowAtlas() {
-    if (!this.shadowAtlasCtx) return;
-    if (!this.shadowAtlasNeedsUpdate) return;
+  private updateDetailAtlas() {
+    if (!this.detailAtlasCtx) return;
+    if (!this.detailAtlasNeedsUpdate) return;
 
-    this.shadowAtlasCtx.clearRect(0, 0, this.shadowAtlasCanvas!.width, this.shadowAtlasCanvas!.height);
-
-    for (const obj of this.detailObjects.values()) {
-      obj.drawShadow(this.shadowAtlasCtx);
-    }
-
-    this.shadowAtlasNeedsUpdate = false;
-    this.atlasInitialized = true;
-  }
-
-  private updateBodyAtlas() {
-    if (!this.bodyAtlasCtx) return;
-    if (!this.bodyAtlasNeedsUpdate) return;
-
-    this.bodyAtlasCtx.clearRect(0, 0, this.bodyAtlasCanvas!.width, this.bodyAtlasCanvas!.height);
+    this.detailAtlasCtx.clearRect(0, 0, this.detailAtlasCanvas!.width, this.detailAtlasCanvas!.height);
 
     for (const obj of this.detailObjects.values()) {
-      obj.drawBody(this.bodyAtlasCtx);
+      obj.drawShadow(this.detailAtlasCtx);
     }
 
-    this.bodyAtlasNeedsUpdate = false;
+    for (const obj of this.detailObjects.values()) {
+      obj.drawBody(this.detailAtlasCtx);
+    }
+
+    this.detailAtlasNeedsUpdate = false;
     this.atlasInitialized = true;
   }
 
@@ -125,8 +106,7 @@ export class TerrainManager {
     connection.db.terrainDetail.onInsert((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       this.createDetailObject(detail);
       if (this.atlasInitialized) {
-        this.shadowAtlasNeedsUpdate = true;
-        this.bodyAtlasNeedsUpdate = true;
+        this.detailAtlasNeedsUpdate = true;
       }
     });
 
@@ -137,8 +117,7 @@ export class TerrainManager {
       } else {
         this.createDetailObject(newDetail);
       }
-      this.shadowAtlasNeedsUpdate = true;
-      this.bodyAtlasNeedsUpdate = true;
+      this.detailAtlasNeedsUpdate = true;
     });
 
     connection.db.terrainDetail.onDelete((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
@@ -151,8 +130,7 @@ export class TerrainManager {
         }
       }
       this.detailObjects.delete(detail.id);
-      this.shadowAtlasNeedsUpdate = true;
-      this.bodyAtlasNeedsUpdate = true;
+      this.detailAtlasNeedsUpdate = true;
     });
   }
 
@@ -282,9 +260,9 @@ export class TerrainManager {
     canvasHeight: number,
     unitToPixel: number
   ) {
-    if (!this.shadowAtlasCanvas || !this.shadowAtlasCtx) return;
+    if (!this.detailAtlasCanvas || !this.detailAtlasCtx) return;
 
-    this.updateShadowAtlas();
+    this.updateDetailAtlas();
 
     const startTileX = Math.max(0, Math.floor(cameraX / unitToPixel));
     const endTileX = Math.min(this.worldWidth - 1, Math.ceil((cameraX + canvasWidth) / unitToPixel));
@@ -296,7 +274,7 @@ export class TerrainManager {
 
     if (atlasTileWidth > 0 && atlasTileHeight > 0) {
       ctx.drawImage(
-        this.shadowAtlasCanvas,
+        this.detailAtlasCanvas,
         startTileX * unitToPixel,
         startTileY * unitToPixel,
         atlasTileWidth * unitToPixel,
@@ -317,31 +295,10 @@ export class TerrainManager {
     canvasHeight: number,
     unitToPixel: number
   ) {
-    if (!this.bodyAtlasCanvas || !this.bodyAtlasCtx) return;
-
-    this.updateBodyAtlas();
-
     const startTileX = Math.max(0, Math.floor(cameraX / unitToPixel));
     const endTileX = Math.min(this.worldWidth - 1, Math.ceil((cameraX + canvasWidth) / unitToPixel));
     const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
     const endTileY = Math.min(this.worldHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
-
-    const atlasTileWidth = endTileX - startTileX + 1;
-    const atlasTileHeight = endTileY - startTileY + 1;
-
-    if (atlasTileWidth > 0 && atlasTileHeight > 0) {
-      ctx.drawImage(
-        this.bodyAtlasCanvas,
-        startTileX * unitToPixel,
-        startTileY * unitToPixel,
-        atlasTileWidth * unitToPixel,
-        atlasTileHeight * unitToPixel,
-        startTileX * unitToPixel,
-        startTileY * unitToPixel,
-        atlasTileWidth * unitToPixel,
-        atlasTileHeight * unitToPixel
-      );
-    }
 
     for (const obj of this.detailObjects.values()) {
       if (obj.getFlashTimer() > 0) {
