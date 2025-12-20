@@ -16,6 +16,7 @@ const ProjectileType = __t.enum("ProjectileType", {Normal: __t.unit(),
   Boomerang: __t.unit(),
   Grenade: __t.unit(),
   Rocket: __t.unit(),
+  Moag: __t.unit(),
 });
 
 export default ProjectileType;

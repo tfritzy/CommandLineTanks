@@ -14,17 +14,17 @@ import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  positionX: __t.i32(),
-  positionY: __t.i32(),
+  id: __t.string().primaryKey().name("Id"),
+  worldId: __t.string().name("WorldId"),
+  positionX: __t.i32().name("PositionX"),
+  positionY: __t.i32().name("PositionY"),
   get type() {
-    return TerrainDetailType;
+    return TerrainDetailType.name("Type");
   },
-  health: __t.option(__t.i32()),
-  label: __t.option(__t.string()),
-  rotation: __t.i32(),
+  health: __t.option(__t.i32()).name("Health"),
+  label: __t.option(__t.string()).name("Label"),
+  rotation: __t.i32().name("Rotation"),
   get renderOffset() {
-    return Vector2Float;
+    return Vector2Float.name("RenderOffset");
   },
 });
