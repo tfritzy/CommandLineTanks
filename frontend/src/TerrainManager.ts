@@ -23,6 +23,7 @@ export class TerrainManager {
   private bodyAtlasCtx: CanvasRenderingContext2D | null = null;
   private shadowAtlasNeedsUpdate: boolean = true;
   private bodyAtlasNeedsUpdate: boolean = true;
+  private dirtyDetailIds: Set<string> = new Set();
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -88,10 +89,27 @@ export class TerrainManager {
     if (!this.shadowAtlasCtx) return;
     if (!this.shadowAtlasNeedsUpdate) return;
 
-    this.shadowAtlasCtx.clearRect(0, 0, this.shadowAtlasCanvas!.width, this.shadowAtlasCanvas!.height);
-
-    for (const obj of this.detailObjects.values()) {
-      obj.drawShadow(this.shadowAtlasCtx);
+    if (this.dirtyDetailIds.size === 0) {
+      this.shadowAtlasCtx.clearRect(0, 0, this.shadowAtlasCanvas!.width, this.shadowAtlasCanvas!.height);
+      for (const obj of this.detailObjects.values()) {
+        obj.drawShadow(this.shadowAtlasCtx);
+      }
+    } else {
+      for (const detailId of this.dirtyDetailIds) {
+        const obj = this.detailObjects.get(detailId);
+        if (obj) {
+          const worldX = (obj.getX() - 0.5) * UNIT_TO_PIXEL;
+          const worldY = (obj.getY() - 0.5) * UNIT_TO_PIXEL;
+          const clearSize = UNIT_TO_PIXEL * 2;
+          this.shadowAtlasCtx.clearRect(
+            worldX - UNIT_TO_PIXEL * 0.5,
+            worldY - UNIT_TO_PIXEL * 0.5,
+            clearSize,
+            clearSize
+          );
+          obj.drawShadow(this.shadowAtlasCtx);
+        }
+      }
     }
 
     this.shadowAtlasNeedsUpdate = false;
@@ -101,13 +119,31 @@ export class TerrainManager {
     if (!this.bodyAtlasCtx) return;
     if (!this.bodyAtlasNeedsUpdate) return;
 
-    this.bodyAtlasCtx.clearRect(0, 0, this.bodyAtlasCanvas!.width, this.bodyAtlasCanvas!.height);
-
-    for (const obj of this.detailObjects.values()) {
-      obj.drawBody(this.bodyAtlasCtx);
+    if (this.dirtyDetailIds.size === 0) {
+      this.bodyAtlasCtx.clearRect(0, 0, this.bodyAtlasCanvas!.width, this.bodyAtlasCanvas!.height);
+      for (const obj of this.detailObjects.values()) {
+        obj.drawBody(this.bodyAtlasCtx);
+      }
+    } else {
+      for (const detailId of this.dirtyDetailIds) {
+        const obj = this.detailObjects.get(detailId);
+        if (obj) {
+          const worldX = (obj.getX() - 0.5) * UNIT_TO_PIXEL;
+          const worldY = (obj.getY() - 0.5) * UNIT_TO_PIXEL;
+          const clearSize = UNIT_TO_PIXEL * 2;
+          this.bodyAtlasCtx.clearRect(
+            worldX - UNIT_TO_PIXEL * 0.5,
+            worldY - UNIT_TO_PIXEL * 0.5,
+            clearSize,
+            clearSize
+          );
+          obj.drawBody(this.bodyAtlasCtx);
+        }
+      }
     }
 
     this.bodyAtlasNeedsUpdate = false;
+    this.dirtyDetailIds.clear();
   }
 
   private subscribeToTerrainDetails() {
@@ -121,6 +157,7 @@ export class TerrainManager {
 
     connection.db.terrainDetail.onInsert((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       this.createDetailObject(detail);
+      this.dirtyDetailIds.add(detail.id);
       this.shadowAtlasNeedsUpdate = true;
       this.bodyAtlasNeedsUpdate = true;
     });
@@ -132,6 +169,7 @@ export class TerrainManager {
       } else {
         this.createDetailObject(newDetail);
       }
+      this.dirtyDetailIds.add(newDetail.id);
       this.shadowAtlasNeedsUpdate = true;
       this.bodyAtlasNeedsUpdate = true;
     });
@@ -144,26 +182,40 @@ export class TerrainManager {
         if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
           this.detailObjectsByPosition[y][x] = null;
         }
+        const worldX = (x - 0.5) * UNIT_TO_PIXEL;
+        const worldY = (y - 0.5) * UNIT_TO_PIXEL;
+        const clearSize = UNIT_TO_PIXEL * 2;
+        if (this.shadowAtlasCtx) {
+          this.shadowAtlasCtx.clearRect(
+            worldX - UNIT_TO_PIXEL * 0.5,
+            worldY - UNIT_TO_PIXEL * 0.5,
+            clearSize,
+            clearSize
+          );
+        }
+        if (this.bodyAtlasCtx) {
+          this.bodyAtlasCtx.clearRect(
+            worldX - UNIT_TO_PIXEL * 0.5,
+            worldY - UNIT_TO_PIXEL * 0.5,
+            clearSize,
+            clearSize
+          );
+        }
       }
       this.detailObjects.delete(detail.id);
-      this.shadowAtlasNeedsUpdate = true;
-      this.bodyAtlasNeedsUpdate = true;
     });
   }
 
   public update(deltaTime: number) {
-    let needsUpdate = false;
-    for (const obj of this.detailObjects.values()) {
+    for (const [detailId, obj] of this.detailObjects.entries()) {
       const hadFlash = obj.getFlashTimer() > 0;
       obj.update(deltaTime);
       const hasFlash = obj.getFlashTimer() > 0;
       if (hadFlash || hasFlash) {
-        needsUpdate = true;
+        this.dirtyDetailIds.add(detailId);
+        this.shadowAtlasNeedsUpdate = true;
+        this.bodyAtlasNeedsUpdate = true;
       }
-    }
-    if (needsUpdate) {
-      this.shadowAtlasNeedsUpdate = true;
-      this.bodyAtlasNeedsUpdate = true;
     }
   }
 
