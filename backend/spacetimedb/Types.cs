@@ -62,6 +62,7 @@ public static partial class Types
         BoomerangPickup,
         GrenadePickup,
         RocketPickup,
+        MoagPickup,
         FoundationEdge,
         FoundationCorner,
         FenceEdge,
@@ -85,7 +86,8 @@ public static partial class Types
         MissileLauncher,
         Boomerang,
         Grenade,
-        Rocket
+        Rocket,
+        Moag
     }
 
     [Type]
@@ -95,7 +97,8 @@ public static partial class Types
         Missile,
         Boomerang,
         Grenade,
-        Rocket
+        Rocket,
+        Moag
     }
 
     [Type]

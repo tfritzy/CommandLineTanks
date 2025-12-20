@@ -116,4 +116,21 @@ public static partial class Module
         ExplosionTrigger = ExplosionTrigger.OnHit,
         BounceDamping = null
     };
+
+    public static readonly Gun MOAG_GUN = new Gun
+    {
+        GunType = GunType.Moag,
+        Ammo = 1,
+        ProjectileCount = 1,
+        SpreadAngle = 0,
+        Damage = 100,
+        TrackingStrength = 0,
+        ProjectileType = ProjectileType.Moag,
+        LifetimeSeconds = 20.0f,
+        MaxCollisions = 1,
+        PassThroughTerrain = true,
+        ExplosionRadius = 2.5f,
+        ExplosionTrigger = ExplosionTrigger.OnHit,
+        BounceDamping = null
+    };
 }

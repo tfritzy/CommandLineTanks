@@ -114,6 +114,54 @@ export class PickupManager {
         ctx.fillText("B", centerX, centerY);
         break;
 
+      case "GrenadePickup":
+        ctx.fillStyle = "#4a4a4a";
+        ctx.strokeStyle = "#2a2a2a";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `bold ${size * 0.6}px monospace`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("G", centerX, centerY);
+        break;
+
+      case "RocketPickup":
+        ctx.fillStyle = "#ff6600";
+        ctx.strokeStyle = "#cc5500";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `bold ${size * 0.6}px monospace`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("R", centerX, centerY);
+        break;
+
+      case "MoagPickup":
+        ctx.fillStyle = "#9400d3";
+        ctx.strokeStyle = "#6a0099";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `bold ${size * 0.6}px monospace`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("X", centerX, centerY);
+        break;
+
       case "HealthPickup":
         ctx.fillStyle = "#00ff00";
         ctx.strokeStyle = "#00cc00";
