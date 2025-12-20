@@ -121,8 +121,6 @@ export class TerrainManager {
 
     connection.db.terrainDetail.onInsert((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       this.createDetailObject(detail);
-      this.shadowAtlasNeedsUpdate = true;
-      this.bodyAtlasNeedsUpdate = true;
     });
 
     connection.db.terrainDetail.onUpdate((_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
@@ -428,16 +426,6 @@ export class TerrainManager {
         atlasTileWidth * unitToPixel,
         atlasTileHeight * unitToPixel
       );
-    }
-
-    for (const obj of this.detailObjects.values()) {
-      if (obj.getFlashTimer() > 0) {
-        const objX = obj.getX();
-        const objY = obj.getY();
-        if (objX >= startTileX && objX <= endTileX && objY >= startTileY && objY <= endTileY) {
-          obj.drawShadow(ctx);
-        }
-      }
     }
   }
 
