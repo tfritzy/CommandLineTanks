@@ -18,7 +18,6 @@ export class TerrainManager {
   private detailAtlasCtx: CanvasRenderingContext2D | null = null;
   private detailAtlasNeedsUpdate: boolean = true;
   private atlasInitialized: boolean = false;
-  private readonly ATLAS_PADDING = 32;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -63,8 +62,8 @@ export class TerrainManager {
   private initializeAtlasCanvases() {
     if (this.worldWidth === 0 || this.worldHeight === 0) return;
 
-    const atlasWidth = this.worldWidth * UNIT_TO_PIXEL + 2 * this.ATLAS_PADDING;
-    const atlasHeight = this.worldHeight * UNIT_TO_PIXEL + 2 * this.ATLAS_PADDING;
+    const atlasWidth = (this.worldWidth + 2) * UNIT_TO_PIXEL;
+    const atlasHeight = (this.worldHeight + 2) * UNIT_TO_PIXEL;
 
     this.detailAtlasCanvas = document.createElement('canvas');
     this.detailAtlasCanvas.width = atlasWidth;
@@ -81,7 +80,7 @@ export class TerrainManager {
     this.detailAtlasCtx.clearRect(0, 0, this.detailAtlasCanvas!.width, this.detailAtlasCanvas!.height);
 
     this.detailAtlasCtx.save();
-    this.detailAtlasCtx.translate(this.ATLAS_PADDING, this.ATLAS_PADDING);
+    this.detailAtlasCtx.translate(UNIT_TO_PIXEL, UNIT_TO_PIXEL);
 
     for (const obj of this.detailObjects.values()) {
       obj.drawShadow(this.detailAtlasCtx);
@@ -269,16 +268,16 @@ export class TerrainManager {
     const sourceX = startTileX * unitToPixel;
     const sourceY = startTileY * unitToPixel;
     const sourceWidth = Math.min(
-      (endTileX - startTileX + 1) * unitToPixel + 2 * this.ATLAS_PADDING,
+      (endTileX - startTileX + 1) * unitToPixel + 2 * UNIT_TO_PIXEL,
       this.detailAtlasCanvas.width - sourceX
     );
     const sourceHeight = Math.min(
-      (endTileY - startTileY + 1) * unitToPixel + 2 * this.ATLAS_PADDING,
+      (endTileY - startTileY + 1) * unitToPixel + 2 * UNIT_TO_PIXEL,
       this.detailAtlasCanvas.height - sourceY
     );
 
-    const destX = startTileX * unitToPixel - this.ATLAS_PADDING;
-    const destY = startTileY * unitToPixel - this.ATLAS_PADDING;
+    const destX = startTileX * unitToPixel - UNIT_TO_PIXEL;
+    const destY = startTileY * unitToPixel - UNIT_TO_PIXEL;
 
     if (sourceWidth > 0 && sourceHeight > 0) {
       ctx.drawImage(
