@@ -11,9 +11,23 @@ interface PlayerScore {
 
 export class ScoreManager {
   private playerScores: Map<string, PlayerScore> = new Map();
+  private maxKills: number = 10;
 
   constructor(worldId: string) {
     this.subscribeToTanks(worldId);
+  }
+
+  private createPlayerScore(tank: Infer<typeof TankRow>): PlayerScore {
+    return {
+      name: tank.name,
+      kills: tank.kills,
+      alliance: tank.alliance
+    };
+  }
+
+  private updateMaxKills() {
+    const allKills = Array.from(this.playerScores.values()).map(p => p.kills);
+    this.maxKills = allKills.length > 0 ? Math.max(10, ...allKills) : 10;
   }
 
   private subscribeToTanks(worldId: string) {
@@ -29,23 +43,18 @@ export class ScoreManager {
       .subscribe([`SELECT * FROM tank WHERE WorldId = '${worldId}'`]);
 
     connection.db.tank.onInsert((_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-      this.playerScores.set(tank.id, {
-        name: tank.name,
-        kills: tank.kills,
-        alliance: tank.alliance
-      });
+      this.playerScores.set(tank.id, this.createPlayerScore(tank));
+      this.updateMaxKills();
     });
 
     connection.db.tank.onUpdate((_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-      this.playerScores.set(newTank.id, {
-        name: newTank.name,
-        kills: newTank.kills,
-        alliance: newTank.alliance
-      });
+      this.playerScores.set(newTank.id, this.createPlayerScore(newTank));
+      this.updateMaxKills();
     });
 
     connection.db.tank.onDelete((_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       this.playerScores.delete(tank.id);
+      this.updateMaxKills();
     });
   }
 
@@ -79,8 +88,7 @@ export class ScoreManager {
     barHeight: number
   ) {
     const color = player.alliance === 0 ? '#ff6666' : '#6666ff';
-    const maxKills = Math.max(10, ...Array.from(this.playerScores.values()).map(p => p.kills));
-    const progress = player.kills / maxKills;
+    const progress = player.kills / this.maxKills;
 
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.fillRect(x - barWidth, y, barWidth, barHeight);
@@ -96,6 +104,7 @@ export class ScoreManager {
     ctx.font = 'bold 16px monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`${player.name}: ${player.kills}`, x - barWidth + 10, y + barHeight / 2);
+    const killText = player.kills === 1 ? 'kill' : 'kills';
+    ctx.fillText(`${player.name}: ${player.kills} ${killText}`, x - barWidth + 10, y + barHeight / 2);
   }
 }
