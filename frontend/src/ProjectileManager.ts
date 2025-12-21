@@ -27,7 +27,8 @@ export class ProjectileManager {
         projectile.velocity.x,
         projectile.velocity.y,
         projectile.size,
-        projectile.alliance
+        projectile.alliance,
+        projectile.projectileType
       );
       this.projectiles.set(projectile.id, newProjectile);
     });
