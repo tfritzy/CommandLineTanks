@@ -14,20 +14,22 @@ public static partial class Module
         return (int)Math.Floor(position + GRID_POSITION_TOLERANCE);
     }
 
-    public static float NormalizeAngleToTarget(float targetAngle, float currentAngle)
+    private static float NormalizeAngleDiff(float angleDiff)
     {
-        var angleDiff = targetAngle - currentAngle;
         while (angleDiff > MathF.PI) angleDiff -= 2 * MathF.PI;
         while (angleDiff < -MathF.PI) angleDiff += 2 * MathF.PI;
+        return angleDiff;
+    }
+
+    public static float NormalizeAngleToTarget(float targetAngle, float currentAngle)
+    {
+        var angleDiff = NormalizeAngleDiff(targetAngle - currentAngle);
         return currentAngle + angleDiff;
     }
 
     public static float GetNormalizedAngleDifference(float targetAngle, float currentAngle)
     {
-        var angleDiff = targetAngle - currentAngle;
-        while (angleDiff > MathF.PI) angleDiff -= 2 * MathF.PI;
-        while (angleDiff < -MathF.PI) angleDiff += 2 * MathF.PI;
-        return angleDiff;
+        return NormalizeAngleDiff(targetAngle - currentAngle);
     }
 
     public static Tank RespawnTank(ReducerContext ctx, Tank tank, string worldId, int alliance, bool resetKills = false)
