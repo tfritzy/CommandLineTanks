@@ -54,7 +54,6 @@ public static partial class Module
             tank = tank with { Health = newHealth };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
-            ScheduleHomeworldPickupRespawn(ctx, pickup);
             return true;
         }
         return false;
@@ -81,7 +80,6 @@ public static partial class Module
                 tank.Guns[existingGunIndex] = existingGun;
                 needsUpdate = true;
                 ctx.Db.pickup.Id.Delete(pickup.Id);
-                ScheduleHomeworldPickupRespawn(ctx, pickup);
                 return true;
             }
         }
@@ -94,28 +92,9 @@ public static partial class Module
             };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
-            ScheduleHomeworldPickupRespawn(ctx, pickup);
             return true;
         }
 
         return false;
-    }
-
-    private static void ScheduleHomeworldPickupRespawn(ReducerContext ctx, Module.Pickup pickup)
-    {
-        var homeworldId = GetHomeworldId(ctx.Sender);
-        if (pickup.WorldId == homeworldId)
-        {
-            var collectedId = GenerateId(ctx, "collected");
-            ctx.Db.CollectedHomeworldPickup.Insert(new PickupSpawner.CollectedHomeworldPickup
-            {
-                Id = collectedId,
-                WorldId = pickup.WorldId,
-                PositionX = pickup.PositionX,
-                PositionY = pickup.PositionY,
-                Type = pickup.Type,
-                CollectedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-            });
-        }
     }
 }

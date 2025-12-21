@@ -15,19 +15,6 @@ public static partial class PickupSpawner
         public string WorldId;
     }
 
-    [Table(Name = "collected_homeworld_pickup", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
-    public partial struct CollectedHomeworldPickup
-    {
-        [PrimaryKey]
-        public string Id;
-        public string WorldId;
-        public float PositionX;
-        public float PositionY;
-        public TerrainDetailType Type;
-        public ulong CollectedAt;
-    }
-
     [Table(Scheduled = nameof(RespawnHomeworldPickups))]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     public partial struct ScheduledHomeworldPickupRespawn
@@ -86,30 +73,24 @@ public static partial class PickupSpawner
     [Reducer]
     public static void RespawnHomeworldPickups(ReducerContext ctx, ScheduledHomeworldPickupRespawn args)
     {
-        ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        var expectedPickups = Module.GetExpectedHomeworldPickupLocations();
 
-        var collectedPickups = ctx.Db.CollectedHomeworldPickup.WorldId.Filter(args.WorldId);
-        foreach (var collected in collectedPickups)
+        foreach (var expected in expectedPickups)
         {
-            if (currentTime >= collected.CollectedAt + Module.HOMEWORLD_PICKUP_RESPAWN_DELAY_MICROS)
+            var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, expected.PositionX, expected.PositionY));
+            if (!existingPickup.Any())
             {
-                var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((collected.WorldId, collected.PositionX, collected.PositionY));
-                if (!existingPickup.Any())
+                var pickupId = Module.GenerateId(ctx, "pickup");
+                ctx.Db.pickup.Insert(new Pickup
                 {
-                    var pickupId = Module.GenerateId(ctx, "pickup");
-                    ctx.Db.pickup.Insert(new Pickup
-                    {
-                        Id = pickupId,
-                        WorldId = collected.WorldId,
-                        PositionX = collected.PositionX,
-                        PositionY = collected.PositionY,
-                        Type = collected.Type
-                    });
+                    Id = pickupId,
+                    WorldId = args.WorldId,
+                    PositionX = expected.PositionX,
+                    PositionY = expected.PositionY,
+                    Type = expected.Type
+                });
 
-                    Log.Info($"Respawned {collected.Type} at ({collected.PositionX}, {collected.PositionY}) in homeworld {collected.WorldId}");
-                }
-
-                ctx.Db.CollectedHomeworldPickup.Id.Delete(collected.Id);
+                Log.Info($"Respawned {expected.Type} at ({expected.PositionX}, {expected.PositionY}) in homeworld {args.WorldId}");
             }
         }
     }

@@ -542,4 +542,72 @@ public static partial class Module
     {
         return identity.ToString().ToLower();
     }
+
+    public struct ExpectedPickupLocation
+    {
+        public float PositionX;
+        public float PositionY;
+        public TerrainDetailType Type;
+    }
+
+    public static ExpectedPickupLocation[] GetExpectedHomeworldPickupLocations()
+    {
+        int worldSize = HOMEWORLD_SIZE;
+        int rectCenterX = worldSize / 2;
+        int rectCenterY = worldSize / 2;
+        int rectWidth = 24;
+        int rectHeight = 24;
+
+        int startX = rectCenterX - rectWidth / 2;
+        int startY = rectCenterY - rectHeight / 2;
+
+        int pickupCount = PICKUP_TYPES.Length;
+        int perimeter = 2 * (rectWidth - 1) + 2 * (rectHeight - 1);
+        float spacing = (float)perimeter / pickupCount;
+
+        var locations = new ExpectedPickupLocation[pickupCount];
+        int pickupIndex = 0;
+        float distance = 0;
+
+        while (pickupIndex < pickupCount)
+        {
+            int x = 0;
+            int y = 0;
+
+            int d = (int)distance;
+
+            if (d < rectWidth)
+            {
+                x = startX + d;
+                y = startY;
+            }
+            else if (d < rectWidth + rectHeight - 1)
+            {
+                x = startX + rectWidth - 1;
+                y = startY + (d - rectWidth + 1);
+            }
+            else if (d < 2 * rectWidth + rectHeight - 2)
+            {
+                x = startX + rectWidth - 1 - (d - rectWidth - rectHeight + 1);
+                y = startY + rectHeight - 1;
+            }
+            else
+            {
+                x = startX;
+                y = startY + rectHeight - 1 - (d - 2 * rectWidth - rectHeight + 2);
+            }
+
+            locations[pickupIndex] = new ExpectedPickupLocation
+            {
+                PositionX = x + 0.5f,
+                PositionY = y + 0.5f,
+                Type = PICKUP_TYPES[pickupIndex]
+            };
+
+            pickupIndex++;
+            distance += spacing;
+        }
+
+        return locations;
+    }
 }
