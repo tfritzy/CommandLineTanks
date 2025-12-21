@@ -9,8 +9,6 @@ interface GameHeaderProps {
     worldId: string;
 }
 
-const GAME_DURATION_MICROS = 300_000_000;
-
 export default function GameHeader({ worldId }: GameHeaderProps) {
     const [team0Kills, setTeam0Kills] = useState(0);
     const [team1Kills, setTeam1Kills] = useState(0);
@@ -43,7 +41,8 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
                 setIsVisible(true);
                 const currentTime = BigInt(Date.now() * 1000);
                 const gameElapsedMicros = Number(currentTime - world.gameStartedAt);
-                const remainingMicros = Math.max(0, GAME_DURATION_MICROS - gameElapsedMicros);
+                const gameDurationMicros = Number(world.gameDurationMicros);
+                const remainingMicros = Math.max(0, gameDurationMicros - gameElapsedMicros);
                 const remainingSeconds = Math.floor(remainingMicros / 1_000_000);
                 setTimeRemaining(remainingSeconds);
             } else {

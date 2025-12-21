@@ -25,7 +25,8 @@ public static partial class Module
             Height = TerrainGenerator.GetWorldHeight(),
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
-            GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+            GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+            GameDurationMicros = GAME_DURATION_MICROS
         };
 
         ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
@@ -45,6 +46,13 @@ public static partial class Module
         });
 
         ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 }),
+            WorldId = worldId
+        });
+
+        ctx.Db.ScheduledGameTimeCheck.Insert(new GameTimer.ScheduledGameTimeCheck
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 }),

@@ -160,32 +160,6 @@ public static partial class ProjectileUpdater
             LastTickAt = currentTime
         });
 
-        var world = ctx.Db.world.Id.Find(args.WorldId);
-        if (world != null && world.Value.GameState == GameState.Playing)
-        {
-            var gameElapsedMicros = currentTime - world.Value.GameStartedAt;
-            if (gameElapsedMicros >= Module.GAME_DURATION_MICROS)
-            {
-                var score = ctx.Db.score.WorldId.Find(args.WorldId);
-                if (score != null)
-                {
-                    var updatedWorld = world.Value with { GameState = GameState.Results };
-                    ctx.Db.world.Id.Update(updatedWorld);
-
-                    ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
-                    {
-                        ScheduledId = 0,
-                        ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
-                        WorldId = args.WorldId
-                    });
-
-                    int team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
-                    int team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
-                    Log.Info($"Game time limit reached! Team 0: {team0Kills} kills, Team 1: {team1Kills} kills. Game ending in 30 seconds...");
-                }
-            }
-        }
-
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
         if (traversibilityMap == null) return;
 
@@ -527,7 +501,8 @@ public static partial class ProjectileUpdater
         {
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
-            GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+            GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+            GameDurationMicros = Module.GAME_DURATION_MICROS
         };
         ctx.Db.world.Id.Update(updatedWorld);
 
@@ -632,6 +607,23 @@ public static partial class ProjectileUpdater
         if (!hasPickupSpawner)
         {
             Module.InitializePickupSpawner(ctx, args.WorldId, 5);
+        }
+
+        var existingGameTimeCheck = ctx.Db.ScheduledGameTimeCheck.WorldId.Filter(args.WorldId);
+        bool hasGameTimeCheck = false;
+        foreach (var check in existingGameTimeCheck)
+        {
+            hasGameTimeCheck = true;
+            break;
+        }
+        if (!hasGameTimeCheck)
+        {
+            ctx.Db.ScheduledGameTimeCheck.Insert(new GameTimer.ScheduledGameTimeCheck
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 }),
+                WorldId = args.WorldId
+            });
         }
 
         Log.Info($"World {args.WorldId} reset complete. Teams randomized, {totalTanks} tanks respawned.");
