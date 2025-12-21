@@ -7,6 +7,13 @@ type PathEntry = {
   throttlePercent: number;
 };
 
+const HEALTH_BAR_WIDTH = 32;
+const HEALTH_BAR_HEIGHT = 4;
+const HEALTH_BAR_Y_OFFSET = 24;
+const HEALTH_BAR_COLOR_HIGH = "#4ade80";
+const HEALTH_BAR_COLOR_MEDIUM = "#fbbf24";
+const HEALTH_BAR_COLOR_LOW = "#ef4444";
+
 export class Tank {
   public arrayIndex: number = -1;
   public readonly id: string;
@@ -74,23 +81,26 @@ export class Tank {
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
 
-    const barWidth = 32;
-    const barHeight = 4;
-    const yOffset = 24;
-
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.fillRect(-barWidth / 2, yOffset, barWidth, barHeight);
+    ctx.fillRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
 
     const healthPercent = this.health / this.maxHealth;
-    const healthBarWidth = barWidth * healthPercent;
+    const healthBarWidth = HEALTH_BAR_WIDTH * healthPercent;
 
-    const healthColor = healthPercent > 0.5 ? "#4ade80" : healthPercent > 0.25 ? "#fbbf24" : "#ef4444";
+    let healthColor: string;
+    if (healthPercent > 0.5) {
+      healthColor = HEALTH_BAR_COLOR_HIGH;
+    } else if (healthPercent > 0.25) {
+      healthColor = HEALTH_BAR_COLOR_MEDIUM;
+    } else {
+      healthColor = HEALTH_BAR_COLOR_LOW;
+    }
     ctx.fillStyle = healthColor;
-    ctx.fillRect(-barWidth / 2, yOffset, healthBarWidth, barHeight);
+    ctx.fillRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, healthBarWidth, HEALTH_BAR_HEIGHT);
 
     ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
     ctx.lineWidth = 1;
-    ctx.strokeRect(-barWidth / 2, yOffset, barWidth, barHeight);
+    ctx.strokeRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
 
     ctx.restore();
   }
