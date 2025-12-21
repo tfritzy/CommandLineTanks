@@ -41,8 +41,10 @@ export class MiniMapManager {
     ctx.strokeRect(miniMapX, miniMapY, this.miniMapSize, this.miniMapSize);
 
     const playerPos = playerTank.getPosition();
-    const tankX = Math.max(0, Math.min((playerPos.x / worldWidth) * this.miniMapSize, this.miniMapSize));
-    const tankY = Math.max(0, Math.min((playerPos.y / worldHeight) * this.miniMapSize, this.miniMapSize));
+    const clampedX = Math.max(0, Math.min(playerPos.x, worldWidth));
+    const clampedY = Math.max(0, Math.min(playerPos.y, worldHeight));
+    const tankX = (clampedX / worldWidth) * this.miniMapSize;
+    const tankY = (clampedY / worldHeight) * this.miniMapSize;
 
     const tankColor = playerTank.getAllianceColor();
     ctx.fillStyle = tankColor;
