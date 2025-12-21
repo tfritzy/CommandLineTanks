@@ -4,9 +4,9 @@ using static Module;
 
 public static partial class GameTimer
 {
-    [Table(Scheduled = nameof(CheckGameTime))]
+    [Table(Scheduled = nameof(EndGame))]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
-    public partial struct ScheduledGameTimeCheck
+    public partial struct ScheduledGameEnd
     {
         [AutoInc]
         [PrimaryKey]
@@ -16,7 +16,7 @@ public static partial class GameTimer
     }
 
     [Reducer]
-    public static void CheckGameTime(ReducerContext ctx, ScheduledGameTimeCheck args)
+    public static void EndGame(ReducerContext ctx, ScheduledGameEnd args)
     {
         var world = ctx.Db.world.Id.Find(args.WorldId);
         if (world == null || world.Value.GameState != GameState.Playing)
@@ -24,28 +24,22 @@ public static partial class GameTimer
             return;
         }
 
-        var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        var gameElapsedMicros = currentTime - world.Value.GameStartedAt;
-
-        if (gameElapsedMicros >= (ulong)world.Value.GameDurationMicros)
+        var score = ctx.Db.score.WorldId.Find(args.WorldId);
+        if (score != null)
         {
-            var score = ctx.Db.score.WorldId.Find(args.WorldId);
-            if (score != null)
+            var updatedWorld = world.Value with { GameState = GameState.Results };
+            ctx.Db.world.Id.Update(updatedWorld);
+
+            ctx.Db.ScheduledWorldReset.Insert(new ProjectileUpdater.ScheduledWorldReset
             {
-                var updatedWorld = world.Value with { GameState = GameState.Results };
-                ctx.Db.world.Id.Update(updatedWorld);
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
+                WorldId = args.WorldId
+            });
 
-                ctx.Db.ScheduledWorldReset.Insert(new ProjectileUpdater.ScheduledWorldReset
-                {
-                    ScheduledId = 0,
-                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
-                    WorldId = args.WorldId
-                });
-
-                int team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
-                int team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
-                Log.Info($"Game time limit reached! Team 0: {team0Kills} kills, Team 1: {team1Kills} kills. Game ending in 30 seconds...");
-            }
+            int team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
+            int team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
+            Log.Info($"Game time limit reached! Team 0: {team0Kills} kills, Team 1: {team1Kills} kills. Game ending in 30 seconds...");
         }
     }
 }

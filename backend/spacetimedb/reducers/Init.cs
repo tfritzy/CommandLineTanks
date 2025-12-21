@@ -52,10 +52,10 @@ public static partial class Module
             WorldId = worldId
         });
 
-        ctx.Db.ScheduledGameTimeCheck.Insert(new GameTimer.ScheduledGameTimeCheck
+        ctx.Db.ScheduledGameEnd.Insert(new GameTimer.ScheduledGameEnd
         {
             ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 }),
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = GAME_DURATION_MICROS }),
             WorldId = worldId
         });
 

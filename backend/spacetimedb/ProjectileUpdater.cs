@@ -609,19 +609,19 @@ public static partial class ProjectileUpdater
             Module.InitializePickupSpawner(ctx, args.WorldId, 5);
         }
 
-        var existingGameTimeCheck = ctx.Db.ScheduledGameTimeCheck.WorldId.Filter(args.WorldId);
-        bool hasGameTimeCheck = false;
-        foreach (var check in existingGameTimeCheck)
+        var existingGameEnd = ctx.Db.ScheduledGameEnd.WorldId.Filter(args.WorldId);
+        bool hasGameEnd = false;
+        foreach (var gameEnd in existingGameEnd)
         {
-            hasGameTimeCheck = true;
+            hasGameEnd = true;
             break;
         }
-        if (!hasGameTimeCheck)
+        if (!hasGameEnd)
         {
-            ctx.Db.ScheduledGameTimeCheck.Insert(new GameTimer.ScheduledGameTimeCheck
+            ctx.Db.ScheduledGameEnd.Insert(new GameTimer.ScheduledGameEnd
             {
                 ScheduledId = 0,
-                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 }),
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.GAME_DURATION_MICROS }),
                 WorldId = args.WorldId
             });
         }
