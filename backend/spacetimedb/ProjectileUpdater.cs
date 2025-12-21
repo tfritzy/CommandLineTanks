@@ -148,6 +148,341 @@ public static partial class ProjectileUpdater
         }
     }
 
+    private static Projectile UpdateBoomerangVelocity(Projectile projectile, double projectileAgeSeconds)
+    {
+        if (!projectile.ReturnsToShooter)
+        {
+            return projectile;
+        }
+
+        if (!projectile.IsReturning && projectileAgeSeconds >= projectile.LifetimeSeconds / 2.0)
+        {
+            projectile = projectile with
+            {
+                Velocity = new Vector2Float(-projectile.Velocity.X, -projectile.Velocity.Y),
+                IsReturning = true
+            };
+        }
+
+        float progress = (float)(projectileAgeSeconds / projectile.LifetimeSeconds);
+        float speedMultiplier;
+
+        if (progress < 0.5f)
+        {
+            speedMultiplier = 1.0f - (progress * 0.8f);
+        }
+        else
+        {
+            speedMultiplier = 0.6f + ((progress - 0.5f) * 1.6f);
+        }
+
+        float currentSpeed = projectile.Speed * speedMultiplier;
+        float angle = (float)Math.Atan2(projectile.Velocity.Y, projectile.Velocity.X);
+
+        return projectile with
+        {
+            Velocity = new Vector2Float(
+                (float)(Math.Cos(angle) * currentSpeed),
+                (float)(Math.Sin(angle) * currentSpeed)
+            )
+        };
+    }
+
+    private static Projectile UpdateMissileTracking(ReducerContext ctx, Projectile projectile, string worldId, double deltaTime)
+    {
+        if (projectile.TrackingStrength <= 0)
+        {
+            return projectile;
+        }
+
+        int projectileCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+        int projectileCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+
+        int searchRadius = (int)Math.Ceiling(Module.MISSILE_TRACKING_RADIUS / Module.COLLISION_REGION_SIZE);
+
+        Module.Tank? closestTarget = null;
+        float closestDistanceSquared = Module.MISSILE_TRACKING_RADIUS * Module.MISSILE_TRACKING_RADIUS;
+
+        for (int deltaX = -searchRadius; deltaX <= searchRadius; deltaX++)
+        {
+            for (int deltaY = -searchRadius; deltaY <= searchRadius; deltaY++)
+            {
+                int regionX = projectileCollisionRegionX + deltaX;
+                int regionY = projectileCollisionRegionY + deltaY;
+
+                foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                {
+                    if (tank.Alliance != projectile.Alliance && tank.Health > 0)
+                    {
+                        var dx_tank = tank.PositionX - projectile.PositionX;
+                        var dy_tank = tank.PositionY - projectile.PositionY;
+                        var distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
+
+                        if (distanceSquared < closestDistanceSquared)
+                        {
+                            closestDistanceSquared = distanceSquared;
+                            closestTarget = tank;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (closestTarget == null)
+        {
+            return projectile;
+        }
+
+        var targetDx = closestTarget.Value.PositionX - projectile.PositionX;
+        var targetDy = closestTarget.Value.PositionY - projectile.PositionY;
+        var targetAngle = Math.Atan2(targetDy, targetDx);
+
+        var currentAngle = Math.Atan2(projectile.Velocity.Y, projectile.Velocity.X);
+        var angleDiff = targetAngle - currentAngle;
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+        var turnAmount = Math.Sign(angleDiff) * Math.Min(Math.Abs(angleDiff), projectile.TrackingStrength * deltaTime);
+        var newAngle = currentAngle + turnAmount;
+
+        return projectile with
+        {
+            Velocity = new Vector2Float(
+                (float)(Math.Cos(newAngle) * projectile.Speed),
+                (float)(Math.Sin(newAngle) * projectile.Speed)
+            )
+        };
+    }
+
+    private static (bool collided, Projectile projectile, Module.TraversibilityMap traversibilityMap) HandleTerrainCollision(
+        ReducerContext ctx,
+        Projectile projectile,
+        Module.TraversibilityMap traversibilityMap,
+        string worldId,
+        double deltaTime)
+    {
+        int projectileTileX = Module.GetGridPosition(projectile.PositionX);
+        int projectileTileY = Module.GetGridPosition(projectile.PositionY);
+
+        if (projectileTileX < 0 || projectileTileX >= traversibilityMap.Width ||
+            projectileTileY < 0 || projectileTileY >= traversibilityMap.Height)
+        {
+            return (false, projectile, traversibilityMap);
+        }
+
+        int tileIndex = projectileTileY * traversibilityMap.Width + projectileTileX;
+        bool tileIsTraversable = tileIndex < traversibilityMap.Map.Length && traversibilityMap.Map[tileIndex];
+
+        if (tileIsTraversable || projectile.PassThroughTerrain)
+        {
+            return (false, projectile, traversibilityMap);
+        }
+
+        if (projectile.BounceDamping != null && projectile.BounceDamping > 0)
+        {
+            projectile = HandleProjectileBounce(projectile, projectileTileX, projectileTileY, deltaTime);
+            return (false, projectile, traversibilityMap);
+        }
+
+        float centerX = projectileTileX + 0.5f;
+        float centerY = projectileTileY + 0.5f;
+        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((worldId, centerX, centerY)))
+        {
+            if (terrainDetail.Health == null)
+            {
+                continue;
+            }
+
+            var newHealth = terrainDetail.Health.Value - projectile.Damage;
+            if (newHealth <= 0)
+            {
+                ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+
+                traversibilityMap.Map[tileIndex] = true;
+                ctx.Db.traversibility_map.WorldId.Update(traversibilityMap);
+            }
+            else
+            {
+                ctx.Db.terrain_detail.Id.Update(terrainDetail with
+                {
+                    Health = newHealth
+                });
+            }
+
+            ctx.Db.projectile.Id.Delete(projectile.Id);
+            return (true, projectile, traversibilityMap);
+        }
+
+        return (false, projectile, traversibilityMap);
+    }
+
+    private static Projectile HandleProjectileBounce(Projectile projectile, int projectileTileX, int projectileTileY, double deltaTime)
+    {
+        float previousX = projectile.PositionX - projectile.Velocity.X * (float)deltaTime;
+        float previousY = projectile.PositionY - projectile.Velocity.Y * (float)deltaTime;
+
+        int prevTileX = Module.GetGridPosition(previousX);
+        int prevTileY = Module.GetGridPosition(previousY);
+
+        bool bounceX = prevTileX != projectileTileX;
+        bool bounceY = prevTileY != projectileTileY;
+
+        float newVelX = projectile.Velocity.X;
+        float newVelY = projectile.Velocity.Y;
+        float newPosX = projectile.PositionX;
+        float newPosY = projectile.PositionY;
+
+        if (bounceX)
+        {
+            newVelX = -projectile.Velocity.X * projectile.BounceDamping.Value;
+            newPosX = previousX;
+        }
+        if (bounceY)
+        {
+            newVelY = -projectile.Velocity.Y * projectile.BounceDamping.Value;
+            newPosY = previousY;
+        }
+
+        return projectile with
+        {
+            PositionX = newPosX,
+            PositionY = newPosY,
+            Velocity = new Vector2Float(newVelX, newVelY),
+            Speed = (float)Math.Sqrt(newVelX * newVelX + newVelY * newVelY)
+        };
+    }
+
+    private static (int minRegionX, int maxRegionX, int minRegionY, int maxRegionY) CalculateTankCollisionRegions(Projectile projectile)
+    {
+        int tankCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+        int tankCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+
+        float regionLocalX = projectile.PositionX - (tankCollisionRegionX * Module.COLLISION_REGION_SIZE);
+        float regionLocalY = projectile.PositionY - (tankCollisionRegionY * Module.COLLISION_REGION_SIZE);
+
+        float totalCollisionRadius = projectile.CollisionRadius + Module.TANK_COLLISION_RADIUS;
+
+        int minRegionX = tankCollisionRegionX;
+        int maxRegionX = tankCollisionRegionX;
+        int minRegionY = tankCollisionRegionY;
+        int maxRegionY = tankCollisionRegionY;
+
+        if (regionLocalX < totalCollisionRadius)
+        {
+            minRegionX = tankCollisionRegionX - 1;
+        }
+        else if (regionLocalX > Module.COLLISION_REGION_SIZE - totalCollisionRadius)
+        {
+            maxRegionX = tankCollisionRegionX + 1;
+        }
+
+        if (regionLocalY < totalCollisionRadius)
+        {
+            minRegionY = tankCollisionRegionY - 1;
+        }
+        else if (regionLocalY > Module.COLLISION_REGION_SIZE - totalCollisionRadius)
+        {
+            maxRegionY = tankCollisionRegionY + 1;
+        }
+
+        return (minRegionX, maxRegionX, minRegionY, maxRegionY);
+    }
+
+    private static bool HandleBoomerangReturn(ReducerContext ctx, Projectile projectile, Module.Tank tank)
+    {
+        if (!projectile.ReturnsToShooter || !projectile.IsReturning || tank.Id != projectile.ShooterTankId)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < tank.Guns.Length; i++)
+        {
+            if (tank.Guns[i].GunType == GunType.Boomerang)
+            {
+                var gun = tank.Guns[i];
+                if (gun.Ammo != null)
+                {
+                    gun.Ammo = gun.Ammo.Value + 1;
+                    tank.Guns[i] = gun;
+                    ctx.Db.tank.Id.Update(tank);
+                    Log.Info($"Tank {tank.Name} caught the boomerang! Ammo restored.");
+                }
+                break;
+            }
+        }
+
+        ctx.Db.projectile.Id.Delete(projectile.Id);
+        return true;
+    }
+
+    private static (bool collided, Projectile projectile) HandleTankCollisions(
+        ReducerContext ctx,
+        Projectile projectile,
+        string worldId,
+        int minRegionX,
+        int maxRegionX,
+        int minRegionY,
+        int maxRegionY)
+    {
+        float totalCollisionRadius = projectile.CollisionRadius + Module.TANK_COLLISION_RADIUS;
+        float collisionRadiusSquared = totalCollisionRadius * totalCollisionRadius;
+
+        for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
+        {
+            if (regionX < 0) continue;
+
+            for (int regionY = minRegionY; regionY <= maxRegionY; regionY++)
+            {
+                if (regionY < 0) continue;
+
+                foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                {
+                    float dx = tank.PositionX - projectile.PositionX;
+                    float dy = tank.PositionY - projectile.PositionY;
+                    float distanceSquared = dx * dx + dy * dy;
+
+                    if (distanceSquared <= collisionRadiusSquared)
+                    {
+                        if (HandleBoomerangReturn(ctx, projectile, tank))
+                        {
+                            return (true, projectile);
+                        }
+
+                        if (tank.Alliance != projectile.Alliance && tank.Health > 0)
+                        {
+                            if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0)
+                            {
+                                if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
+                                {
+                                    ExplodeProjectile(ctx, projectile, worldId);
+                                    ctx.Db.projectile.Id.Delete(projectile.Id);
+                                    return (true, projectile);
+                                }
+                            }
+                            else
+                            {
+                                HandleTankDamage(ctx, tank, projectile, worldId);
+                            }
+
+                            projectile = projectile with
+                            {
+                                CollisionCount = projectile.CollisionCount + 1
+                            };
+
+                            if (projectile.CollisionCount >= projectile.MaxCollisions)
+                            {
+                                ctx.Db.projectile.Id.Delete(projectile.Id);
+                                return (true, projectile);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return (false, projectile);
+    }
+
     [Reducer]
     public static void UpdateProjectiles(ReducerContext ctx, ScheduledProjectileUpdates args)
     {
@@ -160,8 +495,9 @@ public static partial class ProjectileUpdater
             LastTickAt = currentTime
         });
 
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
-        if (traversibilityMap == null) return;
+        var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
+        if (traversibilityMapQuery == null) return;
+        var traversibilityMap = traversibilityMapQuery.Value;
 
         foreach (var iProjectile in ctx.Db.projectile.WorldId.Filter(args.WorldId))
         {
@@ -180,99 +516,9 @@ public static partial class ProjectileUpdater
                 continue;
             }
 
-            if (projectile.ReturnsToShooter && !projectile.IsReturning && projectileAgeSeconds >= projectile.LifetimeSeconds / 2.0)
-            {
-                projectile = projectile with
-                {
-                    Velocity = new Vector2Float(-projectile.Velocity.X, -projectile.Velocity.Y),
-                    IsReturning = true
-                };
-            }
+            projectile = UpdateBoomerangVelocity(projectile, projectileAgeSeconds);
 
-            if (projectile.ReturnsToShooter)
-            {
-                float progress = (float)(projectileAgeSeconds / projectile.LifetimeSeconds);
-                float speedMultiplier;
-
-                if (progress < 0.5f)
-                {
-                    speedMultiplier = 1.0f - (progress * 0.8f);
-                }
-                else
-                {
-                    speedMultiplier = 0.6f + ((progress - 0.5f) * 1.6f);
-                }
-
-                float currentSpeed = projectile.Speed * speedMultiplier;
-                float angle = (float)Math.Atan2(projectile.Velocity.Y, projectile.Velocity.X);
-
-                projectile = projectile with
-                {
-                    Velocity = new Vector2Float(
-                        (float)(Math.Cos(angle) * currentSpeed),
-                        (float)(Math.Sin(angle) * currentSpeed)
-                    )
-                };
-            }
-
-            if (projectile.TrackingStrength > 0)
-            {
-                int projectileCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-                int projectileCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
-
-                int searchRadius = (int)Math.Ceiling(Module.MISSILE_TRACKING_RADIUS / Module.COLLISION_REGION_SIZE);
-
-                Module.Tank? closestTarget = null;
-                float closestDistanceSquared = Module.MISSILE_TRACKING_RADIUS * Module.MISSILE_TRACKING_RADIUS;
-
-                for (int dx = -searchRadius; dx <= searchRadius; dx++)
-                {
-                    for (int dy = -searchRadius; dy <= searchRadius; dy++)
-                    {
-                        int regionX = projectileCollisionRegionX + dx;
-                        int regionY = projectileCollisionRegionY + dy;
-
-                        foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, regionX, regionY)))
-                        {
-                            if (tank.Alliance != projectile.Alliance && tank.Health > 0)
-                            {
-                                var dx_tank = tank.PositionX - projectile.PositionX;
-                                var dy_tank = tank.PositionY - projectile.PositionY;
-                                var distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
-
-                                if (distanceSquared < closestDistanceSquared)
-                                {
-                                    closestDistanceSquared = distanceSquared;
-                                    closestTarget = tank;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (closestTarget != null)
-                {
-                    var dx = closestTarget.Value.PositionX - projectile.PositionX;
-                    var dy = closestTarget.Value.PositionY - projectile.PositionY;
-                    var targetAngle = Math.Atan2(dy, dx);
-
-                    var currentAngle = Math.Atan2(projectile.Velocity.Y, projectile.Velocity.X);
-                    var angleDiff = targetAngle - currentAngle;
-                    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-                    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-
-                    var turnAmount = Math.Sign(angleDiff) * Math.Min(Math.Abs(angleDiff), projectile.TrackingStrength * deltaTime);
-                    var newAngle = currentAngle + turnAmount;
-
-                    projectile = projectile with
-                    {
-                        Velocity = new Vector2Float(
-                            (float)(Math.Cos(newAngle) * projectile.Speed),
-                            (float)(Math.Sin(newAngle) * projectile.Speed)
-                        )
-                    };
-                }
-            }
+            projectile = UpdateMissileTracking(ctx, projectile, args.WorldId, deltaTime);
 
             projectile = projectile with
             {
@@ -280,199 +526,14 @@ public static partial class ProjectileUpdater
                 PositionY = (float)(projectile.PositionY + projectile.Velocity.Y * deltaTime)
             };
 
-            int projectileTileX = Module.GetGridPosition(projectile.PositionX);
-            int projectileTileY = Module.GetGridPosition(projectile.PositionY);
+            bool collided;
+            (collided, projectile, traversibilityMap) = HandleTerrainCollision(ctx, projectile, traversibilityMap, args.WorldId, deltaTime);
 
-            bool collided = false;
+            if (collided) continue;
 
-            if (projectileTileX >= 0 && projectileTileX < traversibilityMap.Value.Width &&
-                projectileTileY >= 0 && projectileTileY < traversibilityMap.Value.Height)
-            {
-                int tileIndex = projectileTileY * traversibilityMap.Value.Width + projectileTileX;
-                bool tileIsTraversable = tileIndex < traversibilityMap.Value.Map.Length && traversibilityMap.Value.Map[tileIndex];
+            var (minRegionX, maxRegionX, minRegionY, maxRegionY) = CalculateTankCollisionRegions(projectile);
 
-                if (!tileIsTraversable && !projectile.PassThroughTerrain)
-                {
-                    if (projectile.BounceDamping != null && projectile.BounceDamping > 0)
-                    {
-                        float previousX = projectile.PositionX - projectile.Velocity.X * (float)deltaTime;
-                        float previousY = projectile.PositionY - projectile.Velocity.Y * (float)deltaTime;
-
-                        int prevTileX = Module.GetGridPosition(previousX);
-                        int prevTileY = Module.GetGridPosition(previousY);
-
-                        bool bounceX = prevTileX != projectileTileX;
-                        bool bounceY = prevTileY != projectileTileY;
-
-                        float newVelX = projectile.Velocity.X;
-                        float newVelY = projectile.Velocity.Y;
-                        float newPosX = projectile.PositionX;
-                        float newPosY = projectile.PositionY;
-
-                        if (bounceX)
-                        {
-                            newVelX = -projectile.Velocity.X * projectile.BounceDamping.Value;
-                            newPosX = previousX;
-                        }
-                        if (bounceY)
-                        {
-                            newVelY = -projectile.Velocity.Y * projectile.BounceDamping.Value;
-                            newPosY = previousY;
-                        }
-
-                        projectile = projectile with
-                        {
-                            PositionX = newPosX,
-                            PositionY = newPosY,
-                            Velocity = new Vector2Float(newVelX, newVelY),
-                            Speed = (float)Math.Sqrt(newVelX * newVelX + newVelY * newVelY)
-                        };
-                    }
-                    else
-                    {
-                        float centerX = projectileTileX + 0.5f;
-                        float centerY = projectileTileY + 0.5f;
-                        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, centerX, centerY)))
-                        {
-                            if (terrainDetail.Health == null)
-                            {
-                                continue;
-                            }
-
-                            var newHealth = terrainDetail.Health.Value - projectile.Damage;
-                            if (newHealth <= 0)
-                            {
-                                ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
-
-                                traversibilityMap.Value.Map[tileIndex] = true;
-                                ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
-                            }
-                            else
-                            {
-                                ctx.Db.terrain_detail.Id.Update(terrainDetail with
-                                {
-                                    Health = newHealth
-                                });
-                            }
-
-                            ctx.Db.projectile.Id.Delete(projectile.Id);
-                            collided = true;
-                            break;
-                        }
-                    }
-
-                    if (collided) continue;
-                }
-            }
-
-            int tankCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-            int tankCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
-
-            float regionLocalX = projectile.PositionX - (tankCollisionRegionX * Module.COLLISION_REGION_SIZE);
-            float regionLocalY = projectile.PositionY - (tankCollisionRegionY * Module.COLLISION_REGION_SIZE);
-
-            float totalCollisionRadius = projectile.CollisionRadius + Module.TANK_COLLISION_RADIUS;
-
-            int minRegionX = tankCollisionRegionX;
-            int maxRegionX = tankCollisionRegionX;
-            int minRegionY = tankCollisionRegionY;
-            int maxRegionY = tankCollisionRegionY;
-
-            if (regionLocalX < totalCollisionRadius)
-            {
-                minRegionX = tankCollisionRegionX - 1;
-            }
-            else if (regionLocalX > Module.COLLISION_REGION_SIZE - totalCollisionRadius)
-            {
-                maxRegionX = tankCollisionRegionX + 1;
-            }
-
-            if (regionLocalY < totalCollisionRadius)
-            {
-                minRegionY = tankCollisionRegionY - 1;
-            }
-            else if (regionLocalY > Module.COLLISION_REGION_SIZE - totalCollisionRadius)
-            {
-                maxRegionY = tankCollisionRegionY + 1;
-            }
-
-            for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
-            {
-                if (regionX < 0) continue;
-
-                for (int regionY = minRegionY; regionY <= maxRegionY; regionY++)
-                {
-                    if (regionY < 0) continue;
-
-                    foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, regionX, regionY)))
-                    {
-                        float dx = tank.PositionX - projectile.PositionX;
-                        float dy = tank.PositionY - projectile.PositionY;
-                        float distanceSquared = dx * dx + dy * dy;
-                        float collisionRadiusSquared = totalCollisionRadius * totalCollisionRadius;
-
-                        if (distanceSquared <= collisionRadiusSquared)
-                        {
-                            if (projectile.ReturnsToShooter && projectile.IsReturning && tank.Id == projectile.ShooterTankId)
-                            {
-                                for (int i = 0; i < tank.Guns.Length; i++)
-                                {
-                                    if (tank.Guns[i].GunType == GunType.Boomerang)
-                                    {
-                                        var gun = tank.Guns[i];
-                                        if (gun.Ammo != null)
-                                        {
-                                            gun.Ammo = gun.Ammo.Value + 1;
-                                            tank.Guns[i] = gun;
-                                            ctx.Db.tank.Id.Update(tank);
-                                            Log.Info($"Tank {tank.Name} caught the boomerang! Ammo restored.");
-                                        }
-                                        break;
-                                    }
-                                }
-
-                                ctx.Db.projectile.Id.Delete(projectile.Id);
-                                collided = true;
-                                break;
-                            }
-
-                            if (tank.Alliance != projectile.Alliance && tank.Health > 0)
-                            {
-                                if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0)
-                                {
-                                    if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
-                                    {
-                                        ExplodeProjectile(ctx, projectile, args.WorldId);
-                                        ctx.Db.projectile.Id.Delete(projectile.Id);
-                                        collided = true;
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    HandleTankDamage(ctx, tank, projectile, args.WorldId);
-                                }
-
-                                projectile = projectile with
-                                {
-                                    CollisionCount = projectile.CollisionCount + 1
-                                };
-
-                                if (projectile.CollisionCount >= projectile.MaxCollisions)
-                                {
-                                    ctx.Db.projectile.Id.Delete(projectile.Id);
-                                    collided = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (collided) break;
-                }
-
-                if (collided) break;
-            }
+            (collided, projectile) = HandleTankCollisions(ctx, projectile, args.WorldId, minRegionX, maxRegionX, minRegionY, maxRegionY);
 
             if (!collided)
             {
