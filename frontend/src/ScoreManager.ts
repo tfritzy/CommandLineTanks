@@ -66,8 +66,8 @@ export class ScoreManager {
     
     const padding = 20;
     const barWidth = 250;
-    const barHeight = 30;
-    const spacing = 5;
+    const barHeight = 22;
+    const spacing = 10;
     const x = canvasWidth - padding;
     let y = padding;
 
@@ -104,10 +104,6 @@ export class ScoreManager {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
     ctx.fill();
 
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
     ctx.clip();
 
     ctx.beginPath();
@@ -126,7 +122,7 @@ export class ScoreManager {
     const killText = player.kills === 1 ? 'kill' : 'kills';
     const text = `${player.name}: ${player.kills} ${killText}`;
 
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 14px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
