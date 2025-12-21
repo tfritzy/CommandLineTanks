@@ -25,6 +25,7 @@ export default __t.object("World", {
   get gameState() {
     return GameState;
   },
+  gameStartedAt: __t.u64(),
 });
 
 

@@ -25,4 +25,5 @@ export default __t.row({
   get gameState() {
     return GameState;
   },
+  gameStartedAt: __t.u64(),
 });
