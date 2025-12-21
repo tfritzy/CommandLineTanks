@@ -12,12 +12,13 @@ interface PlayerScore {
 export class ScoreManager {
   private playerScores: Map<string, PlayerScore> = new Map();
   private maxKills: number = 10;
+  private sortedPlayers: PlayerScore[] = [];
 
   constructor(worldId: string) {
     this.subscribeToTanks(worldId);
   }
 
-  private createPlayerScore(tank: Infer<typeof TankRow>): PlayerScore {
+  private static createPlayerScore(tank: Infer<typeof TankRow>): PlayerScore {
     return {
       name: tank.name,
       kills: tank.kills,
@@ -25,9 +26,11 @@ export class ScoreManager {
     };
   }
 
-  private updateMaxKills() {
+  private updateLeaderboard() {
     const allKills = Array.from(this.playerScores.values()).map(p => p.kills);
     this.maxKills = allKills.length > 0 ? Math.max(10, ...allKills) : 10;
+    this.sortedPlayers = Array.from(this.playerScores.values())
+      .sort((a, b) => b.kills - a.kills);
   }
 
   private subscribeToTanks(worldId: string) {
@@ -43,18 +46,18 @@ export class ScoreManager {
       .subscribe([`SELECT * FROM tank WHERE WorldId = '${worldId}'`]);
 
     connection.db.tank.onInsert((_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-      this.playerScores.set(tank.id, this.createPlayerScore(tank));
-      this.updateMaxKills();
+      this.playerScores.set(tank.id, ScoreManager.createPlayerScore(tank));
+      this.updateLeaderboard();
     });
 
     connection.db.tank.onUpdate((_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-      this.playerScores.set(newTank.id, this.createPlayerScore(newTank));
-      this.updateMaxKills();
+      this.playerScores.set(newTank.id, ScoreManager.createPlayerScore(newTank));
+      this.updateLeaderboard();
     });
 
     connection.db.tank.onDelete((_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       this.playerScores.delete(tank.id);
-      this.updateMaxKills();
+      this.updateLeaderboard();
     });
   }
 
@@ -68,10 +71,7 @@ export class ScoreManager {
     const x = canvasWidth - padding;
     let y = padding;
 
-    const sortedPlayers = Array.from(this.playerScores.values())
-      .sort((a, b) => b.kills - a.kills);
-
-    for (const player of sortedPlayers) {
+    for (const player of this.sortedPlayers) {
       this.drawPlayerScore(ctx, player, x, y, barWidth, barHeight);
       y += barHeight + spacing;
     }
