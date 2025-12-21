@@ -6,7 +6,7 @@ public static partial class Module
 {
     private const float SPAWN_PADDING_RATIO = 0.25f;
     private const int MAX_SPAWN_ATTEMPTS = 100;
-    private const int HOMEWORLD_SIZE = 40;
+    public const int HOMEWORLD_SIZE = 40;
     private const float GRID_POSITION_TOLERANCE = 0.0001f;
 
     public static int GetGridPosition(float position)
@@ -194,85 +194,9 @@ public static partial class Module
             });
         }
 
-        InitializeHomeworldPickups(ctx, identityString, worldSize);
-        InitializeHomeworldPickupRespawnTimer(ctx, identityString);
+        HomeworldPickupManager.InitializeHomeworldPickupTimer(ctx, identityString);
 
         Log.Info($"Created homeworld for identity {identityString}");
-    }
-
-    private static void InitializeHomeworldPickupRespawnTimer(ReducerContext ctx, string worldId)
-    {
-        ctx.Db.ScheduledHomeworldPickupRespawn.Insert(new PickupSpawner.ScheduledHomeworldPickupRespawn
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = HOMEWORLD_PICKUP_RESPAWN_DELAY_MICROS }),
-            WorldId = worldId
-        });
-
-        Log.Info($"Initialized homeworld pickup respawn timer for {worldId}");
-    }
-
-    private static void InitializeHomeworldPickups(ReducerContext ctx, string worldId, int worldSize)
-    {
-        int rectCenterX = worldSize / 2;
-        int rectCenterY = worldSize / 2;
-        int rectWidth = 24;
-        int rectHeight = 24;
-
-        int startX = rectCenterX - rectWidth / 2;
-        int startY = rectCenterY - rectHeight / 2;
-
-        int pickupCount = PICKUP_TYPES.Length;
-        int perimeter = 2 * (rectWidth - 1) + 2 * (rectHeight - 1);
-        float spacing = (float)perimeter / pickupCount;
-
-        int pickupIndex = 0;
-        float distance = 0;
-
-        while (pickupIndex < pickupCount)
-        {
-            int x = 0;
-            int y = 0;
-
-            int d = (int)distance;
-
-            if (d < rectWidth)
-            {
-                x = startX + d;
-                y = startY;
-            }
-            else if (d < rectWidth + rectHeight - 1)
-            {
-                x = startX + rectWidth - 1;
-                y = startY + (d - rectWidth + 1);
-            }
-            else if (d < 2 * rectWidth + rectHeight - 2)
-            {
-                x = startX + rectWidth - 1 - (d - rectWidth - rectHeight + 1);
-                y = startY + rectHeight - 1;
-            }
-            else
-            {
-                x = startX;
-                y = startY + rectHeight - 1 - (d - 2 * rectWidth - rectHeight + 2);
-            }
-
-            var pickupId = GenerateId(ctx, "pickup");
-            var pickupType = PICKUP_TYPES[pickupIndex];
-            ctx.Db.pickup.Insert(new Pickup
-            {
-                Id = pickupId,
-                WorldId = worldId,
-                PositionX = x + 0.5f,
-                PositionY = y + 0.5f,
-                Type = pickupType
-            });
-
-            pickupIndex++;
-            distance += spacing;
-        }
-
-        Log.Info($"Initialized {pickupIndex} pickups for homeworld {worldId}");
     }
 
     private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY, bool isBot = false)
@@ -541,73 +465,5 @@ public static partial class Module
     public static string GetHomeworldId(Identity identity)
     {
         return identity.ToString().ToLower();
-    }
-
-    public struct ExpectedPickupLocation
-    {
-        public float PositionX;
-        public float PositionY;
-        public TerrainDetailType Type;
-    }
-
-    public static ExpectedPickupLocation[] GetExpectedHomeworldPickupLocations()
-    {
-        int worldSize = HOMEWORLD_SIZE;
-        int rectCenterX = worldSize / 2;
-        int rectCenterY = worldSize / 2;
-        int rectWidth = 24;
-        int rectHeight = 24;
-
-        int startX = rectCenterX - rectWidth / 2;
-        int startY = rectCenterY - rectHeight / 2;
-
-        int pickupCount = PICKUP_TYPES.Length;
-        int perimeter = 2 * (rectWidth - 1) + 2 * (rectHeight - 1);
-        float spacing = (float)perimeter / pickupCount;
-
-        var locations = new ExpectedPickupLocation[pickupCount];
-        int pickupIndex = 0;
-        float distance = 0;
-
-        while (pickupIndex < pickupCount)
-        {
-            int x = 0;
-            int y = 0;
-
-            int d = (int)distance;
-
-            if (d < rectWidth)
-            {
-                x = startX + d;
-                y = startY;
-            }
-            else if (d < rectWidth + rectHeight - 1)
-            {
-                x = startX + rectWidth - 1;
-                y = startY + (d - rectWidth + 1);
-            }
-            else if (d < 2 * rectWidth + rectHeight - 2)
-            {
-                x = startX + rectWidth - 1 - (d - rectWidth - rectHeight + 1);
-                y = startY + rectHeight - 1;
-            }
-            else
-            {
-                x = startX;
-                y = startY + rectHeight - 1 - (d - 2 * rectWidth - rectHeight + 2);
-            }
-
-            locations[pickupIndex] = new ExpectedPickupLocation
-            {
-                PositionX = x + 0.5f,
-                PositionY = y + 0.5f,
-                Type = PICKUP_TYPES[pickupIndex]
-            };
-
-            pickupIndex++;
-            distance += spacing;
-        }
-
-        return locations;
     }
 }

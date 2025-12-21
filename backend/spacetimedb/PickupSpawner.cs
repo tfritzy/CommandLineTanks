@@ -15,17 +15,6 @@ public static partial class PickupSpawner
         public string WorldId;
     }
 
-    [Table(Scheduled = nameof(RespawnHomeworldPickups))]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
-    public partial struct ScheduledHomeworldPickupRespawn
-    {
-        [AutoInc]
-        [PrimaryKey]
-        public ulong ScheduledId;
-        public ScheduleAt ScheduledAt;
-        public string WorldId;
-    }
-
     [Reducer]
     public static void SpawnPickup(ReducerContext ctx, ScheduledPickupSpawn args)
     {
@@ -68,30 +57,5 @@ public static partial class PickupSpawner
         double u1 = 1.0 - random.NextDouble();
         double u2 = 1.0 - random.NextDouble();
         return (float)(Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2));
-    }
-
-    [Reducer]
-    public static void RespawnHomeworldPickups(ReducerContext ctx, ScheduledHomeworldPickupRespawn args)
-    {
-        var expectedPickups = Module.GetExpectedHomeworldPickupLocations();
-
-        foreach (var expected in expectedPickups)
-        {
-            var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, expected.PositionX, expected.PositionY));
-            if (!existingPickup.Any())
-            {
-                var pickupId = Module.GenerateId(ctx, "pickup");
-                ctx.Db.pickup.Insert(new Pickup
-                {
-                    Id = pickupId,
-                    WorldId = args.WorldId,
-                    PositionX = expected.PositionX,
-                    PositionY = expected.PositionY,
-                    Type = expected.Type
-                });
-
-                Log.Info($"Respawned {expected.Type} at ({expected.PositionX}, {expected.PositionY}) in homeworld {args.WorldId}");
-            }
-        }
     }
 }
