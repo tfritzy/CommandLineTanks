@@ -205,7 +205,7 @@ public static partial class Module
         ctx.Db.ScheduledHomeworldPickupRespawn.Insert(new PickupSpawner.ScheduledHomeworldPickupRespawn
         {
             ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 15_000_000 }),
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = HOMEWORLD_PICKUP_RESPAWN_DELAY_MICROS }),
             WorldId = worldId
         });
 

@@ -13,6 +13,7 @@ public static partial class Module
     public const int KILL_LIMIT = 100;
     public const long WORLD_RESET_DELAY_MICROS = 30_000_000;
     public const float MISSILE_TRACKING_RADIUS = 8.0f;
+    public const long HOMEWORLD_PICKUP_RESPAWN_DELAY_MICROS = 15_000_000;
 
 
     public static readonly Gun BASE_GUN = new Gun

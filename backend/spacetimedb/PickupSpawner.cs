@@ -87,22 +87,14 @@ public static partial class PickupSpawner
     public static void RespawnHomeworldPickups(ReducerContext ctx, ScheduledHomeworldPickupRespawn args)
     {
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        ulong respawnDelay = 15_000_000;
 
         var collectedPickups = ctx.Db.CollectedHomeworldPickup.WorldId.Filter(args.WorldId);
         foreach (var collected in collectedPickups)
         {
-            if (currentTime >= collected.CollectedAt + respawnDelay)
+            if (currentTime >= collected.CollectedAt + Module.HOMEWORLD_PICKUP_RESPAWN_DELAY_MICROS)
             {
                 var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((collected.WorldId, collected.PositionX, collected.PositionY));
-                bool exists = false;
-                foreach (var existing in existingPickup)
-                {
-                    exists = true;
-                    break;
-                }
-
-                if (!exists)
+                if (!existingPickup.Any())
                 {
                     var pickupId = Module.GenerateId(ctx, "pickup");
                     ctx.Db.pickup.Insert(new Pickup
