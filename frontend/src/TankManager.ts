@@ -97,4 +97,10 @@ export class TankManager {
       tank.drawBody(ctx);
     }
   }
+
+  public drawHealthBars(ctx: CanvasRenderingContext2D) {
+    for (const tank of this.tanks.values()) {
+      tank.drawHealthBar(ctx);
+    }
+  }
 }

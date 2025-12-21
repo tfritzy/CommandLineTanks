@@ -68,6 +68,33 @@ export class Tank {
     this.drawBody(ctx);
   }
 
+  public drawHealthBar(ctx: CanvasRenderingContext2D) {
+    if (this.health <= 0 || this.health >= this.maxHealth) return;
+
+    ctx.save();
+    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
+
+    const barWidth = 32;
+    const barHeight = 4;
+    const yOffset = 24;
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillRect(-barWidth / 2, yOffset, barWidth, barHeight);
+
+    const healthPercent = this.health / this.maxHealth;
+    const healthBarWidth = barWidth * healthPercent;
+
+    const healthColor = healthPercent > 0.5 ? "#4ade80" : healthPercent > 0.25 ? "#fbbf24" : "#ef4444";
+    ctx.fillStyle = healthColor;
+    ctx.fillRect(-barWidth / 2, yOffset, healthBarWidth, barHeight);
+
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-barWidth / 2, yOffset, barWidth, barHeight);
+
+    ctx.restore();
+  }
+
   public drawShadow(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
 
