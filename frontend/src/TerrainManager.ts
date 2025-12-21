@@ -219,14 +219,14 @@ export class TerrainManager {
         const index = tileY * this.worldWidth + tileX;
         const terrain = this.baseTerrainLayer[index];
 
-        const worldX = (tileX - 0.5) * unitToPixel;
-        const worldY = (tileY - 0.5) * unitToPixel;
+        const worldX = tileX * unitToPixel;
+        const worldY = tileY * unitToPixel;
 
         ctx.fillStyle = this.getBaseTerrainColor(terrain);
         ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);
 
         if (terrain.tag === "Farm") {
-          ctx.fillStyle = "#313148"; // Subtle offset from ground color
+          ctx.fillStyle = "#313148";
           const numGrooves = 2;
           const grooveHeight = unitToPixel * 0.15;
 

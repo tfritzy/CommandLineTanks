@@ -14,14 +14,14 @@ public static class AStarPathfinding
         public AStarNode? Parent;
     }
 
-    public static List<(int x, int y)> FindPath(
+    public static List<(float x, float y)> FindPath(
         int startX,
         int startY,
         int targetX,
         int targetY,
         Module.TraversibilityMap traversibilityMap)
     {
-        var emptyPath = new List<(int x, int y)>();
+        var emptyPath = new List<(float x, float y)>();
 
         if (startX == targetX && startY == targetY)
         {
@@ -68,11 +68,11 @@ public static class AStarPathfinding
 
             if (current.X == targetX && current.Y == targetY)
             {
-                var fullPath = new List<(int x, int y)>();
+                var fullPath = new List<(float x, float y)>();
                 var node = current;
                 while (node.Parent != null)
                 {
-                    fullPath.Add((node.X, node.Y));
+                    fullPath.Add((node.X + 0.5f, node.Y + 0.5f));
                     node = node.Parent;
                 }
                 fullPath.Reverse();
@@ -151,11 +151,11 @@ public static class AStarPathfinding
 
         if (closestNode != null && closestNode.Parent != null)
         {
-            var partialPath = new List<(int x, int y)>();
+            var partialPath = new List<(float x, float y)>();
             var node = closestNode;
             while (node.Parent != null)
             {
-                partialPath.Add((node.X, node.Y));
+                partialPath.Add((node.X + 0.5f, node.Y + 0.5f));
                 node = node.Parent;
             }
             partialPath.Reverse();
@@ -172,14 +172,14 @@ public static class AStarPathfinding
         return 10 * (dx + dy) + (14 - 2 * 10) * Math.Min(dx, dy);
     }
 
-    private static List<(int x, int y)> SimplifyPath(List<(int x, int y)> fullPath)
+    private static List<(float x, float y)> SimplifyPath(List<(float x, float y)> fullPath)
     {
         if (fullPath.Count <= 1)
         {
             return fullPath;
         }
 
-        var simplifiedPath = new List<(int x, int y)>();
+        var simplifiedPath = new List<(float x, float y)>();
         simplifiedPath.Add(fullPath[0]);
 
         int currentDirectionX = 0;

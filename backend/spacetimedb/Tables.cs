@@ -151,8 +151,8 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public string WorldId;
 
-        public int PositionX;
-        public int PositionY;
+        public float PositionX;
+        public float PositionY;
 
         public TerrainDetailType Type;
 
@@ -175,8 +175,8 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public string WorldId;
 
-        public int PositionX;
-        public int PositionY;
+        public float PositionX;
+        public float PositionY;
 
         public TerrainDetailType Type;
     }

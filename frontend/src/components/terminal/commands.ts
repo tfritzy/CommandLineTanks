@@ -81,7 +81,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       "Commands:",
-      "  drive, d, dr         Move your tank in a direction",
       "  navigate, nav, n     Navigate to a tank, direction, or coordinate using pathfinding",
       "  reverse, r           Reverse in the direction the tank is facing",
       "  stop, s              Stop the tank immediately",
@@ -98,40 +97,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   const command = args[0].toLowerCase();
 
   switch (command) {
-    case "drive":
-    case "d":
-    case "dr":
-      return [
-        "drive, d, dr - Move your tank in a direction",
-        "",
-        "Usage: drive <direction> [distance] [throttle] [--append|-a]",
-        "",
-        "Arguments:",
-        "  <direction>   Direction to move (required)",
-        "                Directions:",
-        "                  ↑: north, up, n, u",
-        "                  ↗: northeast, upright, rightup, ne, ur, ru",
-        "                  →: east, right, e, r",
-        "                  ↘: southeast, downright, rightdown, se, dr, rd",
-        "                  ↓: south, down, s, d",
-        "                  ↙: southwest, downleft, leftdown, sw, dl, ld",
-        "                  ←: west, left, w, l",
-        "                  ↖: northwest, upleft, leftup, nw, ul, lu",
-        "  [distance]    Distance to travel in units (default: 1)",
-        "  [throttle]    Speed as percentage 1-100 (default: 100)",
-        "",
-        "Options:",
-        "  --append, -a  Add this movement to existing path instead of replacing",
-        "",
-        "Examples:",
-        "  drive east",
-        "  d e",
-        "  drive north 5",
-        "  d n 5",
-        "  drive southeast 3 75",
-        "  d se 3 75 -a"
-      ];
-
     case "navigate":
     case "nav":
       return [
@@ -298,8 +263,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  help",
-        "  help drive",
-        "  h d"
+        "  help navigate",
+        "  h n"
       ];
 
     default:
@@ -309,99 +274,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Use 'help' to see available commands."
       ];
   }
-}
-
-export function drive(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (isPlayerDead(connection, worldId)) {
-    return [
-      "drive: error: cannot drive while dead",
-      "",
-      "Use 'respawn' to respawn"
-    ];
-  }
-
-  const recognizedFlags = ["--append", "-a"];
-  const unrecognizedFlag = args.find(arg => arg.startsWith('-') && !recognizedFlags.includes(arg));
-
-  if (unrecognizedFlag) {
-    return [
-      `drive: error: unrecognized flag '${unrecognizedFlag}'`,
-      "",
-      `Valid flags: ${recognizedFlags.join(", ")}`,
-      "",
-      "Usage: drive <direction> [distance] [throttle] [--append|-a]",
-      "       drive east 3 75 --append"
-    ];
-  }
-
-  const append = args.some(arg => arg === "--append" || arg === "-a");
-  args = args.filter(arg => !arg.startsWith('-'))
-
-  if (args.length < 1) {
-    return [
-      "drive: error: missing required argument '<direction>'",
-      "",
-      "Usage: drive <direction> [distance] [throttle]",
-      "       drive east 3 75"
-    ];
-  }
-
-  const direction = args[0].toLowerCase();
-  if (!validDirections.includes(direction)) {
-    return [
-      `drive: error: invalid value '${direction}' for '<direction>'`,
-      "Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu",
-      "Use 'help drive' for full list",
-      "",
-      "Usage: drive <direction> [distance] [throttle]",
-      "       drive east 3"
-    ];
-  }
-
-  const directionInfo = directionAliases[direction];
-  const offset = { x: directionInfo.x, y: directionInfo.y };
-
-  let distance = 1;
-  if (args.length > 1) {
-    const parsed = Number.parseInt(args[1]);
-    if (Number.isNaN(parsed)) {
-      return [
-        `drive: error: invalid value '${args[1]}' for '[distance]': must be a valid integer`,
-        "",
-        "Usage: drive <direction> [distance] [throttle]",
-        "       drive east 3"
-      ];
-    } else {
-      distance = parsed;
-    }
-  }
-  offset.x *= distance;
-  offset.y *= distance;
-
-  let throttle = 1;
-  if (args.length > 2) {
-    const parsed = Number.parseInt(args[2]);
-    if (Number.isNaN(parsed)) {
-      return [
-        `drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
-        "",
-        "Usage: drive <direction> [distance] [throttle]",
-        "       drive east 3 75"
-      ];
-    } else {
-      throttle = parsed / 100;
-    }
-  }
-
-  connection.reducers.drive({ worldId, offset, throttle, append });
-
-  const explanation = `${distance} ${distance != 1 ? "units" : "unit"} ${directionInfo.symbol} ${directionInfo.name} at ${throttle == 1 ? "full" : throttle * 100 + "%"} throttle`;
-  if (append) {
-    return [`Added drive ${explanation} to path`];
-  }
-  return [
-    `Driving ${explanation}`,
-  ];
 }
 
 export function aim(connection: DbConnection, worldId: string, args: string[]): string[] {
