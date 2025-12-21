@@ -18,6 +18,7 @@ export class TerrainManager {
   private detailAtlasCtx: CanvasRenderingContext2D | null = null;
   private detailAtlasNeedsUpdate: boolean = true;
   private atlasInitialized: boolean = false;
+  private readonly ATLAS_PADDING = 32;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -62,8 +63,8 @@ export class TerrainManager {
   private initializeAtlasCanvases() {
     if (this.worldWidth === 0 || this.worldHeight === 0) return;
 
-    const atlasWidth = this.worldWidth * UNIT_TO_PIXEL;
-    const atlasHeight = this.worldHeight * UNIT_TO_PIXEL;
+    const atlasWidth = this.worldWidth * UNIT_TO_PIXEL + 2 * this.ATLAS_PADDING;
+    const atlasHeight = this.worldHeight * UNIT_TO_PIXEL + 2 * this.ATLAS_PADDING;
 
     this.detailAtlasCanvas = document.createElement('canvas');
     this.detailAtlasCanvas.width = atlasWidth;
@@ -79,6 +80,9 @@ export class TerrainManager {
 
     this.detailAtlasCtx.clearRect(0, 0, this.detailAtlasCanvas!.width, this.detailAtlasCanvas!.height);
 
+    this.detailAtlasCtx.save();
+    this.detailAtlasCtx.translate(this.ATLAS_PADDING, this.ATLAS_PADDING);
+
     for (const obj of this.detailObjects.values()) {
       obj.drawShadow(this.detailAtlasCtx);
     }
@@ -86,6 +90,8 @@ export class TerrainManager {
     for (const obj of this.detailObjects.values()) {
       obj.drawBody(this.detailAtlasCtx);
     }
+
+    this.detailAtlasCtx.restore();
 
     this.detailAtlasNeedsUpdate = false;
     this.atlasInitialized = true;
@@ -260,20 +266,31 @@ export class TerrainManager {
     const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
     const endTileY = Math.min(this.worldHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
 
-    const atlasTileWidth = endTileX - startTileX + 1;
-    const atlasTileHeight = endTileY - startTileY + 1;
+    const sourceX = Math.max(0, startTileX * unitToPixel - this.ATLAS_PADDING);
+    const sourceY = Math.max(0, startTileY * unitToPixel - this.ATLAS_PADDING);
+    const sourceWidth = Math.min(
+      (endTileX - startTileX + 1) * unitToPixel + 2 * this.ATLAS_PADDING,
+      this.detailAtlasCanvas.width - sourceX
+    );
+    const sourceHeight = Math.min(
+      (endTileY - startTileY + 1) * unitToPixel + 2 * this.ATLAS_PADDING,
+      this.detailAtlasCanvas.height - sourceY
+    );
 
-    if (atlasTileWidth > 0 && atlasTileHeight > 0) {
+    const destX = startTileX * unitToPixel - this.ATLAS_PADDING;
+    const destY = startTileY * unitToPixel - this.ATLAS_PADDING;
+
+    if (sourceWidth > 0 && sourceHeight > 0) {
       ctx.drawImage(
         this.detailAtlasCanvas,
-        startTileX * unitToPixel,
-        startTileY * unitToPixel,
-        atlasTileWidth * unitToPixel,
-        atlasTileHeight * unitToPixel,
-        startTileX * unitToPixel,
-        startTileY * unitToPixel,
-        atlasTileWidth * unitToPixel,
-        atlasTileHeight * unitToPixel
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        destX,
+        destY,
+        sourceWidth,
+        sourceHeight
       );
     }
   }
