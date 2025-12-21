@@ -83,8 +83,8 @@ export class TankManager {
     const connection = getConnection();
     if (!connection?.identity) return;
     
-    const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === this.worldId);
-    const playerTankRow = allTanks.find(t => t.owner.isEqual(connection.identity!));
+    const playerTankRow = Array.from(connection.db.tank.iter())
+      .find(t => t.worldId === this.worldId && t.owner.isEqual(connection.identity!));
     
     if (playerTankRow) {
       const playerTank = this.tanks.get(playerTankRow.id);
