@@ -229,7 +229,7 @@ public static partial class TerrainGenerator
                     {
                         for (int x = startX; x < startX + fieldWidth; x++)
                         {
-                            if ((x + y) % 2 == 0)
+                            if ((x + y) % 3 == 0)
                             {
                                 int hIndex = y * WORLD_WIDTH + x;
                                 if (baseTerrain[hIndex] == BaseTerrain.Farm)
