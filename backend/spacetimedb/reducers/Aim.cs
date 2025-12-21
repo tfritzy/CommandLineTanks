@@ -10,7 +10,12 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        tank.TargetTurretRotation = angleRadians;
+        var angleDiff = angleRadians - tank.TurretRotation;
+        while (angleDiff > MathF.PI) angleDiff -= 2 * MathF.PI;
+        while (angleDiff < -MathF.PI) angleDiff += 2 * MathF.PI;
+        var normalizedAngle = tank.TurretRotation + angleDiff;
+
+        tank.TargetTurretRotation = normalizedAngle;
         tank.Target = null;
         ctx.Db.tank.Id.Update(tank);
     }
