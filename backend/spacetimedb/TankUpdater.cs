@@ -149,19 +149,18 @@ public static partial class TankUpdater
                     var deltaX = targetX - tank.PositionX;
                     var deltaY = targetY - tank.PositionY;
                     var aimAngle = Math.Atan2(deltaY, deltaX);
+                    var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
 
-                    if (Math.Abs(tank.TargetTurretRotation - (float)aimAngle) > 0.001)
+                    if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
                     {
-                        tank = tank with { TargetTurretRotation = (float)aimAngle };
+                        tank = tank with { TargetTurretRotation = normalizedAimAngle };
                     }
                 }
             }
 
             if (Math.Abs(tank.TurretRotation - tank.TargetTurretRotation) > 0.001)
             {
-                var angleDiff = tank.TargetTurretRotation - tank.TurretRotation;
-                while (angleDiff > MathF.PI) angleDiff -= 2 * MathF.PI;
-                while (angleDiff < -MathF.PI) angleDiff += 2 * MathF.PI;
+                var angleDiff = Module.GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation);
 
                 var rotationAmount = tank.TurretRotationSpeed * deltaTime;
 

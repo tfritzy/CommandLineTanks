@@ -227,11 +227,7 @@ public static class BehaviorTreeLogic
         var deltaY = target.PositionY - tank.PositionY;
         var aimAngle = Math.Atan2(deltaY, deltaX);
 
-        var turretAngleDiff = aimAngle - tank.TurretRotation;
-        while (turretAngleDiff > Math.PI) turretAngleDiff -= 2 * Math.PI;
-        while (turretAngleDiff < -Math.PI) turretAngleDiff += 2 * Math.PI;
-
-        return turretAngleDiff;
+        return Module.GetNormalizedAngleDifference((float)aimAngle, tank.TurretRotation);
     }
 
     public static Module.Pickup? FindNearestHealthPickup(Module.Tank tank, List<Module.Pickup> allPickups)

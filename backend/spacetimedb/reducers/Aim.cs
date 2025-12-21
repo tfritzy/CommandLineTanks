@@ -10,7 +10,9 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        tank.TargetTurretRotation = angleRadians;
+        var normalizedAngle = Module.NormalizeAngleToTarget(angleRadians, tank.TurretRotation);
+
+        tank.TargetTurretRotation = normalizedAngle;
         tank.Target = null;
         ctx.Db.tank.Id.Update(tank);
     }
