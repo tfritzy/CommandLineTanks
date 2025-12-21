@@ -7,9 +7,6 @@ import { UNIT_TO_PIXEL } from "./game";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
-
-
-
 export class TerrainManager {
   private worldWidth: number = 0;
   private worldHeight: number = 0;

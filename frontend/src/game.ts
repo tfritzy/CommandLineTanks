@@ -137,8 +137,8 @@ export class Game {
 
     if (playerTank) {
       const playerPos = playerTank.getPosition();
-      cameraX = playerPos.x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - displayWidth / 2;
-      cameraY = playerPos.y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2 - displayHeight / 2;
+      cameraX = playerPos.x * UNIT_TO_PIXEL - displayWidth / 2;
+      cameraY = playerPos.y * UNIT_TO_PIXEL - displayHeight / 2;
     }
 
     this.ctx.translate(-cameraX, -cameraY);
@@ -162,12 +162,9 @@ export class Game {
 
     this.tankManager.drawPaths(this.ctx);
     this.tankManager.drawShadows(this.ctx);
+    this.projectileManager.drawShadows(this.ctx);
 
     this.drawRelativeDistanceLabels(cameraX, cameraY);
-
-    for (const projectile of this.projectileManager.getAllProjectiles()) {
-      projectile.draw(this.ctx);
-    }
 
     this.terrainManager.drawShadows(
       this.ctx,
@@ -188,15 +185,16 @@ export class Game {
     );
 
     this.tankManager.drawBodies(this.ctx);
+    this.projectileManager.drawBodies(this.ctx);
 
-    // this.collisionVisualizationManager.draw(
-    //   this.ctx,
-    //   cameraX,
-    //   cameraY,
-    //   displayWidth,
-    //   displayHeight,
-    //   UNIT_TO_PIXEL
-    // );
+    this.collisionVisualizationManager.draw(
+      this.ctx,
+      cameraX,
+      cameraY,
+      displayWidth,
+      displayHeight,
+      UNIT_TO_PIXEL
+    );
 
     this.ctx.restore();
 

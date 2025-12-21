@@ -53,6 +53,18 @@ export class ProjectileManager {
     }
   }
 
+  public drawShadows(ctx: CanvasRenderingContext2D) {
+    for (const projectile of this.projectiles.values()) {
+      projectile.drawShadow(ctx);
+    }
+  }
+
+  public drawBodies(ctx: CanvasRenderingContext2D) {
+    for (const projectile of this.projectiles.values()) {
+      projectile.drawBody(ctx);
+    }
+  }
+
   public getAllProjectiles(): IterableIterator<Projectile> {
     return this.projectiles.values();
   }
