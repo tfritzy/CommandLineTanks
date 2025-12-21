@@ -27,10 +27,6 @@ public static partial class PickupSpawner
 
         if (pickupCount >= 15)
         {
-            ctx.Db.ScheduledPickupSpawn.ScheduledId.Update(args with
-            {
-                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 8_000_000 })
-            });
             return;
         }
 
@@ -45,11 +41,6 @@ public static partial class PickupSpawner
                 break;
             }
         }
-
-        ctx.Db.ScheduledPickupSpawn.ScheduledId.Update(args with
-        {
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 8_000_000 })
-        });
     }
 
     public static float GenerateNormalDistribution(Random random)
