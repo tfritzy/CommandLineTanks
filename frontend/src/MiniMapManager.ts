@@ -6,6 +6,8 @@ export class MiniMapManager {
   private terrainManager: TerrainManager;
   private miniMapSize: number = 150;
   private margin: number = 20;
+  private backgroundPadding: number = 5;
+  private tankIndicatorRadius: number = 5;
 
   constructor(tankManager: TankManager, terrainManager: TerrainManager) {
     this.tankManager = tankManager;
@@ -27,7 +29,12 @@ export class MiniMapManager {
     ctx.save();
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.fillRect(miniMapX - 5, miniMapY - 5, this.miniMapSize + 10, this.miniMapSize + 10);
+    ctx.fillRect(
+      miniMapX - this.backgroundPadding,
+      miniMapY - this.backgroundPadding,
+      this.miniMapSize + this.backgroundPadding * 2,
+      this.miniMapSize + this.backgroundPadding * 2
+    );
 
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 2;
@@ -42,7 +49,7 @@ export class MiniMapManager {
     ctx.arc(
       miniMapX + tankX,
       miniMapY + tankY,
-      5,
+      this.tankIndicatorRadius,
       0,
       Math.PI * 2
     );
