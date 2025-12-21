@@ -160,9 +160,7 @@ public static partial class TankUpdater
 
             if (Math.Abs(tank.TurretRotation - tank.TargetTurretRotation) > 0.001)
             {
-                var angleDiff = tank.TargetTurretRotation - tank.TurretRotation;
-                while (angleDiff > MathF.PI) angleDiff -= 2 * MathF.PI;
-                while (angleDiff < -MathF.PI) angleDiff += 2 * MathF.PI;
+                var angleDiff = Module.GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation);
 
                 var rotationAmount = tank.TurretRotationSpeed * deltaTime;
 

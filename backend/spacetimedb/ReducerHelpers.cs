@@ -22,6 +22,14 @@ public static partial class Module
         return currentAngle + angleDiff;
     }
 
+    public static float GetNormalizedAngleDifference(float targetAngle, float currentAngle)
+    {
+        var angleDiff = targetAngle - currentAngle;
+        while (angleDiff > MathF.PI) angleDiff -= 2 * MathF.PI;
+        while (angleDiff < -MathF.PI) angleDiff += 2 * MathF.PI;
+        return angleDiff;
+    }
+
     public static Tank RespawnTank(ReducerContext ctx, Tank tank, string worldId, int alliance, bool resetKills = false)
     {
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
