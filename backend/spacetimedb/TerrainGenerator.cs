@@ -17,8 +17,11 @@ public static partial class TerrainGenerator
     private const int ROTATION_SOUTH = 2;
     private const int ROTATION_WEST = 3;
 
+    private static readonly int[] p = new int[512];
+
     public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random)
     {
+        InitPerlin(random);
         var baseTerrain = new BaseTerrain[WORLD_WIDTH * WORLD_HEIGHT];
         var terrainDetails = new List<(int x, int y, TerrainDetailType type, int rotation)>();
         var terrainDetailArray = new TerrainDetailType[WORLD_WIDTH * WORLD_HEIGHT];
@@ -57,7 +60,7 @@ public static partial class TerrainGenerator
 
     private static void GenerateRocks(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random)
     {
-        int numRocks = 100 + random.Next(100);
+        int numRocks = 30 + random.Next(40);
 
         for (int i = 0; i < numRocks; i++)
         {
@@ -249,35 +252,61 @@ public static partial class TerrainGenerator
 
     private static void GenerateTrees(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random)
     {
-        int numTrees = 200 + random.Next(200);
+        float scale = 0.1f;
+        float threshold = 0.2f;
 
-        for (int i = 0; i < numTrees; i++)
+        for (int y = 0; y < WORLD_HEIGHT; y++)
         {
-            int x = random.Next(WORLD_WIDTH);
-            int y = random.Next(WORLD_HEIGHT);
-            int index = y * WORLD_WIDTH + x;
-
-            if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
+            for (int x = 0; x < WORLD_WIDTH; x++)
             {
-                continue;
-            }
+                int index = y * WORLD_WIDTH + x;
 
-            bool nearField = false;
-            for (int f = 0; f < fieldTiles.Length; f++)
-            {
-                if (Math.Abs(fieldTiles[f].X - x) <= 1 && Math.Abs(fieldTiles[f].Y - y) <= 1)
+                if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
                 {
-                    nearField = true;
-                    break;
+                    continue;
+                }
+
+                float noiseValue = Noise(x * scale, y * scale);
+                if (noiseValue > threshold)
+                {
+                    bool nearField = false;
+                    for (int f = 0; f < fieldTiles.Length; f++)
+                    {
+                        if (Math.Abs(fieldTiles[f].X - x) <= 1 && Math.Abs(fieldTiles[f].Y - y) <= 1)
+                        {
+                            nearField = true;
+                            break;
+                        }
+                    }
+
+                    if (nearField) continue;
+
+                    bool neighborHasTree = false;
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        for (int dx = -1; dx <= 1; dx++)
+                        {
+                            if (dx == 0 && dy == 0) continue;
+                            int nx = x + dx;
+                            int ny = y + dy;
+                            if (nx >= 0 && nx < WORLD_WIDTH && ny >= 0 && ny < WORLD_HEIGHT)
+                            {
+                                if (terrainDetail[ny * WORLD_WIDTH + nx] == TerrainDetailType.Tree)
+                                {
+                                    neighborHasTree = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (neighborHasTree) break;
+                    }
+
+                    if (!neighborHasTree)
+                    {
+                        terrainDetail[index] = TerrainDetailType.Tree;
+                    }
                 }
             }
-
-            if (nearField)
-            {
-                continue;
-            }
-
-            terrainDetail[index] = TerrainDetailType.Tree;
         }
     }
 
@@ -557,5 +586,41 @@ public static partial class TerrainGenerator
         }
 
         return traversibility;
+    }
+
+    private static void InitPerlin(Random random)
+    {
+        for (int i = 0; i < 256; i++) p[i] = i;
+        for (int i = 0; i < 256; i++)
+        {
+            int j = random.Next(256);
+            int temp = p[i];
+            p[i] = p[j];
+            p[j] = temp;
+        }
+        for (int i = 0; i < 256; i++) p[256 + i] = p[i];
+    }
+
+    private static float Fade(float t) => t * t * t * (t * (t * 6 - 15) + 10);
+    private static float Lerp(float t, float a, float b) => a + t * (b - a);
+    private static float Grad(int hash, float x, float y)
+    {
+        int h = hash & 15;
+        float u = h < 8 ? x : y;
+        float v = h < 4 ? y : h == 12 || h == 14 ? x : 0;
+        return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+    }
+
+    private static float Noise(float x, float y)
+    {
+        int X = (int)Math.Floor(x) & 255;
+        int Y = (int)Math.Floor(y) & 255;
+        x -= (float)Math.Floor(x);
+        y -= (float)Math.Floor(y);
+        float u = Fade(x);
+        float v = Fade(y);
+        int A = p[X] + Y, AA = p[A], AB = p[A + 1], B = p[X + 1] + Y, BA = p[B], BB = p[B + 1];
+        return Lerp(v, Lerp(u, Grad(p[AA], x, y), Grad(p[BA], x - 1, y)),
+                       Lerp(u, Grad(p[AB], x, y - 1), Grad(p[BB], x - 1, y - 1)));
     }
 }
