@@ -41,8 +41,8 @@ export class MiniMapManager {
     ctx.strokeRect(miniMapX, miniMapY, this.miniMapSize, this.miniMapSize);
 
     const playerPos = playerTank.getPosition();
-    const tankX = (playerPos.x / worldWidth) * this.miniMapSize;
-    const tankY = (playerPos.y / worldHeight) * this.miniMapSize;
+    const tankX = Math.max(0, Math.min((playerPos.x / worldWidth) * this.miniMapSize, this.miniMapSize));
+    const tankY = Math.max(0, Math.min((playerPos.y / worldHeight) * this.miniMapSize, this.miniMapSize));
 
     ctx.fillStyle = "#00ff00";
     ctx.beginPath();
