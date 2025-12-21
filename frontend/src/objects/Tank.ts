@@ -299,4 +299,8 @@ export class Tank {
   public getHealth(): number {
     return this.health;
   }
+
+  public getAllianceColor(): string {
+    return this.alliance === 0 ? "#ff5555" : "#5555ff";
+  }
 }

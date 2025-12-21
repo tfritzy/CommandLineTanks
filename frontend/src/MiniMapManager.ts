@@ -28,7 +28,7 @@ export class MiniMapManager {
 
     ctx.save();
 
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillStyle = "#2e2e43";
     ctx.fillRect(
       miniMapX - this.backgroundPadding,
       miniMapY - this.backgroundPadding,
@@ -36,15 +36,16 @@ export class MiniMapManager {
       this.miniMapSize + this.backgroundPadding * 2
     );
 
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    ctx.lineWidth = 1;
     ctx.strokeRect(miniMapX, miniMapY, this.miniMapSize, this.miniMapSize);
 
     const playerPos = playerTank.getPosition();
     const tankX = Math.max(0, Math.min((playerPos.x / worldWidth) * this.miniMapSize, this.miniMapSize));
     const tankY = Math.max(0, Math.min((playerPos.y / worldHeight) * this.miniMapSize, this.miniMapSize));
 
-    ctx.fillStyle = "#00ff00";
+    const tankColor = playerTank.getAllianceColor();
+    ctx.fillStyle = tankColor;
     ctx.beginPath();
     ctx.arc(
       miniMapX + tankX,
