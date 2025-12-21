@@ -59,6 +59,10 @@ export class Tank {
     this.selectedGunIndex = selectedGunIndex;
   }
 
+  public getAllianceColor(): string {
+    return this.alliance === 0 ? "#ff5555" : "#5555ff";
+  }
+
   public draw(ctx: CanvasRenderingContext2D) {
     this.drawShadow(ctx);
     this.drawBody(ctx);
@@ -89,7 +93,7 @@ export class Tank {
     ctx.save();
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
 
-    const allianceColor = this.alliance === 0 ? "#ff5555" : "#5555ff";
+    const allianceColor = this.getAllianceColor();
     const bodyColor = getFlashColor(allianceColor, this.flashTimer);
     const borderColor = getFlashColor(this.alliance === 0 ? "#330000" : "#000033", this.flashTimer);
     const selfShadowColor = "rgba(0, 0, 0, 0.35)";
@@ -298,9 +302,5 @@ export class Tank {
 
   public getHealth(): number {
     return this.health;
-  }
-
-  public getAllianceColor(): string {
-    return this.alliance === 0 ? "#ff5555" : "#5555ff";
   }
 }
