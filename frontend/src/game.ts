@@ -5,6 +5,7 @@ import { ScoreManager } from "./ScoreManager";
 import { GunInventoryManager } from "./GunInventoryManager";
 import { PickupManager } from "./PickupManager";
 import { CollisionVisualizationManager } from "./CollisionVisualizationManager";
+import { MiniMapManager } from "./MiniMapManager";
 
 export const UNIT_TO_PIXEL = 50;
 
@@ -21,6 +22,7 @@ export class Game {
   private gunInventoryManager: GunInventoryManager;
   private pickupManager: PickupManager;
   private collisionVisualizationManager: CollisionVisualizationManager;
+  private miniMapManager: MiniMapManager;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -40,6 +42,7 @@ export class Game {
     this.gunInventoryManager = new GunInventoryManager(worldId);
     this.pickupManager = new PickupManager(worldId);
     this.collisionVisualizationManager = new CollisionVisualizationManager(worldId);
+    this.miniMapManager = new MiniMapManager(this.tankManager, this.terrainManager);
   }
 
   private resizeCanvas() {
@@ -199,6 +202,7 @@ export class Game {
     this.ctx.restore();
 
     this.scoreManager.draw(this.ctx, displayWidth);
+    this.miniMapManager.draw(this.ctx, displayWidth, displayHeight);
     // this.gunInventoryManager.draw(this.ctx, this.canvas.width, this.canvas.height);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
