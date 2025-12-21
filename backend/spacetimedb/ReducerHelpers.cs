@@ -452,8 +452,16 @@ public static partial class Module
             return false;
         }
 
-        int pickupTypeIndex = ctx.Rng.Next(PICKUP_TYPES.Length);
-        TerrainDetailType pickupType = PICKUP_TYPES[pickupTypeIndex];
+        TerrainDetailType pickupType;
+        if (ctx.Rng.NextDouble() < 0.33)
+        {
+            pickupType = TerrainDetailType.HealthPickup;
+        }
+        else
+        {
+            int pickupTypeIndex = ctx.Rng.Next(NON_HEALTH_PICKUP_TYPES.Length);
+            pickupType = NON_HEALTH_PICKUP_TYPES[pickupTypeIndex];
+        }
 
         var pickupId = GenerateId(ctx, "pickup");
         ctx.Db.pickup.Insert(new Pickup
