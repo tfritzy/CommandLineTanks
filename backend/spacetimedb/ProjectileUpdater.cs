@@ -298,18 +298,18 @@ public static partial class ProjectileUpdater
                     {
                         float previousX = projectile.PositionX - projectile.Velocity.X * (float)deltaTime;
                         float previousY = projectile.PositionY - projectile.Velocity.Y * (float)deltaTime;
-                        
+
                         int prevTileX = Module.GetGridPosition(previousX);
                         int prevTileY = Module.GetGridPosition(previousY);
-                        
+
                         bool bounceX = prevTileX != projectileTileX;
                         bool bounceY = prevTileY != projectileTileY;
-                        
+
                         float newVelX = projectile.Velocity.X;
                         float newVelY = projectile.Velocity.Y;
                         float newPosX = projectile.PositionX;
                         float newPosY = projectile.PositionY;
-                        
+
                         if (bounceX)
                         {
                             newVelX = -projectile.Velocity.X * projectile.BounceDamping.Value;
@@ -320,7 +320,7 @@ public static partial class ProjectileUpdater
                             newVelY = -projectile.Velocity.Y * projectile.BounceDamping.Value;
                             newPosY = previousY;
                         }
-                        
+
                         projectile = projectile with
                         {
                             PositionX = newPosX,

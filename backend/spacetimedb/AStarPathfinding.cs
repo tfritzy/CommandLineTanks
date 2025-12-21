@@ -180,10 +180,9 @@ public static class AStarPathfinding
         }
 
         var simplifiedPath = new List<(float x, float y)>();
-        simplifiedPath.Add(fullPath[0]);
 
-        int currentDirectionX = 0;
-        int currentDirectionY = 0;
+        int currentDirectionX = Math.Sign(fullPath[1].x - fullPath[0].x);
+        int currentDirectionY = Math.Sign(fullPath[1].y - fullPath[0].y);
 
         for (int i = 1; i < fullPath.Count; i++)
         {

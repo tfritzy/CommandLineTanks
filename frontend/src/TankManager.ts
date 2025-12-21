@@ -46,6 +46,7 @@ export class TankManager {
 
     connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
       const tank = this.tanks.get(newTank.id);
+      console.log(JSON.parse(JSON.stringify(tank)));
       if (tank) {
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
