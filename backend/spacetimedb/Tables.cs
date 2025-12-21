@@ -28,6 +28,8 @@ public static partial class Module
         public int Height;
         public BaseTerrain[] BaseTerrainLayer;
         public GameState GameState;
+        public ulong GameStartedAt;
+        public long GameDurationMicros;
     }
 
     [Table(Name = "traversibility_map", Public = true)]

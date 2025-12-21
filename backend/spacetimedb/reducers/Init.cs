@@ -24,7 +24,9 @@ public static partial class Module
             Width = TerrainGenerator.GetWorldWidth(),
             Height = TerrainGenerator.GetWorldHeight(),
             BaseTerrainLayer = baseTerrain,
-            GameState = GameState.Playing
+            GameState = GameState.Playing,
+            GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+            GameDurationMicros = GAME_DURATION_MICROS
         };
 
         ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
@@ -47,6 +49,13 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 }),
+            WorldId = worldId
+        });
+
+        ctx.Db.ScheduledGameEnd.Insert(new GameTimer.ScheduledGameEnd
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = GAME_DURATION_MICROS }),
             WorldId = worldId
         });
 

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Game } from './game';
 import TerminalComponent from './components/terminal/Terminal';
 import ResultsScreen from './components/ResultsScreen';
+import GameHeader from './components/GameHeader';
 import { connectToSpacetimeDB, getConnection } from './spacetimedb-connection';
 import { useWorldSwitcher } from './hooks/useWorldSwitcher';
 import { type Infer } from 'spacetimedb';
@@ -106,6 +107,7 @@ function App() {
       overflow: 'hidden'
     }}>
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+        <GameHeader worldId={worldId} />
         <canvas
           ref={canvasRef}
           style={{

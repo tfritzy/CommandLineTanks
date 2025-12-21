@@ -500,7 +500,9 @@ public static partial class ProjectileUpdater
         var updatedWorld = world.Value with
         {
             BaseTerrainLayer = baseTerrain,
-            GameState = GameState.Playing
+            GameState = GameState.Playing,
+            GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+            GameDurationMicros = Module.GAME_DURATION_MICROS
         };
         ctx.Db.world.Id.Update(updatedWorld);
 
@@ -605,6 +607,23 @@ public static partial class ProjectileUpdater
         if (!hasPickupSpawner)
         {
             Module.InitializePickupSpawner(ctx, args.WorldId, 5);
+        }
+
+        var existingGameEnd = ctx.Db.ScheduledGameEnd.WorldId.Filter(args.WorldId);
+        bool hasGameEnd = false;
+        foreach (var gameEnd in existingGameEnd)
+        {
+            hasGameEnd = true;
+            break;
+        }
+        if (!hasGameEnd)
+        {
+            ctx.Db.ScheduledGameEnd.Insert(new GameTimer.ScheduledGameEnd
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.GAME_DURATION_MICROS }),
+                WorldId = args.WorldId
+            });
         }
 
         Log.Info($"World {args.WorldId} reset complete. Teams randomized, {totalTanks} tanks respawned.");
