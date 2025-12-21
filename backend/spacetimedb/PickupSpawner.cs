@@ -29,7 +29,7 @@ public static partial class PickupSpawner
         {
             ctx.Db.ScheduledPickupSpawn.ScheduledId.Update(args with
             {
-                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 15_000_000 })
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 8_000_000 })
             });
             return;
         }
@@ -48,7 +48,7 @@ public static partial class PickupSpawner
 
         ctx.Db.ScheduledPickupSpawn.ScheduledId.Update(args with
         {
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 15_000_000 })
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 8_000_000 })
         });
     }
 

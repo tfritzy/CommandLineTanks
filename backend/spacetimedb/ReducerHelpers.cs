@@ -390,7 +390,7 @@ public static partial class Module
         ctx.Db.ScheduledPickupSpawn.Insert(new PickupSpawner.ScheduledPickupSpawn
         {
             ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 15_000_000 }),
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 8_000_000 }),
             WorldId = worldId
         });
 
