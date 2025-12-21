@@ -107,8 +107,8 @@ export class CollisionVisualizationManager {
       for (let tileX = startTileX; tileX <= endTileX; tileX++) {
         const index = tileY * this.mapWidth + tileX;
         if (!this.traversibilityMap[index]) {
-          const worldX = (tileX - 0.5) * unitToPixel;
-          const worldY = (tileY - 0.5) * unitToPixel;
+          const worldX = tileX * unitToPixel;
+          const worldY = tileY * unitToPixel;
           ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);
         }
       }

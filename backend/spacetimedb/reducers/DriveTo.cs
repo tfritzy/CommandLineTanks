@@ -48,7 +48,7 @@ public static partial class Module
         {
             pathEntries.Add(new PathEntry
             {
-                Position = new Vector2(point.x, point.y),
+                Position = new Vector2Float(point.x, point.y),
                 ThrottlePercent = throttle,
                 Reverse = false
             });

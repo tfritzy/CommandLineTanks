@@ -340,12 +340,12 @@ public static partial class Module
             int index = y * worldWidth + x;
             if (index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
             {
-                return (x, y);
+                return (x + 0.5f, y + 0.5f);
             }
         }
 
-        float centerX = (minX + maxX) / 2.0f;
-        float centerY = (minY + maxY) / 2.0f;
+        float centerX = (minX + maxX) / 2.0f + 0.5f;
+        float centerY = (minY + maxY) / 2.0f + 0.5f;
         return (centerX, centerY);
     }
 

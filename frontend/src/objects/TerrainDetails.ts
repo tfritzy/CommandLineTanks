@@ -130,14 +130,13 @@ export class HayBale extends TerrainDetailObject {
     ctx.save();
     const x = Math.round(this.x);
     const y = Math.round(this.y);
-    const worldX = (x - 0.5) * UNIT_TO_PIXEL;
-    const worldY = (y - 0.5) * UNIT_TO_PIXEL;
+    const worldX = x * UNIT_TO_PIXEL;
+    const worldY = y * UNIT_TO_PIXEL;
     const unit = UNIT_TO_PIXEL;
     const centerX = worldX + unit * 0.5;
     const centerY = worldY + unit * 0.5;
     const radius = this.getRadius(0.3, 0.15, 21.21, 12.12);
 
-    // Neutral shadow cast to the bottom-left
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
     ctx.beginPath();
     ctx.arc(centerX - unit * 0.15, centerY + unit * 0.15, radius, 0, Math.PI * 2);
@@ -149,8 +148,8 @@ export class HayBale extends TerrainDetailObject {
     ctx.save();
     const x = Math.round(this.x);
     const y = Math.round(this.y);
-    const worldX = (x - 0.5) * UNIT_TO_PIXEL;
-    const worldY = (y - 0.5) * UNIT_TO_PIXEL;
+    const worldX = x * UNIT_TO_PIXEL;
+    const worldY = y * UNIT_TO_PIXEL;
     const unit = UNIT_TO_PIXEL;
     const centerX = worldX + unit * 0.5;
     const centerY = worldY + unit * 0.5;
