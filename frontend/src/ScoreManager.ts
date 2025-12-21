@@ -1,85 +1,101 @@
 import { getConnection } from "./spacetimedb-connection";
+import { type Infer } from "spacetimedb";
+import TankRow from "../module_bindings/tank_type";
+import { type EventContext } from "../module_bindings";
 
-const MAX_SCORE = 100;
+interface PlayerScore {
+  name: string;
+  kills: number;
+  alliance: number;
+}
 
 export class ScoreManager {
-  private scores: number[] = [0, 0];
+  private playerScores: Map<string, PlayerScore> = new Map();
 
   constructor(worldId: string) {
-    this.subscribeToScore(worldId);
+    this.subscribeToTanks(worldId);
   }
 
-  private subscribeToScore(worldId: string) {
+  private subscribeToTanks(worldId: string) {
     const connection = getConnection();
     if (!connection) {
-      console.warn("Cannot subscribe to score: connection not available");
+      console.warn("Cannot subscribe to tanks: connection not available");
       return;
     }
 
     connection
       .subscriptionBuilder()
-      .onError((e) => console.error("Score subscription error", e))
-      .subscribe([`SELECT * FROM score WHERE WorldId = '${worldId}'`]);
+      .onError((e) => console.error("Tank subscription error", e))
+      .subscribe([`SELECT * FROM tank WHERE WorldId = '${worldId}'`]);
 
-    connection.db.score.onInsert((_ctx, score) => {
-      console.log("Score inserted:", score);
-      this.scores = [...score.kills];
+    connection.db.tank.onInsert((_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      this.playerScores.set(tank.id, {
+        name: tank.name,
+        kills: tank.kills,
+        alliance: tank.alliance
+      });
     });
 
-    connection.db.score.onUpdate((_ctx, _oldScore, newScore) => {
-      console.log("Score updated:", newScore);
-      this.scores = [...newScore.kills];
+    connection.db.tank.onUpdate((_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+      this.playerScores.set(newTank.id, {
+        name: newTank.name,
+        kills: newTank.kills,
+        alliance: newTank.alliance
+      });
     });
-  }
 
-  public getScores(): number[] {
-    return this.scores;
+    connection.db.tank.onDelete((_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      this.playerScores.delete(tank.id);
+    });
   }
 
   public draw(ctx: CanvasRenderingContext2D, canvasWidth: number) {
     ctx.save();
     
     const padding = 20;
-    const barWidth = 200;
-    const barHeight = 20;
-    const spacing = 10;
+    const barWidth = 250;
+    const barHeight = 30;
+    const spacing = 5;
     const x = canvasWidth - padding;
-    
-    let y = padding + 20;
-    y = this.drawTeamScore(ctx, 'Team Red', this.scores[0] || 0, '#ff6666', x, y, barWidth, barHeight, spacing);
-    
-    y += spacing + 20;
-    this.drawTeamScore(ctx, 'Team Blue', this.scores[1] || 0, '#6666ff', x, y, barWidth, barHeight, spacing);
+    let y = padding;
+
+    const sortedPlayers = Array.from(this.playerScores.values())
+      .sort((a, b) => b.kills - a.kills);
+
+    for (const player of sortedPlayers) {
+      this.drawPlayerScore(ctx, player, x, y, barWidth, barHeight);
+      y += barHeight + spacing;
+    }
     
     ctx.restore();
   }
 
-  private drawTeamScore(
+  private drawPlayerScore(
     ctx: CanvasRenderingContext2D,
-    teamName: string,
-    score: number,
-    color: string,
+    player: PlayerScore,
     x: number,
     y: number,
     barWidth: number,
-    barHeight: number,
-    spacing: number
-  ): number {
-    ctx.font = 'bold 20px monospace';
-    ctx.textAlign = 'right';
+    barHeight: number
+  ) {
+    const color = player.alliance === 0 ? '#ff6666' : '#6666ff';
+    const maxKills = Math.max(10, ...Array.from(this.playerScores.values()).map(p => p.kills));
+    const progress = player.kills / maxKills;
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(x - barWidth, y, barWidth, barHeight);
+
     ctx.fillStyle = color;
-    ctx.fillText(`${teamName}: ${score}/${MAX_SCORE}`, x, y);
-    
-    y += spacing;
-    
+    ctx.fillRect(x - barWidth, y, barWidth * progress, barHeight);
+
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.strokeRect(x - barWidth, y, barWidth, barHeight);
-    
-    const progress = Math.min(score / MAX_SCORE, 1);
-    ctx.fillStyle = color;
-    ctx.fillRect(x - barWidth, y, barWidth * progress, barHeight);
-    
-    return y + barHeight;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${player.name}: ${player.kills}`, x - barWidth + 10, y + barHeight / 2);
   }
 }
