@@ -524,4 +524,9 @@ public static partial class Module
 
         Log.Info($"Started tickers for world {worldId}");
     }
+
+    public static string GetHomeworldId(Identity identity)
+    {
+        return identity.ToString().ToLower();
+    }
 }

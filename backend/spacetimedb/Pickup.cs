@@ -103,10 +103,7 @@ public static partial class Module
 
     private static void ScheduleHomeworldPickupRespawn(ReducerContext ctx, Module.Pickup pickup)
     {
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
-        if (player == null) return;
-
-        var homeworldId = ctx.Sender.ToString().ToLower();
+        var homeworldId = GetHomeworldId(ctx.Sender);
         if (pickup.WorldId == homeworldId)
         {
             var pickupId = GenerateId(ctx, "pickup");
