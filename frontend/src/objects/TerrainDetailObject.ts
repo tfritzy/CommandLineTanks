@@ -10,7 +10,6 @@ export abstract class TerrainDetailObject {
   protected label: string | undefined;
   protected health: number | undefined;
   protected rotation: number;
-  protected renderOffset: { x: number; y: number };
   protected flashTimer: number = 0;
 
   public setData(data: Infer<typeof TerrainDetailRow>): void {
@@ -19,7 +18,6 @@ export abstract class TerrainDetailObject {
     this.label = data.label;
     this.setHealth(data.health);
     this.rotation = data.rotation;
-    this.renderOffset = data.renderOffset;
   }
 
   protected getRadius(baseRadius: number, variation: number, seedX: number, seedY: number): number {
@@ -28,13 +26,12 @@ export abstract class TerrainDetailObject {
     return UNIT_TO_PIXEL * baseRadius * (1.0 + pseudoRandom);
   }
 
-  constructor(x: number, y: number, label: string | undefined = undefined, health: number | undefined = undefined, rotation: number = 0, renderOffset: { x: number; y: number } = { x: 0, y: 0 }) {
+  constructor(x: number, y: number, label: string | undefined = undefined, health: number | undefined = undefined, rotation: number = 0) {
     this.x = x;
     this.y = y;
     this.label = label;
     this.health = health;
     this.rotation = rotation;
-    this.renderOffset = renderOffset;
   }
 
   public update(deltaTime: number): void {
@@ -92,10 +89,10 @@ export abstract class TerrainDetailObject {
   }
 
   protected getWorldX(): number {
-    return (this.x + this.renderOffset.x) * UNIT_TO_PIXEL;
+    return this.x * UNIT_TO_PIXEL;
   }
 
   protected getWorldY(): number {
-    return (this.y + this.renderOffset.y) * UNIT_TO_PIXEL;
+    return this.y * UNIT_TO_PIXEL;
   }
 }

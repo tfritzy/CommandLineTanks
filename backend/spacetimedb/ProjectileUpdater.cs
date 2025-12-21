@@ -98,13 +98,12 @@ public static partial class ProjectileUpdater
             {
                 Id = deadTankId,
                 WorldId = worldId,
-                PositionX = tankX + 0.5f,
-                PositionY = tankY + 0.5f,
+                PositionX = tank.PositionX,
+                PositionY = tank.PositionY,
                 Type = TerrainDetailType.DeadTank,
                 Health = 50,
                 Label = null,
-                Rotation = (int)(tank.TurretRotation * 1000),
-                RenderOffset = new Vector2Float(tank.PositionX - tankX - 0.5f, tank.PositionY - tankY - 0.5f)
+                Rotation = (int)(tank.TurretRotation * 1000)
             });
 
             var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
@@ -522,8 +521,7 @@ public static partial class ProjectileUpdater
                 Type = detail.type,
                 Health = 100,
                 Label = null,
-                Rotation = detail.rotation,
-                RenderOffset = new Vector2Float(0, 0)
+                Rotation = detail.rotation
             });
         }
 

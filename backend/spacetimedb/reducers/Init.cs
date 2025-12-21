@@ -64,8 +64,7 @@ public static partial class Module
                 Type = detail.type,
                 Health = 100,
                 Label = null,
-                Rotation = detail.rotation,
-                RenderOffset = new Vector2Float(0, 0)
+                Rotation = detail.rotation
             });
         }
 

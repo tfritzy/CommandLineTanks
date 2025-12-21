@@ -145,38 +145,38 @@ export class TerrainManager {
 
   private createDetailObject(detail: Infer<typeof TerrainDetailRow>) {
     let obj: TerrainDetailObject | null = null;
-    const { positionX: x, positionY: y, label, health, rotation, renderOffset, type } = detail;
+    const { positionX: x, positionY: y, label, health, rotation, type } = detail;
 
     switch (type.tag) {
       case "Rock":
-        obj = new Rock(x, y, label, health, rotation, renderOffset);
+        obj = new Rock(x, y, label, health, rotation);
         break;
       case "Tree":
-        obj = new Tree(x, y, label, health, rotation, renderOffset);
+        obj = new Tree(x, y, label, health, rotation);
         break;
       case "HayBale":
-        obj = new HayBale(x, y, label, health, rotation, renderOffset);
+        obj = new HayBale(x, y, label, health, rotation);
         break;
       case "Label":
-        obj = new Label(x, y, label, health, rotation, renderOffset);
+        obj = new Label(x, y, label, health, rotation);
         break;
       case "FoundationEdge":
-        obj = new FoundationEdge(x, y, label, health, rotation, renderOffset);
+        obj = new FoundationEdge(x, y, label, health, rotation);
         break;
       case "FoundationCorner":
-        obj = new FoundationCorner(x, y, label, health, rotation, renderOffset);
+        obj = new FoundationCorner(x, y, label, health, rotation);
         break;
       case "FenceEdge":
-        obj = new FenceEdge(x, y, label, health, rotation, renderOffset);
+        obj = new FenceEdge(x, y, label, health, rotation);
         break;
       case "FenceCorner":
-        obj = new FenceCorner(x, y, label, health, rotation, renderOffset);
+        obj = new FenceCorner(x, y, label, health, rotation);
         break;
       case "DeadTank":
-        obj = new DeadTank(x, y, label, health, rotation, renderOffset);
+        obj = new DeadTank(x, y, label, health, rotation);
         break;
       case "TargetDummy":
-        obj = new TargetDummy(x, y, label, health, rotation, renderOffset);
+        obj = new TargetDummy(x, y, label, health, rotation);
         break;
     }
 
