@@ -15,6 +15,21 @@ public static partial class PickupSpawner
         public string WorldId;
     }
 
+    [Table(Scheduled = nameof(RespawnHomeworldPickup))]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
+    public partial struct ScheduledHomeworldPickupRespawn
+    {
+        [AutoInc]
+        [PrimaryKey]
+        public ulong ScheduledId;
+        public ScheduleAt ScheduledAt;
+        public string WorldId;
+        public string PickupId;
+        public float PositionX;
+        public float PositionY;
+        public TerrainDetailType Type;
+    }
+
     [Reducer]
     public static void SpawnPickup(ReducerContext ctx, ScheduledPickupSpawn args)
     {
@@ -57,5 +72,20 @@ public static partial class PickupSpawner
         double u1 = 1.0 - random.NextDouble();
         double u2 = 1.0 - random.NextDouble();
         return (float)(Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2));
+    }
+
+    [Reducer]
+    public static void RespawnHomeworldPickup(ReducerContext ctx, ScheduledHomeworldPickupRespawn args)
+    {
+        ctx.Db.pickup.Insert(new Module.Pickup
+        {
+            Id = args.PickupId,
+            WorldId = args.WorldId,
+            PositionX = args.PositionX,
+            PositionY = args.PositionY,
+            Type = args.Type
+        });
+
+        Log.Info($"Respawned {args.Type} at ({args.PositionX}, {args.PositionY}) in homeworld {args.WorldId}");
     }
 }

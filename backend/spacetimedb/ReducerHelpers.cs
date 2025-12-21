@@ -89,63 +89,6 @@ public static partial class Module
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
 
-        int fStartX = 15;
-        int fStartY = 15;
-        int fWidth = 10;
-        int fHeight = 10;
-
-        for (int x = fStartX; x < fStartX + fWidth; x++)
-        {
-            for (int y = fStartY; y < fStartY + fHeight; y++)
-            {
-                bool isEdgeX = x == fStartX || x == fStartX + fWidth - 1;
-                bool isEdgeY = y == fStartY || y == fStartY + fHeight - 1;
-
-                if (isEdgeX && isEdgeY)
-                {
-                    int rotation = 0;
-                    if (x == fStartX && y == fStartY) rotation = 0;
-                    else if (x == fStartX + fWidth - 1 && y == fStartY) rotation = 1;
-                    else if (x == fStartX + fWidth - 1 && y == fStartY + fHeight - 1) rotation = 2;
-                    else if (x == fStartX && y == fStartY + fHeight - 1) rotation = 3;
-
-                    traversibilityMap[y * worldSize + x] = false;
-                    ctx.Db.terrain_detail.Insert(new TerrainDetail
-                    {
-                        Id = GenerateId(ctx, "td"),
-                        WorldId = identityString,
-                        PositionX = x + 0.5f,
-                        PositionY = y + 0.5f,
-                        Type = TerrainDetailType.FoundationCorner,
-                        Health = 100,
-                        Rotation = rotation,
-                        RenderOffset = new Vector2Float(0, 0)
-                    });
-                }
-                else if (isEdgeX || isEdgeY)
-                {
-                    int rotation = 0;
-                    if (y == fStartY) rotation = 0; // North
-                    else if (x == fStartX + fWidth - 1) rotation = 1; // East
-                    else if (y == fStartY + fHeight - 1) rotation = 2; // South
-                    else if (x == fStartX) rotation = 3; // West
-
-                    traversibilityMap[y * worldSize + x] = false;
-                    ctx.Db.terrain_detail.Insert(new TerrainDetail
-                    {
-                        Id = GenerateId(ctx, "td"),
-                        WorldId = identityString,
-                        PositionX = x + 0.5f,
-                        PositionY = y + 0.5f,
-                        Type = TerrainDetailType.FoundationEdge,
-                        Health = 100,
-                        Rotation = rotation,
-                        RenderOffset = new Vector2Float(0, 0)
-                    });
-                }
-            }
-        }
-
         for (int i = 0; i < 15; i++)
         {
             int rx = random.Next(worldSize);
@@ -251,7 +194,70 @@ public static partial class Module
             });
         }
 
+        InitializeHomeworldPickups(ctx, identityString, worldSize);
+
         Log.Info($"Created homeworld for identity {identityString}");
+    }
+
+    private static void InitializeHomeworldPickups(ReducerContext ctx, string worldId, int worldSize)
+    {
+        int rectCenterX = worldSize / 2;
+        int rectCenterY = worldSize / 2;
+        int rectWidth = 24;
+        int rectHeight = 24;
+
+        int startX = rectCenterX - rectWidth / 2;
+        int startY = rectCenterY - rectHeight / 2;
+
+        int pickupCount = PICKUP_TYPES.Length;
+        int perimeter = 2 * (rectWidth + rectHeight);
+        float spacing = (float)perimeter / pickupCount;
+
+        int pickupIndex = 0;
+        float distance = 0;
+
+        while (pickupIndex < pickupCount)
+        {
+            int x = 0;
+            int y = 0;
+
+            if (distance < rectWidth)
+            {
+                x = startX + (int)distance;
+                y = startY;
+            }
+            else if (distance < rectWidth + rectHeight)
+            {
+                x = startX + rectWidth;
+                y = startY + (int)(distance - rectWidth);
+            }
+            else if (distance < 2 * rectWidth + rectHeight)
+            {
+                x = startX + rectWidth - (int)(distance - rectWidth - rectHeight);
+                y = startY + rectHeight;
+            }
+            else
+            {
+                x = startX;
+                y = startY + rectHeight - (int)(distance - 2 * rectWidth - rectHeight);
+            }
+
+            var pickupId = GenerateId(ctx, "pickup");
+            var pickupType = PICKUP_TYPES[pickupIndex];
+            ctx.Db.pickup.Insert(new Pickup
+            {
+                Id = pickupId,
+                WorldId = worldId,
+                PositionX = x + 0.5f,
+                PositionY = y + 0.5f,
+                Type = pickupType
+            });
+
+            pickupIndex++;
+            distance += spacing;
+        }
+
+        Log.Info($"Initialized {pickupIndex} pickups for homeworld {worldId}");
     }
 
     private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY, bool isBot = false)
