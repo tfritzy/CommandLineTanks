@@ -94,6 +94,7 @@ export class Projectile {
   }
 
   private drawMissile(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number, angle: number) {
+    ctx.save();
     ctx.translate(centerX, centerY);
     ctx.rotate(angle);
     
@@ -131,10 +132,11 @@ export class Projectile {
     ctx.fillStyle = this.alliance === 0 ? '#ff3333' : '#3333ff';
     ctx.fillRect(length * 0.2, -width * 0.25, length * 0.4, width * 0.5);
     
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.restore();
   }
 
   private drawRocket(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number, angle: number) {
+    ctx.save();
     ctx.translate(centerX, centerY);
     ctx.rotate(angle);
     
@@ -174,7 +176,7 @@ export class Projectile {
     ctx.closePath();
     ctx.fill();
     
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.restore();
   }
 
   private drawGrenade(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number) {
@@ -209,8 +211,9 @@ export class Projectile {
   }
 
   private drawBoomerang(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number, angle: number) {
+    ctx.save();
     ctx.translate(centerX, centerY);
-    ctx.rotate(angle + (Date.now() / 100));
+    ctx.rotate(angle + (performance.now() / 100));
     
     const length = radius * 3;
     const width = radius * 0.8;
@@ -237,7 +240,7 @@ export class Projectile {
     ctx.fill();
     ctx.stroke();
     
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.restore();
   }
 
   private drawMoag(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number) {
@@ -255,7 +258,7 @@ export class Projectile {
     ctx.lineWidth = 2;
     ctx.stroke();
     
-    const time = Date.now() / 200;
+    const time = performance.now() / 200;
     for (let i = 0; i < 6; i++) {
       const angle = (i / 6) * Math.PI * 2 + time;
       const x1 = centerX + Math.cos(angle) * radius * 0.3;
