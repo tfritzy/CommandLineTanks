@@ -10,9 +10,8 @@ type PathEntry = {
 const HEALTH_BAR_WIDTH = 32;
 const HEALTH_BAR_HEIGHT = 4;
 const HEALTH_BAR_Y_OFFSET = 24;
-const HEALTH_BAR_COLOR_HIGH = "#4ade80";
-const HEALTH_BAR_COLOR_MEDIUM = "#fbbf24";
-const HEALTH_BAR_COLOR_LOW = "#ef4444";
+const HEALTH_BAR_PADDING = 1;
+const HEALTH_BAR_BORDER_RADIUS = 2;
 
 export class Tank {
   public arrayIndex: number = -1;
@@ -82,25 +81,24 @@ export class Tank {
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.fillRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
+    ctx.beginPath();
+    ctx.roundRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT, HEALTH_BAR_BORDER_RADIUS);
+    ctx.fill();
 
     const healthPercent = this.health / this.maxHealth;
-    const healthBarWidth = HEALTH_BAR_WIDTH * healthPercent;
+    const innerWidth = HEALTH_BAR_WIDTH - HEALTH_BAR_PADDING * 2;
+    const healthBarWidth = innerWidth * healthPercent;
 
-    let healthColor: string;
-    if (healthPercent > 0.5) {
-      healthColor = HEALTH_BAR_COLOR_HIGH;
-    } else if (healthPercent > 0.25) {
-      healthColor = HEALTH_BAR_COLOR_MEDIUM;
-    } else {
-      healthColor = HEALTH_BAR_COLOR_LOW;
-    }
-    ctx.fillStyle = healthColor;
-    ctx.fillRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, healthBarWidth, HEALTH_BAR_HEIGHT);
-
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
+    ctx.fillStyle = this.getAllianceColor();
+    ctx.beginPath();
+    ctx.roundRect(
+      -HEALTH_BAR_WIDTH / 2 + HEALTH_BAR_PADDING,
+      HEALTH_BAR_Y_OFFSET + HEALTH_BAR_PADDING,
+      healthBarWidth,
+      HEALTH_BAR_HEIGHT - HEALTH_BAR_PADDING * 2,
+      HEALTH_BAR_BORDER_RADIUS
+    );
+    ctx.fill();
 
     ctx.restore();
   }
