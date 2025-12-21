@@ -16,6 +16,16 @@ public static partial class Module
         TerrainDetailType.MoagPickup
     };
 
+    public static readonly TerrainDetailType[] NON_HEALTH_PICKUP_TYPES = new TerrainDetailType[]
+    {
+        TerrainDetailType.TripleShooterPickup,
+        TerrainDetailType.MissileLauncherPickup,
+        TerrainDetailType.BoomerangPickup,
+        TerrainDetailType.GrenadePickup,
+        TerrainDetailType.RocketPickup,
+        TerrainDetailType.MoagPickup
+    };
+
     public static bool TryCollectPickup(ReducerContext ctx, ref Tank tank, ref bool needsUpdate, Module.Pickup pickup)
     {
         switch (pickup.Type)
