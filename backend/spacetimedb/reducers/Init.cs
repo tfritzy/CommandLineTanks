@@ -59,8 +59,8 @@ public static partial class Module
             {
                 Id = terrainDetailId,
                 WorldId = worldId,
-                PositionX = detail.x,
-                PositionY = detail.y,
+                PositionX = detail.x + 0.5f,
+                PositionY = detail.y + 0.5f,
                 Type = detail.type,
                 Health = 100,
                 Label = null,

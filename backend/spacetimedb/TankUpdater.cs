@@ -197,7 +197,9 @@ public static partial class TankUpdater
             int tankTileX = Module.GetGridPosition(tank.PositionX);
             int tankTileY = Module.GetGridPosition(tank.PositionY);
 
-            foreach (var pickup in ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, tankTileX, tankTileY)))
+            float centerX = tankTileX + 0.5f;
+            float centerY = tankTileY + 0.5f;
+            foreach (var pickup in ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, centerX, centerY)))
             {
                 if (Module.TryCollectPickup(ctx, ref tank, ref needsUpdate, pickup))
                 {

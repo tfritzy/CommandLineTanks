@@ -114,8 +114,8 @@ public static partial class Module
                     {
                         Id = GenerateId(ctx, "td"),
                         WorldId = identityString,
-                        PositionX = x,
-                        PositionY = y,
+                        PositionX = x + 0.5f,
+                        PositionY = y + 0.5f,
                         Type = TerrainDetailType.FoundationCorner,
                         Health = 100,
                         Rotation = rotation,
@@ -135,8 +135,8 @@ public static partial class Module
                     {
                         Id = GenerateId(ctx, "td"),
                         WorldId = identityString,
-                        PositionX = x,
-                        PositionY = y,
+                        PositionX = x + 0.5f,
+                        PositionY = y + 0.5f,
                         Type = TerrainDetailType.FoundationEdge,
                         Health = 100,
                         Rotation = rotation,
@@ -158,8 +158,8 @@ public static partial class Module
                 {
                     Id = GenerateId(ctx, "td"),
                     WorldId = identityString,
-                    PositionX = rx,
-                    PositionY = ry,
+                    PositionX = rx + 0.5f,
+                    PositionY = ry + 0.5f,
                     Type = TerrainDetailType.Rock,
                     Health = 100,
                     Rotation = random.Next(4),
@@ -180,8 +180,8 @@ public static partial class Module
                 {
                     Id = GenerateId(ctx, "td"),
                     WorldId = identityString,
-                    PositionX = tx,
-                    PositionY = ty,
+                    PositionX = tx + 0.5f,
+                    PositionY = ty + 0.5f,
                     Type = TerrainDetailType.Tree,
                     Health = 100,
                     Rotation = random.Next(4),
@@ -209,8 +209,8 @@ public static partial class Module
         {
             Id = welcomeSignId,
             WorldId = identityString,
-            PositionX = worldSize / 2,
-            PositionY = 5,
+            PositionX = worldSize / 2.0f + 0.5f,
+            PositionY = 5.5f,
             Type = TerrainDetailType.Label,
             Health = 100,
             Label = "Welcome to Command Line Tanks",
@@ -223,8 +223,8 @@ public static partial class Module
         {
             Id = instructionSignId,
             WorldId = identityString,
-            PositionX = worldSize / 2,
-            PositionY = 6,
+            PositionX = worldSize / 2.0f + 0.5f,
+            PositionY = 6.5f,
             Type = TerrainDetailType.Label,
             Health = 100,
             Label = "When you're ready to find a game, call the findgame command",
@@ -241,8 +241,8 @@ public static partial class Module
             {
                 Id = targetDummyId,
                 WorldId = identityString,
-                PositionX = x,
-                PositionY = y,
+                PositionX = x + 0.5f,
+                PositionY = y + 0.5f,
                 Type = TerrainDetailType.TargetDummy,
                 Health = int.MaxValue,
                 Label = null,
@@ -426,13 +426,16 @@ public static partial class Module
         if (tileIndex >= traversibilityMap.Map.Length || !traversibilityMap.Map[tileIndex])
             return false;
 
-        var existingDetail = ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((worldId, spawnX, spawnY));
+        float centerX = spawnX + 0.5f;
+        float centerY = spawnY + 0.5f;
+
+        var existingDetail = ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((worldId, centerX, centerY));
         foreach (var detail in existingDetail)
         {
             return false;
         }
 
-        var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((worldId, spawnX, spawnY));
+        var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((worldId, centerX, centerY));
         foreach (var p in existingPickup)
         {
             return false;
@@ -446,12 +449,12 @@ public static partial class Module
         {
             Id = pickupId,
             WorldId = worldId,
-            PositionX = spawnX,
-            PositionY = spawnY,
+            PositionX = centerX,
+            PositionY = centerY,
             Type = pickupType
         });
 
-        Log.Info($"Spawned {pickupType} at ({spawnX}, {spawnY}) in world {worldId}");
+        Log.Info($"Spawned {pickupType} at ({centerX}, {centerY}) in world {worldId}");
         return true;
     }
 

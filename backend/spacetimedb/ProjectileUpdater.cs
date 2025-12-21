@@ -98,13 +98,13 @@ public static partial class ProjectileUpdater
             {
                 Id = deadTankId,
                 WorldId = worldId,
-                PositionX = tankX,
-                PositionY = tankY,
+                PositionX = tankX + 0.5f,
+                PositionY = tankY + 0.5f,
                 Type = TerrainDetailType.DeadTank,
                 Health = 50,
                 Label = null,
                 Rotation = (int)(tank.TurretRotation * 1000),
-                RenderOffset = new Vector2Float(tank.PositionX - tankX, tank.PositionY - tankY)
+                RenderOffset = new Vector2Float(tank.PositionX - tankX - 0.5f, tank.PositionY - tankY - 0.5f)
             });
 
             var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
@@ -331,7 +331,9 @@ public static partial class ProjectileUpdater
                     }
                     else
                     {
-                        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, projectileTileX, projectileTileY)))
+                        float centerX = projectileTileX + 0.5f;
+                        float centerY = projectileTileY + 0.5f;
+                        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, centerX, centerY)))
                         {
                             if (terrainDetail.Health == null)
                             {
@@ -515,8 +517,8 @@ public static partial class ProjectileUpdater
             {
                 Id = terrainDetailId,
                 WorldId = args.WorldId,
-                PositionX = detail.x,
-                PositionY = detail.y,
+                PositionX = detail.x + 0.5f,
+                PositionY = detail.y + 0.5f,
                 Type = detail.type,
                 Health = 100,
                 Label = null,
