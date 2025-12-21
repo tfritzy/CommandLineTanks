@@ -210,7 +210,7 @@ public static partial class Module
         int startY = rectCenterY - rectHeight / 2;
 
         int pickupCount = PICKUP_TYPES.Length;
-        int perimeter = 2 * (rectWidth + rectHeight - 2);
+        int perimeter = 2 * (rectWidth - 1) + 2 * (rectHeight - 1);
         float spacing = (float)perimeter / pickupCount;
 
         int pickupIndex = 0;
@@ -221,25 +221,27 @@ public static partial class Module
             int x = 0;
             int y = 0;
 
-            if (distance < rectWidth)
+            int d = (int)distance;
+
+            if (d < rectWidth)
             {
-                x = startX + (int)distance;
+                x = startX + d;
                 y = startY;
             }
-            else if (distance < rectWidth + rectHeight - 1)
+            else if (d < rectWidth + rectHeight - 1)
             {
                 x = startX + rectWidth - 1;
-                y = startY + (int)(distance - rectWidth + 1);
+                y = startY + (d - rectWidth + 1);
             }
-            else if (distance < 2 * rectWidth + rectHeight - 2)
+            else if (d < 2 * rectWidth + rectHeight - 2)
             {
-                x = startX + rectWidth - 1 - (int)(distance - rectWidth - rectHeight + 1);
+                x = startX + rectWidth - 1 - (d - rectWidth - rectHeight + 1);
                 y = startY + rectHeight - 1;
             }
             else
             {
                 x = startX;
-                y = startY + rectHeight - 1 - (int)(distance - 2 * rectWidth - rectHeight + 2);
+                y = startY + rectHeight - 1 - (d - 2 * rectWidth - rectHeight + 2);
             }
 
             var pickupId = GenerateId(ctx, "pickup");

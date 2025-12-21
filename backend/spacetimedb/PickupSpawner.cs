@@ -77,6 +77,13 @@ public static partial class PickupSpawner
     [Reducer]
     public static void RespawnHomeworldPickup(ReducerContext ctx, ScheduledHomeworldPickupRespawn args)
     {
+        var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, args.PositionX, args.PositionY));
+        foreach (var existing in existingPickup)
+        {
+            Log.Info($"Pickup already exists at ({args.PositionX}, {args.PositionY}) in homeworld {args.WorldId}, skipping respawn");
+            return;
+        }
+
         ctx.Db.pickup.Insert(new Pickup
         {
             Id = args.PickupId,
