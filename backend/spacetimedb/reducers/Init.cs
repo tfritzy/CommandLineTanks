@@ -55,12 +55,24 @@ public static partial class Module
         foreach (var detail in terrainDetails)
         {
             var terrainDetailId = GenerateId(ctx, "td");
+            
+            float posX = detail.x + 0.5f;
+            float posY = detail.y + 0.5f;
+            
+            if (detail.type == TerrainDetailType.Tree)
+            {
+                float angle = (float)(ctx.Rng.NextDouble() * Math.PI * 2);
+                float radius = (float)(Math.Sqrt(ctx.Rng.NextDouble()) * 0.25);
+                posX += (float)Math.Cos(angle) * radius;
+                posY += (float)Math.Sin(angle) * radius;
+            }
+            
             ctx.Db.terrain_detail.Insert(new TerrainDetail
             {
                 Id = terrainDetailId,
                 WorldId = worldId,
-                PositionX = detail.x + 0.5f,
-                PositionY = detail.y + 0.5f,
+                PositionX = posX,
+                PositionY = posY,
                 Type = detail.type,
                 Health = 100,
                 Label = null,
