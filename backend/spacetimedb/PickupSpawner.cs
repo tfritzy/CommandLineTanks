@@ -15,7 +15,20 @@ public static partial class PickupSpawner
         public string WorldId;
     }
 
-    [Table(Scheduled = nameof(RespawnHomeworldPickup))]
+    [Table(Name = "collected_homeworld_pickup", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
+    public partial struct CollectedHomeworldPickup
+    {
+        [PrimaryKey]
+        public string Id;
+        public string WorldId;
+        public float PositionX;
+        public float PositionY;
+        public TerrainDetailType Type;
+        public ulong CollectedAt;
+    }
+
+    [Table(Scheduled = nameof(RespawnHomeworldPickups))]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     public partial struct ScheduledHomeworldPickupRespawn
     {
@@ -24,10 +37,6 @@ public static partial class PickupSpawner
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
         public string WorldId;
-        public string PickupId;
-        public float PositionX;
-        public float PositionY;
-        public TerrainDetailType Type;
     }
 
     [Reducer]
@@ -75,24 +84,41 @@ public static partial class PickupSpawner
     }
 
     [Reducer]
-    public static void RespawnHomeworldPickup(ReducerContext ctx, ScheduledHomeworldPickupRespawn args)
+    public static void RespawnHomeworldPickups(ReducerContext ctx, ScheduledHomeworldPickupRespawn args)
     {
-        var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, args.PositionX, args.PositionY));
-        foreach (var existing in existingPickup)
+        ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        ulong respawnDelay = 15_000_000;
+
+        var collectedPickups = ctx.Db.CollectedHomeworldPickup.WorldId.Filter(args.WorldId);
+        foreach (var collected in collectedPickups)
         {
-            Log.Info($"Pickup already exists at ({args.PositionX}, {args.PositionY}) in homeworld {args.WorldId}, skipping respawn");
-            return;
+            if (currentTime >= collected.CollectedAt + respawnDelay)
+            {
+                var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((collected.WorldId, collected.PositionX, collected.PositionY));
+                bool exists = false;
+                foreach (var existing in existingPickup)
+                {
+                    exists = true;
+                    break;
+                }
+
+                if (!exists)
+                {
+                    var pickupId = Module.GenerateId(ctx, "pickup");
+                    ctx.Db.pickup.Insert(new Pickup
+                    {
+                        Id = pickupId,
+                        WorldId = collected.WorldId,
+                        PositionX = collected.PositionX,
+                        PositionY = collected.PositionY,
+                        Type = collected.Type
+                    });
+
+                    Log.Info($"Respawned {collected.Type} at ({collected.PositionX}, {collected.PositionY}) in homeworld {collected.WorldId}");
+                }
+
+                ctx.Db.CollectedHomeworldPickup.Id.Delete(collected.Id);
+            }
         }
-
-        ctx.Db.pickup.Insert(new Pickup
-        {
-            Id = args.PickupId,
-            WorldId = args.WorldId,
-            PositionX = args.PositionX,
-            PositionY = args.PositionY,
-            Type = args.Type
-        });
-
-        Log.Info($"Respawned {args.Type} at ({args.PositionX}, {args.PositionY}) in homeworld {args.WorldId}");
     }
 }

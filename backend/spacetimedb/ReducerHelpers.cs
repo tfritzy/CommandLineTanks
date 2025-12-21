@@ -195,8 +195,21 @@ public static partial class Module
         }
 
         InitializeHomeworldPickups(ctx, identityString, worldSize);
+        InitializeHomeworldPickupRespawnTimer(ctx, identityString);
 
         Log.Info($"Created homeworld for identity {identityString}");
+    }
+
+    private static void InitializeHomeworldPickupRespawnTimer(ReducerContext ctx, string worldId)
+    {
+        ctx.Db.ScheduledHomeworldPickupRespawn.Insert(new PickupSpawner.ScheduledHomeworldPickupRespawn
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 15_000_000 }),
+            WorldId = worldId
+        });
+
+        Log.Info($"Initialized homeworld pickup respawn timer for {worldId}");
     }
 
     private static void InitializeHomeworldPickups(ReducerContext ctx, string worldId, int worldSize)

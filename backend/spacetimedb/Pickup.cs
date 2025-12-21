@@ -106,16 +106,15 @@ public static partial class Module
         var homeworldId = GetHomeworldId(ctx.Sender);
         if (pickup.WorldId == homeworldId)
         {
-            var pickupId = GenerateId(ctx, "pickup");
-            ctx.Db.ScheduledHomeworldPickupRespawn.Insert(new PickupSpawner.ScheduledHomeworldPickupRespawn
+            var collectedId = GenerateId(ctx, "collected");
+            ctx.Db.CollectedHomeworldPickup.Insert(new PickupSpawner.CollectedHomeworldPickup
             {
-                ScheduledId = 0,
-                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = 15_000_000 }),
+                Id = collectedId,
                 WorldId = pickup.WorldId,
-                PickupId = pickupId,
                 PositionX = pickup.PositionX,
                 PositionY = pickup.PositionY,
-                Type = pickup.Type
+                Type = pickup.Type,
+                CollectedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             });
         }
     }
