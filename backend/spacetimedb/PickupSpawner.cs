@@ -77,7 +77,7 @@ public static partial class PickupSpawner
     [Reducer]
     public static void RespawnHomeworldPickup(ReducerContext ctx, ScheduledHomeworldPickupRespawn args)
     {
-        ctx.Db.pickup.Insert(new Module.Pickup
+        ctx.Db.pickup.Insert(new Pickup
         {
             Id = args.PickupId,
             WorldId = args.WorldId,
