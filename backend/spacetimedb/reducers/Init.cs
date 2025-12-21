@@ -61,10 +61,8 @@ public static partial class Module
             
             if (detail.type == TerrainDetailType.Tree)
             {
-                float angle = (float)(ctx.Rng.NextDouble() * Math.PI * 2);
-                float radius = (float)(Math.Sqrt(ctx.Rng.NextDouble()) * 0.25);
-                posX += (float)Math.Cos(angle) * radius;
-                posY += (float)Math.Sin(angle) * radius;
+                posX += (float)(ctx.Rng.NextDouble() * 0.5 - 0.25);
+                posY += (float)(ctx.Rng.NextDouble() * 0.5 - 0.25);
             }
             
             ctx.Db.terrain_detail.Insert(new TerrainDetail
