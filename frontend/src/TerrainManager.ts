@@ -2,7 +2,7 @@ import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, type TerrainDetailRow, type EventContext } from "../module_bindings";
 import { type Infer } from "spacetimedb";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
-import { Rock, Tree, Bridge, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, DeadTank, TargetDummy } from "./objects/TerrainDetails";
+import { Rock, Tree, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, DeadTank, TargetDummy } from "./objects/TerrainDetails";
 import { UNIT_TO_PIXEL } from "./game";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
@@ -150,9 +150,6 @@ export class TerrainManager {
         break;
       case "Tree":
         obj = new Tree(x, y, label, health, rotation, renderOffset);
-        break;
-      case "Bridge":
-        obj = new Bridge(x, y, label, health, rotation, renderOffset);
         break;
       case "HayBale":
         obj = new HayBale(x, y, label, health, rotation, renderOffset);
@@ -312,10 +309,6 @@ export class TerrainManager {
     switch (terrain.tag) {
       case "Ground":
         return "#2e2e43";
-      case "Stream":
-        return "#3e4c7e";
-      case "Road":
-        return "#405967";
       case "Farm":
         return "#2e2e43";
       default:

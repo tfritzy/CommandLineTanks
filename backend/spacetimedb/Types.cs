@@ -41,8 +41,6 @@ public static partial class Types
     public enum BaseTerrain : byte
     {
         Ground,
-        Stream,
-        Road,
         Farm
     }
 
@@ -52,7 +50,6 @@ public static partial class Types
         None,
         Rock,
         Tree,
-        Bridge,
         HayBale,
         Label,
         TripleShooterPickup,
