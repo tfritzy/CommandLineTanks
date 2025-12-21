@@ -7,6 +7,12 @@ type PathEntry = {
   throttlePercent: number;
 };
 
+const HEALTH_BAR_WIDTH = 32;
+const HEALTH_BAR_HEIGHT = 4;
+const HEALTH_BAR_Y_OFFSET = 24;
+const HEALTH_BAR_PADDING = 1;
+const HEALTH_BAR_BORDER_RADIUS = 2;
+
 export class Tank {
   public arrayIndex: number = -1;
   public readonly id: string;
@@ -66,6 +72,35 @@ export class Tank {
   public draw(ctx: CanvasRenderingContext2D) {
     this.drawShadow(ctx);
     this.drawBody(ctx);
+  }
+
+  public drawHealthBar(ctx: CanvasRenderingContext2D) {
+    if (this.health <= 0 || this.health >= this.maxHealth) return;
+
+    ctx.save();
+    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.beginPath();
+    ctx.roundRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT, HEALTH_BAR_BORDER_RADIUS);
+    ctx.fill();
+
+    const healthPercent = this.health / this.maxHealth;
+    const innerWidth = HEALTH_BAR_WIDTH - HEALTH_BAR_PADDING * 2;
+    const healthBarWidth = innerWidth * healthPercent;
+
+    ctx.fillStyle = this.getAllianceColor();
+    ctx.beginPath();
+    ctx.roundRect(
+      -HEALTH_BAR_WIDTH / 2 + HEALTH_BAR_PADDING,
+      HEALTH_BAR_Y_OFFSET + HEALTH_BAR_PADDING,
+      healthBarWidth,
+      HEALTH_BAR_HEIGHT - HEALTH_BAR_PADDING * 2,
+      HEALTH_BAR_BORDER_RADIUS
+    );
+    ctx.fill();
+
+    ctx.restore();
   }
 
   public drawShadow(ctx: CanvasRenderingContext2D) {
