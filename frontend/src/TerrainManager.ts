@@ -133,7 +133,13 @@ export class TerrainManager {
 
   public update(deltaTime: number) {
     for (const obj of this.detailObjects.values()) {
+      const hadFlash = obj.getFlashTimer() > 0;
       obj.update(deltaTime);
+      const hasFlash = obj.getFlashTimer() > 0;
+      
+      if (hadFlash && !hasFlash) {
+        this.detailAtlasNeedsUpdate = true;
+      }
     }
   }
 
