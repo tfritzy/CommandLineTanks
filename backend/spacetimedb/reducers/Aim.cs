@@ -10,10 +10,7 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        var angleDiff = angleRadians - tank.TurretRotation;
-        while (angleDiff > MathF.PI) angleDiff -= 2 * MathF.PI;
-        while (angleDiff < -MathF.PI) angleDiff += 2 * MathF.PI;
-        var normalizedAngle = tank.TurretRotation + angleDiff;
+        var normalizedAngle = Module.NormalizeAngleToTarget(angleRadians, tank.TurretRotation);
 
         tank.TargetTurretRotation = normalizedAngle;
         tank.Target = null;
