@@ -11,7 +11,7 @@ interface PlayerScore {
 
 export class ScoreManager {
   private playerScores: Map<string, PlayerScore> = new Map();
-  private maxKills: number = 10;
+  private maxKills: number = 1;
   private sortedPlayers: PlayerScore[] = [];
 
   constructor(worldId: string) {
@@ -28,7 +28,7 @@ export class ScoreManager {
 
   private updateLeaderboard() {
     const allKills = Array.from(this.playerScores.values()).map(p => p.kills);
-    this.maxKills = allKills.length > 0 ? Math.max(10, ...allKills) : 10;
+    this.maxKills = allKills.length > 0 ? Math.max(...allKills) : 1;
     this.sortedPlayers = Array.from(this.playerScores.values())
       .sort((a, b) => b.kills - a.kills);
   }
@@ -89,22 +89,52 @@ export class ScoreManager {
   ) {
     const color = player.alliance === 0 ? '#ff6666' : '#6666ff';
     const progress = player.kills / this.maxKills;
+    const radius = barHeight / 2;
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(x - barWidth, y, barWidth, barHeight);
+    ctx.save();
 
-    ctx.fillStyle = color;
-    ctx.fillRect(x - barWidth, y, barWidth * progress, barHeight);
+    ctx.beginPath();
+    ctx.moveTo(x - barWidth + radius, y);
+    ctx.arcTo(x, y, x, y + barHeight, radius);
+    ctx.arcTo(x, y + barHeight, x - barWidth, y + barHeight, radius);
+    ctx.arcTo(x - barWidth, y + barHeight, x - barWidth, y, radius);
+    ctx.arcTo(x - barWidth, y, x, y, radius);
+    ctx.closePath();
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fill();
 
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
-    ctx.strokeRect(x - barWidth, y, barWidth, barHeight);
+    ctx.stroke();
+
+    ctx.clip();
+
+    ctx.beginPath();
+    ctx.moveTo(x - barWidth + radius, y);
+    ctx.arcTo(x - barWidth + barWidth * progress, y, x - barWidth + barWidth * progress, y + barHeight, radius);
+    ctx.arcTo(x - barWidth + barWidth * progress, y + barHeight, x - barWidth, y + barHeight, radius);
+    ctx.arcTo(x - barWidth, y + barHeight, x - barWidth, y, radius);
+    ctx.arcTo(x - barWidth, y, x - barWidth + barWidth * progress, y, radius);
+    ctx.closePath();
+
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    ctx.restore();
+
+    const killText = player.kills === 1 ? 'kill' : 'kills';
+    const text = `${player.name}: ${player.kills} ${killText}`;
+
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 3;
+    ctx.strokeText(text, x - barWidth / 2, y + barHeight / 2);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 16px monospace';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    const killText = player.kills === 1 ? 'kill' : 'kills';
-    ctx.fillText(`${player.name}: ${player.kills} ${killText}`, x - barWidth + 10, y + barHeight / 2);
+    ctx.fillText(text, x - barWidth / 2, y + barHeight / 2);
   }
 }
