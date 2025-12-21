@@ -266,8 +266,8 @@ export class TerrainManager {
     const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
     const endTileY = Math.min(this.worldHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
 
-    const sourceX = Math.max(0, startTileX * unitToPixel - this.ATLAS_PADDING);
-    const sourceY = Math.max(0, startTileY * unitToPixel - this.ATLAS_PADDING);
+    const sourceX = startTileX * unitToPixel;
+    const sourceY = startTileY * unitToPixel;
     const sourceWidth = Math.min(
       (endTileX - startTileX + 1) * unitToPixel + 2 * this.ATLAS_PADDING,
       this.detailAtlasCanvas.width - sourceX
