@@ -118,8 +118,7 @@ public static partial class Module
                         PositionY = y + 0.5f,
                         Type = TerrainDetailType.FoundationCorner,
                         Health = 100,
-                        Rotation = rotation,
-                        RenderOffset = new Vector2Float(0, 0)
+                        Rotation = rotation
                     });
                 }
                 else if (isEdgeX || isEdgeY)
@@ -139,8 +138,7 @@ public static partial class Module
                         PositionY = y + 0.5f,
                         Type = TerrainDetailType.FoundationEdge,
                         Health = 100,
-                        Rotation = rotation,
-                        RenderOffset = new Vector2Float(0, 0)
+                        Rotation = rotation
                     });
                 }
             }
@@ -162,8 +160,7 @@ public static partial class Module
                     PositionY = ry + 0.5f,
                     Type = TerrainDetailType.Rock,
                     Health = 100,
-                    Rotation = random.Next(4),
-                    RenderOffset = new Vector2Float(0, 0)
+                    Rotation = random.Next(4)
                 });
             }
         }
@@ -184,8 +181,7 @@ public static partial class Module
                     PositionY = ty + 0.5f,
                     Type = TerrainDetailType.Tree,
                     Health = 100,
-                    Rotation = random.Next(4),
-                    RenderOffset = new Vector2Float(0, 0)
+                    Rotation = random.Next(4)
                 });
             }
         }
@@ -214,8 +210,7 @@ public static partial class Module
             Type = TerrainDetailType.Label,
             Health = 100,
             Label = "Welcome to Command Line Tanks",
-            Rotation = 0,
-            RenderOffset = new Vector2Float(0, 0)
+            Rotation = 0
         });
 
         var instructionSignId = GenerateId(ctx, "td");
@@ -228,8 +223,7 @@ public static partial class Module
             Type = TerrainDetailType.Label,
             Health = 100,
             Label = "When you're ready to find a game, call the findgame command",
-            Rotation = 0,
-            RenderOffset = new Vector2Float(0, 0)
+            Rotation = 0
         });
 
         var targetDummyPositions = new[] { (10, 10), (30, 10), (10, 30), (30, 30) };
@@ -246,8 +240,7 @@ public static partial class Module
                 Type = TerrainDetailType.TargetDummy,
                 Health = int.MaxValue,
                 Label = null,
-                Rotation = 0,
-                RenderOffset = new Vector2Float(0, 0)
+                Rotation = 0
             });
         }
 
