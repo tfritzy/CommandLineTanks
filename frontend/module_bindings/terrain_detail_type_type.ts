@@ -14,7 +14,6 @@ import {
 const TerrainDetailType = __t.enum("TerrainDetailType", {None: __t.unit(),
   Rock: __t.unit(),
   Tree: __t.unit(),
-  Bridge: __t.unit(),
   HayBale: __t.unit(),
   Label: __t.unit(),
   TripleShooterPickup: __t.unit(),

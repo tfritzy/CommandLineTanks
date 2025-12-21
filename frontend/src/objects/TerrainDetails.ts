@@ -125,38 +125,6 @@ export class Tree extends TerrainDetailObject {
   }
 }
 
-export class Bridge extends TerrainDetailObject {
-  public drawShadow(ctx: CanvasRenderingContext2D): void {
-  }
-
-  public drawBody(ctx: CanvasRenderingContext2D): void {
-    ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
-
-    ctx.fillStyle = getFlashColor("#c06852", this.flashTimer); // Punolite reddish-brown
-    ctx.fillRect(x + UNIT_TO_PIXEL * 0.1, y + UNIT_TO_PIXEL * 0.3, UNIT_TO_PIXEL * 0.8, UNIT_TO_PIXEL * 0.4);
-    ctx.strokeStyle = getFlashColor("#813645", this.flashTimer); // Darker brown
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x + UNIT_TO_PIXEL * 0.1, y + UNIT_TO_PIXEL * 0.3, UNIT_TO_PIXEL * 0.8, UNIT_TO_PIXEL * 0.4);
-
-    for (let i = 0.2; i < 0.9; i += 0.2) {
-      ctx.beginPath();
-      ctx.moveTo(x + UNIT_TO_PIXEL * i, y + UNIT_TO_PIXEL * 0.3);
-      ctx.lineTo(x + UNIT_TO_PIXEL * i, y + UNIT_TO_PIXEL * 0.7);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-    this.drawLabel(ctx);
-  }
-
-  public draw(ctx: CanvasRenderingContext2D): void {
-    this.drawShadow(ctx);
-    this.drawBody(ctx);
-  }
-}
-
 export class HayBale extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();

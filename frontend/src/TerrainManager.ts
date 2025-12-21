@@ -2,7 +2,7 @@ import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, type TerrainDetailRow, type EventContext } from "../module_bindings";
 import { type Infer } from "spacetimedb";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
-import { Rock, Tree, Bridge, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, DeadTank, TargetDummy } from "./objects/TerrainDetails";
+import { Rock, Tree, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, DeadTank, TargetDummy } from "./objects/TerrainDetails";
 import { UNIT_TO_PIXEL } from "./game";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
@@ -151,9 +151,6 @@ export class TerrainManager {
       case "Tree":
         obj = new Tree(x, y, label, health, rotation, renderOffset);
         break;
-      case "Bridge":
-        obj = new Bridge(x, y, label, health, rotation, renderOffset);
-        break;
       case "HayBale":
         obj = new HayBale(x, y, label, health, rotation, renderOffset);
         break;
@@ -203,22 +200,6 @@ export class TerrainManager {
     this.drawBaseLayer(ctx, cameraX, cameraY, canvasWidth, canvasHeight, unitToPixel);
   }
 
-  private getTerrainAt(x: number, y: number): BaseTerrainType | null {
-    if (x < 0 || x >= this.worldWidth || y < 0 || y >= this.worldHeight) {
-      return null;
-    }
-    const index = y * this.worldWidth + x;
-    return this.baseTerrainLayer[index];
-  }
-
-  private shouldRenderTransition(currentTerrain: BaseTerrainType, neighborTerrain: BaseTerrainType | null): boolean {
-    if (!neighborTerrain) return false;
-    if (currentTerrain.tag === neighborTerrain.tag) return false;
-    if (currentTerrain.tag === "Ground") return false;
-    if (currentTerrain.tag === "Road" && neighborTerrain.tag === "Stream") return false;
-    return true;
-  }
-
   private drawBaseLayer(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
@@ -258,121 +239,10 @@ export class TerrainManager {
           }
         }
 
-        this.drawOffsetTile(ctx, tileX, tileY, terrain, worldX, worldY, unitToPixel);
-
         ctx.strokeStyle = "#4a4b5b22";
         ctx.lineWidth = 1;
         ctx.strokeRect(worldX, worldY, unitToPixel, unitToPixel);
       }
-    }
-  }
-
-  private drawOffsetTile(
-    ctx: CanvasRenderingContext2D,
-    tileX: number,
-    tileY: number,
-    terrain: BaseTerrainType,
-    worldX: number,
-    worldY: number,
-    unitToPixel: number
-  ) {
-    if (terrain.tag === "Ground" || terrain.tag === "Farm") {
-      return;
-    }
-
-    const north = this.getTerrainAt(tileX, tileY - 1);
-    const south = this.getTerrainAt(tileX, tileY + 1);
-    const east = this.getTerrainAt(tileX + 1, tileY);
-    const west = this.getTerrainAt(tileX - 1, tileY);
-    const northEast = this.getTerrainAt(tileX + 1, tileY - 1);
-    const northWest = this.getTerrainAt(tileX - 1, tileY - 1);
-    const southEast = this.getTerrainAt(tileX + 1, tileY + 1);
-    const southWest = this.getTerrainAt(tileX - 1, tileY + 1);
-
-    const groundColor = this.getBaseTerrainColor({ tag: "Ground" } as BaseTerrainType);
-    const edgeSize = unitToPixel * 0.25;
-    const cornerSize = unitToPixel * 0.35;
-
-    ctx.fillStyle = groundColor;
-
-    if (this.shouldRenderTransition(terrain, north)) {
-      ctx.beginPath();
-      ctx.moveTo(worldX, worldY);
-      ctx.lineTo(worldX + unitToPixel, worldY);
-      ctx.lineTo(worldX + unitToPixel, worldY + edgeSize);
-      ctx.lineTo(worldX, worldY + edgeSize);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    if (this.shouldRenderTransition(terrain, south)) {
-      ctx.beginPath();
-      ctx.moveTo(worldX, worldY + unitToPixel - edgeSize);
-      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel - edgeSize);
-      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel);
-      ctx.lineTo(worldX, worldY + unitToPixel);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    if (this.shouldRenderTransition(terrain, west)) {
-      ctx.beginPath();
-      ctx.moveTo(worldX, worldY);
-      ctx.lineTo(worldX + edgeSize, worldY);
-      ctx.lineTo(worldX + edgeSize, worldY + unitToPixel);
-      ctx.lineTo(worldX, worldY + unitToPixel);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    if (this.shouldRenderTransition(terrain, east)) {
-      ctx.beginPath();
-      ctx.moveTo(worldX + unitToPixel - edgeSize, worldY);
-      ctx.lineTo(worldX + unitToPixel, worldY);
-      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel);
-      ctx.lineTo(worldX + unitToPixel - edgeSize, worldY + unitToPixel);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    if (this.shouldRenderTransition(terrain, northWest) && !this.shouldRenderTransition(terrain, north) && !this.shouldRenderTransition(terrain, west)) {
-      ctx.beginPath();
-      ctx.moveTo(worldX, worldY);
-      ctx.lineTo(worldX + cornerSize, worldY);
-      ctx.arc(worldX + cornerSize, worldY + cornerSize, cornerSize, -Math.PI / 2, Math.PI, true);
-      ctx.lineTo(worldX, worldY + cornerSize);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    if (this.shouldRenderTransition(terrain, northEast) && !this.shouldRenderTransition(terrain, north) && !this.shouldRenderTransition(terrain, east)) {
-      ctx.beginPath();
-      ctx.moveTo(worldX + unitToPixel, worldY);
-      ctx.lineTo(worldX + unitToPixel - cornerSize, worldY);
-      ctx.arc(worldX + unitToPixel - cornerSize, worldY + cornerSize, cornerSize, -Math.PI / 2, 0, false);
-      ctx.lineTo(worldX + unitToPixel, worldY + cornerSize);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    if (this.shouldRenderTransition(terrain, southWest) && !this.shouldRenderTransition(terrain, south) && !this.shouldRenderTransition(terrain, west)) {
-      ctx.beginPath();
-      ctx.moveTo(worldX, worldY + unitToPixel);
-      ctx.lineTo(worldX, worldY + unitToPixel - cornerSize);
-      ctx.arc(worldX + cornerSize, worldY + unitToPixel - cornerSize, cornerSize, Math.PI, Math.PI / 2, true);
-      ctx.lineTo(worldX + cornerSize, worldY + unitToPixel);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    if (this.shouldRenderTransition(terrain, southEast) && !this.shouldRenderTransition(terrain, south) && !this.shouldRenderTransition(terrain, east)) {
-      ctx.beginPath();
-      ctx.moveTo(worldX + unitToPixel, worldY + unitToPixel);
-      ctx.lineTo(worldX + unitToPixel, worldY + unitToPixel - cornerSize);
-      ctx.arc(worldX + unitToPixel - cornerSize, worldY + unitToPixel - cornerSize, cornerSize, 0, Math.PI / 2, false);
-      ctx.lineTo(worldX + unitToPixel - cornerSize, worldY + unitToPixel);
-      ctx.closePath();
-      ctx.fill();
     }
   }
 
@@ -439,10 +309,6 @@ export class TerrainManager {
     switch (terrain.tag) {
       case "Ground":
         return "#2e2e43";
-      case "Stream":
-        return "#3e4c7e";
-      case "Road":
-        return "#405967";
       case "Farm":
         return "#2e2e43";
       default:
