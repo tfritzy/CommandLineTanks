@@ -6,7 +6,7 @@ public static partial class Module
 {
     private const float SPAWN_PADDING_RATIO = 0.25f;
     private const int MAX_SPAWN_ATTEMPTS = 100;
-    private const int HOMEWORLD_SIZE = 20;
+    private const int HOMEWORLD_SIZE = 40;
     private const float GRID_POSITION_TOLERANCE = 0.0001f;
 
     public static int GetGridPosition(float position)
@@ -87,6 +87,109 @@ public static partial class Module
 
         ctx.Db.world.Insert(world);
 
+        var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
+
+        int fStartX = 15;
+        int fStartY = 15;
+        int fWidth = 10;
+        int fHeight = 10;
+
+        for (int x = fStartX; x < fStartX + fWidth; x++)
+        {
+            for (int y = fStartY; y < fStartY + fHeight; y++)
+            {
+                bool isEdgeX = x == fStartX || x == fStartX + fWidth - 1;
+                bool isEdgeY = y == fStartY || y == fStartY + fHeight - 1;
+
+                if (isEdgeX && isEdgeY)
+                {
+                    int rotation = 0;
+                    if (x == fStartX && y == fStartY) rotation = 0;
+                    else if (x == fStartX + fWidth - 1 && y == fStartY) rotation = 1;
+                    else if (x == fStartX + fWidth - 1 && y == fStartY + fHeight - 1) rotation = 2;
+                    else if (x == fStartX && y == fStartY + fHeight - 1) rotation = 3;
+
+                    traversibilityMap[y * worldSize + x] = false;
+                    ctx.Db.terrain_detail.Insert(new TerrainDetail
+                    {
+                        Id = GenerateId(ctx, "td"),
+                        WorldId = identityString,
+                        PositionX = x,
+                        PositionY = y,
+                        Type = TerrainDetailType.FoundationCorner,
+                        Health = 100,
+                        Rotation = rotation,
+                        RenderOffset = new Vector2Float(0, 0)
+                    });
+                }
+                else if (isEdgeX || isEdgeY)
+                {
+                    int rotation = 0;
+                    if (y == fStartY) rotation = 0; // North
+                    else if (x == fStartX + fWidth - 1) rotation = 1; // East
+                    else if (y == fStartY + fHeight - 1) rotation = 2; // South
+                    else if (x == fStartX) rotation = 3; // West
+
+                    traversibilityMap[y * worldSize + x] = false;
+                    ctx.Db.terrain_detail.Insert(new TerrainDetail
+                    {
+                        Id = GenerateId(ctx, "td"),
+                        WorldId = identityString,
+                        PositionX = x,
+                        PositionY = y,
+                        Type = TerrainDetailType.FoundationEdge,
+                        Health = 100,
+                        Rotation = rotation,
+                        RenderOffset = new Vector2Float(0, 0)
+                    });
+                }
+            }
+        }
+
+        for (int i = 0; i < 15; i++)
+        {
+            int rx = random.Next(worldSize);
+            int ry = random.Next(worldSize);
+            int rIndex = ry * worldSize + rx;
+            if (traversibilityMap[rIndex] && (Math.Abs(rx - 20) > 5 || Math.Abs(ry - 20) > 5))
+            {
+                traversibilityMap[rIndex] = false;
+                ctx.Db.terrain_detail.Insert(new TerrainDetail
+                {
+                    Id = GenerateId(ctx, "td"),
+                    WorldId = identityString,
+                    PositionX = rx,
+                    PositionY = ry,
+                    Type = TerrainDetailType.Rock,
+                    Health = 100,
+                    Rotation = random.Next(4),
+                    RenderOffset = new Vector2Float(0, 0)
+                });
+            }
+        }
+
+        for (int i = 0; i < 20; i++)
+        {
+            int tx = random.Next(worldSize);
+            int ty = random.Next(worldSize);
+            int tIndex = ty * worldSize + tx;
+            if (traversibilityMap[tIndex] && (Math.Abs(tx - 20) > 5 || Math.Abs(ty - 20) > 5))
+            {
+                traversibilityMap[tIndex] = false;
+                ctx.Db.terrain_detail.Insert(new TerrainDetail
+                {
+                    Id = GenerateId(ctx, "td"),
+                    WorldId = identityString,
+                    PositionX = tx,
+                    PositionY = ty,
+                    Type = TerrainDetailType.Tree,
+                    Health = 100,
+                    Rotation = random.Next(4),
+                    RenderOffset = new Vector2Float(0, 0)
+                });
+            }
+        }
+
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
             WorldId = identityString,
@@ -129,10 +232,11 @@ public static partial class Module
             RenderOffset = new Vector2Float(0, 0)
         });
 
-        var targetDummyPositions = new[] { (6, 6), (14, 6), (6, 14), (14, 14) };
+        var targetDummyPositions = new[] { (10, 10), (30, 10), (10, 30), (30, 30) };
         foreach (var (x, y) in targetDummyPositions)
         {
             var targetDummyId = GenerateId(ctx, "td");
+            traversibilityMap[y * worldSize + x] = false;
             ctx.Db.terrain_detail.Insert(new TerrainDetail
             {
                 Id = targetDummyId,

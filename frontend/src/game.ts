@@ -189,14 +189,14 @@ export class Game {
 
     this.tankManager.drawBodies(this.ctx);
 
-    this.collisionVisualizationManager.draw(
-      this.ctx,
-      cameraX,
-      cameraY,
-      displayWidth,
-      displayHeight,
-      UNIT_TO_PIXEL
-    );
+    // this.collisionVisualizationManager.draw(
+    //   this.ctx,
+    //   cameraX,
+    //   cameraY,
+    //   displayWidth,
+    //   displayHeight,
+    //   UNIT_TO_PIXEL
+    // );
 
     this.ctx.restore();
 

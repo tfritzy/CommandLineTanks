@@ -285,7 +285,22 @@ export class DeadTank extends TerrainDetailObject {
 
 
 export class FoundationEdge extends TerrainDetailObject {
-  public drawShadow(ctx: CanvasRenderingContext2D): void { }
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x + UNIT_TO_PIXEL * 0.5;
+    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const shadowOffset = UNIT_TO_PIXEL * 0.08;
+
+    ctx.translate(centerX - shadowOffset, centerY + shadowOffset);
+    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
+    ctx.translate(-centerX, -centerY);
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx.fillRect(x, y + UNIT_TO_PIXEL * 0.35, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.3);
+    ctx.restore();
+  }
 
   public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
@@ -298,19 +313,10 @@ export class FoundationEdge extends TerrainDetailObject {
     ctx.rotate((this.rotation * 90 * Math.PI) / 180);
     ctx.translate(-centerX, -centerY);
 
-    const fillColor = getFlashColor("#c06852", this.flashTimer);
-    const strokeColor = getFlashColor("#813645", this.flashTimer);
-    const boardWidth = UNIT_TO_PIXEL * 0.2;
+    const baseColor = getFlashColor("#707b89", this.flashTimer);
 
-    // Draw 3 boards with perfect spacing
-    for (let i = 0; i < 3; i++) {
-      const bx = x + UNIT_TO_PIXEL * (1 / 6 + i / 3) - boardWidth / 2;
-      ctx.fillStyle = fillColor;
-      ctx.fillRect(bx, y + UNIT_TO_PIXEL * 0.4, boardWidth, UNIT_TO_PIXEL * 0.2);
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(bx, y + UNIT_TO_PIXEL * 0.4, boardWidth, UNIT_TO_PIXEL * 0.2);
-    }
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(x, y + UNIT_TO_PIXEL * 0.35, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.3);
 
     ctx.restore();
     this.drawLabel(ctx);
@@ -323,7 +329,30 @@ export class FoundationEdge extends TerrainDetailObject {
 }
 
 export class FoundationCorner extends TerrainDetailObject {
-  public drawShadow(ctx: CanvasRenderingContext2D): void { }
+  public drawShadow(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x + UNIT_TO_PIXEL * 0.5;
+    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const shadowOffset = UNIT_TO_PIXEL * 0.08;
+
+    ctx.translate(centerX - shadowOffset, centerY + shadowOffset);
+    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
+    ctx.translate(-centerX, -centerY);
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx.beginPath();
+    ctx.moveTo(x + UNIT_TO_PIXEL * 0.35, y + UNIT_TO_PIXEL * 0.35);
+    ctx.lineTo(x + UNIT_TO_PIXEL, y + UNIT_TO_PIXEL * 0.35);
+    ctx.lineTo(x + UNIT_TO_PIXEL, y + UNIT_TO_PIXEL * 0.65);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.65, y + UNIT_TO_PIXEL * 0.65);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.65, y + UNIT_TO_PIXEL);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.35, y + UNIT_TO_PIXEL);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
 
   public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
@@ -336,29 +365,18 @@ export class FoundationCorner extends TerrainDetailObject {
     ctx.rotate((this.rotation * 90 * Math.PI) / 180);
     ctx.translate(-centerX, -centerY);
 
-    const fillColor = getFlashColor("#c06852", this.flashTimer);
-    const strokeColor = getFlashColor("#813645", this.flashTimer);
-    const boardWidth = UNIT_TO_PIXEL * 0.2;
+    const baseColor = getFlashColor("#707b89", this.flashTimer);
 
-    // Boards on horizontal and vertical arms
-    const positions = [0.5, 0.833];
-    for (const pos of positions) {
-      // Horizontal arm boards
-      const bhx = x + UNIT_TO_PIXEL * pos - boardWidth / 2;
-      ctx.fillStyle = fillColor;
-      ctx.fillRect(bhx, y + UNIT_TO_PIXEL * 0.4, boardWidth, UNIT_TO_PIXEL * 0.2);
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(bhx, y + UNIT_TO_PIXEL * 0.4, boardWidth, UNIT_TO_PIXEL * 0.2);
-
-      // Vertical arm boards
-      const bvy = y + UNIT_TO_PIXEL * pos - boardWidth / 2;
-      ctx.fillStyle = fillColor;
-      ctx.fillRect(x + UNIT_TO_PIXEL * 0.4, bvy, UNIT_TO_PIXEL * 0.2, boardWidth);
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(x + UNIT_TO_PIXEL * 0.4, bvy, UNIT_TO_PIXEL * 0.2, boardWidth);
-    }
+    ctx.fillStyle = baseColor;
+    ctx.beginPath();
+    ctx.moveTo(x + UNIT_TO_PIXEL * 0.35, y + UNIT_TO_PIXEL * 0.35);
+    ctx.lineTo(x + UNIT_TO_PIXEL, y + UNIT_TO_PIXEL * 0.35);
+    ctx.lineTo(x + UNIT_TO_PIXEL, y + UNIT_TO_PIXEL * 0.65);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.65, y + UNIT_TO_PIXEL * 0.65);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.65, y + UNIT_TO_PIXEL);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.35, y + UNIT_TO_PIXEL);
+    ctx.closePath();
+    ctx.fill();
 
     ctx.restore();
     this.drawLabel(ctx);
