@@ -24,7 +24,8 @@ public static partial class Module
             Width = TerrainGenerator.GetWorldWidth(),
             Height = TerrainGenerator.GetWorldHeight(),
             BaseTerrainLayer = baseTerrain,
-            GameState = GameState.Playing
+            GameState = GameState.Playing,
+            GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
         ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates

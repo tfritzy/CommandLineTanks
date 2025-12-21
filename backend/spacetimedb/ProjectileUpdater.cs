@@ -160,6 +160,32 @@ public static partial class ProjectileUpdater
             LastTickAt = currentTime
         });
 
+        var world = ctx.Db.world.Id.Find(args.WorldId);
+        if (world != null && world.Value.GameState == GameState.Playing)
+        {
+            var gameElapsedMicros = currentTime - world.Value.GameStartedAt;
+            if (gameElapsedMicros >= Module.GAME_DURATION_MICROS)
+            {
+                var score = ctx.Db.score.WorldId.Find(args.WorldId);
+                if (score != null)
+                {
+                    var updatedWorld = world.Value with { GameState = GameState.Results };
+                    ctx.Db.world.Id.Update(updatedWorld);
+
+                    ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
+                    {
+                        ScheduledId = 0,
+                        ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
+                        WorldId = args.WorldId
+                    });
+
+                    int team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
+                    int team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
+                    Log.Info($"Game time limit reached! Team 0: {team0Kills} kills, Team 1: {team1Kills} kills. Game ending in 30 seconds...");
+                }
+            }
+        }
+
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
         if (traversibilityMap == null) return;
 
@@ -500,7 +526,8 @@ public static partial class ProjectileUpdater
         var updatedWorld = world.Value with
         {
             BaseTerrainLayer = baseTerrain,
-            GameState = GameState.Playing
+            GameState = GameState.Playing,
+            GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
         ctx.Db.world.Id.Update(updatedWorld);
 
