@@ -166,48 +166,59 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     return (
         <div
-            ref={containerRef}
             style={{
                 width: '100%',
                 height: '500px',
                 background: '#2a152d',
-                color: '#e6eeed',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: '12px',
-                lineHeight: '1.5',
-                padding: '16px',
-                display: 'flex',
-                flexDirection: 'column',
-                overflowY: 'auto',
                 borderTop: '1px solid #5a78b2',
+                display: 'flex',
+                justifyContent: 'center',
             }}
             onClick={() => inputRef.current?.focus()}
         >
-            <div>
-                {output.map((line, i) => (
-                    <div key={i} style={{ minHeight: '1.5em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
-                ))}
+            <div
+                ref={containerRef}
+                style={{
+                    width: '100%',
+                    maxWidth: '1200px',
+                    color: '#e6eeed',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '12px',
+                    lineHeight: '1.5',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflowY: 'auto',
+                    borderLeft: '1px solid #5a78b2',
+                    borderRight: '1px solid #5a78b2',
+                }}
+            >
+                <div>
+                    {output.map((line, i) => (
+                        <div key={i} style={{ minHeight: '1.5em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
+                    ))}
+                </div>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px', color: '#96dc7f', fontWeight: 'bold' }}>❯</span>
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        style={{
+                            flex: 1,
+                            background: 'transparent',
+                            border: 'none',
+                            outline: 'none',
+                            color: '#e6eeed',
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: '12px',
+                            caretColor: '#96dc7f',
+                        }}
+                    />
+                </form>
             </div>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ marginRight: '8px', color: '#96dc7f', fontWeight: 'bold' }}>❯</span>
-                <input
-                    ref={inputRef}
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    style={{
-                        flex: 1,
-                        background: 'transparent',
-                        border: 'none',
-                        outline: 'none',
-                        color: '#e6eeed',
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: '12px',
-                        caretColor: '#96dc7f',
-                    }}
-                />
-            </form>
         </div>
     );
 }
