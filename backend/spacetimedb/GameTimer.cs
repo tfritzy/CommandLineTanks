@@ -24,22 +24,24 @@ public static partial class GameTimer
             return;
         }
 
+        var updatedWorld = world.Value with { GameState = GameState.Results };
+        ctx.Db.world.Id.Update(updatedWorld);
+
+        ctx.Db.ScheduledWorldReset.Insert(new ProjectileUpdater.ScheduledWorldReset
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
+            WorldId = args.WorldId
+        });
+
         var score = ctx.Db.score.WorldId.Find(args.WorldId);
+        int team0Kills = 0;
+        int team1Kills = 0;
         if (score != null)
         {
-            var updatedWorld = world.Value with { GameState = GameState.Results };
-            ctx.Db.world.Id.Update(updatedWorld);
-
-            ctx.Db.ScheduledWorldReset.Insert(new ProjectileUpdater.ScheduledWorldReset
-            {
-                ScheduledId = 0,
-                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
-                WorldId = args.WorldId
-            });
-
-            int team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
-            int team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
-            Log.Info($"Game time limit reached! Team 0: {team0Kills} kills, Team 1: {team1Kills} kills. Game ending in 30 seconds...");
+            team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
+            team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
         }
+        Log.Info($"Game time limit reached! Team 0: {team0Kills} kills, Team 1: {team1Kills} kills. Game ending in 30 seconds...");
     }
 }
