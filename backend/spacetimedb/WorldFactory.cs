@@ -6,7 +6,7 @@ public static partial class Module
 {
     private const int HOMEWORLD_SIZE = 40;
 
-    public static void CreateHomeworld(ReducerContext ctx, string identityString)
+    private static void CreateHomeworld(ReducerContext ctx, string identityString)
     {
         int worldSize = HOMEWORLD_SIZE;
         int totalTiles = worldSize * worldSize;

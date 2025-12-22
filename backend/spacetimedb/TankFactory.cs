@@ -37,7 +37,7 @@ public static partial class Module
         return respawnedTank;
     }
 
-    public static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY, bool isBot = false)
+    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY, bool isBot = false)
     {
         var tankId = GenerateId(ctx, "tnk");
         return new Tank
