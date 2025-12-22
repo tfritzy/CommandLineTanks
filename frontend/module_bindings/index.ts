@@ -51,8 +51,6 @@ import ResetWorld from "./reset_world_reducer";
 export { ResetWorld };
 import Respawn from "./respawn_reducer";
 export { Respawn };
-import Reverse from "./reverse_reducer";
-export { Reverse };
 import SpawnPickup from "./spawn_pickup_reducer";
 export { SpawnPickup };
 import Stop from "./stop_reducer";
@@ -394,7 +392,6 @@ const reducersSchema = __reducers(
   __reducerSchema("driveToTank", DriveToTank),
   __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
-  __reducerSchema("reverse", Reverse),
   __reducerSchema("SpawnPickup", SpawnPickup),
   __reducerSchema("stop", Stop),
   __reducerSchema("switchGun", SwitchGun),
