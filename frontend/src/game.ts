@@ -97,8 +97,8 @@ export class Game {
       const relativeX = x - playerGridX;
 
       if (relativeX % LABEL_INTERVAL === 0 && relativeX !== 0) {
-        const worldX = x * UNIT_TO_PIXEL;
-        const worldY = playerGridY * UNIT_TO_PIXEL;
+        const worldX = x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
+        const worldY = playerGridY * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
         const label = relativeX > 0 ? `+${relativeX}` : relativeX.toString();
         this.ctx.fillText(label, worldX, worldY);
       }
@@ -108,8 +108,8 @@ export class Game {
       const relativeY = playerGridY - y;
 
       if (relativeY % LABEL_INTERVAL === 0 && relativeY !== 0) {
-        const worldX = playerGridX * UNIT_TO_PIXEL;
-        const worldY = y * UNIT_TO_PIXEL;
+        const worldX = playerGridX * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
+        const worldY = y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
         const label = relativeY > 0 ? `+${relativeY}` : relativeY.toString();
         this.ctx.fillText(label, worldX, worldY);
       }
