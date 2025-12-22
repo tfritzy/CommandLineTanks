@@ -193,4 +193,25 @@ export class DeadTankParticles {
   public getIsDead(): boolean {
     return this.isDead;
   }
+
+  public isInViewport(cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): boolean {
+    const cameraRight = cameraX + viewportWidth;
+    const cameraBottom = cameraY + viewportHeight;
+    
+    for (const particle of this.particles) {
+      if (particle.lifetime >= particle.maxLifetime) continue;
+      
+      const particleX = particle.x * UNIT_TO_PIXEL;
+      const particleY = particle.y * UNIT_TO_PIXEL;
+      const maxSize = Math.max(particle.width, particle.height);
+      
+      if (particleX + maxSize >= cameraX && 
+          particleX - maxSize <= cameraRight &&
+          particleY + maxSize >= cameraY && 
+          particleY - maxSize <= cameraBottom) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

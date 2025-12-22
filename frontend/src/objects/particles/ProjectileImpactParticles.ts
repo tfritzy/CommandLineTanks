@@ -88,4 +88,25 @@ export class ProjectileImpactParticles {
   public getIsDead(): boolean {
     return this.isDead;
   }
+
+  public isInViewport(cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): boolean {
+    const cameraRight = cameraX + viewportWidth;
+    const cameraBottom = cameraY + viewportHeight;
+    
+    for (const p of this.particles) {
+      if (p.lifetime >= p.maxLifetime) continue;
+      
+      const px = p.x * UNIT_TO_PIXEL;
+      const py = p.y * UNIT_TO_PIXEL;
+      const pSize = p.size * UNIT_TO_PIXEL;
+      
+      if (px + pSize >= cameraX && 
+          px - pSize <= cameraRight &&
+          py + pSize >= cameraY && 
+          py - pSize <= cameraBottom) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

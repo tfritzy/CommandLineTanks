@@ -66,11 +66,11 @@ export class ProjectileManager {
     }
   }
 
-  public drawBodies(ctx: CanvasRenderingContext2D) {
+  public drawBodies(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
     for (const projectile of this.projectiles.values()) {
       projectile.drawBody(ctx);
     }
-    this.particlesManager.draw(ctx);
+    this.particlesManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
   }
 
   public getAllProjectiles(): IterableIterator<Projectile> {
