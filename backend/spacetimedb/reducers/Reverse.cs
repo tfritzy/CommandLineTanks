@@ -28,7 +28,7 @@ public static partial class Module
             offsetY = (int)Math.Round(-distance);
         }
 
-        Vector2 nextPos = new(rootPos.X + offsetX, rootPos.Y + offsetY);
+        Vector2Float nextPos = new(rootPos.X + offsetX, rootPos.Y + offsetY);
         Log.Info(tank + " reversing to " + nextPos + ". because " + rootPos + " and offset (" + offsetX + ", " + offsetY + ")");
 
         PathEntry entry = new()

@@ -15,8 +15,8 @@ import TerrainDetailType from "./terrain_detail_type_type";
 export default __t.object("Pickup", {
   id: __t.string(),
   worldId: __t.string(),
-  positionX: __t.i32(),
-  positionY: __t.i32(),
+  positionX: __t.f32(),
+  positionY: __t.f32(),
   get type() {
     return TerrainDetailType;
   },

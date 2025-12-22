@@ -9,12 +9,12 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2 from "./vector_2_type";
+import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.object("PathEntry", {
   get position() {
-    return Vector2;
+    return Vector2Float;
   },
   throttlePercent: __t.f32(),
   reverse: __t.bool(),

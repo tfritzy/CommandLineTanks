@@ -33,8 +33,6 @@ import {
 // Import and reexport all reducer arg types
 import Aim from "./aim_reducer";
 export { Aim };
-import Drive from "./drive_reducer";
-export { Drive };
 import DriveTo from "./drive_to_reducer";
 export { DriveTo };
 import FindWorld from "./find_world_reducer";
@@ -139,8 +137,6 @@ import TerrainDetailType from "./terrain_detail_type_type";
 export { TerrainDetailType };
 import TraversibilityMap from "./traversibility_map_type";
 export { TraversibilityMap };
-import Vector2 from "./vector_2_type";
-export { Vector2 };
 import Vector2Float from "./vector_2_float_type";
 export { Vector2Float };
 import World from "./world_type";
@@ -351,7 +347,6 @@ const tablesSchema = __schema(
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
-  __reducerSchema("drive", Drive),
   __reducerSchema("driveTo", DriveTo),
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),

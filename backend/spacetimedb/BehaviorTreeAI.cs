@@ -157,7 +157,7 @@ public static partial class BehaviorTreeAI
     {
         var pathEntries = path.Select(waypoint => new PathEntry
         {
-            Position = new Vector2(waypoint.x, waypoint.y),
+            Position = new Vector2Float(waypoint.x, waypoint.y),
             ThrottlePercent = 1.0f,
             Reverse = false
         }).ToArray();

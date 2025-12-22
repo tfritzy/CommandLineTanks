@@ -75,7 +75,7 @@ public static class BehaviorTreeLogic
                 var tMap = context.GetTraversibilityMap();
                 if (tMap != null)
                 {
-                    var path = FindPathTowards(tank, healthPickup.Value.PositionX, healthPickup.Value.PositionY, tMap);
+                    var path = FindPathTowards(tank, (int)healthPickup.Value.PositionX, (int)healthPickup.Value.PositionY, tMap);
                     if (path.Count > 0)
                     {
                         return new AIDecision
@@ -145,7 +145,7 @@ public static class BehaviorTreeLogic
             var tMap = context.GetTraversibilityMap();
             if (tMap != null)
             {
-                var path = FindPathTowards(tank, nearbyPickup.Value.PositionX, nearbyPickup.Value.PositionY, tMap);
+                var path = FindPathTowards(tank, (int)nearbyPickup.Value.PositionX, (int)nearbyPickup.Value.PositionY, tMap);
                 if (path.Count > 0)
                 {
                     return new AIDecision
@@ -323,7 +323,8 @@ public static class BehaviorTreeLogic
 
         Log.Info($"[FindPathTowards] Tank {tank.Id}: current=({currentX},{currentY}), target=({targetX},{targetY})");
 
-        var path = AStarPathfinding.FindPath(currentX, currentY, targetX, targetY, traversibilityMap.Value);
+        var floatPath = AStarPathfinding.FindPath(currentX, currentY, targetX, targetY, traversibilityMap.Value);
+        var path = floatPath.Select(p => ((int)p.x, (int)p.y)).ToList();
         
         if (path.Count > 0)
         {
