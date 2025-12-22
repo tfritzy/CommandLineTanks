@@ -1,4 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../game";
+import { isPointInViewport } from "../../utils/viewport";
 
 interface Particle {
   x: number;
@@ -195,9 +196,6 @@ export class DeadTankParticles {
   }
 
   public isInViewport(cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): boolean {
-    const cameraRight = cameraX + viewportWidth;
-    const cameraBottom = cameraY + viewportHeight;
-    
     for (const particle of this.particles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
       
@@ -205,10 +203,7 @@ export class DeadTankParticles {
       const particleY = particle.y * UNIT_TO_PIXEL;
       const halfMaxSize = Math.max(particle.width, particle.height) / 2;
       
-      if (particleX + halfMaxSize >= cameraX && 
-          particleX - halfMaxSize <= cameraRight &&
-          particleY + halfMaxSize >= cameraY && 
-          particleY - halfMaxSize <= cameraBottom) {
+      if (isPointInViewport(particleX, particleY, halfMaxSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
         return true;
       }
     }

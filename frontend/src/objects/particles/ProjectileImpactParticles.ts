@@ -1,4 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../game";
+import { isPointInViewport } from "../../utils/viewport";
 
 interface Particle {
   x: number;
@@ -90,9 +91,6 @@ export class ProjectileImpactParticles {
   }
 
   public isInViewport(cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): boolean {
-    const cameraRight = cameraX + viewportWidth;
-    const cameraBottom = cameraY + viewportHeight;
-    
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
       
@@ -100,10 +98,7 @@ export class ProjectileImpactParticles {
       const py = p.y * UNIT_TO_PIXEL;
       const pSize = p.size * UNIT_TO_PIXEL;
       
-      if (px + pSize >= cameraX && 
-          px - pSize <= cameraRight &&
-          py + pSize >= cameraY && 
-          py - pSize <= cameraBottom) {
+      if (isPointInViewport(px, py, pSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
         return true;
       }
     }
