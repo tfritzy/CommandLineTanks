@@ -49,7 +49,6 @@ export class TankManager {
 
     connection.db.tank.onUpdate((_ctx, oldTank, newTank) => {
       const tank = this.tanks.get(newTank.id);
-      console.log(JSON.parse(JSON.stringify(tank)));
       if (tank) {
         if (oldTank.health > 0 && newTank.health <= 0) {
           const pos = tank.getPosition();

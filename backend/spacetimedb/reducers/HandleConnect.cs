@@ -41,11 +41,19 @@ public static partial class Module
             var tankName = AllocateTankName(ctx, identityString);
             if (tankName != null)
             {
-                var tank = BuildTank(ctx, identityString, ctx.Sender, tankName, "", 0, HOMEWORLD_SIZE / 2, HOMEWORLD_SIZE / 2);
+                var tank = BuildTank(
+                    ctx,
+                    identityString,
+                    ctx.Sender,
+                    tankName,
+                    "",
+                    0,
+                    HOMEWORLD_SIZE / 2 + .5f,
+                    HOMEWORLD_SIZE / 2 + .5f);
                 ctx.Db.tank.Insert(tank);
-                
+
                 StartWorldTickers(ctx, identityString);
-                
+
                 Log.Info($"Created homeworld tank {tankName} for identity {identityString}");
             }
         }

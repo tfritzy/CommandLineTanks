@@ -107,61 +107,6 @@ public static partial class Module
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
 
-        int fStartX = 15;
-        int fStartY = 15;
-        int fWidth = 10;
-        int fHeight = 10;
-
-        for (int x = fStartX; x < fStartX + fWidth; x++)
-        {
-            for (int y = fStartY; y < fStartY + fHeight; y++)
-            {
-                bool isEdgeX = x == fStartX || x == fStartX + fWidth - 1;
-                bool isEdgeY = y == fStartY || y == fStartY + fHeight - 1;
-
-                if (isEdgeX && isEdgeY)
-                {
-                    int rotation = 0;
-                    if (x == fStartX && y == fStartY) rotation = 0;
-                    else if (x == fStartX + fWidth - 1 && y == fStartY) rotation = 1;
-                    else if (x == fStartX + fWidth - 1 && y == fStartY + fHeight - 1) rotation = 2;
-                    else if (x == fStartX && y == fStartY + fHeight - 1) rotation = 3;
-
-                    traversibilityMap[y * worldSize + x] = false;
-                    ctx.Db.terrain_detail.Insert(new TerrainDetail
-                    {
-                        Id = GenerateId(ctx, "td"),
-                        WorldId = identityString,
-                        PositionX = x + 0.5f,
-                        PositionY = y + 0.5f,
-                        Type = TerrainDetailType.FoundationCorner,
-                        Health = 100,
-                        Rotation = rotation
-                    });
-                }
-                else if (isEdgeX || isEdgeY)
-                {
-                    int rotation = 0;
-                    if (y == fStartY) rotation = 0; // North
-                    else if (x == fStartX + fWidth - 1) rotation = 1; // East
-                    else if (y == fStartY + fHeight - 1) rotation = 2; // South
-                    else if (x == fStartX) rotation = 3; // West
-
-                    traversibilityMap[y * worldSize + x] = false;
-                    ctx.Db.terrain_detail.Insert(new TerrainDetail
-                    {
-                        Id = GenerateId(ctx, "td"),
-                        WorldId = identityString,
-                        PositionX = x + 0.5f,
-                        PositionY = y + 0.5f,
-                        Type = TerrainDetailType.FoundationEdge,
-                        Health = 100,
-                        Rotation = rotation
-                    });
-                }
-            }
-        }
-
         for (int i = 0; i < 15; i++)
         {
             int rx = random.Next(worldSize);
@@ -204,14 +149,6 @@ public static partial class Module
             }
         }
 
-        ctx.Db.traversibility_map.Insert(new TraversibilityMap
-        {
-            WorldId = identityString,
-            Map = traversibilityMap,
-            Width = worldSize,
-            Height = worldSize
-        });
-
         ctx.Db.score.Insert(new Score
         {
             WorldId = identityString,
@@ -244,7 +181,7 @@ public static partial class Module
             Rotation = 0
         });
 
-        var targetDummyPositions = new[] { (10, 10), (30, 10), (10, 30), (30, 30) };
+        var targetDummyPositions = new[] { (15, 15), (25, 15), (15, 25), (25, 25) };
         foreach (var (x, y) in targetDummyPositions)
         {
             var targetDummyId = GenerateId(ctx, "td");
@@ -256,11 +193,48 @@ public static partial class Module
                 PositionX = x + 0.5f,
                 PositionY = y + 0.5f,
                 Type = TerrainDetailType.TargetDummy,
-                Health = int.MaxValue,
-                Label = null,
+                Health = 100_000,
                 Rotation = 0
             });
         }
+
+        var pickups = new[]
+        {
+            TerrainDetailType.TripleShooterPickup,
+            TerrainDetailType.MissileLauncherPickup,
+            TerrainDetailType.HealthPickup,
+            TerrainDetailType.BoomerangPickup,
+            TerrainDetailType.GrenadePickup,
+            TerrainDetailType.RocketPickup,
+            TerrainDetailType.MoagPickup
+        };
+
+        for (int i = 0; i < pickups.Length; i++)
+        {
+            int px = 20 - (pickups.Length / 2) + i;
+
+            for (int row = 0; row < 10; row++)
+            {
+                int py = 25 + row;
+
+                ctx.Db.pickup.Insert(new Pickup
+                {
+                    Id = GenerateId(ctx, "p"),
+                    WorldId = identityString,
+                    PositionX = px + 0.5f,
+                    PositionY = py + 0.5f,
+                    Type = pickups[i]
+                });
+            }
+        }
+
+        ctx.Db.traversibility_map.Insert(new TraversibilityMap
+        {
+            WorldId = identityString,
+            Map = traversibilityMap,
+            Width = worldSize,
+            Height = worldSize
+        });
 
         Log.Info($"Created homeworld for identity {identityString}");
     }

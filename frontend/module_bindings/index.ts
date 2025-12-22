@@ -83,6 +83,8 @@ import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import ScheduledWorldResetRow from "./scheduled_world_reset_table";
 export { ScheduledWorldResetRow };
+import KillsRow from "./kills_table";
+export { KillsRow };
 import PickupRow from "./pickup_table";
 export { PickupRow };
 import PlayerRow from "./player_table";
@@ -111,6 +113,8 @@ import Gun from "./gun_type";
 export { Gun };
 import GunType from "./gun_type_type";
 export { GunType };
+import Kill from "./kill_type";
+export { Kill };
 import PathEntry from "./path_entry_type";
 export { PathEntry };
 import Pickup from "./pickup_type";
@@ -228,6 +232,20 @@ const tablesSchema = __schema(
       { name: 'ScheduledWorldReset_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledWorldResetRow),
+  __table({
+    name: 'kills',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'kills_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, KillsRow),
   __table({
     name: 'pickup',
     indexes: [

@@ -41,7 +41,7 @@ export class ProjectileImpactParticles {
         x, y,
         velocityX: pDirX * pSpeed,
         velocityY: pDirY * pSpeed,
-        size: 0.5 + Math.random() * 1.3,
+        size: 0.02 + Math.random() * .03,
         lifetime: 0,
         maxLifetime: 0.2 + Math.random() * 0.2,
         color: color
@@ -65,22 +65,24 @@ export class ProjectileImpactParticles {
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
       const alpha = 1 - p.lifetime / p.maxLifetime;
-      ctx.save();
       ctx.globalAlpha = alpha;
       ctx.fillStyle = p.color;
       
       const px = p.x * UNIT_TO_PIXEL;
       const py = p.y * UNIT_TO_PIXEL;
+      const pSize = p.size * UNIT_TO_PIXEL;
       
       ctx.beginPath();
-      ctx.arc(px, py, p.size, 0, Math.PI * 2);
+      ctx.arc(px, py, pSize, 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore();
     }
+    ctx.restore();
   }
 
   public getIsDead(): boolean {

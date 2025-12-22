@@ -2,12 +2,17 @@ import { getConnection } from "./spacetimedb-connection";
 import { type PickupRow, type EventContext, TerrainDetailType } from "../module_bindings";
 import { type Infer } from "spacetimedb";
 import { UNIT_TO_PIXEL } from "./game";
+import { Projectile } from "./objects/projectiles/Projectile";
+import { MissileProjectile } from "./objects/projectiles/MissileProjectile";
+import { RocketProjectile } from "./objects/projectiles/RocketProjectile";
+import { GrenadeProjectile } from "./objects/projectiles/GrenadeProjectile";
 
 interface PickupData {
   id: string;
   positionX: number;
   positionY: number;
   type: Infer<typeof TerrainDetailType>;
+  projectile?: Projectile;
 }
 
 export class PickupManager {
@@ -17,6 +22,23 @@ export class PickupManager {
   constructor(worldId: string) {
     this.worldId = worldId;
     this.subscribeToPickups();
+  }
+
+  private createProjectileForPickup(type: string, x: number, y: number): Projectile | undefined {
+    const angle = -Math.PI / 4;
+    const velocityX = Math.cos(angle);
+    const velocityY = Math.sin(angle);
+
+    switch (type) {
+      case "MissileLauncherPickup":
+        return new MissileProjectile(x, y, velocityX, velocityY, 0.3, 0);
+      case "RocketPickup":
+        return new RocketProjectile(x, y, velocityX, velocityY, 0.2, 0);
+      case "GrenadePickup":
+        return new GrenadeProjectile(x, y, velocityX, velocityY, 0.4, 0);
+      default:
+        return undefined;
+    }
   }
 
   private subscribeToPickups() {
@@ -29,11 +51,14 @@ export class PickupManager {
       .subscribe([`SELECT * FROM pickup WHERE WorldId = '${this.worldId}'`]);
 
     connection.db.pickup.onInsert((_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+      const projectile = this.createProjectileForPickup(pickup.type.tag, pickup.positionX, pickup.positionY);
+      
       this.pickups.set(pickup.id, {
         id: pickup.id,
         positionX: pickup.positionX,
         positionY: pickup.positionY,
         type: pickup.type,
+        projectile,
       });
     });
 
@@ -51,9 +76,39 @@ export class PickupManager {
     for (const pickup of this.pickups.values()) {
       if (pickup.positionX >= startTileX && pickup.positionX <= endTileX &&
           pickup.positionY >= startTileY && pickup.positionY <= endTileY) {
-        this.drawPickup(ctx, pickup);
+        if (pickup.projectile) {
+          pickup.projectile.drawShadow(ctx);
+        } else {
+          this.drawPickupShadow(ctx, pickup);
+        }
       }
     }
+
+    for (const pickup of this.pickups.values()) {
+      if (pickup.positionX >= startTileX && pickup.positionX <= endTileX &&
+          pickup.positionY >= startTileY && pickup.positionY <= endTileY) {
+        if (pickup.projectile) {
+          pickup.projectile.drawBody(ctx);
+        } else {
+          this.drawPickup(ctx, pickup);
+        }
+      }
+    }
+  }
+
+  private drawPickupShadow(ctx: CanvasRenderingContext2D, pickup: PickupData) {
+    const worldX = pickup.positionX * UNIT_TO_PIXEL;
+    const worldY = pickup.positionY * UNIT_TO_PIXEL;
+    const size = UNIT_TO_PIXEL * 0.6;
+    const centerX = worldX - 4;
+    const centerY = worldY + 4;
+
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 
   private drawPickup(ctx: CanvasRenderingContext2D, pickup: PickupData) {
@@ -67,95 +122,47 @@ export class PickupManager {
 
     switch (pickup.type.tag) {
       case "TripleShooterPickup":
-        ctx.fillStyle = "#ff9900";
-        ctx.strokeStyle = "#cc7700";
+        ctx.fillStyle = "#e39764";
+        ctx.strokeStyle = "#c06852";
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = "#fcfbf3";
         ctx.font = `bold ${size * 0.6}px monospace`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("3", centerX, centerY);
         break;
 
-      case "MissileLauncherPickup":
-        ctx.fillStyle = "#ff0000";
-        ctx.strokeStyle = "#cc0000";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = `bold ${size * 0.6}px monospace`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("M", centerX, centerY);
-        break;
-
       case "BoomerangPickup":
-        ctx.fillStyle = "#8b4513";
-        ctx.strokeStyle = "#654321";
+        ctx.fillStyle = "#c06852";
+        ctx.strokeStyle = "#9d4343";
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = "#fcfbf3";
         ctx.font = `bold ${size * 0.6}px monospace`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("B", centerX, centerY);
         break;
 
-      case "GrenadePickup":
-        ctx.fillStyle = "#4a4a4a";
-        ctx.strokeStyle = "#2a2a2a";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = `bold ${size * 0.6}px monospace`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("G", centerX, centerY);
-        break;
-
-      case "RocketPickup":
-        ctx.fillStyle = "#ff6600";
-        ctx.strokeStyle = "#cc5500";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = `bold ${size * 0.6}px monospace`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("R", centerX, centerY);
-        break;
-
       case "MoagPickup":
-        ctx.fillStyle = "#9400d3";
-        ctx.strokeStyle = "#6a0099";
+        ctx.fillStyle = "#794e6d";
+        ctx.strokeStyle = "#5b3a56";
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = "#fcfbf3";
         ctx.font = `bold ${size * 0.6}px monospace`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -163,15 +170,15 @@ export class PickupManager {
         break;
 
       case "HealthPickup":
-        ctx.fillStyle = "#00ff00";
-        ctx.strokeStyle = "#00cc00";
+        ctx.fillStyle = "#96dc7f";
+        ctx.strokeStyle = "#6ec077";
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        ctx.strokeStyle = "#ffffff";
+        ctx.strokeStyle = "#fcfbf3";
         ctx.lineWidth = 4;
         ctx.lineCap = "round";
         const crossSize = size * 0.4;

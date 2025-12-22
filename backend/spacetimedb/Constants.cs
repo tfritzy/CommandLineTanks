@@ -11,9 +11,9 @@ public static partial class Module
     public const float TANK_COLLISION_RADIUS = 0.5f;
     public const int COLLISION_REGION_SIZE = 4;
     public const int KILL_LIMIT = 100;
-    public const long WORLD_RESET_DELAY_MICROS = 30_000_000;
+    public const long WORLD_RESET_DELAY_MICROS = 10_000_000;
     public const float MISSILE_TRACKING_RADIUS = 8.0f;
-    public const long GAME_DURATION_MICROS = 300_000_000;
+    public const long GAME_DURATION_MICROS = 600_000_000;
 
 
     public static readonly Gun BASE_GUN = new Gun
@@ -97,11 +97,11 @@ public static partial class Module
         Damage = 100,
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Grenade,
-        LifetimeSeconds = 3.0f,
+        LifetimeSeconds = 2.0f,
         MaxCollisions = 9999,
         PassThroughTerrain = false,
         CollisionRadius = 0.1f,
-        ExplosionRadius = 2.0f,
+        ExplosionRadius = 1.5f,
         ExplosionTrigger = ExplosionTrigger.OnExpiration,
         BounceDamping = 0.7f
     };

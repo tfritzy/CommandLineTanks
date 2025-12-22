@@ -188,7 +188,6 @@ public static partial class Module
         [PrimaryKey]
         public string Id;
 
-        [SpacetimeDB.Index.BTree]
         public string WorldId;
 
         public string Killer;

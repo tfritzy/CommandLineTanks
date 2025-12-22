@@ -49,7 +49,7 @@ public static partial class ProjectileUpdater
 
                 foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
                 {
-                    if (tank.Health > 0)
+                    if (tank.Health > 0 && tank.Alliance != projectile.Alliance)
                     {
                         float dx_tank = tank.PositionX - projectile.PositionX;
                         float dy_tank = tank.PositionY - projectile.PositionY;
