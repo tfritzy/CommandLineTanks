@@ -1,6 +1,8 @@
 using SpacetimeDB;
 using static Types;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public static partial class PickupSpawner
 {
@@ -17,14 +19,18 @@ public static partial class PickupSpawner
         TerrainDetailType.MoagPickup
     };
 
-    public static readonly TerrainDetailType[] NON_HEALTH_PICKUP_TYPES = new TerrainDetailType[]
+    public static readonly TerrainDetailType[] NON_HEALTH_PICKUP_TYPES = PICKUP_TYPES
+        .Where(t => t != TerrainDetailType.HealthPickup)
+        .ToArray();
+
+    private static readonly Dictionary<TerrainDetailType, Gun> PickupToGunMap = new Dictionary<TerrainDetailType, Gun>
     {
-        TerrainDetailType.TripleShooterPickup,
-        TerrainDetailType.MissileLauncherPickup,
-        TerrainDetailType.BoomerangPickup,
-        TerrainDetailType.GrenadePickup,
-        TerrainDetailType.RocketPickup,
-        TerrainDetailType.MoagPickup
+        { TerrainDetailType.TripleShooterPickup, Module.TRIPLE_SHOOTER_GUN },
+        { TerrainDetailType.MissileLauncherPickup, Module.MISSILE_LAUNCHER_GUN },
+        { TerrainDetailType.BoomerangPickup, Module.BOOMERANG_GUN },
+        { TerrainDetailType.GrenadePickup, Module.GRENADE_GUN },
+        { TerrainDetailType.RocketPickup, Module.ROCKET_GUN },
+        { TerrainDetailType.MoagPickup, Module.MOAG_GUN }
     };
 
     [Table(Scheduled = nameof(SpawnPickup))]
@@ -161,32 +167,17 @@ public static partial class PickupSpawner
 
     public static bool TryCollectPickup(ReducerContext ctx, ref Tank tank, ref bool needsUpdate, Module.Pickup pickup)
     {
-        switch (pickup.Type)
+        if (pickup.Type == TerrainDetailType.HealthPickup)
         {
-            case TerrainDetailType.HealthPickup:
-                return TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup);
-
-            case TerrainDetailType.TripleShooterPickup:
-                return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, Module.TRIPLE_SHOOTER_GUN);
-
-            case TerrainDetailType.MissileLauncherPickup:
-                return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, Module.MISSILE_LAUNCHER_GUN);
-
-            case TerrainDetailType.BoomerangPickup:
-                return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, Module.BOOMERANG_GUN);
-
-            case TerrainDetailType.GrenadePickup:
-                return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, Module.GRENADE_GUN);
-
-            case TerrainDetailType.RocketPickup:
-                return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, Module.ROCKET_GUN);
-
-            case TerrainDetailType.MoagPickup:
-                return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, Module.MOAG_GUN);
-
-            default:
-                return false;
+            return TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup);
         }
+
+        if (PickupToGunMap.TryGetValue(pickup.Type, out Gun gun))
+        {
+            return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, gun);
+        }
+
+        return false;
     }
 
     private static bool TryCollectHealthPickup(ReducerContext ctx, ref Tank tank, ref bool needsUpdate, Module.Pickup pickup)
