@@ -1,4 +1,4 @@
-import { DeadTankParticles } from "./objects/DeadTankParticles";
+import { DeadTankParticles } from "../objects/DeadTankParticles";
 
 export class DeadTankParticlesManager {
   private particleSystems: DeadTankParticles[] = [];

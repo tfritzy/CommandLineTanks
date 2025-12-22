@@ -1,7 +1,7 @@
-import { getConnection } from "./spacetimedb-connection";
+import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
-import TankRow from "../module_bindings/tank_type";
-import { type EventContext } from "../module_bindings";
+import TankRow from "../../module_bindings/tank_type";
+import { type EventContext } from "../../module_bindings";
 
 interface PlayerScore {
   name: string;

@@ -1,5 +1,5 @@
-import { getConnection } from "./spacetimedb-connection";
-import { type GunData } from "./types/gun";
+import { getConnection } from "../spacetimedb-connection";
+import { type GunData } from "../types/gun";
 
 export class GunInventoryManager {
   private guns: GunData[] = [];

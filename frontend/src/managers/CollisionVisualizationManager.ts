@@ -1,5 +1,5 @@
-import { getConnection } from "./spacetimedb-connection";
-import { type TraversibilityMapRow, type TankRow, type EventContext } from "../module_bindings";
+import { getConnection } from "../spacetimedb-connection";
+import { type TraversibilityMapRow, type TankRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 
 const COLLISION_REGION_SIZE = 4;
