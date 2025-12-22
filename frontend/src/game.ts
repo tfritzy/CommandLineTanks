@@ -168,6 +168,10 @@ export class Game {
 
     this.drawRelativeDistanceLabels(cameraX, cameraY);
 
+
+    this.tankManager.drawBodies(this.ctx);
+    this.tankManager.drawParticles(this.ctx, cameraX, cameraY, displayWidth, displayHeight);
+
     this.terrainManager.drawShadows(
       this.ctx,
       cameraX,
@@ -185,12 +189,10 @@ export class Game {
       displayHeight,
       UNIT_TO_PIXEL
     );
+    this.tankManager.drawHealthBars(this.ctx);
 
-    this.tankManager.drawBodies(this.ctx);
     this.projectileManager.drawShadows(this.ctx, cameraX, cameraY, displayWidth, displayHeight);
     this.projectileManager.drawBodies(this.ctx, cameraX, cameraY, displayWidth, displayHeight);
-    this.tankManager.drawHealthBars(this.ctx);
-    this.tankManager.drawParticles(this.ctx, cameraX, cameraY, displayWidth, displayHeight);
 
     // this.collisionVisualizationManager.draw(
     //   this.ctx,

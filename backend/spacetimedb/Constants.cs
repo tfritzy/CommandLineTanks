@@ -30,7 +30,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null,
+        Damping = null,
+        Bounce = false,
         ProjectileSize = .1f,
     };
 
@@ -49,7 +50,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null,
+        Damping = null,
+        Bounce = false,
         ProjectileSize = .1f,
     };
 
@@ -68,7 +70,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null,
+        Damping = null,
+        Bounce = false,
         ProjectileSize = .2f,
     };
 
@@ -87,7 +90,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null,
+        Damping = null,
+        Bounce = false,
         ProjectileSize = .3f,
     };
 
@@ -100,13 +104,14 @@ public static partial class Module
         Damage = 100,
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Grenade,
-        LifetimeSeconds = 2.0f,
+        LifetimeSeconds = 2.5f,
         MaxCollisions = 9999,
         PassThroughTerrain = false,
         CollisionRadius = 0.1f,
         ExplosionRadius = 1.5f,
         ExplosionTrigger = ExplosionTrigger.OnExpiration,
-        BounceDamping = 0.7f,
+        Damping = 0.5f,
+        Bounce = true,
         ProjectileSize = .3f,
     };
 
@@ -125,7 +130,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = 1.5f,
         ExplosionTrigger = ExplosionTrigger.OnHit,
-        BounceDamping = null,
+        Damping = null,
+        Bounce = false,
         ProjectileSize = .2f,
     };
 
@@ -144,7 +150,8 @@ public static partial class Module
         CollisionRadius = 2.5f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null,
+        Damping = null,
+        Bounce = false,
         ProjectileSize = 2.5f,
     };
 }

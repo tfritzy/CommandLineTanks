@@ -43,5 +43,6 @@ export default __t.row({
   get explosionTrigger() {
     return ExplosionTrigger;
   },
-  bounceDamping: __t.option(__t.f32()),
+  damping: __t.option(__t.f32()),
+  bounce: __t.bool(),
 });

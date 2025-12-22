@@ -262,7 +262,7 @@ public static partial class ProjectileUpdater
             return (false, projectile, traversibilityMap);
         }
 
-        if (projectile.BounceDamping != null && projectile.BounceDamping > 0)
+        if (projectile.Bounce)
         {
             projectile = HandleProjectileBounce(projectile, projectileTileX, projectileTileY, deltaTime);
             return (false, projectile, traversibilityMap);
@@ -311,7 +311,6 @@ public static partial class ProjectileUpdater
         bool bounceX = prevTileX != projectileTileX;
         bool bounceY = prevTileY != projectileTileY;
 
-        float bounceDamping = projectile.BounceDamping ?? 0.8f;
         float newVelX = projectile.Velocity.X;
         float newVelY = projectile.Velocity.Y;
         float newPosX = projectile.PositionX;
@@ -319,12 +318,12 @@ public static partial class ProjectileUpdater
 
         if (bounceX)
         {
-            newVelX = -projectile.Velocity.X * bounceDamping;
+            newVelX = -projectile.Velocity.X;
             newPosX = previousX;
         }
         if (bounceY)
         {
-            newVelY = -projectile.Velocity.Y * bounceDamping;
+            newVelY = -projectile.Velocity.Y;
             newPosY = previousY;
         }
 
@@ -504,6 +503,19 @@ public static partial class ProjectileUpdater
             projectile = UpdateBoomerangVelocity(projectile, projectileAgeSeconds);
 
             projectile = UpdateMissileTracking(ctx, projectile, args.WorldId, deltaTime);
+
+            if (projectile.Damping != null && projectile.Damping > 0 && projectile.Damping < 1)
+            {
+                float dampingFactor = (float)Math.Pow(projectile.Damping.Value, deltaTime);
+                projectile = projectile with
+                {
+                    Velocity = new Vector2Float(
+                        projectile.Velocity.X * dampingFactor,
+                        projectile.Velocity.Y * dampingFactor
+                    ),
+                    Speed = projectile.Speed * dampingFactor
+                };
+            }
 
             projectile = projectile with
             {
