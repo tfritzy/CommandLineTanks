@@ -1,22 +1,16 @@
 import { UNIT_TO_PIXEL } from "../../game";
 import { isPointInViewport } from "../../utils/viewport";
+import { Particle } from "./ParticleTypes";
 
-interface Particle {
-  x: number;
-  y: number;
-  velocityX: number;
-  velocityY: number;
-  size: number;
-  lifetime: number;
-  maxLifetime: number;
-  color: string;
-}
-
-export class FenceDestructionParticles {
+export class TerrainDebrisParticles {
   private particles: Particle[] = [];
   private isDead = false;
+  private x: number;
+  private y: number;
 
   constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
     const fenceColors = ["#a9bcbf", "#707b89", "#4a4b5b"];
     
     const particleCount = 8 + Math.floor(Math.random() * 8);
@@ -79,5 +73,9 @@ export class FenceDestructionParticles {
 
   public getIsDead(): boolean {
     return this.isDead;
+  }
+
+  public getPosition(): { x: number; y: number } {
+    return { x: this.x, y: this.y };
   }
 }
