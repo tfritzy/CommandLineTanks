@@ -125,8 +125,8 @@ export class TerrainManager {
     connection.db.terrainDetail.onDelete((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       const obj = this.detailObjects.get(detail.id);
       if (obj) {
-        const x = obj.getX();
-        const y = obj.getY();
+        const x = Math.floor(obj.getX());
+        const y = Math.floor(obj.getY());
         if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
           this.detailObjectsByPosition[y][x] = null;
         }
@@ -187,8 +187,8 @@ export class TerrainManager {
 
     if (obj) {
       this.detailObjects.set(detail.id, obj);
-      const x = obj.getX();
-      const y = obj.getY();
+      const x = Math.floor(obj.getX());
+      const y = Math.floor(obj.getY());
       if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
         this.detailObjectsByPosition[y][x] = obj;
       }

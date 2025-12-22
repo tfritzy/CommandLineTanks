@@ -1,6 +1,7 @@
 import { UNIT_TO_PIXEL } from "../game";
 import { type GunData } from "../types/gun";
 import { FLASH_DURATION, getFlashColor } from "../utils/colors";
+import { TEAM_COLORS } from "../constants";
 
 type PathEntry = {
   position: { x: number; y: number };
@@ -66,7 +67,7 @@ export class Tank {
   }
 
   public getAllianceColor(): string {
-    return this.alliance === 0 ? "#ff5555" : "#5555ff";
+    return this.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -189,8 +190,8 @@ export class Tank {
   public drawPath(ctx: CanvasRenderingContext2D) {
     if (this.path.length === 0) return;
 
-    const lineColor = this.alliance === 0 ? "#ff555566" : "#5555ff66";
-    const dotColor = this.alliance === 0 ? "#ff5555ff" : "#5555ffff";
+    const lineColor = this.alliance === 0 ? TEAM_COLORS.RED + "66" : TEAM_COLORS.BLUE + "66";
+    const dotColor = this.alliance === 0 ? TEAM_COLORS.RED + "ff" : TEAM_COLORS.BLUE + "ff";
     const dotRadius = 5;
 
     ctx.save();

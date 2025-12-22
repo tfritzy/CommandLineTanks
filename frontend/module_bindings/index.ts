@@ -35,6 +35,8 @@ import Aim from "./aim_reducer";
 export { Aim };
 import DriveTo from "./drive_to_reducer";
 export { DriveTo };
+import EndGame from "./end_game_reducer";
+export { EndGame };
 import FindWorld from "./find_world_reducer";
 export { FindWorld };
 import Fire from "./fire_reducer";
@@ -71,6 +73,8 @@ export { UpdateTanks };
 // Import and reexport all table handle types
 import ScheduledAiUpdateRow from "./scheduled_ai_update_table";
 export { ScheduledAiUpdateRow };
+import ScheduledGameEndRow from "./scheduled_game_end_table";
+export { ScheduledGameEndRow };
 import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
@@ -119,6 +123,8 @@ import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
 import ScheduledAiUpdate from "./scheduled_ai_update_type";
 export { ScheduledAiUpdate };
+import ScheduledGameEnd from "./scheduled_game_end_type";
+export { ScheduledGameEnd };
 import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
@@ -155,6 +161,20 @@ const tablesSchema = __schema(
       { name: 'ScheduledAIUpdate_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledAiUpdateRow),
+  __table({
+    name: 'ScheduledGameEnd',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledGameEnd_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledGameEndRow),
   __table({
     name: 'ScheduledPickupSpawn',
     indexes: [
@@ -348,6 +368,7 @@ const tablesSchema = __schema(
 const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
   __reducerSchema("driveTo", DriveTo),
+  __reducerSchema("EndGame", EndGame),
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),
   __reducerSchema("navigateToTank", NavigateToTank),

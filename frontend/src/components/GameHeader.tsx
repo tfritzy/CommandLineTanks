@@ -4,6 +4,7 @@ import { type Infer } from 'spacetimedb';
 import ScoreRow from '../../module_bindings/score_type';
 import WorldRow from '../../module_bindings/world_type';
 import { type EventContext } from '../../module_bindings';
+import { TEAM_COLORS } from '../constants';
 
 interface GameHeaderProps {
     worldId: string;
@@ -93,39 +94,37 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         <div style={{
             position: 'absolute',
             top: 0,
-            left: 0,
-            right: 0,
-            height: '60px',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            left: '50%',
+            transform: 'translateX(-50%)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 40px',
             zIndex: 1000,
-            color: 'white',
             fontFamily: 'monospace',
-            fontSize: '24px',
+            fontSize: '20px',
             fontWeight: 'bold',
-            borderBottom: '2px solid rgba(255, 255, 255, 0.2)'
+            borderRadius: '0 0 8px 8px',
+            overflow: 'hidden'
         }}>
             <div style={{
-                color: '#ff6666',
-                textShadow: '0 0 10px #ff6666'
+                backgroundColor: TEAM_COLORS.RED,
+                color: '#fceba8',
+                padding: '8px 16px'
             }}>
-                Team Red: {team0Kills}
+                {team0Kills}
             </div>
             <div style={{
-                color: '#ffffff',
-                fontSize: '28px',
-                textShadow: '0 0 10px rgba(255, 255, 255, 0.5)'
+                backgroundColor: '#4a4b5b',
+                color: '#e6eeed',
+                padding: '8px 16px'
             }}>
                 {timeString}
             </div>
             <div style={{
-                color: '#6666ff',
-                textShadow: '0 0 10px #6666ff'
+                backgroundColor: TEAM_COLORS.BLUE,
+                color: '#aaeeea',
+                padding: '8px 16px'
             }}>
-                Team Blue: {team1Kills}
+                {team1Kills}
             </div>
         </div>
     );

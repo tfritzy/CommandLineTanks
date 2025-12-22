@@ -1,4 +1,5 @@
 import { UNIT_TO_PIXEL } from "../game";
+import { TEAM_COLORS } from "../constants";
 
 export class Projectile {
   private x: number;
@@ -51,7 +52,7 @@ export class Projectile {
     const centerY = this.y * UNIT_TO_PIXEL;
     const radius = this.size * UNIT_TO_PIXEL;
     
-    ctx.fillStyle = this.alliance === 0 ? '#ff0000' : '#0000ff';
+    ctx.fillStyle = this.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     ctx.fill();

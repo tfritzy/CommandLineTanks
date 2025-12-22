@@ -59,8 +59,8 @@ export abstract class TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const labelY = y - UNIT_TO_PIXEL * 0.1;
+    const centerX = x;
+    const labelY = y - UNIT_TO_PIXEL * 0.6;
 
     ctx.font = `${UNIT_TO_PIXEL * .5}px sans-serif`;
     ctx.fillStyle = "#e6eeed";

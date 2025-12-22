@@ -7,8 +7,8 @@ export class Rock extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
     const radius = this.getRadius(0.38, 0.2, 13.37, 42.42);
 
     const shadowOffset = radius * 0.2;
@@ -25,8 +25,8 @@ export class Rock extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
     const radius = this.getRadius(0.38, 0.2, 13.37, 42.42);
 
     const bodyColor = getFlashColor("#4a4b5b", this.flashTimer);
@@ -76,8 +76,8 @@ export class Tree extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
     const radius = this.getRadius(0.7, 0.15, 7.77, 3.33);
 
     const shadowOffsetX = -radius * 0.4;
@@ -94,8 +94,8 @@ export class Tree extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
     const radius = this.getRadius(0.7, 0.15, 7.77, 3.33);
 
     ctx.beginPath();
@@ -128,31 +128,25 @@ export class Tree extends TerrainDetailObject {
 export class HayBale extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = Math.round(this.x);
-    const y = Math.round(this.y);
-    const worldX = x * UNIT_TO_PIXEL;
-    const worldY = y * UNIT_TO_PIXEL;
-    const unit = UNIT_TO_PIXEL;
-    const centerX = worldX + unit * 0.5;
-    const centerY = worldY + unit * 0.5;
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x;
+    const centerY = y;
     const radius = this.getRadius(0.3, 0.15, 21.21, 12.12);
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
     ctx.beginPath();
-    ctx.arc(centerX - unit * 0.15, centerY + unit * 0.15, radius, 0, Math.PI * 2);
+    ctx.arc(centerX - UNIT_TO_PIXEL * 0.15, centerY + UNIT_TO_PIXEL * 0.15, radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
 
   public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = Math.round(this.x);
-    const y = Math.round(this.y);
-    const worldX = x * UNIT_TO_PIXEL;
-    const worldY = y * UNIT_TO_PIXEL;
-    const unit = UNIT_TO_PIXEL;
-    const centerX = worldX + unit * 0.5;
-    const centerY = worldY + unit * 0.5;
+    const x = this.getWorldX();
+    const y = this.getWorldY();
+    const centerX = x;
+    const centerY = y;
     const radius = this.getRadius(0.3, 0.15, 21.21, 12.12);
 
 
@@ -201,8 +195,8 @@ export class DeadTank extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     const shadowColor = "rgba(0, 0, 0, 0.4)";
     ctx.fillStyle = shadowColor;
@@ -221,8 +215,8 @@ export class DeadTank extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     ctx.translate(centerX, centerY);
 
@@ -288,8 +282,8 @@ export class FoundationEdge extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
     const shadowOffset = UNIT_TO_PIXEL * 0.08;
 
     ctx.translate(centerX - shadowOffset, centerY + shadowOffset);
@@ -297,7 +291,7 @@ export class FoundationEdge extends TerrainDetailObject {
     ctx.translate(-centerX, -centerY);
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    ctx.fillRect(x, y + UNIT_TO_PIXEL * 0.35, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.3);
+    ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, y - UNIT_TO_PIXEL * 0.15, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.3);
     ctx.restore();
   }
 
@@ -305,8 +299,8 @@ export class FoundationEdge extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     ctx.translate(centerX, centerY);
     ctx.rotate((this.rotation * 90 * Math.PI) / 180);
@@ -315,7 +309,7 @@ export class FoundationEdge extends TerrainDetailObject {
     const baseColor = getFlashColor("#707b89", this.flashTimer);
 
     ctx.fillStyle = baseColor;
-    ctx.fillRect(x, y + UNIT_TO_PIXEL * 0.35, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.3);
+    ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, y - UNIT_TO_PIXEL * 0.15, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.3);
 
     ctx.restore();
     this.drawLabel(ctx);
@@ -332,8 +326,8 @@ export class FoundationCorner extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
     const shadowOffset = UNIT_TO_PIXEL * 0.08;
 
     ctx.translate(centerX - shadowOffset, centerY + shadowOffset);
@@ -342,12 +336,12 @@ export class FoundationCorner extends TerrainDetailObject {
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
     ctx.beginPath();
-    ctx.moveTo(x + UNIT_TO_PIXEL * 0.35, y + UNIT_TO_PIXEL * 0.35);
-    ctx.lineTo(x + UNIT_TO_PIXEL, y + UNIT_TO_PIXEL * 0.35);
-    ctx.lineTo(x + UNIT_TO_PIXEL, y + UNIT_TO_PIXEL * 0.65);
-    ctx.lineTo(x + UNIT_TO_PIXEL * 0.65, y + UNIT_TO_PIXEL * 0.65);
-    ctx.lineTo(x + UNIT_TO_PIXEL * 0.65, y + UNIT_TO_PIXEL);
-    ctx.lineTo(x + UNIT_TO_PIXEL * 0.35, y + UNIT_TO_PIXEL);
+    ctx.moveTo(x - UNIT_TO_PIXEL * 0.15, y - UNIT_TO_PIXEL * 0.15);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.5, y - UNIT_TO_PIXEL * 0.15);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.15);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.15, y + UNIT_TO_PIXEL * 0.15);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.15, y + UNIT_TO_PIXEL * 0.5);
+    ctx.lineTo(x - UNIT_TO_PIXEL * 0.15, y + UNIT_TO_PIXEL * 0.5);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
@@ -357,8 +351,8 @@ export class FoundationCorner extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     ctx.translate(centerX, centerY);
     ctx.rotate((this.rotation * 90 * Math.PI) / 180);
@@ -368,12 +362,12 @@ export class FoundationCorner extends TerrainDetailObject {
 
     ctx.fillStyle = baseColor;
     ctx.beginPath();
-    ctx.moveTo(x + UNIT_TO_PIXEL * 0.35, y + UNIT_TO_PIXEL * 0.35);
-    ctx.lineTo(x + UNIT_TO_PIXEL, y + UNIT_TO_PIXEL * 0.35);
-    ctx.lineTo(x + UNIT_TO_PIXEL, y + UNIT_TO_PIXEL * 0.65);
-    ctx.lineTo(x + UNIT_TO_PIXEL * 0.65, y + UNIT_TO_PIXEL * 0.65);
-    ctx.lineTo(x + UNIT_TO_PIXEL * 0.65, y + UNIT_TO_PIXEL);
-    ctx.lineTo(x + UNIT_TO_PIXEL * 0.35, y + UNIT_TO_PIXEL);
+    ctx.moveTo(x - UNIT_TO_PIXEL * 0.15, y - UNIT_TO_PIXEL * 0.15);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.5, y - UNIT_TO_PIXEL * 0.15);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.15);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.15, y + UNIT_TO_PIXEL * 0.15);
+    ctx.lineTo(x + UNIT_TO_PIXEL * 0.15, y + UNIT_TO_PIXEL * 0.5);
+    ctx.lineTo(x - UNIT_TO_PIXEL * 0.15, y + UNIT_TO_PIXEL * 0.5);
     ctx.closePath();
     ctx.fill();
 
@@ -392,8 +386,8 @@ export class FenceEdge extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     const shadowOffset = UNIT_TO_PIXEL * 0.06;
     const angle = (this.rotation * 90 * Math.PI) / 180;
@@ -406,19 +400,16 @@ export class FenceEdge extends TerrainDetailObject {
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
 
-    // Main rail shadow (Rotated)
     ctx.beginPath();
-    ctx.roundRect(x + lsX, y + UNIT_TO_PIXEL * 0.47 + lsY, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.06, 2);
+    ctx.roundRect(x - UNIT_TO_PIXEL * 0.5 + lsX, y - UNIT_TO_PIXEL * 0.03 + lsY, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.06, 2);
     ctx.fill();
     ctx.restore();
 
-    // Post shadows (Drawn in world space for perfect orientation)
     ctx.save();
-    ctx.restore(); // Clear previous state
+    ctx.restore();
     ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
     for (let i = 0; i < 2; i++) {
-      // We must calculate the world position of the posts manually since we are outside the rotation context
       const localX = 0.25 + i * 0.5 - 0.5;
       const worldX = centerX + UNIT_TO_PIXEL * (localX * Math.cos(angle));
       const worldY = centerY + UNIT_TO_PIXEL * (localX * Math.sin(angle));
@@ -434,26 +425,24 @@ export class FenceEdge extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     ctx.translate(centerX, centerY);
     ctx.rotate((this.rotation * 90 * Math.PI) / 180);
     ctx.translate(-centerX, -centerY);
 
-    const railColor = getFlashColor("#e39764", this.flashTimer); // Punolite-esque wood
-    const postColor = getFlashColor("#c06852", this.flashTimer); // Darker wood
+    const railColor = getFlashColor("#e39764", this.flashTimer);
+    const postColor = getFlashColor("#c06852", this.flashTimer);
 
-    // Draw main rail
     ctx.fillStyle = railColor;
-    ctx.fillRect(x, y + UNIT_TO_PIXEL * 0.47, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.06);
+    ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, y - UNIT_TO_PIXEL * 0.03, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.06);
 
-    // Draw two posts (0.25 and 0.75)
     ctx.fillStyle = postColor;
     for (let i = 0; i < 2; i++) {
-      const px = x + UNIT_TO_PIXEL * (0.25 + i * 0.5);
+      const px = x - UNIT_TO_PIXEL * 0.5 + UNIT_TO_PIXEL * (0.25 + i * 0.5);
       ctx.beginPath();
-      ctx.arc(px, y + UNIT_TO_PIXEL * 0.5, UNIT_TO_PIXEL * 0.09, 0, Math.PI * 2);
+      ctx.arc(px, y, UNIT_TO_PIXEL * 0.09, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -472,8 +461,8 @@ export class FenceCorner extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     const shadowOffset = UNIT_TO_PIXEL * 0.06;
     const angle = (this.rotation * 90 * Math.PI) / 180;
@@ -486,14 +475,12 @@ export class FenceCorner extends TerrainDetailObject {
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
 
-    // Horizontal and Vertical rail shadows (Rotated)
     ctx.beginPath();
-    ctx.roundRect(x + UNIT_TO_PIXEL * 0.5 + lsX, y + UNIT_TO_PIXEL * 0.47 + lsY, UNIT_TO_PIXEL * 0.5, UNIT_TO_PIXEL * 0.06, 2);
-    ctx.roundRect(x + UNIT_TO_PIXEL * 0.47 + lsX, y + UNIT_TO_PIXEL * 0.5 + lsY, UNIT_TO_PIXEL * 0.06, UNIT_TO_PIXEL * 0.5, 2);
+    ctx.roundRect(x + lsX, y - UNIT_TO_PIXEL * 0.03 + lsY, UNIT_TO_PIXEL * 0.5, UNIT_TO_PIXEL * 0.06, 2);
+    ctx.roundRect(x - UNIT_TO_PIXEL * 0.03 + lsX, y + lsY, UNIT_TO_PIXEL * 0.06, UNIT_TO_PIXEL * 0.5, 2);
     ctx.fill();
     ctx.restore();
 
-    // Single square corner post shadow (World space)
     ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
     const size = UNIT_TO_PIXEL * 0.22;
@@ -507,8 +494,8 @@ export class FenceCorner extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     ctx.translate(centerX, centerY);
     ctx.rotate((this.rotation * 90 * Math.PI) / 180);
@@ -517,12 +504,10 @@ export class FenceCorner extends TerrainDetailObject {
     const railColor = getFlashColor("#e39764", this.flashTimer);
     const postColor = getFlashColor("#c06852", this.flashTimer);
 
-    // Draw rails
     ctx.fillStyle = railColor;
-    ctx.fillRect(x + UNIT_TO_PIXEL * 0.5, y + UNIT_TO_PIXEL * 0.47, UNIT_TO_PIXEL * 0.5, UNIT_TO_PIXEL * 0.06);
-    ctx.fillRect(x + UNIT_TO_PIXEL * 0.47, y + UNIT_TO_PIXEL * 0.5, UNIT_TO_PIXEL * 0.06, UNIT_TO_PIXEL * 0.5);
+    ctx.fillRect(x, y - UNIT_TO_PIXEL * 0.03, UNIT_TO_PIXEL * 0.5, UNIT_TO_PIXEL * 0.06);
+    ctx.fillRect(x - UNIT_TO_PIXEL * 0.03, y, UNIT_TO_PIXEL * 0.06, UNIT_TO_PIXEL * 0.5);
 
-    // Single Square Corner Post (Junction)
     ctx.fillStyle = postColor;
     const size = UNIT_TO_PIXEL * 0.22;
     ctx.beginPath();
@@ -544,8 +529,8 @@ export class TargetDummy extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     const shadowOffset = UNIT_TO_PIXEL * 0.1;
     ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
@@ -560,8 +545,8 @@ export class TargetDummy extends TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x + UNIT_TO_PIXEL * 0.5;
-    const centerY = y + UNIT_TO_PIXEL * 0.5;
+    const centerX = x;
+    const centerY = y;
 
     const bodyColor = getFlashColor("#813645", this.flashTimer);
     const rimColor = getFlashColor("#c06852", this.flashTimer);

@@ -189,8 +189,6 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                     display: 'flex',
                     flexDirection: 'column',
                     overflowY: 'auto',
-                    borderLeft: '1px solid #5a78b2',
-                    borderRight: '1px solid #5a78b2',
                 }}
             >
                 <div>

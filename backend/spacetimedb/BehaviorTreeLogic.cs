@@ -311,7 +311,7 @@ public static class BehaviorTreeLogic
     public static List<(int x, int y)> FindPathTowards(Module.Tank tank, int targetX, int targetY, Module.TraversibilityMap? traversibilityMap)
     {
         var emptyPath = new List<(int x, int y)>();
-        
+
         if (traversibilityMap == null)
         {
             Log.Info($"[FindPathTowards] Tank {tank.Id}: traversibilityMap is null");
@@ -325,7 +325,7 @@ public static class BehaviorTreeLogic
 
         var floatPath = AStarPathfinding.FindPath(currentX, currentY, targetX, targetY, traversibilityMap.Value);
         var path = floatPath.Select(p => ((int)p.x, (int)p.y)).ToList();
-        
+
         if (path.Count > 0)
         {
             Log.Info($"[FindPathTowards] Tank {tank.Id}: Found path with {path.Count} waypoints");
@@ -334,7 +334,7 @@ public static class BehaviorTreeLogic
         {
             Log.Info($"[FindPathTowards] Tank {tank.Id}: No path found");
         }
-        
+
         return path;
     }
 
