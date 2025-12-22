@@ -1,8 +1,9 @@
+import { type Infer } from "spacetimedb";
 import { getConnection } from "./spacetimedb-connection";
-import { type GunData } from "./types/gun";
+import Gun from "../module_bindings/gun_type";
 
 export class GunInventoryManager {
-  private guns: GunData[] = [];
+  private guns: Infer<typeof Gun>[] = [];
   private selectedGunIndex: number = 0;
   private playerTankId: string | null = null;
 
@@ -41,7 +42,7 @@ export class GunInventoryManager {
     });
   }
 
-  private getGunColor(gun: GunData): string {
+  private getGunColor(gun: Infer<typeof Gun>): string {
     switch (gun.gunType.tag) {
       case 'Base':
         return '#888888';
@@ -58,7 +59,7 @@ export class GunInventoryManager {
     }
   }
 
-  private drawGunGraphic(ctx: CanvasRenderingContext2D, gun: GunData, x: number, y: number, size: number) {
+  private drawGunGraphic(ctx: CanvasRenderingContext2D, gun: Infer<typeof Gun>, x: number, y: number, size: number) {
     ctx.save();
     const centerX = x + size / 2;
     const centerY = y + size / 2;
@@ -124,7 +125,7 @@ export class GunInventoryManager {
 
   private drawSlot(
     ctx: CanvasRenderingContext2D,
-    gun: GunData | null,
+    gun: Infer<typeof Gun> | null,
     slotIndex: number,
     x: number,
     y: number,

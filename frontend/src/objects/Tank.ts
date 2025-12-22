@@ -1,5 +1,6 @@
+import { type Infer } from "spacetimedb";
 import { UNIT_TO_PIXEL } from "../game";
-import { type GunData } from "../types/gun";
+import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION, getFlashColor } from "../utils/colors";
 import { TEAM_COLORS } from "../constants";
 
@@ -29,7 +30,7 @@ export class Tank {
   private alliance: number;
   private health: number;
   private maxHealth: number;
-  private guns: GunData[];
+  private guns: Infer<typeof Gun>[];
   private selectedGunIndex: number;
   private flashTimer: number = 0;
 
@@ -46,7 +47,7 @@ export class Tank {
     velocityY: number = 0,
     turretAngularVelocity: number = 0,
     path: PathEntry[] = [],
-    guns: GunData[] = [],
+    guns: Infer<typeof Gun>[] = [],
     selectedGunIndex: number = 0
   ) {
     this.id = id;
@@ -263,7 +264,7 @@ export class Tank {
     this.alliance = alliance;
   }
 
-  public setGuns(guns: GunData[]) {
+  public setGuns(guns: Infer<typeof Gun>[]) {
     this.guns = guns;
   }
 
@@ -328,7 +329,7 @@ export class Tank {
     return this.turretRotation;
   }
 
-  public getGuns(): GunData[] {
+  public getGuns(): Infer<typeof Gun>[] {
     return this.guns;
   }
 
