@@ -147,8 +147,8 @@ export class Game {
       targetCameraY = playerPos.y * UNIT_TO_PIXEL - displayHeight / 2;
     }
 
-    const lerpSpeed = CAMERA_FOLLOW_SPEED;
-    const lerpFactor = Math.min(1, deltaTime * lerpSpeed);
+    const clampedDeltaTime = Math.min(deltaTime, 1 / 30);
+    const lerpFactor = Math.min(1, clampedDeltaTime * CAMERA_FOLLOW_SPEED);
     this.currentCameraX += (targetCameraX - this.currentCameraX) * lerpFactor;
     this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
 
