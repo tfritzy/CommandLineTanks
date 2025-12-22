@@ -651,7 +651,7 @@ public static partial class ProjectileUpdater
         }
         if (!hasPickupSpawner)
         {
-            Module.InitializePickupSpawner(ctx, args.WorldId, 5);
+            PickupSpawner.InitializePickupSpawner(ctx, args.WorldId, 5);
         }
 
         var existingGameEnd = ctx.Db.ScheduledGameEnd.WorldId.Filter(args.WorldId);
