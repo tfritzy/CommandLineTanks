@@ -87,6 +87,17 @@ public static partial class ProjectileUpdater
                     Kills = shooterTank.Value.Kills + 1
                 };
                 ctx.Db.tank.Id.Update(updatedShooterTank);
+
+                ctx.Db.kills.Insert(new Module.Kill
+                {
+                    Id = Module.GenerateId(ctx, "k"),
+                    WorldId = worldId,
+                    Killer = shooterTank.Value.Id,
+                    Killee = tank.Id,
+                    KillerAlliance = shooterTank.Value.Alliance,
+                    KilleeAlliance = tank.Alliance,
+                    Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+                });
             }
 
             var score = ctx.Db.score.WorldId.Find(worldId);

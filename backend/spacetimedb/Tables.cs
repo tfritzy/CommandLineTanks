@@ -180,4 +180,25 @@ public static partial class Module
 
         public TerrainDetailType Type;
     }
+
+    [Table(Name = "kills", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
+    public partial struct Kill
+    {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public string Killer;
+
+        public string Killee;
+
+        public int KillerAlliance;
+
+        public int KilleeAlliance;
+
+        public ulong Timestamp;
+    }
 }

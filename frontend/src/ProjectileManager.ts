@@ -1,12 +1,16 @@
 import { Projectile } from "./objects/Projectile";
 import { getConnection } from "./spacetimedb-connection";
+import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
+import { TEAM_COLORS } from "./constants";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
   private worldId: string;
+  private particlesManager: ProjectileImpactParticlesManager;
 
   constructor(worldId: string) {
     this.worldId = worldId;
+    this.particlesManager = new ProjectileImpactParticlesManager();
     this.subscribeToProjectiles();
   }
 
@@ -20,7 +24,6 @@ export class ProjectileManager {
       .subscribe([`SELECT * FROM projectile WHERE WorldId = '${this.worldId}'`]);
 
     connection.db.projectile.onInsert((_ctx, projectile) => {
-      console.log(projectile);
       const newProjectile = new Projectile(
         projectile.positionX,
         projectile.positionY,
@@ -33,7 +36,6 @@ export class ProjectileManager {
     });
 
     connection.db.projectile.onUpdate((_ctx, _oldProjectile, newProjectile) => {
-      console.log(newProjectile);
       const projectile = this.projectiles.get(newProjectile.id);
       if (projectile) {
         projectile.setPosition(newProjectile.positionX, newProjectile.positionY);
@@ -42,7 +44,27 @@ export class ProjectileManager {
     });
 
     connection.db.projectile.onDelete((_ctx, projectile) => {
-      console.log(projectile);
+      const localProjectile = this.projectiles.get(projectile.id);
+      if (localProjectile) {
+        const color = localProjectile.getAlliance() === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+        this.particlesManager.spawnParticles(
+          localProjectile.getX(),
+          localProjectile.getY(),
+          localProjectile.getVelocityX(),
+          localProjectile.getVelocityY(),
+          color
+        );
+      } else {
+        // Fallback to database row if local projectile not found
+        const color = projectile.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+        this.particlesManager.spawnParticles(
+          projectile.positionX,
+          projectile.positionY,
+          projectile.velocity?.x || 0,
+          projectile.velocity?.y || 0,
+          color
+        );
+      }
       this.projectiles.delete(projectile.id);
     });
   }
@@ -51,6 +73,7 @@ export class ProjectileManager {
     for (const projectile of this.projectiles.values()) {
       projectile.update(deltaTime);
     }
+    this.particlesManager.update(deltaTime);
   }
 
   public drawShadows(ctx: CanvasRenderingContext2D) {
@@ -63,6 +86,7 @@ export class ProjectileManager {
     for (const projectile of this.projectiles.values()) {
       projectile.drawBody(ctx);
     }
+    this.particlesManager.draw(ctx);
   }
 
   public getAllProjectiles(): IterableIterator<Projectile> {

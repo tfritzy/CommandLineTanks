@@ -78,4 +78,24 @@ export class Projectile {
     this.x += this.velocityX * deltaTime;
     this.y += this.velocityY * deltaTime;
   }
+
+  public getX(): number {
+    return this.x;
+  }
+
+  public getY(): number {
+    return this.y;
+  }
+
+  public getVelocityX(): number {
+    return this.velocityX;
+  }
+
+  public getVelocityY(): number {
+    return this.velocityY;
+  }
+
+  public getAlliance(): number {
+    return this.alliance;
+  }
 }

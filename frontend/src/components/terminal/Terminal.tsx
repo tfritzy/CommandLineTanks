@@ -29,8 +29,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             e.preventDefault();
             if (commandHistory.length === 0) return;
 
-            const startIndex = historyIndex === -1 
-                ? commandHistory.length - 1 
+            const startIndex = historyIndex === -1
+                ? commandHistory.length - 1
                 : historyIndex - 1;
 
             if (startIndex < 0) return;
@@ -184,7 +184,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                     color: '#e6eeed',
                     fontFamily: "'JetBrains Mono', monospace",
                     fontSize: '12px',
-                    lineHeight: '1.5',
+                    lineHeight: '1',
                     padding: '16px',
                     display: 'flex',
                     flexDirection: 'column',

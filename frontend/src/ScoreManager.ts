@@ -101,7 +101,7 @@ export class ScoreManager {
     ctx.arcTo(x - barWidth, y, x, y, radius);
     ctx.closePath();
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.fill();
 
     ctx.clip();
