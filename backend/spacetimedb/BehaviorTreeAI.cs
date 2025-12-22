@@ -173,8 +173,8 @@ public static partial class BehaviorTreeAI
 
     private static void DriveTowards(ReducerContext ctx, Module.Tank tank, int targetX, int targetY)
     {
-        int currentX = Module.GetGridPosition(tank.PositionX);
-        int currentY = Module.GetGridPosition(tank.PositionY);
+        int currentX = (int)tank.PositionX;
+        int currentY = (int)tank.PositionY;
 
         if (targetX == currentX && targetY == currentY)
         {

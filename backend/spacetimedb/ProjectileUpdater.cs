@@ -35,8 +35,8 @@ public static partial class ProjectileUpdater
         }
 
         float explosionRadius = projectile.ExplosionRadius.Value;
-        int projectileCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-        int projectileCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+        int projectileCollisionRegionX = (int)(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+        int projectileCollisionRegionY = (int)(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
         int searchRadius = (int)Math.Ceiling(explosionRadius / Module.COLLISION_REGION_SIZE);
 
@@ -179,8 +179,8 @@ public static partial class ProjectileUpdater
             return projectile;
         }
 
-        int projectileCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-        int projectileCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+        int projectileCollisionRegionX = (int)(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+        int projectileCollisionRegionY = (int)(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
         int searchRadius = (int)Math.Ceiling(Module.MISSILE_TRACKING_RADIUS / Module.COLLISION_REGION_SIZE);
 
@@ -245,8 +245,8 @@ public static partial class ProjectileUpdater
         string worldId,
         double deltaTime)
     {
-        int projectileTileX = Module.GetGridPosition(projectile.PositionX);
-        int projectileTileY = Module.GetGridPosition(projectile.PositionY);
+        int projectileTileX = (int)projectile.PositionX;
+        int projectileTileY = (int)projectile.PositionY;
 
         if (projectileTileX < 0 || projectileTileX >= traversibilityMap.Width ||
             projectileTileY < 0 || projectileTileY >= traversibilityMap.Height)
@@ -305,8 +305,8 @@ public static partial class ProjectileUpdater
         float previousX = projectile.PositionX - projectile.Velocity.X * (float)deltaTime;
         float previousY = projectile.PositionY - projectile.Velocity.Y * (float)deltaTime;
 
-        int prevTileX = Module.GetGridPosition(previousX);
-        int prevTileY = Module.GetGridPosition(previousY);
+        int prevTileX = (int)previousX;
+        int prevTileY = (int)previousY;
 
         bool bounceX = prevTileX != projectileTileX;
         bool bounceY = prevTileY != projectileTileY;
@@ -338,8 +338,8 @@ public static partial class ProjectileUpdater
 
     private static (int minRegionX, int maxRegionX, int minRegionY, int maxRegionY) CalculateTankCollisionRegions(Projectile projectile)
     {
-        int tankCollisionRegionX = Module.GetGridPosition(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-        int tankCollisionRegionY = Module.GetGridPosition(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+        int tankCollisionRegionX = (int)(projectile.PositionX / Module.COLLISION_REGION_SIZE);
+        int tankCollisionRegionY = (int)(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
         float regionLocalX = projectile.PositionX - (tankCollisionRegionX * Module.COLLISION_REGION_SIZE);
         float regionLocalY = projectile.PositionY - (tankCollisionRegionY * Module.COLLISION_REGION_SIZE);
