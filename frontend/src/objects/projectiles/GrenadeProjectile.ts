@@ -73,16 +73,10 @@ export function drawGrenade(ctx: CanvasRenderingContext2D, centerX: number, cent
 }
 
 export class GrenadeProjectile extends Projectile {
-  public drawBody(ctx: CanvasRenderingContext2D, textureSheet?: ProjectileTextureSheet) {
+  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const centerX = this.x * UNIT_TO_PIXEL;
     const centerY = this.y * UNIT_TO_PIXEL;
-
-    if (textureSheet) {
-      textureSheet.drawProjectile(ctx, 'grenade', centerX, centerY);
-    } else {
-      const radius = this.size * UNIT_TO_PIXEL;
-      drawGrenade(ctx, centerX, centerY, radius);
-    }
+    textureSheet.drawProjectile(ctx, 'grenade', centerX, centerY);
   }
 
   public isExplosive(): boolean {

@@ -27,7 +27,7 @@ export abstract class Projectile {
     this.explosionRadius = explosionRadius;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, textureSheet?: any) {
+  public draw(ctx: CanvasRenderingContext2D, textureSheet: any) {
     this.drawShadow(ctx);
     this.drawBody(ctx, textureSheet);
   }
@@ -47,7 +47,7 @@ export abstract class Projectile {
     ctx.restore();
   }
 
-  public abstract drawBody(ctx: CanvasRenderingContext2D, textureSheet?: any): void;
+  public abstract drawBody(ctx: CanvasRenderingContext2D, textureSheet: any): void;
 
   public setPosition(x: number, y: number) {
     this.x = x;
