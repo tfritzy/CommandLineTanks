@@ -24,6 +24,8 @@ export class TerrainManager {
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
   private detailAtlasCanvas: HTMLCanvasElement | null = null;
   private detailAtlasCtx: CanvasRenderingContext2D | null = null;
+  private detailAtlasLogicalWidth: number = 0;
+  private detailAtlasLogicalHeight: number = 0;
   private detailAtlasNeedsUpdate: boolean = true;
   private atlasInitialized: boolean = false;
 
@@ -74,6 +76,9 @@ export class TerrainManager {
     const atlasWidth = (this.worldWidth + 2) * UNIT_TO_PIXEL;
     const atlasHeight = (this.worldHeight + 2) * UNIT_TO_PIXEL;
 
+    this.detailAtlasLogicalWidth = atlasWidth;
+    this.detailAtlasLogicalHeight = atlasHeight;
+
     this.detailAtlasCanvas = document.createElement('canvas');
     this.detailAtlasCanvas.width = atlasWidth * dpr;
     this.detailAtlasCanvas.height = atlasHeight * dpr;
@@ -90,7 +95,7 @@ export class TerrainManager {
     if (!this.detailAtlasCtx) return;
     if (!this.detailAtlasNeedsUpdate) return;
 
-    this.detailAtlasCtx.clearRect(0, 0, this.detailAtlasCanvas!.width, this.detailAtlasCanvas!.height);
+    this.detailAtlasCtx.clearRect(0, 0, this.detailAtlasLogicalWidth, this.detailAtlasLogicalHeight);
 
     this.detailAtlasCtx.save();
     this.detailAtlasCtx.translate(UNIT_TO_PIXEL, UNIT_TO_PIXEL);
@@ -285,11 +290,11 @@ export class TerrainManager {
     const sourceY = startTileY * unitToPixel;
     const sourceWidth = Math.min(
       (endTileX - startTileX + 1) * unitToPixel + 2 * unitToPixel,
-      this.detailAtlasCanvas.width - sourceX
+      this.detailAtlasLogicalWidth - sourceX
     );
     const sourceHeight = Math.min(
       (endTileY - startTileY + 1) * unitToPixel + 2 * unitToPixel,
-      this.detailAtlasCanvas.height - sourceY
+      this.detailAtlasLogicalHeight - sourceY
     );
 
     const destX = startTileX * unitToPixel - unitToPixel;
