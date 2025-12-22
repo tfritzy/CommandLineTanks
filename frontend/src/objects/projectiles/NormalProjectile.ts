@@ -2,6 +2,7 @@ import { Projectile } from "./Projectile";
 import { UNIT_TO_PIXEL } from "../../game";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
 import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
+import { TEAM_COLORS } from "../../constants";
 
 export class NormalProjectile extends Projectile {
   public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
@@ -12,7 +13,7 @@ export class NormalProjectile extends Projectile {
   }
 
   public spawnDeathParticles(particlesManager: ProjectileImpactParticlesManager): void {
-    const color = this.alliance === 0 ? "#ff5555" : "#5555ff";
+    const color = this.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
     particlesManager.spawnParticles(
       this.x,
       this.y,
