@@ -7,6 +7,7 @@ import { Projectile } from "../objects/projectiles/Projectile";
 import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
 import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
 import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
+import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
 import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
 
 interface PickupData {
@@ -38,6 +39,8 @@ export class PickupManager {
         return new RocketProjectile(x, y, velocityX, velocityY, 0.2, 0);
       case "Grenade":
         return new GrenadeProjectile(x, y, velocityX, velocityY, 0.4, 0);
+      case "Moag":
+        return new MoagProjectile(x, y, velocityX, velocityY, 0.8, 0);
       default:
         return undefined;
     }

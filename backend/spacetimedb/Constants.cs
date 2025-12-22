@@ -147,7 +147,7 @@ public static partial class Module
         LifetimeSeconds = 20.0f,
         MaxCollisions = 999,
         PassThroughTerrain = true,
-        CollisionRadius = 2.5f,
+        CollisionRadius = 1.0f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         Damping = null,

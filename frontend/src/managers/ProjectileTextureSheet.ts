@@ -75,12 +75,6 @@ export class ProjectileTextureSheet {
     currentX += radius * 2 + padding * 3 + 8;
 
     this.addGrenadeProjectile('grenade-blue', TEAM_COLORS.BLUE, currentX, currentY, radius);
-    currentX += radius * 2 + padding * 3 + 8;
-
-    this.addMoagProjectile('moag-red', TEAM_COLORS.RED, currentX, currentY, radius);
-    currentX += radius * 2 + padding * 3 + 8;
-
-    this.addMoagProjectile('moag-blue', TEAM_COLORS.BLUE, currentX, currentY, radius);
     currentX = 0;
     currentY += rowHeight;
 
@@ -95,6 +89,13 @@ export class ProjectileTextureSheet {
     currentX += radius * 4 + padding * 3 + 8;
 
     this.addMissileProjectile('missile-blue', TEAM_COLORS.BLUE, currentX, currentY, radius * 1.5);
+    currentX = 0;
+    currentY += rowHeight;
+
+    this.addMoagProjectile('moag-red', TEAM_COLORS.RED, currentX, currentY, radius);
+    currentX += radius * 10 + padding * 3 + 8;
+
+    this.addMoagProjectile('moag-blue', TEAM_COLORS.BLUE, currentX, currentY, radius);
   }
 
   private addNormalProjectile(key: string, color: string, x: number, y: number, radius: number) {
@@ -265,63 +266,50 @@ export class ProjectileTextureSheet {
 
   private addMoagProjectile(key: string, color: string, x: number, y: number, radius: number) {
     const padding = 2;
-    const centerX = x + radius + padding;
-    const centerY = y + radius + padding;
+    const moagRadius = radius * 5;
+    const centerX = x + moagRadius + padding;
+    const centerY = y + moagRadius + padding;
 
     this.shadowCtx.save();
-    this.shadowCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    this.shadowCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     this.shadowCtx.beginPath();
-    this.shadowCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    this.shadowCtx.arc(centerX, centerY, moagRadius, 0, Math.PI * 2);
     this.shadowCtx.fill();
-    
-    this.shadowCtx.lineWidth = 2;
-    this.shadowCtx.beginPath();
-    this.shadowCtx.moveTo(centerX, centerY - radius);
-    this.shadowCtx.quadraticCurveTo(centerX + radius * 0.5, centerY - radius * 1.5, centerX + radius, centerY - radius * 1.2);
-    this.shadowCtx.stroke();
-    
-    this.shadowCtx.beginPath();
-    this.shadowCtx.arc(centerX + radius, centerY - radius * 1.2, 3, 0, Math.PI * 2);
-    this.shadowCtx.fill();
-    
     this.shadowCtx.restore();
 
     this.ctx.save();
-    this.ctx.fillStyle = color;
+    
+    const baseColor = color;
+    const highlightColor = color === TEAM_COLORS.RED ? "#e39764" : "#7396d5";
+    const darkColor = color === TEAM_COLORS.RED ? "#813645" : "#3e4c7e";
+    
+    this.ctx.fillStyle = baseColor;
     this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    this.ctx.arc(centerX, centerY, moagRadius, 0, Math.PI * 2);
     this.ctx.fill();
     
-    const highlightColor = color === TEAM_COLORS.RED ? "#c06852" : "#5a78b2";
     this.ctx.fillStyle = highlightColor;
     this.ctx.beginPath();
-    this.ctx.arc(centerX - radius * 0.3, centerY - radius * 0.3, radius * 0.4, 0, Math.PI * 2);
+    this.ctx.arc(centerX - moagRadius * 0.3, centerY - moagRadius * 0.3, moagRadius * 0.4, 0, Math.PI * 2);
     this.ctx.fill();
     
-    this.ctx.strokeStyle = "#e39764";
-    this.ctx.lineWidth = 2;
+    this.ctx.fillStyle = darkColor;
     this.ctx.beginPath();
-    this.ctx.moveTo(centerX, centerY - radius);
-    this.ctx.quadraticCurveTo(centerX + radius * 0.5, centerY - radius * 1.5, centerX + radius, centerY - radius * 1.2);
-    this.ctx.stroke();
-    
-    this.ctx.fillStyle = "#fceba8";
-    this.ctx.beginPath();
-    this.ctx.arc(centerX + radius, centerY - radius * 1.2, 3, 0, Math.PI * 2);
+    this.ctx.arc(centerX + moagRadius * 0.2, centerY + moagRadius * 0.2, moagRadius * 0.3, 0, Math.PI * 2);
     this.ctx.fill();
     
     this.ctx.strokeStyle = "#000000";
-    this.ctx.lineWidth = 1;
+    this.ctx.lineWidth = 3;
     this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    this.ctx.arc(centerX, centerY, moagRadius, 0, Math.PI * 2);
     this.ctx.stroke();
     this.ctx.restore();
 
     const textureData = {
       x: x,
       y: y,
-      width: radius * 2 + padding * 2,
-      height: radius * 2.5 + padding * 2,
+      width: moagRadius * 2 + padding * 2,
+      height: moagRadius * 2 + padding * 2,
     };
     
     this.textures.set(key, textureData);
