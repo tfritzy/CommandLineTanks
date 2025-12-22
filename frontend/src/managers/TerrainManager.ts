@@ -12,6 +12,7 @@ import { FenceEdge } from "../objects/terrain-details/FenceEdge";
 import { FenceCorner } from "../objects/terrain-details/FenceCorner";
 import { TargetDummy } from "../objects/terrain-details/TargetDummy";
 import { UNIT_TO_PIXEL } from "../game";
+import { FenceDestructionParticlesManager } from "./FenceDestructionParticlesManager";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -26,6 +27,7 @@ export class TerrainManager {
   private detailAtlasCtx: CanvasRenderingContext2D | null = null;
   private detailAtlasNeedsUpdate: boolean = true;
   private atlasInitialized: boolean = false;
+  private fenceDestructionParticles: FenceDestructionParticlesManager = new FenceDestructionParticlesManager();
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -138,6 +140,10 @@ export class TerrainManager {
         if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
           this.detailObjectsByPosition[y][x] = null;
         }
+        
+        if (detail.type.tag === "FenceEdge" || detail.type.tag === "FenceCorner") {
+          this.fenceDestructionParticles.spawnParticles(detail.positionX, detail.positionY);
+        }
       }
       this.detailObjects.delete(detail.id);
       this.detailAtlasNeedsUpdate = true;
@@ -154,6 +160,8 @@ export class TerrainManager {
         this.detailAtlasNeedsUpdate = true;
       }
     }
+    
+    this.fenceDestructionParticles.update(deltaTime);
   }
 
   private createDetailObject(detail: Infer<typeof TerrainDetailRow>) {
@@ -327,6 +335,16 @@ export class TerrainManager {
         }
       }
     }
+  }
+
+  public drawParticles(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
+    this.fenceDestructionParticles.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
   }
 
   private getBaseTerrainColor(terrain: BaseTerrainType): string {
