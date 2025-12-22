@@ -279,16 +279,16 @@ export class TerrainManager {
     const sourceX = startTileX * unitToPixel;
     const sourceY = startTileY * unitToPixel;
     const sourceWidth = Math.min(
-      (endTileX - startTileX + 1) * unitToPixel + 2 * UNIT_TO_PIXEL,
+      (endTileX - startTileX + 1) * unitToPixel + 2 * unitToPixel,
       this.detailAtlasCanvas.width - sourceX
     );
     const sourceHeight = Math.min(
-      (endTileY - startTileY + 1) * unitToPixel + 2 * UNIT_TO_PIXEL,
+      (endTileY - startTileY + 1) * unitToPixel + 2 * unitToPixel,
       this.detailAtlasCanvas.height - sourceY
     );
 
-    const destX = startTileX * unitToPixel - UNIT_TO_PIXEL;
-    const destY = startTileY * unitToPixel - UNIT_TO_PIXEL;
+    const destX = startTileX * unitToPixel - unitToPixel;
+    const destY = startTileY * unitToPixel - unitToPixel;
 
     if (sourceWidth > 0 && sourceHeight > 0) {
       ctx.drawImage(
