@@ -1,5 +1,5 @@
-import { Projectile, ProjectileFactory } from "./objects/projectiles";
-import { getConnection } from "./spacetimedb-connection";
+import { Projectile, ProjectileFactory } from "../objects/projectiles";
+import { getConnection } from "../spacetimedb-connection";
 import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
 
 export class ProjectileManager {

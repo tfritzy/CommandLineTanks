@@ -1,6 +1,6 @@
 import { Projectile } from "./Projectile";
 import { UNIT_TO_PIXEL } from "../../game";
-import { ProjectileImpactParticlesManager } from "../../ProjectileImpactParticlesManager";
+import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
 
 export function drawGrenadeShadow(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number) {
   ctx.save();

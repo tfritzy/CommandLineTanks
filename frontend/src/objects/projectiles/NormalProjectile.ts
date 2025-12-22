@@ -1,7 +1,7 @@
 import { Projectile } from "./Projectile";
 import { UNIT_TO_PIXEL } from "../../game";
 import { TEAM_COLORS } from "../../constants";
-import { ProjectileImpactParticlesManager } from "../../ProjectileImpactParticlesManager";
+import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
 
 export class NormalProjectile extends Projectile {
   public drawBody(ctx: CanvasRenderingContext2D) {
