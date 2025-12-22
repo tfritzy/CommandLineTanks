@@ -23,6 +23,8 @@ export class Game {
   private pickupManager: PickupManager;
   private collisionVisualizationManager: CollisionVisualizationManager;
   private miniMapManager: MiniMapManager;
+  private currentCameraX: number = 0;
+  private currentCameraY: number = 0;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -135,21 +137,26 @@ export class Game {
     this.ctx.save();
 
     const playerTank = this.tankManager.getPlayerTank();
-    let cameraX = 0;
-    let cameraY = 0;
+    let targetCameraX = this.currentCameraX;
+    let targetCameraY = this.currentCameraY;
 
     if (playerTank) {
       const playerPos = playerTank.getPosition();
-      cameraX = playerPos.x * UNIT_TO_PIXEL - displayWidth / 2;
-      cameraY = playerPos.y * UNIT_TO_PIXEL - displayHeight / 2;
+      targetCameraX = playerPos.x * UNIT_TO_PIXEL - displayWidth / 2;
+      targetCameraY = playerPos.y * UNIT_TO_PIXEL - displayHeight / 2;
     }
 
-    this.ctx.translate(-cameraX, -cameraY);
+    const lerpSpeed = 15;
+    const lerpFactor = Math.min(1, deltaTime * lerpSpeed);
+    this.currentCameraX += (targetCameraX - this.currentCameraX) * lerpFactor;
+    this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
+
+    this.ctx.translate(-this.currentCameraX, -this.currentCameraY);
 
     this.terrainManager.draw(
       this.ctx,
-      cameraX,
-      cameraY,
+      this.currentCameraX,
+      this.currentCameraY,
       displayWidth,
       displayHeight,
       UNIT_TO_PIXEL
@@ -157,8 +164,8 @@ export class Game {
 
     this.pickupManager.draw(
       this.ctx,
-      cameraX,
-      cameraY,
+      this.currentCameraX,
+      this.currentCameraY,
       displayWidth,
       displayHeight
     );
@@ -166,16 +173,16 @@ export class Game {
     this.tankManager.drawPaths(this.ctx);
     this.tankManager.drawShadows(this.ctx);
 
-    this.drawRelativeDistanceLabels(cameraX, cameraY);
+    this.drawRelativeDistanceLabels(this.currentCameraX, this.currentCameraY);
 
 
     this.tankManager.drawBodies(this.ctx);
-    this.tankManager.drawParticles(this.ctx, cameraX, cameraY, displayWidth, displayHeight);
+    this.tankManager.drawParticles(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
 
     this.terrainManager.drawShadows(
       this.ctx,
-      cameraX,
-      cameraY,
+      this.currentCameraX,
+      this.currentCameraY,
       displayWidth,
       displayHeight,
       UNIT_TO_PIXEL
@@ -183,16 +190,16 @@ export class Game {
 
     this.terrainManager.drawBodies(
       this.ctx,
-      cameraX,
-      cameraY,
+      this.currentCameraX,
+      this.currentCameraY,
       displayWidth,
       displayHeight,
       UNIT_TO_PIXEL
     );
     this.tankManager.drawHealthBars(this.ctx);
 
-    this.projectileManager.drawShadows(this.ctx, cameraX, cameraY, displayWidth, displayHeight);
-    this.projectileManager.drawBodies(this.ctx, cameraX, cameraY, displayWidth, displayHeight);
+    this.projectileManager.drawShadows(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
+    this.projectileManager.drawBodies(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
 
     // this.collisionVisualizationManager.draw(
     //   this.ctx,
