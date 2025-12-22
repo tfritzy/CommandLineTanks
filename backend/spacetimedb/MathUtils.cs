@@ -2,11 +2,9 @@ using System;
 
 public static partial class Module
 {
-    private const float GRID_POSITION_TOLERANCE = 0.0001f;
-
     public static int GetGridPosition(float position)
     {
-        return (int)Math.Floor(position + GRID_POSITION_TOLERANCE);
+        return (int)position;
     }
 
     private static float NormalizeAngleDiff(float angleDiff)
