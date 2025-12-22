@@ -1,6 +1,6 @@
-import { UNIT_TO_PIXEL } from "../game";
-import { FLASH_DURATION } from "../utils/colors";
-import { type TerrainDetailRow } from "../../module_bindings";
+import { UNIT_TO_PIXEL } from "../../game";
+import { FLASH_DURATION } from "../../utils/colors";
+import { type TerrainDetailRow } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
 
 export abstract class TerrainDetailObject {
