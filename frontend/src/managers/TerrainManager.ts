@@ -1,17 +1,17 @@
-import { getConnection } from "./spacetimedb-connection";
-import { BaseTerrain, type TerrainDetailRow, type EventContext } from "../module_bindings";
+import { getConnection } from "../spacetimedb-connection";
+import { BaseTerrain, type TerrainDetailRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
-import { TerrainDetailObject } from "./objects/terrain-details/TerrainDetailObject";
-import { Rock } from "./objects/terrain-details/Rock";
-import { Tree } from "./objects/terrain-details/Tree";
-import { HayBale } from "./objects/terrain-details/HayBale";
-import { Label } from "./objects/terrain-details/Label";
-import { FoundationEdge } from "./objects/terrain-details/FoundationEdge";
-import { FoundationCorner } from "./objects/terrain-details/FoundationCorner";
-import { FenceEdge } from "./objects/terrain-details/FenceEdge";
-import { FenceCorner } from "./objects/terrain-details/FenceCorner";
-import { TargetDummy } from "./objects/terrain-details/TargetDummy";
-import { UNIT_TO_PIXEL } from "./game";
+import { TerrainDetailObject } from "../objects/terrain-details/TerrainDetailObject";
+import { Rock } from "../objects/terrain-details/Rock";
+import { Tree } from "../objects/terrain-details/Tree";
+import { HayBale } from "../objects/terrain-details/HayBale";
+import { Label } from "../objects/terrain-details/Label";
+import { FoundationEdge } from "../objects/terrain-details/FoundationEdge";
+import { FoundationCorner } from "../objects/terrain-details/FoundationCorner";
+import { FenceEdge } from "../objects/terrain-details/FenceEdge";
+import { FenceCorner } from "../objects/terrain-details/FenceCorner";
+import { TargetDummy } from "../objects/terrain-details/TargetDummy";
+import { UNIT_TO_PIXEL } from "../game";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 

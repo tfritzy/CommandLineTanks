@@ -1,5 +1,5 @@
-import { Tank } from "./objects/Tank";
-import { getConnection } from "./spacetimedb-connection";
+import { Tank } from "../objects/Tank";
+import { getConnection } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 
 export class TankManager {

@@ -1,11 +1,11 @@
-import { TankManager } from "./TankManager";
-import { ProjectileManager } from "./ProjectileManager";
-import { TerrainManager } from "./TerrainManager";
-import { ScoreManager } from "./ScoreManager";
-import { GunInventoryManager } from "./GunInventoryManager";
-import { PickupManager } from "./PickupManager";
-import { CollisionVisualizationManager } from "./CollisionVisualizationManager";
-import { MiniMapManager } from "./MiniMapManager";
+import { TankManager } from "./managers/TankManager";
+import { ProjectileManager } from "./managers/ProjectileManager";
+import { TerrainManager } from "./managers/TerrainManager";
+import { ScoreManager } from "./managers/ScoreManager";
+import { GunInventoryManager } from "./managers/GunInventoryManager";
+import { PickupManager } from "./managers/PickupManager";
+import { CollisionVisualizationManager } from "./managers/CollisionVisualizationManager";
+import { MiniMapManager } from "./managers/MiniMapManager";
 
 export const UNIT_TO_PIXEL = 50;
 

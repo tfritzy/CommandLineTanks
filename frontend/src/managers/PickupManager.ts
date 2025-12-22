@@ -1,11 +1,11 @@
-import { getConnection } from "./spacetimedb-connection";
-import { type PickupRow, type EventContext, TerrainDetailType } from "../module_bindings";
+import { getConnection } from "../spacetimedb-connection";
+import { type PickupRow, type EventContext, TerrainDetailType } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
-import { UNIT_TO_PIXEL } from "./game";
-import { Projectile } from "./objects/projectiles/Projectile";
-import { MissileProjectile } from "./objects/projectiles/MissileProjectile";
-import { RocketProjectile } from "./objects/projectiles/RocketProjectile";
-import { GrenadeProjectile } from "./objects/projectiles/GrenadeProjectile";
+import { UNIT_TO_PIXEL } from "../game";
+import { Projectile } from "../objects/projectiles/Projectile";
+import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
+import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
+import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
 
 interface PickupData {
   id: string;
