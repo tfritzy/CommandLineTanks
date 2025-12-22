@@ -199,6 +199,14 @@ export class Game {
     );
     this.tankManager.drawHealthBars(this.ctx);
 
+    this.terrainManager.drawParticles(
+      this.ctx,
+      this.currentCameraX,
+      this.currentCameraY,
+      displayWidth,
+      displayHeight
+    );
+
     this.projectileManager.drawShadows(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
     this.projectileManager.drawBodies(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
 

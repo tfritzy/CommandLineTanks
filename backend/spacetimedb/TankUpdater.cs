@@ -206,6 +206,14 @@ public static partial class TankUpdater
                 }
             }
 
+            foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, centerX, centerY)))
+            {
+                if (terrainDetail.Type == TerrainDetailType.FenceEdge || terrainDetail.Type == TerrainDetailType.FenceCorner)
+                {
+                    ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                }
+            }
+
             if (needsUpdate)
             {
                 ctx.Db.tank.Id.Update(tank);
