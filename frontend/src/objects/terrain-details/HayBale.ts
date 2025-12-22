@@ -26,7 +26,6 @@ export class HayBale extends TerrainDetailObject {
     const centerY = y;
     const radius = this.getRadius(0.3, 0, 21.21, 12.12);
 
-
     ctx.fillStyle = getFlashColor("#f5c47c", this.flashTimer);
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);

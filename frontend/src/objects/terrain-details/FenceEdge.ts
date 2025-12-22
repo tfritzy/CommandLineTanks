@@ -27,8 +27,6 @@ export class FenceEdge extends TerrainDetailObject {
     ctx.restore();
 
     ctx.save();
-    ctx.restore();
-    ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
     for (let i = 0; i < 2; i++) {
       const localX = 0.25 + i * 0.5 - 0.5;
