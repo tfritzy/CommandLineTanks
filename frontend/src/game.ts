@@ -8,6 +8,7 @@ import { CollisionVisualizationManager } from "./managers/CollisionVisualization
 import { MiniMapManager } from "./managers/MiniMapManager";
 
 export const UNIT_TO_PIXEL = 50;
+const CAMERA_FOLLOW_SPEED = 15;
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -146,7 +147,7 @@ export class Game {
       targetCameraY = playerPos.y * UNIT_TO_PIXEL - displayHeight / 2;
     }
 
-    const lerpSpeed = 15;
+    const lerpSpeed = CAMERA_FOLLOW_SPEED;
     const lerpFactor = Math.min(1, deltaTime * lerpSpeed);
     this.currentCameraX += (targetCameraX - this.currentCameraX) * lerpFactor;
     this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
@@ -221,6 +222,17 @@ export class Game {
 
   public start() {
     if (!this.animationFrameId) {
+      const dpr = window.devicePixelRatio || 1;
+      const displayWidth = this.canvas.width / dpr;
+      const displayHeight = this.canvas.height / dpr;
+
+      const playerTank = this.tankManager.getPlayerTank();
+      if (playerTank) {
+        const playerPos = playerTank.getPosition();
+        this.currentCameraX = playerPos.x * UNIT_TO_PIXEL - displayWidth / 2;
+        this.currentCameraY = playerPos.y * UNIT_TO_PIXEL - displayHeight / 2;
+      }
+
       this.lastFrameTime = 0;
       this.update();
     }
