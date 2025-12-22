@@ -2,11 +2,6 @@ using System;
 
 public static partial class Module
 {
-    public static int GetGridPosition(float position)
-    {
-        return (int)position;
-    }
-
     private static float NormalizeAngleDiff(float angleDiff)
     {
         while (angleDiff > MathF.PI) angleDiff -= 2 * MathF.PI;

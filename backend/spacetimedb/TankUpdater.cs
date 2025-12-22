@@ -39,8 +39,8 @@ public static partial class TankUpdater
                 continue;
             }
 
-            int newCollisionRegionX = Module.GetGridPosition(tank.PositionX / Module.COLLISION_REGION_SIZE);
-            int newCollisionRegionY = Module.GetGridPosition(tank.PositionY / Module.COLLISION_REGION_SIZE);
+            int newCollisionRegionX = (int)(tank.PositionX / Module.COLLISION_REGION_SIZE);
+            int newCollisionRegionY = (int)(tank.PositionY / Module.COLLISION_REGION_SIZE);
 
             if (newCollisionRegionX != tank.CollisionRegionX || newCollisionRegionY != tank.CollisionRegionY)
             {
@@ -193,8 +193,8 @@ public static partial class TankUpdater
                 }
             }
 
-            int tankTileX = Module.GetGridPosition(tank.PositionX);
-            int tankTileY = Module.GetGridPosition(tank.PositionY);
+            int tankTileX = (int)tank.PositionX;
+            int tankTileY = (int)tank.PositionY;
 
             float centerX = tankTileX + 0.5f;
             float centerY = tankTileY + 0.5f;
