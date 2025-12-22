@@ -70,13 +70,18 @@ export class TerrainManager {
   private initializeAtlasCanvases() {
     if (this.worldWidth === 0 || this.worldHeight === 0) return;
 
+    const dpr = window.devicePixelRatio || 1;
     const atlasWidth = (this.worldWidth + 2) * UNIT_TO_PIXEL;
     const atlasHeight = (this.worldHeight + 2) * UNIT_TO_PIXEL;
 
     this.detailAtlasCanvas = document.createElement('canvas');
-    this.detailAtlasCanvas.width = atlasWidth;
-    this.detailAtlasCanvas.height = atlasHeight;
+    this.detailAtlasCanvas.width = atlasWidth * dpr;
+    this.detailAtlasCanvas.height = atlasHeight * dpr;
     this.detailAtlasCtx = this.detailAtlasCanvas.getContext('2d');
+
+    if (this.detailAtlasCtx) {
+      this.detailAtlasCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
 
     this.detailAtlasNeedsUpdate = true;
   }
