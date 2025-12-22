@@ -130,8 +130,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  drive up 3 75",
         "  drive 10 5      (10 units right, 5 units down)",
         "  drive -10 0     (10 units left)",
-        "  drive 0 -15 75  (15 units up at 75% throttle)",
-        "  d charlie"
+        "  drive 0 -15 75  (15 units up at 75% throttle)"
       ];
 
     case "reverse":
