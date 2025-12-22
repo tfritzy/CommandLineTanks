@@ -45,8 +45,8 @@ import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
 import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
-import NavigateToTank from "./navigate_to_tank_reducer";
-export { NavigateToTank };
+import DriveToTank from "./drive_to_tank_reducer";
+export { DriveToTank };
 import ResetWorld from "./reset_world_reducer";
 export { ResetWorld };
 import Respawn from "./respawn_reducer";
@@ -391,7 +391,7 @@ const reducersSchema = __reducers(
   __reducerSchema("EndGame", EndGame),
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),
-  __reducerSchema("navigateToTank", NavigateToTank),
+  __reducerSchema("driveToTank", DriveToTank),
   __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("reverse", Reverse),

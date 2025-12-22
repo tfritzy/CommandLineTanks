@@ -6,7 +6,7 @@ using System.Linq;
 public static partial class Module
 {
     [Reducer]
-    public static void navigateToTank(ReducerContext ctx, string worldId, string tankName, float throttle)
+    public static void driveToTank(ReducerContext ctx, string worldId, string tankName, float throttle)
     {
         Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
