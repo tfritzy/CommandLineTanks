@@ -1,6 +1,7 @@
 import { Projectile } from "./Projectile";
 import { UNIT_TO_PIXEL } from "../../game";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
+import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
 
 export function drawRocketShadow(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number, angle: number) {
   ctx.save();
@@ -25,7 +26,6 @@ export function drawRocket(ctx: CanvasRenderingContext2D, centerX: number, cente
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
   
-  // Flame
   const flameLength = radius * (2 + Math.random() * 2);
   ctx.fillStyle = "#f5c47c";
   ctx.beginPath();
@@ -34,7 +34,6 @@ export function drawRocket(ctx: CanvasRenderingContext2D, centerX: number, cente
   ctx.lineTo(0, radius * 0.4);
   ctx.fill();
 
-  // Rocket (Green ovular body with flat back)
   ctx.fillStyle = "#4e9363";
   ctx.beginPath();
   ctx.ellipse(0, 0, radius * 3, radius * 1.2, 0, -Math.PI / 2, Math.PI / 2);
@@ -47,23 +46,12 @@ export function drawRocket(ctx: CanvasRenderingContext2D, centerX: number, cente
 }
 
 export class RocketProjectile extends Projectile {
-  public drawShadow(ctx: CanvasRenderingContext2D) {
+  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const centerX = this.x * UNIT_TO_PIXEL;
     const centerY = this.y * UNIT_TO_PIXEL;
-    const radius = this.size * UNIT_TO_PIXEL;
     const angle = Math.atan2(this.velocityY, this.velocityX);
-    
-    drawRocketShadow(ctx, centerX - 4, centerY + 4, radius, angle);
-  }
-
-  public drawBody(ctx: CanvasRenderingContext2D) {
-    const centerX = this.x * UNIT_TO_PIXEL;
-    const centerY = this.y * UNIT_TO_PIXEL;
-    const radius = this.size * UNIT_TO_PIXEL;
-    
-    const angle = Math.atan2(this.velocityY, this.velocityX);
-    
-    drawRocket(ctx, centerX, centerY, radius, angle);
+    const key = this.alliance === 0 ? 'rocket-red' : 'rocket-blue';
+    textureSheet.drawProjectile(ctx, key, centerX, centerY, 1.0, angle);
   }
 
   public isExplosive(): boolean {

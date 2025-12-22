@@ -1,6 +1,7 @@
 import { Projectile } from "./Projectile";
 import { UNIT_TO_PIXEL } from "../../game";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
+import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
 
 export function drawGrenadeShadow(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number) {
   ctx.save();
@@ -18,7 +19,6 @@ export function drawGrenade(ctx: CanvasRenderingContext2D, centerX: number, cent
   const shadowColor = "#3c6c54";
   const highlightColor = "#6ec077";
   
-  // Body
   ctx.beginPath();
   ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
   ctx.clip();
@@ -38,7 +38,6 @@ export function drawGrenade(ctx: CanvasRenderingContext2D, centerX: number, cent
   
   ctx.restore();
   
-  // Outline and details
   ctx.save();
   ctx.strokeStyle = "#2e2e43";
   ctx.lineWidth = Math.max(1, radius * 0.15);
@@ -51,7 +50,6 @@ export function drawGrenade(ctx: CanvasRenderingContext2D, centerX: number, cent
   ctx.lineTo(centerX + radius, centerY);
   ctx.stroke();
   
-  // Pin
   const pinWidth = radius * 0.3;
   const pinHeight = radius * 0.4;
   const pinY = centerY - radius * 1.1;
@@ -59,7 +57,6 @@ export function drawGrenade(ctx: CanvasRenderingContext2D, centerX: number, cent
   ctx.fillStyle = "#2e2e43";
   ctx.fillRect(centerX - pinWidth / 2, pinY - pinHeight, pinWidth, pinHeight);
   
-  // Ring
   ctx.fillStyle = "#707b89";
   const ringRadius = radius * 0.25;
   ctx.beginPath();
@@ -76,12 +73,11 @@ export function drawGrenade(ctx: CanvasRenderingContext2D, centerX: number, cent
 }
 
 export class GrenadeProjectile extends Projectile {
-  public drawBody(ctx: CanvasRenderingContext2D) {
+  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const centerX = this.x * UNIT_TO_PIXEL;
     const centerY = this.y * UNIT_TO_PIXEL;
-    const radius = this.size * UNIT_TO_PIXEL;
-    
-    drawGrenade(ctx, centerX, centerY, radius);
+    const key = this.alliance === 0 ? 'grenade-red' : 'grenade-blue';
+    textureSheet.drawProjectile(ctx, key, centerX, centerY);
   }
 
   public isExplosive(): boolean {

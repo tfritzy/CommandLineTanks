@@ -1,6 +1,7 @@
 import { Projectile } from "./Projectile";
 import { UNIT_TO_PIXEL } from "../../game";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
+import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
 
 export function drawMissileShadow(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number, angle: number) {
   ctx.save();
@@ -25,7 +26,6 @@ export function drawMissile(ctx: CanvasRenderingContext2D, centerX: number, cent
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
   
-  // Flame
   const flameLength = radius * (1 + Math.random() * 1.5);
   ctx.fillStyle = "#f5c47c";
   ctx.beginPath();
@@ -34,7 +34,6 @@ export function drawMissile(ctx: CanvasRenderingContext2D, centerX: number, cent
   ctx.lineTo(0, radius * 0.4);
   ctx.fill();
 
-  // Missile (Red triangle)
   ctx.fillStyle = "#9d4343";
   ctx.beginPath();
   ctx.moveTo(radius * 2, 0);
@@ -47,23 +46,12 @@ export function drawMissile(ctx: CanvasRenderingContext2D, centerX: number, cent
 }
 
 export class MissileProjectile extends Projectile {
-  public drawShadow(ctx: CanvasRenderingContext2D) {
+  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const centerX = this.x * UNIT_TO_PIXEL;
     const centerY = this.y * UNIT_TO_PIXEL;
-    const radius = this.size * UNIT_TO_PIXEL * 1.5;
     const angle = Math.atan2(this.velocityY, this.velocityX);
-    
-    drawMissileShadow(ctx, centerX - 4, centerY + 4, radius, angle);
-  }
-
-  public drawBody(ctx: CanvasRenderingContext2D) {
-    const centerX = this.x * UNIT_TO_PIXEL;
-    const centerY = this.y * UNIT_TO_PIXEL;
-    const radius = this.size * UNIT_TO_PIXEL * 1.5;
-    
-    const angle = Math.atan2(this.velocityY, this.velocityX);
-    
-    drawMissile(ctx, centerX, centerY, radius, angle);
+    const key = this.alliance === 0 ? 'missile-red' : 'missile-blue';
+    textureSheet.drawProjectile(ctx, key, centerX, centerY, 1.0, angle);
   }
 
   public spawnDeathParticles(particlesManager: ProjectileImpactParticlesManager): void {
@@ -72,7 +60,6 @@ export class MissileProjectile extends Projectile {
       return;
     }
 
-    // Even if no explosion radius, missiles should probably look like a small explosion
     particlesManager.spawnExplosion(this.x, this.y, 0.5);
   }
 }

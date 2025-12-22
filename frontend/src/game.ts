@@ -165,7 +165,6 @@ export class Game {
 
     this.tankManager.drawPaths(this.ctx);
     this.tankManager.drawShadows(this.ctx);
-    this.projectileManager.drawShadows(this.ctx);
 
     this.drawRelativeDistanceLabels(cameraX, cameraY);
 

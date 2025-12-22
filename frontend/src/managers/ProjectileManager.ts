@@ -1,15 +1,18 @@
 import { Projectile, ProjectileFactory } from "../objects/projectiles";
 import { getConnection } from "../spacetimedb-connection";
 import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
+import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
   private worldId: string;
   private particlesManager: ProjectileImpactParticlesManager;
+  private textureSheet: ProjectileTextureSheet;
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.particlesManager = new ProjectileImpactParticlesManager();
+    this.textureSheet = new ProjectileTextureSheet();
     this.subscribeToProjectiles();
   }
 
@@ -68,7 +71,7 @@ export class ProjectileManager {
 
   public drawBodies(ctx: CanvasRenderingContext2D) {
     for (const projectile of this.projectiles.values()) {
-      projectile.drawBody(ctx);
+      projectile.drawBody(ctx, this.textureSheet);
     }
     this.particlesManager.draw(ctx);
   }
