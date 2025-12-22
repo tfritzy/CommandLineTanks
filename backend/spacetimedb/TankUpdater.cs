@@ -200,7 +200,7 @@ public static partial class TankUpdater
             float centerY = tankTileY + 0.5f;
             foreach (var pickup in ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, centerX, centerY)))
             {
-                if (Module.TryCollectPickup(ctx, ref tank, ref needsUpdate, pickup))
+                if (PickupSpawner.TryCollectPickup(ctx, ref tank, ref needsUpdate, pickup))
                 {
                     break;
                 }

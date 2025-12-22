@@ -101,7 +101,7 @@ public static partial class Module
             Kills = new int[] { 0, 0 }
         });
 
-        InitializePickupSpawner(ctx, worldId, 5);
+        PickupSpawner.InitializePickupSpawner(ctx, worldId, 5);
 
         SpawnInitialBots(ctx, worldId, world);
 
