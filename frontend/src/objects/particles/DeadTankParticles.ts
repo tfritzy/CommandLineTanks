@@ -203,12 +203,12 @@ export class DeadTankParticles {
       
       const particleX = particle.x * UNIT_TO_PIXEL;
       const particleY = particle.y * UNIT_TO_PIXEL;
-      const maxSize = Math.max(particle.width, particle.height) * UNIT_TO_PIXEL;
+      const halfMaxSize = Math.max(particle.width, particle.height) / 2;
       
-      if (particleX + maxSize >= cameraX && 
-          particleX - maxSize <= cameraRight &&
-          particleY + maxSize >= cameraY && 
-          particleY - maxSize <= cameraBottom) {
+      if (particleX + halfMaxSize >= cameraX && 
+          particleX - halfMaxSize <= cameraRight &&
+          particleY + halfMaxSize >= cameraY && 
+          particleY - halfMaxSize <= cameraBottom) {
         return true;
       }
     }
