@@ -1,4 +1,5 @@
-import { ProjectileImpactParticles, ExplosionParticles } from "./objects/particles";
+import { ProjectileImpactParticles } from "./objects/particles/ProjectileImpactParticles";
+import { ExplosionParticles } from "./objects/particles/ExplosionParticles";
 
 export class ProjectileImpactParticlesManager {
   private particleSystems: (ProjectileImpactParticles | ExplosionParticles)[] = [];
