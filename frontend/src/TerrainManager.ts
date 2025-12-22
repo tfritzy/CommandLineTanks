@@ -2,7 +2,7 @@ import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, type TerrainDetailRow, type EventContext } from "../module_bindings";
 import { type Infer } from "spacetimedb";
 import { TerrainDetailObject } from "./objects/TerrainDetailObject";
-import { Rock, Tree, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, DeadTank, TargetDummy } from "./objects/TerrainDetails";
+import { Rock, Tree, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, TargetDummy } from "./objects/TerrainDetails";
 import { UNIT_TO_PIXEL } from "./game";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
@@ -176,9 +176,6 @@ export class TerrainManager {
         break;
       case "FenceCorner":
         obj = new FenceCorner(x, y, label, health, rotation);
-        break;
-      case "DeadTank":
-        obj = new DeadTank(x, y, label, health, rotation);
         break;
       case "TargetDummy":
         obj = new TargetDummy(x, y, label, health, rotation);

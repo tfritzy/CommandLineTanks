@@ -79,33 +79,6 @@ public static partial class ProjectileUpdater
 
         if (newHealth <= 0)
         {
-            int tankX = Module.GetGridPosition(tank.PositionX);
-            int tankY = Module.GetGridPosition(tank.PositionY);
-
-            var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
-            if (traversibilityMap != null)
-            {
-                int tileIndex = tankY * traversibilityMap.Value.Width + tankX;
-                if (tileIndex >= 0 && tileIndex < traversibilityMap.Value.Map.Length)
-                {
-                    traversibilityMap.Value.Map[tileIndex] = false;
-                    ctx.Db.traversibility_map.WorldId.Update(traversibilityMap.Value);
-                }
-            }
-
-            var deadTankId = Module.GenerateId(ctx, "td");
-            ctx.Db.terrain_detail.Insert(new Module.TerrainDetail
-            {
-                Id = deadTankId,
-                WorldId = worldId,
-                PositionX = tank.PositionX,
-                PositionY = tank.PositionY,
-                Type = TerrainDetailType.DeadTank,
-                Health = 50,
-                Label = null,
-                Rotation = (int)(tank.TurretRotation * 1000)
-            });
-
             var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
             if (shooterTank != null)
             {

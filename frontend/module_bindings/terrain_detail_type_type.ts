@@ -27,7 +27,6 @@ const TerrainDetailType = __t.enum("TerrainDetailType", {None: __t.unit(),
   FoundationCorner: __t.unit(),
   FenceEdge: __t.unit(),
   FenceCorner: __t.unit(),
-  DeadTank: __t.unit(),
   TargetDummy: __t.unit(),
 });
 

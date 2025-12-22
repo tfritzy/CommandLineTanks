@@ -1,13 +1,16 @@
 import { Tank } from "./objects/Tank";
 import { getConnection } from "./spacetimedb-connection";
+import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
   private worldId: string;
+  private particlesManager: DeadTankParticlesManager;
 
   constructor(worldId: string) {
     this.worldId = worldId;
+    this.particlesManager = new DeadTankParticlesManager();
     this.subscribeToTanks();
   }
 
@@ -44,10 +47,15 @@ export class TankManager {
       }
     });
 
-    connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
+    connection.db.tank.onUpdate((_ctx, oldTank, newTank) => {
       const tank = this.tanks.get(newTank.id);
       console.log(JSON.parse(JSON.stringify(tank)));
       if (tank) {
+        if (oldTank.health > 0 && newTank.health <= 0) {
+          const pos = tank.getPosition();
+          this.particlesManager.spawnParticles(pos.x, pos.y, newTank.alliance);
+        }
+        
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
         tank.setVelocity(newTank.velocity.x, newTank.velocity.y);
@@ -73,6 +81,7 @@ export class TankManager {
     for (const tank of this.tanks.values()) {
       tank.update(deltaTime);
     }
+    this.particlesManager.update(deltaTime);
   }
 
   public getPlayerTank(): Tank | null {
@@ -102,5 +111,9 @@ export class TankManager {
     for (const tank of this.tanks.values()) {
       tank.drawHealthBar(ctx);
     }
+  }
+
+  public drawParticles(ctx: CanvasRenderingContext2D) {
+    this.particlesManager.draw(ctx);
   }
 }

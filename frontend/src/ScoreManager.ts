@@ -122,7 +122,7 @@ export class ScoreManager {
     const killText = player.kills === 1 ? 'kill' : 'kills';
     const text = `${player.name}: ${player.kills} ${killText}`;
 
-    ctx.font = 'bold 14px monospace';
+    ctx.font = '800 14px Poppins, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 

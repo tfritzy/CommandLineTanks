@@ -132,7 +132,7 @@ export class HayBale extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(0.3, 0.15, 21.21, 12.12);
+    const radius = this.getRadius(0.3, 0, 21.21, 12.12);
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
     ctx.beginPath();
@@ -147,7 +147,7 @@ export class HayBale extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(0.3, 0.15, 21.21, 12.12);
+    const radius = this.getRadius(0.3, 0, 21.21, 12.12);
 
 
     // Hay bale body using palette gold/warm yellow
@@ -181,92 +181,6 @@ export class Label extends TerrainDetailObject {
   }
 
   public drawBody(ctx: CanvasRenderingContext2D): void {
-    this.drawLabel(ctx);
-  }
-
-  public draw(ctx: CanvasRenderingContext2D): void {
-    this.drawShadow(ctx);
-    this.drawBody(ctx);
-  }
-}
-
-export class DeadTank extends TerrainDetailObject {
-  public drawShadow(ctx: CanvasRenderingContext2D): void {
-    ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
-    const centerX = x;
-    const centerY = y;
-
-    const shadowColor = "rgba(0, 0, 0, 0.4)";
-    ctx.fillStyle = shadowColor;
-
-    ctx.save();
-    ctx.translate(centerX - 4, centerY + 4);
-    ctx.beginPath();
-    ctx.roundRect(-16, -16, 32, 32, 5);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.restore();
-  }
-
-  public drawBody(ctx: CanvasRenderingContext2D): void {
-    ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
-    const centerX = x;
-    const centerY = y;
-
-    ctx.translate(centerX, centerY);
-
-    const bodyColor = getFlashColor("#4a4b5b", this.flashTimer);
-    const borderColor = getFlashColor("#2e2e43", this.flashTimer);
-    const selfShadowColor = "rgba(0, 0, 0, 0.35)";
-
-    ctx.fillStyle = bodyColor;
-    ctx.beginPath();
-    ctx.roundRect(-16, -16, 32, 32, 5);
-    ctx.fill();
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    ctx.fillStyle = selfShadowColor;
-
-    ctx.save();
-    ctx.translate(-2, 2);
-    ctx.rotate(this.rotation / 1000);
-    ctx.beginPath();
-    ctx.roundRect(0, -5, 24, 10, 3);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(-1.5, 1.5);
-    ctx.rotate(this.rotation / 1000);
-    ctx.beginPath();
-    ctx.roundRect(-12, -12, 24, 24, 10);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    ctx.rotate(this.rotation / 1000);
-
-    ctx.fillStyle = bodyColor;
-    ctx.beginPath();
-    ctx.roundRect(0, -5, 24, 10, 3);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = bodyColor;
-    ctx.beginPath();
-    ctx.roundRect(-12, -12, 24, 24, 10);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.restore();
     this.drawLabel(ctx);
   }
 

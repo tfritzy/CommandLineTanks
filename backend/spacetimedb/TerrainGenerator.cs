@@ -577,7 +577,6 @@ public static partial class TerrainGenerator
                 TerrainDetailType.FoundationCorner => false,
                 TerrainDetailType.FenceEdge => true,
                 TerrainDetailType.FenceCorner => true,
-                TerrainDetailType.DeadTank => false,
                 TerrainDetailType.TargetDummy => false,
                 _ => true
             };

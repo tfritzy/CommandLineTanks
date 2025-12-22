@@ -190,6 +190,7 @@ export class Game {
     this.tankManager.drawBodies(this.ctx);
     this.projectileManager.drawBodies(this.ctx);
     this.tankManager.drawHealthBars(this.ctx);
+    this.tankManager.drawParticles(this.ctx);
 
     // this.collisionVisualizationManager.draw(
     //   this.ctx,
