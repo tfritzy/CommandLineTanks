@@ -46,20 +46,12 @@ export function drawMissile(ctx: CanvasRenderingContext2D, centerX: number, cent
 }
 
 export class MissileProjectile extends Projectile {
-  public drawShadow(ctx: CanvasRenderingContext2D) {
-    const centerX = this.x * UNIT_TO_PIXEL;
-    const centerY = this.y * UNIT_TO_PIXEL;
-    const radius = this.size * UNIT_TO_PIXEL * 1.5;
-    const angle = Math.atan2(this.velocityY, this.velocityX);
-    
-    drawMissileShadow(ctx, centerX - 4, centerY + 4, radius, angle);
-  }
-
   public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const centerX = this.x * UNIT_TO_PIXEL;
     const centerY = this.y * UNIT_TO_PIXEL;
     const angle = Math.atan2(this.velocityY, this.velocityX);
-    textureSheet.drawProjectile(ctx, 'missile', centerX, centerY, 1.0, angle);
+    const key = this.alliance === 0 ? 'missile-red' : 'missile-blue';
+    textureSheet.drawProjectile(ctx, key, centerX, centerY, 1.0, angle);
   }
 
   public spawnDeathParticles(particlesManager: ProjectileImpactParticlesManager): void {

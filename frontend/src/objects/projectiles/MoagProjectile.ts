@@ -7,7 +7,8 @@ export class MoagProjectile extends Projectile {
   public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const centerX = this.x * UNIT_TO_PIXEL;
     const centerY = this.y * UNIT_TO_PIXEL;
-    textureSheet.drawProjectile(ctx, 'moag', centerX, centerY);
+    const key = this.alliance === 0 ? 'moag-red' : 'moag-blue';
+    textureSheet.drawProjectile(ctx, key, centerX, centerY);
   }
 
   public spawnDeathParticles(particlesManager: ProjectileImpactParticlesManager): void {

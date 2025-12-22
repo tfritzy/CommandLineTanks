@@ -46,20 +46,12 @@ export function drawRocket(ctx: CanvasRenderingContext2D, centerX: number, cente
 }
 
 export class RocketProjectile extends Projectile {
-  public drawShadow(ctx: CanvasRenderingContext2D) {
-    const centerX = this.x * UNIT_TO_PIXEL;
-    const centerY = this.y * UNIT_TO_PIXEL;
-    const radius = this.size * UNIT_TO_PIXEL;
-    const angle = Math.atan2(this.velocityY, this.velocityX);
-    
-    drawRocketShadow(ctx, centerX - 4, centerY + 4, radius, angle);
-  }
-
   public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const centerX = this.x * UNIT_TO_PIXEL;
     const centerY = this.y * UNIT_TO_PIXEL;
     const angle = Math.atan2(this.velocityY, this.velocityX);
-    textureSheet.drawProjectile(ctx, 'rocket', centerX, centerY, 1.0, angle);
+    const key = this.alliance === 0 ? 'rocket-red' : 'rocket-blue';
+    textureSheet.drawProjectile(ctx, key, centerX, centerY, 1.0, angle);
   }
 
   public isExplosive(): boolean {

@@ -76,7 +76,8 @@ export class GrenadeProjectile extends Projectile {
   public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const centerX = this.x * UNIT_TO_PIXEL;
     const centerY = this.y * UNIT_TO_PIXEL;
-    textureSheet.drawProjectile(ctx, 'grenade', centerX, centerY);
+    const key = this.alliance === 0 ? 'grenade-red' : 'grenade-blue';
+    textureSheet.drawProjectile(ctx, key, centerX, centerY);
   }
 
   public isExplosive(): boolean {
