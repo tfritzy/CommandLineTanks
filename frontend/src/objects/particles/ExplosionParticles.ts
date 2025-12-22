@@ -66,18 +66,22 @@ export class ExplosionParticles {
     this.isDead = allDead;
   }
 
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
     ctx.save();
 
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
-      const progress = p.lifetime / p.maxLifetime;
-      ctx.globalAlpha = 1 - progress;
-
       const px = p.x * UNIT_TO_PIXEL;
       const py = p.y * UNIT_TO_PIXEL;
       const pSize = p.size * UNIT_TO_PIXEL;
+      
+      if (!isPointInViewport(px, py, pSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
+        continue;
+      }
+
+      const progress = p.lifetime / p.maxLifetime;
+      ctx.globalAlpha = 1 - progress;
       
       ctx.beginPath();
       ctx.arc(px, py, pSize, 0, Math.PI * 2);
@@ -89,20 +93,5 @@ export class ExplosionParticles {
 
   public getIsDead(): boolean {
     return this.isDead;
-  }
-
-  public isInViewport(cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): boolean {
-    for (const p of this.particles) {
-      if (p.lifetime >= p.maxLifetime) continue;
-      
-      const px = p.x * UNIT_TO_PIXEL;
-      const py = p.y * UNIT_TO_PIXEL;
-      const pSize = p.size * UNIT_TO_PIXEL;
-      
-      if (isPointInViewport(px, py, pSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
-        return true;
-      }
-    }
-    return false;
   }
 }

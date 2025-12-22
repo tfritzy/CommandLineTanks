@@ -137,25 +137,33 @@ export class DeadTankParticles {
     this.isDead = this.particles.every((p) => p.lifetime >= p.maxLifetime);
   }
 
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
     // Draw smoke first (bottom layer)
-    this.drawParticlesByType(ctx, 'smoke');
+    this.drawParticlesByType(ctx, 'smoke', cameraX, cameraY, viewportWidth, viewportHeight);
     // Then debris
-    this.drawParticlesByType(ctx, 'debris');
+    this.drawParticlesByType(ctx, 'debris', cameraX, cameraY, viewportWidth, viewportHeight);
     // Then fire
-    this.drawParticlesByType(ctx, 'fire');
+    this.drawParticlesByType(ctx, 'fire', cameraX, cameraY, viewportWidth, viewportHeight);
     // Then sparks (top layer)
-    this.drawParticlesByType(ctx, 'spark');
+    this.drawParticlesByType(ctx, 'spark', cameraX, cameraY, viewportWidth, viewportHeight);
   }
 
-  private drawParticlesByType(ctx: CanvasRenderingContext2D, type: string): void {
+  private drawParticlesByType(ctx: CanvasRenderingContext2D, type: string, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
     for (const particle of this.particles) {
       if (particle.type !== type || particle.lifetime >= particle.maxLifetime) continue;
+
+      const particleX = particle.x * UNIT_TO_PIXEL;
+      const particleY = particle.y * UNIT_TO_PIXEL;
+      const halfMaxSize = Math.max(particle.width, particle.height) / 2;
+      
+      if (!isPointInViewport(particleX, particleY, halfMaxSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
+        continue;
+      }
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
 
       ctx.save();
-      ctx.translate(particle.x * UNIT_TO_PIXEL, particle.y * UNIT_TO_PIXEL);
+      ctx.translate(particleX, particleY);
       ctx.rotate(particle.rotation);
       ctx.globalAlpha = alpha;
       ctx.fillStyle = particle.color;
@@ -193,20 +201,5 @@ export class DeadTankParticles {
 
   public getIsDead(): boolean {
     return this.isDead;
-  }
-
-  public isInViewport(cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): boolean {
-    for (const particle of this.particles) {
-      if (particle.lifetime >= particle.maxLifetime) continue;
-      
-      const particleX = particle.x * UNIT_TO_PIXEL;
-      const particleY = particle.y * UNIT_TO_PIXEL;
-      const halfMaxSize = Math.max(particle.width, particle.height) / 2;
-      
-      if (isPointInViewport(particleX, particleY, halfMaxSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
-        return true;
-      }
-    }
-    return false;
   }
 }

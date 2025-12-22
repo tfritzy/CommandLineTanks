@@ -20,9 +20,7 @@ export class DeadTankParticlesManager {
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
     for (const system of this.particleSystems) {
-      if (system.isInViewport(cameraX, cameraY, viewportWidth, viewportHeight)) {
-        system.draw(ctx);
-      }
+      system.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
     }
   }
 }
