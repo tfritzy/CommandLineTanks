@@ -1,7 +1,7 @@
 import { UNIT_TO_PIXEL } from "../../game";
 import { isPointInViewport } from "../../utils/viewport";
 
-interface Particle {
+interface DebrisParticle {
   x: number;
   y: number;
   velocityX: number;
@@ -13,11 +13,51 @@ interface Particle {
   lifetime: number;
   maxLifetime: number;
   color: string;
-  type: 'debris' | 'smoke' | 'fire' | 'spark';
+}
+
+interface FireParticle {
+  x: number;
+  y: number;
+  velocityX: number;
+  velocityY: number;
+  angularVelocity: number;
+  rotation: number;
+  size: number;
+  lifetime: number;
+  maxLifetime: number;
+  color: string;
+}
+
+interface SmokeParticle {
+  x: number;
+  y: number;
+  velocityX: number;
+  velocityY: number;
+  angularVelocity: number;
+  rotation: number;
+  size: number;
+  lifetime: number;
+  maxLifetime: number;
+  color: string;
+}
+
+interface SparkParticle {
+  x: number;
+  y: number;
+  velocityX: number;
+  velocityY: number;
+  rotation: number;
+  width: number;
+  height: number;
+  lifetime: number;
+  maxLifetime: number;
 }
 
 export class DeadTankParticles {
-  private particles: Particle[] = [];
+  private debrisParticles: DebrisParticle[] = [];
+  private fireParticles: FireParticle[] = [];
+  private smokeParticles: SmokeParticle[] = [];
+  private sparkParticles: SparkParticle[] = [];
   private isDead = false;
 
   constructor(x: number, y: number, alliance: number) {
@@ -37,7 +77,7 @@ export class DeadTankParticles {
       if (rand > 0.8) color = "#2e2e43";
       else if (rand > 0.5) color = darkTeamColor;
       
-      this.particles.push({
+      this.debrisParticles.push({
         x, y,
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
@@ -46,8 +86,7 @@ export class DeadTankParticles {
         width, height,
         lifetime: 0,
         maxLifetime: 0.8 + Math.random() * 0.6,
-        color,
-        type: 'debris'
+        color
       });
     }
 
@@ -58,17 +97,16 @@ export class DeadTankParticles {
       const speed = 3 + Math.random() * 5;
       const size = 5 + Math.random() * 8;
       const colors = ["#c06852", "#e39764", "#f5c47c", "#fceba8"];
-      this.particles.push({
+      this.fireParticles.push({
         x, y,
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
         angularVelocity: (Math.random() - 0.5) * 5,
         rotation: Math.random() * Math.PI * 2,
-        width: size, height: size,
+        size,
         lifetime: 0,
         maxLifetime: 0.2 + Math.random() * 0.3,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        type: 'fire'
+        color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
 
@@ -79,17 +117,16 @@ export class DeadTankParticles {
       const speed = 0.4 + Math.random() * 1.0;
       const size = 10 + Math.random() * 15;
       const colors = ["#4a4b5b", "#707b89"];
-      this.particles.push({
+      this.smokeParticles.push({
         x, y,
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
         angularVelocity: (Math.random() - 0.5) * 2,
         rotation: Math.random() * Math.PI * 2,
-        width: size, height: size,
+        size,
         lifetime: 0,
         maxLifetime: 0.5 + Math.random() * 0.5,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        type: 'smoke'
+        color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
 
@@ -98,59 +135,98 @@ export class DeadTankParticles {
     for (let i = 0; i < sparkCount; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 5 + Math.random() * 8;
-      this.particles.push({
+      this.sparkParticles.push({
         x, y,
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
-        angularVelocity: 0,
         rotation: angle,
-        width: 2.5, height: 1.2,
+        width: 2.5, 
+        height: 1.2,
         lifetime: 0,
-        maxLifetime: 0.1 + Math.random() * 0.2,
-        color: "#fceba8",
-        type: 'spark'
+        maxLifetime: 0.1 + Math.random() * 0.2
       });
     }
   }
 
   public update(deltaTime: number): void {
-    for (const particle of this.particles) {
+    for (const particle of this.debrisParticles) {
       particle.lifetime += deltaTime;
       particle.x += particle.velocityX * deltaTime;
       particle.y += particle.velocityY * deltaTime;
       particle.rotation += particle.angularVelocity * deltaTime;
-
-      if (particle.type === 'smoke') {
-        particle.velocityX *= 0.98;
-        particle.velocityY *= 0.98;
-        particle.width += deltaTime * 10; // Smoke expands
-        particle.height += deltaTime * 10;
-      } else if (particle.type === 'fire') {
-        particle.velocityX *= 0.9;
-        particle.velocityY *= 0.9;
-      } else {
-        particle.velocityX *= 0.95;
-        particle.velocityY *= 0.95;
-      }
+      particle.velocityX *= 0.95;
+      particle.velocityY *= 0.95;
     }
 
-    this.isDead = this.particles.every((p) => p.lifetime >= p.maxLifetime);
+    for (const particle of this.fireParticles) {
+      particle.lifetime += deltaTime;
+      particle.x += particle.velocityX * deltaTime;
+      particle.y += particle.velocityY * deltaTime;
+      particle.rotation += particle.angularVelocity * deltaTime;
+      particle.velocityX *= 0.9;
+      particle.velocityY *= 0.9;
+    }
+
+    for (const particle of this.smokeParticles) {
+      particle.lifetime += deltaTime;
+      particle.x += particle.velocityX * deltaTime;
+      particle.y += particle.velocityY * deltaTime;
+      particle.rotation += particle.angularVelocity * deltaTime;
+      particle.velocityX *= 0.98;
+      particle.velocityY *= 0.98;
+      particle.size += deltaTime * 10;
+    }
+
+    for (const particle of this.sparkParticles) {
+      particle.lifetime += deltaTime;
+      particle.x += particle.velocityX * deltaTime;
+      particle.y += particle.velocityY * deltaTime;
+      particle.velocityX *= 0.95;
+      particle.velocityY *= 0.95;
+    }
+
+    this.isDead = 
+      this.debrisParticles.every((p) => p.lifetime >= p.maxLifetime) &&
+      this.fireParticles.every((p) => p.lifetime >= p.maxLifetime) &&
+      this.smokeParticles.every((p) => p.lifetime >= p.maxLifetime) &&
+      this.sparkParticles.every((p) => p.lifetime >= p.maxLifetime);
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    // Draw smoke first (bottom layer)
-    this.drawParticlesByType(ctx, 'smoke', cameraX, cameraY, viewportWidth, viewportHeight);
-    // Then debris
-    this.drawParticlesByType(ctx, 'debris', cameraX, cameraY, viewportWidth, viewportHeight);
-    // Then fire
-    this.drawParticlesByType(ctx, 'fire', cameraX, cameraY, viewportWidth, viewportHeight);
-    // Then sparks (top layer)
-    this.drawParticlesByType(ctx, 'spark', cameraX, cameraY, viewportWidth, viewportHeight);
+    this.drawSmoke(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+    this.drawDebris(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+    this.drawFire(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+    this.drawSparks(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
   }
 
-  private drawParticlesByType(ctx: CanvasRenderingContext2D, type: string, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    for (const particle of this.particles) {
-      if (particle.type !== type || particle.lifetime >= particle.maxLifetime) continue;
+  private drawSmoke(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    for (const particle of this.smokeParticles) {
+      if (particle.lifetime >= particle.maxLifetime) continue;
+
+      const particleX = particle.x * UNIT_TO_PIXEL;
+      const particleY = particle.y * UNIT_TO_PIXEL;
+      const halfSize = particle.size / 2;
+      
+      if (!isPointInViewport(particleX, particleY, halfSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
+        continue;
+      }
+
+      const alpha = 1 - particle.lifetime / particle.maxLifetime;
+
+      ctx.save();
+      ctx.translate(particleX, particleY);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = particle.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, halfSize, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  private drawDebris(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    for (const particle of this.debrisParticles) {
+      if (particle.lifetime >= particle.maxLifetime) continue;
 
       const particleX = particle.x * UNIT_TO_PIXEL;
       const particleY = particle.y * UNIT_TO_PIXEL;
@@ -167,34 +243,73 @@ export class DeadTankParticles {
       ctx.rotate(particle.rotation);
       ctx.globalAlpha = alpha;
       ctx.fillStyle = particle.color;
+      ctx.fillRect(
+        -particle.width / 2,
+        -particle.height / 2,
+        particle.width,
+        particle.height
+      );
+      ctx.strokeStyle = "rgba(0,0,0,0.5)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(
+        -particle.width / 2,
+        -particle.height / 2,
+        particle.width,
+        particle.height
+      );
+      ctx.restore();
+    }
+  }
 
-      if (particle.type === 'smoke') {
-        ctx.beginPath();
-        ctx.arc(0, 0, particle.width / 2, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (particle.type === 'spark') {
-        ctx.fillRect(0, -0.5, particle.width, particle.height);
-      } else {
-        // Debris and Fire are rectangles
-        ctx.fillRect(
-          -particle.width / 2,
-          -particle.height / 2,
-          particle.width,
-          particle.height
-        );
-        
-        if (particle.type === 'debris') {
-          ctx.strokeStyle = "rgba(0,0,0,0.5)";
-          ctx.lineWidth = 1;
-          ctx.strokeRect(
-            -particle.width / 2,
-            -particle.height / 2,
-            particle.width,
-            particle.height
-          );
-        }
+  private drawFire(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    for (const particle of this.fireParticles) {
+      if (particle.lifetime >= particle.maxLifetime) continue;
+
+      const particleX = particle.x * UNIT_TO_PIXEL;
+      const particleY = particle.y * UNIT_TO_PIXEL;
+      const halfSize = particle.size / 2;
+      
+      if (!isPointInViewport(particleX, particleY, halfSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
+        continue;
       }
 
+      const alpha = 1 - particle.lifetime / particle.maxLifetime;
+
+      ctx.save();
+      ctx.translate(particleX, particleY);
+      ctx.rotate(particle.rotation);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = particle.color;
+      ctx.fillRect(
+        -halfSize,
+        -halfSize,
+        particle.size,
+        particle.size
+      );
+      ctx.restore();
+    }
+  }
+
+  private drawSparks(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    for (const particle of this.sparkParticles) {
+      if (particle.lifetime >= particle.maxLifetime) continue;
+
+      const particleX = particle.x * UNIT_TO_PIXEL;
+      const particleY = particle.y * UNIT_TO_PIXEL;
+      const halfMaxSize = Math.max(particle.width, particle.height) / 2;
+      
+      if (!isPointInViewport(particleX, particleY, halfMaxSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
+        continue;
+      }
+
+      const alpha = 1 - particle.lifetime / particle.maxLifetime;
+
+      ctx.save();
+      ctx.translate(particleX, particleY);
+      ctx.rotate(particle.rotation);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = "#fceba8";
+      ctx.fillRect(0, -0.5, particle.width, particle.height);
       ctx.restore();
     }
   }
