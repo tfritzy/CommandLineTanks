@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../game";
+import { UNIT_TO_PIXEL } from "../../game";
 
 interface Particle {
   x: number;

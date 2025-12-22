@@ -1,8 +1,7 @@
 import { getConnection } from "./spacetimedb-connection";
 import { BaseTerrain, type TerrainDetailRow, type EventContext } from "../module_bindings";
 import { type Infer } from "spacetimedb";
-import { TerrainDetailObject } from "./objects/TerrainDetailObject";
-import { Rock, Tree, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, TargetDummy } from "./objects/TerrainDetails";
+import { TerrainDetailObject, Rock, Tree, HayBale, Label, FoundationEdge, FoundationCorner, FenceEdge, FenceCorner, TargetDummy } from "./objects/terrain-details";
 import { UNIT_TO_PIXEL } from "./game";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
