@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getConnection } from '../../spacetimedb-connection';
-import { aim, drive, fire, help, respawn, reverse, stop, target, findGame } from './commands';
+import { aim, drive, fire, help, respawn, reverse, stop, switchGun, target, findGame } from './commands';
 
 interface TerminalComponentProps {
     worldId: string;
@@ -127,6 +127,12 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                     case 'f': {
                         const fireOutput = fire(connection, worldId, args);
                         newOutput.push(...fireOutput);
+                        break;
+                    }
+                    case 'switch':
+                    case 'w': {
+                        const switchOutput = switchGun(connection, worldId, args);
+                        newOutput.push(...switchOutput);
                         break;
                     }
                     case 'respawn': {

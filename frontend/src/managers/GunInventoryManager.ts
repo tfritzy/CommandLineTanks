@@ -1,11 +1,20 @@
 import { type Infer } from "spacetimedb";
 import { getConnection } from "../spacetimedb-connection";
 import Gun from "../../module_bindings/gun_type";
+import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
+import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
+import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
+import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
+import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
+import { BoomerangProjectile } from "../objects/projectiles/BoomerangProjectile";
+import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
+import { Projectile } from "../objects/projectiles/Projectile";
 
 export class GunInventoryManager {
   private guns: Infer<typeof Gun>[] = [];
   private selectedGunIndex: number = 0;
   private playerTankId: string | null = null;
+  private playerAlliance: number = 0;
 
   constructor(worldId: string) {
     this.subscribeToPlayerTank(worldId);
@@ -21,15 +30,17 @@ export class GunInventoryManager {
     connection.db.tank.onInsert((_ctx, tank) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
         this.playerTankId = tank.id;
-        this.guns = tank.guns;
+        this.guns = [...tank.guns];
         this.selectedGunIndex = tank.selectedGunIndex;
+        this.playerAlliance = tank.alliance;
       }
     });
 
     connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
-        this.guns = newTank.guns;
+        this.guns = [...newTank.guns];
         this.selectedGunIndex = newTank.selectedGunIndex;
+        this.playerAlliance = newTank.alliance;
       }
     });
 
@@ -42,82 +53,26 @@ export class GunInventoryManager {
     });
   }
 
-  private getGunColor(gun: Infer<typeof Gun>): string {
-    switch (gun.gunType.tag) {
-      case 'Base':
-        return '#888888';
-      case 'TripleShooter':
-        return '#ff9900';
-      case 'MissileLauncher':
-        return '#ff0000';
-      case 'Boomerang':
-        return '#8b4513';
-      case 'Grenade':
-        return '#228b22';
-      default:
-        return '#888888';
-    }
-  }
-
   private drawGunGraphic(ctx: CanvasRenderingContext2D, gun: Infer<typeof Gun>, x: number, y: number, size: number) {
     ctx.save();
     const centerX = x + size / 2;
     const centerY = y + size / 2;
 
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
+    const projectile = this.createProjectileForGun(gun);
 
-    switch (gun.gunType.tag) {
-      case 'Base':
-        ctx.fillRect(centerX - 15, centerY - 3, 25, 6);
-        ctx.strokeRect(centerX - 15, centerY - 3, 25, 6);
-        ctx.fillRect(centerX - 8, centerY - 6, 8, 12);
-        ctx.strokeRect(centerX - 8, centerY - 6, 8, 12);
-        break;
-      case 'TripleShooter':
-        for (let i = -1; i <= 1; i++) {
-          const offsetY = i * 8;
-          ctx.fillRect(centerX - 15, centerY + offsetY - 2, 25, 4);
-          ctx.strokeRect(centerX - 15, centerY + offsetY - 2, 25, 4);
-        }
-        ctx.fillRect(centerX - 8, centerY - 6, 8, 12);
-        ctx.strokeRect(centerX - 8, centerY - 6, 8, 12);
-        break;
-      case 'MissileLauncher':
-        ctx.beginPath();
-        ctx.moveTo(centerX + 10, centerY);
-        ctx.lineTo(centerX - 5, centerY - 8);
-        ctx.lineTo(centerX - 15, centerY - 8);
-        ctx.lineTo(centerX - 15, centerY + 8);
-        ctx.lineTo(centerX - 5, centerY + 8);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillRect(centerX - 8, centerY - 6, 8, 12);
-        ctx.strokeRect(centerX - 8, centerY - 6, 8, 12);
-        break;
-      case 'Boomerang':
-        ctx.beginPath();
-        ctx.arc(centerX - 8, centerY - 5, 8, 0, Math.PI * 1.5);
-        ctx.arc(centerX + 8, centerY + 5, 8, Math.PI, Math.PI * 2.5);
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = '#654321';
-        ctx.stroke();
-        ctx.lineWidth = 2;
-        break;
-      case 'Grenade':
-        ctx.fillStyle = '#2d5016';
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(centerX - 2, centerY - 10, 4, 6);
-        ctx.strokeRect(centerX - 2, centerY - 10, 4, 6);
-        break;
+    if (projectile) {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      const scale = 1.2;
+      ctx.scale(scale, scale);
+      projectile.drawBody(ctx, ProjectileTextureSheet.getInstance());
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fcfbf3';
+      ctx.font = 'bold 20px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('?', centerX, centerY);
     }
 
     ctx.restore();
@@ -135,35 +90,79 @@ export class GunInventoryManager {
 
     ctx.save();
 
-    ctx.strokeStyle = isSelected ? '#ffff00' : '#666666';
-    ctx.lineWidth = isSelected ? 3 : 2;
-    ctx.fillStyle = gun ? this.getGunColor(gun) : '#333333';
-    ctx.globalAlpha = gun ? 1 : 0.3;
+    ctx.fillStyle = gun ? '#4a4b5b' : '#2a152d';
+    ctx.globalAlpha = gun ? 0.8 : 0.3;
+    
+    const radius = 4;
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + slotSize - radius, y);
+    ctx.quadraticCurveTo(x + slotSize, y, x + slotSize, y + radius);
+    ctx.lineTo(x + slotSize, y + slotSize - radius);
+    ctx.quadraticCurveTo(x + slotSize, y + slotSize, x + slotSize - radius, y + slotSize);
+    ctx.lineTo(x + radius, y + slotSize);
+    ctx.quadraticCurveTo(x, y + slotSize, x, y + slotSize - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
 
-    ctx.fillRect(x, y, slotSize, slotSize);
-    ctx.strokeRect(x, y, slotSize, slotSize);
-
+    ctx.strokeStyle = isSelected ? '#fceba8' : '#4a4b5b';
+    ctx.lineWidth = 1;
     ctx.globalAlpha = 1;
+    ctx.stroke();
 
     if (gun) {
       this.drawGunGraphic(ctx, gun, x, y, slotSize);
 
       if (gun.ammo != null) {
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px monospace';
+        ctx.fillStyle = '#fcfbf3';
+        ctx.font = 'bold 10px monospace';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'bottom';
-        ctx.fillText(gun.ammo.toString(), x + slotSize - 4, y + slotSize - 4);
+        ctx.fillText(gun.ammo.toString(), x + slotSize - 4, y + slotSize - 3);
       }
     }
 
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 12px monospace';
+    ctx.fillStyle = isSelected ? '#fceba8' : '#a9bcbf';
+    ctx.font = 'bold 10px monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillText((slotIndex + 1).toString(), x + 4, y + 4);
 
     ctx.restore();
+  }
+
+  private createProjectileForGun(gun: Infer<typeof Gun>): Projectile | undefined {
+    const x = 0;
+    const y = 0;
+    let angle = -Math.PI / 2;
+    
+    if (gun.projectileType.tag === "Missile" || gun.projectileType.tag === "Rocket") {
+      angle = -Math.PI / 4;
+    }
+    
+    const velocityX = Math.cos(angle);
+    const velocityY = Math.sin(angle);
+    const size = gun.projectileSize;
+    const alliance = this.playerAlliance;
+
+    switch (gun.projectileType.tag) {
+      case "Normal":
+        return new NormalProjectile(x, y, velocityX, velocityY, size, alliance);
+      case "Missile":
+        return new MissileProjectile(x, y, velocityX, velocityY, size, alliance);
+      case "Rocket":
+        return new RocketProjectile(x, y, velocityX, velocityY, size, alliance);
+      case "Grenade":
+        return new GrenadeProjectile(x, y, velocityX, velocityY, size, alliance);
+      case "Boomerang":
+        return new BoomerangProjectile(x, y, velocityX, velocityY, size, alliance);
+      case "Moag":
+        return new MoagProjectile(x, y, velocityX, velocityY, size, alliance);
+      default:
+        return undefined;
+    }
   }
 
   public draw(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
@@ -174,24 +173,18 @@ export class GunInventoryManager {
     ctx.save();
 
     const maxSlots = 3;
-    const slotSize = 80;
-    const gap = 8;
-    const padding = 12;
+    const totalHeight = 150;
+    const gap = 6;
+    const slotSize = (totalHeight - (gap * (maxSlots - 1))) / maxSlots;
+    const miniMapMaxSize = 150;
+    const miniMapMargin = 20;
     
-    const totalWidth = (slotSize * maxSlots) + (gap * (maxSlots - 1)) + (padding * 2);
-    const containerX = (canvasWidth - totalWidth) / 2;
-    const containerY = canvasHeight - 100 - slotSize - padding * 2;
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(containerX, containerY, totalWidth, slotSize + padding * 2);
-    
-    ctx.strokeStyle = '#444444';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(containerX, containerY, totalWidth, slotSize + padding * 2);
+    const startX = canvasWidth - miniMapMaxSize - miniMapMargin - slotSize - 12;
+    const startY = canvasHeight - totalHeight - miniMapMargin;
 
     for (let i = 0; i < maxSlots; i++) {
-      const slotX = containerX + padding + (i * (slotSize + gap));
-      const slotY = containerY + padding;
+      const slotX = startX;
+      const slotY = startY + (i * (slotSize + gap));
       const gun = i < this.guns.length ? this.guns[i] : null;
       this.drawSlot(ctx, gun, i, slotX, slotY, slotSize);
     }

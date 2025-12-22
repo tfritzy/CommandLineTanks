@@ -215,7 +215,7 @@ export class Game {
 
     this.scoreManager.draw(this.ctx, displayWidth);
     this.miniMapManager.draw(this.ctx, displayWidth, displayHeight);
-    // this.gunInventoryManager.draw(this.ctx, this.canvas.width, this.canvas.height);
+    this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }

@@ -87,6 +87,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  aim, a               Aim turret at an angle or direction",
       "  target, t            Target another tank by name",
       "  fire, f              Fire a projectile from your tank",
+      "  switch, w            Switch to a different gun",
       "  respawn              Respawn after death",
       "  findgame             Join a game world",
       "  clear, c             Clear the terminal output",
@@ -222,6 +223,25 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  fire",
         "  f"
+      ];
+
+    case "switch":
+    case "w":
+      return [
+        "switch, w - Switch to a different gun",
+        "",
+        "Usage: switch <gun_index>",
+        "",
+        "Arguments:",
+        "  <gun_index>   Gun slot number (1, 2, or 3)",
+        "",
+        "Switches your active gun to the specified slot. Each gun may have",
+        "different properties like projectile type, damage, ammo, etc.",
+        "",
+        "Examples:",
+        "  switch 1",
+        "  switch 2",
+        "  w 3"
       ];
 
     case "respawn":
@@ -518,6 +538,65 @@ export function findGame(connection: DbConnection, args: string[]): string[] {
 
   return [
     "Searching for a game world...",
+  ];
+}
+
+export function switchGun(connection: DbConnection, worldId: string, args: string[]): string[] {
+  if (isPlayerDead(connection, worldId)) {
+    return [
+      "switch: error: cannot switch guns while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
+  if (args.length < 1) {
+    return [
+      "switch: error: missing required argument '<gun_index>'",
+      "",
+      "Usage: switch <gun_index>",
+      "       switch 1",
+      "       switch 2",
+      "       switch 3"
+    ];
+  }
+
+  const parsed = Number.parseInt(args[0]);
+  if (Number.isNaN(parsed) || parsed < 1 || parsed > 3) {
+    return [
+      `switch: error: invalid value '${args[0]}' for '<gun_index>': must be 1, 2, or 3`,
+      "",
+      "Usage: switch <gun_index>",
+      "       switch 1"
+    ];
+  }
+
+  const gunIndex = parsed - 1;
+
+  if (!connection.identity) {
+    return ["switch: error: no connection"];
+  }
+
+  const myTank = Array.from(connection.db.tank.iter())
+    .filter(t => t.worldId === worldId)
+    .find(t => t.owner.isEqual(connection.identity!));
+
+  if (!myTank) {
+    return ["switch: error: tank not found"];
+  }
+
+  if (gunIndex >= myTank.guns.length) {
+    return [
+      `switch: error: gun slot ${parsed} is empty`,
+      "",
+      `You only have ${myTank.guns.length} gun${myTank.guns.length !== 1 ? 's' : ''}`
+    ];
+  }
+
+  connection.reducers.switchGun({ worldId, gunIndex });
+
+  return [
+    `Switched to gun ${parsed}`,
   ];
 }
 
