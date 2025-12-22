@@ -178,7 +178,7 @@ public static partial class Module
         public float PositionX;
         public float PositionY;
 
-        public TerrainDetailType Type;
+        public PickupType Type;
     }
 
     [Table(Name = "kills", Public = true)]

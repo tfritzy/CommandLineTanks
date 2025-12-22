@@ -1,17 +1,19 @@
 import { getConnection } from "../spacetimedb-connection";
-import { type PickupRow, type EventContext, TerrainDetailType } from "../../module_bindings";
+import { type PickupRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
+import PickupType from "../../module_bindings/pickup_type_type";
 import { UNIT_TO_PIXEL } from "../game";
 import { Projectile } from "../objects/projectiles/Projectile";
 import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
 import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
 import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
+import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
 
 interface PickupData {
   id: string;
   positionX: number;
   positionY: number;
-  type: Infer<typeof TerrainDetailType>;
+  type: Infer<typeof PickupType>;
   projectile?: Projectile;
 }
 
@@ -24,17 +26,17 @@ export class PickupManager {
     this.subscribeToPickups();
   }
 
-  private createProjectileForPickup(type: string, x: number, y: number): Projectile | undefined {
+  private createProjectileForPickup(type: Infer<typeof PickupType>, x: number, y: number): Projectile | undefined {
     const angle = -Math.PI / 4;
     const velocityX = Math.cos(angle);
     const velocityY = Math.sin(angle);
 
-    switch (type) {
-      case "MissileLauncherPickup":
+    switch (type.tag) {
+      case "MissileLauncher":
         return new MissileProjectile(x, y, velocityX, velocityY, 0.3, 0);
-      case "RocketPickup":
+      case "Rocket":
         return new RocketProjectile(x, y, velocityX, velocityY, 0.2, 0);
-      case "GrenadePickup":
+      case "Grenade":
         return new GrenadeProjectile(x, y, velocityX, velocityY, 0.4, 0);
       default:
         return undefined;
@@ -51,7 +53,7 @@ export class PickupManager {
       .subscribe([`SELECT * FROM pickup WHERE WorldId = '${this.worldId}'`]);
 
     connection.db.pickup.onInsert((_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      const projectile = this.createProjectileForPickup(pickup.type.tag, pickup.positionX, pickup.positionY);
+      const projectile = this.createProjectileForPickup(pickup.type, pickup.positionX, pickup.positionY);
       
       this.pickups.set(pickup.id, {
         id: pickup.id,
@@ -73,11 +75,13 @@ export class PickupManager {
     const startTileY = Math.floor(cameraY / UNIT_TO_PIXEL);
     const endTileY = Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL);
 
+    const textureSheet = ProjectileTextureSheet.getInstance();
+
     for (const pickup of this.pickups.values()) {
       if (pickup.positionX >= startTileX && pickup.positionX <= endTileX &&
           pickup.positionY >= startTileY && pickup.positionY <= endTileY) {
         if (pickup.projectile) {
-          pickup.projectile.drawShadow(ctx);
+          pickup.projectile.drawShadow(ctx, textureSheet);
         } else {
           this.drawPickupShadow(ctx, pickup);
         }
@@ -88,7 +92,7 @@ export class PickupManager {
       if (pickup.positionX >= startTileX && pickup.positionX <= endTileX &&
           pickup.positionY >= startTileY && pickup.positionY <= endTileY) {
         if (pickup.projectile) {
-          pickup.projectile.drawBody(ctx);
+          pickup.projectile.drawBody(ctx, textureSheet);
         } else {
           this.drawPickup(ctx, pickup);
         }
@@ -100,13 +104,12 @@ export class PickupManager {
     const worldX = pickup.positionX * UNIT_TO_PIXEL;
     const worldY = pickup.positionY * UNIT_TO_PIXEL;
     const size = UNIT_TO_PIXEL * 0.6;
-    const centerX = worldX - 4;
-    const centerY = worldY + 4;
 
     ctx.save();
+    ctx.translate(worldX - 4, worldY + 4);
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
     ctx.beginPath();
-    ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+    ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
@@ -115,81 +118,28 @@ export class PickupManager {
     const worldX = pickup.positionX * UNIT_TO_PIXEL;
     const worldY = pickup.positionY * UNIT_TO_PIXEL;
     const size = UNIT_TO_PIXEL * 0.6;
-    const centerX = worldX;
-    const centerY = worldY;
 
     ctx.save();
+    ctx.translate(worldX, worldY);
 
-    switch (pickup.type.tag) {
-      case "TripleShooterPickup":
-        ctx.fillStyle = "#e39764";
-        ctx.strokeStyle = "#c06852";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+    ctx.fillStyle = "#96dc7f";
+    ctx.strokeStyle = "#6ec077";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
 
-        ctx.fillStyle = "#fcfbf3";
-        ctx.font = `bold ${size * 0.6}px monospace`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("3", centerX, centerY);
-        break;
-
-      case "BoomerangPickup":
-        ctx.fillStyle = "#c06852";
-        ctx.strokeStyle = "#9d4343";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = "#fcfbf3";
-        ctx.font = `bold ${size * 0.6}px monospace`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("B", centerX, centerY);
-        break;
-
-      case "MoagPickup":
-        ctx.fillStyle = "#794e6d";
-        ctx.strokeStyle = "#5b3a56";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = "#fcfbf3";
-        ctx.font = `bold ${size * 0.6}px monospace`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("X", centerX, centerY);
-        break;
-
-      case "HealthPickup":
-        ctx.fillStyle = "#96dc7f";
-        ctx.strokeStyle = "#6ec077";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.strokeStyle = "#fcfbf3";
-        ctx.lineWidth = 4;
-        ctx.lineCap = "round";
-        const crossSize = size * 0.4;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY - crossSize / 2);
-        ctx.lineTo(centerX, centerY + crossSize / 2);
-        ctx.moveTo(centerX - crossSize / 2, centerY);
-        ctx.lineTo(centerX + crossSize / 2, centerY);
-        ctx.stroke();
-        break;
-    }
+    ctx.strokeStyle = "#fcfbf3";
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    const crossSize = size * 0.4;
+    ctx.beginPath();
+    ctx.moveTo(0, -crossSize / 2);
+    ctx.lineTo(0, crossSize / 2);
+    ctx.moveTo(-crossSize / 2, 0);
+    ctx.lineTo(crossSize / 2, 0);
+    ctx.stroke();
 
     ctx.restore();
   }

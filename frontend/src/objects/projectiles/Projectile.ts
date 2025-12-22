@@ -28,24 +28,11 @@ export abstract class Projectile {
   }
 
   public draw(ctx: CanvasRenderingContext2D, textureSheet: any) {
-    this.drawShadow(ctx);
+    this.drawShadow(ctx, textureSheet);
     this.drawBody(ctx, textureSheet);
   }
 
-  public drawShadow(ctx: CanvasRenderingContext2D) {
-    ctx.save();
-    
-    const centerX = this.x * UNIT_TO_PIXEL;
-    const centerY = this.y * UNIT_TO_PIXEL;
-    const radius = this.size * UNIT_TO_PIXEL;
-    
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.beginPath();
-    ctx.arc(centerX - 4, centerY + 4, radius, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.restore();
-  }
+  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: any) {}
 
   public abstract drawBody(ctx: CanvasRenderingContext2D, textureSheet: any): void;
 
@@ -90,6 +77,24 @@ export abstract class Projectile {
 
   public getExplosionRadius(): number | undefined {
     return this.explosionRadius;
+  }
+
+  protected getScreenPosition(): { x: number; y: number } {
+    return {
+      x: this.x * UNIT_TO_PIXEL,
+      y: this.y * UNIT_TO_PIXEL
+    };
+  }
+
+  protected getShadowScreenPosition(): { x: number; y: number } {
+    return {
+      x: this.x * UNIT_TO_PIXEL - 4,
+      y: this.y * UNIT_TO_PIXEL + 4
+    };
+  }
+
+  protected getTextureKey(prefix: string): string {
+    return `${prefix}-${this.alliance === 0 ? 'red' : 'blue'}`;
   }
 
   public isExplosive(): boolean {

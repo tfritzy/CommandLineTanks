@@ -8,29 +8,29 @@ public static partial class PickupSpawner
 {
     public const int HEALTH_PICKUP_HEAL_AMOUNT = 50;
 
-    public static readonly TerrainDetailType[] PICKUP_TYPES = new TerrainDetailType[]
+    public static readonly PickupType[] PICKUP_TYPES = new PickupType[]
     {
-        TerrainDetailType.TripleShooterPickup,
-        TerrainDetailType.MissileLauncherPickup,
-        TerrainDetailType.HealthPickup,
-        TerrainDetailType.BoomerangPickup,
-        TerrainDetailType.GrenadePickup,
-        TerrainDetailType.RocketPickup,
-        TerrainDetailType.MoagPickup
+        PickupType.TripleShooter,
+        PickupType.MissileLauncher,
+        PickupType.Health,
+        PickupType.Boomerang,
+        PickupType.Grenade,
+        PickupType.Rocket,
+        PickupType.Moag
     };
 
-    public static readonly TerrainDetailType[] NON_HEALTH_PICKUP_TYPES = PICKUP_TYPES
-        .Where(t => t != TerrainDetailType.HealthPickup)
+    public static readonly PickupType[] NON_HEALTH_PICKUP_TYPES = PICKUP_TYPES
+        .Where(t => t != PickupType.Health)
         .ToArray();
 
-    private static readonly Dictionary<TerrainDetailType, Gun> PickupToGunMap = new Dictionary<TerrainDetailType, Gun>
+    private static readonly Dictionary<PickupType, Gun> PickupToGunMap = new Dictionary<PickupType, Gun>
     {
-        { TerrainDetailType.TripleShooterPickup, Module.TRIPLE_SHOOTER_GUN },
-        { TerrainDetailType.MissileLauncherPickup, Module.MISSILE_LAUNCHER_GUN },
-        { TerrainDetailType.BoomerangPickup, Module.BOOMERANG_GUN },
-        { TerrainDetailType.GrenadePickup, Module.GRENADE_GUN },
-        { TerrainDetailType.RocketPickup, Module.ROCKET_GUN },
-        { TerrainDetailType.MoagPickup, Module.MOAG_GUN }
+        { PickupType.TripleShooter, Module.TRIPLE_SHOOTER_GUN },
+        { PickupType.MissileLauncher, Module.MISSILE_LAUNCHER_GUN },
+        { PickupType.Boomerang, Module.BOOMERANG_GUN },
+        { PickupType.Grenade, Module.GRENADE_GUN },
+        { PickupType.Rocket, Module.ROCKET_GUN },
+        { PickupType.Moag, Module.MOAG_GUN }
     };
 
     [Table(Scheduled = nameof(SpawnPickup))]
@@ -98,7 +98,7 @@ public static partial class PickupSpawner
         Log.Info($"Initialized {spawnedCount} pickups for world {worldId}");
     }
 
-    public static bool TrySpawnPickup(ReducerContext ctx, string worldId, TraversibilityMap traversibilityMap)
+    public static bool TrySpawnPickup(ReducerContext ctx, string worldId, Module.TraversibilityMap traversibilityMap)
     {
         var (spawnX, spawnY) = GenerateNormalDistributedPosition(
             ctx.Rng,
@@ -128,10 +128,10 @@ public static partial class PickupSpawner
             return false;
         }
 
-        TerrainDetailType pickupType;
+        PickupType pickupType;
         if (ctx.Rng.NextDouble() < 0.33)
         {
-            pickupType = TerrainDetailType.HealthPickup;
+            pickupType = PickupType.Health;
         }
         else
         {
@@ -165,9 +165,9 @@ public static partial class PickupSpawner
         return (spawnX, spawnY);
     }
 
-    public static bool TryCollectPickup(ReducerContext ctx, ref Tank tank, ref bool needsUpdate, Module.Pickup pickup)
+    public static bool TryCollectPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup)
     {
-        if (pickup.Type == TerrainDetailType.HealthPickup)
+        if (pickup.Type == PickupType.Health)
         {
             return TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup);
         }
@@ -180,7 +180,7 @@ public static partial class PickupSpawner
         return false;
     }
 
-    private static bool TryCollectHealthPickup(ReducerContext ctx, ref Tank tank, ref bool needsUpdate, Module.Pickup pickup)
+    private static bool TryCollectHealthPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup)
     {
         int newHealth = Math.Min(tank.Health + HEALTH_PICKUP_HEAL_AMOUNT, tank.MaxHealth);
         if (newHealth > tank.Health)
@@ -193,7 +193,7 @@ public static partial class PickupSpawner
         return false;
     }
 
-    private static bool TryCollectGunPickup(ReducerContext ctx, ref Tank tank, ref bool needsUpdate, Module.Pickup pickup, Gun gunToAdd)
+    private static bool TryCollectGunPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup, Gun gunToAdd)
     {
         int existingGunIndex = -1;
         for (int i = 0; i < tank.Guns.Length; i++)

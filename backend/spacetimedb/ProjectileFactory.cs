@@ -19,7 +19,7 @@ public static partial class Module
             PositionX = startX,
             PositionY = startY,
             Speed = PROJECTILE_SPEED,
-            Size = PROJECTILE_SIZE,
+            Size = gun.ProjectileSize,
             Velocity = new Vector2Float(velocityX, velocityY),
             Damage = gun.Damage,
             TrackingStrength = gun.TrackingStrength,

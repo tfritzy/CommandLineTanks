@@ -9,7 +9,7 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import TerrainDetailType from "./terrain_detail_type_type";
+import PickupType from "./pickup_type_type";
 
 
 export default __t.row({
@@ -18,6 +18,6 @@ export default __t.row({
   positionX: __t.f32(),
   positionY: __t.f32(),
   get type() {
-    return TerrainDetailType;
+    return PickupType;
   },
 });

@@ -144,13 +144,13 @@ public static partial class Module
 
         var pickups = new[]
         {
-            TerrainDetailType.TripleShooterPickup,
-            TerrainDetailType.MissileLauncherPickup,
-            TerrainDetailType.HealthPickup,
-            TerrainDetailType.BoomerangPickup,
-            TerrainDetailType.GrenadePickup,
-            TerrainDetailType.RocketPickup,
-            TerrainDetailType.MoagPickup
+            PickupType.TripleShooter,
+            PickupType.MissileLauncher,
+            PickupType.Health,
+            PickupType.Boomerang,
+            PickupType.Grenade,
+            PickupType.Rocket,
+            PickupType.Moag
         };
 
         for (int i = 0; i < pickups.Length; i++)

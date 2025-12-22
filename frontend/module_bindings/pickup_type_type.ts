@@ -9,17 +9,17 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import PickupType from "./pickup_type_type";
 
-
-export default __t.object("Pickup", {
-  id: __t.string(),
-  worldId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  get type() {
-    return PickupType;
-  },
+// The tagged union or sum type for the algebraic type `PickupType`.
+const PickupType = __t.enum("PickupType", {TripleShooter: __t.unit(),
+  MissileLauncher: __t.unit(),
+  Health: __t.unit(),
+  Boomerang: __t.unit(),
+  Grenade: __t.unit(),
+  Rocket: __t.unit(),
+  Moag: __t.unit(),
 });
+
+export default PickupType;
 
 

@@ -8,10 +8,15 @@ export interface ProjectileTexture {
   height: number;
 }
 
+let globalInstance: ProjectileTextureSheet | null = null;
+
 export class ProjectileTextureSheet {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
+  private shadowCanvas: HTMLCanvasElement;
+  private shadowCtx: CanvasRenderingContext2D;
   private textures: Map<string, ProjectileTexture> = new Map();
+  private shadowTextures: Map<string, ProjectileTexture> = new Map();
 
   constructor() {
     this.canvas = document.createElement('canvas');
@@ -23,8 +28,25 @@ export class ProjectileTextureSheet {
       throw new Error("Failed to get 2D context for projectile texture sheet");
     }
     this.ctx = ctx;
+
+    this.shadowCanvas = document.createElement('canvas');
+    this.shadowCanvas.width = 1024;
+    this.shadowCanvas.height = 512;
+    
+    const shadowCtx = this.shadowCanvas.getContext('2d');
+    if (!shadowCtx) {
+      throw new Error("Failed to get 2D context for shadow texture sheet");
+    }
+    this.shadowCtx = shadowCtx;
     
     this.initializeTextures();
+  }
+
+  public static getInstance(): ProjectileTextureSheet {
+    if (!globalInstance) {
+      globalInstance = new ProjectileTextureSheet();
+    }
+    return globalInstance;
   }
 
   private initializeTextures() {
@@ -33,7 +55,7 @@ export class ProjectileTextureSheet {
     const padding = 4;
     const rowHeight = 80;
 
-    const textureSize = 1.0;
+    const textureSize = 0.5;
     const radius = textureSize * UNIT_TO_PIXEL;
 
     this.addNormalProjectile('normal-red', TEAM_COLORS.RED, currentX, currentY, radius);
@@ -76,58 +98,58 @@ export class ProjectileTextureSheet {
   }
 
   private addNormalProjectile(key: string, color: string, x: number, y: number, radius: number) {
-    const shadowOffsetX = 4;
-    const shadowOffsetY = 4;
-    const centerX = x + radius + shadowOffsetX + 2;
-    const centerY = y + radius + shadowOffsetY + 2;
+    const padding = 2;
+    const centerX = x + radius + padding;
+    const centerY = y + radius + padding;
+
+    this.shadowCtx.save();
+    this.shadowCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    this.shadowCtx.beginPath();
+    this.shadowCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    this.shadowCtx.fill();
+    this.shadowCtx.restore();
 
     this.ctx.save();
-    
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    this.ctx.fill();
-
     this.ctx.fillStyle = color;
     this.ctx.beginPath();
-    this.ctx.arc(centerX - shadowOffsetX, centerY - shadowOffsetY, radius, 0, Math.PI * 2);
+    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     this.ctx.fill();
     
     this.ctx.strokeStyle = '#000000';
     this.ctx.lineWidth = 1;
     this.ctx.stroke();
-    
     this.ctx.restore();
 
-    this.textures.set(key, {
+    const textureData = {
       x: x,
       y: y,
-      width: radius * 2 + shadowOffsetX + 4,
-      height: radius * 2 + shadowOffsetY + 4,
-    });
+      width: radius * 2 + padding * 2,
+      height: radius * 2 + padding * 2,
+    };
+    
+    this.textures.set(key, textureData);
+    this.shadowTextures.set(key, textureData);
   }
 
   private addBoomerangProjectile(key: string, color: string, x: number, y: number, radius: number) {
-    const shadowOffsetX = 4;
-    const shadowOffsetY = 4;
-    const centerX = x + radius * 2 + shadowOffsetX + 2;
-    const centerY = y + radius * 2 + shadowOffsetY + 2;
+    const padding = 2;
+    const centerX = x + radius * 2 + padding;
+    const centerY = y + radius * 2 + padding;
+
+    this.shadowCtx.save();
+    this.shadowCtx.translate(centerX, centerY);
+    this.shadowCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    this.shadowCtx.beginPath();
+    this.shadowCtx.moveTo(0, -radius * 2);
+    this.shadowCtx.lineTo(radius * 0.5, 0);
+    this.shadowCtx.lineTo(0, radius * 2);
+    this.shadowCtx.lineTo(-radius * 1.5, 0);
+    this.shadowCtx.closePath();
+    this.shadowCtx.fill();
+    this.shadowCtx.restore();
 
     this.ctx.save();
-    
     this.ctx.translate(centerX, centerY);
-    
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, -radius * 2);
-    this.ctx.lineTo(radius * 0.5, 0);
-    this.ctx.lineTo(0, radius * 2);
-    this.ctx.lineTo(-radius * 1.5, 0);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    this.ctx.translate(-shadowOffsetX, -shadowOffsetY);
-    
     this.ctx.fillStyle = color;
     this.ctx.strokeStyle = "#2e2e43";
     this.ctx.lineWidth = 1.5;
@@ -141,38 +163,50 @@ export class ProjectileTextureSheet {
     
     this.ctx.fill();
     this.ctx.stroke();
-    
     this.ctx.restore();
 
-    this.textures.set(key, {
+    const textureData = {
       x: x,
       y: y,
-      width: radius * 4 + shadowOffsetX + 4,
-      height: radius * 4 + shadowOffsetY + 4,
-    });
+      width: radius * 2.5 + padding * 2,
+      height: radius * 4 + padding * 2,
+    };
+    
+    this.textures.set(key, textureData);
+    this.shadowTextures.set(key, textureData);
   }
 
   private addGrenadeProjectile(key: string, color: string, x: number, y: number, radius: number) {
-    const shadowOffsetX = 4;
-    const shadowOffsetY = 4;
-    const centerX = x + radius + shadowOffsetX + 2;
-    const centerY = y + radius * 1.6 + shadowOffsetY + 2;
+    const padding = 2;
+    const centerX = x + radius + padding;
+    const centerY = y + radius * 1.6 + padding;
+    const pinWidth = radius * 0.3;
+    const pinHeight = radius * 0.4;
+    const pinY = centerY - radius * 1.1;
+    const ringRadius = radius * 0.25;
+
+    this.shadowCtx.save();
+    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    
+    this.shadowCtx.beginPath();
+    this.shadowCtx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
+    this.shadowCtx.fill();
+    
+    this.shadowCtx.fillRect(centerX - pinWidth / 2, pinY - pinHeight, pinWidth, pinHeight);
+    
+    this.shadowCtx.beginPath();
+    this.shadowCtx.arc(centerX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, Math.PI * 2);
+    this.shadowCtx.fill();
+    
+    this.shadowCtx.restore();
 
     this.ctx.save();
-    
-    this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    this.ctx.beginPath();
-    this.ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    const bodyCenterX = centerX - shadowOffsetX;
-    const bodyCenterY = centerY - shadowOffsetY;
 
     const shadowColor = color === TEAM_COLORS.RED ? "#813645" : "#3e4c7e";
     const highlightColor = color === TEAM_COLORS.RED ? "#e39764" : "#7396d5";
     
     this.ctx.beginPath();
-    this.ctx.ellipse(bodyCenterX, bodyCenterY, radius, radius * 1.1, 0, 0, Math.PI * 2);
+    this.ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
     this.ctx.clip();
     
     this.ctx.fillStyle = color;
@@ -180,12 +214,12 @@ export class ProjectileTextureSheet {
     
     this.ctx.fillStyle = shadowColor;
     this.ctx.beginPath();
-    this.ctx.arc(bodyCenterX - radius * 0.2, bodyCenterY + radius * 0.2, radius * 1.2, 0, Math.PI * 2);
+    this.ctx.arc(centerX - radius * 0.2, centerY + radius * 0.2, radius * 1.2, 0, Math.PI * 2);
     this.ctx.fill();
     
     this.ctx.fillStyle = highlightColor;
     this.ctx.beginPath();
-    this.ctx.arc(bodyCenterX + radius * 0.2, bodyCenterY - radius * 0.2, radius * 1.2, 0, Math.PI * 2);
+    this.ctx.arc(centerX + radius * 0.2, centerY - radius * 0.2, radius * 1.2, 0, Math.PI * 2);
     this.ctx.fill();
     
     this.ctx.restore();
@@ -194,118 +228,133 @@ export class ProjectileTextureSheet {
     this.ctx.strokeStyle = "#2e2e43";
     this.ctx.lineWidth = Math.max(1, radius * 0.15);
     this.ctx.beginPath();
-    this.ctx.ellipse(bodyCenterX, bodyCenterY, radius, radius * 1.1, 0, 0, Math.PI * 2);
+    this.ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
     this.ctx.stroke();
     
     this.ctx.beginPath();
-    this.ctx.moveTo(bodyCenterX - radius, bodyCenterY);
-    this.ctx.lineTo(bodyCenterX + radius, bodyCenterY);
+    this.ctx.moveTo(centerX - radius, centerY);
+    this.ctx.lineTo(centerX + radius, centerY);
     this.ctx.stroke();
-    
-    const pinWidth = radius * 0.3;
-    const pinHeight = radius * 0.4;
-    const pinY = bodyCenterY - radius * 1.1;
     
     this.ctx.fillStyle = "#2e2e43";
-    this.ctx.fillRect(bodyCenterX - pinWidth / 2, pinY - pinHeight, pinWidth, pinHeight);
+    this.ctx.fillRect(centerX - pinWidth / 2, pinY - pinHeight, pinWidth, pinHeight);
     
     this.ctx.fillStyle = "#707b89";
-    const ringRadius = radius * 0.25;
     this.ctx.beginPath();
-    this.ctx.arc(bodyCenterX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, Math.PI * 2);
+    this.ctx.arc(centerX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, Math.PI * 2);
     this.ctx.fill();
     
     this.ctx.strokeStyle = "#2e2e43";
     this.ctx.lineWidth = Math.max(0.5, radius * 0.1);
     this.ctx.beginPath();
-    this.ctx.arc(bodyCenterX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, Math.PI * 2);
+    this.ctx.arc(centerX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, Math.PI * 2);
     this.ctx.stroke();
     
     this.ctx.restore();
 
-    this.textures.set(key, {
+    const textureData = {
       x: x,
       y: y,
-      width: radius * 2 + shadowOffsetX + 4,
-      height: radius * 2.2 + shadowOffsetY + 4,
-    });
+      width: radius * 2 + padding * 2,
+      height: radius * 2.6 + padding * 2,
+    };
+    
+    this.textures.set(key, textureData);
+    this.shadowTextures.set(key, textureData);
   }
 
   private addMoagProjectile(key: string, color: string, x: number, y: number, radius: number) {
-    const shadowOffsetX = 4;
-    const shadowOffsetY = 4;
-    const centerX = x + radius + shadowOffsetX + 2;
-    const centerY = y + radius + shadowOffsetY + 2;
+    const padding = 2;
+    const centerX = x + radius + padding;
+    const centerY = y + radius + padding;
+
+    this.shadowCtx.save();
+    this.shadowCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    this.shadowCtx.beginPath();
+    this.shadowCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    this.shadowCtx.fill();
+    
+    this.shadowCtx.lineWidth = 2;
+    this.shadowCtx.beginPath();
+    this.shadowCtx.moveTo(centerX, centerY - radius);
+    this.shadowCtx.quadraticCurveTo(centerX + radius * 0.5, centerY - radius * 1.5, centerX + radius, centerY - radius * 1.2);
+    this.shadowCtx.stroke();
+    
+    this.shadowCtx.beginPath();
+    this.shadowCtx.arc(centerX + radius, centerY - radius * 1.2, 3, 0, Math.PI * 2);
+    this.shadowCtx.fill();
+    
+    this.shadowCtx.restore();
 
     this.ctx.save();
-    
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    const bodyCenterX = centerX - shadowOffsetX;
-    const bodyCenterY = centerY - shadowOffsetY;
-    
     this.ctx.fillStyle = color;
     this.ctx.beginPath();
-    this.ctx.arc(bodyCenterX, bodyCenterY, radius, 0, Math.PI * 2);
+    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     this.ctx.fill();
     
     const highlightColor = color === TEAM_COLORS.RED ? "#c06852" : "#5a78b2";
     this.ctx.fillStyle = highlightColor;
     this.ctx.beginPath();
-    this.ctx.arc(bodyCenterX - radius * 0.3, bodyCenterY - radius * 0.3, radius * 0.4, 0, Math.PI * 2);
+    this.ctx.arc(centerX - radius * 0.3, centerY - radius * 0.3, radius * 0.4, 0, Math.PI * 2);
     this.ctx.fill();
     
     this.ctx.strokeStyle = "#e39764";
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
-    this.ctx.moveTo(bodyCenterX, bodyCenterY - radius);
-    this.ctx.quadraticCurveTo(bodyCenterX + radius * 0.5, bodyCenterY - radius * 1.5, bodyCenterX + radius, bodyCenterY - radius * 1.2);
+    this.ctx.moveTo(centerX, centerY - radius);
+    this.ctx.quadraticCurveTo(centerX + radius * 0.5, centerY - radius * 1.5, centerX + radius, centerY - radius * 1.2);
     this.ctx.stroke();
     
     this.ctx.fillStyle = "#fceba8";
     this.ctx.beginPath();
-    this.ctx.arc(bodyCenterX + radius, bodyCenterY - radius * 1.2, 3, 0, Math.PI * 2);
+    this.ctx.arc(centerX + radius, centerY - radius * 1.2, 3, 0, Math.PI * 2);
     this.ctx.fill();
     
     this.ctx.strokeStyle = "#000000";
     this.ctx.lineWidth = 1;
     this.ctx.beginPath();
-    this.ctx.arc(bodyCenterX, bodyCenterY, radius, 0, Math.PI * 2);
+    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     this.ctx.stroke();
-    
     this.ctx.restore();
 
-    this.textures.set(key, {
+    const textureData = {
       x: x,
       y: y,
-      width: radius * 2 + shadowOffsetX + 4,
-      height: radius * 2 + shadowOffsetY + 4,
-    });
+      width: radius * 2 + padding * 2,
+      height: radius * 2.5 + padding * 2,
+    };
+    
+    this.textures.set(key, textureData);
+    this.shadowTextures.set(key, textureData);
   }
 
   private addRocketProjectile(key: string, color: string, x: number, y: number, radius: number) {
-    const shadowOffsetX = 4;
-    const shadowOffsetY = 4;
-    const centerX = x + radius * 3 + shadowOffsetX + 2;
-    const centerY = y + radius * 1.2 + shadowOffsetY + 2;
+    const padding = 2;
+    const flameLength = radius * 1.5;
+    const centerX = x + radius * 3 + flameLength + padding;
+    const centerY = y + radius * 1.2 + padding;
+
+    this.shadowCtx.save();
+    this.shadowCtx.translate(centerX, centerY);
+    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    this.shadowCtx.beginPath();
+    this.shadowCtx.ellipse(0, 0, radius * 3, radius * 1.2, 0, -Math.PI / 2, Math.PI / 2);
+    this.shadowCtx.lineTo(0, radius * 1.2);
+    this.shadowCtx.lineTo(0, -radius * 1.2);
+    this.shadowCtx.closePath();
+    this.shadowCtx.fill();
+    this.shadowCtx.restore();
 
     this.ctx.save();
-    
     this.ctx.translate(centerX, centerY);
-    
-    this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+
+    this.ctx.fillStyle = "#f5c47c";
     this.ctx.beginPath();
-    this.ctx.ellipse(0, 0, radius * 3, radius * 1.2, 0, -Math.PI / 2, Math.PI / 2);
-    this.ctx.lineTo(0, radius * 1.2);
-    this.ctx.lineTo(0, -radius * 1.2);
-    this.ctx.closePath();
+    this.ctx.moveTo(0, -radius * 0.6);
+    this.ctx.lineTo(-flameLength, 0);
+    this.ctx.lineTo(0, radius * 0.6);
     this.ctx.fill();
 
-    this.ctx.translate(-shadowOffsetX, -shadowOffsetY);
-    
     this.ctx.fillStyle = color;
     this.ctx.beginPath();
     this.ctx.ellipse(0, 0, radius * 3, radius * 1.2, 0, -Math.PI / 2, Math.PI / 2);
@@ -313,38 +362,39 @@ export class ProjectileTextureSheet {
     this.ctx.lineTo(0, -radius * 1.2);
     this.ctx.closePath();
     this.ctx.fill();
-    
     this.ctx.restore();
 
-    this.textures.set(key, {
+    const textureData = {
       x: x,
       y: y,
-      width: radius * 6 + shadowOffsetX + 4,
-      height: radius * 2.4 + shadowOffsetY + 4,
-    });
+      width: flameLength + radius * 6 + padding * 2,
+      height: radius * 2.4 + padding * 2,
+    };
+    
+    this.textures.set(key, textureData);
+    this.shadowTextures.set(key, textureData);
   }
 
   private addMissileProjectile(key: string, color: string, x: number, y: number, radius: number) {
-    const shadowOffsetX = 4;
-    const shadowOffsetY = 4;
-    const centerX = x + radius * 2 + shadowOffsetX + 2;
-    const centerY = y + radius + shadowOffsetY + 2;
+    const padding = 2;
+    const flameLength = radius * 1.0;
+    const centerX = x + flameLength + padding;
+    const centerY = y + radius + padding;
+
+    this.shadowCtx.save();
+    this.shadowCtx.translate(centerX, centerY);
+    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    this.shadowCtx.beginPath();
+    this.shadowCtx.moveTo(radius * 2, 0);
+    this.shadowCtx.lineTo(0, -radius * 0.8);
+    this.shadowCtx.lineTo(0, radius * 0.8);
+    this.shadowCtx.closePath();
+    this.shadowCtx.fill();
+    this.shadowCtx.restore();
 
     this.ctx.save();
-    
     this.ctx.translate(centerX, centerY);
-    
-    this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    this.ctx.beginPath();
-    this.ctx.moveTo(radius * 2, 0);
-    this.ctx.lineTo(0, -radius * 0.8);
-    this.ctx.lineTo(0, radius * 0.8);
-    this.ctx.closePath();
-    this.ctx.fill();
 
-    this.ctx.translate(-shadowOffsetX, -shadowOffsetY);
-
-    const flameLength = radius * 1.5;
     this.ctx.fillStyle = "#f5c47c";
     this.ctx.beginPath();
     this.ctx.moveTo(0, -radius * 0.4);
@@ -359,15 +409,17 @@ export class ProjectileTextureSheet {
     this.ctx.lineTo(0, radius * 0.8);
     this.ctx.closePath();
     this.ctx.fill();
-    
     this.ctx.restore();
 
-    this.textures.set(key, {
+    const textureData = {
       x: x,
       y: y,
-      width: radius * 4 + shadowOffsetX + 4,
-      height: radius * 2 + shadowOffsetY + 4,
-    });
+      width: flameLength + radius * 2 + padding * 2,
+      height: radius * 1.6 + padding * 2,
+    };
+    
+    this.textures.set(key, textureData);
+    this.shadowTextures.set(key, textureData);
   }
 
   public getTexture(key: string): ProjectileTexture | undefined {
@@ -397,6 +449,42 @@ export class ProjectileTextureSheet {
 
     ctx.drawImage(
       this.canvas,
+      texture.x,
+      texture.y,
+      texture.width,
+      texture.height,
+      -texture.width / 2,
+      -texture.height / 2,
+      texture.width,
+      texture.height
+    );
+
+    ctx.restore();
+  }
+
+  public drawShadow(
+    ctx: CanvasRenderingContext2D,
+    key: string,
+    x: number,
+    y: number,
+    scale: number = 1.0,
+    rotation: number = 0
+  ) {
+    const texture = this.shadowTextures.get(key);
+    if (!texture) return;
+
+    ctx.save();
+
+    ctx.translate(x, y);
+    if (rotation !== 0) {
+      ctx.rotate(rotation);
+    }
+    if (scale !== 1.0) {
+      ctx.scale(scale, scale);
+    }
+
+    ctx.drawImage(
+      this.shadowCanvas,
       texture.x,
       texture.y,
       texture.width,

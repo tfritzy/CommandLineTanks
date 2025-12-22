@@ -5,7 +5,6 @@ public static partial class Module
 {
     public const long NETWORK_TICK_RATE_MICROS = 1_000_000 / 16;
     public const float PROJECTILE_SPEED = 7.0f;
-    public const float PROJECTILE_SIZE = 0.1f;
     public const float GUN_BARREL_LENGTH = 0.4f;
     public const int TANK_HEALTH = 100;
     public const float TANK_COLLISION_RADIUS = 0.5f;
@@ -31,7 +30,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null
+        BounceDamping = null,
+        ProjectileSize = .1f,
     };
 
     public static readonly Gun TRIPLE_SHOOTER_GUN = new Gun
@@ -49,7 +49,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null
+        BounceDamping = null,
+        ProjectileSize = .1f,
     };
 
     public static readonly Gun MISSILE_LAUNCHER_GUN = new Gun
@@ -67,7 +68,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null
+        BounceDamping = null,
+        ProjectileSize = .2f,
     };
 
     public static readonly Gun BOOMERANG_GUN = new Gun
@@ -85,7 +87,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null
+        BounceDamping = null,
+        ProjectileSize = .3f,
     };
 
     public static readonly Gun GRENADE_GUN = new Gun
@@ -103,7 +106,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = 1.5f,
         ExplosionTrigger = ExplosionTrigger.OnExpiration,
-        BounceDamping = 0.7f
+        BounceDamping = 0.7f,
+        ProjectileSize = .3f,
     };
 
     public static readonly Gun ROCKET_GUN = new Gun
@@ -121,7 +125,8 @@ public static partial class Module
         CollisionRadius = 0.1f,
         ExplosionRadius = 1.5f,
         ExplosionTrigger = ExplosionTrigger.OnHit,
-        BounceDamping = null
+        BounceDamping = null,
+        ProjectileSize = .2f,
     };
 
     public static readonly Gun MOAG_GUN = new Gun
@@ -139,6 +144,7 @@ public static partial class Module
         CollisionRadius = 2.5f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
-        BounceDamping = null
+        BounceDamping = null,
+        ProjectileSize = 2.5f,
     };
 }

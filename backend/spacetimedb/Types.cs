@@ -52,18 +52,23 @@ public static partial class Types
         Tree,
         HayBale,
         Label,
-        TripleShooterPickup,
-        MissileLauncherPickup,
-        HealthPickup,
-        BoomerangPickup,
-        GrenadePickup,
-        RocketPickup,
-        MoagPickup,
         FoundationEdge,
         FoundationCorner,
         FenceEdge,
         FenceCorner,
         TargetDummy
+    }
+
+    [Type]
+    public enum PickupType : byte
+    {
+        TripleShooter,
+        MissileLauncher,
+        Health,
+        Boomerang,
+        Grenade,
+        Rocket,
+        Moag
     }
 
     [Type]
@@ -121,5 +126,6 @@ public static partial class Types
         public float? ExplosionRadius;
         public ExplosionTrigger ExplosionTrigger;
         public float? BounceDamping;
+        public float ProjectileSize;
     }
 }

@@ -1,5 +1,4 @@
 import { Projectile } from "./Projectile";
-import { UNIT_TO_PIXEL } from "../../game";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
 import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
 
@@ -73,11 +72,16 @@ export function drawGrenade(ctx: CanvasRenderingContext2D, centerX: number, cent
 }
 
 export class GrenadeProjectile extends Projectile {
+  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+    const { x: centerX, y: centerY } = this.getShadowScreenPosition();
+    const key = this.getTextureKey('grenade');
+    textureSheet.drawShadow(ctx, key, centerX, centerY, this.size);
+  }
+
   public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
-    const centerX = this.x * UNIT_TO_PIXEL;
-    const centerY = this.y * UNIT_TO_PIXEL;
-    const key = this.alliance === 0 ? 'grenade-red' : 'grenade-blue';
-    textureSheet.drawProjectile(ctx, key, centerX, centerY);
+    const { x: centerX, y: centerY } = this.getScreenPosition();
+    const key = this.getTextureKey('grenade');
+    textureSheet.drawProjectile(ctx, key, centerX, centerY, this.size);
   }
 
   public isExplosive(): boolean {

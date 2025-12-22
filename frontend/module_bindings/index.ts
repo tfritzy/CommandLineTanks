@@ -119,6 +119,8 @@ import PathEntry from "./path_entry_type";
 export { PathEntry };
 import Pickup from "./pickup_type";
 export { Pickup };
+import PickupType from "./pickup_type_type";
+export { PickupType };
 import Player from "./player_type";
 export { Player };
 import Projectile from "./projectile_type";

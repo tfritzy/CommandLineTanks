@@ -1,15 +1,19 @@
 import { Projectile } from "./Projectile";
-import { UNIT_TO_PIXEL } from "../../game";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
 import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
 import { TEAM_COLORS } from "../../constants";
 
 export class NormalProjectile extends Projectile {
+  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+    const { x: centerX, y: centerY } = this.getShadowScreenPosition();
+    const key = this.getTextureKey('normal');
+    textureSheet.drawShadow(ctx, key, centerX, centerY, this.size);
+  }
+
   public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
-    const centerX = this.x * UNIT_TO_PIXEL;
-    const centerY = this.y * UNIT_TO_PIXEL;
-    const key = this.alliance === 0 ? 'normal-red' : 'normal-blue';
-    textureSheet.drawProjectile(ctx, key, centerX, centerY);
+    const { x: centerX, y: centerY } = this.getScreenPosition();
+    const key = this.getTextureKey('normal');
+    textureSheet.drawProjectile(ctx, key, centerX, centerY, this.size);
   }
 
   public spawnDeathParticles(particlesManager: ProjectileImpactParticlesManager): void {

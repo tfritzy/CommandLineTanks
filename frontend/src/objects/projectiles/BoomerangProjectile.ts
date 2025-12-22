@@ -1,5 +1,4 @@
 import { Projectile } from "./Projectile";
-import { UNIT_TO_PIXEL } from "../../game";
 import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
 
 export class BoomerangProjectile extends Projectile {
@@ -11,9 +10,8 @@ export class BoomerangProjectile extends Projectile {
   }
 
   public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
-    const centerX = this.x * UNIT_TO_PIXEL;
-    const centerY = this.y * UNIT_TO_PIXEL;
-    const key = this.alliance === 0 ? 'boomerang-red' : 'boomerang-blue';
-    textureSheet.drawProjectile(ctx, key, centerX, centerY, 1.0, this.rotation);
+    const { x: centerX, y: centerY } = this.getScreenPosition();
+    const key = this.getTextureKey('boomerang');
+    textureSheet.drawProjectile(ctx, key, centerX, centerY, this.size, this.rotation);
   }
 }

@@ -35,6 +35,7 @@ export default __t.object("Gun", {
     return ExplosionTrigger;
   },
   bounceDamping: __t.option(__t.f32()),
+  projectileSize: __t.f32(),
 });
 
 

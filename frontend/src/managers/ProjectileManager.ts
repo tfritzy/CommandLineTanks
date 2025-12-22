@@ -2,17 +2,16 @@ import { Projectile, ProjectileFactory } from "../objects/projectiles";
 import { getConnection } from "../spacetimedb-connection";
 import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
 import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
+import { UNIT_TO_PIXEL } from "../game";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
   private worldId: string;
   private particlesManager: ProjectileImpactParticlesManager;
-  private textureSheet: ProjectileTextureSheet;
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.particlesManager = new ProjectileImpactParticlesManager();
-    this.textureSheet = new ProjectileTextureSheet();
     this.subscribeToProjectiles();
   }
 
@@ -63,15 +62,48 @@ export class ProjectileManager {
     this.particlesManager.update(deltaTime);
   }
 
-  public drawShadows(ctx: CanvasRenderingContext2D) {
+  private isOutOfBounds(x: number, y: number, size: number, cameraWorldX: number, cameraWorldY: number, viewportWorldWidth: number, viewportWorldHeight: number): boolean {
+    return x + size < cameraWorldX || x - size > cameraWorldX + viewportWorldWidth ||
+           y + size < cameraWorldY || y - size > cameraWorldY + viewportWorldHeight;
+  }
+
+  public drawShadows(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
+    const textureSheet = ProjectileTextureSheet.getInstance();
+    const cameraWorldX = cameraX / UNIT_TO_PIXEL;
+    const cameraWorldY = cameraY / UNIT_TO_PIXEL;
+    const viewportWorldWidth = viewportWidth / UNIT_TO_PIXEL;
+    const viewportWorldHeight = viewportHeight / UNIT_TO_PIXEL;
+    
     for (const projectile of this.projectiles.values()) {
-      projectile.drawShadow(ctx);
+      const x = projectile.getX();
+      const y = projectile.getY();
+      const size = projectile.getSize();
+      
+      if (this.isOutOfBounds(x, y, size, cameraWorldX, cameraWorldY, viewportWorldWidth, viewportWorldHeight)) {
+        continue;
+      }
+      
+      projectile.drawShadow(ctx, textureSheet);
     }
   }
 
   public drawBodies(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
+    const textureSheet = ProjectileTextureSheet.getInstance();
+    const cameraWorldX = cameraX / UNIT_TO_PIXEL;
+    const cameraWorldY = cameraY / UNIT_TO_PIXEL;
+    const viewportWorldWidth = viewportWidth / UNIT_TO_PIXEL;
+    const viewportWorldHeight = viewportHeight / UNIT_TO_PIXEL;
+    
     for (const projectile of this.projectiles.values()) {
-      projectile.drawBody(ctx, this.textureSheet);
+      const x = projectile.getX();
+      const y = projectile.getY();
+      const size = projectile.getSize();
+      
+      if (this.isOutOfBounds(x, y, size, cameraWorldX, cameraWorldY, viewportWorldWidth, viewportWorldHeight)) {
+        continue;
+      }
+      
+      projectile.drawBody(ctx, textureSheet);
     }
     this.particlesManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
   }

@@ -166,7 +166,7 @@ public static class BehaviorTreeLogic
         var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
         if (distance >= 15f) return false;
 
-        if (pickup.Type == TerrainDetailType.HealthPickup)
+        if (pickup.Type == PickupType.Health)
         {
             return tank.Health < tank.MaxHealth;
         }
@@ -235,7 +235,7 @@ public static class BehaviorTreeLogic
         Module.Pickup? nearest = null;
         float minDistance = float.MaxValue;
 
-        foreach (var pickup in allPickups.Where(p => p.WorldId == tank.WorldId && p.Type == TerrainDetailType.HealthPickup))
+        foreach (var pickup in allPickups.Where(p => p.WorldId == tank.WorldId && p.Type == PickupType.Health))
         {
             var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
             if (distance < minDistance)

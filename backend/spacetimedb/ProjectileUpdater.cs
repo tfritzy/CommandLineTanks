@@ -311,6 +311,7 @@ public static partial class ProjectileUpdater
         bool bounceX = prevTileX != projectileTileX;
         bool bounceY = prevTileY != projectileTileY;
 
+        float bounceDamping = projectile.BounceDamping ?? 0.8f;
         float newVelX = projectile.Velocity.X;
         float newVelY = projectile.Velocity.Y;
         float newPosX = projectile.PositionX;
@@ -318,12 +319,12 @@ public static partial class ProjectileUpdater
 
         if (bounceX)
         {
-            newVelX = -projectile.Velocity.X * projectile.BounceDamping.Value;
+            newVelX = -projectile.Velocity.X * bounceDamping;
             newPosX = previousX;
         }
         if (bounceY)
         {
-            newVelY = -projectile.Velocity.Y * projectile.BounceDamping.Value;
+            newVelY = -projectile.Velocity.Y * bounceDamping;
             newPosY = previousY;
         }
 
