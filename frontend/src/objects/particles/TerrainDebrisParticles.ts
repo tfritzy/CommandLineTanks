@@ -22,7 +22,7 @@ export class TerrainDebrisParticles {
         x, y,
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
-        size: 0.03 + Math.random() * .04,
+        size: 0.03 + Math.random() * 0.04,
         lifetime: 0,
         maxLifetime: 0.3 + Math.random() * 0.3,
         color: fenceColors[Math.floor(Math.random() * fenceColors.length)]
