@@ -23,12 +23,9 @@ public static partial class Module
 
         if (gun.Ammo != null && gun.Ammo <= 0) return false;
 
-        float barrelTipX = tank.PositionX + (float)Math.Cos(tank.TurretRotation) * GUN_BARREL_LENGTH;
-        float barrelTipY = tank.PositionY + (float)Math.Sin(tank.TurretRotation) * GUN_BARREL_LENGTH;
-
         if (gun.ProjectileCount == 1)
         {
-            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, tank.TurretRotation, gun);
+            CreateProjectile(ctx, tank, tank.PositionX, tank.PositionY, tank.TurretRotation, gun);
         }
         else
         {
@@ -36,7 +33,7 @@ public static partial class Module
             for (int i = 0; i < gun.ProjectileCount; i++)
             {
                 float angle = tank.TurretRotation - halfSpread + (i * gun.SpreadAngle);
-                CreateProjectile(ctx, tank, barrelTipX, barrelTipY, angle, gun);
+                CreateProjectile(ctx, tank, tank.PositionX, tank.PositionY, angle, gun);
             }
         }
 

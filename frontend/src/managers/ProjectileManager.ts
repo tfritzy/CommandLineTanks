@@ -22,27 +22,36 @@ export class ProjectileManager {
     connection
       .subscriptionBuilder()
       .onError((e) => console.log("Projectile subscription error", e))
-      .subscribe([`SELECT * FROM projectile WHERE WorldId = '${this.worldId}'`]);
-
-    connection.db.projectile.onInsert((_ctx, projectile) => {
-      const newProjectile = ProjectileFactory.create(
-        projectile.projectileType.tag,
-        projectile.positionX,
-        projectile.positionY,
-        projectile.velocity.x,
-        projectile.velocity.y,
-        projectile.size,
-        projectile.alliance,
-        projectile.explosionRadius
-      );
-      this.projectiles.set(projectile.id, newProjectile);
-    });
+      .subscribe([
+        `SELECT * FROM projectile WHERE WorldId = '${this.worldId}'`,
+      ]);
 
     connection.db.projectile.onUpdate((_ctx, _oldProjectile, newProjectile) => {
-      const projectile = this.projectiles.get(newProjectile.id);
+      console.log(_oldProjectile, newProjectile);
+      let projectile = this.projectiles.get(newProjectile.id);
+      if (!projectile) {
+        projectile = ProjectileFactory.create(
+          newProjectile.projectileType.tag,
+          newProjectile.positionX,
+          newProjectile.positionY,
+          newProjectile.velocity.x,
+          newProjectile.velocity.y,
+          newProjectile.size,
+          newProjectile.alliance,
+          newProjectile.explosionRadius
+        );
+        this.projectiles.set(newProjectile.id, projectile);
+      }
+
       if (projectile) {
-        projectile.setPosition(newProjectile.positionX, newProjectile.positionY);
-        projectile.setVelocity(newProjectile.velocity.x, newProjectile.velocity.y);
+        projectile.setPosition(
+          newProjectile.positionX,
+          newProjectile.positionY
+        );
+        projectile.setVelocity(
+          newProjectile.velocity.x,
+          newProjectile.velocity.y
+        );
       }
     });
 
@@ -62,50 +71,100 @@ export class ProjectileManager {
     this.particlesManager.update(deltaTime);
   }
 
-  private isOutOfBounds(x: number, y: number, size: number, cameraWorldX: number, cameraWorldY: number, viewportWorldWidth: number, viewportWorldHeight: number): boolean {
-    return x + size < cameraWorldX || x - size > cameraWorldX + viewportWorldWidth ||
-           y + size < cameraWorldY || y - size > cameraWorldY + viewportWorldHeight;
+  private isOutOfBounds(
+    x: number,
+    y: number,
+    size: number,
+    cameraWorldX: number,
+    cameraWorldY: number,
+    viewportWorldWidth: number,
+    viewportWorldHeight: number
+  ): boolean {
+    return (
+      x + size < cameraWorldX ||
+      x - size > cameraWorldX + viewportWorldWidth ||
+      y + size < cameraWorldY ||
+      y - size > cameraWorldY + viewportWorldHeight
+    );
   }
 
-  public drawShadows(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
+  public drawShadows(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
     const textureSheet = ProjectileTextureSheet.getInstance();
     const cameraWorldX = cameraX / UNIT_TO_PIXEL;
     const cameraWorldY = cameraY / UNIT_TO_PIXEL;
     const viewportWorldWidth = viewportWidth / UNIT_TO_PIXEL;
     const viewportWorldHeight = viewportHeight / UNIT_TO_PIXEL;
-    
+
     for (const projectile of this.projectiles.values()) {
       const x = projectile.getX();
       const y = projectile.getY();
       const size = projectile.getSize();
-      
-      if (this.isOutOfBounds(x, y, size, cameraWorldX, cameraWorldY, viewportWorldWidth, viewportWorldHeight)) {
+
+      if (
+        this.isOutOfBounds(
+          x,
+          y,
+          size,
+          cameraWorldX,
+          cameraWorldY,
+          viewportWorldWidth,
+          viewportWorldHeight
+        )
+      ) {
         continue;
       }
-      
+
       projectile.drawShadow(ctx, textureSheet);
     }
   }
 
-  public drawBodies(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
+  public drawBodies(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
     const textureSheet = ProjectileTextureSheet.getInstance();
     const cameraWorldX = cameraX / UNIT_TO_PIXEL;
     const cameraWorldY = cameraY / UNIT_TO_PIXEL;
     const viewportWorldWidth = viewportWidth / UNIT_TO_PIXEL;
     const viewportWorldHeight = viewportHeight / UNIT_TO_PIXEL;
-    
+
     for (const projectile of this.projectiles.values()) {
       const x = projectile.getX();
       const y = projectile.getY();
       const size = projectile.getSize();
-      
-      if (this.isOutOfBounds(x, y, size, cameraWorldX, cameraWorldY, viewportWorldWidth, viewportWorldHeight)) {
+
+      if (
+        this.isOutOfBounds(
+          x,
+          y,
+          size,
+          cameraWorldX,
+          cameraWorldY,
+          viewportWorldWidth,
+          viewportWorldHeight
+        )
+      ) {
         continue;
       }
-      
+
       projectile.drawBody(ctx, textureSheet);
     }
-    this.particlesManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+    this.particlesManager.draw(
+      ctx,
+      cameraX,
+      cameraY,
+      viewportWidth,
+      viewportHeight
+    );
   }
 
   public getAllProjectiles(): IterableIterator<Projectile> {
