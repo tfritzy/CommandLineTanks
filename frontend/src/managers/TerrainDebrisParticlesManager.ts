@@ -11,13 +11,12 @@ export class TerrainDebrisParticlesManager {
   }
 
   public update(deltaTime: number): void {
-    for (const system of this.particleSystems) {
-      system.update(deltaTime);
+    for (let i = this.particleSystems.length - 1; i >= 0; i--) {
+      this.particleSystems[i].update(deltaTime);
+      if (this.particleSystems[i].getIsDead()) {
+        this.particleSystems.splice(i, 1);
+      }
     }
-
-    this.particleSystems = this.particleSystems.filter(
-      (system) => !system.getIsDead()
-    );
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
