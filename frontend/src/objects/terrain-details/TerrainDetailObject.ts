@@ -53,7 +53,7 @@ export abstract class TerrainDetailObject {
 
   public abstract drawBody(ctx: CanvasRenderingContext2D): void;
 
-  protected drawLabel(ctx: CanvasRenderingContext2D): void {
+  public drawLabel(ctx: CanvasRenderingContext2D): void {
     if (!this.label) return;
 
     ctx.save();
@@ -86,6 +86,10 @@ export abstract class TerrainDetailObject {
 
   public getFlashTimer(): number {
     return this.flashTimer;
+  }
+
+  public getSizeScale(): number {
+    return 1.0;
   }
 
   protected getWorldX(): number {

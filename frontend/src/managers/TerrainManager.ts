@@ -11,8 +11,8 @@ import { FoundationCorner } from "../objects/terrain-details/FoundationCorner";
 import { FenceEdge } from "../objects/terrain-details/FenceEdge";
 import { FenceCorner } from "../objects/terrain-details/FenceCorner";
 import { TargetDummy } from "../objects/terrain-details/TargetDummy";
-import { UNIT_TO_PIXEL } from "../game";
 import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
+import { TerrainDetailTextureSheet } from "./TerrainDetailTextureSheet";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -23,16 +23,12 @@ export class TerrainManager {
   private worldId: string;
   private detailObjects: Map<string, TerrainDetailObject> = new Map();
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
-  private detailAtlasCanvas: HTMLCanvasElement | null = null;
-  private detailAtlasCtx: CanvasRenderingContext2D | null = null;
-  private detailAtlasLogicalWidth: number = 0;
-  private detailAtlasLogicalHeight: number = 0;
-  private detailAtlasNeedsUpdate: boolean = true;
-  private atlasInitialized: boolean = false;
   private terrainDebrisParticles: TerrainDebrisParticlesManager = new TerrainDebrisParticlesManager();
+  private textureSheet: TerrainDetailTextureSheet;
 
   constructor(worldId: string) {
     this.worldId = worldId;
+    this.textureSheet = TerrainDetailTextureSheet.getInstance();
     this.subscribeToWorld();
     this.subscribeToTerrainDetails();
   }
@@ -68,52 +64,6 @@ export class TerrainManager {
     for (let y = 0; y < this.worldHeight; y++) {
       this.detailObjectsByPosition[y] = new Array(this.worldWidth).fill(null);
     }
-    this.initializeAtlasCanvases();
-  }
-
-  private initializeAtlasCanvases() {
-    if (this.worldWidth === 0 || this.worldHeight === 0) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const atlasWidth = (this.worldWidth + 2) * UNIT_TO_PIXEL;
-    const atlasHeight = (this.worldHeight + 2) * UNIT_TO_PIXEL;
-
-    this.detailAtlasLogicalWidth = atlasWidth;
-    this.detailAtlasLogicalHeight = atlasHeight;
-
-    this.detailAtlasCanvas = document.createElement('canvas');
-    this.detailAtlasCanvas.width = atlasWidth * dpr;
-    this.detailAtlasCanvas.height = atlasHeight * dpr;
-    this.detailAtlasCtx = this.detailAtlasCanvas.getContext('2d');
-
-    if (this.detailAtlasCtx) {
-      this.detailAtlasCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-
-    this.detailAtlasNeedsUpdate = true;
-  }
-
-  private updateDetailAtlas() {
-    if (!this.detailAtlasCtx) return;
-    if (!this.detailAtlasNeedsUpdate) return;
-
-    this.detailAtlasCtx.clearRect(0, 0, this.detailAtlasLogicalWidth, this.detailAtlasLogicalHeight);
-
-    this.detailAtlasCtx.save();
-    this.detailAtlasCtx.translate(UNIT_TO_PIXEL, UNIT_TO_PIXEL);
-
-    for (const obj of this.detailObjects.values()) {
-      obj.drawShadow(this.detailAtlasCtx);
-    }
-
-    for (const obj of this.detailObjects.values()) {
-      obj.drawBody(this.detailAtlasCtx);
-    }
-
-    this.detailAtlasCtx.restore();
-
-    this.detailAtlasNeedsUpdate = false;
-    this.atlasInitialized = true;
   }
 
   private subscribeToTerrainDetails() {
@@ -127,9 +77,6 @@ export class TerrainManager {
 
     connection.db.terrainDetail.onInsert((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       this.createDetailObject(detail);
-      if (this.atlasInitialized) {
-        this.detailAtlasNeedsUpdate = true;
-      }
     });
 
     connection.db.terrainDetail.onUpdate((_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
@@ -139,7 +86,6 @@ export class TerrainManager {
       } else {
         this.createDetailObject(newDetail);
       }
-      this.detailAtlasNeedsUpdate = true;
     });
 
     connection.db.terrainDetail.onDelete((_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
@@ -156,19 +102,12 @@ export class TerrainManager {
         }
       }
       this.detailObjects.delete(detail.id);
-      this.detailAtlasNeedsUpdate = true;
     });
   }
 
   public update(deltaTime: number) {
     for (const obj of this.detailObjects.values()) {
-      const hadFlash = obj.getFlashTimer() > 0;
       obj.update(deltaTime);
-      const hasFlash = obj.getFlashTimer() > 0;
-      
-      if (hadFlash && !hasFlash) {
-        this.detailAtlasNeedsUpdate = true;
-      }
     }
     
     this.terrainDebrisParticles.update(deltaTime);
@@ -285,42 +224,42 @@ export class TerrainManager {
     canvasHeight: number,
     unitToPixel: number
   ) {
-    if (!this.detailAtlasCanvas || !this.detailAtlasCtx) return;
-
-    this.updateDetailAtlas();
-
-    const dpr = window.devicePixelRatio || 1;
     const startTileX = Math.max(0, Math.floor(cameraX / unitToPixel));
     const endTileX = Math.min(this.worldWidth - 1, Math.ceil((cameraX + canvasWidth) / unitToPixel));
     const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
     const endTileY = Math.min(this.worldHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
 
-    const sourceX = startTileX * unitToPixel;
-    const sourceY = startTileY * unitToPixel;
-    const sourceWidth = Math.min(
-      (endTileX - startTileX + 1) * unitToPixel + 2 * unitToPixel,
-      this.detailAtlasLogicalWidth - sourceX
-    );
-    const sourceHeight = Math.min(
-      (endTileY - startTileY + 1) * unitToPixel + 2 * unitToPixel,
-      this.detailAtlasLogicalHeight - sourceY
-    );
+    const shadowCanvas = this.textureSheet.getShadowCanvas();
+    const dpr = window.devicePixelRatio || 1;
+    const renderSize = unitToPixel * 2;
+    
+    ctx.imageSmoothingEnabled = false;
 
-    const destX = startTileX * unitToPixel - unitToPixel;
-    const destY = startTileY * unitToPixel - unitToPixel;
-
-    if (sourceWidth > 0 && sourceHeight > 0) {
-      ctx.drawImage(
-        this.detailAtlasCanvas,
-        sourceX * dpr,
-        sourceY * dpr,
-        sourceWidth * dpr,
-        sourceHeight * dpr,
-        destX,
-        destY,
-        sourceWidth,
-        sourceHeight
-      );
+    for (const obj of this.detailObjects.values()) {
+      const objX = obj.getX();
+      const objY = obj.getY();
+      
+      if (objX >= startTileX && objX <= endTileX && objY >= startTileY && objY <= endTileY) {
+        const texture = this.textureSheet.getShadowTexture(this.getTextureKey(obj));
+        
+        if (texture) {
+          const scale = obj.getSizeScale();
+          const scaledSize = renderSize * scale;
+          const offset = unitToPixel - scaledSize / 2;
+          
+          ctx.drawImage(
+            shadowCanvas,
+            texture.x * dpr,
+            texture.y * dpr,
+            texture.width * dpr,
+            texture.height * dpr,
+            objX * unitToPixel + offset,
+            objY * unitToPixel + offset,
+            scaledSize,
+            scaledSize
+          );
+        }
+      }
     }
   }
 
@@ -337,15 +276,54 @@ export class TerrainManager {
     const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
     const endTileY = Math.min(this.worldHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
 
+    const bodyCanvas = this.textureSheet.getCanvas();
+    const dpr = window.devicePixelRatio || 1;
+    const renderSize = unitToPixel * 2;
+    
+    ctx.imageSmoothingEnabled = false;
+
     for (const obj of this.detailObjects.values()) {
-      if (obj.getFlashTimer() > 0) {
-        const objX = obj.getX();
-        const objY = obj.getY();
-        if (objX >= startTileX && objX <= endTileX && objY >= startTileY && objY <= endTileY) {
+      const objX = obj.getX();
+      const objY = obj.getY();
+      
+      if (objX >= startTileX && objX <= endTileX && objY >= startTileY && objY <= endTileY) {
+        if (obj.getFlashTimer() > 0) {
           obj.drawBody(ctx);
+        } else {
+          const texture = this.textureSheet.getTexture(this.getTextureKey(obj));
+          
+          if (texture) {
+            const scale = obj.getSizeScale();
+            const scaledSize = renderSize * scale;
+            const offset = unitToPixel - scaledSize / 2;
+            
+            ctx.drawImage(
+              bodyCanvas,
+              texture.x * dpr,
+              texture.y * dpr,
+              texture.width * dpr,
+              texture.height * dpr,
+              objX * unitToPixel + offset,
+              objY * unitToPixel + offset,
+              scaledSize,
+              scaledSize
+            );
+            
+            obj.drawLabel(ctx);
+          }
         }
       }
     }
+  }
+
+  private getTextureKey(obj: TerrainDetailObject): string {
+    const type = obj.constructor.name.toLowerCase();
+    
+    if (type.includes('fence') || type.includes('foundation')) {
+      return `${type}-${obj.getRotation()}`;
+    }
+    
+    return type;
   }
 
   public drawParticles(
