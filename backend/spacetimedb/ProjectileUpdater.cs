@@ -52,11 +52,11 @@ public static partial class ProjectileUpdater
         return false;
     }
 
-    private static void ExplodeProjectile(ReducerContext ctx, Projectile projectile, string worldId, ref Module.TraversibilityMap traversibilityMap)
+    private static bool ExplodeProjectile(ReducerContext ctx, Projectile projectile, string worldId, ref Module.TraversibilityMap traversibilityMap)
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
         {
-            return;
+            return false;
         }
 
         float explosionRadius = projectile.ExplosionRadius.Value;
@@ -128,12 +128,8 @@ public static partial class ProjectileUpdater
             }
         }
 
-        if (traversibilityMapChanged)
-        {
-            ctx.Db.traversibility_map.WorldId.Update(traversibilityMap);
-        }
-
         Log.Info($"Projectile exploded at ({projectile.PositionX}, {projectile.PositionY})");
+        return traversibilityMapChanged;
     }
 
     private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Projectile projectile, string worldId)
@@ -286,7 +282,7 @@ public static partial class ProjectileUpdater
         };
     }
 
-    private static (bool collided, Projectile projectile) HandleTerrainCollision(
+    private static (bool collided, Projectile projectile, bool mapChanged) HandleTerrainCollision(
         ReducerContext ctx,
         Projectile projectile,
         ref Module.TraversibilityMap traversibilityMap,
@@ -299,7 +295,7 @@ public static partial class ProjectileUpdater
         if (projectileTileX < 0 || projectileTileX >= traversibilityMap.Width ||
             projectileTileY < 0 || projectileTileY >= traversibilityMap.Height)
         {
-            return (false, projectile);
+            return (false, projectile, false);
         }
 
         int tileIndex = projectileTileY * traversibilityMap.Width + projectileTileX;
@@ -307,25 +303,22 @@ public static partial class ProjectileUpdater
 
         if (tileIsTraversable || projectile.PassThroughTerrain)
         {
-            return (false, projectile);
+            return (false, projectile, false);
         }
 
         if (projectile.Bounce)
         {
             projectile = HandleProjectileBounce(projectile, projectileTileX, projectileTileY, deltaTime);
-            return (false, projectile);
+            return (false, projectile, false);
         }
 
         float centerX = projectileTileX + 0.5f;
         float centerY = projectileTileY + 0.5f;
         
-        if (DamageTerrainAtTile(ctx, worldId, centerX, centerY, tileIndex, projectile.Damage, ref traversibilityMap))
-        {
-            ctx.Db.traversibility_map.WorldId.Update(traversibilityMap);
-        }
+        bool mapChanged = DamageTerrainAtTile(ctx, worldId, centerX, centerY, tileIndex, projectile.Damage, ref traversibilityMap);
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
-        return (true, projectile);
+        return (true, projectile, mapChanged);
     }
 
     private static Projectile HandleProjectileBounce(Projectile projectile, int projectileTileX, int projectileTileY, double deltaTime)
@@ -427,7 +420,7 @@ public static partial class ProjectileUpdater
         return true;
     }
 
-    private static (bool collided, Projectile projectile) HandleTankCollisions(
+    private static (bool collided, Projectile projectile, bool mapChanged) HandleTankCollisions(
         ReducerContext ctx,
         Projectile projectile,
         string worldId,
@@ -458,7 +451,7 @@ public static partial class ProjectileUpdater
                     {
                         if (HandleBoomerangReturn(ctx, projectile, tank))
                         {
-                            return (true, projectile);
+                            return (true, projectile, false);
                         }
 
                         if (tank.Alliance != projectile.Alliance && tank.Health > 0)
@@ -467,9 +460,9 @@ public static partial class ProjectileUpdater
                             {
                                 if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
                                 {
-                                    ExplodeProjectile(ctx, projectile, worldId, ref traversibilityMap);
+                                    bool mapChanged = ExplodeProjectile(ctx, projectile, worldId, ref traversibilityMap);
                                     ctx.Db.projectile.Id.Delete(projectile.Id);
-                                    return (true, projectile);
+                                    return (true, projectile, mapChanged);
                                 }
                             }
                             else
@@ -485,7 +478,7 @@ public static partial class ProjectileUpdater
                             if (projectile.CollisionCount >= projectile.MaxCollisions)
                             {
                                 ctx.Db.projectile.Id.Delete(projectile.Id);
-                                return (true, projectile);
+                                return (true, projectile, false);
                             }
                         }
                     }
@@ -493,7 +486,7 @@ public static partial class ProjectileUpdater
             }
         }
 
-        return (false, projectile);
+        return (false, projectile, false);
     }
 
     [Reducer]
@@ -512,6 +505,8 @@ public static partial class ProjectileUpdater
         if (traversibilityMapQuery == null) return;
         var traversibilityMap = traversibilityMapQuery.Value;
 
+        bool traversibilityMapChanged = false;
+
         foreach (var iProjectile in ctx.Db.projectile.WorldId.Filter(args.WorldId))
         {
             var projectile = iProjectile;
@@ -523,7 +518,10 @@ public static partial class ProjectileUpdater
             {
                 if (projectile.ExplosionTrigger == ExplosionTrigger.OnExpiration)
                 {
-                    ExplodeProjectile(ctx, projectile, args.WorldId, ref traversibilityMap);
+                    if (ExplodeProjectile(ctx, projectile, args.WorldId, ref traversibilityMap))
+                    {
+                        traversibilityMapChanged = true;
+                    }
                 }
                 ctx.Db.projectile.Id.Delete(projectile.Id);
                 continue;
@@ -553,18 +551,34 @@ public static partial class ProjectileUpdater
             };
 
             bool collided;
-            (collided, projectile) = HandleTerrainCollision(ctx, projectile, ref traversibilityMap, args.WorldId, deltaTime);
+            bool mapChanged;
+            (collided, projectile, mapChanged) = HandleTerrainCollision(ctx, projectile, ref traversibilityMap, args.WorldId, deltaTime);
+            
+            if (mapChanged)
+            {
+                traversibilityMapChanged = true;
+            }
 
             if (collided) continue;
 
             var (minRegionX, maxRegionX, minRegionY, maxRegionY) = CalculateTankCollisionRegions(projectile);
 
-            (collided, projectile) = HandleTankCollisions(ctx, projectile, args.WorldId, ref traversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
+            (collided, projectile, mapChanged) = HandleTankCollisions(ctx, projectile, args.WorldId, ref traversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
+            
+            if (mapChanged)
+            {
+                traversibilityMapChanged = true;
+            }
 
             if (!collided)
             {
                 ctx.Db.projectile.Id.Update(projectile);
             }
+        }
+
+        if (traversibilityMapChanged)
+        {
+            ctx.Db.traversibility_map.WorldId.Update(traversibilityMap);
         }
     }
 }
