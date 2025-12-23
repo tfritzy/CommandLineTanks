@@ -6,6 +6,7 @@ import { GunInventoryManager } from "./managers/GunInventoryManager";
 import { PickupManager } from "./managers/PickupManager";
 import { CollisionVisualizationManager } from "./managers/CollisionVisualizationManager";
 import { MiniMapManager } from "./managers/MiniMapManager";
+import { KillManager } from "./managers/KillManager";
 
 export const UNIT_TO_PIXEL = 50;
 const CAMERA_FOLLOW_SPEED = 15;
@@ -24,6 +25,7 @@ export class Game {
   private pickupManager: PickupManager;
   private collisionVisualizationManager: CollisionVisualizationManager;
   private miniMapManager: MiniMapManager;
+  private killManager: KillManager;
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
 
@@ -46,6 +48,7 @@ export class Game {
     this.pickupManager = new PickupManager(worldId);
     this.collisionVisualizationManager = new CollisionVisualizationManager(worldId);
     this.miniMapManager = new MiniMapManager(this.tankManager, this.terrainManager);
+    this.killManager = new KillManager(worldId);
   }
 
   private resizeCanvas() {
@@ -127,6 +130,7 @@ export class Game {
     this.tankManager.update(deltaTime);
     this.projectileManager.update(deltaTime);
     this.terrainManager.update(deltaTime);
+    this.killManager.update(deltaTime);
 
     const dpr = window.devicePixelRatio || 1;
     const displayWidth = this.canvas.width / dpr;
@@ -224,6 +228,7 @@ export class Game {
     this.scoreManager.draw(this.ctx, displayWidth);
     this.miniMapManager.draw(this.ctx, displayWidth, displayHeight);
     this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
+    this.killManager.draw(this.ctx, displayWidth, displayHeight);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }
