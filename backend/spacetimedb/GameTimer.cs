@@ -27,7 +27,7 @@ public static partial class GameTimer
         var updatedWorld = world.Value with { GameState = GameState.Results };
         ctx.Db.world.Id.Update(updatedWorld);
 
-        ctx.Db.ScheduledWorldReset.Insert(new ProjectileUpdater.ScheduledWorldReset
+        ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
