@@ -27,6 +27,8 @@ public static partial class GameTimer
         var updatedWorld = world.Value with { GameState = GameState.Results };
         ctx.Db.world.Id.Update(updatedWorld);
 
+        Module.StopWorldTickers(ctx, args.WorldId);
+
         ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
         {
             ScheduledId = 0,

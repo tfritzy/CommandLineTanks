@@ -97,25 +97,6 @@ public static partial class ProjectileUpdater
                 {
                     updatedScore.Kills[projectile.Alliance]++;
                     ctx.Db.score.WorldId.Update(updatedScore);
-
-                    if (updatedScore.Kills[projectile.Alliance] >= Module.KILL_LIMIT)
-                    {
-                        var world = ctx.Db.world.Id.Find(worldId);
-                        if (world != null && world.Value.GameState == GameState.Playing)
-                        {
-                            var updatedWorld = world.Value with { GameState = GameState.Results };
-                            ctx.Db.world.Id.Update(updatedWorld);
-
-                            ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
-                            {
-                                ScheduledId = 0,
-                                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
-                                WorldId = worldId
-                            });
-
-                            Log.Info($"Team {projectile.Alliance} reached {Module.KILL_LIMIT} kills! Game ending in 30 seconds...");
-                        }
-                    }
                 }
             }
         }
