@@ -13,6 +13,7 @@ interface KillNotification {
 export class KillManager {
   private kills: Map<string, KillNotification> = new Map();
   private worldId: string;
+  private deletedKills: Set<string> = new Set();
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -45,6 +46,7 @@ export class KillManager {
 
     connection.db.kills.onDelete((_ctx: EventContext, kill: Infer<typeof KillRow>) => {
       this.kills.delete(kill.id);
+      this.deletedKills.delete(kill.id);
     });
   }
 
@@ -62,7 +64,8 @@ export class KillManager {
   public update(deltaTime: number) {
     for (const notification of this.kills.values()) {
       notification.displayTime += deltaTime;
-      if (notification.displayTime > 3.0) {
+      if (notification.displayTime > 3.0 && !this.deletedKills.has(notification.id)) {
+        this.deletedKills.add(notification.id);
         this.deleteKill(notification.id);
       }
     }
