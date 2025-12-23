@@ -1,16 +1,19 @@
 import { Tank } from "../objects/Tank";
 import { getConnection } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
+import { FloatingLabelManager } from "./FloatingLabelManager";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
   private worldId: string;
   private particlesManager: DeadTankParticlesManager;
+  private floatingLabelManager: FloatingLabelManager;
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.particlesManager = new DeadTankParticlesManager();
+    this.floatingLabelManager = new FloatingLabelManager();
     this.subscribeToTanks();
   }
 
@@ -54,6 +57,11 @@ export class TankManager {
           const pos = tank.getPosition();
           this.particlesManager.spawnParticles(pos.x, pos.y, newTank.alliance);
         }
+
+        if (oldTank.target !== null && newTank.target === null && newTank.health > 0) {
+          const pos = tank.getPosition();
+          this.floatingLabelManager.spawnLabel(pos.x, pos.y - 0.5, "target lost");
+        }
         
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
@@ -81,6 +89,7 @@ export class TankManager {
       tank.update(deltaTime);
     }
     this.particlesManager.update(deltaTime);
+    this.floatingLabelManager.update(deltaTime);
   }
 
   public getPlayerTank(): Tank | null {
@@ -110,6 +119,10 @@ export class TankManager {
     for (const tank of this.tanks.values()) {
       tank.drawHealthBar(ctx);
     }
+  }
+
+  public drawFloatingLabels(ctx: CanvasRenderingContext2D) {
+    this.floatingLabelManager.draw(ctx);
   }
 
   public drawParticles(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
