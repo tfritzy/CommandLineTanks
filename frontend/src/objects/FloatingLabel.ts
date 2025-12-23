@@ -1,11 +1,15 @@
 import { UNIT_TO_PIXEL } from "../game";
 
+const FLOAT_SPEED = 0.5;
+const LABEL_LIFETIME = 1.0;
+const LABEL_COLOR = "#f5c47c";
+
 export class FloatingLabel {
   private x: number;
   private y: number;
   private text: string;
   private lifetime: number = 0;
-  private maxLifetime: number = 1.0;
+  private maxLifetime: number = LABEL_LIFETIME;
   private isDead: boolean = false;
 
   constructor(x: number, y: number, text: string) {
@@ -16,7 +20,7 @@ export class FloatingLabel {
 
   public update(deltaTime: number): void {
     this.lifetime += deltaTime;
-    this.y -= deltaTime * 0.5;
+    this.y -= deltaTime * FLOAT_SPEED;
 
     if (this.lifetime >= this.maxLifetime) {
       this.isDead = true;
@@ -32,7 +36,7 @@ export class FloatingLabel {
     ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
     ctx.globalAlpha = alpha;
     ctx.font = "12px monospace";
-    ctx.fillStyle = "#f5c47c";
+    ctx.fillStyle = LABEL_COLOR;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(this.text, 0, 0);

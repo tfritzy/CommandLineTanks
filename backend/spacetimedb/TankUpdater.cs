@@ -134,9 +134,9 @@ public static partial class TankUpdater
                     var targetX = targetTank.Value.PositionX;
                     var targetY = targetTank.Value.PositionY;
 
-                    var deltaX = targetX - tank.PositionX;
-                    var deltaY = targetY - tank.PositionY;
-                    var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+                    var distanceDeltaX = targetX - tank.PositionX;
+                    var distanceDeltaY = targetY - tank.PositionY;
+                    var distance = Math.Sqrt(distanceDeltaX * distanceDeltaX + distanceDeltaY * distanceDeltaY);
 
                     if (distance > Module.MAX_TARGETING_RANGE)
                     {
@@ -157,6 +157,8 @@ public static partial class TankUpdater
                             }
                         }
 
+                        var deltaX = targetX - tank.PositionX;
+                        var deltaY = targetY - tank.PositionY;
                         var aimAngle = Math.Atan2(deltaY, deltaX);
                         var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
 
