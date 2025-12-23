@@ -10,8 +10,8 @@ public static partial class TerrainGenerator
     private const int FIELD_MIN_SIZE = 5;
     private const int FIELD_MAX_SIZE = 10;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
-    private const int MIN_STRUCTURES = 3;
-    private const int STRUCTURE_COUNT_RANGE = 4;
+    private const int MIN_STRUCTURES = 6;
+    private const int STRUCTURE_COUNT_RANGE = 7;
     private const int ROTATION_NORTH = 0;
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
@@ -79,7 +79,7 @@ public static partial class TerrainGenerator
     {
         var fieldTilesList = new Vector2[WORLD_WIDTH * WORLD_HEIGHT];
         int fieldTilesCount = 0;
-        int numFields = 5 + random.Next(5);
+        int numFields = 2 + random.Next(3);
 
         for (int fieldIdx = 0; fieldIdx < numFields; fieldIdx++)
         {
