@@ -37,6 +37,8 @@ import DeleteKill from "./delete_kill_reducer";
 export { DeleteKill };
 import DriveTo from "./drive_to_reducer";
 export { DriveTo };
+import DriveToTank from "./drive_to_tank_reducer";
+export { DriveToTank };
 import EndGame from "./end_game_reducer";
 export { EndGame };
 import FindWorld from "./find_world_reducer";
@@ -47,8 +49,6 @@ import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
 import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
-import DriveToTank from "./drive_to_tank_reducer";
-export { DriveToTank };
 import ResetWorld from "./reset_world_reducer";
 export { ResetWorld };
 import Respawn from "./respawn_reducer";
@@ -389,12 +389,12 @@ const tablesSchema = __schema(
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
-  __reducerSchema("deleteKill", DeleteKill),
+  __reducerSchema("delete_kill", DeleteKill),
   __reducerSchema("driveTo", DriveTo),
+  __reducerSchema("driveToTank", DriveToTank),
   __reducerSchema("EndGame", EndGame),
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),
-  __reducerSchema("driveToTank", DriveToTank),
   __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("reverse", Reverse),

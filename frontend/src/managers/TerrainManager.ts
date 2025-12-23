@@ -289,6 +289,7 @@ export class TerrainManager {
 
     this.updateDetailAtlas();
 
+    const dpr = window.devicePixelRatio || 1;
     const startTileX = Math.max(0, Math.floor(cameraX / unitToPixel));
     const endTileX = Math.min(this.worldWidth - 1, Math.ceil((cameraX + canvasWidth) / unitToPixel));
     const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
@@ -311,10 +312,10 @@ export class TerrainManager {
     if (sourceWidth > 0 && sourceHeight > 0) {
       ctx.drawImage(
         this.detailAtlasCanvas,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
+        sourceX * dpr,
+        sourceY * dpr,
+        sourceWidth * dpr,
+        sourceHeight * dpr,
         destX,
         destY,
         sourceWidth,

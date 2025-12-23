@@ -1,6 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../game";
 import { isPointInViewport } from "../../utils/viewport";
-import { Particle } from "./ParticleTypes";
+import type { Particle } from "./ParticleTypes";
 
 export class TerrainDebrisParticles {
   private particles: Particle[] = [];

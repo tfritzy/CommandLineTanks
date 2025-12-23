@@ -27,7 +27,6 @@ export class ProjectileManager {
       ]);
 
     connection.db.projectile.onUpdate((_ctx, _oldProjectile, newProjectile) => {
-      console.log(_oldProjectile, newProjectile);
       let projectile = this.projectiles.get(newProjectile.id);
       if (!projectile) {
         projectile = ProjectileFactory.create(

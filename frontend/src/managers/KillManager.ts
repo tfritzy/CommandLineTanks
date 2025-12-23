@@ -80,11 +80,11 @@ export class KillManager {
 
     ctx.save();
 
-    const notificationWidth = 300;
-    const notificationHeight = 60;
-    const spacing = 10;
+    const notificationWidth = 320;
+    const notificationHeight = 40;
+    const spacing = 8;
     const x = canvasWidth / 2;
-    let y = canvasHeight / 2 - 100;
+    let y = 80;
 
     for (const notification of notifications) {
       this.drawKillNotification(ctx, notification, x, y, notificationWidth, notificationHeight);
@@ -116,17 +116,15 @@ export class KillManager {
     ctx.globalAlpha = alpha;
 
     const scale = notification.displayTime < fadeInTime 
-      ? 0.8 + (0.2 * (notification.displayTime / fadeInTime))
+      ? 0.95 + (0.05 * (notification.displayTime / fadeInTime))
       : 1.0;
 
     ctx.translate(x, y);
     ctx.scale(scale, scale);
 
-    ctx.fillStyle = 'rgba(46, 46, 67, 0.95)';
-    ctx.strokeStyle = '#fcfbf3';
-    ctx.lineWidth = 3;
+    ctx.fillStyle = '#2a152daa';
     
-    const radius = 8;
+    const radius = 4;
     ctx.beginPath();
     ctx.moveTo(-width / 2 + radius, -height / 2);
     ctx.arcTo(width / 2, -height / 2, width / 2, height / 2, radius);
@@ -135,18 +133,28 @@ export class KillManager {
     ctx.arcTo(-width / 2, -height / 2, width / 2, -height / 2, radius);
     ctx.closePath();
     ctx.fill();
-    ctx.stroke();
 
-    ctx.font = '800 24px Poppins, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
+    ctx.font = '700 16px Poppins, sans-serif';
+    
+    const label = "ELIMINATED ";
+    const name = notification.killeeName.toUpperCase();
+    
+    const labelWidth = ctx.measureText(label).width;
+    const nameWidth = ctx.measureText(name).width;
+    const totalWidth = labelWidth + nameWidth;
+    
+    const startX = -totalWidth / 2;
+    
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
     ctx.fillStyle = '#c06852';
-    ctx.fillText('ELIMINATED', 0, -8);
-
-    ctx.font = '600 18px Poppins, sans-serif';
+    ctx.fillText(label, startX, 1);
+    
     ctx.fillStyle = '#fcfbf3';
-    ctx.fillText(notification.killeeName, 0, 16);
+    ctx.fillText(name, startX + labelWidth, 1);
 
     ctx.restore();
   }
