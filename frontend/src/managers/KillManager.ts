@@ -40,7 +40,6 @@ export class KillManager {
           displayTime: 0
         };
         this.kills.set(kill.id, notification);
-        this.deleteKill(kill.id);
       }
     });
 
@@ -64,7 +63,7 @@ export class KillManager {
     for (const notification of this.kills.values()) {
       notification.displayTime += deltaTime;
       if (notification.displayTime > 3.0) {
-        this.kills.delete(notification.id);
+        this.deleteKill(notification.id);
       }
     }
   }
