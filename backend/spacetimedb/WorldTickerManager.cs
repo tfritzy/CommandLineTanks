@@ -79,49 +79,7 @@ public static partial class Module
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
 
         var newWorldId = Module.GenerateId(ctx, "w");
-        var newWorld = new World
-        {
-            Id = newWorldId,
-            Name = oldWorld.Value.Name,
-            CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            Width = TerrainGenerator.GetWorldWidth(),
-            Height = TerrainGenerator.GetWorldHeight(),
-            BaseTerrainLayer = baseTerrain,
-            GameState = GameState.Playing,
-            GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            GameDurationMicros = Module.GAME_DURATION_MICROS
-        };
-        ctx.Db.world.Insert(newWorld);
-
-        foreach (var detail in terrainDetails)
-        {
-            var terrainDetailId = Module.GenerateId(ctx, "td");
-            ctx.Db.terrain_detail.Insert(new Module.TerrainDetail
-            {
-                Id = terrainDetailId,
-                WorldId = newWorldId,
-                PositionX = detail.x + 0.5f,
-                PositionY = detail.y + 0.5f,
-                Type = detail.type,
-                Health = 100,
-                Label = null,
-                Rotation = detail.rotation
-            });
-        }
-
-        ctx.Db.traversibility_map.Insert(new Module.TraversibilityMap
-        {
-            WorldId = newWorldId,
-            Map = traversibilityMap,
-            Width = TerrainGenerator.GetWorldWidth(),
-            Height = TerrainGenerator.GetWorldHeight()
-        });
-
-        ctx.Db.score.Insert(new Score
-        {
-            WorldId = newWorldId,
-            Kills = new int[] { 0, 0 }
-        });
+        var newWorld = CreateWorld(ctx, newWorldId, oldWorld.Value.Name, baseTerrain, terrainDetails, traversibilityMap);
 
         var tanks = new List<Module.Tank>();
         foreach (var tank in ctx.Db.tank.WorldId.Filter(args.WorldId))
@@ -168,24 +126,6 @@ public static partial class Module
                 false);
             ctx.Db.tank.Insert(newTank);
         }
-
-        StartWorldTickers(ctx, newWorldId);
-
-        ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 }),
-            WorldId = newWorldId
-        });
-
-        PickupSpawner.InitializePickupSpawner(ctx, newWorldId, 5);
-
-        ctx.Db.ScheduledGameEnd.Insert(new GameTimer.ScheduledGameEnd
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.GAME_DURATION_MICROS }),
-            WorldId = newWorldId
-        });
 
         Log.Info($"Created new world {newWorldId} from {args.WorldId}. Teams randomized, {totalTanks} tanks created.");
     }
