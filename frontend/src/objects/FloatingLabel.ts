@@ -1,10 +1,11 @@
 import { UNIT_TO_PIXEL } from "../game";
+import { TankIndicator } from "./TankIndicator";
 
 const FLOAT_SPEED = 0.5;
 const LABEL_LIFETIME = 1.0;
 const LABEL_COLOR = "#f5c47c";
 
-export class FloatingLabel {
+export class FloatingLabel implements TankIndicator {
   private x: number;
   private y: number;
   private text: string;

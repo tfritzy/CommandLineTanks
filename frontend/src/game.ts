@@ -202,7 +202,7 @@ export class Game {
       UNIT_TO_PIXEL
     );
     this.tankManager.drawHealthBars(this.ctx);
-    this.tankManager.drawFloatingLabels(this.ctx);
+    this.tankManager.drawTankIndicators(this.ctx);
 
     this.terrainManager.drawParticles(
       this.ctx,
