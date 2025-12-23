@@ -15,9 +15,11 @@ export default __t.object("Kill", {
   worldId: __t.string(),
   killer: __t.string(),
   killee: __t.string(),
+  killeeName: __t.string(),
   killerAlliance: __t.i32(),
   killeeAlliance: __t.i32(),
   timestamp: __t.u64(),
+  acked: __t.bool(),
 });
 
 

@@ -35,13 +35,13 @@ export class KillManager {
       .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
 
     connection.db.tank.onInsert((_ctx: EventContext, tank) => {
-      if (tank.owner.isEqual(connection.identity)) {
+      if (connection.identity && tank.owner.isEqual(connection.identity)) {
         this.playerTankId = tank.id;
       }
     });
 
     connection.db.tank.onUpdate((_ctx: EventContext, _oldTank, newTank) => {
-      if (newTank.owner.isEqual(connection.identity)) {
+      if (connection.identity && newTank.owner.isEqual(connection.identity)) {
         this.playerTankId = newTank.id;
       }
     });
@@ -90,7 +90,7 @@ export class KillManager {
     if (!connection) return;
 
     try {
-      connection.reducers.ackKill(killId);
+      connection.reducers.ackKill({ killId });
     } catch (e) {
       console.error("Error acknowledging kill:", e);
     }
@@ -114,7 +114,6 @@ export class KillManager {
 
     ctx.save();
 
-    const padding = 20;
     const notificationWidth = 300;
     const notificationHeight = 60;
     const spacing = 10;
