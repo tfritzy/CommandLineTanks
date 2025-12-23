@@ -1,5 +1,5 @@
 import { UNIT_TO_PIXEL } from "../game";
-import { TankIndicator } from "./TankIndicator";
+import type { TankIndicator } from "./TankIndicator";
 
 const FLOAT_SPEED = 0.5;
 const LABEL_LIFETIME = 1.0;

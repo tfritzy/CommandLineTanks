@@ -89,7 +89,7 @@ public static partial class Module
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
 
         var newWorldId = Module.GenerateId(ctx, "w");
-        var newWorld = CreateWorld(ctx, newWorldId, oldWorld.Value.Name, baseTerrain, terrainDetails, traversibilityMap);
+        var newWorld = CreateWorld(ctx, newWorldId, oldWorld.Value.Name, baseTerrain, terrainDetails.ToArray(), traversibilityMap);
 
         var tanks = new List<Module.Tank>();
         foreach (var tank in ctx.Db.tank.WorldId.Filter(args.WorldId))

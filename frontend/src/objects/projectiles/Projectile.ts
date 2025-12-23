@@ -32,7 +32,7 @@ export abstract class Projectile {
     this.drawBody(ctx, textureSheet);
   }
 
-  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: any) {}
+  public drawShadow(_ctx: CanvasRenderingContext2D, _textureSheet: any) {}
 
   public abstract drawBody(ctx: CanvasRenderingContext2D, textureSheet: any): void;
 

@@ -16,7 +16,7 @@ public static partial class Module
         );
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
 
-        var world = CreateWorld(ctx, worldId, "Default World", baseTerrain, terrainDetails, traversibilityMap);
+        var world = CreateWorld(ctx, worldId, "Default World", baseTerrain, terrainDetails.ToArray(), traversibilityMap);
 
         SpawnInitialBots(ctx, worldId, world);
 

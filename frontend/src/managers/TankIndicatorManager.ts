@@ -1,4 +1,4 @@
-import { TankIndicator } from "../objects/TankIndicator";
+import type { TankIndicator } from "../objects/TankIndicator";
 import { FloatingLabel } from "../objects/FloatingLabel";
 
 export class TankIndicatorManager {

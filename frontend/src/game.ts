@@ -4,7 +4,6 @@ import { TerrainManager } from "./managers/TerrainManager";
 import { ScoreManager } from "./managers/ScoreManager";
 import { GunInventoryManager } from "./managers/GunInventoryManager";
 import { PickupManager } from "./managers/PickupManager";
-import { CollisionVisualizationManager } from "./managers/CollisionVisualizationManager";
 import { MiniMapManager } from "./managers/MiniMapManager";
 import { KillManager } from "./managers/KillManager";
 
@@ -23,7 +22,6 @@ export class Game {
   private scoreManager: ScoreManager;
   private gunInventoryManager: GunInventoryManager;
   private pickupManager: PickupManager;
-  private collisionVisualizationManager: CollisionVisualizationManager;
   private miniMapManager: MiniMapManager;
   private killManager: KillManager;
   private currentCameraX: number = 0;
@@ -46,7 +44,6 @@ export class Game {
     this.scoreManager = new ScoreManager(worldId);
     this.gunInventoryManager = new GunInventoryManager(worldId);
     this.pickupManager = new PickupManager(worldId);
-    this.collisionVisualizationManager = new CollisionVisualizationManager(worldId);
     this.miniMapManager = new MiniMapManager(this.tankManager, this.terrainManager);
     this.killManager = new KillManager(worldId);
   }

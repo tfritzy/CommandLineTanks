@@ -71,7 +71,7 @@ export class KillManager {
     }
   }
 
-  public draw(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
+  public draw(ctx: CanvasRenderingContext2D, canvasWidth: number, _canvasHeight: number) {
     const notifications = Array.from(this.kills.values())
       .filter(n => n.displayTime < 3.0)
       .sort((a, b) => b.timestamp - a.timestamp);
