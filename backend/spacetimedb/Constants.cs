@@ -9,7 +9,6 @@ public static partial class Module
     public const int TANK_HEALTH = 100;
     public const float TANK_COLLISION_RADIUS = 0.5f;
     public const int COLLISION_REGION_SIZE = 4;
-    public const int KILL_LIMIT = 100;
     public const long WORLD_RESET_DELAY_MICROS = 10_000_000;
     public const float MISSILE_TRACKING_RADIUS = 8.0f;
     public const long GAME_DURATION_MICROS = 600_000_000;
