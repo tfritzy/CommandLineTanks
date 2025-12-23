@@ -4,7 +4,7 @@ import type { EventContext, SubscriptionHandle } from '../../module_bindings';
 import { type Infer } from "spacetimedb";
 import { TankRow } from '../../module_bindings';
 
-export function useWorldSwitcher(onWorldChange: (worldId: string) => void) {
+export function useWorldSwitcher(onWorldChange: (worldId: string) => void, currentWorldId: string | null) {
     const subscriptionHandleRef = useRef<SubscriptionHandle | null>(null);
 
     useEffect(() => {
@@ -27,6 +27,11 @@ export function useWorldSwitcher(onWorldChange: (worldId: string) => void) {
                     onWorldChange(tank.worldId);
                     clearPendingJoinCode();
                 }
+                else if (currentWorldId && tank.joinCode === currentWorldId && tank.worldId !== currentWorldId) {
+                    console.log(`World reset detected: tank has joinCode ${tank.joinCode} matching current world, but is in new world ${tank.worldId}`);
+                    console.log(`Switching to new world: ${tank.worldId}`);
+                    onWorldChange(tank.worldId);
+                }
             }
         };
 
@@ -38,6 +43,11 @@ export function useWorldSwitcher(onWorldChange: (worldId: string) => void) {
                     console.log(`Switching to world: ${newTank.worldId}`);
                     onWorldChange(newTank.worldId);
                     clearPendingJoinCode();
+                }
+                else if (currentWorldId && newTank.joinCode === currentWorldId && newTank.worldId !== currentWorldId) {
+                    console.log(`World reset detected: tank has joinCode ${newTank.joinCode} matching current world, but is in new world ${newTank.worldId}`);
+                    console.log(`Switching to new world: ${newTank.worldId}`);
+                    onWorldChange(newTank.worldId);
                 }
             }
         };
@@ -52,5 +62,5 @@ export function useWorldSwitcher(onWorldChange: (worldId: string) => void) {
             connection.db.tank.removeOnInsert(handleTankInsert);
             connection.db.tank.removeOnUpdate(handleTankUpdate);
         };
-    }, [onWorldChange]);
+    }, [onWorldChange, currentWorldId]);
 }

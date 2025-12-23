@@ -20,7 +20,7 @@ function App() {
     setWorldId(newWorldId);
   };
 
-  useWorldSwitcher(handleWorldChange);
+  useWorldSwitcher(handleWorldChange, worldId);
 
   useEffect(() => {
     connectToSpacetimeDB().then((conn) => {
