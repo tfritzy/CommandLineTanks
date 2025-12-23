@@ -1,5 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../game";
 import { isPointInViewport } from "../../utils/viewport";
+import { Drawable } from "../../types/Drawable";
 
 interface Particle {
   x: number;
@@ -12,7 +13,7 @@ interface Particle {
   color: string;
 }
 
-export class ProjectileImpactParticles {
+export class ProjectileImpactParticles implements Drawable {
   private particles: Particle[] = [];
   private isDead = false;
 

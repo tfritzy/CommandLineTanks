@@ -1,5 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../game";
 import { isPointInViewport } from "../../utils/viewport";
+import { Drawable } from "../../types/Drawable";
 
 interface DebrisParticle {
   x: number;
@@ -53,7 +54,7 @@ interface SparkParticle {
   maxLifetime: number;
 }
 
-export class DeadTankParticles {
+export class DeadTankParticles implements Drawable {
   private debrisParticles: DebrisParticle[] = [];
   private fireParticles: FireParticle[] = [];
   private smokeParticles: SmokeParticle[] = [];
