@@ -1,9 +1,8 @@
 import { UNIT_TO_PIXEL } from "../../game";
 import { isPointInViewport } from "../../utils/viewport";
 import type { Particle } from "./ParticleTypes";
-import { Drawable } from "../../types/Drawable";
 
-export class TerrainDebrisParticles implements Drawable {
+export class TerrainDebrisParticles {
   private particles: Particle[] = [];
   private isDead = false;
   private x: number;
