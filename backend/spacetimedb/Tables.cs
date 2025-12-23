@@ -195,10 +195,14 @@ public static partial class Module
 
         public string Killee;
 
+        public string KilleeName;
+
         public int KillerAlliance;
 
         public int KilleeAlliance;
 
         public ulong Timestamp;
+
+        public bool Acked;
     }
 }
