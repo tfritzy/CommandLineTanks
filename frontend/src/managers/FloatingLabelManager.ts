@@ -9,11 +9,12 @@ export class FloatingLabelManager {
   }
 
   public update(deltaTime: number): void {
-    for (const label of this.labels) {
-      label.update(deltaTime);
+    for (let i = this.labels.length - 1; i >= 0; i--) {
+      this.labels[i].update(deltaTime);
+      if (this.labels[i].getIsDead()) {
+        this.labels.splice(i, 1);
+      }
     }
-
-    this.labels = this.labels.filter((label) => !label.getIsDead());
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {

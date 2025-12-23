@@ -60,7 +60,7 @@ export class TankManager {
 
         if (oldTank.target !== null && newTank.target === null && newTank.health > 0) {
           const pos = tank.getPosition();
-          this.floatingLabelManager.spawnLabel(pos.x, pos.y - 0.5, "target lost");
+          this.floatingLabelManager.spawnLabel(pos.x, pos.y - 0.5, "Target lost");
         }
         
         tank.setPosition(newTank.positionX, newTank.positionY);

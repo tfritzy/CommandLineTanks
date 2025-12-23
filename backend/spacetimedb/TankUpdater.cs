@@ -136,9 +136,9 @@ public static partial class TankUpdater
 
                     var distanceDeltaX = targetX - tank.PositionX;
                     var distanceDeltaY = targetY - tank.PositionY;
-                    var distance = Math.Sqrt(distanceDeltaX * distanceDeltaX + distanceDeltaY * distanceDeltaY);
+                    var distanceSquared = distanceDeltaX * distanceDeltaX + distanceDeltaY * distanceDeltaY;
 
-                    if (distance > Module.MAX_TARGETING_RANGE)
+                    if (distanceSquared > Module.MAX_TARGETING_RANGE * Module.MAX_TARGETING_RANGE)
                     {
                         tank = tank with { Target = null };
                         needsUpdate = true;
