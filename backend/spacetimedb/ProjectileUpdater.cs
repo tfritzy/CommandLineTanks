@@ -59,6 +59,8 @@ public static partial class ProjectileUpdater
         int explosionTileX = (int)projectile.PositionX;
         int explosionTileY = (int)projectile.PositionY;
 
+        bool traversibilityMapChanged = false;
+
         for (int dx = -explosionTileRadius; dx <= explosionTileRadius; dx++)
         {
             for (int dy = -explosionTileRadius; dy <= explosionTileRadius; dy++)
@@ -96,7 +98,7 @@ public static partial class ProjectileUpdater
 
                             int tileIndex = tileY * traversibilityMap.Width + tileX;
                             traversibilityMap.Map[tileIndex] = true;
-                            ctx.Db.traversibility_map.WorldId.Update(traversibilityMap);
+                            traversibilityMapChanged = true;
                         }
                         else
                         {
@@ -108,6 +110,11 @@ public static partial class ProjectileUpdater
                     }
                 }
             }
+        }
+
+        if (traversibilityMapChanged)
+        {
+            ctx.Db.traversibility_map.WorldId.Update(traversibilityMap);
         }
 
         Log.Info($"Projectile exploded at ({projectile.PositionX}, {projectile.PositionY})");
