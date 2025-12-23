@@ -133,25 +133,29 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            backgroundColor: '#2a152d',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 2000,
-            color: 'white',
-            fontFamily: 'monospace'
+            color: '#e6eeed',
+            fontFamily: "'JetBrains Mono', monospace"
         }}>
             <div style={{
                 maxWidth: '800px',
                 width: '90%',
-                textAlign: 'center'
+                textAlign: 'center',
+                border: `4px solid ${winningTeam === 0 ? '#813645' : '#3e4c7e'}`,
+                padding: '40px',
+                backgroundColor: '#34404f',
+                boxShadow: `0 0 30px ${winningTeam === 0 ? 'rgba(129, 54, 69, 0.5)' : 'rgba(62, 76, 126, 0.5)'}`
             }}>
                 <div style={{
                     fontSize: '48px',
                     fontWeight: 'bold',
                     color: winnerColor,
                     marginBottom: '20px',
-                    textShadow: `0 0 20px ${winnerColor}`
+                    textShadow: `0 0 10px ${winnerColor}`
                 }}>
                     {winnerText}
                 </div>
@@ -159,7 +163,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 <div style={{
                     fontSize: '24px',
                     marginBottom: '40px',
-                    color: '#ccc'
+                    color: '#a9bcbf'
                 }}>
                     Next round starts in {timeRemaining} seconds
                 </div>
@@ -175,8 +179,10 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                             fontWeight: 'bold',
                             color: '#ff6666',
                             marginBottom: '20px',
-                            borderBottom: '3px solid #ff6666',
-                            paddingBottom: '10px'
+                            border: '3px solid #813645',
+                            paddingBottom: '10px',
+                            paddingTop: '10px',
+                            backgroundColor: '#4a4b5b'
                         }}>
                             Team Red ({team0Kills} kills)
                         </div>
@@ -184,9 +190,9 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                             <div key={tank.id} style={{
                                 fontSize: '18px',
                                 padding: '10px',
-                                backgroundColor: index === 0 ? 'rgba(255, 102, 102, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                backgroundColor: index === 0 ? '#813645' : '#2e2e43',
                                 marginBottom: '5px',
-                                borderRadius: '5px',
+                                border: '2px solid #4a4b5b',
                                 display: 'flex',
                                 justifyContent: 'space-between'
                             }}>
@@ -195,7 +201,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                             </div>
                         ))}
                         {team0Tanks.length === 0 && (
-                            <div style={{ fontSize: '16px', color: '#888', fontStyle: 'italic' }}>
+                            <div style={{ fontSize: '16px', color: '#707b89', fontStyle: 'italic' }}>
                                 No tanks
                             </div>
                         )}
@@ -207,8 +213,10 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                             fontWeight: 'bold',
                             color: '#6666ff',
                             marginBottom: '20px',
-                            borderBottom: '3px solid #6666ff',
-                            paddingBottom: '10px'
+                            border: '3px solid #3e4c7e',
+                            paddingBottom: '10px',
+                            paddingTop: '10px',
+                            backgroundColor: '#4a4b5b'
                         }}>
                             Team Blue ({team1Kills} kills)
                         </div>
@@ -216,9 +224,9 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                             <div key={tank.id} style={{
                                 fontSize: '18px',
                                 padding: '10px',
-                                backgroundColor: index === 0 ? 'rgba(102, 102, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                backgroundColor: index === 0 ? '#3e4c7e' : '#2e2e43',
                                 marginBottom: '5px',
-                                borderRadius: '5px',
+                                border: '2px solid #4a4b5b',
                                 display: 'flex',
                                 justifyContent: 'space-between'
                             }}>
@@ -227,7 +235,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                             </div>
                         ))}
                         {team1Tanks.length === 0 && (
-                            <div style={{ fontSize: '16px', color: '#888', fontStyle: 'italic' }}>
+                            <div style={{ fontSize: '16px', color: '#707b89', fontStyle: 'italic' }}>
                                 No tanks
                             </div>
                         )}

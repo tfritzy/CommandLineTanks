@@ -124,21 +124,21 @@ function App() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            background: 'rgba(0, 0, 0, 0.8)',
+            background: '#2a152d',
             padding: '40px 60px',
-            borderRadius: '10px',
             textAlign: 'center',
-            color: 'white',
-            fontFamily: 'monospace',
+            color: '#e6eeed',
+            fontFamily: "'JetBrains Mono', monospace",
             fontSize: '24px',
             fontWeight: 'bold',
-            border: '3px solid red',
+            border: '4px solid #813645',
+            boxShadow: '0 0 20px rgba(129, 54, 69, 0.5)',
             zIndex: 1000
           }}>
-            <div style={{ fontSize: '36px', marginBottom: '20px', color: 'red' }}>
+            <div style={{ fontSize: '36px', marginBottom: '20px', color: '#e39764' }}>
               YOU DIED
             </div>
-            <div style={{ fontSize: '18px', color: '#ccc' }}>
+            <div style={{ fontSize: '18px', color: '#a9bcbf' }}>
               Call the respawn command to respawn
             </div>
           </div>
