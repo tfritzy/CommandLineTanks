@@ -93,13 +93,9 @@ public static partial class ProjectileUpdater
                 {
                     Id = Module.GenerateId(ctx, "k"),
                     WorldId = worldId,
-                    Killer = shooterTank.Value.Id,
-                    Killee = tank.Id,
+                    Killer = shooterTank.Value.Owner,
                     KilleeName = killeeName,
-                    KillerAlliance = shooterTank.Value.Alliance,
-                    KilleeAlliance = tank.Alliance,
-                    Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-                    Acked = false
+                    Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
                 });
             }
 

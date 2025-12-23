@@ -8,43 +8,15 @@ interface KillNotification {
   killeeName: string;
   timestamp: number;
   displayTime: number;
-  acked: boolean;
 }
 
 export class KillManager {
   private kills: Map<string, KillNotification> = new Map();
   private worldId: string;
-  private playerTankId: string | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.subscribeToKills();
-    this.subscribeToTanks();
-  }
-
-  private subscribeToTanks() {
-    const connection = getConnection();
-    if (!connection) {
-      console.warn("Cannot subscribe to tanks: connection not available");
-      return;
-    }
-
-    connection
-      .subscriptionBuilder()
-      .onError((e) => console.error("Tank subscription error for KillManager", e))
-      .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
-
-    connection.db.tank.onInsert((_ctx: EventContext, tank) => {
-      if (connection.identity && tank.owner.isEqual(connection.identity)) {
-        this.playerTankId = tank.id;
-      }
-    });
-
-    connection.db.tank.onUpdate((_ctx: EventContext, _oldTank, newTank) => {
-      if (connection.identity && newTank.owner.isEqual(connection.identity)) {
-        this.playerTankId = newTank.id;
-      }
-    });
   }
 
   private subscribeToKills() {
@@ -60,23 +32,15 @@ export class KillManager {
       .subscribe([`SELECT * FROM kills WHERE WorldId = '${this.worldId}'`]);
 
     connection.db.kills.onInsert((_ctx: EventContext, kill: Infer<typeof KillRow>) => {
-      if (kill.killer === this.playerTankId && !kill.acked) {
+      if (connection.identity && kill.killer.isEqual(connection.identity)) {
         const notification: KillNotification = {
           id: kill.id,
           killeeName: kill.killeeName,
           timestamp: Date.now(),
-          displayTime: 0,
-          acked: false
+          displayTime: 0
         };
         this.kills.set(kill.id, notification);
-        this.acknowledgeKill(kill.id);
-      }
-    });
-
-    connection.db.kills.onUpdate((_ctx: EventContext, _oldKill: Infer<typeof KillRow>, newKill: Infer<typeof KillRow>) => {
-      const notification = this.kills.get(newKill.id);
-      if (notification) {
-        notification.acked = newKill.acked;
+        this.deleteKill(kill.id);
       }
     });
 
@@ -85,21 +49,21 @@ export class KillManager {
     });
   }
 
-  private acknowledgeKill(killId: string) {
+  private deleteKill(killId: string) {
     const connection = getConnection();
     if (!connection) return;
 
     try {
-      connection.reducers.ackKill({ killId });
+      connection.reducers.deleteKill({ killId });
     } catch (e) {
-      console.error("Error acknowledging kill:", e);
+      console.error("Error deleting kill:", e);
     }
   }
 
   public update(deltaTime: number) {
     for (const notification of this.kills.values()) {
       notification.displayTime += deltaTime;
-      if (notification.displayTime > 3.0 && notification.acked) {
+      if (notification.displayTime > 3.0) {
         this.kills.delete(notification.id);
       }
     }

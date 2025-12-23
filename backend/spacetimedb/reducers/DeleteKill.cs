@@ -3,7 +3,7 @@ using SpacetimeDB;
 public static partial class Module
 {
     [Reducer]
-    public static void ack_kill(ReducerContext ctx, string killId)
+    public static void delete_kill(ReducerContext ctx, string killId)
     {
         var kill = ctx.Db.kills.Id.Find(killId);
         if (kill == null)
@@ -12,11 +12,7 @@ public static partial class Module
             return;
         }
 
-        var updatedKill = kill.Value with
-        {
-            Acked = true
-        };
-        ctx.Db.kills.Id.Update(updatedKill);
-        Log.Info($"Kill {killId} acknowledged");
+        ctx.Db.kills.Id.Delete(killId);
+        Log.Info($"Kill {killId} deleted");
     }
 }

@@ -191,18 +191,10 @@ public static partial class Module
 
         public string WorldId;
 
-        public string Killer;
-
-        public string Killee;
+        public Identity Killer;
 
         public string KilleeName;
 
-        public int KillerAlliance;
-
-        public int KilleeAlliance;
-
         public ulong Timestamp;
-
-        public bool Acked;
     }
 }

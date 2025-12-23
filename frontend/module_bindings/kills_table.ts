@@ -13,11 +13,7 @@ import {
 export default __t.row({
   id: __t.string().primaryKey(),
   worldId: __t.string(),
-  killer: __t.string(),
-  killee: __t.string(),
+  killer: __t.identity(),
   killeeName: __t.string(),
-  killerAlliance: __t.i32(),
-  killeeAlliance: __t.i32(),
   timestamp: __t.u64(),
-  acked: __t.bool(),
 });
