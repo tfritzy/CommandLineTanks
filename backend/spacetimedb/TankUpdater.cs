@@ -134,26 +134,36 @@ public static partial class TankUpdater
                     var targetX = targetTank.Value.PositionX;
                     var targetY = targetTank.Value.PositionY;
 
-                    if (tank.TargetLead > 0)
-                    {
-                        var targetVelocity = targetTank.Value.Velocity;
-                        var velocityMagnitude = Math.Sqrt(targetVelocity.X * targetVelocity.X + targetVelocity.Y * targetVelocity.Y);
-                        if (velocityMagnitude > 0)
-                        {
-                            var velocityAngle = Math.Atan2(targetVelocity.Y, targetVelocity.X);
-                            targetX += (float)(Math.Cos(velocityAngle) * tank.TargetLead);
-                            targetY += (float)(Math.Sin(velocityAngle) * tank.TargetLead);
-                        }
-                    }
-
                     var deltaX = targetX - tank.PositionX;
                     var deltaY = targetY - tank.PositionY;
-                    var aimAngle = Math.Atan2(deltaY, deltaX);
-                    var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
+                    var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-                    if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
+                    if (distance > Module.MAX_TARGETING_RANGE)
                     {
-                        tank = tank with { TargetTurretRotation = normalizedAimAngle };
+                        tank = tank with { Target = null };
+                        needsUpdate = true;
+                    }
+                    else
+                    {
+                        if (tank.TargetLead > 0)
+                        {
+                            var targetVelocity = targetTank.Value.Velocity;
+                            var velocityMagnitude = Math.Sqrt(targetVelocity.X * targetVelocity.X + targetVelocity.Y * targetVelocity.Y);
+                            if (velocityMagnitude > 0)
+                            {
+                                var velocityAngle = Math.Atan2(targetVelocity.Y, targetVelocity.X);
+                                targetX += (float)(Math.Cos(velocityAngle) * tank.TargetLead);
+                                targetY += (float)(Math.Sin(velocityAngle) * tank.TargetLead);
+                            }
+                        }
+
+                        var aimAngle = Math.Atan2(deltaY, deltaX);
+                        var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
+
+                        if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
+                        {
+                            tank = tank with { TargetTurretRotation = normalizedAimAngle };
+                        }
                     }
                 }
             }
