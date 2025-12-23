@@ -106,6 +106,8 @@ public static partial class ProjectileUpdater
                             var updatedWorld = world.Value with { GameState = GameState.Results };
                             ctx.Db.world.Id.Update(updatedWorld);
 
+                            Module.StopWorldTickers(ctx, worldId);
+
                             ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
                             {
                                 ScheduledId = 0,
