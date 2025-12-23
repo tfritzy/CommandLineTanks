@@ -33,6 +33,8 @@ import {
 // Import and reexport all reducer arg types
 import Aim from "./aim_reducer";
 export { Aim };
+import DeleteKill from "./delete_kill_reducer";
+export { DeleteKill };
 import DriveTo from "./drive_to_reducer";
 export { DriveTo };
 import EndGame from "./end_game_reducer";
@@ -387,6 +389,7 @@ const tablesSchema = __schema(
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
+  __reducerSchema("deleteKill", DeleteKill),
   __reducerSchema("driveTo", DriveTo),
   __reducerSchema("EndGame", EndGame),
   __reducerSchema("findWorld", FindWorld),

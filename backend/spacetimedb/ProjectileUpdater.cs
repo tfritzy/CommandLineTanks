@@ -88,14 +88,13 @@ public static partial class ProjectileUpdater
                 };
                 ctx.Db.tank.Id.Update(updatedShooterTank);
 
+                var killeeName = tank.IsBot ? $"[Bot] {tank.Name}" : tank.Name;
                 ctx.Db.kills.Insert(new Module.Kill
                 {
                     Id = Module.GenerateId(ctx, "k"),
                     WorldId = worldId,
-                    Killer = shooterTank.Value.Id,
-                    Killee = tank.Id,
-                    KillerAlliance = shooterTank.Value.Alliance,
-                    KilleeAlliance = tank.Alliance,
+                    Killer = shooterTank.Value.Owner,
+                    KilleeName = killeeName,
                     Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
                 });
             }
