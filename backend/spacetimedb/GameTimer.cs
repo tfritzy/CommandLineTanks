@@ -5,13 +5,13 @@ using static Module;
 public static partial class GameTimer
 {
     [Table(Scheduled = nameof(EndGame))]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     public partial struct ScheduledGameEnd
     {
         [AutoInc]
         [PrimaryKey]
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
+        [SpacetimeDB.Index.BTree]
         public string WorldId;
     }
 

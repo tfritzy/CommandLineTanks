@@ -34,13 +34,13 @@ public static partial class PickupSpawner
     };
 
     [Table(Scheduled = nameof(SpawnPickup))]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     public partial struct ScheduledPickupSpawn
     {
         [AutoInc]
         [PrimaryKey]
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
+        [SpacetimeDB.Index.BTree]
         public string WorldId;
     }
 
