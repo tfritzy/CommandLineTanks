@@ -46,6 +46,7 @@ export default __t.object("Tank", {
     return __t.array(Gun);
   },
   selectedGunIndex: __t.i32(),
+  smokescreenCooldownEnd: __t.u64(),
 });
 
 

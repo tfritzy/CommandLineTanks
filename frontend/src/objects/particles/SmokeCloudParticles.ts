@@ -17,12 +17,8 @@ interface Particle {
 export class SmokeCloudParticles {
   private particles: Particle[] = [];
   private isDead = false;
-  private centerX: number;
-  private centerY: number;
 
   constructor(x: number, y: number, radius: number) {
-    this.centerX = x;
-    this.centerY = y;
     
     const count = 30;
     for (let i = 0; i < count; i++) {
