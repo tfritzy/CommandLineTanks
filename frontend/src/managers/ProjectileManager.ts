@@ -10,6 +10,13 @@ const MAP_EXTENSION_FACTOR = 2;
 const WARNING_LINE_DASH_PATTERN = [10, 10];
 const WARNING_LINE_OPACITY = 0.5;
 
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
   private worldId: string;
@@ -209,9 +216,7 @@ export class ProjectileManager {
 
       ctx.save();
       const teamColor = projectile.getAlliance() === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
-      ctx.strokeStyle = teamColor.replace(/^#/, 'rgba(') 
-        .replace(/(..)(..)(..)$/, (_, r, g, b) => 
-          `${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)}, ${WARNING_LINE_OPACITY})`);
+      ctx.strokeStyle = hexToRgba(teamColor, WARNING_LINE_OPACITY);
       ctx.lineWidth = 2;
       ctx.setLineDash(WARNING_LINE_DASH_PATTERN);
 
