@@ -96,38 +96,51 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'stretch',
             zIndex: 1000,
             fontFamily: 'Poppins, sans-serif',
             fontWeight: '800',
-            borderRadius: '0 0 8px 8px',
-            overflow: 'hidden',
+            height: '40px',
         } as React.CSSProperties}>
             <div style={{
                 backgroundColor: "#813645",
-                padding: '0px 16px',
-                WebkitTextStroke: '2px #000',
+                padding: '8px 20px 8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                WebkitTextStroke: '1.5px #000',
                 WebkitTextFillColor: '#fcfbf3',
-                fontSize: '28px',
-
+                fontSize: '24px',
+                clipPath: 'polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%)',
+                minWidth: '50px',
             }}>
                 {team0Kills}
             </div>
             <div style={{
                 backgroundColor: '#34404f',
-                padding: '4px 16px',
-                WebkitTextStroke: '2px #000',
+                padding: '8px 24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                WebkitTextStroke: '1.5px #000',
                 WebkitTextFillColor: '#e6eeed',
-                fontSize: '22px',
+                fontSize: '20px',
+                clipPath: 'polygon(8px 0, calc(100% - 8px) 0, 100% 100%, 0 100%)',
+                minWidth: '80px',
             }}>
                 {timeString}
             </div>
             <div style={{
                 backgroundColor: "#3e4c7e",
-                padding: '0px 16px',
-                WebkitTextStroke: '2px #000',
+                padding: '8px 12px 8px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                WebkitTextStroke: '1.5px #000',
                 WebkitTextFillColor: '#fcfbf3',
-                fontSize: '28px',
+                fontSize: '24px',
+                clipPath: 'polygon(8px 0, 100% 0, 100% 100%, 0 100%)',
+                minWidth: '50px',
             }}>
                 {team1Kills}
             </div>
