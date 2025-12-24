@@ -27,6 +27,7 @@ public static partial class Module
         public int Width;
         public int Height;
         public BaseTerrain[] BaseTerrainLayer;
+        [SpacetimeDB.Index.BTree]
         public GameState GameState;
         public ulong GameStartedAt;
         public long GameDurationMicros;
