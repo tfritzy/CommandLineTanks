@@ -8,6 +8,7 @@ export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
   private playerTargetTankId: string | null = null;
+  private currentTargetingReticle: TargetingReticle | null = null;
   private worldId: string;
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
@@ -104,12 +105,16 @@ export class TankManager {
 
     this.playerTargetTankId = newTargetId;
 
-    this.indicatorManager.removeAllReticles();
+    if (this.currentTargetingReticle) {
+      this.currentTargetingReticle.kill();
+      this.currentTargetingReticle = null;
+    }
 
     if (this.playerTargetTankId) {
       const targetedTank = this.tanks.get(this.playerTargetTankId);
       if (targetedTank) {
-        this.indicatorManager.addIndicator(new TargetingReticle(targetedTank));
+        this.currentTargetingReticle = new TargetingReticle(targetedTank);
+        this.indicatorManager.addIndicator(this.currentTargetingReticle);
       }
     }
   }
