@@ -2,10 +2,13 @@ import { Tank } from "../objects/Tank";
 import { getConnection } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
+import { TargetingReticle } from "../objects/TargetingReticle";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
+  private playerTargetTankId: string | null = null;
+  private targetingReticle: TargetingReticle;
   private worldId: string;
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
@@ -14,6 +17,7 @@ export class TankManager {
     this.worldId = worldId;
     this.particlesManager = new DeadTankParticlesManager();
     this.indicatorManager = new TankIndicatorManager();
+    this.targetingReticle = new TargetingReticle();
     this.subscribeToTanks();
   }
 
@@ -47,6 +51,7 @@ export class TankManager {
 
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
         this.playerTankId = tank.id;
+        this.updatePlayerTarget(tank.target);
       }
     });
 
@@ -73,6 +78,12 @@ export class TankManager {
         tank.setGuns(newTank.guns);
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
       }
+
+      if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId == this.worldId) {
+        if (oldTank.target !== newTank.target) {
+          this.updatePlayerTarget(newTank.target);
+        }
+      }
     });
 
     connection.db.tank.onDelete((_ctx, tank) => {
@@ -81,7 +92,30 @@ export class TankManager {
       if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
         this.playerTankId = null;
       }
+
+      if (this.playerTargetTankId === tank.id && tank.worldId == this.worldId) {
+        this.updatePlayerTarget(null);
+      }
     });
+  }
+
+  private updatePlayerTarget(targetId: string | null | undefined) {
+    const newTargetId = targetId ?? null;
+    
+    if (this.playerTargetTankId === newTargetId) {
+      return;
+    }
+
+    this.playerTargetTankId = newTargetId;
+
+    if (this.playerTargetTankId) {
+      const targetedTank = this.tanks.get(this.playerTargetTankId);
+      if (targetedTank) {
+        this.targetingReticle.setTank(targetedTank);
+      }
+    } else {
+      this.targetingReticle.clearTank();
+    }
   }
 
   public update(deltaTime: number) {
@@ -123,6 +157,7 @@ export class TankManager {
 
   public drawTankIndicators(ctx: CanvasRenderingContext2D) {
     this.indicatorManager.draw(ctx);
+    this.targetingReticle.draw(ctx);
   }
 
   public drawParticles(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
