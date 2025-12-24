@@ -96,20 +96,9 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             zIndex: 1000,
         } as React.CSSProperties}>
-            <div style={{
-                fontSize: '11px',
-                color: '#e6eeed',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontWeight: '600',
-                marginBottom: '2px',
-                textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
-            }}>
-                {timeString}
-            </div>
             <div style={{
                 display: 'flex',
                 alignItems: 'stretch',
@@ -126,15 +115,24 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
                     fontSize: '20px',
                     fontFamily: "'JetBrains Mono', monospace",
                     fontWeight: '700',
-                    clipPath: 'polygon(8px 0, 100% 0, 100% 100%, 0 100%)',
+                    clipPath: 'polygon(0 0, 100% 0, 100% 100%, 8px 100%)',
                     minWidth: '45px',
                 }}>
                     {team0Kills}
                 </div>
                 <div style={{
                     backgroundColor: '#34404f',
-                    width: '60px',
+                    padding: '6px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#e6eeed',
+                    fontSize: '13px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontWeight: '600',
+                    minWidth: '50px',
                 }}>
+                    {timeString}
                 </div>
                 <div style={{
                     backgroundColor: "#3e4c7e",
@@ -146,7 +144,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
                     fontSize: '20px',
                     fontFamily: "'JetBrains Mono', monospace",
                     fontWeight: '700',
-                    clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%)',
+                    clipPath: 'polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%)',
                     minWidth: '45px',
                 }}>
                     {team1Kills}
