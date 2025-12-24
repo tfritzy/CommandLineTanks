@@ -4,6 +4,12 @@ import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
 import { UNIT_TO_PIXEL } from "../game";
 
+const RETICLE_SIZE = 24;
+const RETICLE_GAP = 8;
+const RETICLE_CORNER_LENGTH = 10;
+const RETICLE_COLOR = "#fceba8";
+const RETICLE_LINE_WIDTH = 2;
+
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
@@ -49,7 +55,7 @@ export class TankManager {
 
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
         this.playerTankId = tank.id;
-        this.playerTargetTankId = tank.target ?? null;
+        this.updatePlayerTarget(connection, tank);
       }
     });
 
@@ -77,9 +83,7 @@ export class TankManager {
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
       }
 
-      if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId == this.worldId) {
-        this.playerTargetTankId = newTank.target ?? null;
-      }
+      this.updatePlayerTarget(connection, newTank);
     });
 
     connection.db.tank.onDelete((_ctx, tank) => {
@@ -89,6 +93,12 @@ export class TankManager {
         this.playerTankId = null;
       }
     });
+  }
+
+  private updatePlayerTarget(connection: ReturnType<typeof getConnection>, tank: any) {
+    if (connection?.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
+      this.playerTargetTankId = tank.target ?? null;
+    }
   }
 
   public update(deltaTime: number) {
@@ -145,33 +155,29 @@ export class TankManager {
     const y = pos.y * UNIT_TO_PIXEL;
 
     ctx.save();
-    ctx.strokeStyle = "#fceba8";
-    ctx.lineWidth = 2;
-
-    const size = 24;
-    const gap = 8;
-    const cornerLength = 10;
+    ctx.strokeStyle = RETICLE_COLOR;
+    ctx.lineWidth = RETICLE_LINE_WIDTH;
 
     ctx.beginPath();
-    ctx.moveTo(x - size - gap, y - size - gap);
-    ctx.lineTo(x - size - gap + cornerLength, y - size - gap);
-    ctx.moveTo(x - size - gap, y - size - gap);
-    ctx.lineTo(x - size - gap, y - size - gap + cornerLength);
+    ctx.moveTo(x - RETICLE_SIZE - RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP);
+    ctx.lineTo(x - RETICLE_SIZE - RETICLE_GAP + RETICLE_CORNER_LENGTH, y - RETICLE_SIZE - RETICLE_GAP);
+    ctx.moveTo(x - RETICLE_SIZE - RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP);
+    ctx.lineTo(x - RETICLE_SIZE - RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP + RETICLE_CORNER_LENGTH);
 
-    ctx.moveTo(x + size + gap, y - size - gap);
-    ctx.lineTo(x + size + gap - cornerLength, y - size - gap);
-    ctx.moveTo(x + size + gap, y - size - gap);
-    ctx.lineTo(x + size + gap, y - size - gap + cornerLength);
+    ctx.moveTo(x + RETICLE_SIZE + RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP);
+    ctx.lineTo(x + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH, y - RETICLE_SIZE - RETICLE_GAP);
+    ctx.moveTo(x + RETICLE_SIZE + RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP);
+    ctx.lineTo(x + RETICLE_SIZE + RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP + RETICLE_CORNER_LENGTH);
 
-    ctx.moveTo(x - size - gap, y + size + gap);
-    ctx.lineTo(x - size - gap + cornerLength, y + size + gap);
-    ctx.moveTo(x - size - gap, y + size + gap);
-    ctx.lineTo(x - size - gap, y + size + gap - cornerLength);
+    ctx.moveTo(x - RETICLE_SIZE - RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP);
+    ctx.lineTo(x - RETICLE_SIZE - RETICLE_GAP + RETICLE_CORNER_LENGTH, y + RETICLE_SIZE + RETICLE_GAP);
+    ctx.moveTo(x - RETICLE_SIZE - RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP);
+    ctx.lineTo(x - RETICLE_SIZE - RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH);
 
-    ctx.moveTo(x + size + gap, y + size + gap);
-    ctx.lineTo(x + size + gap - cornerLength, y + size + gap);
-    ctx.moveTo(x + size + gap, y + size + gap);
-    ctx.lineTo(x + size + gap, y + size + gap - cornerLength);
+    ctx.moveTo(x + RETICLE_SIZE + RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP);
+    ctx.lineTo(x + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH, y + RETICLE_SIZE + RETICLE_GAP);
+    ctx.moveTo(x + RETICLE_SIZE + RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP);
+    ctx.lineTo(x + RETICLE_SIZE + RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH);
     ctx.stroke();
 
     ctx.restore();
