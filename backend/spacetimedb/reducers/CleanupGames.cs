@@ -17,12 +17,9 @@ public static partial class Module
     {
         var worldsToDelete = new System.Collections.Generic.List<string>();
         
-        foreach (var world in ctx.Db.world.Iter())
+        foreach (var world in ctx.Db.world.GameState.Filter(GameState.Results))
         {
-            if (world.GameState == GameState.Results)
-            {
-                worldsToDelete.Add(world.Id);
-            }
+            worldsToDelete.Add(world.Id);
         }
 
         foreach (var worldId in worldsToDelete)
