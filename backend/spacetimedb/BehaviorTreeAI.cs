@@ -7,13 +7,13 @@ using System.Linq;
 public static partial class BehaviorTreeAI
 {
     [Table(Scheduled = nameof(UpdateAI))]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     public partial struct ScheduledAIUpdate
     {
         [AutoInc]
         [PrimaryKey]
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
+        [SpacetimeDB.Index.BTree]
         public string WorldId;
     }
 

@@ -6,13 +6,13 @@ using static Module;
 public static partial class ProjectileUpdater
 {
     [Table(Scheduled = nameof(UpdateProjectiles))]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId) })]
     public partial struct ScheduledProjectileUpdates
     {
         [AutoInc]
         [PrimaryKey]
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
+        [SpacetimeDB.Index.BTree]
         public string WorldId;
         public ulong LastTickAt;
     }
