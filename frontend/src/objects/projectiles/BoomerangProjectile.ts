@@ -12,12 +12,12 @@ export class BoomerangProjectile extends Projectile {
   public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const { x: centerX, y: centerY } = this.getShadowScreenPosition();
     const key = this.getTextureKey('boomerang');
-    textureSheet.drawShadow(ctx, key, centerX, centerY, this.size * 2, this.rotation);
+    textureSheet.drawShadow(ctx, key, centerX, centerY, this.size, this.rotation);
   }
 
   public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const { x: centerX, y: centerY } = this.getScreenPosition();
     const key = this.getTextureKey('boomerang');
-    textureSheet.drawProjectile(ctx, key, centerX, centerY, this.size * 2, this.rotation);
+    textureSheet.drawProjectile(ctx, key, centerX, centerY, this.size, this.rotation);
   }
 }
