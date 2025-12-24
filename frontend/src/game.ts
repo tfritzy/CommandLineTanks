@@ -40,7 +40,7 @@ export class Game {
 
     this.tankManager = new TankManager(worldId);
     this.terrainManager = new TerrainManager(worldId);
-    this.projectileManager = new ProjectileManager(worldId);
+    this.projectileManager = new ProjectileManager(worldId, this.terrainManager);
     this.scoreManager = new ScoreManager(worldId);
     this.gunInventoryManager = new GunInventoryManager(worldId);
     this.pickupManager = new PickupManager(worldId);
@@ -209,6 +209,7 @@ export class Game {
       displayHeight
     );
 
+    this.projectileManager.drawWarningLines(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
     this.projectileManager.drawShadows(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
     this.projectileManager.drawBodies(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
 

@@ -1,16 +1,19 @@
-import { Projectile, ProjectileFactory } from "../objects/projectiles";
+import { Projectile, ProjectileFactory, MoagProjectile } from "../objects/projectiles";
 import { getConnection } from "../spacetimedb-connection";
 import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
 import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
+import { TerrainManager } from "./TerrainManager";
 import { UNIT_TO_PIXEL } from "../game";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
   private worldId: string;
   private particlesManager: ProjectileImpactParticlesManager;
+  private terrainManager: TerrainManager;
 
-  constructor(worldId: string) {
+  constructor(worldId: string, terrainManager: TerrainManager) {
     this.worldId = worldId;
+    this.terrainManager = terrainManager;
     this.particlesManager = new ProjectileImpactParticlesManager();
     this.subscribeToProjectiles();
   }
@@ -164,6 +167,53 @@ export class ProjectileManager {
       viewportWidth,
       viewportHeight
     );
+  }
+
+  public drawWarningLines(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
+    const worldWidth = this.terrainManager.getWorldWidth();
+    const worldHeight = this.terrainManager.getWorldHeight();
+    
+    if (worldWidth === 0 || worldHeight === 0) return;
+
+    for (const projectile of this.projectiles.values()) {
+      if (!(projectile instanceof MoagProjectile)) continue;
+
+      const x = projectile.getX();
+      const y = projectile.getY();
+      const velocityX = projectile.getVelocityX();
+      const velocityY = projectile.getVelocityY();
+
+      const angle = Math.atan2(velocityY, velocityX);
+      const perpAngle = angle + Math.PI / 2;
+
+      const perpDx = Math.cos(perpAngle);
+      const perpDy = Math.sin(perpAngle);
+
+      const maxDistance = Math.max(worldWidth, worldHeight) * 2;
+
+      const leftX1 = x + perpDx * maxDistance;
+      const leftY1 = y + perpDy * maxDistance;
+      const rightX1 = x - perpDx * maxDistance;
+      const rightY1 = y - perpDy * maxDistance;
+
+      ctx.save();
+      ctx.strokeStyle = projectile.getAlliance() === 0 ? "rgba(192, 104, 82, 0.5)" : "rgba(90, 120, 178, 0.5)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([10, 10]);
+
+      ctx.beginPath();
+      ctx.moveTo(leftX1 * UNIT_TO_PIXEL - cameraX, leftY1 * UNIT_TO_PIXEL - cameraY);
+      ctx.lineTo(rightX1 * UNIT_TO_PIXEL - cameraX, rightY1 * UNIT_TO_PIXEL - cameraY);
+      ctx.stroke();
+
+      ctx.restore();
+    }
   }
 
   public getAllProjectiles(): IterableIterator<Projectile> {
