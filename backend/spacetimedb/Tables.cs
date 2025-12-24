@@ -98,6 +98,8 @@ public static partial class Module
 
         public Gun[] Guns;
         public int SelectedGunIndex;
+
+        public ulong LastFireTime;
     }
 
     [Table(Name = "projectile", Public = true)]
