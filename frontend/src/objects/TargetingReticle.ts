@@ -16,6 +16,10 @@ export class TargetingReticle implements TankIndicator {
     this.tank = tank;
   }
 
+  public setTank(tank: Tank): void {
+    this.tank = tank;
+  }
+
   public update(_deltaTime: number): void {
   }
 

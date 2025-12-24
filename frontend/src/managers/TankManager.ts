@@ -79,7 +79,9 @@ export class TankManager {
       }
 
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId == this.worldId) {
-        this.updatePlayerTarget(newTank.target);
+        if (oldTank.target !== newTank.target) {
+          this.updatePlayerTarget(newTank.target);
+        }
       }
     });
 
