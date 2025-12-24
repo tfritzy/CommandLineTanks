@@ -104,6 +104,8 @@ export class TankManager {
 
     this.playerTargetTankId = newTargetId;
 
+    this.indicatorManager.removeAllReticles();
+
     if (this.playerTargetTankId) {
       const targetedTank = this.tanks.get(this.playerTargetTankId);
       if (targetedTank) {

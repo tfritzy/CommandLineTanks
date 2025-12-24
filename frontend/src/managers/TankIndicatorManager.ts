@@ -1,5 +1,6 @@
 import type { TankIndicator } from "../objects/TankIndicator";
 import { FloatingLabel } from "../objects/FloatingLabel";
+import { TargetingReticle } from "../objects/TargetingReticle";
 
 export class TankIndicatorManager {
   private indicators: TankIndicator[] = [];
@@ -11,6 +12,14 @@ export class TankIndicatorManager {
 
   public addIndicator(indicator: TankIndicator): void {
     this.indicators.push(indicator);
+  }
+
+  public removeAllReticles(): void {
+    for (const indicator of this.indicators) {
+      if (indicator instanceof TargetingReticle) {
+        indicator.kill();
+      }
+    }
   }
 
   public update(deltaTime: number): void {

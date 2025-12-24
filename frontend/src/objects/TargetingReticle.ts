@@ -10,6 +10,7 @@ const RETICLE_LINE_WIDTH = 2;
 
 export class TargetingReticle implements TankIndicator {
   private tank: Tank;
+  private isDead: boolean = false;
 
   constructor(tank: Tank) {
     this.tank = tank;
@@ -55,6 +56,10 @@ export class TargetingReticle implements TankIndicator {
   }
 
   public getIsDead(): boolean {
-    return this.tank.getHealth() <= 0;
+    return this.isDead || this.tank.getHealth() <= 0;
+  }
+
+  public kill(): void {
+    this.isDead = true;
   }
 }
