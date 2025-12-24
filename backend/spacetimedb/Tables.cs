@@ -229,6 +229,8 @@ public static partial class Module
 
         public bool IsPlanted;
 
+        public ulong PlantingStartedAt;
+
         public Vector2Float Velocity;
     }
 }

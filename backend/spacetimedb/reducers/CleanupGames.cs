@@ -55,6 +55,11 @@ public static partial class Module
             ctx.Db.pickup.Id.Delete(pickup.Id);
         }
 
+        foreach (var spiderMine in ctx.Db.spider_mine.WorldId.Filter(worldId))
+        {
+            ctx.Db.spider_mine.Id.Delete(spiderMine.Id);
+        }
+
         foreach (var kill in ctx.Db.kills.WorldId.Filter(worldId))
         {
             ctx.Db.kills.Id.Delete(kill.Id);
@@ -90,6 +95,11 @@ public static partial class Module
         foreach (var pickupSpawn in ctx.Db.ScheduledPickupSpawn.WorldId.Filter(worldId))
         {
             ctx.Db.ScheduledPickupSpawn.ScheduledId.Delete(pickupSpawn.ScheduledId);
+        }
+
+        foreach (var spiderMineUpdate in ctx.Db.ScheduledSpiderMineUpdates.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledSpiderMineUpdates.ScheduledId.Delete(spiderMineUpdate.ScheduledId);
         }
 
         foreach (var worldReset in ctx.Db.ScheduledWorldReset.Iter())

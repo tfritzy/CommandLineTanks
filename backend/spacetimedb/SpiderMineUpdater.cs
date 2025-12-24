@@ -4,7 +4,9 @@ using static Types;
 public static partial class SpiderMineUpdater
 {
     private const float SPIDER_MINE_DETECTION_RADIUS = 2.0f;
+    private const float SPIDER_MINE_CHASE_LOST_RADIUS = 3.0f;
     private const float SPIDER_MINE_SPEED = 3.0f;
+    private const long SPIDER_MINE_PLANT_DURATION_MICROS = 500_000;
     public const int SPIDER_MINE_HEALTH = 1;
 
     [Table(Scheduled = nameof(UpdateSpiderMines))]
@@ -36,7 +38,10 @@ public static partial class SpiderMineUpdater
             var mine = iMine;
             bool needsUpdate = false;
 
-            if (mine.IsPlanted)
+            var plantingElapsedMicros = currentTime - mine.PlantingStartedAt;
+            bool isFullyPlanted = plantingElapsedMicros >= SPIDER_MINE_PLANT_DURATION_MICROS;
+
+            if (mine.IsPlanted && isFullyPlanted)
             {
                 Module.Tank? targetTank = null;
 
@@ -45,8 +50,31 @@ public static partial class SpiderMineUpdater
                     targetTank = ctx.Db.tank.Id.Find(mine.TargetTankId);
                     if (targetTank == null || targetTank.Value.Health <= 0)
                     {
-                        mine = mine with { TargetTankId = null };
+                        mine = mine with 
+                        { 
+                            TargetTankId = null,
+                            IsPlanted = true,
+                            PlantingStartedAt = currentTime
+                        };
                         needsUpdate = true;
+                    }
+                    else
+                    {
+                        var deltaX = targetTank.Value.PositionX - mine.PositionX;
+                        var deltaY = targetTank.Value.PositionY - mine.PositionY;
+                        var distanceSquared = deltaX * deltaX + deltaY * deltaY;
+                        var chaseDistanceSquared = SPIDER_MINE_CHASE_LOST_RADIUS * SPIDER_MINE_CHASE_LOST_RADIUS;
+
+                        if (distanceSquared > chaseDistanceSquared)
+                        {
+                            mine = mine with 
+                            { 
+                                TargetTankId = null,
+                                IsPlanted = true,
+                                PlantingStartedAt = currentTime
+                            };
+                            needsUpdate = true;
+                        }
                     }
                 }
 
@@ -55,12 +83,17 @@ public static partial class SpiderMineUpdater
                     targetTank = FindNearestEnemyTank(ctx, mine, args.WorldId);
                     if (targetTank != null)
                     {
-                        mine = mine with { TargetTankId = targetTank.Value.Id };
+                        mine = mine with 
+                        { 
+                            TargetTankId = targetTank.Value.Id,
+                            IsPlanted = false,
+                            PlantingStartedAt = currentTime
+                        };
                         needsUpdate = true;
                     }
                 }
 
-                if (mine.TargetTankId != null && targetTank != null)
+                if (mine.TargetTankId != null && targetTank != null && !mine.IsPlanted)
                 {
                     var deltaX = targetTank.Value.PositionX - mine.PositionX;
                     var deltaY = targetTank.Value.PositionY - mine.PositionY;
@@ -92,7 +125,7 @@ public static partial class SpiderMineUpdater
                         needsUpdate = true;
                     }
                 }
-                else
+                else if (mine.TargetTankId != null && !needsUpdate)
                 {
                     mine = mine with
                     {
@@ -162,56 +195,7 @@ public static partial class SpiderMineUpdater
 
     private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Module.SpiderMine mine, string worldId)
     {
-        var newHealth = tank.Health - 50;
-
-        if (newHealth <= 0)
-        {
-            var killedTank = tank with
-            {
-                Health = newHealth,
-                Deaths = tank.Deaths + 1
-            };
-            ctx.Db.tank.Id.Update(killedTank);
-
-            var shooterTank = ctx.Db.tank.Id.Find(mine.ShooterTankId);
-            if (shooterTank != null)
-            {
-                var updatedShooterTank = shooterTank.Value with
-                {
-                    Kills = shooterTank.Value.Kills + 1
-                };
-                ctx.Db.tank.Id.Update(updatedShooterTank);
-
-                var killeeName = tank.IsBot ? $"[Bot] {tank.Name}" : tank.Name;
-                ctx.Db.kills.Insert(new Module.Kill
-                {
-                    Id = Module.GenerateId(ctx, "k"),
-                    WorldId = worldId,
-                    Killer = shooterTank.Value.Owner,
-                    KilleeName = killeeName,
-                    Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-                });
-            }
-
-            var score = ctx.Db.score.WorldId.Find(worldId);
-            if (score != null)
-            {
-                var updatedScore = score.Value;
-                if (mine.Alliance >= 0 && mine.Alliance < updatedScore.Kills.Length)
-                {
-                    updatedScore.Kills[mine.Alliance]++;
-                    ctx.Db.score.WorldId.Update(updatedScore);
-                }
-            }
-        }
-        else
-        {
-            var updatedTank = tank with
-            {
-                Health = newHealth
-            };
-            ctx.Db.tank.Id.Update(updatedTank);
-        }
+        Module.DealDamageToTank(ctx, tank, 50, mine.ShooterTankId, mine.Alliance, worldId);
     }
 
     public static void InitializeSpiderMineUpdater(ReducerContext ctx, string worldId)

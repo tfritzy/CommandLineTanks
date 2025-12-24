@@ -68,6 +68,7 @@ public static partial class ProjectileUpdater
             Health = SpiderMineUpdater.SPIDER_MINE_HEALTH,
             TargetTankId = null,
             IsPlanted = true,
+            PlantingStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             Velocity = new Vector2Float(0, 0)
         };
 
@@ -157,52 +158,7 @@ public static partial class ProjectileUpdater
 
     private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Projectile projectile, string worldId)
     {
-        var newHealth = tank.Health - projectile.Damage;
-        var updatedTank = tank with
-        {
-            Health = newHealth
-        };
-        ctx.Db.tank.Id.Update(updatedTank);
-
-        if (newHealth <= 0)
-        {
-            var killedTank = tank with
-            {
-                Deaths = tank.Deaths + 1
-            };
-            ctx.Db.tank.Id.Update(killedTank);
-
-            var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
-            if (shooterTank != null)
-            {
-                var updatedShooterTank = shooterTank.Value with
-                {
-                    Kills = shooterTank.Value.Kills + 1
-                };
-                ctx.Db.tank.Id.Update(updatedShooterTank);
-
-                var killeeName = tank.IsBot ? $"[Bot] {tank.Name}" : tank.Name;
-                ctx.Db.kills.Insert(new Module.Kill
-                {
-                    Id = Module.GenerateId(ctx, "k"),
-                    WorldId = worldId,
-                    Killer = shooterTank.Value.Owner,
-                    KilleeName = killeeName,
-                    Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-                });
-            }
-
-            var score = ctx.Db.score.WorldId.Find(worldId);
-            if (score != null)
-            {
-                var updatedScore = score.Value;
-                if (projectile.Alliance >= 0 && projectile.Alliance < updatedScore.Kills.Length)
-                {
-                    updatedScore.Kills[projectile.Alliance]++;
-                    ctx.Db.score.WorldId.Update(updatedScore);
-                }
-            }
-        }
+        Module.DealDamageToTank(ctx, tank, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
     }
 
     private static Projectile UpdateBoomerangVelocity(Projectile projectile, double projectileAgeSeconds)
@@ -532,7 +488,7 @@ public static partial class ProjectileUpdater
         return (false, projectile, false);
     }
 
-    private static bool HandleSpiderMineCollision(
+    private static (bool collided, Projectile projectile) HandleSpiderMineCollision(
         ReducerContext ctx,
         Projectile projectile,
         string worldId,
@@ -543,7 +499,7 @@ public static partial class ProjectileUpdater
     {
         if (projectile.ProjectileType == ProjectileType.SpiderMine)
         {
-            return false;
+            return (false, projectile);
         }
 
         float totalCollisionRadius = projectile.CollisionRadius + 0.2f;
@@ -568,16 +524,27 @@ public static partial class ProjectileUpdater
                         if (distanceSquared <= collisionRadiusSquared)
                         {
                             ctx.Db.spider_mine.Id.Delete(mine.Id);
-                            ctx.Db.projectile.Id.Delete(projectile.Id);
                             Log.Info($"Spider mine destroyed by projectile at ({mine.PositionX}, {mine.PositionY})");
-                            return true;
+
+                            projectile = projectile with
+                            {
+                                CollisionCount = projectile.CollisionCount + 1
+                            };
+
+                            if (projectile.CollisionCount >= projectile.MaxCollisions)
+                            {
+                                ctx.Db.projectile.Id.Delete(projectile.Id);
+                                return (true, projectile);
+                            }
+
+                            return (false, projectile);
                         }
                     }
                 }
             }
         }
 
-        return false;
+        return (false, projectile);
     }
 
     [Reducer]
@@ -663,10 +630,9 @@ public static partial class ProjectileUpdater
 
             if (collided) continue;
 
-            if (HandleSpiderMineCollision(ctx, projectile, args.WorldId, minRegionX, maxRegionX, minRegionY, maxRegionY))
-            {
-                continue;
-            }
+            (collided, projectile) = HandleSpiderMineCollision(ctx, projectile, args.WorldId, minRegionX, maxRegionX, minRegionY, maxRegionY);
+
+            if (collided) continue;
 
             ctx.Db.projectile.Id.Update(projectile);
         }
