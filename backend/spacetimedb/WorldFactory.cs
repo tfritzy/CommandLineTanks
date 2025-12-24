@@ -45,6 +45,8 @@ public static partial class Module
                 WorldId = worldId,
                 PositionX = posX,
                 PositionY = posY,
+                GridX = detail.x,
+                GridY = detail.y,
                 Type = detail.type,
                 Health = 100,
                 Label = null,

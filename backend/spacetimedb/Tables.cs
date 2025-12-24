@@ -148,7 +148,7 @@ public static partial class Module
     }
 
     [Table(Name = "terrain_detail", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(GridX), nameof(GridY) })]
     public partial struct TerrainDetail
     {
         [PrimaryKey]
@@ -160,6 +160,9 @@ public static partial class Module
         public float PositionX;
         public float PositionY;
 
+        public int GridX;
+        public int GridY;
+
         public TerrainDetailType Type;
 
         public int? Health;
@@ -170,7 +173,7 @@ public static partial class Module
     }
 
     [Table(Name = "pickup", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(GridX), nameof(GridY) })]
     public partial struct Pickup
     {
         [PrimaryKey]
@@ -181,6 +184,9 @@ public static partial class Module
 
         public float PositionX;
         public float PositionY;
+
+        public int GridX;
+        public int GridY;
 
         public PickupType Type;
     }

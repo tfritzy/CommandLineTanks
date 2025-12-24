@@ -67,10 +67,8 @@ public static partial class TankUpdater
             var key = (tileX, tileY);
             if (!_pickupsByTile.ContainsKey(key))
             {
-                float centerX = tileX + 0.5f;
-                float centerY = tileY + 0.5f;
                 var pickups = new List<Module.Pickup>();
-                foreach (var pickup in _ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((_worldId, centerX, centerY)))
+                foreach (var pickup in _ctx.Db.pickup.WorldId_GridX_GridY.Filter((_worldId, tileX, tileY)))
                 {
                     pickups.Add(pickup);
                 }
@@ -90,10 +88,8 @@ public static partial class TankUpdater
             var key = (tileX, tileY);
             if (!_terrainDetailsByTile.ContainsKey(key))
             {
-                float centerX = tileX + 0.5f;
-                float centerY = tileY + 0.5f;
                 var details = new List<Module.TerrainDetail>();
-                foreach (var detail in _ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((_worldId, centerX, centerY)))
+                foreach (var detail in _ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((_worldId, tileX, tileY)))
                 {
                     details.Add(detail);
                 }
