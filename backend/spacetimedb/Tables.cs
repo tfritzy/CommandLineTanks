@@ -186,7 +186,7 @@ public static partial class Module
     }
 
     [Table(Name = "smoke_cloud", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
     public partial struct SmokeCloud
     {
         [PrimaryKey]
@@ -197,6 +197,9 @@ public static partial class Module
 
         public float PositionX;
         public float PositionY;
+
+        public int CollisionRegionX;
+        public int CollisionRegionY;
 
         public ulong SpawnedAt;
         public float Radius;

@@ -325,10 +325,10 @@ const tablesSchema = __schema(
       { name: 'WorldId', algorithm: 'btree', columns: [
         'worldId',
       ] },
-      { name: 'WorldId_PositionX_PositionY', algorithm: 'btree', columns: [
+      { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
         'worldId',
-        'positionX',
-        'positionY',
+        'collisionRegionX',
+        'collisionRegionY',
       ] },
     ],
     constraints: [

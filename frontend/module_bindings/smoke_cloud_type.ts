@@ -16,6 +16,8 @@ export default __t.row({
   worldId: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
+  collisionRegionX: __t.i32(),
+  collisionRegionY: __t.i32(),
   spawnedAt: __t.u64(),
   radius: __t.f32(),
 });

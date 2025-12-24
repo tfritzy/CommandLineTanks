@@ -17,6 +17,9 @@ public static partial class Module
             return;
         }
 
+        int collisionRegionX = (int)(tank.PositionX / COLLISION_REGION_SIZE);
+        int collisionRegionY = (int)(tank.PositionY / COLLISION_REGION_SIZE);
+
         var smokeCloudId = IdGenerator.GenerateId("smoke");
         var smokeCloud = new SmokeCloud
         {
@@ -24,29 +27,12 @@ public static partial class Module
             WorldId = worldId,
             PositionX = tank.PositionX,
             PositionY = tank.PositionY,
+            CollisionRegionX = collisionRegionX,
+            CollisionRegionY = collisionRegionY,
             SpawnedAt = ctx.Timestamp.Microseconds,
             Radius = SMOKESCREEN_RADIUS
         };
         ctx.Db.smoke_cloud.Insert(smokeCloud);
-
-        var allTanks = ctx.Db.tank.WorldId.Filter(worldId);
-        foreach (var otherTank in allTanks)
-        {
-            if (otherTank.Target == null) continue;
-
-            var dx = otherTank.PositionX - tank.PositionX;
-            var dy = otherTank.PositionY - tank.PositionY;
-            var distanceSquared = dx * dx + dy * dy;
-
-            if (distanceSquared <= SMOKESCREEN_RADIUS * SMOKESCREEN_RADIUS)
-            {
-                var updatedTank = otherTank with
-                {
-                    Target = null
-                };
-                ctx.Db.tank.Id.Update(updatedTank);
-            }
-        }
 
         var updatedSourceTank = tank with
         {

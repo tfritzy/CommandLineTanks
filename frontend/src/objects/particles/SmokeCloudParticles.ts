@@ -17,32 +17,56 @@ interface Particle {
 export class SmokeCloudParticles {
   private particles: Particle[] = [];
   private isDead = false;
+  private isEmitting = true;
+  private timeSinceLastEmit = 0;
+  private emitInterval = 0.15;
+  private centerX: number;
+  private centerY: number;
+  private radius: number;
 
   constructor(x: number, y: number, radius: number) {
+    this.centerX = x;
+    this.centerY = y;
+    this.radius = radius;
     
-    const count = 30;
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const dist = Math.random() * radius * 0.3;
-      
-      const speed = 0.1 + Math.random() * 0.3;
-      
-      this.particles.push({
-        x: x + Math.cos(angle) * dist,
-        y: y + Math.sin(angle) * dist,
-        velocityX: Math.cos(angle) * speed,
-        velocityY: Math.sin(angle) * speed,
-        size: 0,
-        maxSize: radius * (0.4 + Math.random() * 0.4),
-        lifetime: 0,
-        maxLifetime: 4.0 + Math.random() * 1.5,
-        rotationSpeed: (Math.random() - 0.5) * 0.5,
-        rotation: Math.random() * Math.PI * 2
-      });
+    for (let i = 0; i < 10; i++) {
+      this.emitParticle();
     }
   }
 
+  private emitParticle(): void {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = Math.random() * this.radius * 0.3;
+    
+    const speed = 0.1 + Math.random() * 0.3;
+    
+    this.particles.push({
+      x: this.centerX + Math.cos(angle) * dist,
+      y: this.centerY + Math.sin(angle) * dist,
+      velocityX: Math.cos(angle) * speed,
+      velocityY: Math.sin(angle) * speed,
+      size: 0,
+      maxSize: this.radius * (0.4 + Math.random() * 0.4),
+      lifetime: 0,
+      maxLifetime: 3.0 + Math.random() * 1.5,
+      rotationSpeed: (Math.random() - 0.5) * 0.5,
+      rotation: Math.random() * Math.PI * 2
+    });
+  }
+
+  public stopEmitting(): void {
+    this.isEmitting = false;
+  }
+
   public update(deltaTime: number): void {
+    if (this.isEmitting) {
+      this.timeSinceLastEmit += deltaTime;
+      while (this.timeSinceLastEmit >= this.emitInterval) {
+        this.emitParticle();
+        this.timeSinceLastEmit -= this.emitInterval;
+      }
+    }
+
     let allDead = true;
     for (const p of this.particles) {
       p.lifetime += deltaTime;
@@ -61,7 +85,10 @@ export class SmokeCloudParticles {
         p.size = p.maxSize * Math.min(1, progress * 3);
       }
     }
-    this.isDead = allDead;
+    
+    if (!this.isEmitting && allDead) {
+      this.isDead = true;
+    }
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {

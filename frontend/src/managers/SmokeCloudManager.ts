@@ -6,27 +6,37 @@ import { SmokeCloudParticles } from "../objects/particles/SmokeCloudParticles";
 
 export class SmokeCloudManager {
   private particleSystems: Map<string, SmokeCloudParticles> = new Map();
+  private worldId: string;
 
   constructor(worldId: string) {
-    this.subscribeToSmokeClouds(worldId);
+    this.worldId = worldId;
+    this.subscribeToSmokeClouds();
   }
 
-  private subscribeToSmokeClouds(worldId: string) {
+  private subscribeToSmokeClouds() {
     const connection = getConnection();
     if (!connection) {
       console.warn("Cannot subscribe to smoke clouds: connection not available");
       return;
     }
 
+    connection
+      .subscriptionBuilder()
+      .onError((e) => console.error("Smoke cloud subscription error", e))
+      .subscribe([`SELECT * FROM smoke_cloud WHERE WorldId = '${this.worldId}'`]);
+
     connection.db.smokeCloud.onInsert((_ctx: EventContext, cloud: Infer<typeof SmokeCloudRow>) => {
-      if (cloud.worldId === worldId) {
+      if (cloud.worldId === this.worldId) {
         const particles = new SmokeCloudParticles(cloud.positionX, cloud.positionY, cloud.radius);
         this.particleSystems.set(cloud.id, particles);
       }
     });
 
     connection.db.smokeCloud.onDelete((_ctx: EventContext, cloud: Infer<typeof SmokeCloudRow>) => {
-      this.particleSystems.delete(cloud.id);
+      const system = this.particleSystems.get(cloud.id);
+      if (system) {
+        system.stopEmitting();
+      }
     });
   }
 

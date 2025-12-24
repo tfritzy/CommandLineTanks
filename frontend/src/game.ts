@@ -7,6 +7,7 @@ import { PickupManager } from "./managers/PickupManager";
 import { MiniMapManager } from "./managers/MiniMapManager";
 import { KillManager } from "./managers/KillManager";
 import { SmokeCloudManager } from "./managers/SmokeCloudManager";
+import { SmokescreenHudManager } from "./managers/SmokescreenHudManager";
 
 export const UNIT_TO_PIXEL = 50;
 const CAMERA_FOLLOW_SPEED = 15;
@@ -26,6 +27,7 @@ export class Game {
   private miniMapManager: MiniMapManager;
   private killManager: KillManager;
   private smokeCloudManager: SmokeCloudManager;
+  private smokescreenHudManager: SmokescreenHudManager;
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
 
@@ -49,6 +51,7 @@ export class Game {
     this.miniMapManager = new MiniMapManager(this.tankManager, this.terrainManager);
     this.killManager = new KillManager(worldId);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
+    this.smokescreenHudManager = new SmokescreenHudManager(worldId);
   }
 
   private resizeCanvas() {
@@ -238,6 +241,7 @@ export class Game {
     this.scoreManager.draw(this.ctx, displayWidth);
     this.miniMapManager.draw(this.ctx, displayWidth, displayHeight);
     this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
+    this.smokescreenHudManager.draw(this.ctx, displayWidth, displayHeight);
     this.killManager.draw(this.ctx, displayWidth, displayHeight);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));

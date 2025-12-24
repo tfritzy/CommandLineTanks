@@ -145,7 +145,40 @@ public static partial class TankUpdater
                     }
                     else
                     {
-                        if (tank.TargetLead > 0)
+                        int targetCollisionRegionX = (int)(targetTank.Value.PositionX / Module.COLLISION_REGION_SIZE);
+                        int targetCollisionRegionY = (int)(targetTank.Value.PositionY / Module.COLLISION_REGION_SIZE);
+
+                        int searchRadius = (int)Math.Ceiling(Module.SMOKESCREEN_RADIUS / Module.COLLISION_REGION_SIZE);
+                        bool targetInSmoke = false;
+
+                        for (int dx = -searchRadius; dx <= searchRadius && !targetInSmoke; dx++)
+                        {
+                            for (int dy = -searchRadius; dy <= searchRadius && !targetInSmoke; dy++)
+                            {
+                                int regionX = targetCollisionRegionX + dx;
+                                int regionY = targetCollisionRegionY + dy;
+
+                                foreach (var smokeCloud in ctx.Db.smoke_cloud.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, regionX, regionY)))
+                                {
+                                    var smokeDx = targetTank.Value.PositionX - smokeCloud.PositionX;
+                                    var smokeDy = targetTank.Value.PositionY - smokeCloud.PositionY;
+                                    var smokeDistanceSquared = smokeDx * smokeDx + smokeDy * smokeDy;
+
+                                    if (smokeDistanceSquared <= smokeCloud.Radius * smokeCloud.Radius)
+                                    {
+                                        targetInSmoke = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (targetInSmoke)
+                        {
+                            tank = tank with { Target = null };
+                            needsUpdate = true;
+                        }
+                        else if (tank.TargetLead > 0)
                         {
                             var targetVelocity = targetTank.Value.Velocity;
                             var velocityMagnitude = Math.Sqrt(targetVelocity.X * targetVelocity.X + targetVelocity.Y * targetVelocity.Y);
@@ -157,14 +190,17 @@ public static partial class TankUpdater
                             }
                         }
 
-                        var deltaX = targetX - tank.PositionX;
-                        var deltaY = targetY - tank.PositionY;
-                        var aimAngle = Math.Atan2(deltaY, deltaX);
-                        var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
-
-                        if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
+                        if (!targetInSmoke)
                         {
-                            tank = tank with { TargetTurretRotation = normalizedAimAngle };
+                            var deltaX = targetX - tank.PositionX;
+                            var deltaY = targetY - tank.PositionY;
+                            var aimAngle = Math.Atan2(deltaY, deltaX);
+                            var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
+
+                            if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
+                            {
+                                tank = tank with { TargetTurretRotation = normalizedAimAngle };
+                            }
                         }
                     }
                 }
