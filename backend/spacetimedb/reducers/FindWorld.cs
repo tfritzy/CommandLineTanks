@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using static Types;
 
 public static partial class Module
 {
@@ -17,8 +18,11 @@ public static partial class Module
         World? world = null;
         foreach (var w in ctx.Db.world.Iter())
         {
-            world = w;
-            break;
+            if (w.GameState == GameState.Playing)
+            {
+                world = w;
+                break;
+            }
         }
 
         if (world == null)
