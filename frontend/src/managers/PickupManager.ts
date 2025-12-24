@@ -8,6 +8,7 @@ import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
 import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
 import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
 import { BoomerangProjectile } from "../objects/projectiles/BoomerangProjectile";
+import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
 import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
 
 interface PickupData {
@@ -15,7 +16,7 @@ interface PickupData {
   positionX: number;
   positionY: number;
   type: Infer<typeof PickupType>;
-  projectile?: Projectile;
+  projectiles?: Projectile[];
 }
 
 export class PickupManager {
@@ -27,20 +28,38 @@ export class PickupManager {
     this.subscribeToPickups();
   }
 
-  private createProjectileForPickup(type: Infer<typeof PickupType>, x: number, y: number): Projectile | undefined {
+  private createProjectilesForPickup(type: Infer<typeof PickupType>, x: number, y: number): Projectile[] | undefined {
     const angle = -Math.PI / 4;
     const velocityX = Math.cos(angle);
     const velocityY = Math.sin(angle);
 
     switch (type.tag) {
+      case "TripleShooter": {
+        const projectiles: Projectile[] = [];
+        const arcAngle = 0.3;
+        const arcRadius = 0.15;
+        
+        for (let i = 0; i < 3; i++) {
+          const projectileAngle = angle + (i - 1) * arcAngle;
+          const offsetX = Math.cos(angle + Math.PI / 2) * (i - 1) * arcRadius;
+          const offsetY = Math.sin(angle + Math.PI / 2) * (i - 1) * arcRadius;
+          const projX = x + offsetX;
+          const projY = y + offsetY;
+          const projVelX = Math.cos(projectileAngle);
+          const projVelY = Math.sin(projectileAngle);
+          
+          projectiles.push(new NormalProjectile(projX, projY, projVelX, projVelY, 0.1, 0));
+        }
+        return projectiles;
+      }
       case "MissileLauncher":
-        return new MissileProjectile(x, y, velocityX, velocityY, 0.3, 0);
+        return [new MissileProjectile(x, y, velocityX, velocityY, 0.3, 0)];
       case "Rocket":
-        return new RocketProjectile(x, y, velocityX, velocityY, 0.2, 0);
+        return [new RocketProjectile(x, y, velocityX, velocityY, 0.2, 0)];
       case "Grenade":
-        return new GrenadeProjectile(x, y, velocityX, velocityY, 0.4, 0);
+        return [new GrenadeProjectile(x, y, velocityX, velocityY, 0.4, 0)];
       case "Boomerang":
-        return new BoomerangProjectile(x, y, velocityX, velocityY, 0.3, 0);
+        return [new BoomerangProjectile(x, y, velocityX, velocityY, 0.3, 0)];
       default:
         return undefined;
     }
@@ -56,14 +75,14 @@ export class PickupManager {
       .subscribe([`SELECT * FROM pickup WHERE WorldId = '${this.worldId}'`]);
 
     connection.db.pickup.onInsert((_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      const projectile = this.createProjectileForPickup(pickup.type, pickup.positionX, pickup.positionY);
+      const projectiles = this.createProjectilesForPickup(pickup.type, pickup.positionX, pickup.positionY);
       
       this.pickups.set(pickup.id, {
         id: pickup.id,
         positionX: pickup.positionX,
         positionY: pickup.positionY,
         type: pickup.type,
-        projectile,
+        projectiles,
       });
     });
 
@@ -83,8 +102,10 @@ export class PickupManager {
     for (const pickup of this.pickups.values()) {
       if (pickup.positionX >= startTileX && pickup.positionX <= endTileX &&
           pickup.positionY >= startTileY && pickup.positionY <= endTileY) {
-        if (pickup.projectile) {
-          pickup.projectile.drawShadow(ctx, textureSheet);
+        if (pickup.projectiles) {
+          for (const projectile of pickup.projectiles) {
+            projectile.drawShadow(ctx, textureSheet);
+          }
         } else {
           this.drawPickupShadow(ctx, pickup);
         }
@@ -94,8 +115,10 @@ export class PickupManager {
     for (const pickup of this.pickups.values()) {
       if (pickup.positionX >= startTileX && pickup.positionX <= endTileX &&
           pickup.positionY >= startTileY && pickup.positionY <= endTileY) {
-        if (pickup.projectile) {
-          pickup.projectile.drawBody(ctx, textureSheet);
+        if (pickup.projectiles) {
+          for (const projectile of pickup.projectiles) {
+            projectile.drawBody(ctx, textureSheet);
+          }
         } else {
           this.drawPickup(ctx, pickup);
         }
