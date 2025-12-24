@@ -20,6 +20,12 @@ public static partial class Module
 
         SpawnInitialBots(ctx, worldId, world);
 
+        ctx.Db.ScheduledGameCleanup.Insert(new ScheduledGameCleanup
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 300_000_000 })
+        });
+
         Log.Info($"Initialized world {worldId}");
     }
 
