@@ -92,6 +92,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  findgame             Join a game world",
       "  clear, c             Clear the terminal output",
       "  help, h              Display help information",
+      "",
+      "You can chain multiple commands using semicolons (;)",
+      "Example: aim 90; fire; drive northeast 5",
     ];
   }
 
