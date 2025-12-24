@@ -3,6 +3,8 @@ import { getConnection } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
 import { UNIT_TO_PIXEL } from "../game";
+import { type Infer } from "spacetimedb";
+import TankType from "../../module_bindings/tank_type";
 
 const RETICLE_SIZE = 24;
 const RETICLE_GAP = 8;
@@ -99,7 +101,7 @@ export class TankManager {
     });
   }
 
-  private updatePlayerTarget(connection: ReturnType<typeof getConnection>, tank: any) {
+  private updatePlayerTarget(connection: ReturnType<typeof getConnection>, tank: Infer<typeof TankType>) {
     if (connection?.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
       this.playerTargetTankId = tank.target ?? null;
     }
