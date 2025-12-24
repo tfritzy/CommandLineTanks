@@ -79,7 +79,9 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        let newOutput = [...output];
+        let newOutput: string[] = [];
+        let clearOldOutput = false;
+        
         newOutput.push(`❯ ${input}`);
 
         if (input.trim()) {
@@ -156,7 +158,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         }
                         case 'clear':
                         case 'c':
-                            newOutput = [];
+                            clearOldOutput = true;
                             break;
                         default:
                             newOutput.push(`Command not found: ${cmd}`);
@@ -169,7 +171,11 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         if (newOutput.length > 0)
             newOutput.push('');
 
-        setOutput(newOutput);
+        if (clearOldOutput) {
+            setOutput(newOutput);
+        } else {
+            setOutput([...output, ...newOutput]);
+        }
         setInput('');
     };
 
