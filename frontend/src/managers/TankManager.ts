@@ -2,10 +2,12 @@ import { Tank } from "../objects/Tank";
 import { getConnection } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
+import { UNIT_TO_PIXEL } from "../game";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
+  private playerTargetTankId: string | null = null;
   private worldId: string;
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
@@ -47,6 +49,7 @@ export class TankManager {
 
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
         this.playerTankId = tank.id;
+        this.playerTargetTankId = tank.target ?? null;
       }
     });
 
@@ -73,6 +76,10 @@ export class TankManager {
         tank.setGuns(newTank.guns);
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
       }
+
+      if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId == this.worldId) {
+        this.playerTargetTankId = newTank.target ?? null;
+      }
     });
 
     connection.db.tank.onDelete((_ctx, tank) => {
@@ -94,6 +101,10 @@ export class TankManager {
 
   public getPlayerTank(): Tank | null {
     return this.playerTankId ? this.tanks.get(this.playerTankId) || null : null;
+  }
+
+  public getTargetedTank(): Tank | null {
+    return this.playerTargetTankId ? this.tanks.get(this.playerTargetTankId) || null : null;
   }
 
   public drawPaths(ctx: CanvasRenderingContext2D) {
@@ -123,6 +134,47 @@ export class TankManager {
 
   public drawTankIndicators(ctx: CanvasRenderingContext2D) {
     this.indicatorManager.draw(ctx);
+  }
+
+  public drawTargetingReticle(ctx: CanvasRenderingContext2D) {
+    const targetedTank = this.getTargetedTank();
+    if (!targetedTank || targetedTank.getHealth() <= 0) return;
+
+    const pos = targetedTank.getPosition();
+    const x = pos.x * UNIT_TO_PIXEL;
+    const y = pos.y * UNIT_TO_PIXEL;
+
+    ctx.save();
+    ctx.strokeStyle = "#fceba8";
+    ctx.lineWidth = 2;
+
+    const size = 24;
+    const gap = 8;
+    const cornerLength = 10;
+
+    ctx.beginPath();
+    ctx.moveTo(x - size - gap, y - size - gap);
+    ctx.lineTo(x - size - gap + cornerLength, y - size - gap);
+    ctx.moveTo(x - size - gap, y - size - gap);
+    ctx.lineTo(x - size - gap, y - size - gap + cornerLength);
+
+    ctx.moveTo(x + size + gap, y - size - gap);
+    ctx.lineTo(x + size + gap - cornerLength, y - size - gap);
+    ctx.moveTo(x + size + gap, y - size - gap);
+    ctx.lineTo(x + size + gap, y - size - gap + cornerLength);
+
+    ctx.moveTo(x - size - gap, y + size + gap);
+    ctx.lineTo(x - size - gap + cornerLength, y + size + gap);
+    ctx.moveTo(x - size - gap, y + size + gap);
+    ctx.lineTo(x - size - gap, y + size + gap - cornerLength);
+
+    ctx.moveTo(x + size + gap, y + size + gap);
+    ctx.lineTo(x + size + gap - cornerLength, y + size + gap);
+    ctx.moveTo(x + size + gap, y + size + gap);
+    ctx.lineTo(x + size + gap, y + size + gap - cornerLength);
+    ctx.stroke();
+
+    ctx.restore();
   }
 
   public drawParticles(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {

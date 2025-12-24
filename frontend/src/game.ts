@@ -198,6 +198,7 @@ export class Game {
       displayHeight,
       UNIT_TO_PIXEL
     );
+    this.tankManager.drawTargetingReticle(this.ctx);
     this.tankManager.drawHealthBars(this.ctx);
     this.tankManager.drawTankIndicators(this.ctx);
 
