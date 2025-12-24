@@ -3,6 +3,7 @@ import { Game } from './game';
 import TerminalComponent from './components/terminal/Terminal';
 import ResultsScreen from './components/ResultsScreen';
 import GameHeader from './components/GameHeader';
+import SmokescreenHud from './components/SmokescreenHud';
 import { connectToSpacetimeDB, getConnection } from './spacetimedb-connection';
 import { useWorldSwitcher } from './hooks/useWorldSwitcher';
 import { type Infer } from 'spacetimedb';
@@ -108,6 +109,7 @@ function App() {
     }}>
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
         <GameHeader worldId={worldId} />
+        <SmokescreenHud worldId={worldId} />
         <canvas
           ref={canvasRef}
           style={{

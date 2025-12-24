@@ -88,6 +88,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  target, t            Target another tank by name",
       "  fire, f              Fire a projectile from your tank",
       "  switch, w            Switch to a different gun",
+      "  smokescreen, sm      Deploy a smokescreen that disrupts enemy targeting (60s cooldown)",
       "  respawn              Respawn after death",
       "  findgame             Join a game world",
       "  clear, c             Clear the terminal output",
@@ -242,6 +243,22 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  switch 1",
         "  switch 2",
         "  w 3"
+      ];
+
+    case "smokescreen":
+    case "sm":
+      return [
+        "smokescreen, sm - Deploy a smokescreen that disrupts enemy targeting",
+        "",
+        "Usage: smokescreen",
+        "",
+        "Deploys a smoke cloud at your current position that causes all tanks",
+        "within the smoke radius to lose their current target. The smoke cloud",
+        "persists for 5 seconds. This ability has a 60-second cooldown.",
+        "",
+        "Examples:",
+        "  smokescreen",
+        "  sm"
       ];
 
     case "respawn":
@@ -776,3 +793,27 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
   ];
 }
 
+export function smokescreen(connection: DbConnection, worldId: string, args: string[]): string[] {
+  if (isPlayerDead(connection, worldId)) {
+    return [
+      "smokescreen: error: cannot deploy smokescreen while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
+  if (args.length > 0) {
+    return [
+      "smokescreen: error: smokescreen command takes no arguments",
+      "",
+      "Usage: smokescreen",
+      "       sm"
+    ];
+  }
+
+  connection.reducers.smokescreen({ worldId });
+
+  return [
+    "Deploying smokescreen...",
+  ];
+}
