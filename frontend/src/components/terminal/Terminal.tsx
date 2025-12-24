@@ -86,78 +86,82 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             setCommandHistory([...commandHistory, input.trim()]);
             setHistoryIndex(-1);
 
-            const [cmd, ...args] = input.trim().split(' ');
+            const commands = input.trim().split(';').map(cmd => cmd.trim()).filter(cmd => cmd);
             const connection = getConnection();
 
             if (!connection?.isActive) {
                 newOutput.push("Error: connection is currently not active");
             } else {
-                switch (cmd.toLowerCase()) {
-                    case 'aim':
-                    case 'a': {
-                        const aimOutput = aim(connection, worldId, args);
-                        newOutput.push(...aimOutput);
-                        break;
+                for (const commandStr of commands) {
+                    const [cmd, ...args] = commandStr.split(' ');
+
+                    switch (cmd.toLowerCase()) {
+                        case 'aim':
+                        case 'a': {
+                            const aimOutput = aim(connection, worldId, args);
+                            newOutput.push(...aimOutput);
+                            break;
+                        }
+                        case 'target':
+                        case 't': {
+                            const targetOutput = target(connection, worldId, args);
+                            newOutput.push(...targetOutput);
+                            break;
+                        }
+                        case 'drive':
+                        case 'd': {
+                            const driveOutput = drive(connection, worldId, args);
+                            newOutput.push(...driveOutput);
+                            break;
+                        }
+                        case 'reverse':
+                        case 'r': {
+                            const reverseOutput = reverse(connection, worldId, args);
+                            newOutput.push(...reverseOutput);
+                            break;
+                        }
+                        case 'stop':
+                        case 's': {
+                            const stopOutput = stop(connection, worldId, args);
+                            newOutput.push(...stopOutput);
+                            break;
+                        }
+                        case 'fire':
+                        case 'f': {
+                            const fireOutput = fire(connection, worldId, args);
+                            newOutput.push(...fireOutput);
+                            break;
+                        }
+                        case 'switch':
+                        case 'w': {
+                            const switchOutput = switchGun(connection, worldId, args);
+                            newOutput.push(...switchOutput);
+                            break;
+                        }
+                        case 'respawn': {
+                            const respawnOutput = respawn(connection, worldId, args);
+                            newOutput.push(...respawnOutput);
+                            break;
+                        }
+                        case 'findgame': {
+                            const findGameOutput = findGame(connection, args);
+                            newOutput.push(...findGameOutput);
+                            break;
+                        }
+                        case 'help':
+                        case 'h': {
+                            const helpOutput = help(connection, args);
+                            newOutput.push(...helpOutput);
+                            break;
+                        }
+                        case 'clear':
+                        case 'c':
+                            newOutput = [];
+                            break;
+                        default:
+                            newOutput.push(`Command not found: ${cmd}`);
+                            break;
                     }
-                    case 'target':
-                    case 't': {
-                        const targetOutput = target(connection, worldId, args);
-                        newOutput.push(...targetOutput);
-                        break;
-                    }
-                    case 'drive':
-                    case 'd': {
-                        const driveOutput = drive(connection, worldId, args);
-                        newOutput.push(...driveOutput);
-                        break;
-                    }
-                    case 'reverse':
-                    case 'r': {
-                        const reverseOutput = reverse(connection, worldId, args);
-                        newOutput.push(...reverseOutput);
-                        break;
-                    }
-                    case 'stop':
-                    case 's': {
-                        const stopOutput = stop(connection, worldId, args);
-                        newOutput.push(...stopOutput);
-                        break;
-                    }
-                    case 'fire':
-                    case 'f': {
-                        const fireOutput = fire(connection, worldId, args);
-                        newOutput.push(...fireOutput);
-                        break;
-                    }
-                    case 'switch':
-                    case 'w': {
-                        const switchOutput = switchGun(connection, worldId, args);
-                        newOutput.push(...switchOutput);
-                        break;
-                    }
-                    case 'respawn': {
-                        const respawnOutput = respawn(connection, worldId, args);
-                        newOutput.push(...respawnOutput);
-                        break;
-                    }
-                    case 'findgame': {
-                        const findGameOutput = findGame(connection, args);
-                        newOutput.push(...findGameOutput);
-                        break;
-                    }
-                    case 'help':
-                    case 'h': {
-                        const helpOutput = help(connection, args);
-                        newOutput.push(...helpOutput);
-                        break;
-                    }
-                    case 'clear':
-                    case 'c':
-                        newOutput = [];
-                        break;
-                    default:
-                        newOutput.push(`Command not found: ${cmd}`);
-                        break;
                 }
             }
         }
