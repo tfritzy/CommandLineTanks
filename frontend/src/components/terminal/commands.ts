@@ -253,7 +253,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Usage: smokescreen",
         "",
         "Deploys a smoke cloud at your current position. Tanks that are",
-        "targeting other tanks within the smoke cloud will lose their target.",
+        "targeting other tanks within the smoke cloud will lose their target,",
+        "preventing enemies from targeting you while you're in the smoke.",
         "The smoke cloud persists for 5 seconds. This ability has a 60-second cooldown.",
         "",
         "Examples:",
@@ -809,6 +810,23 @@ export function smokescreen(connection: DbConnection, worldId: string, args: str
       "Usage: smokescreen",
       "       sm"
     ];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
+  const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
+  
+  if (myTank) {
+    const currentTime = BigInt(Date.now() * 1000);
+    const cooldownEnd = myTank.smokescreenCooldownEnd;
+    
+    if (cooldownEnd > currentTime) {
+      const remaining = Number(cooldownEnd - currentTime) / 1_000_000;
+      return [
+        `smokescreen: error: ability is on cooldown`,
+        "",
+        `Time remaining: ${Math.ceil(remaining)} seconds`
+      ];
+    }
   }
 
   connection.reducers.smokescreen({ worldId });
