@@ -18,8 +18,11 @@ public static partial class Module
         if (tank.Health <= 0) return false;
 
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        ulong timeSinceLastFire = currentTime - tank.LastFireTime;
-        if (timeSinceLastFire < FIRE_RATE_LIMIT_MICROS) return false;
+        if (tank.LastFireTime != 0)
+        {
+            ulong timeSinceLastFire = currentTime - tank.LastFireTime;
+            if (timeSinceLastFire < FIRE_RATE_LIMIT_MICROS) return false;
+        }
 
         if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return false;
 
