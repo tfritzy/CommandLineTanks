@@ -193,6 +193,16 @@ export class ProjectileManager {
     
     if (worldWidth === 0 || worldHeight === 0) return;
 
+    let hasMoagProjectiles = false;
+    for (const projectile of this.projectiles.values()) {
+      if (projectile instanceof MoagProjectile) {
+        hasMoagProjectiles = true;
+        break;
+      }
+    }
+
+    if (!hasMoagProjectiles) return;
+
     const maxDistance = Math.max(worldWidth, worldHeight) * MAP_EXTENSION_FACTOR;
 
     for (const projectile of this.projectiles.values()) {
