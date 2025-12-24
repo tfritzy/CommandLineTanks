@@ -193,6 +193,8 @@ export class ProjectileManager {
     
     if (worldWidth === 0 || worldHeight === 0) return;
 
+    const maxDistance = Math.max(worldWidth, worldHeight) * MAP_EXTENSION_FACTOR;
+
     for (const projectile of this.projectiles.values()) {
       if (!(projectile instanceof MoagProjectile)) continue;
 
@@ -206,8 +208,6 @@ export class ProjectileManager {
 
       const perpDx = Math.cos(perpAngle);
       const perpDy = Math.sin(perpAngle);
-
-      const maxDistance = Math.max(worldWidth, worldHeight) * MAP_EXTENSION_FACTOR;
 
       const leftX1 = x + perpDx * maxDistance;
       const leftY1 = y + perpDy * maxDistance;
