@@ -64,17 +64,21 @@ public static partial class SpiderMineUpdater
                 {
                     var deltaX = targetTank.Value.PositionX - mine.PositionX;
                     var deltaY = targetTank.Value.PositionY - mine.PositionY;
-                    var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+                    var distanceSquared = deltaX * deltaX + deltaY * deltaY;
 
-                    if (distance <= Module.TANK_COLLISION_RADIUS + 0.5f)
+                    float collisionThreshold = Module.TANK_COLLISION_RADIUS + 0.5f;
+                    float collisionThresholdSquared = collisionThreshold * collisionThreshold;
+
+                    if (distanceSquared <= collisionThresholdSquared)
                     {
                         HandleTankDamage(ctx, targetTank.Value, mine, args.WorldId);
                         ctx.Db.spider_mine.Id.Delete(mine.Id);
                         continue;
                     }
 
-                    if (distance > 0)
+                    if (distanceSquared > 0)
                     {
+                        var distance = Math.Sqrt(distanceSquared);
                         var dirX = deltaX / distance;
                         var dirY = deltaY / distance;
                         var moveDistance = SPIDER_MINE_SPEED * deltaTime;
@@ -159,16 +163,12 @@ public static partial class SpiderMineUpdater
     private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Module.SpiderMine mine, string worldId)
     {
         var newHealth = tank.Health - 50;
-        var updatedTank = tank with
-        {
-            Health = newHealth
-        };
-        ctx.Db.tank.Id.Update(updatedTank);
 
         if (newHealth <= 0)
         {
             var killedTank = tank with
             {
+                Health = newHealth,
                 Deaths = tank.Deaths + 1
             };
             ctx.Db.tank.Id.Update(killedTank);
@@ -203,6 +203,14 @@ public static partial class SpiderMineUpdater
                     ctx.Db.score.WorldId.Update(updatedScore);
                 }
             }
+        }
+        else
+        {
+            var updatedTank = tank with
+            {
+                Health = newHealth
+            };
+            ctx.Db.tank.Id.Update(updatedTank);
         }
     }
 

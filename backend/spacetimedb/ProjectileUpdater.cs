@@ -485,15 +485,15 @@ public static partial class ProjectileUpdater
 
                     if (distanceSquared <= collisionRadiusSquared)
                     {
-                        if (HandleBoomerangReturn(ctx, projectile, tank))
-                        {
-                            return (true, projectile, false);
-                        }
-
                         if (projectile.ProjectileType == ProjectileType.SpiderMine)
                         {
                             PlantSpiderMine(ctx, projectile, worldId);
                             ctx.Db.projectile.Id.Delete(projectile.Id);
+                            return (true, projectile, false);
+                        }
+
+                        if (HandleBoomerangReturn(ctx, projectile, tank))
+                        {
                             return (true, projectile, false);
                         }
 
