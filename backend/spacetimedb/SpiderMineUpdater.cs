@@ -195,7 +195,7 @@ public static partial class SpiderMineUpdater
 
     private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Module.SpiderMine mine, string worldId)
     {
-        Module.DealDamageToTank(ctx, tank, 50, mine.ShooterTankId, mine.Alliance, worldId);
+        Module.DealDamageToTankCommand(ctx, tank, 50, mine.ShooterTankId, mine.Alliance, worldId);
     }
 
     public static void InitializeSpiderMineUpdater(ReducerContext ctx, string worldId)

@@ -2,7 +2,7 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-    public static void DealDamageToTank(
+    public static void DealDamageToTankCommand(
         ReducerContext ctx,
         Tank tank,
         int damage,
