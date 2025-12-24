@@ -15,15 +15,7 @@ public static partial class Module
             return;
         }
 
-        World? world = null;
-        foreach (var w in ctx.Db.world.Iter())
-        {
-            if (w.GameState == GameState.Playing)
-            {
-                world = w;
-                break;
-            }
-        }
+        World? world = ctx.Db.world.GameState.Filter(GameState.Playing).FirstOrDefault();
 
         if (world == null)
         {
