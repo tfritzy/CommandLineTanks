@@ -98,38 +98,57 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             display: 'flex',
             alignItems: 'center',
             zIndex: 1000,
-            fontFamily: 'Poppins, sans-serif',
-            fontWeight: '800',
-            borderRadius: '0 0 8px 8px',
-            overflow: 'hidden',
         } as React.CSSProperties}>
             <div style={{
-                backgroundColor: "#813645",
-                padding: '0px 16px',
-                WebkitTextStroke: '2px #000',
-                WebkitTextFillColor: '#fcfbf3',
-                fontSize: '28px',
-
+                display: 'flex',
+                alignItems: 'stretch',
+                height: '26px',
+                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))',
             }}>
-                {team0Kills}
-            </div>
-            <div style={{
-                backgroundColor: '#34404f',
-                padding: '4px 16px',
-                WebkitTextStroke: '2px #000',
-                WebkitTextFillColor: '#e6eeed',
-                fontSize: '22px',
-            }}>
-                {timeString}
-            </div>
-            <div style={{
-                backgroundColor: "#3e4c7e",
-                padding: '0px 16px',
-                WebkitTextStroke: '2px #000',
-                WebkitTextFillColor: '#fcfbf3',
-                fontSize: '28px',
-            }}>
-                {team1Kills}
+                <div style={{
+                    backgroundColor: "#813645",
+                    padding: '6px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fcfbf3',
+                    fontSize: '20px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontWeight: '700',
+                    clipPath: 'polygon(0 0, 100% 0, 100% 100%, 8px 100%)',
+                    minWidth: '45px',
+                }}>
+                    {team0Kills}
+                </div>
+                <div style={{
+                    backgroundColor: '#34404f',
+                    padding: '6px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#e6eeed',
+                    fontSize: '13px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontWeight: '600',
+                    minWidth: '50px',
+                }}>
+                    {timeString}
+                </div>
+                <div style={{
+                    backgroundColor: "#3e4c7e",
+                    padding: '6px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fcfbf3',
+                    fontSize: '20px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontWeight: '700',
+                    clipPath: 'polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%)',
+                    minWidth: '45px',
+                }}>
+                    {team1Kills}
+                </div>
             </div>
         </div >
     );
