@@ -92,6 +92,10 @@ export class TankManager {
       if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
         this.playerTankId = null;
       }
+
+      if (this.playerTargetTankId === tank.id && tank.worldId == this.worldId) {
+        this.playerTargetTankId = null;
+      }
     });
   }
 
