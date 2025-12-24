@@ -34,6 +34,9 @@ public static partial class Module
         };
         ctx.Db.smoke_cloud.Insert(smokeCloud);
 
+        ulong expirationTime = ctx.Timestamp.Microseconds + (ulong)SMOKESCREEN_DURATION_MICROS;
+        ScheduleSmokeCloudCleanup(ctx, smokeCloudId, expirationTime);
+
         var updatedSourceTank = tank with
         {
             SmokescreenCooldownEnd = ctx.Timestamp.Microseconds + (ulong)SMOKESCREEN_COOLDOWN_MICROS

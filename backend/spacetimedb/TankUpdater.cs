@@ -1,9 +1,44 @@
 using SpacetimeDB;
 using static Types;
+using System.Collections.Generic;
 
 public static partial class TankUpdater
 {
     private const double ARRIVAL_THRESHOLD = 0.1;
+
+    public class TankUpdateContext
+    {
+        private readonly ReducerContext _ctx;
+        private readonly string _worldId;
+        private Dictionary<(int, int), List<Module.SmokeCloud>>? _smokeCloudsByRegion;
+
+        public TankUpdateContext(ReducerContext ctx, string worldId)
+        {
+            _ctx = ctx;
+            _worldId = worldId;
+        }
+
+        public List<Module.SmokeCloud> GetSmokeCloudsByRegion(int regionX, int regionY)
+        {
+            if (_smokeCloudsByRegion == null)
+            {
+                _smokeCloudsByRegion = new Dictionary<(int, int), List<Module.SmokeCloud>>();
+            }
+
+            var key = (regionX, regionY);
+            if (!_smokeCloudsByRegion.ContainsKey(key))
+            {
+                var clouds = new List<Module.SmokeCloud>();
+                foreach (var cloud in _ctx.Db.smoke_cloud.WorldId_CollisionRegionX_CollisionRegionY.Filter((_worldId, regionX, regionY)))
+                {
+                    clouds.Add(cloud);
+                }
+                _smokeCloudsByRegion[key] = clouds;
+            }
+
+            return _smokeCloudsByRegion[key];
+        }
+    }
 
     [Table(Scheduled = nameof(UpdateTanks))]
     public partial struct ScheduledTankUpdates
@@ -28,6 +63,8 @@ public static partial class TankUpdater
         {
             LastTickAt = currentTime
         });
+
+        var updateContext = new TankUpdateContext(ctx, args.WorldId);
 
         foreach (var iTank in ctx.Db.tank.WorldId.Filter(args.WorldId))
         {
@@ -158,7 +195,8 @@ public static partial class TankUpdater
                                 int regionX = targetCollisionRegionX + dx;
                                 int regionY = targetCollisionRegionY + dy;
 
-                                foreach (var smokeCloud in ctx.Db.smoke_cloud.WorldId_CollisionRegionX_CollisionRegionY.Filter((args.WorldId, regionX, regionY)))
+                                var smokeClouds = updateContext.GetSmokeCloudsByRegion(regionX, regionY);
+                                foreach (var smokeCloud in smokeClouds)
                                 {
                                     var smokeDx = targetTank.Value.PositionX - smokeCloud.PositionX;
                                     var smokeDy = targetTank.Value.PositionY - smokeCloud.PositionY;
