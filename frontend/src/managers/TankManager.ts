@@ -8,7 +8,7 @@ export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
   private playerTargetTankId: string | null = null;
-  private currentTargetingReticle: TargetingReticle | null = null;
+  private targetingReticle: TargetingReticle;
   private worldId: string;
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
@@ -17,6 +17,7 @@ export class TankManager {
     this.worldId = worldId;
     this.particlesManager = new DeadTankParticlesManager();
     this.indicatorManager = new TankIndicatorManager();
+    this.targetingReticle = new TargetingReticle();
     this.subscribeToTanks();
   }
 
@@ -107,17 +108,13 @@ export class TankManager {
 
     this.playerTargetTankId = newTargetId;
 
-    if (this.currentTargetingReticle) {
-      this.currentTargetingReticle.kill();
-      this.currentTargetingReticle = null;
-    }
-
     if (this.playerTargetTankId) {
       const targetedTank = this.tanks.get(this.playerTargetTankId);
       if (targetedTank) {
-        this.currentTargetingReticle = new TargetingReticle(targetedTank);
-        this.indicatorManager.addIndicator(this.currentTargetingReticle);
+        this.targetingReticle.setTank(targetedTank);
       }
+    } else {
+      this.targetingReticle.clearTank();
     }
   }
 
@@ -160,6 +157,7 @@ export class TankManager {
 
   public drawTankIndicators(ctx: CanvasRenderingContext2D) {
     this.indicatorManager.draw(ctx);
+    this.targetingReticle.draw(ctx);
   }
 
   public drawParticles(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {

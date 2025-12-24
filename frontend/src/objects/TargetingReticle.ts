@@ -2,29 +2,32 @@ import { UNIT_TO_PIXEL } from "../game";
 import type { TankIndicator } from "./TankIndicator";
 import type { Tank } from "./Tank";
 
-const RETICLE_SIZE = 24;
-const RETICLE_GAP = 8;
-const RETICLE_CORNER_LENGTH = 10;
+const RETICLE_SIZE = 20;
+const RETICLE_GAP = 6;
+const RETICLE_CORNER_LENGTH = 8;
 const RETICLE_COLOR = "#fceba8";
 const RETICLE_LINE_WIDTH = 2;
 
 export class TargetingReticle implements TankIndicator {
-  private tank: Tank;
-  private isDead: boolean = false;
+  private tank: Tank | null = null;
 
-  constructor(tank: Tank) {
-    this.tank = tank;
+  constructor(tank?: Tank) {
+    this.tank = tank ?? null;
   }
 
   public setTank(tank: Tank): void {
     this.tank = tank;
   }
 
+  public clearTank(): void {
+    this.tank = null;
+  }
+
   public update(_deltaTime: number): void {
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
-    if (this.tank.getHealth() <= 0) return;
+    if (!this.tank || this.tank.getHealth() <= 0) return;
 
     const pos = this.tank.getPosition();
     const x = pos.x * UNIT_TO_PIXEL;
@@ -60,10 +63,10 @@ export class TargetingReticle implements TankIndicator {
   }
 
   public getIsDead(): boolean {
-    return this.isDead || this.tank.getHealth() <= 0;
+    return false;
   }
 
   public kill(): void {
-    this.isDead = true;
+    this.tank = null;
   }
 }
