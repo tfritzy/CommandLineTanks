@@ -155,4 +155,24 @@ public static partial class Module
         Bounce = false,
         ProjectileSize = 2.5f,
     };
+
+    public static readonly Gun SPIDER_MINE_GUN = new Gun
+    {
+        GunType = GunType.SpiderMine,
+        Ammo = 5,
+        ProjectileCount = 1,
+        SpreadAngle = 0,
+        Damage = 50,
+        TrackingStrength = 0,
+        ProjectileType = ProjectileType.SpiderMine,
+        LifetimeSeconds = 2.0f,
+        MaxCollisions = 9999,
+        PassThroughTerrain = false,
+        CollisionRadius = 0.1f,
+        ExplosionRadius = 0.5f,
+        ExplosionTrigger = ExplosionTrigger.OnHit,
+        Damping = 0.6f,
+        Bounce = false,
+        ProjectileSize = .2f,
+    };
 }

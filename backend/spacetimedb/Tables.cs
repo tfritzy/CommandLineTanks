@@ -202,4 +202,33 @@ public static partial class Module
 
         public ulong Timestamp;
     }
+
+    [Table(Name = "spider_mine", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
+    public partial struct SpiderMine
+    {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public string ShooterTankId;
+
+        public int Alliance;
+
+        public float PositionX;
+        public float PositionY;
+
+        public int CollisionRegionX;
+        public int CollisionRegionY;
+
+        public int Health;
+
+        public string? TargetTankId;
+
+        public bool IsPlanted;
+
+        public Vector2Float Velocity;
+    }
 }

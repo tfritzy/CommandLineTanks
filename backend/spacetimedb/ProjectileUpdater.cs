@@ -52,6 +52,29 @@ public static partial class ProjectileUpdater
         return false;
     }
 
+    private static void PlantSpiderMine(ReducerContext ctx, Projectile projectile, string worldId)
+    {
+        var mineId = Module.GenerateId(ctx, "spm");
+        var mine = new Module.SpiderMine
+        {
+            Id = mineId,
+            WorldId = worldId,
+            ShooterTankId = projectile.ShooterTankId,
+            Alliance = projectile.Alliance,
+            PositionX = projectile.PositionX,
+            PositionY = projectile.PositionY,
+            CollisionRegionX = (int)(projectile.PositionX / Module.COLLISION_REGION_SIZE),
+            CollisionRegionY = (int)(projectile.PositionY / Module.COLLISION_REGION_SIZE),
+            Health = SpiderMineUpdater.SPIDER_MINE_HEALTH,
+            TargetTankId = null,
+            IsPlanted = true,
+            Velocity = new Vector2Float(0, 0)
+        };
+
+        ctx.Db.spider_mine.Insert(mine);
+        Log.Info($"Spider mine planted at ({mine.PositionX}, {mine.PositionY})");
+    }
+
     private static bool ExplodeProjectile(ReducerContext ctx, Projectile projectile, string worldId, ref Module.TraversibilityMap traversibilityMap)
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
@@ -312,6 +335,13 @@ public static partial class ProjectileUpdater
             return (false, projectile, false);
         }
 
+        if (projectile.ProjectileType == ProjectileType.SpiderMine)
+        {
+            PlantSpiderMine(ctx, projectile, worldId);
+            ctx.Db.projectile.Id.Delete(projectile.Id);
+            return (true, projectile, false);
+        }
+
         if (projectile.Bounce)
         {
             projectile = HandleProjectileBounce(projectile, projectileTileX, projectileTileY, deltaTime);
@@ -460,6 +490,13 @@ public static partial class ProjectileUpdater
                             return (true, projectile, false);
                         }
 
+                        if (projectile.ProjectileType == ProjectileType.SpiderMine)
+                        {
+                            PlantSpiderMine(ctx, projectile, worldId);
+                            ctx.Db.projectile.Id.Delete(projectile.Id);
+                            return (true, projectile, false);
+                        }
+
                         if (tank.Alliance != projectile.Alliance && tank.Health > 0)
                         {
                             if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0)
@@ -493,6 +530,54 @@ public static partial class ProjectileUpdater
         }
 
         return (false, projectile, false);
+    }
+
+    private static bool HandleSpiderMineCollision(
+        ReducerContext ctx,
+        Projectile projectile,
+        string worldId,
+        int minRegionX,
+        int maxRegionX,
+        int minRegionY,
+        int maxRegionY)
+    {
+        if (projectile.ProjectileType == ProjectileType.SpiderMine)
+        {
+            return false;
+        }
+
+        float totalCollisionRadius = projectile.CollisionRadius + 0.2f;
+        float collisionRadiusSquared = totalCollisionRadius * totalCollisionRadius;
+
+        for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
+        {
+            if (regionX < 0) continue;
+
+            for (int regionY = minRegionY; regionY <= maxRegionY; regionY++)
+            {
+                if (regionY < 0) continue;
+
+                foreach (var mine in ctx.Db.spider_mine.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                {
+                    if (mine.Alliance != projectile.Alliance)
+                    {
+                        float dx = mine.PositionX - projectile.PositionX;
+                        float dy = mine.PositionY - projectile.PositionY;
+                        float distanceSquared = dx * dx + dy * dy;
+
+                        if (distanceSquared <= collisionRadiusSquared)
+                        {
+                            ctx.Db.spider_mine.Id.Delete(mine.Id);
+                            ctx.Db.projectile.Id.Delete(projectile.Id);
+                            Log.Info($"Spider mine destroyed by projectile at ({mine.PositionX}, {mine.PositionY})");
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     [Reducer]
@@ -576,10 +661,14 @@ public static partial class ProjectileUpdater
                 traversibilityMapChanged = true;
             }
 
-            if (!collided)
+            if (collided) continue;
+
+            if (HandleSpiderMineCollision(ctx, projectile, args.WorldId, minRegionX, maxRegionX, minRegionY, maxRegionY))
             {
-                ctx.Db.projectile.Id.Update(projectile);
+                continue;
             }
+
+            ctx.Db.projectile.Id.Update(projectile);
         }
 
         if (traversibilityMapChanged)

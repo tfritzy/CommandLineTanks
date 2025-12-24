@@ -68,7 +68,8 @@ public static partial class Types
         Boomerang,
         Grenade,
         Rocket,
-        Moag
+        Moag,
+        SpiderMine
     }
 
     [Type]
@@ -87,7 +88,8 @@ public static partial class Types
         Boomerang,
         Grenade,
         Rocket,
-        Moag
+        Moag,
+        SpiderMine
     }
 
     [Type]
@@ -98,7 +100,8 @@ public static partial class Types
         Boomerang,
         Grenade,
         Rocket,
-        Moag
+        Moag,
+        SpiderMine
     }
 
     [Type]
