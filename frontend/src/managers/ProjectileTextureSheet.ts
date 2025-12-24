@@ -132,44 +132,83 @@ export class ProjectileTextureSheet {
   }
 
   private addBoomerangProjectile(key: string, color: string, x: number, y: number, radius: number) {
-    const padding = 2;
-    const centerX = x + radius * 2 + padding;
-    const centerY = y + radius * 2 + padding;
+    const padding = 4;
+    const armWidth = radius * 0.4;
+    const armLength = radius * 2.5;
+    const centerX = x + armLength + padding;
+    const centerY = y + armLength + padding;
 
     this.shadowCtx.save();
     this.shadowCtx.translate(centerX, centerY);
     this.shadowCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    
     this.shadowCtx.beginPath();
-    this.shadowCtx.moveTo(0, -radius * 2);
-    this.shadowCtx.lineTo(radius * 0.5, 0);
-    this.shadowCtx.lineTo(0, radius * 2);
-    this.shadowCtx.lineTo(-radius * 1.5, 0);
+    this.shadowCtx.arc(0, 0, armWidth * 0.8, 0, Math.PI * 2);
+    this.shadowCtx.fill();
+    
+    this.shadowCtx.beginPath();
+    this.shadowCtx.moveTo(0, 0);
+    this.shadowCtx.lineTo(armLength, -armWidth * 0.5);
+    this.shadowCtx.quadraticCurveTo(armLength * 0.9, -armWidth * 0.7, armLength * 0.7, -armLength * 0.4);
+    this.shadowCtx.lineTo(armWidth * 0.5, -armLength);
+    this.shadowCtx.quadraticCurveTo(armWidth * 0.3, -armLength * 0.9, 0, -armLength * 0.8);
+    this.shadowCtx.lineTo(0, 0);
     this.shadowCtx.closePath();
     this.shadowCtx.fill();
+    
+    this.shadowCtx.beginPath();
+    this.shadowCtx.moveTo(0, 0);
+    this.shadowCtx.lineTo(-armWidth * 0.5, armLength);
+    this.shadowCtx.quadraticCurveTo(-armWidth * 0.7, armLength * 0.9, -armLength * 0.4, armLength * 0.7);
+    this.shadowCtx.lineTo(-armLength, armWidth * 0.5);
+    this.shadowCtx.quadraticCurveTo(-armLength * 0.9, armWidth * 0.3, -armLength * 0.8, 0);
+    this.shadowCtx.lineTo(0, 0);
+    this.shadowCtx.closePath();
+    this.shadowCtx.fill();
+    
     this.shadowCtx.restore();
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
     this.ctx.fillStyle = color;
     this.ctx.strokeStyle = "#2e2e43";
-    this.ctx.lineWidth = 1.5;
+    this.ctx.lineWidth = 2;
+    this.ctx.lineJoin = "round";
     
     this.ctx.beginPath();
-    this.ctx.moveTo(0, -radius * 2);
-    this.ctx.lineTo(radius * 0.5, 0);
-    this.ctx.lineTo(0, radius * 2);
-    this.ctx.lineTo(-radius * 1.5, 0);
-    this.ctx.closePath();
-    
+    this.ctx.arc(0, 0, armWidth * 0.8, 0, Math.PI * 2);
     this.ctx.fill();
     this.ctx.stroke();
+    
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 0);
+    this.ctx.lineTo(armLength, -armWidth * 0.5);
+    this.ctx.quadraticCurveTo(armLength * 0.9, -armWidth * 0.7, armLength * 0.7, -armLength * 0.4);
+    this.ctx.lineTo(armWidth * 0.5, -armLength);
+    this.ctx.quadraticCurveTo(armWidth * 0.3, -armLength * 0.9, 0, -armLength * 0.8);
+    this.ctx.lineTo(0, 0);
+    this.ctx.closePath();
+    this.ctx.fill();
+    this.ctx.stroke();
+    
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 0);
+    this.ctx.lineTo(-armWidth * 0.5, armLength);
+    this.ctx.quadraticCurveTo(-armWidth * 0.7, armLength * 0.9, -armLength * 0.4, armLength * 0.7);
+    this.ctx.lineTo(-armLength, armWidth * 0.5);
+    this.ctx.quadraticCurveTo(-armLength * 0.9, armWidth * 0.3, -armLength * 0.8, 0);
+    this.ctx.lineTo(0, 0);
+    this.ctx.closePath();
+    this.ctx.fill();
+    this.ctx.stroke();
+    
     this.ctx.restore();
 
     const textureData = {
       x: x,
       y: y,
-      width: radius * 2.5 + padding * 2,
-      height: radius * 4 + padding * 2,
+      width: armLength * 2 + padding * 2,
+      height: armLength * 2 + padding * 2,
     };
     
     this.textures.set(key, textureData);
