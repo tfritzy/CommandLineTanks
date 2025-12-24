@@ -84,7 +84,7 @@ public static partial class Module
         Damage = 50,
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Boomerang,
-        LifetimeSeconds = 8.0f,
+        LifetimeSeconds = 4.0f,
         MaxCollisions = 10,
         PassThroughTerrain = true,
         CollisionRadius = 0.1f,
