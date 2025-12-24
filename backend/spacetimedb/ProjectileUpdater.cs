@@ -143,6 +143,12 @@ public static partial class ProjectileUpdater
 
         if (newHealth <= 0)
         {
+            var killedTank = tank with
+            {
+                Deaths = tank.Deaths + 1
+            };
+            ctx.Db.tank.Id.Update(killedTank);
+
             var shooterTank = ctx.Db.tank.Id.Find(projectile.ShooterTankId);
             if (shooterTank != null)
             {
