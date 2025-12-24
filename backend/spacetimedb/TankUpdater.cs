@@ -11,6 +11,9 @@ public static partial class TankUpdater
         private readonly ReducerContext _ctx;
         private readonly string _worldId;
         private Dictionary<(int, int), List<Module.SmokeCloud>>? _smokeCloudsByRegion;
+        private Dictionary<string, Module.Tank?>? _tanksById;
+        private Dictionary<(float, float), List<Module.Pickup>>? _pickupsByPosition;
+        private Dictionary<(float, float), List<Module.TerrainDetail>>? _terrainDetailsByPosition;
 
         public TankUpdateContext(ReducerContext ctx, string worldId)
         {
@@ -37,6 +40,63 @@ public static partial class TankUpdater
             }
 
             return _smokeCloudsByRegion[key];
+        }
+
+        public Module.Tank? GetTankById(string tankId)
+        {
+            if (_tanksById == null)
+            {
+                _tanksById = new Dictionary<string, Module.Tank?>();
+            }
+
+            if (!_tanksById.ContainsKey(tankId))
+            {
+                _tanksById[tankId] = _ctx.Db.tank.Id.Find(tankId);
+            }
+
+            return _tanksById[tankId];
+        }
+
+        public List<Module.Pickup> GetPickupsByPosition(float centerX, float centerY)
+        {
+            if (_pickupsByPosition == null)
+            {
+                _pickupsByPosition = new Dictionary<(float, float), List<Module.Pickup>>();
+            }
+
+            var key = (centerX, centerY);
+            if (!_pickupsByPosition.ContainsKey(key))
+            {
+                var pickups = new List<Module.Pickup>();
+                foreach (var pickup in _ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((_worldId, centerX, centerY)))
+                {
+                    pickups.Add(pickup);
+                }
+                _pickupsByPosition[key] = pickups;
+            }
+
+            return _pickupsByPosition[key];
+        }
+
+        public List<Module.TerrainDetail> GetTerrainDetailsByPosition(float centerX, float centerY)
+        {
+            if (_terrainDetailsByPosition == null)
+            {
+                _terrainDetailsByPosition = new Dictionary<(float, float), List<Module.TerrainDetail>>();
+            }
+
+            var key = (centerX, centerY);
+            if (!_terrainDetailsByPosition.ContainsKey(key))
+            {
+                var details = new List<Module.TerrainDetail>();
+                foreach (var detail in _ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((_worldId, centerX, centerY)))
+                {
+                    details.Add(detail);
+                }
+                _terrainDetailsByPosition[key] = details;
+            }
+
+            return _terrainDetailsByPosition[key];
         }
     }
 
@@ -165,7 +225,7 @@ public static partial class TankUpdater
 
             if (tank.Target != null)
             {
-                var targetTank = ctx.Db.tank.Id.Find(tank.Target);
+                var targetTank = updateContext.GetTankById(tank.Target);
                 if (targetTank != null)
                 {
                     var targetX = targetTank.Value.PositionX;
@@ -284,7 +344,7 @@ public static partial class TankUpdater
 
             float centerX = tankTileX + 0.5f;
             float centerY = tankTileY + 0.5f;
-            foreach (var pickup in ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, centerX, centerY)))
+            foreach (var pickup in updateContext.GetPickupsByPosition(centerX, centerY))
             {
                 if (PickupSpawner.TryCollectPickup(ctx, ref tank, ref needsUpdate, pickup))
                 {
@@ -292,7 +352,7 @@ public static partial class TankUpdater
                 }
             }
 
-            foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, centerX, centerY)))
+            foreach (var terrainDetail in updateContext.GetTerrainDetailsByPosition(centerX, centerY))
             {
                 if (terrainDetail.Type == TerrainDetailType.FenceEdge || terrainDetail.Type == TerrainDetailType.FenceCorner)
                 {
