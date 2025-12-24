@@ -213,7 +213,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                         marginLeft: '16px',
                                         color: index === 0 ? '#c06852' : '#707b89',
                                         fontSize: '14px'
-                                    }}>{tank.kills}</span>
+                                    }}>{tank.kills} / {tank.deaths}</span>
                                 </div>
                             ))}
                             {team0Tanks.length === 0 && (
@@ -268,7 +268,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                         marginLeft: '16px',
                                         color: index === 0 ? '#5a78b2' : '#707b89',
                                         fontSize: '14px'
-                                    }}>{tank.kills}</span>
+                                    }}>{tank.kills} / {tank.deaths}</span>
                                 </div>
                             ))}
                             {team1Tanks.length === 0 && (
