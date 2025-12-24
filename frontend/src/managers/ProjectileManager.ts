@@ -3,7 +3,12 @@ import { getConnection } from "../spacetimedb-connection";
 import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
 import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
 import { TerrainManager } from "./TerrainManager";
+import { TEAM_COLORS } from "../constants";
 import { UNIT_TO_PIXEL } from "../game";
+
+const MAP_EXTENSION_FACTOR = 2;
+const WARNING_LINE_DASH_PATTERN = [10, 10];
+const WARNING_LINE_OPACITY = 0.5;
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
@@ -195,7 +200,7 @@ export class ProjectileManager {
       const perpDx = Math.cos(perpAngle);
       const perpDy = Math.sin(perpAngle);
 
-      const maxDistance = Math.max(worldWidth, worldHeight) * 2;
+      const maxDistance = Math.max(worldWidth, worldHeight) * MAP_EXTENSION_FACTOR;
 
       const leftX1 = x + perpDx * maxDistance;
       const leftY1 = y + perpDy * maxDistance;
@@ -203,9 +208,12 @@ export class ProjectileManager {
       const rightY1 = y - perpDy * maxDistance;
 
       ctx.save();
-      ctx.strokeStyle = projectile.getAlliance() === 0 ? "rgba(192, 104, 82, 0.5)" : "rgba(90, 120, 178, 0.5)";
+      const teamColor = projectile.getAlliance() === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+      ctx.strokeStyle = teamColor.replace(/^#/, 'rgba(') 
+        .replace(/(..)(..)(..)$/, (_, r, g, b) => 
+          `${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)}, ${WARNING_LINE_OPACITY})`);
       ctx.lineWidth = 2;
-      ctx.setLineDash([10, 10]);
+      ctx.setLineDash(WARNING_LINE_DASH_PATTERN);
 
       ctx.beginPath();
       ctx.moveTo(leftX1 * UNIT_TO_PIXEL - cameraX, leftY1 * UNIT_TO_PIXEL - cameraY);
