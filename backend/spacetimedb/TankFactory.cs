@@ -64,7 +64,8 @@ public static partial class Module
             TopSpeed = 3f,
             TurretRotationSpeed = 12f,
             Guns = [BASE_GUN],
-            SelectedGunIndex = 0
+            SelectedGunIndex = 0,
+            SmokescreenCooldownEnd = 0
         };
     }
 

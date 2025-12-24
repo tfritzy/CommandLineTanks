@@ -96,6 +96,8 @@ public static partial class Module
 
         public Gun[] Guns;
         public int SelectedGunIndex;
+
+        public ulong SmokescreenCooldownEnd;
     }
 
     [Table(Name = "projectile", Public = true)]
@@ -181,6 +183,23 @@ public static partial class Module
         public float PositionY;
 
         public PickupType Type;
+    }
+
+    [Table(Name = "smoke_cloud", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
+    public partial struct SmokeCloud
+    {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public float PositionX;
+        public float PositionY;
+
+        public ulong SpawnedAt;
+        public float Radius;
     }
 
     [Table(Name = "kills", Public = true)]

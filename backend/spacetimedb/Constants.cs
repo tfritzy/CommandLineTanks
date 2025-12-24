@@ -13,6 +13,9 @@ public static partial class Module
     public const float MISSILE_TRACKING_RADIUS = 8.0f;
     public const long GAME_DURATION_MICROS = 600_000_000;
     public const float MAX_TARGETING_RANGE = 12.0f;
+    public const long SMOKESCREEN_COOLDOWN_MICROS = 60_000_000;
+    public const float SMOKESCREEN_RADIUS = 3.0f;
+    public const long SMOKESCREEN_DURATION_MICROS = 5_000_000;
 
 
     public static readonly Gun BASE_GUN = new Gun
