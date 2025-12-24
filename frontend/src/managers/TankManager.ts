@@ -2,20 +2,13 @@ import { Tank } from "../objects/Tank";
 import { getConnection } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
-import { UNIT_TO_PIXEL } from "../game";
-import { type Infer } from "spacetimedb";
-import TankType from "../../module_bindings/tank_type";
-
-const RETICLE_SIZE = 24;
-const RETICLE_GAP = 8;
-const RETICLE_CORNER_LENGTH = 10;
-const RETICLE_COLOR = "#fceba8";
-const RETICLE_LINE_WIDTH = 2;
+import { TargetingReticle } from "../objects/TargetingReticle";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
   private playerTargetTankId: string | null = null;
+  private currentReticle: TargetingReticle | null = null;
   private worldId: string;
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
@@ -57,7 +50,7 @@ export class TankManager {
 
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
         this.playerTankId = tank.id;
-        this.updatePlayerTarget(connection, tank);
+        this.updatePlayerTarget(tank.target);
       }
     });
 
@@ -85,7 +78,9 @@ export class TankManager {
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
       }
 
-      this.updatePlayerTarget(connection, newTank);
+      if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId == this.worldId) {
+        this.updatePlayerTarget(newTank.target);
+      }
     });
 
     connection.db.tank.onDelete((_ctx, tank) => {
@@ -96,14 +91,30 @@ export class TankManager {
       }
 
       if (this.playerTargetTankId === tank.id && tank.worldId == this.worldId) {
-        this.playerTargetTankId = null;
+        this.updatePlayerTarget(null);
       }
     });
   }
 
-  private updatePlayerTarget(connection: ReturnType<typeof getConnection>, tank: Infer<typeof TankType>) {
-    if (connection?.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
-      this.playerTargetTankId = tank.target ?? null;
+  private updatePlayerTarget(targetId: string | null | undefined) {
+    const newTargetId = targetId ?? null;
+    
+    if (this.playerTargetTankId === newTargetId) {
+      return;
+    }
+
+    this.playerTargetTankId = newTargetId;
+
+    if (this.currentReticle) {
+      this.currentReticle = null;
+    }
+
+    if (this.playerTargetTankId) {
+      const targetedTank = this.tanks.get(this.playerTargetTankId);
+      if (targetedTank) {
+        this.currentReticle = new TargetingReticle(targetedTank);
+        this.indicatorManager.addIndicator(this.currentReticle);
+      }
     }
   }
 
@@ -117,10 +128,6 @@ export class TankManager {
 
   public getPlayerTank(): Tank | null {
     return this.playerTankId ? this.tanks.get(this.playerTankId) || null : null;
-  }
-
-  public getTargetedTank(): Tank | null {
-    return this.playerTargetTankId ? this.tanks.get(this.playerTargetTankId) || null : null;
   }
 
   public drawPaths(ctx: CanvasRenderingContext2D) {
@@ -150,43 +157,6 @@ export class TankManager {
 
   public drawTankIndicators(ctx: CanvasRenderingContext2D) {
     this.indicatorManager.draw(ctx);
-  }
-
-  public drawTargetingReticle(ctx: CanvasRenderingContext2D) {
-    const targetedTank = this.getTargetedTank();
-    if (!targetedTank || targetedTank.getHealth() <= 0) return;
-
-    const pos = targetedTank.getPosition();
-    const x = pos.x * UNIT_TO_PIXEL;
-    const y = pos.y * UNIT_TO_PIXEL;
-
-    ctx.save();
-    ctx.strokeStyle = RETICLE_COLOR;
-    ctx.lineWidth = RETICLE_LINE_WIDTH;
-
-    ctx.beginPath();
-    ctx.moveTo(x - RETICLE_SIZE - RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP);
-    ctx.lineTo(x - RETICLE_SIZE - RETICLE_GAP + RETICLE_CORNER_LENGTH, y - RETICLE_SIZE - RETICLE_GAP);
-    ctx.moveTo(x - RETICLE_SIZE - RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP);
-    ctx.lineTo(x - RETICLE_SIZE - RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP + RETICLE_CORNER_LENGTH);
-
-    ctx.moveTo(x + RETICLE_SIZE + RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP);
-    ctx.lineTo(x + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH, y - RETICLE_SIZE - RETICLE_GAP);
-    ctx.moveTo(x + RETICLE_SIZE + RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP);
-    ctx.lineTo(x + RETICLE_SIZE + RETICLE_GAP, y - RETICLE_SIZE - RETICLE_GAP + RETICLE_CORNER_LENGTH);
-
-    ctx.moveTo(x - RETICLE_SIZE - RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP);
-    ctx.lineTo(x - RETICLE_SIZE - RETICLE_GAP + RETICLE_CORNER_LENGTH, y + RETICLE_SIZE + RETICLE_GAP);
-    ctx.moveTo(x - RETICLE_SIZE - RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP);
-    ctx.lineTo(x - RETICLE_SIZE - RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH);
-
-    ctx.moveTo(x + RETICLE_SIZE + RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP);
-    ctx.lineTo(x + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH, y + RETICLE_SIZE + RETICLE_GAP);
-    ctx.moveTo(x + RETICLE_SIZE + RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP);
-    ctx.lineTo(x + RETICLE_SIZE + RETICLE_GAP, y + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH);
-    ctx.stroke();
-
-    ctx.restore();
   }
 
   public drawParticles(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
