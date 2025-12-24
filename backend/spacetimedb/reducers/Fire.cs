@@ -17,6 +17,13 @@ public static partial class Module
     {
         if (tank.Health <= 0) return false;
 
+        ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        if (tank.LastFireTime != 0)
+        {
+            ulong timeSinceLastFire = currentTime - tank.LastFireTime;
+            if (timeSinceLastFire < FIRE_RATE_LIMIT_MICROS) return false;
+        }
+
         if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return false;
 
         var gun = tank.Guns[tank.SelectedGunIndex];
@@ -59,9 +66,10 @@ public static partial class Module
                 updatedGuns[tank.SelectedGunIndex] = gun;
                 tank.Guns = updatedGuns;
             }
-
-            ctx.Db.tank.Id.Update(tank);
         }
+
+        tank.LastFireTime = currentTime;
+        ctx.Db.tank.Id.Update(tank);
 
         Log.Info($"Tank {tank.Name} fired {gun.GunType}. Ammo remaining: {gun.Ammo?.ToString() ?? "unlimited"}");
         return true;
