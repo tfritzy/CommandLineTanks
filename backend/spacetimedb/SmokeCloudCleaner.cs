@@ -10,6 +10,8 @@ public static partial class Module
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
+        public string WorldId;
+        [SpacetimeDB.Index.BTree]
         public string SmokeCloudId;
     }
 
@@ -23,13 +25,14 @@ public static partial class Module
         }
     }
 
-    public static void ScheduleSmokeCloudCleanup(ReducerContext ctx, string smokeCloudId, ulong expirationTime)
+    public static void ScheduleSmokeCloudCleanup(ReducerContext ctx, string worldId, string smokeCloudId, ulong expirationTime)
     {
         long durationMicros = (long)(expirationTime - (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
         ctx.Db.ScheduledSmokeCloudCleanup.Insert(new ScheduledSmokeCloudCleanup
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = durationMicros }),
+            WorldId = worldId,
             SmokeCloudId = smokeCloudId
         });
     }

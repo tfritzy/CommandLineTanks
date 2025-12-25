@@ -42,11 +42,11 @@ Before starting on a request related to spacetimedb, read: https://spacetimedb.c
 ### Scheduled Tasks and Cleanup
 
 - When adding a new scheduled task table (marked with `[Table(Scheduled = ...)]`), ALWAYS update cleanup logic
-- If the scheduled task has a `WorldId` field, add cleanup to BOTH:
+- All scheduled tasks MUST have a `WorldId` field to tie them to a world
+- Add cleanup to BOTH:
   - `StopWorldTickers()` in `WorldTickerManager.cs`
   - `DeleteWorld()` in `reducers/CleanupGames.cs`
 - Use the pattern: `foreach (var item in ctx.Db.ScheduledTableName.WorldId.Filter(worldId)) { ctx.Db.ScheduledTableName.ScheduledId.Delete(item.ScheduledId); }`
-- If the scheduled task does NOT have a WorldId field, use `Iter()` in DeleteWorld and check manually
 
 ## SpacetimeDB TypeScript API Reference
 
