@@ -60,12 +60,12 @@ export class BaseTerrainManager {
     const startRenderY = Math.floor(cameraY / unitToPixel) - 1;
     const endRenderY = Math.ceil((cameraY + canvasHeight) / unitToPixel) + 1;
 
-    ctx.fillStyle = TERRAIN_COLORS.GROUND;
     const startTileX = Math.floor(cameraX / unitToPixel);
     const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
+    ctx.fillStyle = TERRAIN_COLORS.GROUND;
     ctx.beginPath();
     for (let tileY = startTileY; tileY <= endTileY; tileY++) {
       for (let tileX = startTileX; tileX <= endTileX; tileX++) {
