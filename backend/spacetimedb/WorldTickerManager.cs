@@ -47,6 +47,11 @@ public static partial class Module
             ctx.Db.ScheduledSpiderMineUpdates.ScheduledId.Delete(spiderMineUpdate.ScheduledId);
         }
 
+        foreach (var enemyTankRespawnCheck in ctx.Db.ScheduledEnemyTankRespawnCheck.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
+        }
+
         Log.Info($"Stopped tickers for world {worldId}");
     }
 

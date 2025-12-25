@@ -129,6 +129,11 @@ public static partial class Module
             }
         }
 
+        foreach (var enemyTankRespawnCheck in ctx.Db.ScheduledEnemyTankRespawnCheck.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
+        }
+
         var worldToDelete = ctx.Db.world.Id.Find(worldId);
         if (worldToDelete != null)
         {
