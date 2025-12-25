@@ -2,6 +2,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import KillRow from "../../module_bindings/kills_table";
 import { type EventContext } from "../../module_bindings";
+import { drawKillNotification } from "../drawing/ui/kill-feed";
 
 interface KillNotification {
   id: string;
@@ -102,60 +103,6 @@ export class KillManager {
     width: number,
     height: number
   ) {
-    const fadeInTime = 0.3;
-    const fadeOutTime = 2.5;
-    
-    let alpha = 1.0;
-    if (notification.displayTime < fadeInTime) {
-      alpha = notification.displayTime / fadeInTime;
-    } else if (notification.displayTime > fadeOutTime) {
-      alpha = Math.max(0, 1.0 - (notification.displayTime - fadeOutTime) / (3.0 - fadeOutTime));
-    }
-
-    ctx.save();
-    ctx.globalAlpha = alpha;
-
-    const scale = notification.displayTime < fadeInTime 
-      ? 0.95 + (0.05 * (notification.displayTime / fadeInTime))
-      : 1.0;
-
-    ctx.translate(x, y);
-    ctx.scale(scale, scale);
-
-    ctx.fillStyle = '#2a152daa';
-    
-    const radius = 4;
-    ctx.beginPath();
-    ctx.moveTo(-width / 2 + radius, -height / 2);
-    ctx.arcTo(width / 2, -height / 2, width / 2, height / 2, radius);
-    ctx.arcTo(width / 2, height / 2, -width / 2, height / 2, radius);
-    ctx.arcTo(-width / 2, height / 2, -width / 2, -height / 2, radius);
-    ctx.arcTo(-width / 2, -height / 2, width / 2, -height / 2, radius);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    
-    ctx.font = '700 16px Poppins, sans-serif';
-    
-    const label = "ELIMINATED ";
-    const name = notification.killeeName.toUpperCase();
-    
-    const labelWidth = ctx.measureText(label).width;
-    const nameWidth = ctx.measureText(name).width;
-    const totalWidth = labelWidth + nameWidth;
-    
-    const startX = -totalWidth / 2;
-    
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#c06852';
-    ctx.fillText(label, startX, 1);
-    
-    ctx.fillStyle = '#fcfbf3';
-    ctx.fillText(name, startX + labelWidth, 1);
-
-    ctx.restore();
+    drawKillNotification(ctx, notification.killeeName, notification.displayTime, x, y, width, height);
   }
 }
