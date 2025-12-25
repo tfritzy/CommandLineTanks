@@ -298,6 +298,7 @@ public static partial class TankUpdater
                             if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
                             {
                                 tank = tank with { TargetTurretRotation = normalizedAimAngle };
+                                needsUpdate = true;
                             }
                         }
                     }
