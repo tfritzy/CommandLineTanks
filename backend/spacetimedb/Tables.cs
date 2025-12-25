@@ -102,6 +102,8 @@ public static partial class Module
         public ulong LastFireTime;
 
         public ulong SmokescreenCooldownEnd;
+
+        public bool HasShield;
     }
 
     [Table(Name = "projectile", Public = true)]

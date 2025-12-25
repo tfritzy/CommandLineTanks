@@ -13,6 +13,7 @@ import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
 import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
 import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
 import { drawHealthPackShadow, drawHealthPackBody } from "../drawing/entities/health-pack";
+import { drawShieldPickupShadow, drawShieldPickupBody } from "../drawing/entities/shield-pickup";
 
 interface PickupData {
   id: string;
@@ -161,10 +162,18 @@ export class PickupManager {
   }
 
   private drawPickupShadow(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    drawHealthPackShadow(_ctx, pickup.positionX, pickup.positionY);
+    if (pickup.type.tag === "Shield") {
+      drawShieldPickupShadow(_ctx, pickup.positionX, pickup.positionY);
+    } else {
+      drawHealthPackShadow(_ctx, pickup.positionX, pickup.positionY);
+    }
   }
 
   private drawPickup(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    drawHealthPackBody(_ctx, pickup.positionX, pickup.positionY);
+    if (pickup.type.tag === "Shield") {
+      drawShieldPickupBody(_ctx, pickup.positionX, pickup.positionY);
+    } else {
+      drawHealthPackBody(_ctx, pickup.positionX, pickup.positionY);
+    }
   }
 }
