@@ -65,6 +65,11 @@ public static partial class Module
             ctx.Db.kills.Id.Delete(kill.Id);
         }
 
+        foreach (var smokeCloud in ctx.Db.smoke_cloud.WorldId.Filter(worldId))
+        {
+            ctx.Db.smoke_cloud.Id.Delete(smokeCloud.Id);
+        }
+
         var score = ctx.Db.score.WorldId.Find(worldId);
         if (score != null)
         {
@@ -113,6 +118,15 @@ public static partial class Module
         foreach (var gameEnd in ctx.Db.ScheduledGameEnd.WorldId.Filter(worldId))
         {
             ctx.Db.ScheduledGameEnd.ScheduledId.Delete(gameEnd.ScheduledId);
+        }
+
+        foreach (var smokeCloudCleanup in ctx.Db.ScheduledSmokeCloudCleanup.Iter())
+        {
+            var cloud = ctx.Db.smoke_cloud.Id.Find(smokeCloudCleanup.SmokeCloudId);
+            if (cloud != null && cloud.Value.WorldId == worldId)
+            {
+                ctx.Db.ScheduledSmokeCloudCleanup.ScheduledId.Delete(smokeCloudCleanup.ScheduledId);
+            }
         }
 
         var worldToDelete = ctx.Db.world.Id.Find(worldId);

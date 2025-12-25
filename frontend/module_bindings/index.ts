@@ -55,6 +55,8 @@ import Respawn from "./respawn_reducer";
 export { Respawn };
 import Reverse from "./reverse_reducer";
 export { Reverse };
+import Smokescreen from "./smokescreen_reducer";
+export { Smokescreen };
 import SpawnPickup from "./spawn_pickup_reducer";
 export { SpawnPickup };
 import Stop from "./stop_reducer";
@@ -95,6 +97,8 @@ import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
+import SmokeCloudRow from "./smoke_cloud_type";
+export { SmokeCloudRow };
 import TankRow from "./tank_table";
 export { TankRow };
 import TerrainDetailRow from "./terrain_detail_table";
@@ -313,6 +317,25 @@ const tablesSchema = __schema(
     ],
   }, ScoreRow),
   __table({
+    name: 'smoke_cloud',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+      { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
+        'worldId',
+        'collisionRegionX',
+        'collisionRegionY',
+      ] },
+    ],
+    constraints: [
+      { name: 'smoke_cloud_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, SmokeCloudRow),
+  __table({
     name: 'tank',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
@@ -401,6 +424,7 @@ const reducersSchema = __reducers(
   __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("reverse", Reverse),
+  __reducerSchema("smokescreen", Smokescreen),
   __reducerSchema("SpawnPickup", SpawnPickup),
   __reducerSchema("stop", Stop),
   __reducerSchema("switchGun", SwitchGun),

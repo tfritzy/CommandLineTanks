@@ -65,6 +65,8 @@ public static partial class Module
                     WorldId = identityString,
                     PositionX = rx + 0.5f,
                     PositionY = ry + 0.5f,
+                    GridX = rx,
+                    GridY = ry,
                     Type = TerrainDetailType.Rock,
                     Health = 100,
                     Rotation = random.Next(4)
@@ -86,6 +88,8 @@ public static partial class Module
                     WorldId = identityString,
                     PositionX = tx + 0.5f,
                     PositionY = ty + 0.5f,
+                    GridX = tx,
+                    GridY = ty,
                     Type = TerrainDetailType.Tree,
                     Health = 100,
                     Rotation = random.Next(4)
@@ -106,6 +110,8 @@ public static partial class Module
             WorldId = identityString,
             PositionX = worldSize / 2.0f + 0.5f,
             PositionY = 5.5f,
+            GridX = worldSize / 2,
+            GridY = 5,
             Type = TerrainDetailType.Label,
             Health = 100,
             Label = "Welcome to Command Line Tanks",
@@ -119,6 +125,8 @@ public static partial class Module
             WorldId = identityString,
             PositionX = worldSize / 2.0f + 0.5f,
             PositionY = 6.5f,
+            GridX = worldSize / 2,
+            GridY = 6,
             Type = TerrainDetailType.Label,
             Health = 100,
             Label = "When you're ready to find a game, call the findgame command",
@@ -136,6 +144,8 @@ public static partial class Module
                 WorldId = identityString,
                 PositionX = x + 0.5f,
                 PositionY = y + 0.5f,
+                GridX = x,
+                GridY = y,
                 Type = TerrainDetailType.TargetDummy,
                 Health = 100_000,
                 Rotation = 0
@@ -167,6 +177,8 @@ public static partial class Module
                     WorldId = identityString,
                     PositionX = px + 0.5f,
                     PositionY = py + 0.5f,
+                    GridX = px,
+                    GridY = py,
                     Type = pickups[i]
                 });
             }

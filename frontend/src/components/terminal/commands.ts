@@ -88,6 +88,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  target, t            Target another tank by name",
       "  fire, f              Fire a projectile from your tank",
       "  switch, w            Switch to a different gun",
+      "  smokescreen, sm      Deploy a smokescreen that disrupts enemy targeting (60s cooldown)",
       "  respawn              Respawn after death",
       "  findgame             Join a game world",
       "  clear, c             Clear the terminal output",
@@ -242,6 +243,23 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  switch 1",
         "  switch 2",
         "  w 3"
+      ];
+
+    case "smokescreen":
+    case "sm":
+      return [
+        "smokescreen, sm - Deploy a smokescreen that disrupts enemy targeting",
+        "",
+        "Usage: smokescreen",
+        "",
+        "Deploys a smoke cloud at your current position. Tanks that are",
+        "targeting other tanks within the smoke cloud will lose their target,",
+        "preventing enemies from targeting you while you're in the smoke.",
+        "The smoke cloud persists for 5 seconds. This ability has a 60-second cooldown.",
+        "",
+        "Examples:",
+        "  smokescreen",
+        "  sm"
       ];
 
     case "respawn":
@@ -773,6 +791,48 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
   const relativeStr = `(${relativeX > 0 ? '+' : ''}${relativeX}, ${relativeY > 0 ? '+' : ''}${relativeY})`;
   return [
     `Driving to ${relativeStr} -> ${targetX} ${targetY} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+  ];
+}
+
+export function smokescreen(connection: DbConnection, worldId: string, args: string[]): string[] {
+  if (isPlayerDead(connection, worldId)) {
+    return [
+      "smokescreen: error: cannot deploy smokescreen while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
+  if (args.length > 0) {
+    return [
+      "smokescreen: error: smokescreen command takes no arguments",
+      "",
+      "Usage: smokescreen",
+      "       sm"
+    ];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
+  const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
+  
+  if (myTank) {
+    const currentTime = BigInt(Date.now() * 1000);
+    const cooldownEnd = myTank.smokescreenCooldownEnd;
+    
+    if (cooldownEnd > currentTime) {
+      const remaining = Number(cooldownEnd - currentTime) / 1_000_000;
+      return [
+        `smokescreen: error: ability is on cooldown`,
+        "",
+        `Time remaining: ${Math.ceil(remaining)} seconds`
+      ];
+    }
+  }
+
+  connection.reducers.smokescreen({ worldId });
+
+  return [
+    "Deploying smokescreen...",
   ];
 }
 
