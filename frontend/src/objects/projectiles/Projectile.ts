@@ -1,6 +1,7 @@
 import { UNIT_TO_PIXEL } from "../../game";
 
 export abstract class Projectile {
+  public static readonly SHADOW_OFFSET = 4;
   protected x: number;
   protected y: number;
   protected velocityX: number;
@@ -34,7 +35,10 @@ export abstract class Projectile {
 
   public drawShadow(_ctx: CanvasRenderingContext2D, _textureSheet: any) {}
 
-  public abstract drawBody(ctx: CanvasRenderingContext2D, textureSheet: any): void;
+  public abstract drawBody(
+    ctx: CanvasRenderingContext2D,
+    textureSheet: any
+  ): void;
 
   public setPosition(x: number, y: number) {
     this.x = x;
@@ -82,19 +86,19 @@ export abstract class Projectile {
   protected getScreenPosition(): { x: number; y: number } {
     return {
       x: this.x * UNIT_TO_PIXEL,
-      y: this.y * UNIT_TO_PIXEL
+      y: this.y * UNIT_TO_PIXEL,
     };
   }
 
   protected getShadowScreenPosition(): { x: number; y: number } {
     return {
-      x: this.x * UNIT_TO_PIXEL - 4,
-      y: this.y * UNIT_TO_PIXEL + 4
+      x: this.x * UNIT_TO_PIXEL - Projectile.SHADOW_OFFSET,
+      y: this.y * UNIT_TO_PIXEL + Projectile.SHADOW_OFFSET,
     };
   }
 
   protected getTextureKey(prefix: string): string {
-    return `${prefix}-${this.alliance === 0 ? 'red' : 'blue'}`;
+    return `${prefix}-${this.alliance === 0 ? "red" : "blue"}`;
   }
 
   public isExplosive(): boolean {

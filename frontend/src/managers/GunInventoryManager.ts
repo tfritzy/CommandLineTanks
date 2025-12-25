@@ -29,7 +29,11 @@ export class GunInventoryManager {
     }
 
     connection.db.tank.onInsert((_ctx, tank) => {
-      if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+      if (
+        connection.identity &&
+        tank.owner.isEqual(connection.identity) &&
+        tank.worldId === worldId
+      ) {
         this.playerTankId = tank.id;
         this.guns = [...tank.guns];
         this.selectedGunIndex = tank.selectedGunIndex;
@@ -38,7 +42,11 @@ export class GunInventoryManager {
     });
 
     connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
-      if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
+      if (
+        connection.identity &&
+        newTank.owner.isEqual(connection.identity) &&
+        newTank.worldId === worldId
+      ) {
         this.guns = [...newTank.guns];
         this.selectedGunIndex = newTank.selectedGunIndex;
         this.playerAlliance = newTank.alliance;
@@ -54,7 +62,13 @@ export class GunInventoryManager {
     });
   }
 
-  private drawGunGraphic(ctx: CanvasRenderingContext2D, gun: Infer<typeof Gun>, x: number, y: number, size: number) {
+  private drawGunGraphic(
+    ctx: CanvasRenderingContext2D,
+    gun: Infer<typeof Gun>,
+    x: number,
+    y: number,
+    size: number
+  ) {
     ctx.save();
     const centerX = x + size / 2;
     const centerY = y + size / 2;
@@ -69,11 +83,11 @@ export class GunInventoryManager {
       projectile.drawBody(ctx, ProjectileTextureSheet.getInstance());
       ctx.restore();
     } else {
-      ctx.fillStyle = '#fcfbf3';
-      ctx.font = 'bold 20px monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('?', centerX, centerY);
+      ctx.fillStyle = "#fcfbf3";
+      ctx.font = "bold 20px monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("?", centerX, centerY);
     }
 
     ctx.restore();
@@ -91,16 +105,21 @@ export class GunInventoryManager {
 
     ctx.save();
 
-    ctx.fillStyle = gun ? '#4a4b5b' : '#2a152d';
+    ctx.fillStyle = gun ? "#4a4b5b" : "#2a152d";
     ctx.globalAlpha = gun ? 0.8 : 0.3;
-    
+
     const radius = 4;
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
     ctx.lineTo(x + slotSize - radius, y);
     ctx.quadraticCurveTo(x + slotSize, y, x + slotSize, y + radius);
     ctx.lineTo(x + slotSize, y + slotSize - radius);
-    ctx.quadraticCurveTo(x + slotSize, y + slotSize, x + slotSize - radius, y + slotSize);
+    ctx.quadraticCurveTo(
+      x + slotSize,
+      y + slotSize,
+      x + slotSize - radius,
+      y + slotSize
+    );
     ctx.lineTo(x + radius, y + slotSize);
     ctx.quadraticCurveTo(x, y + slotSize, x, y + slotSize - radius);
     ctx.lineTo(x, y + radius);
@@ -108,7 +127,7 @@ export class GunInventoryManager {
     ctx.closePath();
     ctx.fill();
 
-    ctx.strokeStyle = isSelected ? '#fceba8' : '#4a4b5b';
+    ctx.strokeStyle = isSelected ? "#fceba8" : "#4a4b5b";
     ctx.lineWidth = 1;
     ctx.globalAlpha = 1;
     ctx.stroke();
@@ -117,32 +136,37 @@ export class GunInventoryManager {
       this.drawGunGraphic(ctx, gun, x, y, slotSize);
 
       if (gun.ammo != null) {
-        ctx.fillStyle = '#fcfbf3';
-        ctx.font = 'bold 10px monospace';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = "#fcfbf3";
+        ctx.font = "bold 10px monospace";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "bottom";
         ctx.fillText(gun.ammo.toString(), x + slotSize - 4, y + slotSize - 3);
       }
     }
 
-    ctx.fillStyle = isSelected ? '#fceba8' : '#a9bcbf';
-    ctx.font = 'bold 10px monospace';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
+    ctx.fillStyle = isSelected ? "#fceba8" : "#a9bcbf";
+    ctx.font = "bold 10px monospace";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
     ctx.fillText((slotIndex + 1).toString(), x + 4, y + 4);
 
     ctx.restore();
   }
 
-  private createProjectileForGun(gun: Infer<typeof Gun>): Projectile | undefined {
+  private createProjectileForGun(
+    gun: Infer<typeof Gun>
+  ): Projectile | undefined {
     const x = 0;
     const y = 0;
     let angle = -Math.PI / 2;
-    
-    if (gun.projectileType.tag === "Missile" || gun.projectileType.tag === "Rocket") {
+
+    if (
+      gun.projectileType.tag === "Missile" ||
+      gun.projectileType.tag === "Rocket"
+    ) {
       angle = -Math.PI / 4;
     }
-    
+
     const velocityX = Math.cos(angle);
     const velocityY = Math.sin(angle);
     const size = gun.projectileSize;
@@ -152,23 +176,55 @@ export class GunInventoryManager {
       case "Normal":
         return new NormalProjectile(x, y, velocityX, velocityY, size, alliance);
       case "Missile":
-        return new MissileProjectile(x, y, velocityX, velocityY, size, alliance);
+        return new MissileProjectile(
+          x,
+          y,
+          velocityX,
+          velocityY,
+          size,
+          alliance
+        );
       case "Rocket":
         return new RocketProjectile(x, y, velocityX, velocityY, size, alliance);
       case "Grenade":
-        return new GrenadeProjectile(x, y, velocityX, velocityY, size, alliance);
+        return new GrenadeProjectile(
+          x,
+          y,
+          velocityX,
+          velocityY,
+          size,
+          alliance
+        );
       case "Boomerang":
-        return new BoomerangProjectile(x, y, velocityX, velocityY, size, alliance);
+        return new BoomerangProjectile(
+          x,
+          y,
+          velocityX,
+          velocityY,
+          size,
+          alliance
+        );
       case "Moag":
-        return new MoagProjectile(x, y, velocityX, velocityY, size, alliance);
+        return new MoagProjectile(x, y, velocityX, velocityY, 0.25, alliance);
       case "SpiderMine":
-        return new SpiderMineProjectile(x, y, velocityX, velocityY, size, alliance);
+        return new SpiderMineProjectile(
+          x,
+          y,
+          velocityX,
+          velocityY,
+          size,
+          alliance
+        );
       default:
         return undefined;
     }
   }
 
-  public draw(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
+  public draw(
+    ctx: CanvasRenderingContext2D,
+    canvasWidth: number,
+    canvasHeight: number
+  ) {
     if (this.guns.length === 0) {
       return;
     }
@@ -178,16 +234,16 @@ export class GunInventoryManager {
     const maxSlots = 3;
     const totalHeight = 150;
     const gap = 6;
-    const slotSize = (totalHeight - (gap * (maxSlots - 1))) / maxSlots;
+    const slotSize = (totalHeight - gap * (maxSlots - 1)) / maxSlots;
     const miniMapMaxSize = 150;
     const miniMapMargin = 20;
-    
+
     const startX = canvasWidth - miniMapMaxSize - miniMapMargin - slotSize - 12;
     const startY = canvasHeight - totalHeight - miniMapMargin;
 
     for (let i = 0; i < maxSlots; i++) {
       const slotX = startX;
-      const slotY = startY + (i * (slotSize + gap));
+      const slotY = startY + i * (slotSize + gap);
       const gun = i < this.guns.length ? this.guns[i] : null;
       this.drawSlot(ctx, gun, i, slotX, slotY, slotSize);
     }

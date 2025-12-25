@@ -151,12 +151,12 @@ public static partial class Module
         LifetimeSeconds = 20.0f,
         MaxCollisions = 999,
         PassThroughTerrain = true,
-        CollisionRadius = 2.5f,
+        CollisionRadius = 1f,
         ExplosionRadius = null,
         ExplosionTrigger = ExplosionTrigger.None,
         Damping = null,
         Bounce = false,
-        ProjectileSize = 2.5f,
+        ProjectileSize = 1f,
     };
 
     public static readonly Gun SPIDER_MINE_GUN = new Gun
