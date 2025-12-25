@@ -6,6 +6,7 @@ import { GunInventoryManager } from "./managers/GunInventoryManager";
 import { PickupManager } from "./managers/PickupManager";
 import { MiniMapManager } from "./managers/MiniMapManager";
 import { KillManager } from "./managers/KillManager";
+import { SpiderMineManager } from "./managers/SpiderMineManager";
 
 export const UNIT_TO_PIXEL = 50;
 const CAMERA_FOLLOW_SPEED = 15;
@@ -24,6 +25,7 @@ export class Game {
   private pickupManager: PickupManager;
   private miniMapManager: MiniMapManager;
   private killManager: KillManager;
+  private spiderMineManager: SpiderMineManager;
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
 
@@ -46,6 +48,7 @@ export class Game {
     this.pickupManager = new PickupManager(worldId);
     this.miniMapManager = new MiniMapManager(this.tankManager, this.terrainManager);
     this.killManager = new KillManager(worldId);
+    this.spiderMineManager = new SpiderMineManager(worldId);
   }
 
   private resizeCanvas() {
@@ -128,6 +131,7 @@ export class Game {
     this.projectileManager.update(deltaTime);
     this.terrainManager.update(deltaTime);
     this.killManager.update(deltaTime);
+    this.spiderMineManager.update(deltaTime);
 
     const dpr = window.devicePixelRatio || 1;
     const displayWidth = this.canvas.width / dpr;
@@ -180,6 +184,8 @@ export class Game {
 
     this.tankManager.drawBodies(this.ctx);
     this.tankManager.drawParticles(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
+
+    this.spiderMineManager.draw(this.ctx);
 
     this.terrainManager.drawShadows(
       this.ctx,
