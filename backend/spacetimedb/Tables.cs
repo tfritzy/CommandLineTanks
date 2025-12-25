@@ -104,6 +104,10 @@ public static partial class Module
         public ulong SmokescreenCooldownEnd;
 
         public bool HasShield;
+
+        public ulong OverdriveCooldownEnd;
+
+        public ulong OverdriveActiveUntil;
     }
 
     [Table(Name = "projectile", Public = true)]

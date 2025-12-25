@@ -89,6 +89,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  fire, f              Fire a projectile from your tank",
       "  switch, w            Switch to a different gun",
       "  smokescreen, sm      Deploy a smokescreen that disrupts enemy targeting",
+      "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
       "  respawn              Respawn after death",
       "  findgame             Join a game world",
       "  clear, c             Clear the terminal output",
@@ -257,6 +258,21 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  smokescreen",
         "  sm"
+      ];
+
+    case "overdrive":
+    case "od":
+      return [
+        "overdrive, od - Activate overdrive for 25% increased speed",
+        "",
+        "Usage: overdrive",
+        "",
+        "Activates overdrive mode, increasing movement speed by 25% for 10 seconds.",
+        "60 second cooldown.",
+        "",
+        "Examples:",
+        "  overdrive",
+        "  od"
       ];
 
     case "respawn":
@@ -830,6 +846,48 @@ export function smokescreen(connection: DbConnection, worldId: string, args: str
 
   return [
     "Deploying smokescreen...",
+  ];
+}
+
+export function overdrive(connection: DbConnection, worldId: string, args: string[]): string[] {
+  if (isPlayerDead(connection, worldId)) {
+    return [
+      "overdrive: error: cannot activate overdrive while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
+  if (args.length > 0) {
+    return [
+      "overdrive: error: overdrive command takes no arguments",
+      "",
+      "Usage: overdrive",
+      "       od"
+    ];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
+  const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
+  
+  if (myTank) {
+    const currentTime = BigInt(Date.now() * 1000);
+    const cooldownEnd = myTank.overdriveCooldownEnd;
+    
+    if (cooldownEnd > currentTime) {
+      const remaining = Number(cooldownEnd - currentTime) / 1_000_000;
+      return [
+        `overdrive: error: ability is on cooldown`,
+        "",
+        `Time remaining: ${Math.ceil(remaining)} seconds`
+      ];
+    }
+  }
+
+  connection.reducers.overdrive({ worldId });
+
+  return [
+    "Activating overdrive! +25% speed for 10 seconds",
   ];
 }
 
