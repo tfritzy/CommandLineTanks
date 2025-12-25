@@ -78,6 +78,9 @@ export class PickupTextureSheet {
     this.addProjectilePickup("spider-mine", currentX, currentY, cellSize);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
+    this.addProjectilePickup("sniper", currentX, currentY, cellSize);
+    currentX += cellSize + PickupTextureSheet.PADDING;
+
     this.addPickup("unknown", currentX, currentY, cellSize, drawUnknownPickupShadow, drawUnknownPickupBody);
   }
 
@@ -188,6 +191,12 @@ export class PickupTextureSheet {
       }
       case "spider-mine": {
         const projectile = new SpiderMineProjectile(0, 0, velocityX, velocityY, 0.2, 0);
+        projectile.drawShadow(this.ctx, projectileTextureSheet);
+        projectile.drawBody(this.ctx, projectileTextureSheet);
+        break;
+      }
+      case "sniper": {
+        const projectile = new NormalProjectile(0, 0, velocityX, velocityY, 0.15, 0);
         projectile.drawShadow(this.ctx, projectileTextureSheet);
         projectile.drawBody(this.ctx, projectileTextureSheet);
         break;
