@@ -1,11 +1,12 @@
 import { getConnection } from "../spacetimedb-connection";
 import { type EventContext } from "../../module_bindings";
 import { drawAbilitySlot } from "../drawing/ui/ability-slot";
+import { drawSmokescreenIcon } from "../drawing/ui/smokescreen-icon";
 
 const MICROSECONDS_TO_SECONDS = 1_000_000;
 
 interface Ability {
-  icon: string;
+  drawIcon: (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isReady: boolean) => void;
   cooldownEnd: bigint;
   cooldownDuration: number;
 }
@@ -47,7 +48,7 @@ export class AbilitiesBarManager {
     });
   }
 
-  public draw(ctx: CanvasRenderingContext2D, _canvasWidth: number, _canvasHeight: number) {
+  public draw(ctx: CanvasRenderingContext2D, _canvasWidth: number, canvasHeight: number) {
     if (this.playerTankId === null) {
       return;
     }
@@ -56,7 +57,7 @@ export class AbilitiesBarManager {
 
     const abilities: Ability[] = [
       {
-        icon: "🌫️",
+        drawIcon: drawSmokescreenIcon,
         cooldownEnd: this.cooldownEnd,
         cooldownDuration: this.SMOKESCREEN_COOLDOWN_SECONDS,
       },
@@ -66,11 +67,11 @@ export class AbilitiesBarManager {
     const gap = 8;
     const margin = 20;
     const startX = margin;
-    const startY = margin;
+    const startY = canvasHeight - slotSize - margin;
 
     abilities.forEach((ability, index) => {
-      const slotX = startX;
-      const slotY = startY + index * (slotSize + gap);
+      const slotX = startX + index * (slotSize + gap);
+      const slotY = startY;
       
       const abilityIsReady = ability.cooldownEnd <= currentTime;
       const abilityCooldownRemaining = abilityIsReady ? 0 : Number(ability.cooldownEnd - currentTime) / MICROSECONDS_TO_SECONDS;
@@ -81,7 +82,7 @@ export class AbilitiesBarManager {
         slotX,
         slotY,
         slotSize,
-        ability.icon,
+        ability.drawIcon,
         abilityProgress,
         abilityCooldownRemaining
       );

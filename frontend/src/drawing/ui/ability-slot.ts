@@ -1,8 +1,6 @@
 const ABILITY_SLOT_BACKGROUND = '#34404f';
 const ABILITY_SLOT_BORDER = '#4a4b5b';
 const ABILITY_COOLDOWN_FILL = 'rgba(112, 123, 137, 0.4)';
-const ABILITY_ICON_READY = '#aaeeea';
-const ABILITY_ICON_COOLDOWN = '#707b89';
 const ABILITY_TEXT_COLOR = '#fcfbf3';
 const ABILITY_TEXT_STROKE = '#000';
 
@@ -11,7 +9,7 @@ export function drawAbilitySlot(
   x: number,
   y: number,
   size: number,
-  icon: string,
+  drawIcon: (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isReady: boolean) => void,
   progress: number,
   cooldownRemaining: number
 ) {
@@ -49,11 +47,7 @@ export function drawAbilitySlot(
     ctx.fillRect(x, fillY, size, fillHeight);
   }
 
-  ctx.fillStyle = isReady ? ABILITY_ICON_READY : ABILITY_ICON_COOLDOWN;
-  ctx.font = '24px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(icon, x + size / 2, y + size / 2);
+  drawIcon(ctx, x + size / 2, y + size / 2, size, isReady);
 
   if (cooldownRemaining > 0) {
     const cooldownText = Math.ceil(cooldownRemaining).toString();
