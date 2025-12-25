@@ -61,7 +61,7 @@ public static class BehaviorTreeLogic
             }
         }
 
-        var nearbyEnemy = FindNearestEnemy(tank, allTanks);
+        var nearbyEnemy = FindClosestEnemy(tank, allTanks);
         if (nearbyEnemy != null)
         {
             var distanceToEnemy = GetDistance(tank.PositionX, tank.PositionY, nearbyEnemy.Value.PositionX, nearbyEnemy.Value.PositionY);
@@ -218,6 +218,27 @@ public static class BehaviorTreeLogic
             if (distanceToSpawn < minDistanceToSpawn)
             {
                 minDistanceToSpawn = distanceToSpawn;
+                nearest = enemyTank;
+            }
+        }
+
+        return nearest;
+    }
+
+    public static Module.Tank? FindClosestEnemy(Module.Tank tank, List<Module.Tank> allTanks)
+    {
+        Module.Tank? nearest = null;
+        float minDistance = float.MaxValue;
+
+        foreach (var enemyTank in allTanks)
+        {
+            if (enemyTank.Alliance == tank.Alliance || enemyTank.Health <= 0)
+                continue;
+
+            var distance = GetDistance(tank.PositionX, tank.PositionY, enemyTank.PositionX, enemyTank.PositionY);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
                 nearest = enemyTank;
             }
         }
