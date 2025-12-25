@@ -1,9 +1,10 @@
-import { UNIT_TO_PIXEL } from "../game";
+import { drawFloatingLabel } from "../drawing/ui/floating-label";
 import type { TankIndicator } from "./TankIndicator";
+
+
 
 const FLOAT_SPEED = 0.5;
 const LABEL_LIFETIME = 1.0;
-const LABEL_COLOR = "#f5c47c";
 
 export class FloatingLabel implements TankIndicator {
   private x: number;
@@ -32,16 +33,7 @@ export class FloatingLabel implements TankIndicator {
     if (this.isDead) return;
 
     const alpha = Math.max(0, 1 - this.lifetime / this.maxLifetime);
-
-    ctx.save();
-    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
-    ctx.globalAlpha = alpha;
-    ctx.font = "12px monospace";
-    ctx.fillStyle = LABEL_COLOR;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(this.text, 0, 0);
-    ctx.restore();
+    drawFloatingLabel(ctx, this.x, this.y, this.text, alpha);
   }
 
   public getIsDead(): boolean {
