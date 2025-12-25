@@ -47,6 +47,8 @@ public static partial class Module
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
+        EnemyTankRespawner.InitializeEnemyTankRespawner(ctx, identityString);
+
         ctx.Db.world.Insert(world);
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
@@ -146,7 +148,7 @@ public static partial class Module
                 Name = "Enemy",
                 JoinCode = null,
                 IsBot = false,
-                Alliance = -1,
+                Alliance = 1,
                 Health = Module.TANK_HEALTH,
                 MaxHealth = Module.TANK_HEALTH,
                 Kills = 0,

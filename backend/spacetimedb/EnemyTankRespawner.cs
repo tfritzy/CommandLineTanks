@@ -1,13 +1,12 @@
 using SpacetimeDB;
 using static Types;
-using System;
 
 public static partial class EnemyTankRespawner
 {
-    private const long ENEMY_TANK_RESPAWN_DELAY_MICROS = 30_000_000;
+    private const long ENEMY_TANK_RESPAWN_CHECK_INTERVAL_MICROS = 30_000_000;
 
-    [Table(Scheduled = nameof(RespawnEnemyTank))]
-    public partial struct ScheduledEnemyTankRespawn
+    [Table(Scheduled = nameof(CheckAndRespawnEnemyTanks))]
+    public partial struct ScheduledEnemyTankRespawnCheck
     {
         [AutoInc]
         [PrimaryKey]
@@ -15,34 +14,33 @@ public static partial class EnemyTankRespawner
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
         public string WorldId;
-        public string TankId;
     }
 
     [Reducer]
-    public static void RespawnEnemyTank(ReducerContext ctx, ScheduledEnemyTankRespawn args)
+    public static void CheckAndRespawnEnemyTanks(ReducerContext ctx, ScheduledEnemyTankRespawnCheck args)
     {
-        var tank = ctx.Db.tank.Id.Find(args.TankId);
-        if (tank == null) return;
-
-        if (tank.Value.Health <= 0)
+        var tanks = ctx.Db.tank.WorldId.Filter(args.WorldId);
+        foreach (var tank in tanks)
         {
-            var respawnedTank = tank.Value with
+            if (tank.Alliance == 1 && tank.Health <= 0)
             {
-                Health = Module.TANK_HEALTH
-            };
-            ctx.Db.tank.Id.Update(respawnedTank);
-            Log.Info($"Respawned enemy tank {respawnedTank.Name} at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");
+                var respawnedTank = tank with
+                {
+                    Health = Module.TANK_HEALTH
+                };
+                ctx.Db.tank.Id.Update(respawnedTank);
+                Log.Info($"Respawned enemy tank {respawnedTank.Name} at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");
+            }
         }
     }
 
-    public static void ScheduleEnemyTankRespawn(ReducerContext ctx, string worldId, string tankId)
+    public static void InitializeEnemyTankRespawner(ReducerContext ctx, string worldId)
     {
-        ctx.Db.ScheduledEnemyTankRespawn.Insert(new ScheduledEnemyTankRespawn
+        ctx.Db.ScheduledEnemyTankRespawnCheck.Insert(new ScheduledEnemyTankRespawnCheck
         {
             ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.After(new TimeDuration { Microseconds = ENEMY_TANK_RESPAWN_DELAY_MICROS }),
-            WorldId = worldId,
-            TankId = tankId
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = ENEMY_TANK_RESPAWN_CHECK_INTERVAL_MICROS }),
+            WorldId = worldId
         });
     }
 }

@@ -21,11 +21,6 @@ public static partial class Module
             };
             ctx.Db.tank.Id.Update(killedTank);
 
-            if (tank.Alliance == -1)
-            {
-                EnemyTankRespawner.ScheduleEnemyTankRespawn(ctx, worldId, tank.Id);
-            }
-
             var shooterTank = ctx.Db.tank.Id.Find(shooterTankId);
             if (shooterTank != null)
             {
