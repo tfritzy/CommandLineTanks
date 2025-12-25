@@ -149,6 +149,15 @@ public static partial class TankUpdater
                 needsUpdate = true;
             }
 
+            if (tank.OverdriveActiveUntil > 0 && tank.OverdriveActiveUntil <= currentTime)
+            {
+                tank = tank with
+                {
+                    OverdriveActiveUntil = 0
+                };
+                needsUpdate = true;
+            }
+
             if (tank.Path.Length > 0)
             {
                 var targetPos = tank.Path[0];
@@ -156,7 +165,8 @@ public static partial class TankUpdater
                 var deltaY = targetPos.Position.Y - tank.PositionY;
                 var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-                var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
+                var speedMultiplier = tank.OverdriveActiveUntil > currentTime ? Module.OVERDRIVE_SPEED_MULTIPLIER : 1.0f;
+                var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent * speedMultiplier;
                 var moveDistance = moveSpeed * deltaTime;
 
                 if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
@@ -175,7 +185,8 @@ public static partial class TankUpdater
                         {
                             var nextDirX = nextDeltaX / nextDistance;
                             var nextDirY = nextDeltaY / nextDistance;
-                            var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent;
+                            var nextSpeedMultiplier = tank.OverdriveActiveUntil > currentTime ? Module.OVERDRIVE_SPEED_MULTIPLIER : 1.0f;
+                            var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent * nextSpeedMultiplier;
 
                             tank = tank with
                             {

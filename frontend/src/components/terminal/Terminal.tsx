@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getConnection } from '../../spacetimedb-connection';
-import { aim, drive, fire, help, respawn, reverse, stop, switchGun, target, findGame, smokescreen } from './commands';
+import { aim, drive, fire, help, respawn, reverse, stop, switchGun, target, findGame, smokescreen, overdrive } from './commands';
 
 interface TerminalComponentProps {
     worldId: string;
@@ -139,6 +139,12 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                     case 'sm': {
                         const smokescreenOutput = smokescreen(connection, worldId, args);
                         newOutput.push(...smokescreenOutput);
+                        break;
+                    }
+                    case 'overdrive':
+                    case 'od': {
+                        const overdriveOutput = overdrive(connection, worldId, args);
+                        newOutput.push(...overdriveOutput);
                         break;
                     }
                     case 'respawn': {

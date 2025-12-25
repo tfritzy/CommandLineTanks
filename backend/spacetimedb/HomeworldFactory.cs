@@ -169,7 +169,10 @@ public static partial class Module
                 Guns = [Module.BASE_GUN],
                 SelectedGunIndex = 0,
                 LastFireTime = 0,
-                SmokescreenCooldownEnd = 0
+                SmokescreenCooldownEnd = 0,
+                HasShield = false,
+                OverdriveCooldownEnd = 0,
+                OverdriveActiveUntil = 0
             };
             ctx.Db.tank.Insert(enemyTank);
         }

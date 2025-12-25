@@ -34,7 +34,9 @@ public static partial class Module
             Guns = [BASE_GUN],
             SelectedGunIndex = 0,
             LastFireTime = 0,
-            HasShield = false
+            HasShield = false,
+            OverdriveCooldownEnd = 0,
+            OverdriveActiveUntil = 0
         };
 
         return respawnedTank;
@@ -73,7 +75,9 @@ public static partial class Module
             SmokescreenCooldownEnd = 0,
             HasShield = false,
             Velocity = new Vector2Float(0, 0),
-            TurretAngularVelocity = 0
+            TurretAngularVelocity = 0,
+            OverdriveCooldownEnd = 0,
+            OverdriveActiveUntil = 0
         };
     }
 
