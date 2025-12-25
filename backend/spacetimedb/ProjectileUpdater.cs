@@ -340,9 +340,6 @@ public static partial class ProjectileUpdater
             return false;
         }
 
-        int gridX = (int)tank.PositionX;
-        int gridY = (int)tank.PositionY;
-
         var pickupId = Module.GenerateId(ctx, "pickup");
         ctx.Db.pickup.Insert(new Module.Pickup
         {
@@ -350,8 +347,8 @@ public static partial class ProjectileUpdater
             WorldId = tank.WorldId,
             PositionX = tank.PositionX,
             PositionY = tank.PositionY,
-            GridX = gridX,
-            GridY = gridY,
+            GridX = (int)tank.PositionX,
+            GridY = (int)tank.PositionY,
             Type = PickupType.Boomerang
         });
 
