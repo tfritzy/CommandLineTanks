@@ -14,6 +14,8 @@ public static partial class TerrainGenerator
     private const int STRUCTURE_COUNT_RANGE = 7;
     private const int LAKE_MIN_SIZE = 3;
     private const int LAKE_MAX_SIZE = 8;
+    private const int MIN_LAKES = 1;
+    private const int LAKE_COUNT_RANGE = 3;
     private const int ROTATION_NORTH = 0;
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
@@ -81,7 +83,7 @@ public static partial class TerrainGenerator
 
     private static void GenerateLakes(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, Random random)
     {
-        int numLakes = 1 + random.Next(3);
+        int numLakes = MIN_LAKES + random.Next(LAKE_COUNT_RANGE);
 
         for (int lakeIdx = 0; lakeIdx < numLakes; lakeIdx++)
         {
@@ -103,12 +105,6 @@ public static partial class TerrainGenerator
                 {
                     for (int x = startX; x < startX + lakeWidth; x++)
                     {
-                        if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT)
-                        {
-                            validLocation = false;
-                            break;
-                        }
-
                         int index = y * WORLD_WIDTH + x;
                         if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
                         {
