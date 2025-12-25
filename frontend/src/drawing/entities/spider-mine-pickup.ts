@@ -41,6 +41,9 @@ export function drawSpiderMinePickupBody(
   const mineRadius = size * 0.15;
   const legLength = size * 0.2;
   
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = "#2a152d";
+  
   for (let i = 0; i < 8; i++) {
     const angle = (Math.PI * 2 * i) / 8;
     const legX = Math.cos(angle) * legLength;
@@ -48,8 +51,6 @@ export function drawSpiderMinePickupBody(
     const startX = Math.cos(angle) * mineRadius;
     const startY = Math.sin(angle) * mineRadius;
     
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = "#2a152d";
     ctx.beginPath();
     ctx.moveTo(startX, startY);
     ctx.lineTo(legX, legY);
