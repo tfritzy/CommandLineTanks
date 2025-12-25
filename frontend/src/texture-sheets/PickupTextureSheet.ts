@@ -2,13 +2,14 @@ import { UNIT_TO_PIXEL } from "../game";
 import { drawHealthPackShadow, drawHealthPackBody } from "../drawing/entities/health-pack";
 import { drawShieldPickupShadow, drawShieldPickupBody } from "../drawing/entities/shield-pickup";
 import { drawUnknownPickupShadow, drawUnknownPickupBody } from "../drawing/entities/unknown-pickup";
-import { drawTripleShooterPickupShadow, drawTripleShooterPickupBody } from "../drawing/entities/triple-shooter-pickup";
-import { drawMissileLauncherPickupShadow, drawMissileLauncherPickupBody } from "../drawing/entities/missile-launcher-pickup";
-import { drawBoomerangPickupShadow, drawBoomerangPickupBody } from "../drawing/entities/boomerang-pickup";
-import { drawGrenadePickupShadow, drawGrenadePickupBody } from "../drawing/entities/grenade-pickup";
-import { drawRocketPickupShadow, drawRocketPickupBody } from "../drawing/entities/rocket-pickup";
-import { drawMoagPickupShadow, drawMoagPickupBody } from "../drawing/entities/moag-pickup";
-import { drawSpiderMinePickupShadow, drawSpiderMinePickupBody } from "../drawing/entities/spider-mine-pickup";
+import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
+import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
+import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
+import { BoomerangProjectile } from "../objects/projectiles/BoomerangProjectile";
+import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
+import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
+import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
+import { projectileTextureSheet } from "./ProjectileTextureSheet";
 
 export interface PickupTexture {
   x: number;
@@ -51,13 +52,13 @@ export class PickupTextureSheet {
     this.addPickup("shield", currentX, currentY, cellSize, drawShieldPickupShadow, drawShieldPickupBody);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addPickup("triple-shooter", currentX, currentY, cellSize, drawTripleShooterPickupShadow, drawTripleShooterPickupBody);
+    this.addProjectilePickup("triple-shooter", currentX, currentY, cellSize);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addPickup("missile-launcher", currentX, currentY, cellSize, drawMissileLauncherPickupShadow, drawMissileLauncherPickupBody);
+    this.addProjectilePickup("missile-launcher", currentX, currentY, cellSize);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addPickup("boomerang", currentX, currentY, cellSize, drawBoomerangPickupShadow, drawBoomerangPickupBody);
+    this.addProjectilePickup("boomerang", currentX, currentY, cellSize);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
     if (currentX + cellSize > PickupTextureSheet.CANVAS_SIZE) {
@@ -65,16 +66,16 @@ export class PickupTextureSheet {
       currentY += cellSize + PickupTextureSheet.PADDING;
     }
 
-    this.addPickup("grenade", currentX, currentY, cellSize, drawGrenadePickupShadow, drawGrenadePickupBody);
+    this.addProjectilePickup("grenade", currentX, currentY, cellSize);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addPickup("rocket", currentX, currentY, cellSize, drawRocketPickupShadow, drawRocketPickupBody);
+    this.addProjectilePickup("rocket", currentX, currentY, cellSize);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addPickup("moag", currentX, currentY, cellSize, drawMoagPickupShadow, drawMoagPickupBody);
+    this.addProjectilePickup("moag", currentX, currentY, cellSize);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addPickup("spider-mine", currentX, currentY, cellSize, drawSpiderMinePickupShadow, drawSpiderMinePickupBody);
+    this.addProjectilePickup("spider-mine", currentX, currentY, cellSize);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
     this.addPickup("unknown", currentX, currentY, cellSize, drawUnknownPickupShadow, drawUnknownPickupBody);
@@ -95,6 +96,104 @@ export class PickupTextureSheet {
     this.ctx.translate(centerX, centerY);
     drawShadow(this.ctx, 0, 0);
     drawBody(this.ctx, 0, 0);
+    this.ctx.restore();
+
+    const textureData = {
+      x: x,
+      y: y,
+      width: size,
+      height: size,
+    };
+
+    this.textures.set(key, textureData);
+  }
+
+  private addProjectilePickup(
+    key: string,
+    x: number,
+    y: number,
+    size: number
+  ) {
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
+    const angle = -Math.PI / 4;
+    const velocityX = Math.cos(angle);
+    const velocityY = Math.sin(angle);
+
+    this.ctx.save();
+    this.ctx.translate(centerX, centerY);
+
+    switch (key) {
+      case "triple-shooter": {
+        const arcAngle = 0.4;
+        const arcRadius = 0.25;
+
+        for (let i = 0; i < 3; i++) {
+          const projectileAngle = angle + (i - 1) * arcAngle;
+          const offsetX = Math.cos(angle + Math.PI / 2) * (i - 1) * arcRadius * UNIT_TO_PIXEL;
+          const offsetY = Math.sin(angle + Math.PI / 2) * (i - 1) * arcRadius * UNIT_TO_PIXEL;
+          const forwardOffset = i === 1 ? 0.1 * UNIT_TO_PIXEL : 0;
+          const projX = offsetX + Math.cos(angle) * forwardOffset;
+          const projY = offsetY + Math.sin(angle) * forwardOffset;
+          const projVelX = Math.cos(projectileAngle);
+          const projVelY = Math.sin(projectileAngle);
+
+          const projectile = new NormalProjectile(projX / UNIT_TO_PIXEL, projY / UNIT_TO_PIXEL, projVelX, projVelY, 0.1, 0);
+          projectile.drawShadow(this.ctx, projectileTextureSheet);
+        }
+        for (let i = 0; i < 3; i++) {
+          const projectileAngle = angle + (i - 1) * arcAngle;
+          const offsetX = Math.cos(angle + Math.PI / 2) * (i - 1) * arcRadius * UNIT_TO_PIXEL;
+          const offsetY = Math.sin(angle + Math.PI / 2) * (i - 1) * arcRadius * UNIT_TO_PIXEL;
+          const forwardOffset = i === 1 ? 0.1 * UNIT_TO_PIXEL : 0;
+          const projX = offsetX + Math.cos(angle) * forwardOffset;
+          const projY = offsetY + Math.sin(angle) * forwardOffset;
+          const projVelX = Math.cos(projectileAngle);
+          const projVelY = Math.sin(projectileAngle);
+
+          const projectile = new NormalProjectile(projX / UNIT_TO_PIXEL, projY / UNIT_TO_PIXEL, projVelX, projVelY, 0.1, 0);
+          projectile.drawBody(this.ctx, projectileTextureSheet);
+        }
+        break;
+      }
+      case "missile-launcher": {
+        const projectile = new MissileProjectile(0, 0, velocityX, velocityY, 0.3, 0);
+        projectile.drawShadow(this.ctx, projectileTextureSheet);
+        projectile.drawBody(this.ctx, projectileTextureSheet);
+        break;
+      }
+      case "rocket": {
+        const projectile = new RocketProjectile(0, 0, velocityX, velocityY, 0.2, 0);
+        projectile.drawShadow(this.ctx, projectileTextureSheet);
+        projectile.drawBody(this.ctx, projectileTextureSheet);
+        break;
+      }
+      case "grenade": {
+        const projectile = new GrenadeProjectile(0, 0, velocityX, velocityY, 0.4, 0);
+        projectile.drawShadow(this.ctx, projectileTextureSheet);
+        projectile.drawBody(this.ctx, projectileTextureSheet);
+        break;
+      }
+      case "boomerang": {
+        const projectile = new BoomerangProjectile(0, 0, velocityX, velocityY, 0.3, 0);
+        projectile.drawShadow(this.ctx, projectileTextureSheet);
+        projectile.drawBody(this.ctx, projectileTextureSheet);
+        break;
+      }
+      case "moag": {
+        const projectile = new MoagProjectile(0, 0, velocityX, velocityY, 0.25, 0);
+        projectile.drawShadow(this.ctx, projectileTextureSheet);
+        projectile.drawBody(this.ctx, projectileTextureSheet);
+        break;
+      }
+      case "spider-mine": {
+        const projectile = new SpiderMineProjectile(0, 0, velocityX, velocityY, 0.2, 0);
+        projectile.drawShadow(this.ctx, projectileTextureSheet);
+        projectile.drawBody(this.ctx, projectileTextureSheet);
+        break;
+      }
+    }
+
     this.ctx.restore();
 
     const textureData = {
