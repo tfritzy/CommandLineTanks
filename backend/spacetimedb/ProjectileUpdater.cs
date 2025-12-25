@@ -340,19 +340,38 @@ public static partial class ProjectileUpdater
             return false;
         }
 
-        var pickupId = Module.GenerateId(ctx, "pickup");
-        ctx.Db.pickup.Insert(new Module.Pickup
+        int existingGunIndex = -1;
+        for (int i = 0; i < tank.Guns.Length; i++)
         {
-            Id = pickupId,
-            WorldId = tank.WorldId,
-            PositionX = tank.PositionX,
-            PositionY = tank.PositionY,
-            GridX = (int)tank.PositionX,
-            GridY = (int)tank.PositionY,
-            Type = PickupType.Boomerang
-        });
+            if (tank.Guns[i].GunType == GunType.Boomerang)
+            {
+                existingGunIndex = i;
+                break;
+            }
+        }
 
-        Log.Info($"Boomerang returned to tank {tank.Name}! Pickup spawned at ({tank.PositionX}, {tank.PositionY})");
+        if (existingGunIndex >= 0)
+        {
+            var gun = tank.Guns[existingGunIndex];
+            if (gun.Ammo != null)
+            {
+                gun.Ammo = gun.Ammo.Value + 1;
+                tank.Guns[existingGunIndex] = gun;
+                ctx.Db.tank.Id.Update(tank);
+                Log.Info($"Tank {tank.Name} caught the boomerang! Ammo: {gun.Ammo}");
+            }
+        }
+        else if (tank.Guns.Length < 3)
+        {
+            var boomerangGun = Module.BOOMERANG_GUN with { Ammo = 1 };
+            tank = tank with
+            {
+                Guns = [.. tank.Guns, boomerangGun],
+                SelectedGunIndex = tank.Guns.Length
+            };
+            ctx.Db.tank.Id.Update(tank);
+            Log.Info($"Tank {tank.Name} caught the boomerang! New gun added with 1 ammo.");
+        }
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
         return true;
