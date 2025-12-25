@@ -241,7 +241,10 @@ export class ProjectileTextureSheet {
     const centerX = x + armLength + padding;
     const centerY = y + armLength + padding;
 
-    const drawBoomerang = (ctx: CanvasRenderingContext2D, isShadow: boolean) => {
+    const drawBoomerang = (
+      ctx: CanvasRenderingContext2D,
+      isShadow: boolean
+    ) => {
       ctx.save();
       ctx.translate(centerX, centerY);
 

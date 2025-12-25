@@ -30,7 +30,11 @@ export class PickupManager {
     this.subscribeToPickups();
   }
 
-  private createProjectilesForPickup(type: Infer<typeof PickupType>, x: number, y: number): Projectile[] | undefined {
+  private createProjectilesForPickup(
+    type: Infer<typeof PickupType>,
+    x: number,
+    y: number
+  ): Projectile[] | undefined {
     const angle = -Math.PI / 4;
     const velocityX = Math.cos(angle);
     const velocityY = Math.sin(angle);
@@ -40,18 +44,20 @@ export class PickupManager {
         const projectiles: Projectile[] = [];
         const arcAngle = 0.4;
         const arcRadius = 0.25;
-        
+
         for (let i = 0; i < 3; i++) {
           const projectileAngle = angle + (i - 1) * arcAngle;
           const offsetX = Math.cos(angle + Math.PI / 2) * (i - 1) * arcRadius;
           const offsetY = Math.sin(angle + Math.PI / 2) * (i - 1) * arcRadius;
-          const forwardOffset = (i === 1) ? 0.1 : 0;
+          const forwardOffset = i === 1 ? 0.1 : 0;
           const projX = x + offsetX + Math.cos(angle) * forwardOffset;
           const projY = y + offsetY + Math.sin(angle) * forwardOffset;
           const projVelX = Math.cos(projectileAngle);
           const projVelY = Math.sin(projectileAngle);
-          
-          projectiles.push(new NormalProjectile(projX, projY, projVelX, projVelY, 0.1, 0));
+
+          projectiles.push(
+            new NormalProjectile(projX, projY, projVelX, projVelY, 0.1, 0)
+          );
         }
         return projectiles;
       }
@@ -81,24 +87,38 @@ export class PickupManager {
       .onError((e) => console.log("Pickups subscription error", e))
       .subscribe([`SELECT * FROM pickup WHERE WorldId = '${this.worldId}'`]);
 
-    connection.db.pickup.onInsert((_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      const projectiles = this.createProjectilesForPickup(pickup.type, pickup.positionX, pickup.positionY);
-      
-      this.pickups.set(pickup.id, {
-        id: pickup.id,
-        positionX: pickup.positionX,
-        positionY: pickup.positionY,
-        type: pickup.type,
-        projectiles,
-      });
-    });
+    connection.db.pickup.onInsert(
+      (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+        const projectiles = this.createProjectilesForPickup(
+          pickup.type,
+          pickup.positionX,
+          pickup.positionY
+        );
 
-    connection.db.pickup.onDelete((_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      this.pickups.delete(pickup.id);
-    });
+        this.pickups.set(pickup.id, {
+          id: pickup.id,
+          positionX: pickup.positionX,
+          positionY: pickup.positionY,
+          type: pickup.type,
+          projectiles,
+        });
+      }
+    );
+
+    connection.db.pickup.onDelete(
+      (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+        this.pickups.delete(pickup.id);
+      }
+    );
   }
 
-  public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, canvasWidth: number, canvasHeight: number) {
+  public draw(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    canvasWidth: number,
+    canvasHeight: number
+  ) {
     const startTileX = Math.floor(cameraX / UNIT_TO_PIXEL);
     const endTileX = Math.ceil((cameraX + canvasWidth) / UNIT_TO_PIXEL);
     const startTileY = Math.floor(cameraY / UNIT_TO_PIXEL);
@@ -107,8 +127,12 @@ export class PickupManager {
     const textureSheet = ProjectileTextureSheet.getInstance();
 
     for (const pickup of this.pickups.values()) {
-      if (pickup.positionX >= startTileX && pickup.positionX <= endTileX &&
-          pickup.positionY >= startTileY && pickup.positionY <= endTileY) {
+      if (
+        pickup.positionX >= startTileX &&
+        pickup.positionX <= endTileX &&
+        pickup.positionY >= startTileY &&
+        pickup.positionY <= endTileY
+      ) {
         if (pickup.projectiles) {
           for (const projectile of pickup.projectiles) {
             projectile.drawShadow(ctx, textureSheet);
@@ -120,8 +144,12 @@ export class PickupManager {
     }
 
     for (const pickup of this.pickups.values()) {
-      if (pickup.positionX >= startTileX && pickup.positionX <= endTileX &&
-          pickup.positionY >= startTileY && pickup.positionY <= endTileY) {
+      if (
+        pickup.positionX >= startTileX &&
+        pickup.positionX <= endTileX &&
+        pickup.positionY >= startTileY &&
+        pickup.positionY <= endTileY
+      ) {
         if (pickup.projectiles) {
           for (const projectile of pickup.projectiles) {
             projectile.drawBody(ctx, textureSheet);

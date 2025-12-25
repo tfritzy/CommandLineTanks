@@ -43,7 +43,7 @@ public static partial class Module
                 float posX = tank.PositionX;
                 float posY = tank.PositionY;
 
-                if (gun.GunType == GunType.TripleShooter)
+                if (gun.GunType == Types.GunType.TripleShooter)
                 {
                     if (i == 1)
                     {

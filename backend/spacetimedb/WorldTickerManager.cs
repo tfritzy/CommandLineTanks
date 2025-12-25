@@ -42,6 +42,11 @@ public static partial class Module
             ctx.Db.ScheduledPickupSpawn.ScheduledId.Delete(pickupSpawn.ScheduledId);
         }
 
+        foreach (var spiderMineUpdate in ctx.Db.ScheduledSpiderMineUpdates.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledSpiderMineUpdates.ScheduledId.Delete(spiderMineUpdate.ScheduledId);
+        }
+
         Log.Info($"Stopped tickers for world {worldId}");
     }
 
@@ -67,6 +72,11 @@ public static partial class Module
                 WorldId = worldId,
                 LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             });
+        }
+
+        if (!ctx.Db.ScheduledSpiderMineUpdates.WorldId.Filter(worldId).Any())
+        {
+            SpiderMineUpdater.InitializeSpiderMineUpdater(ctx, worldId);
         }
 
         Log.Info($"Started tickers for world {worldId}");

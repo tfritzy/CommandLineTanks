@@ -28,31 +28,33 @@ export class TerrainDetailTextureSheet {
   constructor() {
     const dpr = window.devicePixelRatio || 1;
     const logicalSize = 2048;
-    
-    this.canvas = document.createElement('canvas');
+
+    this.canvas = document.createElement("canvas");
     this.canvas.width = logicalSize * dpr;
     this.canvas.height = logicalSize * dpr;
-    
-    const ctx = this.canvas.getContext('2d');
+
+    const ctx = this.canvas.getContext("2d");
     if (!ctx) {
-      throw new Error("Failed to get 2D context for terrain detail texture sheet");
+      throw new Error(
+        "Failed to get 2D context for terrain detail texture sheet"
+      );
     }
     this.ctx = ctx;
     this.ctx.scale(dpr, dpr);
     this.ctx.imageSmoothingEnabled = false;
 
-    this.shadowCanvas = document.createElement('canvas');
+    this.shadowCanvas = document.createElement("canvas");
     this.shadowCanvas.width = logicalSize * dpr;
     this.shadowCanvas.height = logicalSize * dpr;
-    
-    const shadowCtx = this.shadowCanvas.getContext('2d');
+
+    const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
       throw new Error("Failed to get 2D context for shadow texture sheet");
     }
     this.shadowCtx = shadowCtx;
     this.shadowCtx.scale(dpr, dpr);
     this.shadowCtx.imageSmoothingEnabled = false;
-    
+
     this.initializeTextures();
   }
 
@@ -69,22 +71,43 @@ export class TerrainDetailTextureSheet {
     let currentX = 0;
     let currentY = 0;
 
-    this.renderTerrainDetail('rock', Rock, currentX, currentY, cellSize, 0);
+    this.renderTerrainDetail("rock", Rock, currentX, currentY, cellSize, 0);
     currentX += cellSize;
 
-    this.renderTerrainDetail('tree', Tree, currentX, currentY, cellSize, 0);
+    this.renderTerrainDetail("tree", Tree, currentX, currentY, cellSize, 0);
     currentX += cellSize;
 
-    this.renderTerrainDetail('haybale', HayBale, currentX, currentY, cellSize, 0);
+    this.renderTerrainDetail(
+      "haybale",
+      HayBale,
+      currentX,
+      currentY,
+      cellSize,
+      0
+    );
     currentX += cellSize;
 
-    this.renderTerrainDetail('targetdummy', TargetDummy, currentX, currentY, cellSize, 0);
+    this.renderTerrainDetail(
+      "targetdummy",
+      TargetDummy,
+      currentX,
+      currentY,
+      cellSize,
+      0
+    );
 
     currentX = 0;
     currentY += cellSize;
 
     for (let rot = 0; rot < 4; rot++) {
-      this.renderTerrainDetail(`fenceedge-${rot}`, FenceEdge, currentX, currentY, cellSize, rot);
+      this.renderTerrainDetail(
+        `fenceedge-${rot}`,
+        FenceEdge,
+        currentX,
+        currentY,
+        cellSize,
+        rot
+      );
       currentX += cellSize;
     }
 
@@ -92,7 +115,14 @@ export class TerrainDetailTextureSheet {
     currentY += cellSize;
 
     for (let rot = 0; rot < 4; rot++) {
-      this.renderTerrainDetail(`fencecorner-${rot}`, FenceCorner, currentX, currentY, cellSize, rot);
+      this.renderTerrainDetail(
+        `fencecorner-${rot}`,
+        FenceCorner,
+        currentX,
+        currentY,
+        cellSize,
+        rot
+      );
       currentX += cellSize;
     }
 
@@ -100,7 +130,14 @@ export class TerrainDetailTextureSheet {
     currentY += cellSize;
 
     for (let rot = 0; rot < 4; rot++) {
-      this.renderTerrainDetail(`foundationedge-${rot}`, FoundationEdge, currentX, currentY, cellSize, rot);
+      this.renderTerrainDetail(
+        `foundationedge-${rot}`,
+        FoundationEdge,
+        currentX,
+        currentY,
+        cellSize,
+        rot
+      );
       currentX += cellSize;
     }
 
@@ -108,7 +145,14 @@ export class TerrainDetailTextureSheet {
     currentY += cellSize;
 
     for (let rot = 0; rot < 4; rot++) {
-      this.renderTerrainDetail(`foundationcorner-${rot}`, FoundationCorner, currentX, currentY, cellSize, rot);
+      this.renderTerrainDetail(
+        `foundationcorner-${rot}`,
+        FoundationCorner,
+        currentX,
+        currentY,
+        cellSize,
+        rot
+      );
       currentX += cellSize;
     }
   }
@@ -139,14 +183,14 @@ export class TerrainDetailTextureSheet {
       x: atlasX + padding,
       y: atlasY + padding,
       width: cellSize - padding * 2,
-      height: cellSize - padding * 2
+      height: cellSize - padding * 2,
     });
-    
+
     this.shadowTextures.set(key, {
       x: atlasX + padding,
       y: atlasY + padding,
       width: cellSize - padding * 2,
-      height: cellSize - padding * 2
+      height: cellSize - padding * 2,
     });
   }
 
