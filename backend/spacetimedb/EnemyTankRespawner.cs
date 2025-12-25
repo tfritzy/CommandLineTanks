@@ -24,15 +24,15 @@ public static partial class EnemyTankRespawner
         var tank = ctx.Db.tank.Id.Find(args.TankId);
         if (tank == null) return;
 
-        if (tank.Value.Health > 0) return;
-
-        var respawnedTank = tank.Value with
+        if (tank.Value.Health <= 0)
         {
-            Health = Module.TANK_HEALTH
-        };
-        ctx.Db.tank.Id.Update(respawnedTank);
-        Log.Info($"Respawned enemy tank {respawnedTank.Name} at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");
-    }
+            var respawnedTank = tank.Value with
+            {
+                Health = Module.TANK_HEALTH
+            };
+            ctx.Db.tank.Id.Update(respawnedTank);
+            Log.Info($"Respawned enemy tank {respawnedTank.Name} at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");
+        }
 
     public static void ScheduleEnemyTankRespawn(ReducerContext ctx, string worldId, string tankId)
     {
