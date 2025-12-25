@@ -2,6 +2,8 @@ import { getConnection } from "../spacetimedb-connection";
 import { type EventContext } from "../../module_bindings";
 import { drawAbilitySlot } from "../drawing/ui/ability-slot";
 
+const MICROSECONDS_TO_SECONDS = 1_000_000;
+
 interface Ability {
   icon: string;
   cooldownEnd: bigint;
@@ -71,7 +73,7 @@ export class AbilitiesBarManager {
       const slotY = startY + index * (slotSize + gap);
       
       const abilityIsReady = ability.cooldownEnd <= currentTime;
-      const abilityCooldownRemaining = abilityIsReady ? 0 : Number(ability.cooldownEnd - currentTime) / 1_000_000;
+      const abilityCooldownRemaining = abilityIsReady ? 0 : Number(ability.cooldownEnd - currentTime) / MICROSECONDS_TO_SECONDS;
       const abilityProgress = abilityIsReady ? 1 : Math.max(0, 1 - (abilityCooldownRemaining / ability.cooldownDuration));
 
       drawAbilitySlot(

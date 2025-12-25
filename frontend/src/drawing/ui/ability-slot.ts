@@ -1,3 +1,11 @@
+const ABILITY_SLOT_BACKGROUND = '#34404f';
+const ABILITY_SLOT_BORDER = '#4a4b5b';
+const ABILITY_COOLDOWN_FILL = 'rgba(112, 123, 137, 0.4)';
+const ABILITY_ICON_READY = '#aaeeea';
+const ABILITY_ICON_COOLDOWN = '#707b89';
+const ABILITY_TEXT_COLOR = '#fcfbf3';
+const ABILITY_TEXT_STROKE = '#000';
+
 export function drawAbilitySlot(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -10,7 +18,7 @@ export function drawAbilitySlot(
   ctx.save();
 
   const radius = 4;
-  ctx.fillStyle = '#34404f';
+  ctx.fillStyle = ABILITY_SLOT_BACKGROUND;
   ctx.globalAlpha = 0.9;
 
   ctx.beginPath();
@@ -26,7 +34,7 @@ export function drawAbilitySlot(
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = '#4a4b5b';
+  ctx.strokeStyle = ABILITY_SLOT_BORDER;
   ctx.lineWidth = 2;
   ctx.globalAlpha = 1;
   ctx.stroke();
@@ -37,11 +45,11 @@ export function drawAbilitySlot(
     const fillHeight = size * progress;
     const fillY = y + size - fillHeight;
     
-    ctx.fillStyle = 'rgba(112, 123, 137, 0.4)';
+    ctx.fillStyle = ABILITY_COOLDOWN_FILL;
     ctx.fillRect(x, fillY, size, fillHeight);
   }
 
-  ctx.fillStyle = isReady ? '#aaeeea' : '#707b89';
+  ctx.fillStyle = isReady ? ABILITY_ICON_READY : ABILITY_ICON_COOLDOWN;
   ctx.font = '24px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -49,12 +57,12 @@ export function drawAbilitySlot(
 
   if (cooldownRemaining > 0) {
     const cooldownText = Math.ceil(cooldownRemaining).toString();
-    ctx.fillStyle = '#fcfbf3';
+    ctx.fillStyle = ABILITY_TEXT_COLOR;
     ctx.font = 'bold 12px Poppins, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
     
-    ctx.strokeStyle = '#000';
+    ctx.strokeStyle = ABILITY_TEXT_STROKE;
     ctx.lineWidth = 3;
     ctx.strokeText(cooldownText, x + size / 2, y + size - 4);
     ctx.fillText(cooldownText, x + size / 2, y + size - 4);
