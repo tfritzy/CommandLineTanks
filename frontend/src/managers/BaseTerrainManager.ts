@@ -1,7 +1,9 @@
 import { getConnection } from "../spacetimedb-connection";
 import { BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
-import { drawBaseTerrain } from "../drawing/terrain/base-terrain";
+import { generateLakeTextureSheet } from "../utils/lake-texture-generator";
+import { getRenderTileCase } from "../utils/terrain-render-analyzer";
+import { TERRAIN_COLORS } from "../constants";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -10,10 +12,13 @@ export class BaseTerrainManager {
   private worldHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
   private worldId: string;
+  private lakeTextureSheet: HTMLCanvasElement | null = null;
+  private readonly TEXTURE_TILE_SIZE = 64;
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.subscribeToWorld();
+    this.lakeTextureSheet = generateLakeTextureSheet();
   }
 
   private subscribeToWorld() {
@@ -48,24 +53,144 @@ export class BaseTerrainManager {
     canvasHeight: number,
     unitToPixel: number
   ) {
-    if (this.baseTerrainLayer.length === 0) return;
+    if (this.baseTerrainLayer.length === 0 || !this.lakeTextureSheet) return;
+
+    const startRenderX = Math.floor(cameraX / unitToPixel) - 1;
+    const endRenderX = Math.ceil((cameraX + canvasWidth) / unitToPixel) + 1;
+    const startRenderY = Math.floor(cameraY / unitToPixel) - 1;
+    const endRenderY = Math.ceil((cameraY + canvasHeight) / unitToPixel) + 1;
 
     const startTileX = Math.floor(cameraX / unitToPixel);
     const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
     const startTileY = Math.floor(cameraY / unitToPixel);
     const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
 
-    drawBaseTerrain(
-      ctx,
-      this.baseTerrainLayer,
-      this.worldWidth,
-      this.worldHeight,
-      startTileX,
-      endTileX,
-      startTileY,
-      endTileY,
-      unitToPixel
-    );
+    ctx.fillStyle = TERRAIN_COLORS.GROUND;
+    ctx.beginPath();
+    for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+      for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+        if (
+          tileX < 0 ||
+          tileX >= this.worldWidth ||
+          tileY < 0 ||
+          tileY >= this.worldHeight
+        ) {
+          continue;
+        }
+
+        const worldX = tileX * unitToPixel;
+        const worldY = tileY * unitToPixel;
+        ctx.rect(worldX, worldY, unitToPixel, unitToPixel);
+      }
+    }
+    ctx.fill();
+
+    this.drawFarms(ctx, startTileX, endTileX, startTileY, endTileY, unitToPixel);
+
+    for (let renderY = startRenderY; renderY <= endRenderY; renderY++) {
+      for (let renderX = startRenderX; renderX <= endRenderX; renderX++) {
+        const tileCase = getRenderTileCase(
+          this.baseTerrainLayer,
+          this.worldWidth,
+          this.worldHeight,
+          renderX,
+          renderY
+        );
+
+        if (tileCase === 0) continue;
+
+        const sheetCol = tileCase % 4;
+        const sheetRow = Math.floor(tileCase / 4);
+        const srcX = sheetCol * this.TEXTURE_TILE_SIZE;
+        const srcY = sheetRow * this.TEXTURE_TILE_SIZE;
+
+        const worldX = renderX * unitToPixel;
+        const worldY = renderY * unitToPixel;
+
+        ctx.drawImage(
+          this.lakeTextureSheet,
+          srcX, srcY, this.TEXTURE_TILE_SIZE, this.TEXTURE_TILE_SIZE,
+          worldX, worldY, unitToPixel, unitToPixel
+        );
+      }
+    }
+
+    this.drawGrid(ctx, startTileX, endTileX, startTileY, endTileY, unitToPixel);
+  }
+
+  private drawFarms(
+    ctx: CanvasRenderingContext2D,
+    startTileX: number,
+    endTileX: number,
+    startTileY: number,
+    endTileY: number,
+    unitToPixel: number
+  ) {
+    ctx.fillStyle = TERRAIN_COLORS.FARM_GROOVE;
+    const numGrooves = 2;
+    const grooveHeight = unitToPixel * 0.15;
+
+    ctx.beginPath();
+    for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+      for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+        if (
+          tileX < 0 ||
+          tileX >= this.worldWidth ||
+          tileY < 0 ||
+          tileY >= this.worldHeight
+        ) {
+          continue;
+        }
+
+        const index = tileY * this.worldWidth + tileX;
+        const terrain = this.baseTerrainLayer[index];
+
+        if (terrain.tag === "Farm") {
+          const worldX = tileX * unitToPixel;
+          const worldY = tileY * unitToPixel;
+
+          for (let i = 0; i < numGrooves; i++) {
+            const grooveY =
+              worldY +
+              unitToPixel * ((i + 0.5) / numGrooves) -
+              grooveHeight / 2;
+            ctx.rect(worldX, grooveY, unitToPixel, grooveHeight);
+          }
+        }
+      }
+    }
+    ctx.fill();
+  }
+
+  private drawGrid(
+    ctx: CanvasRenderingContext2D,
+    startTileX: number,
+    endTileX: number,
+    startTileY: number,
+    endTileY: number,
+    unitToPixel: number
+  ) {
+    ctx.strokeStyle = TERRAIN_COLORS.GRID;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    
+    for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+      for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+        if (
+          tileX < 0 ||
+          tileX >= this.worldWidth ||
+          tileY < 0 ||
+          tileY >= this.worldHeight
+        ) {
+          continue;
+        }
+
+        const worldX = tileX * unitToPixel;
+        const worldY = tileY * unitToPixel;
+        ctx.rect(worldX, worldY, unitToPixel, unitToPixel);
+      }
+    }
+    ctx.stroke();
   }
 
   public getWorldWidth(): number {
