@@ -118,13 +118,13 @@ public static partial class PickupSpawner
         float centerX = spawnX + 0.5f;
         float centerY = spawnY + 0.5f;
 
-        var existingDetail = ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((worldId, centerX, centerY));
+        var existingDetail = ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((worldId, spawnX, spawnY));
         foreach (var detail in existingDetail)
         {
             return false;
         }
 
-        var existingPickup = ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((worldId, centerX, centerY));
+        var existingPickup = ctx.Db.pickup.WorldId_GridX_GridY.Filter((worldId, spawnX, spawnY));
         foreach (var p in existingPickup)
         {
             return false;
@@ -148,6 +148,8 @@ public static partial class PickupSpawner
             WorldId = worldId,
             PositionX = centerX,
             PositionY = centerY,
+            GridX = spawnX,
+            GridY = spawnY,
             Type = pickupType
         });
 

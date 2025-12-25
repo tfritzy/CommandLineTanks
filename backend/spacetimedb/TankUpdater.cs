@@ -1,9 +1,104 @@
 using SpacetimeDB;
 using static Types;
+using System.Collections.Generic;
 
 public static partial class TankUpdater
 {
     private const double ARRIVAL_THRESHOLD = 0.1;
+
+    public class TankUpdateContext
+    {
+        private readonly ReducerContext _ctx;
+        private readonly string _worldId;
+        private Dictionary<(int, int), List<Module.SmokeCloud>>? _smokeCloudsByRegion;
+        private Dictionary<string, Module.Tank?>? _tanksById;
+        private Dictionary<(int, int), List<Module.Pickup>>? _pickupsByTile;
+        private Dictionary<(int, int), List<Module.TerrainDetail>>? _terrainDetailsByTile;
+
+        public TankUpdateContext(ReducerContext ctx, string worldId)
+        {
+            _ctx = ctx;
+            _worldId = worldId;
+        }
+
+        public List<Module.SmokeCloud> GetSmokeCloudsByRegion(int regionX, int regionY)
+        {
+            if (_smokeCloudsByRegion == null)
+            {
+                _smokeCloudsByRegion = new Dictionary<(int, int), List<Module.SmokeCloud>>();
+            }
+
+            var key = (regionX, regionY);
+            if (!_smokeCloudsByRegion.ContainsKey(key))
+            {
+                var clouds = new List<Module.SmokeCloud>();
+                foreach (var cloud in _ctx.Db.smoke_cloud.WorldId_CollisionRegionX_CollisionRegionY.Filter((_worldId, regionX, regionY)))
+                {
+                    clouds.Add(cloud);
+                }
+                _smokeCloudsByRegion[key] = clouds;
+            }
+
+            return _smokeCloudsByRegion[key];
+        }
+
+        public Module.Tank? GetTankById(string tankId)
+        {
+            if (_tanksById == null)
+            {
+                _tanksById = new Dictionary<string, Module.Tank?>();
+            }
+
+            if (!_tanksById.ContainsKey(tankId))
+            {
+                _tanksById[tankId] = _ctx.Db.tank.Id.Find(tankId);
+            }
+
+            return _tanksById[tankId];
+        }
+
+        public List<Module.Pickup> GetPickupsByTile(int tileX, int tileY)
+        {
+            if (_pickupsByTile == null)
+            {
+                _pickupsByTile = new Dictionary<(int, int), List<Module.Pickup>>();
+            }
+
+            var key = (tileX, tileY);
+            if (!_pickupsByTile.ContainsKey(key))
+            {
+                var pickups = new List<Module.Pickup>();
+                foreach (var pickup in _ctx.Db.pickup.WorldId_GridX_GridY.Filter((_worldId, tileX, tileY)))
+                {
+                    pickups.Add(pickup);
+                }
+                _pickupsByTile[key] = pickups;
+            }
+
+            return _pickupsByTile[key];
+        }
+
+        public List<Module.TerrainDetail> GetTerrainDetailsByTile(int tileX, int tileY)
+        {
+            if (_terrainDetailsByTile == null)
+            {
+                _terrainDetailsByTile = new Dictionary<(int, int), List<Module.TerrainDetail>>();
+            }
+
+            var key = (tileX, tileY);
+            if (!_terrainDetailsByTile.ContainsKey(key))
+            {
+                var details = new List<Module.TerrainDetail>();
+                foreach (var detail in _ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((_worldId, tileX, tileY)))
+                {
+                    details.Add(detail);
+                }
+                _terrainDetailsByTile[key] = details;
+            }
+
+            return _terrainDetailsByTile[key];
+        }
+    }
 
     [Table(Scheduled = nameof(UpdateTanks))]
     public partial struct ScheduledTankUpdates
@@ -28,6 +123,8 @@ public static partial class TankUpdater
         {
             LastTickAt = currentTime
         });
+
+        var updateContext = new TankUpdateContext(ctx, args.WorldId);
 
         foreach (var iTank in ctx.Db.tank.WorldId.Filter(args.WorldId))
         {
@@ -128,7 +225,7 @@ public static partial class TankUpdater
 
             if (tank.Target != null)
             {
-                var targetTank = ctx.Db.tank.Id.Find(tank.Target);
+                var targetTank = updateContext.GetTankById(tank.Target);
                 if (targetTank != null)
                 {
                     var targetX = targetTank.Value.PositionX;
@@ -145,7 +242,41 @@ public static partial class TankUpdater
                     }
                     else
                     {
-                        if (tank.TargetLead > 0)
+                        int targetCollisionRegionX = (int)(targetTank.Value.PositionX / Module.COLLISION_REGION_SIZE);
+                        int targetCollisionRegionY = (int)(targetTank.Value.PositionY / Module.COLLISION_REGION_SIZE);
+
+                        int searchRadius = (int)Math.Ceiling(Module.SMOKESCREEN_RADIUS / Module.COLLISION_REGION_SIZE);
+                        bool targetInSmoke = false;
+
+                        for (int dx = -searchRadius; dx <= searchRadius && !targetInSmoke; dx++)
+                        {
+                            for (int dy = -searchRadius; dy <= searchRadius && !targetInSmoke; dy++)
+                            {
+                                int regionX = targetCollisionRegionX + dx;
+                                int regionY = targetCollisionRegionY + dy;
+
+                                var smokeClouds = updateContext.GetSmokeCloudsByRegion(regionX, regionY);
+                                foreach (var smokeCloud in smokeClouds)
+                                {
+                                    var smokeDx = targetTank.Value.PositionX - smokeCloud.PositionX;
+                                    var smokeDy = targetTank.Value.PositionY - smokeCloud.PositionY;
+                                    var smokeDistanceSquared = smokeDx * smokeDx + smokeDy * smokeDy;
+
+                                    if (smokeDistanceSquared <= smokeCloud.Radius * smokeCloud.Radius)
+                                    {
+                                        targetInSmoke = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (targetInSmoke)
+                        {
+                            tank = tank with { Target = null };
+                            needsUpdate = true;
+                        }
+                        else if (tank.TargetLead > 0)
                         {
                             var targetVelocity = targetTank.Value.Velocity;
                             var velocityMagnitude = Math.Sqrt(targetVelocity.X * targetVelocity.X + targetVelocity.Y * targetVelocity.Y);
@@ -157,14 +288,17 @@ public static partial class TankUpdater
                             }
                         }
 
-                        var deltaX = targetX - tank.PositionX;
-                        var deltaY = targetY - tank.PositionY;
-                        var aimAngle = Math.Atan2(deltaY, deltaX);
-                        var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
-
-                        if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
+                        if (!targetInSmoke)
                         {
-                            tank = tank with { TargetTurretRotation = normalizedAimAngle };
+                            var deltaX = targetX - tank.PositionX;
+                            var deltaY = targetY - tank.PositionY;
+                            var aimAngle = Math.Atan2(deltaY, deltaX);
+                            var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
+
+                            if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
+                            {
+                                tank = tank with { TargetTurretRotation = normalizedAimAngle };
+                            }
                         }
                     }
                 }
@@ -208,9 +342,7 @@ public static partial class TankUpdater
             int tankTileX = (int)tank.PositionX;
             int tankTileY = (int)tank.PositionY;
 
-            float centerX = tankTileX + 0.5f;
-            float centerY = tankTileY + 0.5f;
-            foreach (var pickup in ctx.Db.pickup.WorldId_PositionX_PositionY.Filter((args.WorldId, centerX, centerY)))
+            foreach (var pickup in updateContext.GetPickupsByTile(tankTileX, tankTileY))
             {
                 if (PickupSpawner.TryCollectPickup(ctx, ref tank, ref needsUpdate, pickup))
                 {
@@ -218,7 +350,7 @@ public static partial class TankUpdater
                 }
             }
 
-            foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((args.WorldId, centerX, centerY)))
+            foreach (var terrainDetail in updateContext.GetTerrainDetailsByTile(tankTileX, tankTileY))
             {
                 if (terrainDetail.Type == TerrainDetailType.FenceEdge || terrainDetail.Type == TerrainDetailType.FenceCorner)
                 {
