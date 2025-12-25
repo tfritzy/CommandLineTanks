@@ -32,31 +32,6 @@ public static class BehaviorTreeLogic
         var allTanks = context.GetAllTanks();
         bool isCurrentlyMoving = tank.Path.Length > 0;
 
-        var nearbyEnemy = FindNearestEnemy(tank, allTanks);
-        if (nearbyEnemy != null)
-        {
-            var distanceToEnemy = GetDistance(tank.PositionX, tank.PositionY, nearbyEnemy.Value.PositionX, nearbyEnemy.Value.PositionY);
-
-            if (distanceToEnemy <= 6f)
-            {
-                if (isCurrentlyMoving)
-                {
-                    return new AIDecision
-                    {
-                        Action = AIAction.StopMoving,
-                        TargetTank = nearbyEnemy
-                    };
-                }
-
-                return new AIDecision
-                {
-                    Action = AIAction.AimAndFire,
-                    TargetTank = nearbyEnemy,
-                    ShouldFire = true
-                };
-            }
-        }
-
         var nearbyTank = FindNearestTank(tank, allTanks);
         if (nearbyTank != null)
         {
@@ -83,6 +58,31 @@ public static class BehaviorTreeLogic
                         };
                     }
                 }
+            }
+        }
+
+        var nearbyEnemy = FindNearestEnemy(tank, allTanks);
+        if (nearbyEnemy != null)
+        {
+            var distanceToEnemy = GetDistance(tank.PositionX, tank.PositionY, nearbyEnemy.Value.PositionX, nearbyEnemy.Value.PositionY);
+
+            if (distanceToEnemy <= 6f)
+            {
+                if (isCurrentlyMoving)
+                {
+                    return new AIDecision
+                    {
+                        Action = AIAction.StopMoving,
+                        TargetTank = nearbyEnemy
+                    };
+                }
+
+                return new AIDecision
+                {
+                    Action = AIAction.AimAndFire,
+                    TargetTank = nearbyEnemy,
+                    ShouldFire = true
+                };
             }
         }
 
