@@ -65,6 +65,31 @@ export function drawBaseTerrain(
   }
   ctx.fill();
 
+  ctx.fillStyle = "#5a78b2";
+  ctx.beginPath();
+  for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+    for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+      if (
+        tileX < 0 ||
+        tileX >= worldWidth ||
+        tileY < 0 ||
+        tileY >= worldHeight
+      ) {
+        continue;
+      }
+
+      const index = tileY * worldWidth + tileX;
+      const terrain = baseTerrainLayer[index];
+
+      if (terrain.tag === "Lake") {
+        const worldX = tileX * unitToPixel;
+        const worldY = tileY * unitToPixel;
+        ctx.rect(worldX, worldY, unitToPixel, unitToPixel);
+      }
+    }
+  }
+  ctx.fill();
+
   ctx.strokeStyle = "#4a4b5b22";
   ctx.lineWidth = 1;
   ctx.beginPath();

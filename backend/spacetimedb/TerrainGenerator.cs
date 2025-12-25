@@ -12,6 +12,11 @@ public static partial class TerrainGenerator
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
     private const int MIN_STRUCTURES = 6;
     private const int STRUCTURE_COUNT_RANGE = 7;
+    private const int MIN_LAKES = 1;
+    private const int MAX_ADDITIONAL_LAKES = 2;
+    private const float LAKE_NOISE_SCALE = 0.08f;
+    private const float LAKE_NOISE_THRESHOLD = 0.35f;
+    private const float LAKE_NOISE_OFFSET_RANGE = 1000f;
     private const int ROTATION_NORTH = 0;
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
@@ -35,6 +40,8 @@ public static partial class TerrainGenerator
         }
 
         GenerateRocks(terrainDetailArray, baseTerrain, random);
+
+        GenerateLakes(baseTerrain, terrainDetailArray, random);
 
         Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, random);
 
@@ -71,6 +78,36 @@ public static partial class TerrainGenerator
             if (baseTerrain[index] == BaseTerrain.Ground && terrainDetail[index] == TerrainDetailType.None)
             {
                 terrainDetail[index] = TerrainDetailType.Rock;
+            }
+        }
+    }
+
+    private static void GenerateLakes(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, Random random)
+    {
+        int numLakes = MIN_LAKES + random.Next(MAX_ADDITIONAL_LAKES + 1);
+
+        for (int lakeIdx = 0; lakeIdx < numLakes; lakeIdx++)
+        {
+            float offsetX = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
+            float offsetY = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
+
+            for (int y = 0; y < WORLD_HEIGHT; y++)
+            {
+                for (int x = 0; x < WORLD_WIDTH; x++)
+                {
+                    int index = y * WORLD_WIDTH + x;
+
+                    if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
+                    {
+                        continue;
+                    }
+
+                    float noiseValue = Noise((x + offsetX) * LAKE_NOISE_SCALE, (y + offsetY) * LAKE_NOISE_SCALE);
+                    if (noiseValue > LAKE_NOISE_THRESHOLD)
+                    {
+                        baseTerrain[index] = BaseTerrain.Lake;
+                    }
+                }
             }
         }
     }
@@ -563,7 +600,13 @@ public static partial class TerrainGenerator
 
         for (int i = 0; i < baseTerrain.Length; i++)
         {
-            bool baseTraversible = true;
+            bool baseTraversible = baseTerrain[i] switch
+            {
+                BaseTerrain.Ground => true,
+                BaseTerrain.Farm => true,
+                BaseTerrain.Lake => false,
+                _ => true
+            };
 
             bool detailTraversible = terrainDetail[i] switch
             {
