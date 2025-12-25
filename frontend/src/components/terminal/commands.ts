@@ -235,8 +235,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Arguments:",
         "  <gun_index>   Gun slot number (1, 2, or 3)",
         "",
-        "Each gun may have different properties.",
-        "",
         "Examples:",
         "  switch 1",
         "  switch 2",
