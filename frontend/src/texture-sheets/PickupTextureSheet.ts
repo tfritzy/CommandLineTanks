@@ -18,10 +18,13 @@ export class PickupTextureSheet {
   private textures: Map<string, PickupTexture> = new Map();
   private shadowTextures: Map<string, PickupTexture> = new Map();
 
+  private static readonly CANVAS_SIZE = 512;
+  private static readonly CELL_SIZE_MULTIPLIER = 1.2;
+
   constructor() {
     this.canvas = document.createElement("canvas");
-    this.canvas.width = 512;
-    this.canvas.height = 512;
+    this.canvas.width = PickupTextureSheet.CANVAS_SIZE;
+    this.canvas.height = PickupTextureSheet.CANVAS_SIZE;
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
@@ -30,8 +33,8 @@ export class PickupTextureSheet {
     this.ctx = ctx;
 
     this.shadowCanvas = document.createElement("canvas");
-    this.shadowCanvas.width = 512;
-    this.shadowCanvas.height = 512;
+    this.shadowCanvas.width = PickupTextureSheet.CANVAS_SIZE;
+    this.shadowCanvas.height = PickupTextureSheet.CANVAS_SIZE;
 
     const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
@@ -46,7 +49,7 @@ export class PickupTextureSheet {
     let currentX = 0;
     let currentY = 0;
     const padding = 10;
-    const cellSize = UNIT_TO_PIXEL * 1.2;
+    const cellSize = UNIT_TO_PIXEL * PickupTextureSheet.CELL_SIZE_MULTIPLIER;
 
     this.addPickup("health", currentX, currentY, cellSize, drawHealthPackShadow, drawHealthPackBody);
     currentX += cellSize + padding;
