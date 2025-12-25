@@ -340,21 +340,22 @@ public static partial class ProjectileUpdater
             return false;
         }
 
-        for (int i = 0; i < tank.Guns.Length; i++)
+        int gridX = (int)tank.PositionX;
+        int gridY = (int)tank.PositionY;
+
+        var pickupId = Module.GenerateId(ctx, "pickup");
+        ctx.Db.pickup.Insert(new Module.Pickup
         {
-            if (tank.Guns[i].GunType == GunType.Boomerang)
-            {
-                var gun = tank.Guns[i];
-                if (gun.Ammo != null)
-                {
-                    gun.Ammo = gun.Ammo.Value + 1;
-                    tank.Guns[i] = gun;
-                    ctx.Db.tank.Id.Update(tank);
-                    Log.Info($"Tank {tank.Name} caught the boomerang! Ammo restored.");
-                }
-                break;
-            }
-        }
+            Id = pickupId,
+            WorldId = tank.WorldId,
+            PositionX = tank.PositionX,
+            PositionY = tank.PositionY,
+            GridX = gridX,
+            GridY = gridY,
+            Type = PickupType.Boomerang
+        });
+
+        Log.Info($"Boomerang returned to tank {tank.Name}! Pickup spawned at ({tank.PositionX}, {tank.PositionY})");
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
         return true;
