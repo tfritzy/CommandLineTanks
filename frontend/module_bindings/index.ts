@@ -107,6 +107,8 @@ import PlayerRow from "./player_table";
 export { PlayerRow };
 import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
+import ProjectileTrailRow from "./projectile_trail_table";
+export { ProjectileTrailRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
 import SmokeCloudRow from "./smoke_cloud_table";
@@ -147,6 +149,10 @@ import Projectile from "./projectile_type";
 export { Projectile };
 import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
+import ProjectileTrail from "./projectile_trail_type";
+export { ProjectileTrail };
+import ProjectileTrailType from "./projectile_trail_type_type";
+export { ProjectileTrailType };
 import ScheduledAiUpdate from "./scheduled_ai_update_type";
 export { ScheduledAiUpdate };
 import ScheduledGameCleanup from "./scheduled_game_cleanup_type";
@@ -368,6 +374,20 @@ const tablesSchema = __schema(
       { name: 'projectile_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, ProjectileRow),
+  __table({
+    name: 'projectile_trail',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'projectile_trail_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, ProjectileTrailRow),
   __table({
     name: 'score',
     indexes: [

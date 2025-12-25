@@ -9,18 +9,19 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import ProjectileTrailType from "./projectile_trail_type_type";
 
-// The tagged union or sum type for the algebraic type `ProjectileType`.
-const ProjectileType = __t.enum("ProjectileType", {Normal: __t.unit(),
-  Missile: __t.unit(),
-  Boomerang: __t.unit(),
-  Grenade: __t.unit(),
-  Rocket: __t.unit(),
-  Moag: __t.unit(),
-  SpiderMine: __t.unit(),
-  Sniper: __t.unit(),
+export default __t.object("ProjectileTrail", {
+  id: __t.string(),
+  worldId: __t.string(),
+  startX: __t.f32(),
+  startY: __t.f32(),
+  endX: __t.f32(),
+  endY: __t.f32(),
+  get type() {
+    return ProjectileTrailType;
+  },
+  spawnedAt: __t.u64(),
 });
-
-export default ProjectileType;
 
 

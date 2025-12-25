@@ -71,7 +71,8 @@ public static partial class Types
         Rocket,
         Moag,
         SpiderMine,
-        Shield
+        Shield,
+        Sniper
     }
 
     [Type]
@@ -91,7 +92,8 @@ public static partial class Types
         Grenade,
         Rocket,
         Moag,
-        SpiderMine
+        SpiderMine,
+        Sniper
     }
 
     [Type]
@@ -103,7 +105,8 @@ public static partial class Types
         Grenade,
         Rocket,
         Moag,
-        SpiderMine
+        SpiderMine,
+        Sniper
     }
 
     [Type]
@@ -112,6 +115,12 @@ public static partial class Types
         None,
         OnExpiration,
         OnHit
+    }
+
+    [Type]
+    public enum ProjectileTrailType : byte
+    {
+        Sniper
     }
 
     [Type]
@@ -133,6 +142,7 @@ public static partial class Types
         public float? Damping;
         public bool Bounce;
         public float ProjectileSize;
+        public float? RaycastRange;
     }
 
     [Type]
