@@ -12,6 +12,8 @@ public static partial class TerrainGenerator
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
     private const int MIN_STRUCTURES = 6;
     private const int STRUCTURE_COUNT_RANGE = 7;
+    private const int LAKE_MIN_SIZE = 3;
+    private const int LAKE_MAX_SIZE = 8;
     private const int ROTATION_NORTH = 0;
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
@@ -35,6 +37,8 @@ public static partial class TerrainGenerator
         }
 
         GenerateRocks(terrainDetailArray, baseTerrain, random);
+
+        GenerateLakes(baseTerrain, terrainDetailArray, random);
 
         Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, random);
 
@@ -71,6 +75,64 @@ public static partial class TerrainGenerator
             if (baseTerrain[index] == BaseTerrain.Ground && terrainDetail[index] == TerrainDetailType.None)
             {
                 terrainDetail[index] = TerrainDetailType.Rock;
+            }
+        }
+    }
+
+    private static void GenerateLakes(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, Random random)
+    {
+        int numLakes = 1 + random.Next(3);
+
+        for (int lakeIdx = 0; lakeIdx < numLakes; lakeIdx++)
+        {
+            int attempts = 0;
+            bool placed = false;
+
+            while (!placed && attempts < 100)
+            {
+                attempts++;
+
+                int lakeWidth = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
+                int lakeHeight = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
+                int startX = random.Next(WORLD_WIDTH - lakeWidth);
+                int startY = random.Next(WORLD_HEIGHT - lakeHeight);
+
+                bool validLocation = true;
+
+                for (int y = startY; y < startY + lakeHeight; y++)
+                {
+                    for (int x = startX; x < startX + lakeWidth; x++)
+                    {
+                        if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+
+                        int index = y * WORLD_WIDTH + x;
+                        if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+                    }
+
+                    if (!validLocation) break;
+                }
+
+                if (validLocation)
+                {
+                    for (int y = startY; y < startY + lakeHeight; y++)
+                    {
+                        for (int x = startX; x < startX + lakeWidth; x++)
+                        {
+                            int index = y * WORLD_WIDTH + x;
+                            baseTerrain[index] = BaseTerrain.Lake;
+                        }
+                    }
+
+                    placed = true;
+                }
             }
         }
     }
@@ -563,7 +625,13 @@ public static partial class TerrainGenerator
 
         for (int i = 0; i < baseTerrain.Length; i++)
         {
-            bool baseTraversible = true;
+            bool baseTraversible = baseTerrain[i] switch
+            {
+                BaseTerrain.Ground => true,
+                BaseTerrain.Farm => true,
+                BaseTerrain.Lake => false,
+                _ => true
+            };
 
             bool detailTraversible = terrainDetail[i] switch
             {
