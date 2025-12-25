@@ -136,8 +136,6 @@ export class PickupManager {
           for (const projectile of pickup.projectiles) {
             projectile.drawShadow(ctx, projectileTextureSheet);
           }
-        } else {
-          this.drawPickupShadow(ctx, pickup);
         }
       }
     }
@@ -160,36 +158,19 @@ export class PickupManager {
     }
   }
 
-  private drawPickupShadow(ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    const worldX = pickup.positionX * UNIT_TO_PIXEL;
-    const worldY = pickup.positionY * UNIT_TO_PIXEL;
-    
-    switch (pickup.type.tag) {
-      case "Health":
-        pickupTextureSheet.drawShadow(ctx, "health", worldX, worldY);
-        break;
-      case "Shield":
-        pickupTextureSheet.drawShadow(ctx, "shield", worldX, worldY);
-        break;
-      default:
-        pickupTextureSheet.drawShadow(ctx, "unknown", worldX, worldY);
-        break;
-    }
-  }
-
   private drawPickup(ctx: CanvasRenderingContext2D, pickup: PickupData) {
     const worldX = pickup.positionX * UNIT_TO_PIXEL;
     const worldY = pickup.positionY * UNIT_TO_PIXEL;
     
     switch (pickup.type.tag) {
       case "Health":
-        pickupTextureSheet.drawPickup(ctx, "health", worldX, worldY);
+        pickupTextureSheet.draw(ctx, "health", worldX, worldY);
         break;
       case "Shield":
-        pickupTextureSheet.drawPickup(ctx, "shield", worldX, worldY);
+        pickupTextureSheet.draw(ctx, "shield", worldX, worldY);
         break;
       default:
-        pickupTextureSheet.drawPickup(ctx, "unknown", worldX, worldY);
+        pickupTextureSheet.draw(ctx, "unknown", worldX, worldY);
         break;
     }
   }

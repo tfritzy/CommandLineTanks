@@ -13,10 +13,7 @@ export interface PickupTexture {
 export class PickupTextureSheet {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private shadowCanvas: HTMLCanvasElement;
-  private shadowCtx: CanvasRenderingContext2D;
   private textures: Map<string, PickupTexture> = new Map();
-  private shadowTextures: Map<string, PickupTexture> = new Map();
 
   private static readonly CANVAS_SIZE = 512;
   private static readonly CELL_SIZE_MULTIPLIER = 1.2;
@@ -32,16 +29,6 @@ export class PickupTextureSheet {
       throw new Error("Failed to get 2D context for pickup texture sheet");
     }
     this.ctx = ctx;
-
-    this.shadowCanvas = document.createElement("canvas");
-    this.shadowCanvas.width = PickupTextureSheet.CANVAS_SIZE;
-    this.shadowCanvas.height = PickupTextureSheet.CANVAS_SIZE;
-
-    const shadowCtx = this.shadowCanvas.getContext("2d");
-    if (!shadowCtx) {
-      throw new Error("Failed to get 2D context for shadow texture sheet");
-    }
-    this.shadowCtx = shadowCtx;
 
     this.initializeTextures();
   }
@@ -71,13 +58,9 @@ export class PickupTextureSheet {
     const centerX = x + size / 2;
     const centerY = y + size / 2;
 
-    this.shadowCtx.save();
-    this.shadowCtx.translate(centerX, centerY);
-    drawShadow(this.shadowCtx, 0, 0);
-    this.shadowCtx.restore();
-
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
+    drawShadow(this.ctx, 0, 0);
     drawBody(this.ctx, 0, 0);
     this.ctx.restore();
 
@@ -89,18 +72,13 @@ export class PickupTextureSheet {
     };
 
     this.textures.set(key, textureData);
-    this.shadowTextures.set(key, textureData);
   }
 
   public getTexture(key: string): PickupTexture | undefined {
     return this.textures.get(key);
   }
 
-  public getShadowTexture(key: string): PickupTexture | undefined {
-    return this.shadowTextures.get(key);
-  }
-
-  public drawPickup(
+  public draw(
     ctx: CanvasRenderingContext2D,
     key: string,
     x: number,
@@ -111,28 +89,6 @@ export class PickupTextureSheet {
 
     ctx.drawImage(
       this.canvas,
-      texture.x,
-      texture.y,
-      texture.width,
-      texture.height,
-      x - texture.width / 2,
-      y - texture.height / 2,
-      texture.width,
-      texture.height
-    );
-  }
-
-  public drawShadow(
-    ctx: CanvasRenderingContext2D,
-    key: string,
-    x: number,
-    y: number
-  ) {
-    const texture = this.shadowTextures.get(key);
-    if (!texture) return;
-
-    ctx.drawImage(
-      this.shadowCanvas,
       texture.x,
       texture.y,
       texture.width,
