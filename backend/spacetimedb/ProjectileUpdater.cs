@@ -143,7 +143,17 @@ public static partial class ProjectileUpdater
         int tileIndex = projectileTileY * traversibilityMap.Width + projectileTileX;
         bool tileIsTraversable = tileIndex < traversibilityMap.Map.Length && traversibilityMap.Map[tileIndex];
 
-        if (tileIsTraversable || projectile.PassThroughTerrain)
+        if (projectile.PassThroughTerrain)
+        {
+            if (projectile.CollisionRadius > 0)
+            {
+                bool mapChanged = DamageTerrainInRadius(ctx, projectile, ref traversibilityMap, worldId);
+                return (false, projectile, mapChanged);
+            }
+            return (false, projectile, false);
+        }
+
+        if (tileIsTraversable)
         {
             return (false, projectile, false);
         }
@@ -165,6 +175,53 @@ public static partial class ProjectileUpdater
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
         return (true, projectile, mapChanged);
+    }
+
+    private static bool DamageTerrainInRadius(
+        ReducerContext ctx,
+        Projectile projectile,
+        ref Module.TraversibilityMap traversibilityMap,
+        string worldId)
+    {
+        int collisionTileRadius = (int)Math.Ceiling(projectile.CollisionRadius);
+        int centerTileX = (int)projectile.PositionX;
+        int centerTileY = (int)projectile.PositionY;
+
+        bool traversibilityMapChanged = false;
+
+        for (int dx = -collisionTileRadius; dx <= collisionTileRadius; dx++)
+        {
+            for (int dy = -collisionTileRadius; dy <= collisionTileRadius; dy++)
+            {
+                int tileX = centerTileX + dx;
+                int tileY = centerTileY + dy;
+
+                if (tileX < 0 || tileX >= traversibilityMap.Width ||
+                    tileY < 0 || tileY >= traversibilityMap.Height)
+                {
+                    continue;
+                }
+
+                float tileCenterX = tileX + 0.5f;
+                float tileCenterY = tileY + 0.5f;
+
+                float dx_tile = tileCenterX - projectile.PositionX;
+                float dy_tile = tileCenterY - projectile.PositionY;
+                float distanceSquared = dx_tile * dx_tile + dy_tile * dy_tile;
+                float collisionRadiusSquared = projectile.CollisionRadius * projectile.CollisionRadius;
+
+                if (distanceSquared <= collisionRadiusSquared)
+                {
+                    int tileIndex = tileY * traversibilityMap.Width + tileX;
+                    if (DamageTerrainAtTile(ctx, worldId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap))
+                    {
+                        traversibilityMapChanged = true;
+                    }
+                }
+            }
+        }
+
+        return traversibilityMapChanged;
     }
 
     private static Projectile HandleProjectileBounce(Projectile projectile, int projectileTileX, int projectileTileY, double deltaTime)
