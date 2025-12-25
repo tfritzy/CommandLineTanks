@@ -161,11 +161,9 @@ export class GunInventoryManager {
         return new BoomerangProjectile(x, y, velocityX, velocityY, size, alliance);
       case "Moag":
         return new MoagProjectile(x, y, velocityX, velocityY, size, alliance);
+      case "SpiderMine":
+        return new SpiderMineProjectile(x, y, velocityX, velocityY, size, alliance);
       default:
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((gun.projectileType as any).tag === "SpiderMine") {
-          return new SpiderMineProjectile(x, y, velocityX, velocityY, size, alliance);
-        }
         return undefined;
     }
   }

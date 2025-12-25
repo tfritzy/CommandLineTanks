@@ -9,18 +9,23 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import TerrainDetailType from "./terrain_detail_type_type";
+import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.row({
   id: __t.string().primaryKey().name("Id"),
   worldId: __t.string().name("WorldId"),
+  shooterTankId: __t.string().name("ShooterTankId"),
+  alliance: __t.i32().name("Alliance"),
   positionX: __t.f32().name("PositionX"),
   positionY: __t.f32().name("PositionY"),
-  get type() {
-    return TerrainDetailType.name("Type");
+  collisionRegionX: __t.i32().name("CollisionRegionX"),
+  collisionRegionY: __t.i32().name("CollisionRegionY"),
+  health: __t.i32().name("Health"),
+  targetTankId: __t.option(__t.string()).name("TargetTankId"),
+  isPlanted: __t.bool().name("IsPlanted"),
+  plantingStartedAt: __t.u64().name("PlantingStartedAt"),
+  get velocity() {
+    return Vector2Float.name("Velocity");
   },
-  health: __t.option(__t.i32()).name("Health"),
-  label: __t.option(__t.string()).name("Label"),
-  rotation: __t.i32().name("Rotation"),
 });

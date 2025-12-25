@@ -18,6 +18,7 @@ const GunType = __t.enum("GunType", {Base: __t.unit(),
   Grenade: __t.unit(),
   Rocket: __t.unit(),
   Moag: __t.unit(),
+  SpiderMine: __t.unit(),
 });
 
 export default GunType;

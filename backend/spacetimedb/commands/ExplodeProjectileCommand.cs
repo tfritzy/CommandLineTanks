@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class ProjectileUpdater
 {
-    public static bool ExplodeProjectileCommand(ReducerContext ctx, Projectile projectile, string worldId, ref Module.TraversibilityMap traversibilityMap)
+    public static bool ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, string worldId, ref Module.TraversibilityMap traversibilityMap)
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
         {

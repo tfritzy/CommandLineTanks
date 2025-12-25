@@ -10,10 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.row({
-  id: __t.string().primaryKey().name("Id"),
-  worldId: __t.string().name("WorldId"),
-  killer: __t.identity().name("Killer"),
-  killeeName: __t.string().name("KilleeName"),
-  timestamp: __t.u64().name("Timestamp"),
-});
+import ScheduledSpiderMineUpdates from "./scheduled_spider_mine_updates_type";
+
+export default {
+  get args() {
+    return ScheduledSpiderMineUpdates;
+  },
+};

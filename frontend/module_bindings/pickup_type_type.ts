@@ -18,6 +18,7 @@ const PickupType = __t.enum("PickupType", {TripleShooter: __t.unit(),
   Grenade: __t.unit(),
   Rocket: __t.unit(),
   Moag: __t.unit(),
+  SpiderMine: __t.unit(),
 });
 
 export default PickupType;

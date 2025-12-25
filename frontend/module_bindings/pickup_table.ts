@@ -13,11 +13,11 @@ import PickupType from "./pickup_type_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
+  id: __t.string().primaryKey().name("Id"),
+  worldId: __t.string().name("WorldId"),
+  positionX: __t.f32().name("PositionX"),
+  positionY: __t.f32().name("PositionY"),
   get type() {
-    return PickupType;
+    return PickupType.name("Type");
   },
 });

@@ -11,9 +11,6 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  id: __t.string().primaryKey().name("Id"),
-  worldId: __t.string().name("WorldId"),
-  killer: __t.identity().name("Killer"),
-  killeeName: __t.string().name("KilleeName"),
-  timestamp: __t.u64().name("Timestamp"),
+  scheduledId: __t.u64().primaryKey().name("ScheduledId"),
+  scheduledAt: __t.scheduleAt().name("ScheduledAt"),
 });

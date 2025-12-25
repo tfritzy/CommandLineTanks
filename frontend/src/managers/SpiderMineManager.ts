@@ -1,5 +1,7 @@
 import { SpiderMine } from "../objects/SpiderMine";
 import { getConnection } from "../spacetimedb-connection";
+import { type SpiderMineRow, type EventContext } from "../../module_bindings";
+import { type Infer } from "spacetimedb";
 
 export class SpiderMineManager {
   private spiderMines: Map<string, SpiderMine> = new Map();
@@ -14,19 +16,12 @@ export class SpiderMineManager {
     const connection = getConnection();
     if (!connection) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const spiderMineTable = (connection.db as any).spiderMine;
-    if (!spiderMineTable) {
-      return;
-    }
-
     connection
       .subscriptionBuilder()
       .onError((e) => console.log("Spider mine subscription error", e))
       .subscribe([`SELECT * FROM spider_mine WHERE WorldId = '${this.worldId}'`]);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    spiderMineTable.onInsert((_ctx: any, mine: any) => {
+    connection.db.spiderMine.onInsert((_ctx: EventContext, mine: Infer<typeof SpiderMineRow>) => {
       const newMine = new SpiderMine(
         mine.id,
         mine.positionX,
@@ -35,26 +30,24 @@ export class SpiderMineManager {
         mine.health,
         mine.isPlanted,
         mine.plantingStartedAt,
-        mine.velocity?.x ?? 0,
-        mine.velocity?.y ?? 0
+        mine.velocity.x,
+        mine.velocity.y
       );
       this.spiderMines.set(mine.id, newMine);
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    spiderMineTable.onUpdate((_ctx: any, _oldMine: any, newMine: any) => {
+    connection.db.spiderMine.onUpdate((_ctx: EventContext, _oldMine: Infer<typeof SpiderMineRow>, newMine: Infer<typeof SpiderMineRow>) => {
       const mine = this.spiderMines.get(newMine.id);
       if (mine) {
         mine.setPosition(newMine.positionX, newMine.positionY);
         mine.setHealth(newMine.health);
         mine.setIsPlanted(newMine.isPlanted);
         mine.setPlantingStartedAt(newMine.plantingStartedAt);
-        mine.setVelocity(newMine.velocity?.x ?? 0, newMine.velocity?.y ?? 0);
+        mine.setVelocity(newMine.velocity.x, newMine.velocity.y);
       }
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    spiderMineTable.onDelete((_ctx: any, mine: any) => {
+    connection.db.spiderMine.onDelete((_ctx: EventContext, mine: Infer<typeof SpiderMineRow>) => {
       this.spiderMines.delete(mine.id);
     });
   }
