@@ -100,6 +100,8 @@ public static partial class Module
         public int SelectedGunIndex;
 
         public ulong LastFireTime;
+
+        public ulong SmokescreenCooldownEnd;
     }
 
     [Table(Name = "projectile", Public = true)]
@@ -150,7 +152,7 @@ public static partial class Module
     }
 
     [Table(Name = "terrain_detail", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(GridX), nameof(GridY) })]
     public partial struct TerrainDetail
     {
         [PrimaryKey]
@@ -162,6 +164,9 @@ public static partial class Module
         public float PositionX;
         public float PositionY;
 
+        public int GridX;
+        public int GridY;
+
         public TerrainDetailType Type;
 
         public int? Health;
@@ -172,7 +177,7 @@ public static partial class Module
     }
 
     [Table(Name = "pickup", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(PositionX), nameof(PositionY) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(GridX), nameof(GridY) })]
     public partial struct Pickup
     {
         [PrimaryKey]
@@ -184,7 +189,30 @@ public static partial class Module
         public float PositionX;
         public float PositionY;
 
+        public int GridX;
+        public int GridY;
+
         public PickupType Type;
+    }
+
+    [Table(Name = "smoke_cloud", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
+    public partial struct SmokeCloud
+    {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public float PositionX;
+        public float PositionY;
+
+        public int CollisionRegionX;
+        public int CollisionRegionY;
+
+        public ulong SpawnedAt;
+        public float Radius;
     }
 
     [Table(Name = "kills", Public = true)]

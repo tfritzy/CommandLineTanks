@@ -48,4 +48,5 @@ export default __t.row({
   },
   selectedGunIndex: __t.i32(),
   lastFireTime: __t.u64(),
+  smokescreenCooldownEnd: __t.u64(),
 });
