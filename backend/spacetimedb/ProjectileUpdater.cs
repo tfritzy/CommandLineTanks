@@ -364,13 +364,18 @@ public static partial class ProjectileUpdater
         else if (tank.Guns.Length < 3)
         {
             var boomerangGun = Module.BOOMERANG_GUN with { Ammo = 1 };
+            var newGunIndex = tank.Guns.Length;
             tank = tank with
             {
                 Guns = [.. tank.Guns, boomerangGun],
-                SelectedGunIndex = tank.Guns.Length
+                SelectedGunIndex = newGunIndex
             };
             ctx.Db.tank.Id.Update(tank);
             Log.Info($"Tank {tank.Name} caught the boomerang! New gun added with 1 ammo.");
+        }
+        else
+        {
+            Log.Info($"Tank {tank.Name} inventory full - boomerang lost!");
         }
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
