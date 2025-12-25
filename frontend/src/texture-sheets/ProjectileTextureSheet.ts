@@ -20,8 +20,6 @@ export class ProjectileTextureSheet {
     this.canvas = document.createElement("canvas");
     this.canvas.width = 1024;
     this.canvas.height = 1024;
-    this.canvas.style.display = "none";
-    document.body.appendChild(this.canvas);
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
@@ -32,8 +30,6 @@ export class ProjectileTextureSheet {
     this.shadowCanvas = document.createElement("canvas");
     this.shadowCanvas.width = 1024;
     this.shadowCanvas.height = 1024;
-    this.shadowCanvas.style.display = "none";
-    document.body.appendChild(this.shadowCanvas);
 
     const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
