@@ -1,6 +1,7 @@
 import { UNIT_TO_PIXEL } from "../../game";
 import { TerrainDetailObject } from "./TerrainDetailObject";
 import { getFlashColor } from "../../utils/colors";
+import { drawFoundationEdgeShadow, drawFoundationEdgeBody } from "../../drawing/terrain-details/foundation-edge";
 
 export class FoundationEdge extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
@@ -9,14 +10,7 @@ export class FoundationEdge extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const shadowOffset = UNIT_TO_PIXEL * 0.08;
-
-    ctx.translate(centerX - shadowOffset, centerY + shadowOffset);
-    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
-    ctx.translate(-centerX, -centerY);
-
-    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, y - UNIT_TO_PIXEL * 0.15, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.3);
+    drawFoundationEdgeShadow(ctx, x, y, centerX, centerY, this.rotation);
     ctx.restore();
   }
 
@@ -26,16 +20,7 @@ export class FoundationEdge extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-
-    ctx.translate(centerX, centerY);
-    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
-    ctx.translate(-centerX, -centerY);
-
-    const baseColor = getFlashColor("#707b89", this.flashTimer);
-
-    ctx.fillStyle = baseColor;
-    ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, y - UNIT_TO_PIXEL * 0.15, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.3);
-
+    drawFoundationEdgeBody(ctx, x, y, centerX, centerY, this.rotation, this.flashTimer);
     ctx.restore();
     this.drawLabel(ctx);
   }
