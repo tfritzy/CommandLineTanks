@@ -1,3 +1,10 @@
+const SMOKESCREEN_ICON_READY_COLOR = '#aaeeea';
+const SMOKESCREEN_ICON_COOLDOWN_COLOR = '#707b89';
+const CLOUD_RADIUS_SCALE = 0.35;
+const CLOUD_OFFSET_SCALE = 0.4;
+const OUTER_CLOUD_SCALE = 0.6;
+const CENTER_CLOUD_SCALE = 0.7;
+
 export function drawSmokescreenIcon(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -8,8 +15,8 @@ export function drawSmokescreenIcon(
   ctx.save();
   ctx.translate(x, y);
 
-  const cloudRadius = size * 0.35;
-  const cloudColor = isReady ? '#aaeeea' : '#707b89';
+  const cloudRadius = size * CLOUD_RADIUS_SCALE;
+  const cloudColor = isReady ? SMOKESCREEN_ICON_READY_COLOR : SMOKESCREEN_ICON_COOLDOWN_COLOR;
   const cloudCount = 5;
   
   ctx.fillStyle = cloudColor;
@@ -17,16 +24,16 @@ export function drawSmokescreenIcon(
 
   for (let i = 0; i < cloudCount; i++) {
     const angle = (i / cloudCount) * Math.PI * 2;
-    const offsetX = Math.cos(angle) * cloudRadius * 0.4;
-    const offsetY = Math.sin(angle) * cloudRadius * 0.4;
+    const offsetX = Math.cos(angle) * cloudRadius * CLOUD_OFFSET_SCALE;
+    const offsetY = Math.sin(angle) * cloudRadius * CLOUD_OFFSET_SCALE;
     
     ctx.beginPath();
-    ctx.arc(offsetX, offsetY, cloudRadius * 0.6, 0, Math.PI * 2);
+    ctx.arc(offsetX, offsetY, cloudRadius * OUTER_CLOUD_SCALE, 0, Math.PI * 2);
     ctx.fill();
   }
 
   ctx.beginPath();
-  ctx.arc(0, 0, cloudRadius * 0.7, 0, Math.PI * 2);
+  ctx.arc(0, 0, cloudRadius * CENTER_CLOUD_SCALE, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
