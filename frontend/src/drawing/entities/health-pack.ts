@@ -1,6 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../game";
 
-export function drawPickupShadow(
+export function drawHealthPackShadow(
   ctx: CanvasRenderingContext2D,
   positionX: number,
   positionY: number
@@ -18,7 +18,7 @@ export function drawPickupShadow(
   ctx.restore();
 }
 
-export function drawPickupBody(
+export function drawHealthPackBody(
   ctx: CanvasRenderingContext2D,
   positionX: number,
   positionY: number

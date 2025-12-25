@@ -1,4 +1,4 @@
-import { drawSpiderMineShadow, drawSpiderMineBody } from "../drawing/ui/spider-mine";
+import { drawSpiderMineShadow, drawSpiderMineBody } from "../drawing/entities/spider-mine";
 
 export class SpiderMine {
   public arrayIndex: number = -1;

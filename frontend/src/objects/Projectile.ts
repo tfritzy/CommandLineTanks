@@ -1,5 +1,5 @@
 import { UNIT_TO_PIXEL } from "../game";
-import { drawProjectileShadow, drawProjectileBody } from "../drawing/projectiles/projectile";
+import { TEAM_COLORS } from "../constants";
 
 export class Projectile {
   private x: number;
@@ -31,11 +31,37 @@ export class Projectile {
   }
 
   public drawShadow(ctx: CanvasRenderingContext2D) {
-    drawProjectileShadow(ctx, this.x, this.y, this.size);
+    ctx.save();
+    
+    const centerX = this.x * UNIT_TO_PIXEL;
+    const centerY = this.y * UNIT_TO_PIXEL;
+    const radius = this.size * UNIT_TO_PIXEL;
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.beginPath();
+    ctx.arc(centerX - 4, centerY + 4, radius, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
   }
 
   public drawBody(ctx: CanvasRenderingContext2D) {
-    drawProjectileBody(ctx, this.x, this.y, this.size, this.alliance);
+    ctx.save();
+    
+    const centerX = this.x * UNIT_TO_PIXEL;
+    const centerY = this.y * UNIT_TO_PIXEL;
+    const radius = this.size * UNIT_TO_PIXEL;
+    
+    ctx.fillStyle = this.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    ctx.restore();
   }
 
   public setPosition(x: number, y: number) {

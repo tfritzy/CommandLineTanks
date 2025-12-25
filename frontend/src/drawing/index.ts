@@ -1,5 +1,4 @@
 export * from "./tanks/tank";
-export * from "./projectiles/projectile";
 export * from "./projectiles/missile";
 export * from "./projectiles/rocket";
 export * from "./projectiles/grenade";
@@ -9,8 +8,8 @@ export * from "./terrain-details/rock";
 export * from "./terrain-details/tree";
 export * from "./terrain-details/hay-bale";
 export * from "./terrain/base-terrain";
-export * from "./ui/spider-mine";
-export * from "./ui/pickups";
+export * from "./entities/spider-mine";
+export * from "./entities/health-pack";
 export * from "./ui/floating-label";
 export * from "./ui/targeting-reticle";
 export * from "./ui/gun-inventory";

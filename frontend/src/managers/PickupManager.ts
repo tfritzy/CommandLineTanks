@@ -12,7 +12,7 @@ import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
 import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
 import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
 import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
-import { drawPickupShadow, drawPickupBody } from "../drawing/ui/pickups";
+import { drawHealthPackShadow, drawHealthPackBody } from "../drawing/entities/health-pack";
 
 interface PickupData {
   id: string;
@@ -163,10 +163,10 @@ export class PickupManager {
   }
 
   private drawPickupShadow(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    drawPickupShadow(_ctx, pickup.positionX, pickup.positionY);
+    drawHealthPackShadow(_ctx, pickup.positionX, pickup.positionY);
   }
 
   private drawPickup(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    drawPickupBody(_ctx, pickup.positionX, pickup.positionY);
+    drawHealthPackBody(_ctx, pickup.positionX, pickup.positionY);
   }
 }
