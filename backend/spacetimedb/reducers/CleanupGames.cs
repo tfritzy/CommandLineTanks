@@ -130,11 +130,6 @@ public static partial class Module
             ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
         }
 
-        foreach (var overdriveCleanup in ctx.Db.ScheduledOverdriveCleanup.WorldId.Filter(worldId))
-        {
-            ctx.Db.ScheduledOverdriveCleanup.ScheduledId.Delete(overdriveCleanup.ScheduledId);
-        }
-
         var worldToDelete = ctx.Db.world.Id.Find(worldId);
         if (worldToDelete != null)
         {

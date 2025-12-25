@@ -27,8 +27,6 @@ public static partial class Module
         };
         ctx.Db.tank.Id.Update(updatedTank);
 
-        ScheduleOverdriveCleanup(ctx, worldId, tank.Id, expirationTime);
-
         Log.Info($"Tank {tank.Name} activated overdrive until {expirationTime}");
     }
 }

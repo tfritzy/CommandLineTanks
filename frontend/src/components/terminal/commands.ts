@@ -159,8 +159,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Usage: stop",
         "",
-        "Immediately halts the tank's movement by clearing its path and setting",
-        "velocity to zero. The tank will stop at its current position.",
+        "Clears path and sets velocity to zero.",
         "",
         "Examples:",
         "  stop",
@@ -215,12 +214,11 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "fire":
     case "f":
       return [
-        "fire, f - Fire a projectile from your tank",
+        "fire, f - Fire a projectile",
         "",
         "Usage: fire",
         "",
-        "Fires a projectile from the tip of your tank's gun barrel in the",
-        "direction the turret is currently facing.",
+        "Fires from the gun barrel in the direction the turret is facing.",
         "",
         "Examples:",
         "  fire",
@@ -237,8 +235,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Arguments:",
         "  <gun_index>   Gun slot number (1, 2, or 3)",
         "",
-        "Switches your active gun to the specified slot. Each gun may have",
-        "different properties like projectile type, damage, ammo, etc.",
+        "Each gun may have different properties.",
         "",
         "Examples:",
         "  switch 1",
@@ -249,11 +246,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "smokescreen":
     case "sm":
       return [
-        "smokescreen, sm - Deploy a smokescreen that disrupts enemy targeting",
+        "smokescreen, sm - Deploy a smokescreen",
         "",
         "Usage: smokescreen",
         "",
-        "Deploys a smoke cloud that causes enemies to lose their target lock.",
+        "Deploys a smoke cloud that disrupts enemy targeting.",
+        "60 second cooldown.",
         "",
         "Examples:",
         "  smokescreen",
@@ -263,11 +261,11 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "overdrive":
     case "od":
       return [
-        "overdrive, od - Activate overdrive for 25% increased speed",
+        "overdrive, od - Activate overdrive",
         "",
         "Usage: overdrive",
         "",
-        "Activates overdrive mode, increasing movement speed by 25% for 10 seconds.",
+        "Increases movement speed by 25% for 10 seconds.",
         "60 second cooldown.",
         "",
         "Examples:",
@@ -281,8 +279,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Usage: respawn",
         "",
-        "Respawns your tank at a new spawn point after being destroyed.",
-        "Can only be used when your tank is dead.",
+        "Respawns at a new spawn point. Can only be used when dead.",
         "",
         "Examples:",
         "  respawn"
@@ -294,7 +291,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Usage: findgame",
         "",
-        "Finds and joins an available game world to place you in a match.",
+        "Finds and joins an available game world.",
         "",
         "Examples:",
         "  findgame"

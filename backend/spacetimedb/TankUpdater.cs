@@ -149,6 +149,15 @@ public static partial class TankUpdater
                 needsUpdate = true;
             }
 
+            if (tank.OverdriveActiveUntil > 0 && tank.OverdriveActiveUntil <= currentTime)
+            {
+                tank = tank with
+                {
+                    OverdriveActiveUntil = 0
+                };
+                needsUpdate = true;
+            }
+
             if (tank.Path.Length > 0)
             {
                 var targetPos = tank.Path[0];
