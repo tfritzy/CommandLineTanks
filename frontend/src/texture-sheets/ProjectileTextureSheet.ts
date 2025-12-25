@@ -8,8 +8,6 @@ export interface ProjectileTexture {
   height: number;
 }
 
-let globalInstance: ProjectileTextureSheet | null = null;
-
 export class ProjectileTextureSheet {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -40,13 +38,6 @@ export class ProjectileTextureSheet {
     this.shadowCtx = shadowCtx;
 
     this.initializeTextures();
-  }
-
-  public static getInstance(): ProjectileTextureSheet {
-    if (!globalInstance) {
-      globalInstance = new ProjectileTextureSheet();
-    }
-    return globalInstance;
   }
 
   private initializeTextures() {
@@ -814,3 +805,5 @@ export class ProjectileTextureSheet {
     ctx.restore();
   }
 }
+
+export const projectileTextureSheet = new ProjectileTextureSheet();

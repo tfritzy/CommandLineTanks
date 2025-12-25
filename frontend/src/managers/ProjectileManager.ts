@@ -1,7 +1,7 @@
 import { Projectile, ProjectileFactory } from "../objects/projectiles";
 import { getConnection } from "../spacetimedb-connection";
 import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
-import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
+import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
 import { UNIT_TO_PIXEL } from "../game";
 
 export class ProjectileManager {
@@ -94,7 +94,6 @@ export class ProjectileManager {
     viewportWidth: number,
     viewportHeight: number
   ) {
-    const textureSheet = ProjectileTextureSheet.getInstance();
     const cameraWorldX = cameraX / UNIT_TO_PIXEL;
     const cameraWorldY = cameraY / UNIT_TO_PIXEL;
     const viewportWorldWidth = viewportWidth / UNIT_TO_PIXEL;
@@ -119,7 +118,7 @@ export class ProjectileManager {
         continue;
       }
 
-      projectile.drawShadow(ctx, textureSheet);
+      projectile.drawShadow(ctx, projectileTextureSheet);
     }
   }
 
@@ -130,7 +129,6 @@ export class ProjectileManager {
     viewportWidth: number,
     viewportHeight: number
   ) {
-    const textureSheet = ProjectileTextureSheet.getInstance();
     const cameraWorldX = cameraX / UNIT_TO_PIXEL;
     const cameraWorldY = cameraY / UNIT_TO_PIXEL;
     const viewportWorldWidth = viewportWidth / UNIT_TO_PIXEL;
@@ -155,7 +153,7 @@ export class ProjectileManager {
         continue;
       }
 
-      projectile.drawBody(ctx, textureSheet);
+      projectile.drawBody(ctx, projectileTextureSheet);
     }
     this.particlesManager.draw(
       ctx,
