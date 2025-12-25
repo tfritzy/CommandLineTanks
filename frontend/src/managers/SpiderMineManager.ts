@@ -14,6 +14,7 @@ export class SpiderMineManager {
     const connection = getConnection();
     if (!connection) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const spiderMineTable = (connection.db as any).spiderMine;
     if (!spiderMineTable) {
       return;
@@ -24,6 +25,7 @@ export class SpiderMineManager {
       .onError((e) => console.log("Spider mine subscription error", e))
       .subscribe([`SELECT * FROM spider_mine WHERE WorldId = '${this.worldId}'`]);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spiderMineTable.onInsert((_ctx: any, mine: any) => {
       const newMine = new SpiderMine(
         mine.id,
@@ -39,6 +41,7 @@ export class SpiderMineManager {
       this.spiderMines.set(mine.id, newMine);
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spiderMineTable.onUpdate((_ctx: any, _oldMine: any, newMine: any) => {
       const mine = this.spiderMines.get(newMine.id);
       if (mine) {
@@ -50,6 +53,7 @@ export class SpiderMineManager {
       }
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spiderMineTable.onDelete((_ctx: any, mine: any) => {
       this.spiderMines.delete(mine.id);
     });

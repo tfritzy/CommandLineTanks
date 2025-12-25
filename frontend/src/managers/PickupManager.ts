@@ -65,6 +65,7 @@ export class PickupManager {
       case "Moag":
         return [new MoagProjectile(x, y, velocityX, velocityY, 0.25, 0)];
       default:
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((type as any).tag === "SpiderMine") {
           return [new SpiderMineProjectile(x, y, velocityX, velocityY, 0.2, 0)];
         }
