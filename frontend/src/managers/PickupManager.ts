@@ -14,6 +14,7 @@ import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectil
 import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
 import { drawHealthPackShadow, drawHealthPackBody } from "../drawing/entities/health-pack";
 import { drawShieldPickupShadow, drawShieldPickupBody } from "../drawing/entities/shield-pickup";
+import { drawUnknownPickupShadow, drawUnknownPickupBody } from "../drawing/entities/unknown-pickup";
 
 interface PickupData {
   id: string;
@@ -162,18 +163,30 @@ export class PickupManager {
   }
 
   private drawPickupShadow(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    if (pickup.type.tag === "Shield") {
-      drawShieldPickupShadow(_ctx, pickup.positionX, pickup.positionY);
-    } else {
-      drawHealthPackShadow(_ctx, pickup.positionX, pickup.positionY);
+    switch (pickup.type.tag) {
+      case "Health":
+        drawHealthPackShadow(_ctx, pickup.positionX, pickup.positionY);
+        break;
+      case "Shield":
+        drawShieldPickupShadow(_ctx, pickup.positionX, pickup.positionY);
+        break;
+      default:
+        drawUnknownPickupShadow(_ctx, pickup.positionX, pickup.positionY);
+        break;
     }
   }
 
   private drawPickup(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    if (pickup.type.tag === "Shield") {
-      drawShieldPickupBody(_ctx, pickup.positionX, pickup.positionY);
-    } else {
-      drawHealthPackBody(_ctx, pickup.positionX, pickup.positionY);
+    switch (pickup.type.tag) {
+      case "Health":
+        drawHealthPackBody(_ctx, pickup.positionX, pickup.positionY);
+        break;
+      case "Shield":
+        drawShieldPickupBody(_ctx, pickup.positionX, pickup.positionY);
+        break;
+      default:
+        drawUnknownPickupBody(_ctx, pickup.positionX, pickup.positionY);
+        break;
     }
   }
 }
