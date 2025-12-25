@@ -68,7 +68,7 @@ public static partial class Module
             gun.Ammo = gun.Ammo.Value - 1;
             var updatedGuns = tank.Guns.ToArray();
 
-            if (gun.Ammo <= 0)
+            if (gun.Ammo <= 0 && gun.GunType != Types.GunType.Boomerang)
             {
                 tank.Guns = tank.Guns.Where((_, index) => index != tank.SelectedGunIndex).ToArray();
                 if (tank.Guns.Length > 0)
