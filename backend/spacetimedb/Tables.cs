@@ -265,8 +265,8 @@ public static partial class Module
         public Vector2Float Velocity;
     }
 
-    [Table(Name = "raycast_hit", Public = true)]
-    public partial struct RaycastHit
+    [Table(Name = "projectile_trail", Public = true)]
+    public partial struct ProjectileTrail
     {
         [PrimaryKey]
         public string Id;
@@ -279,6 +279,8 @@ public static partial class Module
 
         public float EndX;
         public float EndY;
+
+        public ProjectileTrailType Type;
 
         public ulong SpawnedAt;
     }

@@ -9,7 +9,7 @@ import { KillManager } from "./managers/KillManager";
 import { SpiderMineManager } from "./managers/SpiderMineManager";
 import { SmokeCloudManager } from "./managers/SmokeCloudManager";
 import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
-import { RaycastHitManager } from "./managers/RaycastHitManager";
+import { ProjectileTrailManager } from "./managers/ProjectileTrailManager";
 
 export const UNIT_TO_PIXEL = 50;
 const CAMERA_FOLLOW_SPEED = 15;
@@ -31,7 +31,7 @@ export class Game {
   private spiderMineManager: SpiderMineManager;
   private smokeCloudManager: SmokeCloudManager;
   private abilitiesBarManager: AbilitiesBarManager;
-  private raycastHitManager: RaycastHitManager;
+  private projectileTrailManager: ProjectileTrailManager;
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
 
@@ -57,7 +57,7 @@ export class Game {
     this.spiderMineManager = new SpiderMineManager(worldId);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
     this.abilitiesBarManager = new AbilitiesBarManager(worldId);
-    this.raycastHitManager = new RaycastHitManager(worldId);
+    this.projectileTrailManager = new ProjectileTrailManager(worldId);
   }
 
   private resizeCanvas() {
@@ -236,7 +236,7 @@ export class Game {
     this.projectileManager.drawShadows(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
     this.projectileManager.drawBodies(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
 
-    this.raycastHitManager.draw(this.ctx, this.currentCameraX, this.currentCameraY, this.time);
+    this.projectileTrailManager.draw(this.ctx, this.currentCameraX, this.currentCameraY, this.time);
 
     // this.collisionVisualizationManager.draw(
     //   this.ctx,

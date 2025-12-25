@@ -70,9 +70,9 @@ public static partial class Module
             ctx.Db.smoke_cloud.Id.Delete(smokeCloud.Id);
         }
 
-        foreach (var raycastHit in ctx.Db.raycast_hit.WorldId.Filter(worldId))
+        foreach (var projectileTrail in ctx.Db.projectile_trail.WorldId.Filter(worldId))
         {
-            ctx.Db.raycast_hit.Id.Delete(raycastHit.Id);
+            ctx.Db.projectile_trail.Id.Delete(projectileTrail.Id);
         }
 
         var score = ctx.Db.score.WorldId.Find(worldId);
@@ -135,9 +135,9 @@ public static partial class Module
             ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
         }
 
-        foreach (var raycastHitCleanup in ctx.Db.ScheduledRaycastHitCleanup.WorldId.Filter(worldId))
+        foreach (var projectileTrailCleanup in ctx.Db.ScheduledProjectileTrailCleanup.WorldId.Filter(worldId))
         {
-            ctx.Db.ScheduledRaycastHitCleanup.ScheduledId.Delete(raycastHitCleanup.ScheduledId);
+            ctx.Db.ScheduledProjectileTrailCleanup.ScheduledId.Delete(projectileTrailCleanup.ScheduledId);
         }
 
         var worldToDelete = ctx.Db.world.Id.Find(worldId);

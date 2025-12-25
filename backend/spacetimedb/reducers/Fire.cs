@@ -142,15 +142,16 @@ public static partial class Module
             DealDamageToTankCommand.Execute(ctx, hitTank.Id, gun.Damage, tank.Id);
         }
 
-        var raycastHitId = GenerateId(ctx, "rch");
-        ctx.Db.raycast_hit.Insert(new RaycastHit
+        var projectileTrailId = GenerateId(ctx, "ptl");
+        ctx.Db.projectile_trail.Insert(new ProjectileTrail
         {
-            Id = raycastHitId,
+            Id = projectileTrailId,
             WorldId = tank.WorldId,
             StartX = startX,
             StartY = startY,
             EndX = endX,
             EndY = endY,
+            Type = Types.ProjectileTrailType.Sniper,
             SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
     }

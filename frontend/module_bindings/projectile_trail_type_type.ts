@@ -10,12 +10,9 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  startX: __t.f32(),
-  startY: __t.f32(),
-  endX: __t.f32(),
-  endY: __t.f32(),
-  spawnedAt: __t.u64(),
+const ProjectileTrailType = __t.enum("ProjectileTrailType", {Sniper: __t.unit(),
 });
+
+export default ProjectileTrailType;
+
+

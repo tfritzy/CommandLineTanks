@@ -107,8 +107,8 @@ import PlayerRow from "./player_table";
 export { PlayerRow };
 import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
-import RaycastHitRow from "./raycast_hit_table";
-export { RaycastHitRow };
+import ProjectileTrailRow from "./projectile_trail_table";
+export { ProjectileTrailRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
 import SmokeCloudRow from "./smoke_cloud_table";
@@ -149,8 +149,10 @@ import Projectile from "./projectile_type";
 export { Projectile };
 import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
-import RaycastHit from "./raycast_hit_type";
-export { RaycastHit };
+import ProjectileTrail from "./projectile_trail_type";
+export { ProjectileTrail };
+import ProjectileTrailType from "./projectile_trail_type_type";
+export { ProjectileTrailType };
 import ScheduledAiUpdate from "./scheduled_ai_update_type";
 export { ScheduledAiUpdate };
 import ScheduledGameCleanup from "./scheduled_game_cleanup_type";
@@ -373,7 +375,7 @@ const tablesSchema = __schema(
     ],
   }, ProjectileRow),
   __table({
-    name: 'raycast_hit',
+    name: 'projectile_trail',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
@@ -383,9 +385,9 @@ const tablesSchema = __schema(
       ] },
     ],
     constraints: [
-      { name: 'raycast_hit_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'projectile_trail_Id_key', constraint: 'unique', columns: ['id'] },
     ],
-  }, RaycastHitRow),
+  }, ProjectileTrailRow),
   __table({
     name: 'score',
     indexes: [

@@ -118,6 +118,12 @@ public static partial class Types
     }
 
     [Type]
+    public enum ProjectileTrailType : byte
+    {
+        Sniper
+    }
+
+    [Type]
     public partial struct Gun
     {
         public GunType GunType;
