@@ -38,15 +38,16 @@ export class PickupManager {
     switch (type.tag) {
       case "TripleShooter": {
         const projectiles: Projectile[] = [];
-        const arcAngle = 0.3;
-        const arcRadius = 0.15;
+        const arcAngle = 0.4;
+        const arcRadius = 0.25;
         
         for (let i = 0; i < 3; i++) {
           const projectileAngle = angle + (i - 1) * arcAngle;
           const offsetX = Math.cos(angle + Math.PI / 2) * (i - 1) * arcRadius;
           const offsetY = Math.sin(angle + Math.PI / 2) * (i - 1) * arcRadius;
-          const projX = x + offsetX;
-          const projY = y + offsetY;
+          const forwardOffset = (i === 1) ? 0.1 : 0;
+          const projX = x + offsetX + Math.cos(angle) * forwardOffset;
+          const projY = y + offsetY + Math.sin(angle) * forwardOffset;
           const projVelX = Math.cos(projectileAngle);
           const projVelY = Math.sin(projectileAngle);
           

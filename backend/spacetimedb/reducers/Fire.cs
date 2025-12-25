@@ -40,7 +40,26 @@ public static partial class Module
             for (int i = 0; i < gun.ProjectileCount; i++)
             {
                 float angle = tank.TurretRotation - halfSpread + (i * gun.SpreadAngle);
-                CreateProjectile(ctx, tank, tank.PositionX, tank.PositionY, angle, gun);
+                float posX = tank.PositionX;
+                float posY = tank.PositionY;
+
+                if (gun.GunType == GunType.TripleShooter)
+                {
+                    if (i == 1)
+                    {
+                        float forwardOffset = 0.2f;
+                        posX += (float)Math.Cos(tank.TurretRotation) * forwardOffset;
+                        posY += (float)Math.Sin(tank.TurretRotation) * forwardOffset;
+                    }
+                    else
+                    {
+                        float lateralOffset = (i - 1) * 0.25f;
+                        posX += (float)Math.Cos(tank.TurretRotation + Math.PI / 2.0) * lateralOffset;
+                        posY += (float)Math.Sin(tank.TurretRotation + Math.PI / 2.0) * lateralOffset;
+                    }
+                }
+
+                CreateProjectile(ctx, tank, posX, posY, angle, gun);
             }
         }
 

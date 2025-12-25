@@ -44,7 +44,7 @@ public static partial class Module
         GunType = GunType.TripleShooter,
         Ammo = 30,
         ProjectileCount = 3,
-        SpreadAngle = 0.2f,
+        SpreadAngle = 0.35f,
         Damage = 20,
         TrackingStrength = 0,
         ProjectileType = ProjectileType.Normal,
