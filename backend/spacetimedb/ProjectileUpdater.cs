@@ -147,7 +147,8 @@ public static partial class ProjectileUpdater
         {
             if (projectile.CollisionRadius > 0)
             {
-                bool mapChanged = DamageTerrainInRadius(ctx, projectile, ref traversibilityMap, worldId);
+                bool mapChanged;
+                (projectile, mapChanged) = DamageTerrainInRadius(ctx, projectile, ref traversibilityMap, worldId);
                 return (false, projectile, mapChanged);
             }
             return (false, projectile, false);
@@ -177,7 +178,7 @@ public static partial class ProjectileUpdater
         return (true, projectile, mapChanged);
     }
 
-    private static bool DamageTerrainInRadius(
+    private static (Projectile projectile, bool mapChanged) DamageTerrainInRadius(
         ReducerContext ctx,
         Projectile projectile,
         ref Module.TraversibilityMap traversibilityMap,
@@ -188,6 +189,17 @@ public static partial class ProjectileUpdater
         int centerTileY = (int)projectile.PositionY;
 
         bool traversibilityMapChanged = false;
+        ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        ulong expirationThreshold = 500_000;
+
+        var recentlyDamagedList = new System.Collections.Generic.List<DamagedTile>();
+        foreach (var damagedTile in projectile.RecentlyDamagedTiles)
+        {
+            if (currentTime - damagedTile.DamagedAt < expirationThreshold)
+            {
+                recentlyDamagedList.Add(damagedTile);
+            }
+        }
 
         for (int dx = -collisionTileRadius; dx <= collisionTileRadius; dx++)
         {
@@ -212,16 +224,41 @@ public static partial class ProjectileUpdater
 
                 if (distanceSquared <= collisionRadiusSquared)
                 {
-                    int tileIndex = tileY * traversibilityMap.Width + tileX;
-                    if (DamageTerrainAtTile(ctx, worldId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap))
+                    bool alreadyDamaged = false;
+                    foreach (var damagedTile in recentlyDamagedList)
                     {
-                        traversibilityMapChanged = true;
+                        if (damagedTile.X == tileX && damagedTile.Y == tileY)
+                        {
+                            alreadyDamaged = true;
+                            break;
+                        }
+                    }
+
+                    if (!alreadyDamaged)
+                    {
+                        int tileIndex = tileY * traversibilityMap.Width + tileX;
+                        if (DamageTerrainAtTile(ctx, worldId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap))
+                        {
+                            traversibilityMapChanged = true;
+                        }
+
+                        recentlyDamagedList.Add(new DamagedTile
+                        {
+                            X = tileX,
+                            Y = tileY,
+                            DamagedAt = currentTime
+                        });
                     }
                 }
             }
         }
 
-        return traversibilityMapChanged;
+        projectile = projectile with
+        {
+            RecentlyDamagedTiles = recentlyDamagedList.ToArray()
+        };
+
+        return (projectile, traversibilityMapChanged);
     }
 
     private static Projectile HandleProjectileBounce(Projectile projectile, int projectileTileX, int projectileTileY, double deltaTime)

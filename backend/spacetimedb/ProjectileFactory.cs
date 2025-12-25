@@ -35,7 +35,8 @@ public static partial class Module
             ExplosionRadius = gun.ExplosionRadius,
             ExplosionTrigger = gun.ExplosionTrigger,
             Damping = gun.Damping,
-            Bounce = gun.Bounce
+            Bounce = gun.Bounce,
+            RecentlyDamagedTiles = new DamagedTile[0]
         };
 
         ctx.Db.projectile.Insert(projectile);
