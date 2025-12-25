@@ -140,6 +140,7 @@ public static partial class Module
         public ExplosionTrigger ExplosionTrigger;
         public float? Damping;
         public bool Bounce;
+        public DamagedTile[] RecentlyDamagedTiles;
     }
 
     [Table(Name = "score", Public = true)]

@@ -132,4 +132,12 @@ public static partial class Types
         public bool Bounce;
         public float ProjectileSize;
     }
+
+    [Type]
+    public partial struct DamagedTile
+    {
+        public int X;
+        public int Y;
+        public ulong DamagedAt;
+    }
 }
