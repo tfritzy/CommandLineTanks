@@ -33,6 +33,7 @@ public static partial class EnemyTankRespawner
             ctx.Db.tank.Id.Update(respawnedTank);
             Log.Info($"Respawned enemy tank {respawnedTank.Name} at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");
         }
+    }
 
     public static void ScheduleEnemyTankRespawn(ReducerContext ctx, string worldId, string tankId)
     {
