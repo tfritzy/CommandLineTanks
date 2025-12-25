@@ -16,6 +16,7 @@ interface TankDrawParams {
   flashTimer: number;
   name: string;
   health: number;
+  hasShield: boolean;
 }
 
 export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -95,6 +96,27 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.textAlign = "center";
   ctx.fillText(params.name, 0, -30);
   ctx.restore();
+
+  if (params.hasShield) {
+    ctx.save();
+    ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
+
+    const shieldRadius = 22;
+    const gradient = ctx.createRadialGradient(0, 0, shieldRadius - 4, 0, 0, shieldRadius);
+    gradient.addColorStop(0, "rgba(115, 150, 213, 0)");
+    gradient.addColorStop(0.7, "rgba(115, 150, 213, 0.3)");
+    gradient.addColorStop(1, "rgba(90, 120, 178, 0.6)");
+
+    ctx.strokeStyle = "#7396d5";
+    ctx.lineWidth = 2;
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(0, 0, shieldRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+  }
 }
 
 export function drawTankHealthBar(

@@ -45,7 +45,8 @@ export class TankManager {
         tank.turretAngularVelocity,
         tank.path,
         tank.guns,
-        tank.selectedGunIndex
+        tank.selectedGunIndex,
+        tank.hasShield
       );
       this.tanks.set(tank.id, newTank);
 
@@ -77,6 +78,7 @@ export class TankManager {
         tank.setAlliance(newTank.alliance);
         tank.setGuns(newTank.guns);
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
+        tank.setHasShield(newTank.hasShield);
       }
 
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId == this.worldId) {

@@ -30,6 +30,7 @@ export class Tank {
   private guns: Infer<typeof Gun>[];
   private selectedGunIndex: number;
   private flashTimer: number = 0;
+  private hasShield: boolean = false;
 
   constructor(
     id: string,
@@ -45,7 +46,8 @@ export class Tank {
     turretAngularVelocity: number = 0,
     path: PathEntry[] = [],
     guns: Infer<typeof Gun>[] = [],
-    selectedGunIndex: number = 0
+    selectedGunIndex: number = 0,
+    hasShield: boolean = false
   ) {
     this.id = id;
     this.x = x;
@@ -62,6 +64,7 @@ export class Tank {
     this.path = path;
     this.guns = guns;
     this.selectedGunIndex = selectedGunIndex;
+    this.hasShield = hasShield;
   }
 
   public getAllianceColor(): string {
@@ -92,6 +95,7 @@ export class Tank {
       flashTimer: this.flashTimer,
       name: this.name,
       health: this.health,
+      hasShield: this.hasShield,
     });
   }
 
@@ -144,6 +148,10 @@ export class Tank {
 
   public setSelectedGunIndex(selectedGunIndex: number) {
     this.selectedGunIndex = selectedGunIndex;
+  }
+
+  public setHasShield(hasShield: boolean) {
+    this.hasShield = hasShield;
   }
 
   public update(deltaTime: number) {
