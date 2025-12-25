@@ -15,8 +15,6 @@ export interface TerrainDetailTexture {
   height: number;
 }
 
-let globalInstance: TerrainDetailTextureSheet | null = null;
-
 export class TerrainDetailTextureSheet {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -32,6 +30,8 @@ export class TerrainDetailTextureSheet {
     this.canvas = document.createElement("canvas");
     this.canvas.width = logicalSize * dpr;
     this.canvas.height = logicalSize * dpr;
+    this.canvas.style.display = "none";
+    document.body.appendChild(this.canvas);
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
@@ -46,6 +46,8 @@ export class TerrainDetailTextureSheet {
     this.shadowCanvas = document.createElement("canvas");
     this.shadowCanvas.width = logicalSize * dpr;
     this.shadowCanvas.height = logicalSize * dpr;
+    this.shadowCanvas.style.display = "none";
+    document.body.appendChild(this.shadowCanvas);
 
     const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
@@ -56,13 +58,6 @@ export class TerrainDetailTextureSheet {
     this.shadowCtx.imageSmoothingEnabled = false;
 
     this.initializeTextures();
-  }
-
-  public static getInstance(): TerrainDetailTextureSheet {
-    if (!globalInstance) {
-      globalInstance = new TerrainDetailTextureSheet();
-    }
-    return globalInstance;
   }
 
   private initializeTextures() {
@@ -210,3 +205,5 @@ export class TerrainDetailTextureSheet {
     return this.shadowTextures.get(key);
   }
 }
+
+export const terrainDetailTextureSheet = new TerrainDetailTextureSheet();

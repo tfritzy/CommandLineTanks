@@ -8,8 +8,6 @@ export interface ProjectileTexture {
   height: number;
 }
 
-let globalInstance: ProjectileTextureSheet | null = null;
-
 export class ProjectileTextureSheet {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -22,6 +20,8 @@ export class ProjectileTextureSheet {
     this.canvas = document.createElement("canvas");
     this.canvas.width = 1024;
     this.canvas.height = 1024;
+    this.canvas.style.display = "none";
+    document.body.appendChild(this.canvas);
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
@@ -32,6 +32,8 @@ export class ProjectileTextureSheet {
     this.shadowCanvas = document.createElement("canvas");
     this.shadowCanvas.width = 1024;
     this.shadowCanvas.height = 1024;
+    this.shadowCanvas.style.display = "none";
+    document.body.appendChild(this.shadowCanvas);
 
     const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
@@ -40,13 +42,6 @@ export class ProjectileTextureSheet {
     this.shadowCtx = shadowCtx;
 
     this.initializeTextures();
-  }
-
-  public static getInstance(): ProjectileTextureSheet {
-    if (!globalInstance) {
-      globalInstance = new ProjectileTextureSheet();
-    }
-    return globalInstance;
   }
 
   private initializeTextures() {
@@ -814,3 +809,5 @@ export class ProjectileTextureSheet {
     ctx.restore();
   }
 }
+
+export const projectileTextureSheet = new ProjectileTextureSheet();

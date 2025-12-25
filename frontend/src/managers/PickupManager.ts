@@ -11,7 +11,7 @@ import { BoomerangProjectile } from "../objects/projectiles/BoomerangProjectile"
 import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
 import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
 import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
-import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
+import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
 import { drawHealthPackShadow, drawHealthPackBody } from "../drawing/entities/health-pack";
 
 interface PickupData {
@@ -125,8 +125,6 @@ export class PickupManager {
     const startTileY = Math.floor(cameraY / UNIT_TO_PIXEL);
     const endTileY = Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL);
 
-    const textureSheet = ProjectileTextureSheet.getInstance();
-
     for (const pickup of this.pickups.values()) {
       if (
         pickup.positionX >= startTileX &&
@@ -136,7 +134,7 @@ export class PickupManager {
       ) {
         if (pickup.projectiles) {
           for (const projectile of pickup.projectiles) {
-            projectile.drawShadow(ctx, textureSheet);
+            projectile.drawShadow(ctx, projectileTextureSheet);
           }
         } else {
           this.drawPickupShadow(ctx, pickup);
@@ -153,7 +151,7 @@ export class PickupManager {
       ) {
         if (pickup.projectiles) {
           for (const projectile of pickup.projectiles) {
-            projectile.drawBody(ctx, textureSheet);
+            projectile.drawBody(ctx, projectileTextureSheet);
           }
         } else {
           this.drawPickup(ctx, pickup);

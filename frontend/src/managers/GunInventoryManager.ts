@@ -1,7 +1,7 @@
 import { type Infer } from "spacetimedb";
 import { getConnection } from "../spacetimedb-connection";
 import Gun from "../../module_bindings/gun_type";
-import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
+import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
 import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
 import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
 import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
@@ -80,7 +80,7 @@ export class GunInventoryManager {
       ctx.translate(centerX, centerY);
       const scale = 1.2;
       ctx.scale(scale, scale);
-      projectile.drawBody(ctx, ProjectileTextureSheet.getInstance());
+      projectile.drawBody(ctx, projectileTextureSheet);
       ctx.restore();
     } else {
       ctx.fillStyle = "#fcfbf3";

@@ -1,6 +1,6 @@
 import { Projectile } from "./Projectile";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
-import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
+import { ProjectileTextureSheet } from "../../texture-sheets/ProjectileTextureSheet";
 
 export class SpiderMineProjectile extends Projectile {
   public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {

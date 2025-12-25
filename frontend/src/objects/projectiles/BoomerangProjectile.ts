@@ -1,5 +1,5 @@
 import { Projectile } from "./Projectile";
-import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
+import { ProjectileTextureSheet } from "../../texture-sheets/ProjectileTextureSheet";
 
 export class BoomerangProjectile extends Projectile {
   private rotation: number = 0;

@@ -15,7 +15,7 @@ import { FenceEdge } from "../objects/terrain-details/FenceEdge";
 import { FenceCorner } from "../objects/terrain-details/FenceCorner";
 import { TargetDummy } from "../objects/terrain-details/TargetDummy";
 import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
-import { TerrainDetailTextureSheet } from "./TerrainDetailTextureSheet";
+import { terrainDetailTextureSheet } from "../texture-sheets/TerrainDetailTextureSheet";
 
 export class TerrainDetailManager {
   private worldWidth: number = 0;
@@ -25,13 +25,11 @@ export class TerrainDetailManager {
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
   private terrainDebrisParticles: TerrainDebrisParticlesManager =
     new TerrainDebrisParticlesManager();
-  private textureSheet: TerrainDetailTextureSheet;
 
   constructor(worldId: string, worldWidth: number, worldHeight: number) {
     this.worldId = worldId;
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
-    this.textureSheet = TerrainDetailTextureSheet.getInstance();
     this.initializeDetailObjectsArray();
     this.subscribeToTerrainDetails();
   }
@@ -179,7 +177,7 @@ export class TerrainDetailManager {
     const startY = cameraY / unitToPixel - padding;
     const endY = (cameraY + canvasHeight) / unitToPixel + padding;
 
-    const shadowCanvas = this.textureSheet.getShadowCanvas();
+    const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
     const dpr = window.devicePixelRatio || 1;
     const renderSize = unitToPixel * 2;
 
@@ -190,7 +188,7 @@ export class TerrainDetailManager {
       const objY = obj.getY();
 
       if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
-        const texture = this.textureSheet.getShadowTexture(
+        const texture = terrainDetailTextureSheet.getShadowTexture(
           this.getTextureKey(obj)
         );
 
@@ -231,7 +229,7 @@ export class TerrainDetailManager {
     const startY = cameraY / unitToPixel - padding;
     const endY = (cameraY + canvasHeight) / unitToPixel + padding;
 
-    const bodyCanvas = this.textureSheet.getCanvas();
+    const bodyCanvas = terrainDetailTextureSheet.getCanvas();
     const dpr = window.devicePixelRatio || 1;
     const renderSize = unitToPixel * 2;
 
@@ -245,7 +243,7 @@ export class TerrainDetailManager {
         if (obj.getFlashTimer() > 0) {
           obj.drawBody(ctx);
         } else {
-          const texture = this.textureSheet.getTexture(this.getTextureKey(obj));
+          const texture = terrainDetailTextureSheet.getTexture(this.getTextureKey(obj));
 
           if (!texture) {
             console.log("no body texture");

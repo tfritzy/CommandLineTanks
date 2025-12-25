@@ -1,6 +1,6 @@
 import { Projectile } from "./Projectile";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
-import { ProjectileTextureSheet } from "../../managers/ProjectileTextureSheet";
+import { ProjectileTextureSheet } from "../../texture-sheets/ProjectileTextureSheet";
 import { TEAM_COLORS } from "../../constants";
 import { UNIT_TO_PIXEL } from "../../game";
 
