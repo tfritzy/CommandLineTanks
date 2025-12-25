@@ -10,17 +10,9 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-// The tagged union or sum type for the algebraic type `PickupType`.
-const PickupType = __t.enum("PickupType", {TripleShooter: __t.unit(),
-  MissileLauncher: __t.unit(),
-  Health: __t.unit(),
-  Boomerang: __t.unit(),
-  Grenade: __t.unit(),
-  Rocket: __t.unit(),
-  Moag: __t.unit(),
-  SpiderMine: __t.unit(),
+export default __t.object("ScheduledGameCleanup", {
+  scheduledId: __t.u64(),
+  scheduledAt: __t.scheduleAt(),
 });
-
-export default PickupType;
 
 

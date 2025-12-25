@@ -33,6 +33,8 @@ import {
 // Import and reexport all reducer arg types
 import Aim from "./aim_reducer";
 export { Aim };
+import CleanupResultsGames from "./cleanup_results_games_reducer";
+export { CleanupResultsGames };
 import DeleteKill from "./delete_kill_reducer";
 export { DeleteKill };
 import DriveTo from "./drive_to_reducer";
@@ -67,6 +69,8 @@ import UpdateAi from "./update_ai_reducer";
 export { UpdateAi };
 import UpdateProjectiles from "./update_projectiles_reducer";
 export { UpdateProjectiles };
+import UpdateSpiderMines from "./update_spider_mines_reducer";
+export { UpdateSpiderMines };
 import UpdateTanks from "./update_tanks_reducer";
 export { UpdateTanks };
 
@@ -75,12 +79,16 @@ export { UpdateTanks };
 // Import and reexport all table handle types
 import ScheduledAiUpdateRow from "./scheduled_ai_update_table";
 export { ScheduledAiUpdateRow };
+import ScheduledGameCleanupRow from "./scheduled_game_cleanup_table";
+export { ScheduledGameCleanupRow };
 import ScheduledGameEndRow from "./scheduled_game_end_table";
 export { ScheduledGameEndRow };
 import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
 export { ScheduledProjectileUpdatesRow };
+import ScheduledSpiderMineUpdatesRow from "./scheduled_spider_mine_updates_table";
+export { ScheduledSpiderMineUpdatesRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import ScheduledWorldResetRow from "./scheduled_world_reset_table";
@@ -95,6 +103,8 @@ import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
+import SpiderMineRow from "./spider_mine_table";
+export { SpiderMineRow };
 import TankRow from "./tank_table";
 export { TankRow };
 import TerrainDetailRow from "./terrain_detail_table";
@@ -131,18 +141,24 @@ import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
 import ScheduledAiUpdate from "./scheduled_ai_update_type";
 export { ScheduledAiUpdate };
+import ScheduledGameCleanup from "./scheduled_game_cleanup_type";
+export { ScheduledGameCleanup };
 import ScheduledGameEnd from "./scheduled_game_end_type";
 export { ScheduledGameEnd };
 import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
+import ScheduledSpiderMineUpdates from "./scheduled_spider_mine_updates_type";
+export { ScheduledSpiderMineUpdates };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 export { ScheduledTankUpdates };
 import ScheduledWorldReset from "./scheduled_world_reset_type";
 export { ScheduledWorldReset };
 import Score from "./score_type";
 export { Score };
+import SpiderMine from "./spider_mine_type";
+export { SpiderMine };
 import Tank from "./tank_type";
 export { Tank };
 import TerrainDetail from "./terrain_detail_type";
@@ -172,6 +188,17 @@ const tablesSchema = __schema(
       { name: 'ScheduledAIUpdate_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledAiUpdateRow),
+  __table({
+    name: 'ScheduledGameCleanup',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledGameCleanup_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledGameCleanupRow),
   __table({
     name: 'ScheduledGameEnd',
     indexes: [
@@ -214,6 +241,20 @@ const tablesSchema = __schema(
       { name: 'ScheduledProjectileUpdates_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledProjectileUpdatesRow),
+  __table({
+    name: 'ScheduledSpiderMineUpdates',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledSpiderMineUpdates_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledSpiderMineUpdatesRow),
   __table({
     name: 'ScheduledTankUpdates',
     indexes: [
@@ -313,6 +354,25 @@ const tablesSchema = __schema(
     ],
   }, ScoreRow),
   __table({
+    name: 'spider_mine',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
+        'worldId',
+        'collisionRegionX',
+        'collisionRegionY',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'spider_mine_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, SpiderMineRow),
+  __table({
     name: 'tank',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
@@ -379,6 +439,9 @@ const tablesSchema = __schema(
   __table({
     name: 'world',
     indexes: [
+      { name: 'GameState', algorithm: 'btree', columns: [
+        'gameState',
+      ] },
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
@@ -392,6 +455,7 @@ const tablesSchema = __schema(
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
+  __reducerSchema("CleanupResultsGames", CleanupResultsGames),
   __reducerSchema("delete_kill", DeleteKill),
   __reducerSchema("driveTo", DriveTo),
   __reducerSchema("driveToTank", DriveToTank),
@@ -407,6 +471,7 @@ const reducersSchema = __reducers(
   __reducerSchema("targetTank", TargetTank),
   __reducerSchema("UpdateAI", UpdateAi),
   __reducerSchema("UpdateProjectiles", UpdateProjectiles),
+  __reducerSchema("UpdateSpiderMines", UpdateSpiderMines),
   __reducerSchema("UpdateTanks", UpdateTanks),
 );
 

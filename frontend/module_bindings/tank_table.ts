@@ -25,6 +25,7 @@ export default __t.row({
   health: __t.i32(),
   maxHealth: __t.i32(),
   kills: __t.i32(),
+  deaths: __t.i32(),
   collisionRegionX: __t.i32(),
   collisionRegionY: __t.i32(),
   target: __t.option(__t.string()),
@@ -46,4 +47,5 @@ export default __t.row({
     return __t.array(Gun);
   },
   selectedGunIndex: __t.i32(),
+  lastFireTime: __t.u64(),
 });

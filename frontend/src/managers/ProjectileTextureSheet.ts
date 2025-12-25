@@ -95,6 +95,13 @@ export class ProjectileTextureSheet {
     currentX += radius * 4 + padding * 3 + 8;
 
     this.addMissileProjectile('missile-blue', TEAM_COLORS.BLUE, currentX, currentY, radius * 1.5);
+    currentX = 0;
+    currentY += rowHeight;
+
+    this.addSpiderMineProjectile('spidermine-red', TEAM_COLORS.RED, currentX, currentY, radius);
+    currentX += radius * 3 + padding * 3 + 8;
+
+    this.addSpiderMineProjectile('spidermine-blue', TEAM_COLORS.BLUE, currentX, currentY, radius);
   }
 
   private addNormalProjectile(key: string, color: string, x: number, y: number, radius: number) {
@@ -455,6 +462,86 @@ export class ProjectileTextureSheet {
       y: y,
       width: flameLength + radius * 2 + padding * 2,
       height: radius * 1.6 + padding * 2,
+    };
+    
+    this.textures.set(key, textureData);
+    this.shadowTextures.set(key, textureData);
+  }
+
+  private addSpiderMineProjectile(key: string, color: string, x: number, y: number, radius: number) {
+    const padding = 2;
+    const legLength = radius * 1.2;
+    const centerX = x + legLength + padding;
+    const centerY = y + legLength + padding;
+
+    this.shadowCtx.save();
+    this.shadowCtx.translate(centerX, centerY);
+    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    
+    this.shadowCtx.beginPath();
+    this.shadowCtx.arc(0, 0, radius * 0.8, 0, Math.PI * 2);
+    this.shadowCtx.fill();
+    
+    for (let i = 0; i < 8; i++) {
+      const angle = (Math.PI * 2 * i) / 8;
+      const legX = Math.cos(angle) * legLength;
+      const legY = Math.sin(angle) * legLength;
+      
+      this.shadowCtx.lineWidth = 2;
+      this.shadowCtx.strokeStyle = "rgba(0, 0, 0, 0.3)";
+      this.shadowCtx.beginPath();
+      this.shadowCtx.moveTo(0, 0);
+      this.shadowCtx.lineTo(legX, legY);
+      this.shadowCtx.stroke();
+    }
+    
+    this.shadowCtx.restore();
+
+    this.ctx.save();
+    this.ctx.translate(centerX, centerY);
+    
+    for (let i = 0; i < 8; i++) {
+      const angle = (Math.PI * 2 * i) / 8;
+      const legX = Math.cos(angle) * legLength;
+      const legY = Math.sin(angle) * legLength;
+      const midX = Math.cos(angle) * radius * 0.8;
+      const midY = Math.sin(angle) * radius * 0.8;
+      
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeStyle = "#2e2e43";
+      this.ctx.beginPath();
+      this.ctx.moveTo(midX, midY);
+      this.ctx.lineTo(legX * 0.7, legY * 0.7);
+      this.ctx.lineTo(legX, legY);
+      this.ctx.stroke();
+    }
+    
+    this.ctx.fillStyle = color;
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, radius * 0.8, 0, Math.PI * 2);
+    this.ctx.fill();
+    
+    this.ctx.strokeStyle = "#2e2e43";
+    this.ctx.lineWidth = 1.5;
+    this.ctx.stroke();
+    
+    const eyeRadius = radius * 0.2;
+    const eyeOffset = radius * 0.3;
+    this.ctx.fillStyle = "#c06852";
+    this.ctx.beginPath();
+    this.ctx.arc(-eyeOffset, -eyeOffset * 0.5, eyeRadius, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.beginPath();
+    this.ctx.arc(eyeOffset, -eyeOffset * 0.5, eyeRadius, 0, Math.PI * 2);
+    this.ctx.fill();
+    
+    this.ctx.restore();
+
+    const textureData = {
+      x: x,
+      y: y,
+      width: legLength * 2 + padding * 2,
+      height: legLength * 2 + padding * 2,
     };
     
     this.textures.set(key, textureData);

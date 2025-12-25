@@ -10,6 +10,7 @@ import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
 import { BoomerangProjectile } from "../objects/projectiles/BoomerangProjectile";
 import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
 import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
+import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
 import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
 
 interface PickupData {
@@ -63,6 +64,8 @@ export class PickupManager {
         return [new BoomerangProjectile(x, y, velocityX, velocityY, 0.3, 0)];
       case "Moag":
         return [new MoagProjectile(x, y, velocityX, velocityY, 0.25, 0)];
+      case "SpiderMine":
+        return [new SpiderMineProjectile(x, y, velocityX, velocityY, 0.2, 0)];
       default:
         return undefined;
     }
