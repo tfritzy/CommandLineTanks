@@ -39,6 +39,15 @@ Before starting on a request related to spacetimedb, read: https://spacetimedb.c
 - The traversibility map has Width and Height properties that match the world dimensions
 - Only load the world table if you need other world-specific data beyond dimensions
 
+### Scheduled Tasks and Cleanup
+
+- When adding a new scheduled task table (marked with `[Table(Scheduled = ...)]`), ALWAYS update cleanup logic
+- All scheduled tasks MUST have a `WorldId` field to tie them to a world
+- Add cleanup to BOTH:
+  - `StopWorldTickers()` in `WorldTickerManager.cs`
+  - `DeleteWorld()` in `reducers/CleanupGames.cs`
+- Use the pattern: `foreach (var item in ctx.Db.ScheduledTableName.WorldId.Filter(worldId)) { ctx.Db.ScheduledTableName.ScheduledId.Delete(item.ScheduledId); }`
+
 ## SpacetimeDB TypeScript API Reference
 
 ### Table Accessors

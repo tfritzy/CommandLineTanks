@@ -47,6 +47,8 @@ public static partial class Module
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
+        EnemyTankRespawner.InitializeEnemyTankRespawner(ctx, identityString);
+
         ctx.Db.world.Insert(world);
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
@@ -133,23 +135,43 @@ public static partial class Module
             Rotation = 0
         });
 
-        var targetDummyPositions = new[] { (15, 15), (25, 15), (15, 25), (25, 25) };
-        foreach (var (x, y) in targetDummyPositions)
+        var enemyTankPositions = new[] { (15, 15), (25, 15), (15, 25), (25, 25) };
+        foreach (var (x, y) in enemyTankPositions)
         {
-            var targetDummyId = GenerateId(ctx, "td");
+            var enemyTankId = GenerateId(ctx, "enmy");
             traversibilityMap[y * worldSize + x] = false;
-            ctx.Db.terrain_detail.Insert(new TerrainDetail
+            var enemyTank = new Tank
             {
-                Id = targetDummyId,
+                Id = enemyTankId,
                 WorldId = identityString,
+                Owner = Identity.From(new byte[32]),
+                Name = "Enemy",
+                JoinCode = null,
+                IsBot = false,
+                Alliance = 1,
+                Health = Module.TANK_HEALTH,
+                MaxHealth = Module.TANK_HEALTH,
+                Kills = 0,
+                Deaths = 0,
+                CollisionRegionX = x / COLLISION_REGION_SIZE,
+                CollisionRegionY = y / COLLISION_REGION_SIZE,
+                Target = null,
+                TargetLead = 0.0f,
+                Path = [],
+                TopSpeed = 0f,
+                TurretRotationSpeed = 0f,
                 PositionX = x + 0.5f,
                 PositionY = y + 0.5f,
-                GridX = x,
-                GridY = y,
-                Type = TerrainDetailType.TargetDummy,
-                Health = 100_000,
-                Rotation = 0
-            });
+                Velocity = new Vector2Float(0, 0),
+                TurretAngularVelocity = 0,
+                TurretRotation = 0.0f,
+                TargetTurretRotation = 0.0f,
+                Guns = [Module.BASE_GUN],
+                SelectedGunIndex = 0,
+                LastFireTime = 0,
+                SmokescreenCooldownEnd = 0
+            };
+            ctx.Db.tank.Insert(enemyTank);
         }
 
         var pickups = new[]

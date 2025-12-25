@@ -120,13 +120,14 @@ public static partial class Module
             ctx.Db.ScheduledGameEnd.ScheduledId.Delete(gameEnd.ScheduledId);
         }
 
-        foreach (var smokeCloudCleanup in ctx.Db.ScheduledSmokeCloudCleanup.Iter())
+        foreach (var smokeCloudCleanup in ctx.Db.ScheduledSmokeCloudCleanup.WorldId.Filter(worldId))
         {
-            var cloud = ctx.Db.smoke_cloud.Id.Find(smokeCloudCleanup.SmokeCloudId);
-            if (cloud != null && cloud.Value.WorldId == worldId)
-            {
-                ctx.Db.ScheduledSmokeCloudCleanup.ScheduledId.Delete(smokeCloudCleanup.ScheduledId);
-            }
+            ctx.Db.ScheduledSmokeCloudCleanup.ScheduledId.Delete(smokeCloudCleanup.ScheduledId);
+        }
+
+        foreach (var enemyTankRespawnCheck in ctx.Db.ScheduledEnemyTankRespawnCheck.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
         }
 
         var worldToDelete = ctx.Db.world.Id.Find(worldId);
