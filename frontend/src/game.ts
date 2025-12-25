@@ -9,6 +9,7 @@ import { KillManager } from "./managers/KillManager";
 import { SpiderMineManager } from "./managers/SpiderMineManager";
 import { SmokeCloudManager } from "./managers/SmokeCloudManager";
 import { SmokescreenHudManager } from "./managers/SmokescreenHudManager";
+import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
 
 export const UNIT_TO_PIXEL = 50;
 const CAMERA_FOLLOW_SPEED = 15;
@@ -30,6 +31,7 @@ export class Game {
   private spiderMineManager: SpiderMineManager;
   private smokeCloudManager: SmokeCloudManager;
   private smokescreenHudManager: SmokescreenHudManager;
+  private abilitiesBarManager: AbilitiesBarManager;
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
 
@@ -55,6 +57,7 @@ export class Game {
     this.spiderMineManager = new SpiderMineManager(worldId);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
     this.smokescreenHudManager = new SmokescreenHudManager(worldId);
+    this.abilitiesBarManager = new AbilitiesBarManager(worldId);
   }
 
   private resizeCanvas() {
@@ -248,6 +251,7 @@ export class Game {
     this.miniMapManager.draw(this.ctx, displayWidth, displayHeight);
     this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
     this.smokescreenHudManager.draw(this.ctx, displayWidth, displayHeight);
+    this.abilitiesBarManager.draw(this.ctx, displayWidth, displayHeight);
     this.killManager.draw(this.ctx, displayWidth, displayHeight);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
