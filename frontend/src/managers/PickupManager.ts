@@ -12,6 +12,7 @@ import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
 import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
 import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
 import { ProjectileTextureSheet } from "./ProjectileTextureSheet";
+import { drawHealthPackShadow, drawHealthPackBody } from "../drawing/entities/health-pack";
 
 interface PickupData {
   id: string;
@@ -161,47 +162,11 @@ export class PickupManager {
     }
   }
 
-  private drawPickupShadow(ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    const worldX = pickup.positionX * UNIT_TO_PIXEL;
-    const worldY = pickup.positionY * UNIT_TO_PIXEL;
-    const size = UNIT_TO_PIXEL * 0.6;
-
-    ctx.save();
-    ctx.translate(worldX - 4, worldY + 4);
-    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    ctx.beginPath();
-    ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+  private drawPickupShadow(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
+    drawHealthPackShadow(_ctx, pickup.positionX, pickup.positionY);
   }
 
-  private drawPickup(ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    const worldX = pickup.positionX * UNIT_TO_PIXEL;
-    const worldY = pickup.positionY * UNIT_TO_PIXEL;
-    const size = UNIT_TO_PIXEL * 0.6;
-
-    ctx.save();
-    ctx.translate(worldX, worldY);
-
-    ctx.fillStyle = "#96dc7f";
-    ctx.strokeStyle = "#6ec077";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.strokeStyle = "#fcfbf3";
-    ctx.lineWidth = 4;
-    ctx.lineCap = "round";
-    const crossSize = size * 0.4;
-    ctx.beginPath();
-    ctx.moveTo(0, -crossSize / 2);
-    ctx.lineTo(0, crossSize / 2);
-    ctx.moveTo(-crossSize / 2, 0);
-    ctx.lineTo(crossSize / 2, 0);
-    ctx.stroke();
-
-    ctx.restore();
+  private drawPickup(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
+    drawHealthPackBody(_ctx, pickup.positionX, pickup.positionY);
   }
 }

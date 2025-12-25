@@ -1,19 +1,16 @@
 import { type Infer } from "spacetimedb";
 import { UNIT_TO_PIXEL } from "../game";
 import Gun from "../../module_bindings/gun_type";
-import { FLASH_DURATION, getFlashColor } from "../utils/colors";
+import { FLASH_DURATION } from "../utils/colors";
 import { TEAM_COLORS } from "../constants";
+import { drawTankShadow, drawTankBody, drawTankHealthBar, drawTankPath } from "../drawing/tanks/tank";
 
 type PathEntry = {
   position: { x: number; y: number };
   throttlePercent: number;
 };
 
-const HEALTH_BAR_WIDTH = 32;
-const HEALTH_BAR_HEIGHT = 4;
-const HEALTH_BAR_Y_OFFSET = 24;
-const HEALTH_BAR_PADDING = 1;
-const HEALTH_BAR_BORDER_RADIUS = 2;
+
 
 export class Tank {
   public arrayIndex: number = -1;
@@ -77,154 +74,31 @@ export class Tank {
   }
 
   public drawHealthBar(ctx: CanvasRenderingContext2D) {
-    if (this.health <= 0 || this.health >= this.maxHealth) return;
-
-    ctx.save();
-    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
-
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.beginPath();
-    ctx.roundRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT, HEALTH_BAR_BORDER_RADIUS);
-    ctx.fill();
-
-    const healthPercent = this.health / this.maxHealth;
-    const innerWidth = HEALTH_BAR_WIDTH - HEALTH_BAR_PADDING * 2;
-    const healthBarWidth = innerWidth * healthPercent;
-
-    ctx.fillStyle = this.getAllianceColor();
-    ctx.beginPath();
-    ctx.roundRect(
-      -HEALTH_BAR_WIDTH / 2 + HEALTH_BAR_PADDING,
-      HEALTH_BAR_Y_OFFSET + HEALTH_BAR_PADDING,
-      healthBarWidth,
-      HEALTH_BAR_HEIGHT - HEALTH_BAR_PADDING * 2,
-      HEALTH_BAR_BORDER_RADIUS
-    );
-    ctx.fill();
-
-    ctx.restore();
+    drawTankHealthBar(ctx, this.x, this.y, this.health, this.maxHealth, this.getAllianceColor());
   }
 
   public drawShadow(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
-
-    ctx.save();
-    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
-
-    const shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.fillStyle = shadowColor;
-
-    ctx.save();
-    ctx.translate(-4, 4);
-    ctx.beginPath();
-    ctx.roundRect(-16, -16, 32, 32, 5);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.restore();
+    drawTankShadow(ctx, this.x, this.y);
   }
 
   public drawBody(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
-
-    ctx.save();
-    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
-
-    const allianceColor = this.getAllianceColor();
-    const bodyColor = getFlashColor(allianceColor, this.flashTimer);
-    const borderColor = getFlashColor(this.alliance === 0 ? "#330000" : "#000033", this.flashTimer);
-    const selfShadowColor = "rgba(0, 0, 0, 0.35)";
-
-    ctx.fillStyle = bodyColor;
-    ctx.beginPath();
-    ctx.roundRect(-16, -16, 32, 32, 5);
-    ctx.fill();
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    ctx.fillStyle = selfShadowColor;
-
-    ctx.save();
-    ctx.translate(-2, 2);
-    ctx.rotate(this.turretRotation);
-    ctx.beginPath();
-    ctx.roundRect(0, -5, 24, 10, 3);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(-1.5, 1.5);
-    ctx.rotate(this.turretRotation);
-    ctx.beginPath();
-    ctx.roundRect(-12, -12, 24, 24, 10);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    ctx.rotate(this.turretRotation);
-
-    ctx.fillStyle = bodyColor;
-    ctx.beginPath();
-    ctx.roundRect(0, -5, 24, 10, 3);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = bodyColor;
-    ctx.beginPath();
-    ctx.roundRect(-12, -12, 24, 24, 10);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(this.x * UNIT_TO_PIXEL, this.y * UNIT_TO_PIXEL);
-    ctx.font = "14px monospace";
-    ctx.fillStyle = "#f5c47c";
-    ctx.textAlign = "center";
-    ctx.fillText(this.name, 0, -30);
-    ctx.restore();
+    drawTankBody(ctx, {
+      x: this.x,
+      y: this.y,
+      turretRotation: this.turretRotation,
+      alliance: this.alliance,
+      flashTimer: this.flashTimer,
+      name: this.name,
+      health: this.health,
+    });
   }
 
   public drawPath(ctx: CanvasRenderingContext2D) {
-    if (this.path.length === 0) return;
-
     const lineColor = this.alliance === 0 ? TEAM_COLORS.RED + "66" : TEAM_COLORS.BLUE + "66";
     const dotColor = this.alliance === 0 ? TEAM_COLORS.RED + "ff" : TEAM_COLORS.BLUE + "ff";
-    const dotRadius = 5;
-
-    ctx.save();
-
-    if (this.path.length > 0) {
-      ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-
-      const startX = this.x * UNIT_TO_PIXEL;
-      const startY = this.y * UNIT_TO_PIXEL;
-      ctx.moveTo(startX, startY);
-
-      for (const pathEntry of this.path) {
-        const worldX = pathEntry.position.x * UNIT_TO_PIXEL;
-        const worldY = pathEntry.position.y * UNIT_TO_PIXEL;
-        ctx.lineTo(worldX, worldY);
-      }
-
-      ctx.stroke();
-
-      const lastEntry = this.path[this.path.length - 1];
-      const endX = lastEntry.position.x * UNIT_TO_PIXEL;
-      const endY = lastEntry.position.y * UNIT_TO_PIXEL;
-
-      ctx.fillStyle = dotColor;
-      ctx.beginPath();
-      ctx.arc(endX, endY, dotRadius, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.restore();
+    drawTankPath(ctx, this.x, this.y, this.path, lineColor, dotColor);
   }
 
   public setPosition(x: number, y: number) {

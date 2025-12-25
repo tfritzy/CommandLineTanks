@@ -2,6 +2,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
+import { drawPlayerScore } from "../drawing/ui/scoreboard";
 
 interface PlayerScore {
   name: string;
@@ -87,44 +88,6 @@ export class ScoreManager {
     barWidth: number,
     barHeight: number
   ) {
-    const color = player.alliance === 0 ? 'rgba(157, 67, 67, 0.8)' : 'rgba(90, 120, 178, 0.8)';
-    const progress = player.kills / this.maxKills;
-    const radius = barHeight / 2;
-
-    ctx.save();
-
-    // Background bar
-    ctx.beginPath();
-    ctx.roundRect(x - barWidth, y, barWidth, barHeight, radius);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    ctx.fill();
-
-    // Inset progress bar
-    const inset = 1.5;
-    if (progress > 0) {
-      const innerWidth = (barWidth - inset * 2) * progress;
-      const innerHeight = barHeight - inset * 2;
-      const innerRadius = innerHeight / 2;
-      ctx.beginPath();
-      ctx.roundRect(x - barWidth + inset, y + inset, innerWidth, innerHeight, innerRadius);
-      ctx.fillStyle = color;
-      ctx.fill();
-    }
-
-    ctx.restore();
-
-    const killText = player.kills === 1 ? 'kill' : 'kills';
-    const text = `${player.name}  —  ${player.kills} ${killText}`;
-
-    ctx.font = '800 14px Poppins, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 3;
-    ctx.strokeText(text, x - barWidth / 2, y + barHeight / 2 + 1);
-
-    ctx.fillStyle = '#fcfbf3';
-    ctx.fillText(text, x - barWidth / 2, y + barHeight / 2 + 1);
+    drawPlayerScore(ctx, player.name, player.kills, player.alliance, x, y, barWidth, barHeight, this.maxKills);
   }
 }
