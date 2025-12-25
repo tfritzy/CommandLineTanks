@@ -20,6 +20,7 @@ export class PickupTextureSheet {
 
   private static readonly CANVAS_SIZE = 512;
   private static readonly CELL_SIZE_MULTIPLIER = 1.2;
+  private static readonly PADDING = 10;
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -48,14 +49,13 @@ export class PickupTextureSheet {
   private initializeTextures() {
     let currentX = 0;
     let currentY = 0;
-    const padding = 10;
     const cellSize = UNIT_TO_PIXEL * PickupTextureSheet.CELL_SIZE_MULTIPLIER;
 
     this.addPickup("health", currentX, currentY, cellSize, drawHealthPackShadow, drawHealthPackBody);
-    currentX += cellSize + padding;
+    currentX += cellSize + PickupTextureSheet.PADDING;
 
     this.addPickup("shield", currentX, currentY, cellSize, drawShieldPickupShadow, drawShieldPickupBody);
-    currentX += cellSize + padding;
+    currentX += cellSize + PickupTextureSheet.PADDING;
 
     this.addPickup("unknown", currentX, currentY, cellSize, drawUnknownPickupShadow, drawUnknownPickupBody);
   }
