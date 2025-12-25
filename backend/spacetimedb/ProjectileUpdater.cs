@@ -18,11 +18,6 @@ public static partial class ProjectileUpdater
     }
 
 
-    private static void HandleTankDamage(ReducerContext ctx, Module.Tank tank, Projectile projectile, string worldId)
-    {
-        Module.DealDamageToTankCommand(ctx, tank, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
-    }
-
     private static Projectile UpdateBoomerangVelocity(Projectile projectile, double projectileAgeSeconds)
     {
         if (!projectile.ReturnsToShooter)
@@ -328,7 +323,7 @@ public static partial class ProjectileUpdater
                             }
                             else
                             {
-                                HandleTankDamage(ctx, tank, projectile, worldId);
+                                Module.DealDamageToTankCommand(ctx, tank, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
                             }
 
                             bool shouldDelete;
