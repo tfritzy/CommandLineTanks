@@ -52,6 +52,11 @@ public static partial class Module
             ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
         }
 
+        foreach (var raycastHitCleanup in ctx.Db.ScheduledRaycastHitCleanup.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledRaycastHitCleanup.ScheduledId.Delete(raycastHitCleanup.ScheduledId);
+        }
+
         Log.Info($"Stopped tickers for world {worldId}");
     }
 

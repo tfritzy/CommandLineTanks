@@ -70,6 +70,11 @@ public static partial class Module
             ctx.Db.smoke_cloud.Id.Delete(smokeCloud.Id);
         }
 
+        foreach (var raycastHit in ctx.Db.raycast_hit.WorldId.Filter(worldId))
+        {
+            ctx.Db.raycast_hit.Id.Delete(raycastHit.Id);
+        }
+
         var score = ctx.Db.score.WorldId.Find(worldId);
         if (score != null)
         {
@@ -128,6 +133,11 @@ public static partial class Module
         foreach (var enemyTankRespawnCheck in ctx.Db.ScheduledEnemyTankRespawnCheck.WorldId.Filter(worldId))
         {
             ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
+        }
+
+        foreach (var raycastHitCleanup in ctx.Db.ScheduledRaycastHitCleanup.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledRaycastHitCleanup.ScheduledId.Delete(raycastHitCleanup.ScheduledId);
         }
 
         var worldToDelete = ctx.Db.world.Id.Find(worldId);

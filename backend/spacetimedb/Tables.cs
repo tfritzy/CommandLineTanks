@@ -264,4 +264,22 @@ public static partial class Module
 
         public Vector2Float Velocity;
     }
+
+    [Table(Name = "raycast_hit", Public = true)]
+    public partial struct RaycastHit
+    {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public float StartX;
+        public float StartY;
+
+        public float EndX;
+        public float EndY;
+
+        public ulong SpawnedAt;
+    }
 }

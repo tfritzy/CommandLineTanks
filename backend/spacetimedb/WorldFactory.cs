@@ -81,6 +81,8 @@ public static partial class Module
 
         SpiderMineUpdater.InitializeSpiderMineUpdater(ctx, worldId);
 
+        RaycastHitCleaner.InitializeRaycastHitCleaner(ctx, worldId);
+
         ctx.Db.ScheduledGameEnd.Insert(new GameTimer.ScheduledGameEnd
         {
             ScheduledId = 0,
