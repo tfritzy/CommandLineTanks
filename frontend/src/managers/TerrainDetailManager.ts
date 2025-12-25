@@ -178,7 +178,6 @@ export class TerrainDetailManager {
     const endY = (cameraY + canvasHeight) / unitToPixel + padding;
 
     const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
-    const dpr = window.devicePixelRatio || 1;
     const renderSize = unitToPixel * 2;
 
     ctx.imageSmoothingEnabled = false;
@@ -201,10 +200,10 @@ export class TerrainDetailManager {
 
           ctx.drawImage(
             shadowCanvas,
-            texture.x * dpr,
-            texture.y * dpr,
-            texture.width * dpr,
-            texture.height * dpr,
+            texture.x,
+            texture.y,
+            texture.width,
+            texture.height,
             objX * unitToPixel + offset,
             objY * unitToPixel + offset,
             scaledSize,
@@ -230,7 +229,6 @@ export class TerrainDetailManager {
     const endY = (cameraY + canvasHeight) / unitToPixel + padding;
 
     const bodyCanvas = terrainDetailTextureSheet.getCanvas();
-    const dpr = window.devicePixelRatio || 1;
     const renderSize = unitToPixel * 2;
 
     ctx.imageSmoothingEnabled = false;
@@ -254,10 +252,10 @@ export class TerrainDetailManager {
 
             ctx.drawImage(
               bodyCanvas,
-              texture.x * dpr,
-              texture.y * dpr,
-              texture.width * dpr,
-              texture.height * dpr,
+              texture.x,
+              texture.y,
+              texture.width,
+              texture.height,
               objX * unitToPixel + offset,
               objY * unitToPixel + offset,
               scaledSize,
