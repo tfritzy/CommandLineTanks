@@ -49,6 +49,7 @@ export default __t.object("Tank", {
   selectedGunIndex: __t.i32(),
   lastFireTime: __t.u64(),
   smokescreenCooldownEnd: __t.u64(),
+  hasShield: __t.bool(),
 });
 
 

@@ -70,7 +70,8 @@ public static partial class Types
         Grenade,
         Rocket,
         Moag,
-        SpiderMine
+        SpiderMine,
+        Shield
     }
 
     [Type]
