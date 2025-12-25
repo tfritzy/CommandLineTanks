@@ -10,8 +10,8 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("SmokeCloud", {
-  id: __t.string(),
+export default __t.row({
+  id: __t.string().primaryKey(),
   worldId: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
@@ -20,5 +20,3 @@ export default __t.object("SmokeCloud", {
   spawnedAt: __t.u64(),
   radius: __t.f32(),
 });
-
-

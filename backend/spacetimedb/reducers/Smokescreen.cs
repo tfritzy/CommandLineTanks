@@ -12,7 +12,7 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        if (tank.SmokescreenCooldownEnd > ctx.Timestamp.Microseconds)
+        if (tank.SmokescreenCooldownEnd > (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
         {
             return;
         }
@@ -20,7 +20,7 @@ public static partial class Module
         int collisionRegionX = (int)(tank.PositionX / COLLISION_REGION_SIZE);
         int collisionRegionY = (int)(tank.PositionY / COLLISION_REGION_SIZE);
 
-        var smokeCloudId = IdGenerator.GenerateId("smoke");
+        var smokeCloudId = Module.GenerateId(ctx, "smoke");
         var smokeCloud = new SmokeCloud
         {
             Id = smokeCloudId,
@@ -29,17 +29,17 @@ public static partial class Module
             PositionY = tank.PositionY,
             CollisionRegionX = collisionRegionX,
             CollisionRegionY = collisionRegionY,
-            SpawnedAt = ctx.Timestamp.Microseconds,
+            SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             Radius = SMOKESCREEN_RADIUS
         };
         ctx.Db.smoke_cloud.Insert(smokeCloud);
 
-        ulong expirationTime = ctx.Timestamp.Microseconds + (ulong)SMOKESCREEN_DURATION_MICROS;
+        ulong expirationTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch + (ulong)SMOKESCREEN_DURATION_MICROS;
         ScheduleSmokeCloudCleanup(ctx, smokeCloudId, expirationTime);
 
         var updatedSourceTank = tank with
         {
-            SmokescreenCooldownEnd = ctx.Timestamp.Microseconds + (ulong)SMOKESCREEN_COOLDOWN_MICROS
+            SmokescreenCooldownEnd = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch + (ulong)SMOKESCREEN_COOLDOWN_MICROS
         };
         ctx.Db.tank.Id.Update(updatedSourceTank);
 

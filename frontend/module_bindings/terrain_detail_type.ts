@@ -17,6 +17,8 @@ export default __t.object("TerrainDetail", {
   worldId: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
+  gridX: __t.i32(),
+  gridY: __t.i32(),
   get type() {
     return TerrainDetailType;
   },

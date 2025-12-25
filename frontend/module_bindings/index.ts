@@ -35,6 +35,8 @@ import Aim from "./aim_reducer";
 export { Aim };
 import CleanupResultsGames from "./cleanup_results_games_reducer";
 export { CleanupResultsGames };
+import CleanupSmokeCloud from "./cleanup_smoke_cloud_reducer";
+export { CleanupSmokeCloud };
 import DeleteKill from "./delete_kill_reducer";
 export { DeleteKill };
 import DriveTo from "./drive_to_reducer";
@@ -89,6 +91,8 @@ import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
 export { ScheduledProjectileUpdatesRow };
+import ScheduledSmokeCloudCleanupRow from "./scheduled_smoke_cloud_cleanup_table";
+export { ScheduledSmokeCloudCleanupRow };
 import ScheduledSpiderMineUpdatesRow from "./scheduled_spider_mine_updates_table";
 export { ScheduledSpiderMineUpdatesRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
@@ -105,7 +109,7 @@ import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
-import SmokeCloudRow from "./smoke_cloud_type";
+import SmokeCloudRow from "./smoke_cloud_table";
 export { SmokeCloudRow };
 import SpiderMineRow from "./spider_mine_table";
 export { SpiderMineRow };
@@ -153,6 +157,8 @@ import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
+import ScheduledSmokeCloudCleanup from "./scheduled_smoke_cloud_cleanup_type";
+export { ScheduledSmokeCloudCleanup };
 import ScheduledSpiderMineUpdates from "./scheduled_spider_mine_updates_type";
 export { ScheduledSpiderMineUpdates };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
@@ -161,6 +167,8 @@ import ScheduledWorldReset from "./scheduled_world_reset_type";
 export { ScheduledWorldReset };
 import Score from "./score_type";
 export { Score };
+import SmokeCloud from "./smoke_cloud_type";
+export { SmokeCloud };
 import SpiderMine from "./spider_mine_type";
 export { SpiderMine };
 import Tank from "./tank_type";
@@ -246,6 +254,20 @@ const tablesSchema = __schema(
     ],
   }, ScheduledProjectileUpdatesRow),
   __table({
+    name: 'ScheduledSmokeCloudCleanup',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+      { name: 'SmokeCloudId', algorithm: 'btree', columns: [
+        'smokeCloudId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledSmokeCloudCleanup_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledSmokeCloudCleanupRow),
+  __table({
     name: 'ScheduledSpiderMineUpdates',
     indexes: [
       { name: 'ScheduledId', algorithm: 'btree', columns: [
@@ -304,10 +326,10 @@ const tablesSchema = __schema(
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
-      { name: 'WorldId_PositionX_PositionY', algorithm: 'btree', columns: [
+      { name: 'WorldId_GridX_GridY', algorithm: 'btree', columns: [
         'worldId',
-        'positionX',
-        'positionY',
+        'gridX',
+        'gridY',
       ] },
       { name: 'WorldId', algorithm: 'btree', columns: [
         'worldId',
@@ -363,13 +385,13 @@ const tablesSchema = __schema(
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
-      ] },
       { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
         'worldId',
         'collisionRegionX',
         'collisionRegionY',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
       ] },
     ],
     constraints: [
@@ -435,10 +457,10 @@ const tablesSchema = __schema(
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
-      { name: 'WorldId_PositionX_PositionY', algorithm: 'btree', columns: [
+      { name: 'WorldId_GridX_GridY', algorithm: 'btree', columns: [
         'worldId',
-        'positionX',
-        'positionY',
+        'gridX',
+        'gridY',
       ] },
       { name: 'WorldId', algorithm: 'btree', columns: [
         'worldId',
@@ -479,6 +501,7 @@ const tablesSchema = __schema(
 const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
   __reducerSchema("CleanupResultsGames", CleanupResultsGames),
+  __reducerSchema("CleanupSmokeCloud", CleanupSmokeCloud),
   __reducerSchema("delete_kill", DeleteKill),
   __reducerSchema("driveTo", DriveTo),
   __reducerSchema("driveToTank", DriveToTank),

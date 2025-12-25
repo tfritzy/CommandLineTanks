@@ -160,11 +160,8 @@ public static partial class ProjectileUpdater
             projectile = HandleProjectileBounce(projectile, projectileTileX, projectileTileY, deltaTime);
             return (false, projectile, false);
         }
-
-        float centerX = projectileTileX + 0.5f;
-        float centerY = projectileTileY + 0.5f;
         
-        bool mapChanged = DamageTerrainAtTile(ctx, worldId, centerX, centerY, tileIndex, projectile.Damage, ref traversibilityMap);
+        bool mapChanged = DamageTerrainAtTile(ctx, worldId, projectileTileX, projectileTileY, tileIndex, projectile.Damage, ref traversibilityMap);
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
         return (true, projectile, mapChanged);

@@ -71,7 +71,7 @@ public static partial class ProjectileUpdater
                 if (distanceSquared <= explosionRadiusSquared)
                 {
                     int tileIndex = tileY * traversibilityMap.Width + tileX;
-                    if (DamageTerrainAtTile(ctx, worldId, tileCenterX, tileCenterY, tileIndex, projectile.Damage, ref traversibilityMap))
+                    if (DamageTerrainAtTile(ctx, worldId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap))
                     {
                         traversibilityMapChanged = true;
                     }
@@ -86,13 +86,13 @@ public static partial class ProjectileUpdater
     private static bool DamageTerrainAtTile(
         ReducerContext ctx,
         string worldId,
-        float tileCenterX,
-        float tileCenterY,
+        int gridX,
+        int gridY,
         int tileIndex,
         int damage,
         ref Module.TraversibilityMap traversibilityMap)
     {
-        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_PositionX_PositionY.Filter((worldId, tileCenterX, tileCenterY)))
+        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((worldId, gridX, gridY)))
         {
             if (terrainDetail.Health == null)
             {
