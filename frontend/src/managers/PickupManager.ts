@@ -12,9 +12,7 @@ import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
 import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
 import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
 import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
-import { drawHealthPackShadow, drawHealthPackBody } from "../drawing/entities/health-pack";
-import { drawShieldPickupShadow, drawShieldPickupBody } from "../drawing/entities/shield-pickup";
-import { drawUnknownPickupShadow, drawUnknownPickupBody } from "../drawing/entities/unknown-pickup";
+import { pickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
 
 interface PickupData {
   id: string;
@@ -162,30 +160,36 @@ export class PickupManager {
     }
   }
 
-  private drawPickupShadow(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
+  private drawPickupShadow(ctx: CanvasRenderingContext2D, pickup: PickupData) {
+    const worldX = pickup.positionX * UNIT_TO_PIXEL;
+    const worldY = pickup.positionY * UNIT_TO_PIXEL;
+    
     switch (pickup.type.tag) {
       case "Health":
-        drawHealthPackShadow(_ctx, pickup.positionX, pickup.positionY);
+        pickupTextureSheet.drawShadow(ctx, "health", worldX, worldY);
         break;
       case "Shield":
-        drawShieldPickupShadow(_ctx, pickup.positionX, pickup.positionY);
+        pickupTextureSheet.drawShadow(ctx, "shield", worldX, worldY);
         break;
       default:
-        drawUnknownPickupShadow(_ctx, pickup.positionX, pickup.positionY);
+        pickupTextureSheet.drawShadow(ctx, "unknown", worldX, worldY);
         break;
     }
   }
 
-  private drawPickup(_ctx: CanvasRenderingContext2D, pickup: PickupData) {
+  private drawPickup(ctx: CanvasRenderingContext2D, pickup: PickupData) {
+    const worldX = pickup.positionX * UNIT_TO_PIXEL;
+    const worldY = pickup.positionY * UNIT_TO_PIXEL;
+    
     switch (pickup.type.tag) {
       case "Health":
-        drawHealthPackBody(_ctx, pickup.positionX, pickup.positionY);
+        pickupTextureSheet.drawPickup(ctx, "health", worldX, worldY);
         break;
       case "Shield":
-        drawShieldPickupBody(_ctx, pickup.positionX, pickup.positionY);
+        pickupTextureSheet.drawPickup(ctx, "shield", worldX, worldY);
         break;
       default:
-        drawUnknownPickupBody(_ctx, pickup.positionX, pickup.positionY);
+        pickupTextureSheet.drawPickup(ctx, "unknown", worldX, worldY);
         break;
     }
   }
