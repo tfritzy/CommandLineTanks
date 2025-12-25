@@ -340,20 +340,42 @@ public static partial class ProjectileUpdater
             return false;
         }
 
+        int existingGunIndex = -1;
         for (int i = 0; i < tank.Guns.Length; i++)
         {
             if (tank.Guns[i].GunType == GunType.Boomerang)
             {
-                var gun = tank.Guns[i];
-                if (gun.Ammo != null)
-                {
-                    gun.Ammo = gun.Ammo.Value + 1;
-                    tank.Guns[i] = gun;
-                    ctx.Db.tank.Id.Update(tank);
-                    Log.Info($"Tank {tank.Name} caught the boomerang! Ammo restored.");
-                }
+                existingGunIndex = i;
                 break;
             }
+        }
+
+        if (existingGunIndex >= 0)
+        {
+            var gun = tank.Guns[existingGunIndex];
+            if (gun.Ammo != null)
+            {
+                gun.Ammo = gun.Ammo.Value + 1;
+                tank.Guns[existingGunIndex] = gun;
+                ctx.Db.tank.Id.Update(tank);
+                Log.Info($"Tank {tank.Name} caught the boomerang! Ammo: {gun.Ammo}");
+            }
+        }
+        else if (tank.Guns.Length < 3)
+        {
+            var boomerangGun = Module.BOOMERANG_GUN with { Ammo = 1 };
+            var newGunIndex = tank.Guns.Length;
+            tank = tank with
+            {
+                Guns = [.. tank.Guns, boomerangGun],
+                SelectedGunIndex = newGunIndex
+            };
+            ctx.Db.tank.Id.Update(tank);
+            Log.Info($"Tank {tank.Name} caught the boomerang! New gun added with 1 ammo.");
+        }
+        else
+        {
+            Log.Info($"Tank {tank.Name} inventory full - boomerang lost!");
         }
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
