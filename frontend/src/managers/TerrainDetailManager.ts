@@ -194,7 +194,9 @@ export class TerrainDetailManager {
           this.getTextureKey(obj)
         );
 
-        if (texture) {
+        if (!texture) {
+          console.log("no shadow texture");
+        } else {
           const scale = obj.getSizeScale();
           const scaledSize = renderSize * scale;
           const offset = -unitToPixel;
@@ -245,7 +247,9 @@ export class TerrainDetailManager {
         } else {
           const texture = this.textureSheet.getTexture(this.getTextureKey(obj));
 
-          if (texture) {
+          if (!texture) {
+            console.log("no body texture");
+          } else {
             const scale = obj.getSizeScale();
             const scaledSize = renderSize * scale;
             const offset = -unitToPixel;
