@@ -2,6 +2,13 @@ import { UNIT_TO_PIXEL } from "../game";
 import { drawHealthPackShadow, drawHealthPackBody } from "../drawing/entities/health-pack";
 import { drawShieldPickupShadow, drawShieldPickupBody } from "../drawing/entities/shield-pickup";
 import { drawUnknownPickupShadow, drawUnknownPickupBody } from "../drawing/entities/unknown-pickup";
+import { drawTripleShooterPickupShadow, drawTripleShooterPickupBody } from "../drawing/entities/triple-shooter-pickup";
+import { drawMissileLauncherPickupShadow, drawMissileLauncherPickupBody } from "../drawing/entities/missile-launcher-pickup";
+import { drawBoomerangPickupShadow, drawBoomerangPickupBody } from "../drawing/entities/boomerang-pickup";
+import { drawGrenadePickupShadow, drawGrenadePickupBody } from "../drawing/entities/grenade-pickup";
+import { drawRocketPickupShadow, drawRocketPickupBody } from "../drawing/entities/rocket-pickup";
+import { drawMoagPickupShadow, drawMoagPickupBody } from "../drawing/entities/moag-pickup";
+import { drawSpiderMinePickupShadow, drawSpiderMinePickupBody } from "../drawing/entities/spider-mine-pickup";
 
 export interface PickupTexture {
   x: number;
@@ -42,6 +49,32 @@ export class PickupTextureSheet {
     currentX += cellSize + PickupTextureSheet.PADDING;
 
     this.addPickup("shield", currentX, currentY, cellSize, drawShieldPickupShadow, drawShieldPickupBody);
+    currentX += cellSize + PickupTextureSheet.PADDING;
+
+    this.addPickup("triple-shooter", currentX, currentY, cellSize, drawTripleShooterPickupShadow, drawTripleShooterPickupBody);
+    currentX += cellSize + PickupTextureSheet.PADDING;
+
+    this.addPickup("missile-launcher", currentX, currentY, cellSize, drawMissileLauncherPickupShadow, drawMissileLauncherPickupBody);
+    currentX += cellSize + PickupTextureSheet.PADDING;
+
+    this.addPickup("boomerang", currentX, currentY, cellSize, drawBoomerangPickupShadow, drawBoomerangPickupBody);
+    currentX += cellSize + PickupTextureSheet.PADDING;
+
+    if (currentX + cellSize > PickupTextureSheet.CANVAS_SIZE) {
+      currentX = 0;
+      currentY += cellSize + PickupTextureSheet.PADDING;
+    }
+
+    this.addPickup("grenade", currentX, currentY, cellSize, drawGrenadePickupShadow, drawGrenadePickupBody);
+    currentX += cellSize + PickupTextureSheet.PADDING;
+
+    this.addPickup("rocket", currentX, currentY, cellSize, drawRocketPickupShadow, drawRocketPickupBody);
+    currentX += cellSize + PickupTextureSheet.PADDING;
+
+    this.addPickup("moag", currentX, currentY, cellSize, drawMoagPickupShadow, drawMoagPickupBody);
+    currentX += cellSize + PickupTextureSheet.PADDING;
+
+    this.addPickup("spider-mine", currentX, currentY, cellSize, drawSpiderMinePickupShadow, drawSpiderMinePickupBody);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
     this.addPickup("unknown", currentX, currentY, cellSize, drawUnknownPickupShadow, drawUnknownPickupBody);
