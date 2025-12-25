@@ -143,8 +143,18 @@ public static partial class ProjectileUpdater
         int tileIndex = projectileTileY * traversibilityMap.Width + projectileTileX;
         bool tileIsTraversable = tileIndex < traversibilityMap.Map.Length && traversibilityMap.Map[tileIndex];
 
-        if (tileIsTraversable || projectile.PassThroughTerrain)
+        if (tileIsTraversable)
         {
+            return (false, projectile, false);
+        }
+
+        if (projectile.PassThroughTerrain)
+        {
+            if (projectile.ProjectileType == ProjectileType.Boomerang)
+            {
+                bool mapChanged = DamageTerrainAtTile(ctx, worldId, projectileTileX, projectileTileY, tileIndex, projectile.Damage, ref traversibilityMap);
+                return (false, projectile, mapChanged);
+            }
             return (false, projectile, false);
         }
 
