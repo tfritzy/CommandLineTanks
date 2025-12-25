@@ -3,6 +3,7 @@ import { BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import { generateLakeTextureSheet } from "../utils/lake-texture-generator";
 import { getRenderTileCase } from "../utils/terrain-render-analyzer";
+import { TERRAIN_COLORS } from "../constants";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -59,7 +60,7 @@ export class BaseTerrainManager {
     const startRenderY = Math.floor(cameraY / unitToPixel) - 1;
     const endRenderY = Math.ceil((cameraY + canvasHeight) / unitToPixel) + 1;
 
-    ctx.fillStyle = "#2e2e43";
+    ctx.fillStyle = TERRAIN_COLORS.GROUND;
     const startTileX = Math.floor(cameraX / unitToPixel);
     const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
     const startTileY = Math.floor(cameraY / unitToPixel);
@@ -125,7 +126,7 @@ export class BaseTerrainManager {
     endTileY: number,
     unitToPixel: number
   ) {
-    ctx.fillStyle = "#313148";
+    ctx.fillStyle = TERRAIN_COLORS.FARM_GROOVE;
     const numGrooves = 2;
     const grooveHeight = unitToPixel * 0.15;
 
@@ -169,7 +170,7 @@ export class BaseTerrainManager {
     endTileY: number,
     unitToPixel: number
   ) {
-    ctx.strokeStyle = "#4a4b5b22";
+    ctx.strokeStyle = TERRAIN_COLORS.GRID;
     ctx.lineWidth = 1;
     ctx.beginPath();
     

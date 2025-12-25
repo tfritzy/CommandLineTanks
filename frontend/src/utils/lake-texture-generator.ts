@@ -1,9 +1,8 @@
+import { TERRAIN_COLORS } from "../constants";
+
 const TILE_SIZE = 64;
 const SHEET_COLS = 4;
 const SHEET_ROWS = 4;
-
-const GROUND_COLOR = '#2e2e43';
-const LAKE_COLOR = '#5a78b2';
 
 export function generateLakeTextureSheet(): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
@@ -40,10 +39,10 @@ function drawLakeTileCase(
   br: boolean,
   size: number
 ) {
-  ctx.fillStyle = GROUND_COLOR;
+  ctx.fillStyle = TERRAIN_COLORS.GROUND;
   ctx.fillRect(0, 0, size, size);
   
-  ctx.fillStyle = LAKE_COLOR;
+  ctx.fillStyle = TERRAIN_COLORS.LAKE;
   ctx.beginPath();
   
   const lakeCount = [tl, tr, br, bl].filter(Boolean).length;
@@ -156,7 +155,7 @@ function drawThreeCorners(
   ctx.rect(0, 0, size, size);
   ctx.fill();
   
-  ctx.fillStyle = GROUND_COLOR;
+  ctx.fillStyle = TERRAIN_COLORS.GROUND;
   ctx.beginPath();
   
   if (!tl) {
