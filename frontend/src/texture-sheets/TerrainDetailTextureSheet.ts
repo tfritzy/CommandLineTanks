@@ -25,6 +25,7 @@ import {
   drawTargetDummyShadow,
   drawTargetDummyBody,
 } from "../drawing/terrain-details/target-dummy";
+import { getNormalizedDPR } from "../utils/dpr";
 
 export interface TerrainDetailTexture {
   x: number;
@@ -42,11 +43,12 @@ export class TerrainDetailTextureSheet {
   private shadowTextures: Map<string, TerrainDetailTexture> = new Map();
 
   constructor() {
+    const dpr = getNormalizedDPR();
     const logicalSize = 2048;
 
     this.canvas = document.createElement("canvas");
-    this.canvas.width = logicalSize;
-    this.canvas.height = logicalSize;
+    this.canvas.width = logicalSize * dpr;
+    this.canvas.height = logicalSize * dpr;
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
@@ -55,17 +57,19 @@ export class TerrainDetailTextureSheet {
       );
     }
     this.ctx = ctx;
+    this.ctx.scale(dpr, dpr);
     this.ctx.imageSmoothingEnabled = false;
 
     this.shadowCanvas = document.createElement("canvas");
-    this.shadowCanvas.width = logicalSize;
-    this.shadowCanvas.height = logicalSize;
+    this.shadowCanvas.width = logicalSize * dpr;
+    this.shadowCanvas.height = logicalSize * dpr;
 
     const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
       throw new Error("Failed to get 2D context for shadow texture sheet");
     }
     this.shadowCtx = shadowCtx;
+    this.shadowCtx.scale(dpr, dpr);
     this.shadowCtx.imageSmoothingEnabled = false;
 
     this.initializeTextures();

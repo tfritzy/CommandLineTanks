@@ -42,7 +42,8 @@ export class Game {
       throw new Error("Failed to get 2D context");
     }
     this.ctx = ctx;
-    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.imageSmoothingEnabled = true;
+    this.ctx.imageSmoothingQuality = 'high';
 
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
@@ -67,16 +68,19 @@ export class Game {
   private resizeCanvas() {
     const parent = this.canvas.parentElement;
     if (parent) {
+      const dpr = window.devicePixelRatio || 1;
       const displayWidth = parent.clientWidth;
       const displayHeight = parent.clientHeight;
 
-      this.canvas.width = displayWidth;
-      this.canvas.height = displayHeight;
+      this.canvas.width = displayWidth * dpr;
+      this.canvas.height = displayHeight * dpr;
 
       this.canvas.style.width = `${displayWidth}px`;
       this.canvas.style.height = `${displayHeight}px`;
 
-      this.ctx.imageSmoothingEnabled = false;
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.ctx.imageSmoothingEnabled = true;
+      this.ctx.imageSmoothingQuality = 'high';
     }
   }
 

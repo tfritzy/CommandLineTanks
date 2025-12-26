@@ -19,6 +19,7 @@ import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
 import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
 import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
 import { projectileTextureSheet } from "./ProjectileTextureSheet";
+import { getNormalizedDPR } from "../utils/dpr";
 
 export interface PickupTexture {
   x: number;
@@ -37,15 +38,17 @@ export class PickupTextureSheet {
   private static readonly PADDING = 10;
 
   constructor() {
+    const dpr = getNormalizedDPR();
     this.canvas = document.createElement("canvas");
-    this.canvas.width = PickupTextureSheet.CANVAS_SIZE;
-    this.canvas.height = PickupTextureSheet.CANVAS_SIZE;
+    this.canvas.width = PickupTextureSheet.CANVAS_SIZE * dpr;
+    this.canvas.height = PickupTextureSheet.CANVAS_SIZE * dpr;
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
       throw new Error("Failed to get 2D context for pickup texture sheet");
     }
     this.ctx = ctx;
+    this.ctx.scale(dpr, dpr);
     this.ctx.imageSmoothingEnabled = false;
 
     this.initializeTextures();
