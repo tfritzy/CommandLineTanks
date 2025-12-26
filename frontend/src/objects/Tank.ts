@@ -89,8 +89,8 @@ export class Tank {
 
   public drawBody(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
-    const currentTime = BigInt(Date.now() * 1000);
-    const isImmune = currentTime < this.immunityUntil;
+    const currentTimeMicros = BigInt(Date.now() * 1000);
+    const isImmune = currentTimeMicros < this.immunityUntil;
     drawTankBody(ctx, {
       x: this.x,
       y: this.y,
