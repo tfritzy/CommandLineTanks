@@ -163,10 +163,6 @@ export class Tank {
     this.immunityUntil = immunityUntil;
   }
 
-  public isImmune(currentTime: bigint): boolean {
-    return currentTime < this.immunityUntil;
-  }
-
   public update(deltaTime: number) {
     if (this.flashTimer > 0) {
       this.flashTimer = Math.max(0, this.flashTimer - deltaTime);

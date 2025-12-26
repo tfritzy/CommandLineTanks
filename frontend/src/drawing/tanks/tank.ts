@@ -7,6 +7,8 @@ const HEALTH_BAR_HEIGHT = 4;
 const HEALTH_BAR_Y_OFFSET = 24;
 const HEALTH_BAR_PADDING = 1;
 const HEALTH_BAR_BORDER_RADIUS = 2;
+const IMMUNITY_FLASH_RATE_SECONDS = 0.2;
+const IMMUNITY_MIN_OPACITY = 0.5;
 
 interface TankDrawParams {
   x: number;
@@ -42,9 +44,8 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
 
   if (params.isImmune) {
-    const flashRate = 0.2;
-    const flashCycle = Date.now() / 1000 / flashRate;
-    const opacity = Math.abs(Math.sin(flashCycle * Math.PI)) * 0.5 + 0.5;
+    const flashCycle = Date.now() / 1000 / IMMUNITY_FLASH_RATE_SECONDS;
+    const opacity = Math.abs(Math.sin(flashCycle * Math.PI)) * (1 - IMMUNITY_MIN_OPACITY) + IMMUNITY_MIN_OPACITY;
     ctx.globalAlpha = opacity;
   }
 
