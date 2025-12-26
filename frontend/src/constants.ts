@@ -17,6 +17,10 @@ export const TERRAIN_DETAIL_COLORS = {
     BASE: "#3e4c7e",
     FOLIAGE: "#495f94"
   },
+  DEAD_TREE: {
+    BASE: "#542240",
+    FOLIAGE: "#794e6d"
+  },
   ROCK: {
     BODY: "#4a4b5b",
     SHADOW: "#3e3f4d",

@@ -9,6 +9,7 @@ export * from "./projectiles/spider-mine-projectile";
 export * from "./particles/explosion";
 export * from "./terrain-details/rock";
 export * from "./terrain-details/tree";
+export * from "./terrain-details/dead-tree";
 export * from "./terrain-details/hay-bale";
 export * from "./terrain-details/fence-corner";
 export * from "./terrain-details/fence-edge";
