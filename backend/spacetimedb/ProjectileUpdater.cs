@@ -425,9 +425,13 @@ public static partial class ProjectileUpdater
                     {
                         if (projectile.ProjectileType == ProjectileType.SpiderMine)
                         {
-                            Module.PlantSpiderMineCommand(ctx, projectile, worldId);
-                            ctx.Db.projectile.Id.Delete(projectile.Id);
-                            return (true, projectile, false);
+                            if (tank.Alliance != projectile.Alliance)
+                            {
+                                Module.PlantSpiderMineCommand(ctx, projectile, worldId);
+                                ctx.Db.projectile.Id.Delete(projectile.Id);
+                                return (true, projectile, false);
+                            }
+                            continue;
                         }
 
                         if (HandleBoomerangReturn(ctx, projectile, tank))
