@@ -1,10 +1,12 @@
 import { getConnection } from "../spacetimedb-connection";
 import { BaseTerrainManager } from "./BaseTerrainManager";
 import { TerrainDetailManager } from "./TerrainDetailManager";
+import { MushroomDecorationManager } from "./MushroomDecorationManager";
 
 export class TerrainManager {
   private baseTerrainManager: BaseTerrainManager;
   private detailManager: TerrainDetailManager | null = null;
+  private mushroomManager: MushroomDecorationManager | null = null;
   private worldId: string;
 
   constructor(worldId: string) {
@@ -27,6 +29,15 @@ export class TerrainManager {
       } else {
         this.detailManager.updateWorldDimensions(world.width, world.height);
       }
+      
+      if (!this.mushroomManager) {
+        this.mushroomManager = new MushroomDecorationManager(
+          world.width,
+          world.height
+        );
+      } else {
+        this.mushroomManager.updateWorldDimensions(world.width, world.height);
+      }
     });
 
     connection.db.world.onUpdate((_ctx, _oldWorld, newWorld) => {
@@ -38,6 +49,18 @@ export class TerrainManager {
         );
       } else {
         this.detailManager.updateWorldDimensions(
+          newWorld.width,
+          newWorld.height
+        );
+      }
+      
+      if (!this.mushroomManager) {
+        this.mushroomManager = new MushroomDecorationManager(
+          newWorld.width,
+          newWorld.height
+        );
+      } else {
+        this.mushroomManager.updateWorldDimensions(
           newWorld.width,
           newWorld.height
         );
@@ -74,6 +97,16 @@ export class TerrainManager {
     canvasWidth: number,
     canvasHeight: number
   ) {
+    if (this.mushroomManager) {
+      this.mushroomManager.drawShadows(
+        ctx,
+        cameraX,
+        cameraY,
+        canvasWidth,
+        canvasHeight
+      );
+    }
+    
     if (this.detailManager) {
       this.detailManager.drawShadows(
         ctx,
@@ -92,6 +125,16 @@ export class TerrainManager {
     canvasWidth: number,
     canvasHeight: number
   ) {
+    if (this.mushroomManager) {
+      this.mushroomManager.drawBodies(
+        ctx,
+        cameraX,
+        cameraY,
+        canvasWidth,
+        canvasHeight
+      );
+    }
+    
     if (this.detailManager) {
       this.detailManager.drawBodies(
         ctx,
