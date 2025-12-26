@@ -35,8 +35,9 @@ public static partial class Module
             SelectedGunIndex = 0,
             LastFireTime = 0,
             HasShield = false,
-            OverdriveCooldownEnd = 0,
-            OverdriveActiveUntil = 0,
+            RemainingSmokescreenCooldownMicros = 0,
+            RemainingOverdriveCooldownMicros = 0,
+            RemainingOverdriveDurationMicros = 0,
             RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS
         };
 
@@ -73,12 +74,12 @@ public static partial class Module
             Guns = [BASE_GUN],
             SelectedGunIndex = 0,
             LastFireTime = 0,
-            SmokescreenCooldownEnd = 0,
+            RemainingSmokescreenCooldownMicros = 0,
             HasShield = false,
             Velocity = new Vector2Float(0, 0),
             TurretAngularVelocity = 0,
-            OverdriveCooldownEnd = 0,
-            OverdriveActiveUntil = 0,
+            RemainingOverdriveCooldownMicros = 0,
+            RemainingOverdriveDurationMicros = 0,
             RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS
         };
     }

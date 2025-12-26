@@ -12,21 +12,18 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        if (tank.OverdriveCooldownEnd > (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
+        if (tank.RemainingOverdriveCooldownMicros > 0)
         {
             return;
         }
 
-        ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        ulong expirationTime = currentTime + (ulong)OVERDRIVE_DURATION_MICROS;
-
         var updatedTank = tank with
         {
-            OverdriveCooldownEnd = currentTime + (ulong)OVERDRIVE_COOLDOWN_MICROS,
-            OverdriveActiveUntil = expirationTime
+            RemainingOverdriveCooldownMicros = OVERDRIVE_COOLDOWN_MICROS,
+            RemainingOverdriveDurationMicros = OVERDRIVE_DURATION_MICROS
         };
         ctx.Db.tank.Id.Update(updatedTank);
 
-        Log.Info($"Tank {tank.Name} activated overdrive until {expirationTime}");
+        Log.Info($"Tank {tank.Name} activated overdrive");
     }
 }

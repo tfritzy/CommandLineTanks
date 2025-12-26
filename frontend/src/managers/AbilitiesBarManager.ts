@@ -13,8 +13,8 @@ interface Ability {
 }
 
 export class AbilitiesBarManager {
-  private smokescreenCooldownEnd: bigint = 0n;
-  private overdriveCooldownEnd: bigint = 0n;
+  private remainingSmokescreenCooldownMicros: bigint = 0n;
+  private remainingOverdriveCooldownMicros: bigint = 0n;
   private playerTankId: string | null = null;
   private readonly SMOKESCREEN_COOLDOWN_SECONDS = 60;
   private readonly OVERDRIVE_COOLDOWN_SECONDS = 60;
@@ -33,23 +33,23 @@ export class AbilitiesBarManager {
     connection.db.tank.onInsert((_ctx: EventContext, tank) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
         this.playerTankId = tank.id;
-        this.smokescreenCooldownEnd = tank.smokescreenCooldownEnd;
-        this.overdriveCooldownEnd = tank.overdriveCooldownEnd;
+        this.remainingSmokescreenCooldownMicros = tank.remainingSmokescreenCooldownMicros;
+        this.remainingOverdriveCooldownMicros = tank.remainingOverdriveCooldownMicros;
       }
     });
 
     connection.db.tank.onUpdate((_ctx: EventContext, _oldTank, newTank) => {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
-        this.smokescreenCooldownEnd = newTank.smokescreenCooldownEnd;
-        this.overdriveCooldownEnd = newTank.overdriveCooldownEnd;
+        this.remainingSmokescreenCooldownMicros = newTank.remainingSmokescreenCooldownMicros;
+        this.remainingOverdriveCooldownMicros = newTank.remainingOverdriveCooldownMicros;
       }
     });
 
     connection.db.tank.onDelete((_ctx: EventContext, tank) => {
       if (this.playerTankId === tank.id) {
         this.playerTankId = null;
-        this.smokescreenCooldownEnd = 0n;
-        this.overdriveCooldownEnd = 0n;
+        this.remainingSmokescreenCooldownMicros = 0n;
+        this.remainingOverdriveCooldownMicros = 0n;
       }
     });
   }
@@ -59,17 +59,15 @@ export class AbilitiesBarManager {
       return;
     }
 
-    const currentTime = BigInt(Date.now() * 1000);
-
     const abilities: Ability[] = [
       {
         drawIcon: drawSmokescreenIcon,
-        cooldownEnd: this.smokescreenCooldownEnd,
+        cooldownEnd: this.remainingSmokescreenCooldownMicros,
         cooldownDuration: this.SMOKESCREEN_COOLDOWN_SECONDS,
       },
       {
         drawIcon: drawOverdriveIcon,
-        cooldownEnd: this.overdriveCooldownEnd,
+        cooldownEnd: this.remainingOverdriveCooldownMicros,
         cooldownDuration: this.OVERDRIVE_COOLDOWN_SECONDS,
       },
     ];
@@ -84,8 +82,8 @@ export class AbilitiesBarManager {
       const slotX = startX + index * (slotSize + gap);
       const slotY = startY;
       
-      const abilityIsReady = ability.cooldownEnd <= currentTime;
-      const abilityCooldownRemaining = abilityIsReady ? 0 : Number(ability.cooldownEnd - currentTime) / MICROSECONDS_TO_SECONDS;
+      const abilityIsReady = ability.cooldownEnd <= 0n;
+      const abilityCooldownRemaining = abilityIsReady ? 0 : Number(ability.cooldownEnd) / MICROSECONDS_TO_SECONDS;
       const abilityProgress = abilityIsReady ? 1 : Math.max(0, 1 - (abilityCooldownRemaining / ability.cooldownDuration));
 
       drawAbilitySlot(
