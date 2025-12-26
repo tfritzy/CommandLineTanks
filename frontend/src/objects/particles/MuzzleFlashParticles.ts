@@ -1,6 +1,9 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
 
+const ANGLE_SPREAD_RADIANS = 0.8;
+const FRICTION_FACTOR = 0.92;
+
 interface Particle {
   x: number;
   y: number;
@@ -21,7 +24,7 @@ export class MuzzleFlashParticles {
     
     const particleCount = 8 + Math.floor(Math.random() * 5);
     for (let i = 0; i < particleCount; i++) {
-      const angleOffset = (Math.random() - 0.5) * 0.8;
+      const angleOffset = (Math.random() - 0.5) * ANGLE_SPREAD_RADIANS;
       const particleAngle = angle + angleOffset;
       
       const speed = 3 + Math.random() * 4;
@@ -46,8 +49,8 @@ export class MuzzleFlashParticles {
       if (p.lifetime < p.maxLifetime) {
         p.x += p.velocityX * deltaTime;
         p.y += p.velocityY * deltaTime;
-        p.velocityX *= 0.92;
-        p.velocityY *= 0.92;
+        p.velocityX *= FRICTION_FACTOR;
+        p.velocityY *= FRICTION_FACTOR;
         allDead = false;
       }
     }

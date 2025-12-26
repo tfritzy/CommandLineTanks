@@ -1,5 +1,7 @@
 export const UNIT_TO_PIXEL = 50;
 
+export const GUN_BARREL_LENGTH = 0.4;
+
 export const TEAM_COLORS = {
   RED: "#ff5555",
   BLUE: "#5555ff"

@@ -4,6 +4,7 @@ import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
 import { TargetingReticle } from "../objects/TargetingReticle";
 import { MuzzleFlashParticlesManager } from "./MuzzleFlashParticlesManager";
+import { GUN_BARREL_LENGTH } from "../constants";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -74,7 +75,6 @@ export class TankManager {
         }
 
         if (oldTank.lastFireTime !== newTank.lastFireTime && newTank.health > 0) {
-          const GUN_BARREL_LENGTH = 0.4;
           const barrelTipX = newTank.positionX + Math.cos(newTank.turretRotation) * GUN_BARREL_LENGTH;
           const barrelTipY = newTank.positionY + Math.sin(newTank.turretRotation) * GUN_BARREL_LENGTH;
           this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, newTank.turretRotation);
