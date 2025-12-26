@@ -26,13 +26,18 @@ export class MushroomDecorationManager {
   private generateMushrooms() {
     this.mushrooms = [];
     const density = 0.015;
+    const baseSeed = 12345.67;
+    const seedMultiplierX = 1.1;
+    const seedMultiplierY = 2.2;
+    const seedMultiplierSize = 3.3;
+    const seedAmplifier = 10000;
     const count = Math.floor(this.worldWidth * this.worldHeight * density);
 
     for (let i = 0; i < count; i++) {
-      const seed = i * 12345.67;
-      const x = (Math.abs(Math.sin(seed * 1.1) * 10000) % 1) * this.worldWidth;
-      const y = (Math.abs(Math.sin(seed * 2.2) * 10000) % 1) * this.worldHeight;
-      const sizeSeed = Math.abs(Math.sin(seed * 3.3) * 10000) % 1;
+      const seed = i * baseSeed;
+      const x = (Math.abs(Math.sin(seed * seedMultiplierX) * seedAmplifier) % 1) * this.worldWidth;
+      const y = (Math.abs(Math.sin(seed * seedMultiplierY) * seedAmplifier) % 1) * this.worldHeight;
+      const sizeSeed = Math.abs(Math.sin(seed * seedMultiplierSize) * seedAmplifier) % 1;
       const size = 0.15 + sizeSeed * 0.15;
 
       this.mushrooms.push({ x, y, size });
