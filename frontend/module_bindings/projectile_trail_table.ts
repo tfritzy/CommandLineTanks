@@ -13,14 +13,14 @@ import ProjectileTrailType from "./projectile_trail_type_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  startX: __t.f32(),
-  startY: __t.f32(),
-  endX: __t.f32(),
-  endY: __t.f32(),
+  id: __t.string().primaryKey().name("Id"),
+  worldId: __t.string().name("WorldId"),
+  startX: __t.f32().name("StartX"),
+  startY: __t.f32().name("StartY"),
+  endX: __t.f32().name("EndX"),
+  endY: __t.f32().name("EndY"),
   get type() {
-    return ProjectileTrailType;
+    return ProjectileTrailType.name("Type");
   },
-  spawnedAt: __t.u64(),
+  spawnedAt: __t.u64().name("SpawnedAt"),
 });
