@@ -72,13 +72,10 @@ public static partial class BehaviorTreeAI
         var aiContext = new AIContext(ctx, args.WorldId);
         var botTanks = ctx.Db.tank.WorldId_IsBot.Filter((args.WorldId, true)).ToList();
 
-        Log.Info($"=== AI Update for world {args.WorldId}: {botTanks.Count} bots (Alliance0: {botTanks.Count(t => t.Alliance == 0)}, Alliance1: {botTanks.Count(t => t.Alliance == 1)}) ===");
-
         foreach (var tank in botTanks)
         {
             if (tank.Health <= 0)
             {
-                Log.Info($"AI {tank.Name}: Dead, respawning");
                 var respawnedTank = Module.RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
                 ctx.Db.tank.Id.Update(respawnedTank);
                 continue;
@@ -97,8 +94,6 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.MoveTowardsPickup:
                 if (decision.TargetPickup != null && decision.Path.Count > 0)
                 {
-                    var lastWaypoint = decision.Path[^1];
-                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards pickup via {decision.Path.Count} waypoints");
                     SetPath(ctx, tank, decision.Path);
                 }
                 break;
@@ -106,7 +101,6 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.AimAndFire:
                 if (decision.TargetTank != null)
                 {
-                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Targeting {decision.TargetTank.Value.Name}, shouldFire={decision.ShouldFire}");
                     Module.TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
                     if (decision.ShouldFire)
                     {
@@ -118,7 +112,6 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.StopMoving:
                 if (decision.TargetTank != null)
                 {
-                    Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Stopping to engage {decision.TargetTank.Value.Name}");
                     tank = tank with
                     {
                         Path = [],
@@ -134,11 +127,8 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.MoveTowardsEnemy:
                 if (decision.Path.Count > 0)
                 {
-                    var lastWaypoint = decision.Path[^1];
                     if (decision.TargetTank != null)
                     {
-                        Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards enemy {decision.TargetTank.Value.Name} via {decision.Path.Count} waypoints to ({lastWaypoint.x},{lastWaypoint.y})");
-                        
                         var distanceToTarget = BehaviorTreeLogic.GetDistance(tank.PositionX, tank.PositionY, decision.TargetTank.Value.PositionX, decision.TargetTank.Value.PositionY);
                         if (distanceToTarget <= Module.MAX_TARGETING_RANGE)
                         {
@@ -150,12 +140,10 @@ public static partial class BehaviorTreeAI
                 break;
 
             case BehaviorTreeLogic.AIAction.Escape:
-                Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Escaping to ({decision.TargetX},{decision.TargetY})");
                 DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
                 break;
 
             case BehaviorTreeLogic.AIAction.None:
-                Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): No action (idle)");
                 break;
         }
     }
@@ -185,11 +173,8 @@ public static partial class BehaviorTreeAI
 
         if (targetX == currentX && targetY == currentY)
         {
-            Log.Info($"AI {tank.Name}: Skipping drive - already at target ({targetX},{targetY})");
             return;
         }
-
-        Log.Info($"AI {tank.Name}: Driving from ({currentX},{currentY}) to ({targetX},{targetY})");
 
         Vector2 currentPos = new Vector2(currentX, currentY);
         Vector2 targetPos = new Vector2(targetX, targetY);
