@@ -50,6 +50,13 @@ Before starting on a request related to spacetimedb, read: https://spacetimedb.c
 
 ## SpacetimeDB TypeScript API Reference
 
+### Frontend Architecture
+
+- Drawing logic MUST be in the `frontend/src/drawing/` folder, organized by category (e.g., `drawing/particles/`, `drawing/tanks/`, `drawing/projectiles/`)
+- Particle classes in `frontend/src/objects/particles/` should manage particle state and behavior but NOT contain rendering code
+- Create separate drawing functions in `frontend/src/drawing/` that accept particle data and handle canvas rendering
+- Example: `MuzzleFlashParticles` class manages particles, `drawMuzzleFlashParticles()` function in `drawing/particles/` handles rendering
+
 ### Table Accessors
 
 - Table names in the database are snake_case (e.g., `terrain_detail`, `tank`)
