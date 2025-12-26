@@ -628,6 +628,40 @@ public static partial class TerrainGenerator
         return traversibility;
     }
 
+    public static bool[] CalculateProjectileCollisionMap(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail)
+    {
+        var projectileCollisionMap = new bool[baseTerrain.Length];
+
+        for (int i = 0; i < baseTerrain.Length; i++)
+        {
+            bool baseTraversible = baseTerrain[i] switch
+            {
+                BaseTerrain.Ground => true,
+                BaseTerrain.Farm => true,
+                BaseTerrain.Lake => true,
+                _ => true
+            };
+
+            bool detailTraversible = terrainDetail[i] switch
+            {
+                TerrainDetailType.None => true,
+                TerrainDetailType.Rock => false,
+                TerrainDetailType.Tree => false,
+                TerrainDetailType.HayBale => false,
+                TerrainDetailType.FoundationEdge => false,
+                TerrainDetailType.FoundationCorner => false,
+                TerrainDetailType.FenceEdge => true,
+                TerrainDetailType.FenceCorner => true,
+                TerrainDetailType.TargetDummy => false,
+                _ => true
+            };
+
+            projectileCollisionMap[i] = baseTraversible && detailTraversible;
+        }
+
+        return projectileCollisionMap;
+    }
+
     private static void InitPerlin(Random random)
     {
         for (int i = 0; i < 256; i++) p[i] = i;

@@ -9,7 +9,8 @@ public static partial class Module
         string worldName,
         BaseTerrain[] baseTerrain,
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
-        bool[] traversibilityMap)
+        bool[] traversibilityMap,
+        bool[] projectileCollisionMap)
     {
         var world = new World
         {
@@ -58,6 +59,14 @@ public static partial class Module
         {
             WorldId = worldId,
             Map = traversibilityMap,
+            Width = TerrainGenerator.GetWorldWidth(),
+            Height = TerrainGenerator.GetWorldHeight()
+        });
+
+        ctx.Db.projectile_collision_map.Insert(new ProjectileCollisionMap
+        {
+            WorldId = worldId,
+            Map = projectileCollisionMap,
             Width = TerrainGenerator.GetWorldWidth(),
             Height = TerrainGenerator.GetWorldHeight()
         });

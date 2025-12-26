@@ -44,6 +44,17 @@ public static partial class Module
         public int Height;
     }
 
+    [Table(Name = "projectile_collision_map", Public = true)]
+    public partial struct ProjectileCollisionMap
+    {
+        [PrimaryKey]
+        public string WorldId;
+
+        public bool[] Map;
+        public int Width;
+        public int Height;
+    }
+
     [Table(Name = "tank", Public = true)]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Name) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
