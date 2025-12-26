@@ -40,6 +40,7 @@ public static partial class Module
         public string WorldId;
 
         public bool[] Map;
+        public bool[] ProjectileCollisionMap;
         public int Width;
         public int Height;
     }

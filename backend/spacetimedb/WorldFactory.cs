@@ -9,7 +9,8 @@ public static partial class Module
         string worldName,
         BaseTerrain[] baseTerrain,
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
-        bool[] traversibilityMap)
+        bool[] traversibilityMap,
+        bool[] projectileCollisionMap)
     {
         var world = new World
         {
@@ -58,6 +59,7 @@ public static partial class Module
         {
             WorldId = worldId,
             Map = traversibilityMap,
+            ProjectileCollisionMap = projectileCollisionMap,
             Width = TerrainGenerator.GetWorldWidth(),
             Height = TerrainGenerator.GetWorldHeight()
         });
