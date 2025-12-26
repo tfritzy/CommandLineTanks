@@ -68,10 +68,10 @@ public static partial class ProjectileUpdater
         int projectileCollisionRegionX = (int)(projectile.PositionX / Module.COLLISION_REGION_SIZE);
         int projectileCollisionRegionY = (int)(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
-        int searchRadius = (int)Math.Ceiling(Module.MISSILE_TRACKING_RADIUS / Module.COLLISION_REGION_SIZE);
+        int searchRadius = (int)Math.Ceiling(projectile.TrackingRadius / Module.COLLISION_REGION_SIZE);
 
         Module.Tank? closestTarget = null;
-        float closestDistanceSquared = Module.MISSILE_TRACKING_RADIUS * Module.MISSILE_TRACKING_RADIUS;
+        float closestDistanceSquared = projectile.TrackingRadius * projectile.TrackingRadius;
 
         for (int deltaX = -searchRadius; deltaX <= searchRadius; deltaX++)
         {

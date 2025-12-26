@@ -132,6 +132,7 @@ public static partial class Types
         public float SpreadAngle;
         public int Damage;
         public float TrackingStrength;
+        public float TrackingRadius;
         public ProjectileType ProjectileType;
         public float LifetimeSeconds;
         public int MaxCollisions;

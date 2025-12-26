@@ -23,6 +23,7 @@ export default __t.object("Gun", {
   spreadAngle: __t.f32(),
   damage: __t.i32(),
   trackingStrength: __t.f32(),
+  trackingRadius: __t.f32(),
   get projectileType() {
     return ProjectileType;
   },

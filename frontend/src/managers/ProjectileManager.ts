@@ -3,16 +3,22 @@ import { getConnection } from "../spacetimedb-connection";
 import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
 import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
 import { UNIT_TO_PIXEL } from "../constants";
+import type { TankManager } from "./TankManager";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
   private worldId: string;
   private particlesManager: ProjectileImpactParticlesManager;
+  private tankManager: TankManager | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.particlesManager = new ProjectileImpactParticlesManager();
     this.subscribeToProjectiles();
+  }
+
+  public setTankManager(tankManager: TankManager) {
+    this.tankManager = tankManager;
   }
 
   private subscribeToProjectiles() {
@@ -37,7 +43,9 @@ export class ProjectileManager {
           newProjectile.velocity.y,
           newProjectile.size,
           newProjectile.alliance,
-          newProjectile.explosionRadius
+          newProjectile.explosionRadius,
+          newProjectile.trackingStrength,
+          newProjectile.trackingRadius
         );
         this.projectiles.set(newProjectile.id, projectile);
       }
@@ -65,7 +73,7 @@ export class ProjectileManager {
 
   public update(deltaTime: number) {
     for (const projectile of this.projectiles.values()) {
-      projectile.update(deltaTime);
+      projectile.update(deltaTime, this.tankManager);
     }
     this.particlesManager.update(deltaTime);
   }
