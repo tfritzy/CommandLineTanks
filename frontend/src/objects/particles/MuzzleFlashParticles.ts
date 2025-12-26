@@ -49,8 +49,9 @@ export class MuzzleFlashParticles {
       if (p.lifetime < p.maxLifetime) {
         p.x += p.velocityX * deltaTime;
         p.y += p.velocityY * deltaTime;
-        p.velocityX *= FRICTION_FACTOR;
-        p.velocityY *= FRICTION_FACTOR;
+        const frictionMultiplier = Math.pow(FRICTION_FACTOR, deltaTime);
+        p.velocityX *= frictionMultiplier;
+        p.velocityY *= frictionMultiplier;
         allDead = false;
       }
     }
