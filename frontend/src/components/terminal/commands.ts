@@ -90,6 +90,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  switch, w            Switch to a different gun",
       "  smokescreen, sm      Deploy a smokescreen that disrupts enemy targeting",
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
+      "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
       "  findgame             Join a game world",
       "  clear, c             Clear the terminal output",
@@ -269,6 +270,22 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  overdrive",
         "  od"
+      ];
+
+    case "repair":
+    case "rep":
+      return [
+        "repair, rep - Repair your tank",
+        "",
+        "Usage: repair",
+        "",
+        "Starts repairing your tank, regenerating health over time.",
+        "Repair is interrupted if you take damage or issue a movement command.",
+        "60 second cooldown.",
+        "",
+        "Examples:",
+        "  repair",
+        "  rep"
       ];
 
     case "respawn":
@@ -881,6 +898,55 @@ export function overdrive(connection: DbConnection, worldId: string, args: strin
 
   return [
     "Activating overdrive! +25% speed for 10 seconds",
+  ];
+}
+
+export function repair(connection: DbConnection, worldId: string, args: string[]): string[] {
+  if (isPlayerDead(connection, worldId)) {
+    return [
+      "repair: error: cannot repair while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
+  if (args.length > 0) {
+    return [
+      "repair: error: repair command takes no arguments",
+      "",
+      "Usage: repair",
+      "       rep"
+    ];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
+  const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
+  
+  if (myTank) {
+    if (myTank.health >= myTank.maxHealth) {
+      return [
+        "repair: error: tank is already at full health",
+        "",
+        `Health: ${myTank.health}/${myTank.maxHealth}`
+      ];
+    }
+
+    const remainingMicros = myTank.remainingRepairCooldownMicros;
+    
+    if (remainingMicros > 0n) {
+      const remaining = Number(remainingMicros) / 1_000_000;
+      return [
+        `repair: error: ability is on cooldown`,
+        "",
+        `Time remaining: ${Math.ceil(remaining)} seconds`
+      ];
+    }
+  }
+
+  connection.reducers.repair({ worldId });
+
+  return [
+    "Repairing... (interrupted by damage or movement)",
   ];
 }
 
