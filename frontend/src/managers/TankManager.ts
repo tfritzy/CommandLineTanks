@@ -171,4 +171,8 @@ export class TankManager {
   public drawParticles(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
     this.particlesManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
   }
+
+  public getAllTanks(): IterableIterator<Tank> {
+    return this.tanks.values();
+  }
 }

@@ -226,4 +226,8 @@ export class Tank {
   public getHealth(): number {
     return this.health;
   }
+
+  public getAlliance(): number {
+    return this.alliance;
+  }
 }

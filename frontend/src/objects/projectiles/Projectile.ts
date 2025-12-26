@@ -53,7 +53,7 @@ export abstract class Projectile {
     this.velocityY = velocityY;
   }
 
-  public update(deltaTime: number) {
+  public update(deltaTime: number, _tankManager?: any) {
     this.x += this.velocityX * deltaTime;
     this.y += this.velocityY * deltaTime;
   }

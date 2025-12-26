@@ -1,4 +1,5 @@
 export const UNIT_TO_PIXEL = 50;
+export const MISSILE_TRACKING_RADIUS = 8.0;
 
 export const TEAM_COLORS = {
   RED: "#ff5555",

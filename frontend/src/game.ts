@@ -51,6 +51,7 @@ export class Game {
     this.tankManager = new TankManager(worldId);
     this.terrainManager = new TerrainManager(worldId);
     this.projectileManager = new ProjectileManager(worldId);
+    this.projectileManager.setTankManager(this.tankManager);
     this.scoreManager = new ScoreManager(worldId);
     this.gunInventoryManager = new GunInventoryManager(worldId);
     this.pickupManager = new PickupManager(worldId);
