@@ -61,26 +61,6 @@ export class BaseTerrainManager {
     const startTileY = Math.floor(cameraY / UNIT_TO_PIXEL);
     const endTileY = Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL);
 
-    ctx.fillStyle = TERRAIN_COLORS.GROUND;
-    ctx.beginPath();
-    for (let tileY = startTileY; tileY <= endTileY; tileY++) {
-      for (let tileX = startTileX; tileX <= endTileX; tileX++) {
-        if (
-          tileX < 0 ||
-          tileX >= this.worldWidth ||
-          tileY < 0 ||
-          tileY >= this.worldHeight
-        ) {
-          continue;
-        }
-
-        const worldX = tileX * UNIT_TO_PIXEL;
-        const worldY = tileY * UNIT_TO_PIXEL;
-        ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
-      }
-    }
-    ctx.fill();
-
     this.drawFarms(ctx, startTileX, endTileX, startTileY, endTileY);
 
     for (let renderY = startRenderY; renderY <= endRenderY; renderY++) {
