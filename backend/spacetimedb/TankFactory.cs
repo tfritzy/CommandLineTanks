@@ -4,8 +4,8 @@ using System;
 
 public static partial class Module
 {
-    private const float SPAWN_PADDING_RATIO = 0.25f;
     private const int MAX_SPAWN_ATTEMPTS = 100;
+    private const int SPAWN_ZONE_WIDTH = 5;
 
     public static Tank RespawnTank(ReducerContext ctx, Tank tank, string worldId, int alliance, bool resetKills = false)
     {
@@ -102,30 +102,26 @@ public static partial class Module
         int worldWidth = traversibilityMap.Width;
         int worldHeight = traversibilityMap.Height;
 
-        int halfWidth = worldWidth / 2;
-        int paddingX = (int)(halfWidth * SPAWN_PADDING_RATIO);
-        int paddingY = (int)(worldHeight * SPAWN_PADDING_RATIO);
-
         int minX, maxX, minY, maxY;
 
         if (alliance == 0)
         {
-            minX = paddingX;
-            maxX = halfWidth - paddingX;
+            minX = 0;
+            maxX = SPAWN_ZONE_WIDTH;
         }
         else if (alliance == 1)
         {
-            minX = halfWidth + paddingX;
-            maxX = worldWidth - paddingX;
+            minX = worldWidth - SPAWN_ZONE_WIDTH;
+            maxX = worldWidth;
         }
         else
         {
-            minX = paddingX;
-            maxX = halfWidth - paddingX;
+            minX = 0;
+            maxX = SPAWN_ZONE_WIDTH;
         }
 
-        minY = paddingY;
-        maxY = worldHeight - paddingY;
+        minY = 0;
+        maxY = worldHeight;
 
         for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++)
         {
