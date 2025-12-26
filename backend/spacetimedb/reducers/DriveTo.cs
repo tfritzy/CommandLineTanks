@@ -23,6 +23,11 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
+        if (tank.IsRepairing)
+        {
+            tank = tank with { IsRepairing = false };
+        }
+
         TraversibilityMap? maybeMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
         if (maybeMap == null) return;
         var traversibilityMap = maybeMap.Value;

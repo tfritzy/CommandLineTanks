@@ -14,6 +14,11 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
+        if (tank.IsRepairing)
+        {
+            tank = tank with { IsRepairing = false };
+        }
+
         Tank? maybeTargetTank = ctx.Db.tank.WorldId_Name.Filter((worldId, tankName.ToLower())).FirstOrDefault();
         if (maybeTargetTank == null) return;
         var targetTank = maybeTargetTank.Value;

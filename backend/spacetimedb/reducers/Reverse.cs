@@ -13,6 +13,11 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
+        if (tank.IsRepairing)
+        {
+            tank = tank with { IsRepairing = false };
+        }
+
         Vector2 rootPos = new Vector2((int)tank.PositionX, (int)tank.PositionY);
 
         int offsetX, offsetY;
