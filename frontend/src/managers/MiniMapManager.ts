@@ -1,7 +1,6 @@
 import { TankManager } from "./TankManager";
 import { TerrainManager } from "./TerrainManager";
 import { TERRAIN_COLORS, TERRAIN_DETAIL_COLORS, TEAM_COLORS } from "../constants";
-import { TerrainDetailType } from "../objects/terrain-details/TerrainDetailObject";
 
 export class MiniMapManager {
   private tankManager: TankManager;
@@ -132,17 +131,17 @@ export class MiniMapManager {
     const pixelWidth = miniMapWidth / worldWidth;
     const pixelHeight = miniMapHeight / worldHeight;
 
-    const detailColorMap: Record<TerrainDetailType, string> = {
-      [TerrainDetailType.Tree]: TERRAIN_DETAIL_COLORS.TREE.BASE,
-      [TerrainDetailType.Rock]: TERRAIN_DETAIL_COLORS.ROCK.BODY,
-      [TerrainDetailType.HayBale]: TERRAIN_DETAIL_COLORS.HAY_BALE.BODY,
-      [TerrainDetailType.FoundationEdge]: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
-      [TerrainDetailType.FoundationCorner]: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
-      [TerrainDetailType.FenceEdge]: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
-      [TerrainDetailType.FenceCorner]: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
-      [TerrainDetailType.TargetDummy]: TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY,
-      [TerrainDetailType.Label]: TERRAIN_COLORS.GROUND,
-      [TerrainDetailType.None]: TERRAIN_COLORS.GROUND
+    const detailColorMap: Record<string, string> = {
+      Tree: TERRAIN_DETAIL_COLORS.TREE.BASE,
+      Rock: TERRAIN_DETAIL_COLORS.ROCK.BODY,
+      HayBale: TERRAIN_DETAIL_COLORS.HAY_BALE.BODY,
+      FoundationEdge: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
+      FoundationCorner: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
+      FenceEdge: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
+      FenceCorner: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
+      TargetDummy: TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY,
+      Label: TERRAIN_COLORS.GROUND,
+      None: TERRAIN_COLORS.GROUND
     };
 
     for (let tileY = 0; tileY < worldHeight; tileY++) {

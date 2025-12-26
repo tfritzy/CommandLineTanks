@@ -1,4 +1,4 @@
-import { TerrainDetailObject, TerrainDetailType } from "./TerrainDetailObject";
+import { TerrainDetailObject } from "./TerrainDetailObject";
 import { drawFoundationCornerShadow, drawFoundationCornerBody } from "../../drawing/terrain-details/foundation-corner";
 
 export class FoundationCorner extends TerrainDetailObject {
@@ -28,7 +28,7 @@ export class FoundationCorner extends TerrainDetailObject {
     this.drawBody(ctx);
   }
 
-  public getType(): TerrainDetailType {
-    return TerrainDetailType.FoundationCorner;
+  public getType(): string {
+    return "FoundationCorner";
   }
 }

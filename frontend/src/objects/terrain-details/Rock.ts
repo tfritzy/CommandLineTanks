@@ -1,4 +1,4 @@
-import { TerrainDetailObject, TerrainDetailType } from "./TerrainDetailObject";
+import { TerrainDetailObject } from "./TerrainDetailObject";
 import { getFlashColor } from "../../utils/colors";
 
 export class Rock extends TerrainDetailObject {
@@ -64,7 +64,7 @@ export class Rock extends TerrainDetailObject {
     this.drawBody(ctx);
   }
 
-  public getType(): TerrainDetailType {
-    return TerrainDetailType.Rock;
+  public getType(): string {
+    return "Rock";
   }
 }

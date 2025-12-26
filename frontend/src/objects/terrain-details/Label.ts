@@ -1,4 +1,4 @@
-import { TerrainDetailObject, TerrainDetailType } from "./TerrainDetailObject";
+import { TerrainDetailObject } from "./TerrainDetailObject";
 
 export class Label extends TerrainDetailObject {
   public drawShadow(_ctx: CanvasRenderingContext2D): void {
@@ -13,7 +13,7 @@ export class Label extends TerrainDetailObject {
     this.drawBody(ctx);
   }
 
-  public getType(): TerrainDetailType {
-    return TerrainDetailType.Label;
+  public getType(): string {
+    return "Label";
   }
 }

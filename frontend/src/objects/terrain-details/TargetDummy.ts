@@ -1,4 +1,4 @@
-import { TerrainDetailObject, TerrainDetailType } from "./TerrainDetailObject";
+import { TerrainDetailObject } from "./TerrainDetailObject";
 import { drawTargetDummyShadow, drawTargetDummyBody } from "../../drawing/terrain-details/target-dummy";
 
 export class TargetDummy extends TerrainDetailObject {
@@ -28,7 +28,7 @@ export class TargetDummy extends TerrainDetailObject {
     this.drawBody(ctx);
   }
 
-  public getType(): TerrainDetailType {
-    return TerrainDetailType.TargetDummy;
+  public getType(): string {
+    return "TargetDummy";
   }
 }

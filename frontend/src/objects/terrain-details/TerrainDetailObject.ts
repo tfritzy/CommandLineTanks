@@ -3,19 +3,6 @@ import { FLASH_DURATION } from "../../utils/colors";
 import { type TerrainDetailRow } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
 
-export enum TerrainDetailType {
-  None = "None",
-  Rock = "Rock",
-  Tree = "Tree",
-  HayBale = "HayBale",
-  Label = "Label",
-  FoundationEdge = "FoundationEdge",
-  FoundationCorner = "FoundationCorner",
-  FenceEdge = "FenceEdge",
-  FenceCorner = "FenceCorner",
-  TargetDummy = "TargetDummy"
-}
-
 export abstract class TerrainDetailObject {
   public arrayIndex: number = -1;
   protected x: number;
@@ -113,5 +100,5 @@ export abstract class TerrainDetailObject {
     return this.y * UNIT_TO_PIXEL;
   }
 
-  public abstract getType(): TerrainDetailType;
+  public abstract getType(): string;
 }
