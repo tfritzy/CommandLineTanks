@@ -158,6 +158,24 @@ public static partial class TankUpdater
                 needsUpdate = true;
             }
 
+            if (tank.RemainingImmunityMicros > 0)
+            {
+                var newRemainingImmunity = tank.RemainingImmunityMicros - (long)deltaTimeMicros;
+                if (newRemainingImmunity < 0)
+                {
+                    newRemainingImmunity = 0;
+                }
+                
+                if (newRemainingImmunity != tank.RemainingImmunityMicros)
+                {
+                    tank = tank with
+                    {
+                        RemainingImmunityMicros = newRemainingImmunity
+                    };
+                    needsUpdate = true;
+                }
+            }
+
             if (tank.Path.Length > 0)
             {
                 var targetPos = tank.Path[0];

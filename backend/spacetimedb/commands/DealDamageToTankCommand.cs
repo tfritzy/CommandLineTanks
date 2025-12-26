@@ -10,6 +10,11 @@ public static partial class Module
         int attackerAlliance,
         string worldId)
     {
+        if (tank.RemainingImmunityMicros > 0)
+        {
+            return;
+        }
+
         if (tank.HasShield)
         {
             var tankWithoutShield = tank with { HasShield = false };

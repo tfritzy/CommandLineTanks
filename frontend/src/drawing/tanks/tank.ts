@@ -7,6 +7,8 @@ const HEALTH_BAR_HEIGHT = 4;
 const HEALTH_BAR_Y_OFFSET = 24;
 const HEALTH_BAR_PADDING = 1;
 const HEALTH_BAR_BORDER_RADIUS = 2;
+const IMMUNITY_FLASH_RATE_SECONDS = 0.2;
+const IMMUNITY_MIN_OPACITY = 0.5;
 
 interface TankDrawParams {
   x: number;
@@ -17,6 +19,7 @@ interface TankDrawParams {
   name: string;
   health: number;
   hasShield: boolean;
+  isImmune: boolean;
 }
 
 export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -39,6 +42,12 @@ export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: numb
 export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawParams) {
   ctx.save();
   ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
+
+  if (params.isImmune) {
+    const flashCycle = Date.now() / 1000 / IMMUNITY_FLASH_RATE_SECONDS;
+    const opacity = Math.abs(Math.sin(flashCycle * Math.PI)) * (1 - IMMUNITY_MIN_OPACITY) + IMMUNITY_MIN_OPACITY;
+    ctx.globalAlpha = opacity;
+  }
 
   const allianceColor = params.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
   const bodyColor = getFlashColor(allianceColor, params.flashTimer);
