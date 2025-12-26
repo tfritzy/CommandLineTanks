@@ -11,6 +11,7 @@ import { SmokeCloudManager } from "./managers/SmokeCloudManager";
 import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
 import { ProjectileTrailManager } from "./managers/ProjectileTrailManager";
 import { UNIT_TO_PIXEL } from "./constants";
+import { ScreenShake } from "./utils/ScreenShake";
 
 const CAMERA_FOLLOW_SPEED = 15;
 
@@ -34,6 +35,7 @@ export class Game {
   private projectileTrailManager: ProjectileTrailManager;
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
+  private screenShake: ScreenShake;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -48,9 +50,10 @@ export class Game {
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
 
-    this.tankManager = new TankManager(worldId);
+    this.screenShake = new ScreenShake();
+    this.tankManager = new TankManager(worldId, this.screenShake);
     this.terrainManager = new TerrainManager(worldId);
-    this.projectileManager = new ProjectileManager(worldId);
+    this.projectileManager = new ProjectileManager(worldId, this.screenShake);
     this.projectileManager.setTankManager(this.tankManager);
     this.scoreManager = new ScoreManager(worldId);
     this.gunInventoryManager = new GunInventoryManager(worldId);
@@ -181,7 +184,11 @@ export class Game {
     this.currentCameraX = Math.round(this.currentCameraX);
     this.currentCameraY = Math.round(this.currentCameraY);
 
-    this.ctx.translate(-this.currentCameraX, -this.currentCameraY);
+    const shakeOffset = this.screenShake.update(deltaTime);
+    const finalCameraX = this.currentCameraX + shakeOffset.x;
+    const finalCameraY = this.currentCameraY + shakeOffset.y;
+
+    this.ctx.translate(-finalCameraX, -finalCameraY);
 
     this.terrainManager.draw(
       this.ctx,

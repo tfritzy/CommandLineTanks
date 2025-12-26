@@ -4,16 +4,19 @@ import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesMan
 import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
 import { UNIT_TO_PIXEL } from "../constants";
 import type { TankManager } from "./TankManager";
+import { ScreenShake } from "../utils/ScreenShake";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
   private worldId: string;
   private particlesManager: ProjectileImpactParticlesManager;
   private tankManager: TankManager | null = null;
+  private screenShake: ScreenShake;
 
-  constructor(worldId: string) {
+  constructor(worldId: string, screenShake: ScreenShake) {
     this.worldId = worldId;
     this.particlesManager = new ProjectileImpactParticlesManager();
+    this.screenShake = screenShake;
     this.subscribeToProjectiles();
   }
 
@@ -48,6 +51,11 @@ export class ProjectileManager {
           newProjectile.trackingRadius
         );
         this.projectiles.set(newProjectile.id, projectile);
+
+        const playerTank = this.tankManager?.getPlayerTank();
+        if (playerTank && newProjectile.shooterTankId === playerTank.id && newProjectile.projectileType.tag === "Moag") {
+          this.screenShake.shake(15, 0.3);
+        }
       }
 
       if (projectile) {
