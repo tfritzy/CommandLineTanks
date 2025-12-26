@@ -87,6 +87,17 @@ export class MiniMapManager {
     const pixelWidth = miniMapWidth / worldWidth;
     const pixelHeight = miniMapHeight / worldHeight;
 
+    const detailColorMap: Record<string, string> = {
+      Tree: TERRAIN_DETAIL_COLORS.TREE.BASE,
+      Rock: TERRAIN_DETAIL_COLORS.ROCK.BODY,
+      HayBale: TERRAIN_DETAIL_COLORS.HAY_BALE.BODY,
+      FoundationEdge: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
+      FoundationCorner: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
+      FenceEdge: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
+      FenceCorner: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
+      TargetDummy: TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY
+    };
+
     for (let tileY = 0; tileY < worldHeight; tileY++) {
       for (let tileX = 0; tileX < worldWidth; tileX++) {
         const index = tileY * worldWidth + tileX;
@@ -103,18 +114,9 @@ export class MiniMapManager {
           const detail = terrainDetailsByPosition[tileY][tileX];
           if (detail) {
             const detailType = detail.getType();
-            if (detailType === "Tree") {
-              color = TERRAIN_DETAIL_COLORS.TREE.BASE;
-            } else if (detailType === "Rock") {
-              color = TERRAIN_DETAIL_COLORS.ROCK.BODY;
-            } else if (detailType === "HayBale") {
-              color = TERRAIN_DETAIL_COLORS.HAY_BALE.BODY;
-            } else if (detailType === "FoundationEdge" || detailType === "FoundationCorner") {
-              color = TERRAIN_DETAIL_COLORS.FOUNDATION.BASE;
-            } else if (detailType === "FenceEdge" || detailType === "FenceCorner") {
-              color = TERRAIN_DETAIL_COLORS.FENCE.RAIL;
-            } else if (detailType === "TargetDummy") {
-              color = TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY;
+            const detailColor = detailColorMap[detailType];
+            if (detailColor) {
+              color = detailColor;
             }
           }
         }
