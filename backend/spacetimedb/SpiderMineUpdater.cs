@@ -95,11 +95,6 @@ public static partial class SpiderMineUpdater
 
                 if (mine.TargetTankId != null && !mine.IsPlanted)
                 {
-                    if (targetTank == null)
-                    {
-                        targetTank = ctx.Db.tank.Id.Find(mine.TargetTankId);
-                    }
-
                     if (targetTank != null)
                     {
                         var deltaX = targetTank.Value.PositionX - mine.PositionX;
