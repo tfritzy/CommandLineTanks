@@ -3,6 +3,7 @@ import { isPointInViewport } from "../../utils/viewport";
 
 const ANGLE_SPREAD_RADIANS = 0.8;
 const FRICTION_FACTOR = 0.92;
+const TWO_PI = Math.PI * 2;
 
 interface Particle {
   x: number;
@@ -43,13 +44,13 @@ export class MuzzleFlashParticles {
   }
 
   public update(deltaTime: number): void {
+    const frictionMultiplier = Math.pow(FRICTION_FACTOR, deltaTime);
     let allDead = true;
     for (const p of this.particles) {
       p.lifetime += deltaTime;
       if (p.lifetime < p.maxLifetime) {
         p.x += p.velocityX * deltaTime;
         p.y += p.velocityY * deltaTime;
-        const frictionMultiplier = Math.pow(FRICTION_FACTOR, deltaTime);
         p.velocityX *= frictionMultiplier;
         p.velocityY *= frictionMultiplier;
         allDead = false;
@@ -77,7 +78,7 @@ export class MuzzleFlashParticles {
       ctx.fillStyle = p.color;
       
       ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, Math.PI * 2);
+      ctx.arc(px, py, pSize, 0, TWO_PI);
       ctx.fill();
     }
     ctx.restore();
