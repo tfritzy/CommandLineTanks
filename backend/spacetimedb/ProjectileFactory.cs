@@ -23,6 +23,7 @@ public static partial class Module
             Velocity = new Vector2Float(velocityX, velocityY),
             Damage = gun.Damage,
             TrackingStrength = gun.TrackingStrength,
+            TrackingRadius = gun.TrackingRadius,
             ProjectileType = gun.ProjectileType,
             SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             LifetimeSeconds = gun.LifetimeSeconds,

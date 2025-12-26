@@ -75,6 +75,14 @@ Before starting on a request related to spacetimedb, read: https://spacetimedb.c
 - If your interface needs to accept these values, include `undefined` in the type union
 - Example: `label: string | null | undefined` to be compatible with SpacetimeDB optional strings
 
+### Module Bindings
+
+- DO NOT use type assertions like `(object as any).field` to access fields that should exist in module bindings
+- When backend schema changes (new fields added to tables or types), ALWAYS regenerate module bindings
+- To regenerate module bindings, run: `spacetime generate --lang typescript --out-dir frontend/module_bindings --project-path backend/spacetimedb`
+- The command is also available in `commands.txt` at the repository root
+- After regenerating bindings, use the properly typed fields directly without type assertions
+
 When choosing colors, either use the player team colors or:
 #2e2e43
 #4a4b5b

@@ -30,6 +30,7 @@ export default __t.row({
   },
   damage: __t.i32(),
   trackingStrength: __t.f32(),
+  trackingRadius: __t.f32(),
   get projectileType() {
     return ProjectileType;
   },

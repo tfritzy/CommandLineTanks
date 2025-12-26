@@ -9,6 +9,8 @@ export abstract class Projectile {
   protected size: number;
   protected alliance: number;
   protected explosionRadius: number | undefined;
+  protected trackingStrength: number;
+  protected trackingRadius: number;
 
   constructor(
     x: number,
@@ -17,7 +19,9 @@ export abstract class Projectile {
     velocityY: number,
     size: number,
     alliance: number,
-    explosionRadius?: number
+    explosionRadius?: number,
+    trackingStrength?: number,
+    trackingRadius?: number
   ) {
     this.x = x;
     this.y = y;
@@ -26,6 +30,8 @@ export abstract class Projectile {
     this.size = size;
     this.alliance = alliance;
     this.explosionRadius = explosionRadius;
+    this.trackingStrength = trackingStrength || 0;
+    this.trackingRadius = trackingRadius || 0;
   }
 
   public draw(ctx: CanvasRenderingContext2D, textureSheet: any) {
@@ -50,7 +56,47 @@ export abstract class Projectile {
     this.velocityY = velocityY;
   }
 
-  public update(deltaTime: number) {
+  public update(deltaTime: number, tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
+    if (this.trackingStrength > 0 && this.trackingRadius > 0 && tankManager) {
+      const speed = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
+      
+      let closestTarget = null;
+      let closestDistanceSquared = this.trackingRadius * this.trackingRadius;
+      
+      for (const tank of tankManager.getAllTanks()) {
+        const tankPos = tank.getPosition();
+        const tankAlliance = tank.getAlliance();
+        
+        if (tankAlliance !== this.alliance && tank.getHealth() > 0) {
+          const dx = tankPos.x - this.x;
+          const dy = tankPos.y - this.y;
+          const distanceSquared = dx * dx + dy * dy;
+          
+          if (distanceSquared < closestDistanceSquared) {
+            closestDistanceSquared = distanceSquared;
+            closestTarget = tankPos;
+          }
+        }
+      }
+      
+      if (closestTarget) {
+        const targetDx = closestTarget.x - this.x;
+        const targetDy = closestTarget.y - this.y;
+        const targetAngle = Math.atan2(targetDy, targetDx);
+        
+        const currentAngle = Math.atan2(this.velocityY, this.velocityX);
+        let angleDiff = targetAngle - currentAngle;
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+        
+        const turnAmount = Math.sign(angleDiff) * Math.min(Math.abs(angleDiff), this.trackingStrength * deltaTime);
+        const newAngle = currentAngle + turnAmount;
+        
+        this.velocityX = Math.cos(newAngle) * speed;
+        this.velocityY = Math.sin(newAngle) * speed;
+      }
+    }
+    
     this.x += this.velocityX * deltaTime;
     this.y += this.velocityY * deltaTime;
   }
