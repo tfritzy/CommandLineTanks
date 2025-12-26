@@ -56,7 +56,7 @@ export abstract class Projectile {
     this.velocityY = velocityY;
   }
 
-  public update(deltaTime: number, tankManager?: any) {
+  public update(deltaTime: number, tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
     if (this.trackingStrength > 0 && this.trackingRadius > 0 && tankManager) {
       const speed = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
       
