@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { Game } from './game';
 import TerminalComponent from './components/terminal/Terminal';
 import ResultsScreen from './components/ResultsScreen';
@@ -9,32 +10,20 @@ import { type Infer } from 'spacetimedb';
 import TankRow from '../module_bindings/tank_type';
 import { type EventContext } from '../module_bindings';
 
-function App() {
-  const [isSpacetimeConnected, setIsSpacetimeConnected] = useState(false);
-  const [worldId, setWorldId] = useState<string | null>(null);
+function GameView() {
+  const { worldId } = useParams<{ worldId: string }>();
+  const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [isDead, setIsDead] = useState(false);
 
   const handleWorldChange = (newWorldId: string) => {
-    setWorldId(newWorldId);
+    if (newWorldId !== worldId) {
+      navigate(`/world/${newWorldId}`);
+    }
   };
 
-  useWorldSwitcher(handleWorldChange, worldId);
-
-  useEffect(() => {
-    connectToSpacetimeDB().then((conn) => {
-      setIsSpacetimeConnected(true);
-
-      if (conn.identity) {
-        const identityString = conn.identity.toHexString();
-        console.log(`Setting homeworld to identity: ${identityString}`);
-        handleWorldChange(identityString);
-      }
-    }).catch((error) => {
-      console.error('Failed to establish SpacetimeDB connection:', error);
-    });
-  }, []);
+  useWorldSwitcher(handleWorldChange, worldId || null);
 
   useEffect(() => {
     if (!canvasRef.current || !worldId) return;
@@ -75,22 +64,6 @@ function App() {
       connection.db.tank.removeOnUpdate(handleTankUpdate);
     };
   }, [worldId]);
-
-  if (!isSpacetimeConnected) {
-    return (
-      <div style={{
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#2e2e43',
-        color: '#ffffff'
-      }}>
-        Connecting to SpacetimeDB...
-      </div>
-    );
-  }
 
   if (!worldId) {
     return null;
@@ -148,6 +121,60 @@ function App() {
       </div>
       <TerminalComponent worldId={worldId} />
     </div>
+  );
+}
+
+function App() {
+  const [isSpacetimeConnected, setIsSpacetimeConnected] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    connectToSpacetimeDB().then((conn) => {
+      setIsSpacetimeConnected(true);
+
+      if (conn.identity) {
+        const identityString = conn.identity.toHexString();
+        console.log(`Setting homeworld to identity: ${identityString}`);
+        navigate(`/world/${identityString}`);
+      }
+    }).catch((error) => {
+      console.error('Failed to establish SpacetimeDB connection:', error);
+    });
+  }, [navigate]);
+
+  if (!isSpacetimeConnected) {
+    return (
+      <div style={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#2e2e43',
+        color: '#ffffff'
+      }}>
+        Connecting to SpacetimeDB...
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route path="/world/:worldId" element={<GameView />} />
+      <Route path="/" element={
+        <div style={{
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#2e2e43',
+          color: '#ffffff'
+        }}>
+          Loading world...
+        </div>
+      } />
+    </Routes>
   );
 }
 
