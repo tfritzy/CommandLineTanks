@@ -89,14 +89,6 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
 
   ctx.restore();
 
-  ctx.save();
-  ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
-  ctx.font = "14px monospace";
-  ctx.fillStyle = "#f5c47c";
-  ctx.textAlign = "center";
-  ctx.fillText(params.name, 0, -30);
-  ctx.restore();
-
   if (params.hasShield) {
     ctx.save();
     ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
@@ -117,6 +109,21 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
 
     ctx.restore();
   }
+}
+
+export function drawTankNameLabel(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  name: string
+) {
+  ctx.save();
+  ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
+  ctx.font = "14px monospace";
+  ctx.fillStyle = "#f5c47c";
+  ctx.textAlign = "center";
+  ctx.fillText(name, 0, -30);
+  ctx.restore();
 }
 
 export function drawTankHealthBar(

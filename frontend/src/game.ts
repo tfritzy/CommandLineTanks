@@ -232,6 +232,7 @@ export class Game {
       displayWidth,
       displayHeight
     );
+    this.tankManager.drawNameLabels(this.ctx);
     this.tankManager.drawHealthBars(this.ctx);
     this.tankManager.drawTankIndicators(this.ctx);
 
