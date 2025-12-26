@@ -36,7 +36,8 @@ public static partial class Module
             LastFireTime = 0,
             HasShield = false,
             OverdriveCooldownEnd = 0,
-            OverdriveActiveUntil = 0
+            OverdriveActiveUntil = 0,
+            ImmunityUntil = ctx.Timestamp.Microseconds + (ulong)SPAWN_IMMUNITY_DURATION_MICROS
         };
 
         return respawnedTank;
@@ -77,7 +78,8 @@ public static partial class Module
             Velocity = new Vector2Float(0, 0),
             TurretAngularVelocity = 0,
             OverdriveCooldownEnd = 0,
-            OverdriveActiveUntil = 0
+            OverdriveActiveUntil = 0,
+            ImmunityUntil = ctx.Timestamp.Microseconds + (ulong)SPAWN_IMMUNITY_DURATION_MICROS
         };
     }
 

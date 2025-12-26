@@ -108,6 +108,8 @@ public static partial class Module
         public ulong OverdriveCooldownEnd;
 
         public ulong OverdriveActiveUntil;
+
+        public ulong ImmunityUntil;
     }
 
     [Table(Name = "projectile", Public = true)]
