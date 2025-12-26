@@ -128,7 +128,7 @@ public static partial class SpiderMineUpdater
                         }
                     }
                 }
-                else if (mine.TargetTankId != null && !needsUpdate)
+                else if (mine.TargetTankId != null)
                 {
                     mine = mine with
                     {
