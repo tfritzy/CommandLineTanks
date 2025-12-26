@@ -25,7 +25,10 @@ export class ScoreManager {
 
   private checkIfHomeworld() {
     const connection = getConnection();
-    if (!connection || !connection.identity) return;
+    if (!connection || !connection.identity) {
+      this.isHomeworld = false;
+      return;
+    }
     
     const identityString = connection.identity.toHexString().toLowerCase();
     this.isHomeworld = identityString === this.worldId;
