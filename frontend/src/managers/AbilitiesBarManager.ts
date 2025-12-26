@@ -2,6 +2,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { type EventContext } from "../../module_bindings";
 import { drawAbilitySlot } from "../drawing/ui/ability-slot";
 import { drawSmokescreenIcon } from "../drawing/ui/smokescreen-icon";
+import { drawOverdriveIcon } from "../drawing/ui/overdrive-icon";
 
 const MICROSECONDS_TO_SECONDS = 1_000_000;
 
@@ -12,9 +13,11 @@ interface Ability {
 }
 
 export class AbilitiesBarManager {
-  private cooldownEnd: bigint = 0n;
+  private smokescreenCooldownEnd: bigint = 0n;
+  private overdriveCooldownEnd: bigint = 0n;
   private playerTankId: string | null = null;
   private readonly SMOKESCREEN_COOLDOWN_SECONDS = 60;
+  private readonly OVERDRIVE_COOLDOWN_SECONDS = 60;
 
   constructor(worldId: string) {
     this.subscribeToPlayerTank(worldId);
@@ -30,20 +33,23 @@ export class AbilitiesBarManager {
     connection.db.tank.onInsert((_ctx: EventContext, tank) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
         this.playerTankId = tank.id;
-        this.cooldownEnd = tank.smokescreenCooldownEnd;
+        this.smokescreenCooldownEnd = tank.smokescreenCooldownEnd;
+        this.overdriveCooldownEnd = tank.overdriveCooldownEnd;
       }
     });
 
     connection.db.tank.onUpdate((_ctx: EventContext, _oldTank, newTank) => {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
-        this.cooldownEnd = newTank.smokescreenCooldownEnd;
+        this.smokescreenCooldownEnd = newTank.smokescreenCooldownEnd;
+        this.overdriveCooldownEnd = newTank.overdriveCooldownEnd;
       }
     });
 
     connection.db.tank.onDelete((_ctx: EventContext, tank) => {
       if (this.playerTankId === tank.id) {
         this.playerTankId = null;
-        this.cooldownEnd = 0n;
+        this.smokescreenCooldownEnd = 0n;
+        this.overdriveCooldownEnd = 0n;
       }
     });
   }
@@ -58,8 +64,13 @@ export class AbilitiesBarManager {
     const abilities: Ability[] = [
       {
         drawIcon: drawSmokescreenIcon,
-        cooldownEnd: this.cooldownEnd,
+        cooldownEnd: this.smokescreenCooldownEnd,
         cooldownDuration: this.SMOKESCREEN_COOLDOWN_SECONDS,
+      },
+      {
+        drawIcon: drawOverdriveIcon,
+        cooldownEnd: this.overdriveCooldownEnd,
+        cooldownDuration: this.OVERDRIVE_COOLDOWN_SECONDS,
       },
     ];
 
