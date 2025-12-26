@@ -186,7 +186,8 @@ public static partial class TankUpdater
 
             if (tank.IsRepairing)
             {
-                var healthToRestore = (int)(Module.REPAIR_HEALTH_PER_SECOND * deltaTime);
+                var healthToRestoreFloat = Module.REPAIR_HEALTH_PER_SECOND * deltaTime;
+                var healthToRestore = (int)Math.Ceiling(healthToRestoreFloat);
                 var newHealth = Math.Min(tank.MaxHealth, tank.Health + healthToRestore);
                 
                 if (newHealth >= tank.MaxHealth)
