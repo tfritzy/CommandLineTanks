@@ -30,14 +30,7 @@ export class TerrainManager {
         this.detailManager.updateWorldDimensions(world.width, world.height);
       }
       
-      if (!this.mushroomManager) {
-        this.mushroomManager = new MushroomDecorationManager(
-          world.width,
-          world.height
-        );
-      } else {
-        this.mushroomManager.updateWorldDimensions(world.width, world.height);
-      }
+      this.initializeOrUpdateMushroomManager(world.width, world.height);
     });
 
     connection.db.world.onUpdate((_ctx, _oldWorld, newWorld) => {
@@ -54,18 +47,16 @@ export class TerrainManager {
         );
       }
       
-      if (!this.mushroomManager) {
-        this.mushroomManager = new MushroomDecorationManager(
-          newWorld.width,
-          newWorld.height
-        );
-      } else {
-        this.mushroomManager.updateWorldDimensions(
-          newWorld.width,
-          newWorld.height
-        );
-      }
+      this.initializeOrUpdateMushroomManager(newWorld.width, newWorld.height);
     });
+  }
+
+  private initializeOrUpdateMushroomManager(width: number, height: number) {
+    if (!this.mushroomManager) {
+      this.mushroomManager = new MushroomDecorationManager(width, height);
+    } else {
+      this.mushroomManager.updateWorldDimensions(width, height);
+    }
   }
 
   public update(deltaTime: number) {

@@ -7,6 +7,15 @@ interface Mushroom {
 }
 
 export class MushroomDecorationManager {
+  private static readonly DENSITY = 0.015;
+  private static readonly BASE_SEED = 12345.67;
+  private static readonly SEED_MULTIPLIER_X = 1.1;
+  private static readonly SEED_MULTIPLIER_Y = 2.2;
+  private static readonly SEED_MULTIPLIER_SIZE = 3.3;
+  private static readonly SEED_AMPLIFIER = 10000;
+  private static readonly MIN_SIZE = 0.15;
+  private static readonly SIZE_VARIATION = 0.15;
+
   private mushrooms: Mushroom[] = [];
   private worldWidth: number = 0;
   private worldHeight: number = 0;
@@ -25,23 +34,34 @@ export class MushroomDecorationManager {
 
   private generateMushrooms() {
     this.mushrooms = [];
-    const density = 0.015;
-    const baseSeed = 12345.67;
-    const seedMultiplierX = 1.1;
-    const seedMultiplierY = 2.2;
-    const seedMultiplierSize = 3.3;
-    const seedAmplifier = 10000;
-    const count = Math.floor(this.worldWidth * this.worldHeight * density);
+    const count = Math.floor(this.worldWidth * this.worldHeight * MushroomDecorationManager.DENSITY);
 
     for (let i = 0; i < count; i++) {
-      const seed = i * baseSeed;
-      const x = (Math.abs(Math.sin(seed * seedMultiplierX) * seedAmplifier) % 1) * this.worldWidth;
-      const y = (Math.abs(Math.sin(seed * seedMultiplierY) * seedAmplifier) % 1) * this.worldHeight;
-      const sizeSeed = Math.abs(Math.sin(seed * seedMultiplierSize) * seedAmplifier) % 1;
-      const size = 0.15 + sizeSeed * 0.15;
+      const seed = i * MushroomDecorationManager.BASE_SEED;
+      const x = (Math.abs(Math.sin(seed * MushroomDecorationManager.SEED_MULTIPLIER_X) * MushroomDecorationManager.SEED_AMPLIFIER) % 1) * this.worldWidth;
+      const y = (Math.abs(Math.sin(seed * MushroomDecorationManager.SEED_MULTIPLIER_Y) * MushroomDecorationManager.SEED_AMPLIFIER) % 1) * this.worldHeight;
+      const sizeSeed = Math.abs(Math.sin(seed * MushroomDecorationManager.SEED_MULTIPLIER_SIZE) * MushroomDecorationManager.SEED_AMPLIFIER) % 1;
+      const size = MushroomDecorationManager.MIN_SIZE + sizeSeed * MushroomDecorationManager.SIZE_VARIATION;
 
       this.mushrooms.push({ x, y, size });
     }
+  }
+
+  private getVisibleMushrooms(
+    cameraX: number,
+    cameraY: number,
+    canvasWidth: number,
+    canvasHeight: number
+  ): Mushroom[] {
+    const padding = 2;
+    const startX = cameraX / UNIT_TO_PIXEL - padding;
+    const endX = (cameraX + canvasWidth) / UNIT_TO_PIXEL + padding;
+    const startY = cameraY / UNIT_TO_PIXEL - padding;
+    const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
+
+    return this.mushrooms.filter(
+      mushroom => mushroom.x >= startX && mushroom.x <= endX && mushroom.y >= startY && mushroom.y <= endY
+    );
   }
 
   public drawShadows(
@@ -51,26 +71,20 @@ export class MushroomDecorationManager {
     canvasWidth: number,
     canvasHeight: number
   ) {
-    const padding = 2;
-    const startX = cameraX / UNIT_TO_PIXEL - padding;
-    const endX = (cameraX + canvasWidth) / UNIT_TO_PIXEL + padding;
-    const startY = cameraY / UNIT_TO_PIXEL - padding;
-    const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
+    const visibleMushrooms = this.getVisibleMushrooms(cameraX, cameraY, canvasWidth, canvasHeight);
 
     ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
 
-    for (const mushroom of this.mushrooms) {
-      if (mushroom.x >= startX && mushroom.x <= endX && mushroom.y >= startY && mushroom.y <= endY) {
-        const worldX = mushroom.x * UNIT_TO_PIXEL;
-        const worldY = mushroom.y * UNIT_TO_PIXEL;
-        const radius = mushroom.size * UNIT_TO_PIXEL;
-        const shadowOffset = radius * 0.3;
+    for (const mushroom of visibleMushrooms) {
+      const worldX = mushroom.x * UNIT_TO_PIXEL;
+      const worldY = mushroom.y * UNIT_TO_PIXEL;
+      const radius = mushroom.size * UNIT_TO_PIXEL;
+      const shadowOffset = radius * 0.3;
 
-        ctx.beginPath();
-        ctx.arc(worldX - shadowOffset, worldY + shadowOffset, radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      ctx.beginPath();
+      ctx.arc(worldX - shadowOffset, worldY + shadowOffset, radius, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     ctx.restore();
@@ -83,14 +97,9 @@ export class MushroomDecorationManager {
     canvasWidth: number,
     canvasHeight: number
   ) {
-    const padding = 2;
-    const startX = cameraX / UNIT_TO_PIXEL - padding;
-    const endX = (cameraX + canvasWidth) / UNIT_TO_PIXEL + padding;
-    const startY = cameraY / UNIT_TO_PIXEL - padding;
-    const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
+    const visibleMushrooms = this.getVisibleMushrooms(cameraX, cameraY, canvasWidth, canvasHeight);
 
-    for (const mushroom of this.mushrooms) {
-      if (mushroom.x >= startX && mushroom.x <= endX && mushroom.y >= startY && mushroom.y <= endY) {
+    for (const mushroom of visibleMushrooms) {
         const worldX = mushroom.x * UNIT_TO_PIXEL;
         const worldY = mushroom.y * UNIT_TO_PIXEL;
         const radius = mushroom.size * UNIT_TO_PIXEL;
@@ -114,7 +123,6 @@ export class MushroomDecorationManager {
         ctx.stroke();
 
         ctx.restore();
-      }
     }
   }
 }
