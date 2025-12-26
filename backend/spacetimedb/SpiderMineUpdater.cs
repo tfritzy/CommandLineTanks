@@ -93,36 +93,44 @@ public static partial class SpiderMineUpdater
                     }
                 }
 
-                if (mine.TargetTankId != null && targetTank != null && !mine.IsPlanted)
+                if (mine.TargetTankId != null && !mine.IsPlanted)
                 {
-                    var deltaX = targetTank.Value.PositionX - mine.PositionX;
-                    var deltaY = targetTank.Value.PositionY - mine.PositionY;
-                    var distanceSquared = deltaX * deltaX + deltaY * deltaY;
-
-                    float collisionThreshold = Module.TANK_COLLISION_RADIUS + 0.5f;
-                    float collisionThresholdSquared = collisionThreshold * collisionThreshold;
-
-                    if (distanceSquared <= collisionThresholdSquared)
+                    if (targetTank == null)
                     {
-                        HandleTankDamage(ctx, targetTank.Value, mine, args.WorldId);
-                        ctx.Db.spider_mine.Id.Delete(mine.Id);
-                        continue;
+                        targetTank = ctx.Db.tank.Id.Find(mine.TargetTankId);
                     }
 
-                    if (distanceSquared > 0)
+                    if (targetTank != null)
                     {
-                        var distance = Math.Sqrt(distanceSquared);
-                        var dirX = deltaX / distance;
-                        var dirY = deltaY / distance;
-                        var moveDistance = SPIDER_MINE_SPEED * deltaTime;
+                        var deltaX = targetTank.Value.PositionX - mine.PositionX;
+                        var deltaY = targetTank.Value.PositionY - mine.PositionY;
+                        var distanceSquared = deltaX * deltaX + deltaY * deltaY;
 
-                        mine = mine with
+                        float collisionThreshold = Module.TANK_COLLISION_RADIUS + 0.5f;
+                        float collisionThresholdSquared = collisionThreshold * collisionThreshold;
+
+                        if (distanceSquared <= collisionThresholdSquared)
                         {
-                            PositionX = (float)(mine.PositionX + dirX * moveDistance),
-                            PositionY = (float)(mine.PositionY + dirY * moveDistance),
-                            Velocity = new Vector2Float((float)(dirX * SPIDER_MINE_SPEED), (float)(dirY * SPIDER_MINE_SPEED))
-                        };
-                        needsUpdate = true;
+                            HandleTankDamage(ctx, targetTank.Value, mine, args.WorldId);
+                            ctx.Db.spider_mine.Id.Delete(mine.Id);
+                            continue;
+                        }
+
+                        if (distanceSquared > 0)
+                        {
+                            var distance = Math.Sqrt(distanceSquared);
+                            var dirX = deltaX / distance;
+                            var dirY = deltaY / distance;
+                            var moveDistance = SPIDER_MINE_SPEED * deltaTime;
+
+                            mine = mine with
+                            {
+                                PositionX = (float)(mine.PositionX + dirX * moveDistance),
+                                PositionY = (float)(mine.PositionY + dirY * moveDistance),
+                                Velocity = new Vector2Float((float)(dirX * SPIDER_MINE_SPEED), (float)(dirY * SPIDER_MINE_SPEED))
+                            };
+                            needsUpdate = true;
+                        }
                     }
                 }
                 else if (mine.TargetTankId != null && !needsUpdate)
