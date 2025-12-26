@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../game";
+import { UNIT_TO_PIXEL } from "../../constants";
 
 const LABEL_COLOR = "#f5c47c";
 

@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../game";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
 import type { Particle } from "./ParticleTypes";
 

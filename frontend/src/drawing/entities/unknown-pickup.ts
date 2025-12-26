@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../game";
+import { UNIT_TO_PIXEL } from "../../constants";
 
 export function drawUnknownPickupShadow(
   ctx: CanvasRenderingContext2D,

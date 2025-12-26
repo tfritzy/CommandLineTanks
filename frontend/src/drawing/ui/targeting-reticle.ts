@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../game";
+import { UNIT_TO_PIXEL } from "../../constants";
 
 const RETICLE_SIZE = 20;
 const RETICLE_GAP = 6;
