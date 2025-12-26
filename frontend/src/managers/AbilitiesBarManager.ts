@@ -8,7 +8,7 @@ const MICROSECONDS_TO_SECONDS = 1_000_000;
 
 interface Ability {
   drawIcon: (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isReady: boolean) => void;
-  cooldownEnd: bigint;
+  remainingCooldownMicros: bigint;
   cooldownDuration: number;
 }
 
@@ -62,12 +62,12 @@ export class AbilitiesBarManager {
     const abilities: Ability[] = [
       {
         drawIcon: drawSmokescreenIcon,
-        cooldownEnd: this.remainingSmokescreenCooldownMicros,
+        remainingCooldownMicros: this.remainingSmokescreenCooldownMicros,
         cooldownDuration: this.SMOKESCREEN_COOLDOWN_SECONDS,
       },
       {
         drawIcon: drawOverdriveIcon,
-        cooldownEnd: this.remainingOverdriveCooldownMicros,
+        remainingCooldownMicros: this.remainingOverdriveCooldownMicros,
         cooldownDuration: this.OVERDRIVE_COOLDOWN_SECONDS,
       },
     ];
@@ -82,8 +82,8 @@ export class AbilitiesBarManager {
       const slotX = startX + index * (slotSize + gap);
       const slotY = startY;
       
-      const abilityIsReady = ability.cooldownEnd <= 0n;
-      const abilityCooldownRemaining = abilityIsReady ? 0 : Number(ability.cooldownEnd) / MICROSECONDS_TO_SECONDS;
+      const abilityIsReady = ability.remainingCooldownMicros <= 0n;
+      const abilityCooldownRemaining = abilityIsReady ? 0 : Number(ability.remainingCooldownMicros) / MICROSECONDS_TO_SECONDS;
       const abilityProgress = abilityIsReady ? 1 : Math.max(0, 1 - (abilityCooldownRemaining / ability.cooldownDuration));
 
       drawAbilitySlot(

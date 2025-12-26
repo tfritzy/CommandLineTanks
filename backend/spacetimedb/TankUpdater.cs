@@ -151,74 +151,30 @@ public static partial class TankUpdater
 
             if (tank.RemainingOverdriveDurationMicros > 0)
             {
-                var newRemainingOverdrive = tank.RemainingOverdriveDurationMicros - (long)deltaTimeMicros;
-                if (newRemainingOverdrive < 0)
-                {
-                    newRemainingOverdrive = 0;
-                }
-                
-                if (newRemainingOverdrive != tank.RemainingOverdriveDurationMicros)
-                {
-                    tank = tank with
-                    {
-                        RemainingOverdriveDurationMicros = newRemainingOverdrive
-                    };
-                    needsUpdate = true;
-                }
+                var newRemainingOverdrive = Math.Max(0, tank.RemainingOverdriveDurationMicros - (long)deltaTimeMicros);
+                tank = tank with { RemainingOverdriveDurationMicros = newRemainingOverdrive };
+                needsUpdate = true;
             }
 
             if (tank.RemainingSmokescreenCooldownMicros > 0)
             {
-                var newRemainingSmokescreenCooldown = tank.RemainingSmokescreenCooldownMicros - (long)deltaTimeMicros;
-                if (newRemainingSmokescreenCooldown < 0)
-                {
-                    newRemainingSmokescreenCooldown = 0;
-                }
-                
-                if (newRemainingSmokescreenCooldown != tank.RemainingSmokescreenCooldownMicros)
-                {
-                    tank = tank with
-                    {
-                        RemainingSmokescreenCooldownMicros = newRemainingSmokescreenCooldown
-                    };
-                    needsUpdate = true;
-                }
+                var newRemainingSmokescreenCooldown = Math.Max(0, tank.RemainingSmokescreenCooldownMicros - (long)deltaTimeMicros);
+                tank = tank with { RemainingSmokescreenCooldownMicros = newRemainingSmokescreenCooldown };
+                needsUpdate = true;
             }
 
             if (tank.RemainingOverdriveCooldownMicros > 0)
             {
-                var newRemainingOverdriveCooldown = tank.RemainingOverdriveCooldownMicros - (long)deltaTimeMicros;
-                if (newRemainingOverdriveCooldown < 0)
-                {
-                    newRemainingOverdriveCooldown = 0;
-                }
-                
-                if (newRemainingOverdriveCooldown != tank.RemainingOverdriveCooldownMicros)
-                {
-                    tank = tank with
-                    {
-                        RemainingOverdriveCooldownMicros = newRemainingOverdriveCooldown
-                    };
-                    needsUpdate = true;
-                }
+                var newRemainingOverdriveCooldown = Math.Max(0, tank.RemainingOverdriveCooldownMicros - (long)deltaTimeMicros);
+                tank = tank with { RemainingOverdriveCooldownMicros = newRemainingOverdriveCooldown };
+                needsUpdate = true;
             }
 
             if (tank.RemainingImmunityMicros > 0)
             {
-                var newRemainingImmunity = tank.RemainingImmunityMicros - (long)deltaTimeMicros;
-                if (newRemainingImmunity < 0)
-                {
-                    newRemainingImmunity = 0;
-                }
-                
-                if (newRemainingImmunity != tank.RemainingImmunityMicros)
-                {
-                    tank = tank with
-                    {
-                        RemainingImmunityMicros = newRemainingImmunity
-                    };
-                    needsUpdate = true;
-                }
+                var newRemainingImmunity = Math.Max(0, tank.RemainingImmunityMicros - (long)deltaTimeMicros);
+                tank = tank with { RemainingImmunityMicros = newRemainingImmunity };
+                needsUpdate = true;
             }
 
             if (tank.Path.Length > 0)
