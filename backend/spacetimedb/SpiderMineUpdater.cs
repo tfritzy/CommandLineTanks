@@ -128,13 +128,16 @@ public static partial class SpiderMineUpdater
                         }
                     }
                 }
-                else if (mine.TargetTankId != null)
+                else
                 {
-                    mine = mine with
+                    if (mine.Velocity.X != 0 || mine.Velocity.Y != 0)
                     {
-                        Velocity = new Vector2Float(0, 0)
-                    };
-                    needsUpdate = true;
+                        mine = mine with
+                        {
+                            Velocity = new Vector2Float(0, 0)
+                        };
+                        needsUpdate = true;
+                    }
                 }
 
                 int newCollisionRegionX = (int)(mine.PositionX / Module.COLLISION_REGION_SIZE);
