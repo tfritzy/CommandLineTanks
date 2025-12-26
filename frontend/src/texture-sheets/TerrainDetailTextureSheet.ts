@@ -1,6 +1,7 @@
 import { UNIT_TO_PIXEL } from "../constants";
 import { drawRockShadow, drawRockBody } from "../drawing/terrain-details/rock";
 import { drawTreeShadow, drawTreeBody } from "../drawing/terrain-details/tree";
+import { drawDeadTreeShadow, drawDeadTreeBody } from "../drawing/terrain-details/dead-tree";
 import {
   drawHayBaleShadow,
   drawHayBaleBody,
@@ -85,6 +86,9 @@ export class TerrainDetailTextureSheet {
     currentX += cellSize;
 
     this.renderTree("tree", currentX, currentY, cellSize);
+    currentX += cellSize;
+
+    this.renderDeadTree("deadtree", currentX, currentY, cellSize);
     currentX += cellSize;
 
     this.renderHayBale("haybale", currentX, currentY, cellSize);
@@ -206,6 +210,43 @@ export class TerrainDetailTextureSheet {
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
     drawTreeBody(this.ctx, 0, 0, radius, 0);
+    this.ctx.restore();
+
+    this.textures.set(key, {
+      x: atlasX + padding,
+      y: atlasY + padding,
+      width: cellSize - padding * 2,
+      height: cellSize - padding * 2,
+    });
+
+    this.shadowTextures.set(key, {
+      x: atlasX + padding,
+      y: atlasY + padding,
+      width: cellSize - padding * 2,
+      height: cellSize - padding * 2,
+    });
+  }
+
+  private renderDeadTree(
+    key: string,
+    atlasX: number,
+    atlasY: number,
+    cellSize: number
+  ) {
+    const padding = 8;
+    const centerOffset = cellSize / 2;
+    const centerX = atlasX + centerOffset;
+    const centerY = atlasY + centerOffset;
+    const radius = UNIT_TO_PIXEL * 0.45;
+
+    this.shadowCtx.save();
+    this.shadowCtx.translate(centerX, centerY);
+    drawDeadTreeShadow(this.shadowCtx, 0, 0, radius);
+    this.shadowCtx.restore();
+
+    this.ctx.save();
+    this.ctx.translate(centerX, centerY);
+    drawDeadTreeBody(this.ctx, 0, 0, radius, 0);
     this.ctx.restore();
 
     this.textures.set(key, {
