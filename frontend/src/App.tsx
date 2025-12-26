@@ -10,6 +10,22 @@ import { type Infer } from 'spacetimedb';
 import TankRow from '../module_bindings/tank_type';
 import { type EventContext } from '../module_bindings';
 
+function LoadingScreen({ message }: { message: string }) {
+  return (
+    <div style={{
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#2e2e43',
+      color: '#ffffff'
+    }}>
+      {message}
+    </div>
+  );
+}
+
 function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
   const navigate = useNavigate();
@@ -143,37 +159,13 @@ function App() {
   }, [navigate]);
 
   if (!isSpacetimeConnected) {
-    return (
-      <div style={{
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#2e2e43',
-        color: '#ffffff'
-      }}>
-        Connecting to SpacetimeDB...
-      </div>
-    );
+    return <LoadingScreen message="Connecting to SpacetimeDB..." />;
   }
 
   return (
     <Routes>
       <Route path="/world/:worldId" element={<GameView />} />
-      <Route path="/" element={
-        <div style={{
-          width: '100vw',
-          height: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#2e2e43',
-          color: '#ffffff'
-        }}>
-          Loading world...
-        </div>
-      } />
+      <Route path="/" element={<LoadingScreen message="Loading world..." />} />
     </Routes>
   );
 }
