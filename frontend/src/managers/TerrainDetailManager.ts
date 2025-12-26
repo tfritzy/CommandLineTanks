@@ -4,6 +4,7 @@ import {
   type EventContext,
 } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
+import { UNIT_TO_PIXEL } from "../constants";
 import { TerrainDetailObject } from "../objects/terrain-details/TerrainDetailObject";
 import { Rock } from "../objects/terrain-details/Rock";
 import { Tree } from "../objects/terrain-details/Tree";
@@ -168,17 +169,16 @@ export class TerrainDetailManager {
     cameraX: number,
     cameraY: number,
     canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
+    canvasHeight: number
   ) {
     const padding = 2;
-    const startX = cameraX / unitToPixel - padding;
-    const endX = (cameraX + canvasWidth) / unitToPixel + padding;
-    const startY = cameraY / unitToPixel - padding;
-    const endY = (cameraY + canvasHeight) / unitToPixel + padding;
+    const startX = cameraX / UNIT_TO_PIXEL - padding;
+    const endX = (cameraX + canvasWidth) / UNIT_TO_PIXEL + padding;
+    const startY = cameraY / UNIT_TO_PIXEL - padding;
+    const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
     const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
-    const renderSize = unitToPixel * 2;
+    const renderSize = UNIT_TO_PIXEL * 2;
     const dpr = window.devicePixelRatio || 1;
 
     ctx.imageSmoothingEnabled = false;
@@ -197,7 +197,7 @@ export class TerrainDetailManager {
         } else {
           const scale = obj.getSizeScale();
           const scaledSize = renderSize * scale;
-          const offset = -unitToPixel * scale;
+          const offset = -UNIT_TO_PIXEL * scale;
 
           ctx.drawImage(
             shadowCanvas,
@@ -205,8 +205,8 @@ export class TerrainDetailManager {
             Math.floor(texture.y * dpr),
             Math.floor(texture.width * dpr),
             Math.floor(texture.height * dpr),
-            Math.round((objX * unitToPixel + offset) * dpr) / dpr,
-            Math.round((objY * unitToPixel + offset) * dpr) / dpr,
+            Math.round((objX * UNIT_TO_PIXEL + offset) * dpr) / dpr,
+            Math.round((objY * UNIT_TO_PIXEL + offset) * dpr) / dpr,
             scaledSize,
             scaledSize
           );
@@ -220,17 +220,16 @@ export class TerrainDetailManager {
     cameraX: number,
     cameraY: number,
     canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
+    canvasHeight: number
   ) {
     const padding = 2;
-    const startX = cameraX / unitToPixel - padding;
-    const endX = (cameraX + canvasWidth) / unitToPixel + padding;
-    const startY = cameraY / unitToPixel - padding;
-    const endY = (cameraY + canvasHeight) / unitToPixel + padding;
+    const startX = cameraX / UNIT_TO_PIXEL - padding;
+    const endX = (cameraX + canvasWidth) / UNIT_TO_PIXEL + padding;
+    const startY = cameraY / UNIT_TO_PIXEL - padding;
+    const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
     const bodyCanvas = terrainDetailTextureSheet.getCanvas();
-    const renderSize = unitToPixel * 2;
+    const renderSize = UNIT_TO_PIXEL * 2;
     const dpr = window.devicePixelRatio || 1;
 
     ctx.imageSmoothingEnabled = false;
@@ -250,7 +249,7 @@ export class TerrainDetailManager {
           } else {
             const scale = obj.getSizeScale();
             const scaledSize = renderSize * scale;
-            const offset = -unitToPixel * scale;
+            const offset = -UNIT_TO_PIXEL * scale;
 
             ctx.drawImage(
               bodyCanvas,
@@ -258,8 +257,8 @@ export class TerrainDetailManager {
               Math.floor(texture.y * dpr),
               Math.floor(texture.width * dpr),
               Math.floor(texture.height * dpr),
-              Math.round((objX * unitToPixel + offset) * dpr) / dpr,
-              Math.round((objY * unitToPixel + offset) * dpr) / dpr,
+              Math.round((objX * UNIT_TO_PIXEL + offset) * dpr) / dpr,
+              Math.round((objY * UNIT_TO_PIXEL + offset) * dpr) / dpr,
               scaledSize,
               scaledSize
             );

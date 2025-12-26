@@ -176,8 +176,7 @@ export class Game {
       this.currentCameraX,
       this.currentCameraY,
       displayWidth,
-      displayHeight,
-      UNIT_TO_PIXEL
+      displayHeight
     );
 
     this.pickupManager.draw(
@@ -204,8 +203,7 @@ export class Game {
       this.currentCameraX,
       this.currentCameraY,
       displayWidth,
-      displayHeight,
-      UNIT_TO_PIXEL
+      displayHeight
     );
 
     this.terrainManager.drawBodies(
@@ -213,8 +211,7 @@ export class Game {
       this.currentCameraX,
       this.currentCameraY,
       displayWidth,
-      displayHeight,
-      UNIT_TO_PIXEL
+      displayHeight
     );
     this.tankManager.drawHealthBars(this.ctx);
     this.tankManager.drawTankIndicators(this.ctx);
@@ -245,8 +242,7 @@ export class Game {
     //   cameraX,
     //   cameraY,
     //   displayWidth,
-    //   displayHeight,
-    //   UNIT_TO_PIXEL
+    //   displayHeight
     // );
 
     this.ctx.restore();

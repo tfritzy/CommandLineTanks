@@ -1,6 +1,7 @@
 import { getConnection } from "../spacetimedb-connection";
 import { type TraversibilityMapRow, type TankRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
+import { UNIT_TO_PIXEL } from "../constants";
 
 const COLLISION_REGION_SIZE = 4;
 
@@ -76,11 +77,10 @@ export class CollisionVisualizationManager {
     cameraX: number,
     cameraY: number,
     canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
+    canvasHeight: number
   ) {
-    this.drawNonTraversableTiles(ctx, cameraX, cameraY, canvasWidth, canvasHeight, unitToPixel);
-    this.drawCollisionRegions(ctx, cameraX, cameraY, canvasWidth, canvasHeight, unitToPixel);
+    this.drawNonTraversableTiles(ctx, cameraX, cameraY, canvasWidth, canvasHeight);
+    this.drawCollisionRegions(ctx, cameraX, cameraY, canvasWidth, canvasHeight);
   }
 
   private drawNonTraversableTiles(
@@ -88,17 +88,16 @@ export class CollisionVisualizationManager {
     cameraX: number,
     cameraY: number,
     canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
+    canvasHeight: number
   ) {
     if (this.traversibilityMap.length === 0 || this.mapWidth === 0 || this.mapHeight === 0) {
       return;
     }
 
-    const startTileX = Math.max(0, Math.floor(cameraX / unitToPixel));
-    const endTileX = Math.min(this.mapWidth - 1, Math.ceil((cameraX + canvasWidth) / unitToPixel));
-    const startTileY = Math.max(0, Math.floor(cameraY / unitToPixel));
-    const endTileY = Math.min(this.mapHeight - 1, Math.ceil((cameraY + canvasHeight) / unitToPixel));
+    const startTileX = Math.max(0, Math.floor(cameraX / UNIT_TO_PIXEL));
+    const endTileX = Math.min(this.mapWidth - 1, Math.ceil((cameraX + canvasWidth) / UNIT_TO_PIXEL));
+    const startTileY = Math.max(0, Math.floor(cameraY / UNIT_TO_PIXEL));
+    const endTileY = Math.min(this.mapHeight - 1, Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL));
 
     ctx.save();
     ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
@@ -107,9 +106,9 @@ export class CollisionVisualizationManager {
       for (let tileX = startTileX; tileX <= endTileX; tileX++) {
         const index = tileY * this.mapWidth + tileX;
         if (!this.traversibilityMap[index]) {
-          const worldX = tileX * unitToPixel;
-          const worldY = tileY * unitToPixel;
-          ctx.fillRect(worldX, worldY, unitToPixel, unitToPixel);
+          const worldX = tileX * UNIT_TO_PIXEL;
+          const worldY = tileY * UNIT_TO_PIXEL;
+          ctx.fillRect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
         }
       }
     }
@@ -122,8 +121,7 @@ export class CollisionVisualizationManager {
     cameraX: number,
     cameraY: number,
     canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
+    canvasHeight: number
   ) {
     if (this.tanks.size === 0) return;
 
@@ -141,9 +139,9 @@ export class CollisionVisualizationManager {
     for (const regionKey of collisionRegions) {
       const [regionX, regionY] = regionKey.split(',').map(Number);
       
-      const worldX = regionX * COLLISION_REGION_SIZE * unitToPixel;
-      const worldY = regionY * COLLISION_REGION_SIZE * unitToPixel;
-      const regionPixelSize = COLLISION_REGION_SIZE * unitToPixel;
+      const worldX = regionX * COLLISION_REGION_SIZE * UNIT_TO_PIXEL;
+      const worldY = regionY * COLLISION_REGION_SIZE * UNIT_TO_PIXEL;
+      const regionPixelSize = COLLISION_REGION_SIZE * UNIT_TO_PIXEL;
 
       const regionRight = worldX + regionPixelSize;
       const regionBottom = worldY + regionPixelSize;
