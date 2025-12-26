@@ -824,11 +824,10 @@ export function smokescreen(connection: DbConnection, worldId: string, args: str
   const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
   
   if (myTank) {
-    const currentTime = BigInt(Date.now() * 1000);
-    const cooldownEnd = myTank.smokescreenCooldownEnd;
+    const remainingMicros = myTank.remainingSmokescreenCooldownMicros;
     
-    if (cooldownEnd > currentTime) {
-      const remaining = Number(cooldownEnd - currentTime) / 1_000_000;
+    if (remainingMicros > 0n) {
+      const remaining = Number(remainingMicros) / 1_000_000;
       return [
         `smokescreen: error: ability is on cooldown`,
         "",
@@ -866,11 +865,10 @@ export function overdrive(connection: DbConnection, worldId: string, args: strin
   const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
   
   if (myTank) {
-    const currentTime = BigInt(Date.now() * 1000);
-    const cooldownEnd = myTank.overdriveCooldownEnd;
+    const remainingMicros = myTank.remainingOverdriveCooldownMicros;
     
-    if (cooldownEnd > currentTime) {
-      const remaining = Number(cooldownEnd - currentTime) / 1_000_000;
+    if (remainingMicros > 0n) {
+      const remaining = Number(remainingMicros) / 1_000_000;
       return [
         `overdrive: error: ability is on cooldown`,
         "",

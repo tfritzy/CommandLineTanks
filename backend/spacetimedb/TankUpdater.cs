@@ -149,31 +149,32 @@ public static partial class TankUpdater
                 needsUpdate = true;
             }
 
-            if (tank.OverdriveActiveUntil > 0 && tank.OverdriveActiveUntil <= currentTime)
+            if (tank.RemainingOverdriveDurationMicros > 0)
             {
-                tank = tank with
-                {
-                    OverdriveActiveUntil = 0
-                };
+                var newRemainingOverdrive = Math.Max(0, tank.RemainingOverdriveDurationMicros - (long)deltaTimeMicros);
+                tank = tank with { RemainingOverdriveDurationMicros = newRemainingOverdrive };
+                needsUpdate = true;
+            }
+
+            if (tank.RemainingSmokescreenCooldownMicros > 0)
+            {
+                var newRemainingSmokescreenCooldown = Math.Max(0, tank.RemainingSmokescreenCooldownMicros - (long)deltaTimeMicros);
+                tank = tank with { RemainingSmokescreenCooldownMicros = newRemainingSmokescreenCooldown };
+                needsUpdate = true;
+            }
+
+            if (tank.RemainingOverdriveCooldownMicros > 0)
+            {
+                var newRemainingOverdriveCooldown = Math.Max(0, tank.RemainingOverdriveCooldownMicros - (long)deltaTimeMicros);
+                tank = tank with { RemainingOverdriveCooldownMicros = newRemainingOverdriveCooldown };
                 needsUpdate = true;
             }
 
             if (tank.RemainingImmunityMicros > 0)
             {
-                var newRemainingImmunity = tank.RemainingImmunityMicros - (long)deltaTimeMicros;
-                if (newRemainingImmunity < 0)
-                {
-                    newRemainingImmunity = 0;
-                }
-                
-                if (newRemainingImmunity != tank.RemainingImmunityMicros)
-                {
-                    tank = tank with
-                    {
-                        RemainingImmunityMicros = newRemainingImmunity
-                    };
-                    needsUpdate = true;
-                }
+                var newRemainingImmunity = Math.Max(0, tank.RemainingImmunityMicros - (long)deltaTimeMicros);
+                tank = tank with { RemainingImmunityMicros = newRemainingImmunity };
+                needsUpdate = true;
             }
 
             if (tank.Path.Length > 0)
@@ -183,7 +184,7 @@ public static partial class TankUpdater
                 var deltaY = targetPos.Position.Y - tank.PositionY;
                 var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-                var speedMultiplier = tank.OverdriveActiveUntil > currentTime ? Module.OVERDRIVE_SPEED_MULTIPLIER : 1.0f;
+                var speedMultiplier = tank.RemainingOverdriveDurationMicros > 0 ? Module.OVERDRIVE_SPEED_MULTIPLIER : 1.0f;
                 var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent * speedMultiplier;
                 var moveDistance = moveSpeed * deltaTime;
 
@@ -203,7 +204,7 @@ public static partial class TankUpdater
                         {
                             var nextDirX = nextDeltaX / nextDistance;
                             var nextDirY = nextDeltaY / nextDistance;
-                            var nextSpeedMultiplier = tank.OverdriveActiveUntil > currentTime ? Module.OVERDRIVE_SPEED_MULTIPLIER : 1.0f;
+                            var nextSpeedMultiplier = tank.RemainingOverdriveDurationMicros > 0 ? Module.OVERDRIVE_SPEED_MULTIPLIER : 1.0f;
                             var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent * nextSpeedMultiplier;
 
                             tank = tank with

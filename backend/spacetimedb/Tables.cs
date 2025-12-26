@@ -101,13 +101,13 @@ public static partial class Module
 
         public ulong LastFireTime;
 
-        public ulong SmokescreenCooldownEnd;
+        public long RemainingSmokescreenCooldownMicros;
 
         public bool HasShield;
 
-        public ulong OverdriveCooldownEnd;
+        public long RemainingOverdriveCooldownMicros;
 
-        public ulong OverdriveActiveUntil;
+        public long RemainingOverdriveDurationMicros;
 
         public long RemainingImmunityMicros;
     }

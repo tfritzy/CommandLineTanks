@@ -12,7 +12,7 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        if (tank.SmokescreenCooldownEnd > (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
+        if (tank.RemainingSmokescreenCooldownMicros > 0)
         {
             return;
         }
@@ -39,7 +39,7 @@ public static partial class Module
 
         var updatedSourceTank = tank with
         {
-            SmokescreenCooldownEnd = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch + (ulong)SMOKESCREEN_COOLDOWN_MICROS
+            RemainingSmokescreenCooldownMicros = SMOKESCREEN_COOLDOWN_MICROS
         };
         ctx.Db.tank.Id.Update(updatedSourceTank);
 
