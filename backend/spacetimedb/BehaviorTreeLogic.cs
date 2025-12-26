@@ -138,11 +138,6 @@ public static class BehaviorTreeLogic
                 };
             }
 
-            if (isCurrentlyMoving)
-            {
-                return new AIDecision { Action = AIAction.None };
-            }
-
             var tMap = context.GetTraversibilityMap();
             if (tMap != null)
             {
