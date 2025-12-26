@@ -160,9 +160,6 @@ export class Game {
     const displayWidth = this.canvas.width;
     const displayHeight = this.canvas.height;
 
-    this.ctx.fillStyle = "#2e2e43";
-    this.ctx.fillRect(0, 0, displayWidth, displayHeight);
-
     this.ctx.save();
 
     const playerTank = this.tankManager.getPlayerTank();

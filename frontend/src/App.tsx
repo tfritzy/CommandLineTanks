@@ -84,7 +84,7 @@ function App() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#0a0a0a',
+        backgroundColor: '#2e2e43',
         color: '#ffffff'
       }}>
         Connecting to SpacetimeDB...
@@ -116,6 +116,7 @@ function App() {
             padding: 0,
             width: '100%',
             height: '100%',
+            backgroundColor: '#2e2e43',
           }}
         />
         {isDead && (
