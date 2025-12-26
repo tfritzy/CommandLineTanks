@@ -152,4 +152,11 @@ public static partial class Types
         public int Y;
         public ulong DamagedAt;
     }
+
+    [Type]
+    public partial struct DamagedTank
+    {
+        public string TankId;
+        public ulong DamagedAt;
+    }
 }

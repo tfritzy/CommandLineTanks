@@ -395,6 +395,18 @@ public static partial class ProjectileUpdater
         float totalCollisionRadius = projectile.CollisionRadius + Module.TANK_COLLISION_RADIUS;
         float collisionRadiusSquared = totalCollisionRadius * totalCollisionRadius;
 
+        ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        ulong expirationThreshold = 500_000;
+
+        var recentlyHitList = new System.Collections.Generic.List<DamagedTank>();
+        foreach (var hitTank in projectile.RecentlyHitTanks)
+        {
+            if (currentTime - hitTank.DamagedAt < expirationThreshold)
+            {
+                recentlyHitList.Add(hitTank);
+            }
+        }
+
         for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
         {
             if (regionX < 0) continue;
@@ -425,32 +437,56 @@ public static partial class ProjectileUpdater
 
                         if (tank.Alliance != projectile.Alliance && tank.Health > 0)
                         {
-                            if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0)
+                            bool alreadyHit = false;
+                            foreach (var hitTank in recentlyHitList)
                             {
-                                if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
+                                if (hitTank.TankId == tank.Id)
                                 {
-                                    bool mapChanged = ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, worldId, ref traversibilityMap);
-                                    ctx.Db.projectile.Id.Delete(projectile.Id);
-                                    return (true, projectile, mapChanged);
+                                    alreadyHit = true;
+                                    break;
                                 }
                             }
-                            else
-                            {
-                                Module.DealDamageToTankCommand(ctx, tank, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
-                            }
 
-                            bool shouldDelete;
-                            (shouldDelete, projectile) = Module.IncrementProjectileCollision(ctx, projectile);
-
-                            if (shouldDelete)
+                            if (!alreadyHit)
                             {
-                                return (true, projectile, false);
+                                if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0)
+                                {
+                                    if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
+                                    {
+                                        bool mapChanged = ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, worldId, ref traversibilityMap);
+                                        ctx.Db.projectile.Id.Delete(projectile.Id);
+                                        return (true, projectile, mapChanged);
+                                    }
+                                }
+                                else
+                                {
+                                    Module.DealDamageToTankCommand(ctx, tank, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
+                                }
+
+                                recentlyHitList.Add(new DamagedTank
+                                {
+                                    TankId = tank.Id,
+                                    DamagedAt = currentTime
+                                });
+
+                                bool shouldDelete;
+                                (shouldDelete, projectile) = Module.IncrementProjectileCollision(ctx, projectile);
+
+                                if (shouldDelete)
+                                {
+                                    return (true, projectile, false);
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
+        projectile = projectile with
+        {
+            RecentlyHitTanks = recentlyHitList.ToArray()
+        };
 
         return (false, projectile, false);
     }

@@ -147,6 +147,7 @@ public static partial class Module
         public float? Damping;
         public bool Bounce;
         public DamagedTile[] RecentlyDamagedTiles;
+        public DamagedTank[] RecentlyHitTanks;
     }
 
     [Table(Name = "score", Public = true)]
