@@ -1,13 +1,16 @@
 import { TERRAIN_COLORS } from "../constants";
+import { getNormalizedDPR } from "./dpr";
 
 const SHEET_COLS = 4;
 const SHEET_ROWS = 4;
 
 export function generateLakeTextureSheet(tileSize: number): HTMLCanvasElement {
+  const dpr = getNormalizedDPR();
   const canvas = document.createElement("canvas");
-  canvas.width = tileSize * SHEET_COLS;
-  canvas.height = tileSize * SHEET_ROWS;
+  canvas.width = tileSize * SHEET_COLS * dpr;
+  canvas.height = tileSize * SHEET_ROWS * dpr;
   const ctx = canvas.getContext("2d")!;
+  ctx.scale(dpr, dpr);
   ctx.imageSmoothingEnabled = false;
 
   for (let caseNum = 0; caseNum < 16; caseNum++) {

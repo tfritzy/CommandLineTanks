@@ -1,4 +1,5 @@
 import { UNIT_TO_PIXEL, TEAM_COLORS } from "../constants";
+import { getNormalizedDPR } from "../utils/dpr";
 
 export interface ProjectileTexture {
   x: number;
@@ -16,28 +17,31 @@ export class ProjectileTextureSheet {
   private shadowTextures: Map<string, ProjectileTexture> = new Map();
 
   constructor() {
+    const dpr = getNormalizedDPR();
     const logicalSize = 1024;
 
     this.canvas = document.createElement("canvas");
-    this.canvas.width = logicalSize;
-    this.canvas.height = logicalSize;
+    this.canvas.width = logicalSize * dpr;
+    this.canvas.height = logicalSize * dpr;
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
       throw new Error("Failed to get 2D context for projectile texture sheet");
     }
     this.ctx = ctx;
+    this.ctx.scale(dpr, dpr);
     this.ctx.imageSmoothingEnabled = false;
 
     this.shadowCanvas = document.createElement("canvas");
-    this.shadowCanvas.width = logicalSize;
-    this.shadowCanvas.height = logicalSize;
+    this.shadowCanvas.width = logicalSize * dpr;
+    this.shadowCanvas.height = logicalSize * dpr;
 
     const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
       throw new Error("Failed to get 2D context for shadow texture sheet");
     }
     this.shadowCtx = shadowCtx;
+    this.shadowCtx.scale(dpr, dpr);
     this.shadowCtx.imageSmoothingEnabled = false;
 
     this.initializeTextures();
