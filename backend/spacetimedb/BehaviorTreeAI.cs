@@ -138,6 +138,12 @@ public static partial class BehaviorTreeAI
                     if (decision.TargetTank != null)
                     {
                         Log.Info($"AI {tank.Name} at ({tank.PositionX:F1},{tank.PositionY:F1}): Moving towards enemy {decision.TargetTank.Value.Name} via {decision.Path.Count} waypoints to ({lastWaypoint.x},{lastWaypoint.y})");
+                        
+                        var distanceToTarget = BehaviorTreeLogic.GetDistance(tank.PositionX, tank.PositionY, decision.TargetTank.Value.PositionX, decision.TargetTank.Value.PositionY);
+                        if (distanceToTarget <= Module.MAX_TARGETING_RANGE)
+                        {
+                            Module.TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
+                        }
                     }
                     SetPath(ctx, tank, decision.Path);
                 }
