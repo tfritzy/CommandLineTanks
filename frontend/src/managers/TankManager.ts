@@ -157,6 +157,12 @@ export class TankManager {
     }
   }
 
+  public drawNameLabels(ctx: CanvasRenderingContext2D) {
+    for (const tank of this.tanks.values()) {
+      tank.drawNameLabel(ctx);
+    }
+  }
+
   public drawTankIndicators(ctx: CanvasRenderingContext2D) {
     this.indicatorManager.draw(ctx);
     this.targetingReticle.draw(ctx);

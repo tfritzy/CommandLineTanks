@@ -2,7 +2,7 @@ import { type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
 import { TEAM_COLORS } from "../constants";
-import { drawTankShadow, drawTankBody, drawTankHealthBar, drawTankPath } from "../drawing/tanks/tank";
+import { drawTankShadow, drawTankBody, drawTankHealthBar, drawTankPath, drawTankNameLabel } from "../drawing/tanks/tank";
 
 type PathEntry = {
   position: { x: number; y: number };
@@ -77,6 +77,11 @@ export class Tank {
 
   public drawHealthBar(ctx: CanvasRenderingContext2D) {
     drawTankHealthBar(ctx, this.x, this.y, this.health, this.maxHealth, this.getAllianceColor());
+  }
+
+  public drawNameLabel(ctx: CanvasRenderingContext2D) {
+    if (this.health <= 0) return;
+    drawTankNameLabel(ctx, this.x, this.y, this.name);
   }
 
   public drawShadow(ctx: CanvasRenderingContext2D) {
