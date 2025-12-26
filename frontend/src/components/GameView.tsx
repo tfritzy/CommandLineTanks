@@ -17,6 +17,7 @@ export default function GameView() {
   const gameRef = useRef<Game | null>(null);
   const [isDead, setIsDead] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -137,33 +138,29 @@ export default function GameView() {
               <button
                 onClick={() => {
                   const url = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
-                  navigator.clipboard.writeText(url).then(() => {
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  });
+                  navigator.clipboard.writeText(url)
+                    .then(() => {
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    })
+                    .catch(() => {
+                      setCopied(false);
+                    });
                 }}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
                 style={{
                   padding: '12px 20px',
                   fontSize: '14px',
                   fontFamily: "'JetBrains Mono', monospace",
                   fontWeight: 'bold',
                   color: '#fcfbf3',
-                  background: copied ? '#3c6c54' : '#5a78b2',
+                  background: copied ? '#3c6c54' : (isHovering ? '#7396d5' : '#5a78b2'),
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer',
                   transition: 'background 0.2s',
                   whiteSpace: 'nowrap'
-                }}
-                onMouseEnter={(e) => {
-                  if (!copied) {
-                    e.currentTarget.style.background = '#7396d5';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!copied) {
-                    e.currentTarget.style.background = '#5a78b2';
-                  }
                 }}
               >
                 {copied ? 'Copied!' : 'Copy'}
