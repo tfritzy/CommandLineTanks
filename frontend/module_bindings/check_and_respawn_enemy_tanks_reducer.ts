@@ -9,18 +9,11 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import ProjectileTrailType from "./projectile_trail_type_type";
 
+import ScheduledEnemyTankRespawnCheck from "./scheduled_enemy_tank_respawn_check_type";
 
-export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  startX: __t.f32(),
-  startY: __t.f32(),
-  endX: __t.f32(),
-  endY: __t.f32(),
-  get type() {
-    return ProjectileTrailType;
+export default {
+  get args() {
+    return ScheduledEnemyTankRespawnCheck;
   },
-  spawnedAt: __t.u64(),
-});
+};

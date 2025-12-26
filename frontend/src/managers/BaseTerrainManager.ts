@@ -3,7 +3,7 @@ import { BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import { generateLakeTextureSheet } from "../utils/lake-texture-generator";
 import { getRenderTileCase } from "../utils/terrain-render-analyzer";
-import { TERRAIN_COLORS } from "../constants";
+import { TERRAIN_COLORS, UNIT_TO_PIXEL } from "../constants";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -13,12 +13,12 @@ export class BaseTerrainManager {
   private baseTerrainLayer: BaseTerrainType[] = [];
   private worldId: string;
   private lakeTextureSheet: HTMLCanvasElement | null = null;
-  private readonly TEXTURE_TILE_SIZE = 64;
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.subscribeToWorld();
-    this.lakeTextureSheet = generateLakeTextureSheet();
+    const dpr = window.devicePixelRatio || 1;
+    this.lakeTextureSheet = generateLakeTextureSheet(UNIT_TO_PIXEL, dpr);
   }
 
   private subscribeToWorld() {
@@ -99,17 +99,18 @@ export class BaseTerrainManager {
 
         if (tileCase === 0) continue;
 
+        const dpr = window.devicePixelRatio || 1;
         const sheetCol = tileCase % 4;
         const sheetRow = Math.floor(tileCase / 4);
-        const srcX = sheetCol * this.TEXTURE_TILE_SIZE;
-        const srcY = sheetRow * this.TEXTURE_TILE_SIZE;
+        const srcX = sheetCol * UNIT_TO_PIXEL * dpr;
+        const srcY = sheetRow * UNIT_TO_PIXEL * dpr;
 
-        const worldX = renderX * unitToPixel;
-        const worldY = renderY * unitToPixel;
+        const worldX = (renderX + 0.5) * unitToPixel;
+        const worldY = (renderY + 0.5) * unitToPixel;
 
         ctx.drawImage(
           this.lakeTextureSheet,
-          srcX, srcY, this.TEXTURE_TILE_SIZE, this.TEXTURE_TILE_SIZE,
+          srcX, srcY, UNIT_TO_PIXEL * dpr, UNIT_TO_PIXEL * dpr,
           worldX, worldY, unitToPixel, unitToPixel
         );
       }

@@ -179,6 +179,7 @@ export class TerrainDetailManager {
 
     const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
     const renderSize = unitToPixel * 2;
+    const dpr = window.devicePixelRatio || 1;
 
     ctx.imageSmoothingEnabled = false;
 
@@ -196,16 +197,16 @@ export class TerrainDetailManager {
         } else {
           const scale = obj.getSizeScale();
           const scaledSize = renderSize * scale;
-          const offset = -unitToPixel;
+          const offset = -unitToPixel * scale;
 
           ctx.drawImage(
             shadowCanvas,
-            texture.x,
-            texture.y,
-            texture.width,
-            texture.height,
-            objX * unitToPixel + offset,
-            objY * unitToPixel + offset,
+            Math.round(texture.x * dpr),
+            Math.round(texture.y * dpr),
+            Math.round(texture.width * dpr),
+            Math.round(texture.height * dpr),
+            Math.round((objX * unitToPixel + offset) * dpr) / dpr,
+            Math.round((objY * unitToPixel + offset) * dpr) / dpr,
             scaledSize,
             scaledSize
           );
@@ -230,6 +231,7 @@ export class TerrainDetailManager {
 
     const bodyCanvas = terrainDetailTextureSheet.getCanvas();
     const renderSize = unitToPixel * 2;
+    const dpr = window.devicePixelRatio || 1;
 
     ctx.imageSmoothingEnabled = false;
 
@@ -248,16 +250,16 @@ export class TerrainDetailManager {
           } else {
             const scale = obj.getSizeScale();
             const scaledSize = renderSize * scale;
-            const offset = -unitToPixel;
+            const offset = -unitToPixel * scale;
 
             ctx.drawImage(
               bodyCanvas,
-              texture.x,
-              texture.y,
-              texture.width,
-              texture.height,
-              objX * unitToPixel + offset,
-              objY * unitToPixel + offset,
+              Math.round(texture.x * dpr),
+              Math.round(texture.y * dpr),
+              Math.round(texture.width * dpr),
+              Math.round(texture.height * dpr),
+              Math.round((objX * unitToPixel + offset) * dpr) / dpr,
+              Math.round((objY * unitToPixel + offset) * dpr) / dpr,
               scaledSize,
               scaledSize
             );

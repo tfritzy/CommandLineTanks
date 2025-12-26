@@ -147,9 +147,9 @@ public static partial class ProjectileUpdater
         {
             if (projectile.CollisionRadius > 0)
             {
-                bool mapChanged;
-                (projectile, mapChanged) = DamageTerrainInRadius(ctx, projectile, ref traversibilityMap, worldId);
-                return (false, projectile, mapChanged);
+                bool terrainChanged;
+                (projectile, terrainChanged) = DamageTerrainInRadius(ctx, projectile, ref traversibilityMap, worldId);
+                return (false, projectile, terrainChanged);
             }
             return (false, projectile, false);
         }
@@ -171,7 +171,7 @@ public static partial class ProjectileUpdater
             projectile = HandleProjectileBounce(projectile, projectileTileX, projectileTileY, deltaTime);
             return (false, projectile, false);
         }
-        
+
         bool mapChanged = DamageTerrainAtTile(ctx, worldId, projectileTileX, projectileTileY, tileIndex, projectile.Damage, ref traversibilityMap);
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
@@ -570,7 +570,7 @@ public static partial class ProjectileUpdater
             bool collided;
             bool mapChanged;
             (collided, projectile, mapChanged) = HandleTerrainCollision(ctx, projectile, ref traversibilityMap, args.WorldId, deltaTime);
-            
+
             if (mapChanged)
             {
                 traversibilityMapChanged = true;
@@ -581,7 +581,7 @@ public static partial class ProjectileUpdater
             var (minRegionX, maxRegionX, minRegionY, maxRegionY) = CalculateTankCollisionRegions(projectile);
 
             (collided, projectile, mapChanged) = HandleTankCollisions(ctx, projectile, args.WorldId, ref traversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
-            
+
             if (mapChanged)
             {
                 traversibilityMapChanged = true;

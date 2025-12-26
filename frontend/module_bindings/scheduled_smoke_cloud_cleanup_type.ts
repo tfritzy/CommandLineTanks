@@ -13,6 +13,7 @@ import {
 export default __t.object("ScheduledSmokeCloudCleanup", {
   scheduledId: __t.u64(),
   scheduledAt: __t.scheduleAt(),
+  worldId: __t.string(),
   smokeCloudId: __t.string(),
 });
 

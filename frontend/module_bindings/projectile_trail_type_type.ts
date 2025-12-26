@@ -10,6 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+// The tagged union or sum type for the algebraic type `ProjectileTrailType`.
 const ProjectileTrailType = __t.enum("ProjectileTrailType", {Sniper: __t.unit(),
 });
 

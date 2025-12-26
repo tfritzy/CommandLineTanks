@@ -10,8 +10,9 @@ import { SpiderMineManager } from "./managers/SpiderMineManager";
 import { SmokeCloudManager } from "./managers/SmokeCloudManager";
 import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
 import { ProjectileTrailManager } from "./managers/ProjectileTrailManager";
+import { UNIT_TO_PIXEL } from "./constants";
 
-export const UNIT_TO_PIXEL = 50;
+export { UNIT_TO_PIXEL };
 const CAMERA_FOLLOW_SPEED = 15;
 
 export class Game {
@@ -42,6 +43,7 @@ export class Game {
       throw new Error("Failed to get 2D context");
     }
     this.ctx = ctx;
+    this.ctx.imageSmoothingEnabled = false;
 
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
@@ -74,6 +76,7 @@ export class Game {
       this.canvas.style.height = `${displayHeight}px`;
 
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.ctx.imageSmoothingEnabled = false;
     }
   }
 

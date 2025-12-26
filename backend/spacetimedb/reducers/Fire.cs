@@ -102,15 +102,15 @@ public static partial class Module
     {
         float raycastRange = gun.RaycastRange!.Value;
         float angle = tank.TurretRotation;
-        
+
         float startX = tank.PositionX + (float)Math.Cos(angle) * GUN_BARREL_LENGTH;
         float startY = tank.PositionY + (float)Math.Sin(angle) * GUN_BARREL_LENGTH;
-        
+
         float endX = startX + (float)Math.Cos(angle) * raycastRange;
         float endY = startY + (float)Math.Sin(angle) * raycastRange;
 
         var hitTanks = new System.Collections.Generic.List<Tank>();
-        
+
         foreach (var targetTank in ctx.Db.tank.WorldId.Filter(tank.WorldId))
         {
             if (targetTank.Id == tank.Id || targetTank.Health <= 0) continue;
@@ -139,7 +139,7 @@ public static partial class Module
 
         foreach (var hitTank in hitTanks)
         {
-            DealDamageToTankCommand.Execute(ctx, hitTank.Id, gun.Damage, tank.Id);
+            Module.DealDamageToTankCommand(ctx, hitTank, gun.Damage, tank.Id, tank.Alliance, tank.WorldId);
         }
 
         var projectileTrailId = GenerateId(ctx, "ptl");
@@ -161,18 +161,18 @@ public static partial class Module
         float dx = x2 - x1;
         float dy = y2 - y1;
         float lengthSquared = dx * dx + dy * dy;
-        
+
         if (lengthSquared == 0)
         {
             return (float)Math.Sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1));
         }
-        
+
         float t = ((px - x1) * dx + (py - y1) * dy) / lengthSquared;
         t = Math.Max(0, Math.Min(1, t));
-        
+
         float closestX = x1 + t * dx;
         float closestY = y1 + t * dy;
-        
+
         return (float)Math.Sqrt((px - closestX) * (px - closestX) + (py - closestY) * (py - closestY));
     }
 }

@@ -13,5 +13,6 @@ import {
 export default __t.row({
   scheduledId: __t.u64().primaryKey(),
   scheduledAt: __t.scheduleAt(),
+  worldId: __t.string(),
   smokeCloudId: __t.string(),
 });

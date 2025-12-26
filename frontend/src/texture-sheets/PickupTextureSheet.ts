@@ -28,15 +28,19 @@ export class PickupTextureSheet {
   private static readonly PADDING = 10;
 
   constructor() {
+    const dpr = window.devicePixelRatio || 1;
+
     this.canvas = document.createElement("canvas");
-    this.canvas.width = PickupTextureSheet.CANVAS_SIZE;
-    this.canvas.height = PickupTextureSheet.CANVAS_SIZE;
+    this.canvas.width = PickupTextureSheet.CANVAS_SIZE * dpr;
+    this.canvas.height = PickupTextureSheet.CANVAS_SIZE * dpr;
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
       throw new Error("Failed to get 2D context for pickup texture sheet");
     }
     this.ctx = ctx;
+    this.ctx.scale(dpr, dpr);
+    this.ctx.imageSmoothingEnabled = false;
 
     this.initializeTextures();
   }
@@ -227,15 +231,16 @@ export class PickupTextureSheet {
   ) {
     const texture = this.textures.get(key);
     if (!texture) return;
+    const dpr = window.devicePixelRatio || 1;
 
     ctx.drawImage(
       this.canvas,
-      texture.x,
-      texture.y,
-      texture.width,
-      texture.height,
-      x - texture.width / 2,
-      y - texture.height / 2,
+      Math.round(texture.x * dpr),
+      Math.round(texture.y * dpr),
+      Math.round(texture.width * dpr),
+      Math.round(texture.height * dpr),
+      Math.round((x - texture.width / 2) * dpr) / dpr,
+      Math.round((y - texture.height / 2) * dpr) / dpr,
       texture.width,
       texture.height
     );

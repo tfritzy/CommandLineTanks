@@ -33,6 +33,10 @@ import {
 // Import and reexport all reducer arg types
 import Aim from "./aim_reducer";
 export { Aim };
+import CheckAndRespawnEnemyTanks from "./check_and_respawn_enemy_tanks_reducer";
+export { CheckAndRespawnEnemyTanks };
+import CleanProjectileTrails from "./clean_projectile_trails_reducer";
+export { CleanProjectileTrails };
 import CleanupResultsGames from "./cleanup_results_games_reducer";
 export { CleanupResultsGames };
 import CleanupSmokeCloud from "./cleanup_smoke_cloud_reducer";
@@ -53,6 +57,8 @@ import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
 import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
+import Overdrive from "./overdrive_reducer";
+export { Overdrive };
 import ResetWorld from "./reset_world_reducer";
 export { ResetWorld };
 import Respawn from "./respawn_reducer";
@@ -83,12 +89,16 @@ export { UpdateTanks };
 // Import and reexport all table handle types
 import ScheduledAiUpdateRow from "./scheduled_ai_update_table";
 export { ScheduledAiUpdateRow };
+import ScheduledEnemyTankRespawnCheckRow from "./scheduled_enemy_tank_respawn_check_table";
+export { ScheduledEnemyTankRespawnCheckRow };
 import ScheduledGameCleanupRow from "./scheduled_game_cleanup_table";
 export { ScheduledGameCleanupRow };
 import ScheduledGameEndRow from "./scheduled_game_end_table";
 export { ScheduledGameEndRow };
 import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
+import ScheduledProjectileTrailCleanupRow from "./scheduled_projectile_trail_cleanup_table";
+export { ScheduledProjectileTrailCleanupRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
 export { ScheduledProjectileUpdatesRow };
 import ScheduledSmokeCloudCleanupRow from "./scheduled_smoke_cloud_cleanup_table";
@@ -127,6 +137,8 @@ export { WorldRow };
 // Import and reexport all types
 import BaseTerrain from "./base_terrain_type";
 export { BaseTerrain };
+import DamagedTile from "./damaged_tile_type";
+export { DamagedTile };
 import ExplosionTrigger from "./explosion_trigger_type";
 export { ExplosionTrigger };
 import GameState from "./game_state_type";
@@ -147,20 +159,24 @@ import Player from "./player_type";
 export { Player };
 import Projectile from "./projectile_type";
 export { Projectile };
-import ProjectileType from "./projectile_type_type";
-export { ProjectileType };
 import ProjectileTrail from "./projectile_trail_type";
 export { ProjectileTrail };
 import ProjectileTrailType from "./projectile_trail_type_type";
 export { ProjectileTrailType };
+import ProjectileType from "./projectile_type_type";
+export { ProjectileType };
 import ScheduledAiUpdate from "./scheduled_ai_update_type";
 export { ScheduledAiUpdate };
+import ScheduledEnemyTankRespawnCheck from "./scheduled_enemy_tank_respawn_check_type";
+export { ScheduledEnemyTankRespawnCheck };
 import ScheduledGameCleanup from "./scheduled_game_cleanup_type";
 export { ScheduledGameCleanup };
 import ScheduledGameEnd from "./scheduled_game_end_type";
 export { ScheduledGameEnd };
 import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
+import ScheduledProjectileTrailCleanup from "./scheduled_projectile_trail_cleanup_type";
+export { ScheduledProjectileTrailCleanup };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
 import ScheduledSmokeCloudCleanup from "./scheduled_smoke_cloud_cleanup_type";
@@ -207,6 +223,20 @@ const tablesSchema = __schema(
     ],
   }, ScheduledAiUpdateRow),
   __table({
+    name: 'ScheduledEnemyTankRespawnCheck',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledEnemyTankRespawnCheck_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledEnemyTankRespawnCheckRow),
+  __table({
     name: 'ScheduledGameCleanup',
     indexes: [
       { name: 'ScheduledId', algorithm: 'btree', columns: [
@@ -246,6 +276,20 @@ const tablesSchema = __schema(
     ],
   }, ScheduledPickupSpawnRow),
   __table({
+    name: 'ScheduledProjectileTrailCleanup',
+    indexes: [
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledProjectileTrailCleanup_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledProjectileTrailCleanupRow),
+  __table({
     name: 'ScheduledProjectileUpdates',
     indexes: [
       { name: 'ScheduledId', algorithm: 'btree', columns: [
@@ -267,6 +311,9 @@ const tablesSchema = __schema(
       ] },
       { name: 'SmokeCloudId', algorithm: 'btree', columns: [
         'smokeCloudId',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
       ] },
     ],
     constraints: [
@@ -520,6 +567,8 @@ const tablesSchema = __schema(
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
+  __reducerSchema("CheckAndRespawnEnemyTanks", CheckAndRespawnEnemyTanks),
+  __reducerSchema("CleanProjectileTrails", CleanProjectileTrails),
   __reducerSchema("CleanupResultsGames", CleanupResultsGames),
   __reducerSchema("CleanupSmokeCloud", CleanupSmokeCloud),
   __reducerSchema("delete_kill", DeleteKill),
@@ -528,6 +577,7 @@ const reducersSchema = __reducers(
   __reducerSchema("EndGame", EndGame),
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),
+  __reducerSchema("overdrive", Overdrive),
   __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("reverse", Reverse),
