@@ -1,6 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../constants";
 import { TerrainDetailObject } from "./TerrainDetailObject";
-import { getFlashColor } from "../../utils/colors";
 import { drawFenceCornerShadow, drawFenceCornerBody } from "../../drawing/terrain-details/fence-corner";
 
 export class FenceCorner extends TerrainDetailObject {

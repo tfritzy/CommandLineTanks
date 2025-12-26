@@ -50,20 +50,19 @@ export class BaseTerrainManager {
     cameraX: number,
     cameraY: number,
     canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
+    canvasHeight: number
   ) {
     if (this.baseTerrainLayer.length === 0 || !this.lakeTextureSheet) return;
 
-    const startRenderX = Math.floor(cameraX / unitToPixel) - 1;
-    const endRenderX = Math.ceil((cameraX + canvasWidth) / unitToPixel) + 1;
-    const startRenderY = Math.floor(cameraY / unitToPixel) - 1;
-    const endRenderY = Math.ceil((cameraY + canvasHeight) / unitToPixel) + 1;
+    const startRenderX = Math.floor(cameraX / UNIT_TO_PIXEL) - 1;
+    const endRenderX = Math.ceil((cameraX + canvasWidth) / UNIT_TO_PIXEL) + 1;
+    const startRenderY = Math.floor(cameraY / UNIT_TO_PIXEL) - 1;
+    const endRenderY = Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL) + 1;
 
-    const startTileX = Math.floor(cameraX / unitToPixel);
-    const endTileX = Math.ceil((cameraX + canvasWidth) / unitToPixel);
-    const startTileY = Math.floor(cameraY / unitToPixel);
-    const endTileY = Math.ceil((cameraY + canvasHeight) / unitToPixel);
+    const startTileX = Math.floor(cameraX / UNIT_TO_PIXEL);
+    const endTileX = Math.ceil((cameraX + canvasWidth) / UNIT_TO_PIXEL);
+    const startTileY = Math.floor(cameraY / UNIT_TO_PIXEL);
+    const endTileY = Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL);
 
     ctx.fillStyle = TERRAIN_COLORS.GROUND;
     ctx.beginPath();
@@ -78,14 +77,14 @@ export class BaseTerrainManager {
           continue;
         }
 
-        const worldX = tileX * unitToPixel;
-        const worldY = tileY * unitToPixel;
-        ctx.rect(worldX, worldY, unitToPixel, unitToPixel);
+        const worldX = tileX * UNIT_TO_PIXEL;
+        const worldY = tileY * UNIT_TO_PIXEL;
+        ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
       }
     }
     ctx.fill();
 
-    this.drawFarms(ctx, startTileX, endTileX, startTileY, endTileY, unitToPixel);
+    this.drawFarms(ctx, startTileX, endTileX, startTileY, endTileY);
 
     for (let renderY = startRenderY; renderY <= endRenderY; renderY++) {
       for (let renderX = startRenderX; renderX <= endRenderX; renderX++) {
@@ -105,18 +104,18 @@ export class BaseTerrainManager {
         const srcX = sheetCol * UNIT_TO_PIXEL * dpr;
         const srcY = sheetRow * UNIT_TO_PIXEL * dpr;
 
-        const worldX = (renderX + 0.5) * unitToPixel;
-        const worldY = (renderY + 0.5) * unitToPixel;
+        const worldX = (renderX + 0.5) * UNIT_TO_PIXEL;
+        const worldY = (renderY + 0.5) * UNIT_TO_PIXEL;
 
         ctx.drawImage(
           this.lakeTextureSheet,
           srcX, srcY, UNIT_TO_PIXEL * dpr, UNIT_TO_PIXEL * dpr,
-          worldX, worldY, unitToPixel, unitToPixel
+          worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL
         );
       }
     }
 
-    this.drawGrid(ctx, startTileX, endTileX, startTileY, endTileY, unitToPixel);
+    this.drawGrid(ctx, startTileX, endTileX, startTileY, endTileY);
   }
 
   private drawFarms(
@@ -124,12 +123,11 @@ export class BaseTerrainManager {
     startTileX: number,
     endTileX: number,
     startTileY: number,
-    endTileY: number,
-    unitToPixel: number
+    endTileY: number
   ) {
     ctx.fillStyle = TERRAIN_COLORS.FARM_GROOVE;
     const numGrooves = 2;
-    const grooveHeight = unitToPixel * 0.15;
+    const grooveHeight = UNIT_TO_PIXEL * 0.15;
 
     ctx.beginPath();
     for (let tileY = startTileY; tileY <= endTileY; tileY++) {
@@ -147,15 +145,15 @@ export class BaseTerrainManager {
         const terrain = this.baseTerrainLayer[index];
 
         if (terrain.tag === "Farm") {
-          const worldX = tileX * unitToPixel;
-          const worldY = tileY * unitToPixel;
+          const worldX = tileX * UNIT_TO_PIXEL;
+          const worldY = tileY * UNIT_TO_PIXEL;
 
           for (let i = 0; i < numGrooves; i++) {
             const grooveY =
               worldY +
-              unitToPixel * ((i + 0.5) / numGrooves) -
+              UNIT_TO_PIXEL * ((i + 0.5) / numGrooves) -
               grooveHeight / 2;
-            ctx.rect(worldX, grooveY, unitToPixel, grooveHeight);
+            ctx.rect(worldX, grooveY, UNIT_TO_PIXEL, grooveHeight);
           }
         }
       }
@@ -168,8 +166,7 @@ export class BaseTerrainManager {
     startTileX: number,
     endTileX: number,
     startTileY: number,
-    endTileY: number,
-    unitToPixel: number
+    endTileY: number
   ) {
     ctx.strokeStyle = TERRAIN_COLORS.GRID;
     ctx.lineWidth = 1;
@@ -186,9 +183,9 @@ export class BaseTerrainManager {
           continue;
         }
 
-        const worldX = tileX * unitToPixel;
-        const worldY = tileY * unitToPixel;
-        ctx.rect(worldX, worldY, unitToPixel, unitToPixel);
+        const worldX = tileX * UNIT_TO_PIXEL;
+        const worldY = tileY * UNIT_TO_PIXEL;
+        ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
       }
     }
     ctx.stroke();

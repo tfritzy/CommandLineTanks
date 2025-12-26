@@ -1,6 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../constants";
 import { TerrainDetailObject } from "./TerrainDetailObject";
-import { getFlashColor } from "../../utils/colors";
 import { drawFoundationEdgeShadow, drawFoundationEdgeBody } from "../../drawing/terrain-details/foundation-edge";
 
 export class FoundationEdge extends TerrainDetailObject {

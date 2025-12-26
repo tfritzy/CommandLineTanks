@@ -56,16 +56,14 @@ export class TerrainManager {
     cameraX: number,
     cameraY: number,
     canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
+    canvasHeight: number
   ) {
     this.baseTerrainManager.draw(
       ctx,
       cameraX,
       cameraY,
       canvasWidth,
-      canvasHeight,
-      unitToPixel
+      canvasHeight
     );
   }
 
@@ -74,8 +72,7 @@ export class TerrainManager {
     cameraX: number,
     cameraY: number,
     canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
+    canvasHeight: number
   ) {
     if (this.detailManager) {
       this.detailManager.drawShadows(
@@ -83,8 +80,7 @@ export class TerrainManager {
         cameraX,
         cameraY,
         canvasWidth,
-        canvasHeight,
-        unitToPixel
+        canvasHeight
       );
     }
   }
@@ -94,8 +90,7 @@ export class TerrainManager {
     cameraX: number,
     cameraY: number,
     canvasWidth: number,
-    canvasHeight: number,
-    unitToPixel: number
+    canvasHeight: number
   ) {
     if (this.detailManager) {
       this.detailManager.drawBodies(
@@ -103,8 +98,7 @@ export class TerrainManager {
         cameraX,
         cameraY,
         canvasWidth,
-        canvasHeight,
-        unitToPixel
+        canvasHeight
       );
     }
   }
