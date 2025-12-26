@@ -3,6 +3,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
 import { TargetingReticle } from "../objects/TargetingReticle";
+import { MuzzleFlashParticlesManager } from "./MuzzleFlashParticlesManager";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -12,11 +13,13 @@ export class TankManager {
   private worldId: string;
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
+  private muzzleFlashManager: MuzzleFlashParticlesManager;
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.particlesManager = new DeadTankParticlesManager();
     this.indicatorManager = new TankIndicatorManager();
+    this.muzzleFlashManager = new MuzzleFlashParticlesManager();
     this.targetingReticle = new TargetingReticle();
     this.subscribeToTanks();
   }
@@ -68,6 +71,13 @@ export class TankManager {
         if (oldTank.target !== null && newTank.target === null && newTank.health > 0) {
           const pos = tank.getPosition();
           this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, "Target lost");
+        }
+
+        if (oldTank.lastFireTime !== newTank.lastFireTime && newTank.health > 0) {
+          const GUN_BARREL_LENGTH = 0.4;
+          const barrelTipX = newTank.positionX + Math.cos(newTank.turretRotation) * GUN_BARREL_LENGTH;
+          const barrelTipY = newTank.positionY + Math.sin(newTank.turretRotation) * GUN_BARREL_LENGTH;
+          this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, newTank.turretRotation);
         }
         
         tank.setPosition(newTank.positionX, newTank.positionY);
@@ -128,6 +138,7 @@ export class TankManager {
     }
     this.particlesManager.update(deltaTime);
     this.indicatorManager.update(deltaTime);
+    this.muzzleFlashManager.update(deltaTime);
   }
 
   public getPlayerTank(): Tank | null {
@@ -172,6 +183,7 @@ export class TankManager {
 
   public drawParticles(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
     this.particlesManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+    this.muzzleFlashManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
   }
 
   public getAllTanks(): IterableIterator<Tank> {
