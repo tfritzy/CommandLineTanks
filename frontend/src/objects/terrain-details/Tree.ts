@@ -5,7 +5,7 @@ export class Tree extends TerrainDetailObject {
   public getSizeScale(): number {
     const seed = this.getX() * 7.77 + this.getY() * 3.33;
     const pseudoRandom = (Math.abs(Math.sin(seed) * 10000) % 1);
-    return 0.85 + pseudoRandom * 0.3;
+    return 0.95 + pseudoRandom * 0.35;
   }
 
   public drawShadow(ctx: CanvasRenderingContext2D): void {
