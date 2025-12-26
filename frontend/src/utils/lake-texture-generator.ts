@@ -1,18 +1,18 @@
 import { TERRAIN_COLORS } from "../constants";
 
-const TILE_SIZE = 64;
 const SHEET_COLS = 4;
 const SHEET_ROWS = 4;
 
-export function generateLakeTextureSheet(): HTMLCanvasElement {
+export function generateLakeTextureSheet(tileSize: number, dpr: number): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
-  canvas.width = TILE_SIZE * SHEET_COLS;
-  canvas.height = TILE_SIZE * SHEET_ROWS;
+  canvas.width = tileSize * SHEET_COLS * dpr;
+  canvas.height = tileSize * SHEET_ROWS * dpr;
   const ctx = canvas.getContext('2d')!;
+  ctx.scale(dpr, dpr);
   
   for (let caseNum = 0; caseNum < 16; caseNum++) {
-    const sheetX = (caseNum % SHEET_COLS) * TILE_SIZE;
-    const sheetY = Math.floor(caseNum / SHEET_COLS) * TILE_SIZE;
+    const sheetX = (caseNum % SHEET_COLS) * tileSize;
+    const sheetY = Math.floor(caseNum / SHEET_COLS) * tileSize;
     
     const tl = (caseNum & 0b1000) !== 0;
     const tr = (caseNum & 0b0100) !== 0;
@@ -21,9 +21,9 @@ export function generateLakeTextureSheet(): HTMLCanvasElement {
     
     ctx.save();
     ctx.translate(sheetX, sheetY);
-    ctx.clearRect(0, 0, TILE_SIZE, TILE_SIZE);
+    ctx.clearRect(0, 0, tileSize, tileSize);
     
-    drawLakeTileCase(ctx, tl, tr, bl, br, TILE_SIZE);
+    drawLakeTileCase(ctx, tl, tr, bl, br, tileSize);
     
     ctx.restore();
   }

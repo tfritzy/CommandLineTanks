@@ -138,42 +138,19 @@ public static partial class Module
         var enemyTankPositions = new[] { (15, 15), (25, 15), (15, 25), (25, 25) };
         foreach (var (x, y) in enemyTankPositions)
         {
-            var enemyTankId = GenerateId(ctx, "enmy");
-            traversibilityMap[y * worldSize + x] = false;
-            var enemyTank = new Tank
-            {
-                Id = enemyTankId,
-                WorldId = identityString,
-                Owner = Identity.From(new byte[32]),
-                Name = "Enemy",
-                JoinCode = null,
-                IsBot = false,
-                Alliance = 1,
-                Health = Module.TANK_HEALTH,
-                MaxHealth = Module.TANK_HEALTH,
-                Kills = 0,
-                Deaths = 0,
-                CollisionRegionX = x / COLLISION_REGION_SIZE,
-                CollisionRegionY = y / COLLISION_REGION_SIZE,
-                Target = null,
-                TargetLead = 0.0f,
-                Path = [],
-                TopSpeed = 0f,
-                TurretRotationSpeed = 0f,
-                PositionX = x + 0.5f,
-                PositionY = y + 0.5f,
-                Velocity = new Vector2Float(0, 0),
-                TurretAngularVelocity = 0,
-                TurretRotation = 0.0f,
-                TargetTurretRotation = 0.0f,
-                Guns = [Module.BASE_GUN],
-                SelectedGunIndex = 0,
-                LastFireTime = 0,
-                SmokescreenCooldownEnd = 0,
-                HasShield = false,
-                OverdriveCooldownEnd = 0,
-                OverdriveActiveUntil = 0
-            };
+            var tankName = AllocateTankName(ctx, identityString) ?? "Enemy";
+            var enemyTank = BuildTank(
+                ctx,
+                identityString,
+                Identity.From(new byte[32]),
+                tankName,
+                "",
+                1,
+                x + 0.5f,
+                y + 0.5f,
+                false
+            );
+            enemyTank.Id = GenerateId(ctx, "enmy");
             ctx.Db.tank.Insert(enemyTank);
         }
 

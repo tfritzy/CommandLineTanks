@@ -9,18 +9,11 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import ProjectileTrailType from "./projectile_trail_type_type";
 
-
-export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  startX: __t.f32(),
-  startY: __t.f32(),
-  endX: __t.f32(),
-  endY: __t.f32(),
-  get type() {
-    return ProjectileTrailType;
-  },
-  spawnedAt: __t.u64(),
+export default __t.object("DamagedTile", {
+  x: __t.i32(),
+  y: __t.i32(),
+  damagedAt: __t.u64(),
 });
+
+

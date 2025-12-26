@@ -1,7 +1,7 @@
 import { getConnection } from "../spacetimedb-connection";
 import { type ProjectileTrailRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
-import { UNIT_TO_PIXEL } from "../game";
+import { UNIT_TO_PIXEL } from "../constants";
 
 interface ProjectileTrailData {
   id: string;

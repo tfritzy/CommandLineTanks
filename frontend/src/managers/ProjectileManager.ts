@@ -2,7 +2,7 @@ import { Projectile, ProjectileFactory } from "../objects/projectiles";
 import { getConnection } from "../spacetimedb-connection";
 import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
 import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
-import { UNIT_TO_PIXEL } from "../game";
+import { UNIT_TO_PIXEL } from "../constants";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();

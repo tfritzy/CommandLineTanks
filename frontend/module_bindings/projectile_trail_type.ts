@@ -11,6 +11,7 @@ import {
 } from "spacetimedb";
 import ProjectileTrailType from "./projectile_trail_type_type";
 
+
 export default __t.object("ProjectileTrail", {
   id: __t.string(),
   worldId: __t.string(),

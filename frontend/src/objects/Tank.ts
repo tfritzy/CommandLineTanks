@@ -1,5 +1,5 @@
 import { type Infer } from "spacetimedb";
-import { UNIT_TO_PIXEL } from "../game";
+import { UNIT_TO_PIXEL } from "../constants";
 import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
 import { TEAM_COLORS } from "../constants";

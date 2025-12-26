@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../game";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { TerrainDetailObject } from "./TerrainDetailObject";
 import { getFlashColor } from "../../utils/colors";
 import { drawFenceEdgeShadow, drawFenceEdgeBody } from "../../drawing/terrain-details/fence-edge";

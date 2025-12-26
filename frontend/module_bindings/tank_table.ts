@@ -50,4 +50,6 @@ export default __t.row({
   lastFireTime: __t.u64(),
   smokescreenCooldownEnd: __t.u64(),
   hasShield: __t.bool(),
+  overdriveCooldownEnd: __t.u64(),
+  overdriveActiveUntil: __t.u64(),
 });

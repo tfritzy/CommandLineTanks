@@ -12,6 +12,7 @@ import {
 import Vector2Float from "./vector_2_float_type";
 import ProjectileType from "./projectile_type_type";
 import ExplosionTrigger from "./explosion_trigger_type";
+import DamagedTile from "./damaged_tile_type";
 
 
 export default __t.object("Projectile", {
@@ -45,6 +46,9 @@ export default __t.object("Projectile", {
   },
   damping: __t.option(__t.f32()),
   bounce: __t.bool(),
+  get recentlyDamagedTiles() {
+    return __t.array(DamagedTile);
+  },
 });
 
 

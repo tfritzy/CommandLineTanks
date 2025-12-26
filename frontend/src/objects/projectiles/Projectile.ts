@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../game";
+import { UNIT_TO_PIXEL } from "../../constants";
 
 export abstract class Projectile {
   public static readonly SHADOW_OFFSET = 4;

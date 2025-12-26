@@ -1,5 +1,4 @@
-import { UNIT_TO_PIXEL } from "../game";
-import { TEAM_COLORS } from "../constants";
+import { UNIT_TO_PIXEL, TEAM_COLORS } from "../constants";
 
 export interface ProjectileTexture {
   x: number;
@@ -17,25 +16,32 @@ export class ProjectileTextureSheet {
   private shadowTextures: Map<string, ProjectileTexture> = new Map();
 
   constructor() {
+    const dpr = window.devicePixelRatio || 1;
+    const logicalSize = 1024;
+
     this.canvas = document.createElement("canvas");
-    this.canvas.width = 1024;
-    this.canvas.height = 1024;
+    this.canvas.width = logicalSize * dpr;
+    this.canvas.height = logicalSize * dpr;
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
       throw new Error("Failed to get 2D context for projectile texture sheet");
     }
     this.ctx = ctx;
+    this.ctx.scale(dpr, dpr);
+    this.ctx.imageSmoothingEnabled = false;
 
     this.shadowCanvas = document.createElement("canvas");
-    this.shadowCanvas.width = 1024;
-    this.shadowCanvas.height = 1024;
+    this.shadowCanvas.width = logicalSize * dpr;
+    this.shadowCanvas.height = logicalSize * dpr;
 
     const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
       throw new Error("Failed to get 2D context for shadow texture sheet");
     }
     this.shadowCtx = shadowCtx;
+    this.shadowCtx.scale(dpr, dpr);
+    this.shadowCtx.imageSmoothingEnabled = false;
 
     this.initializeTextures();
   }
@@ -761,6 +767,7 @@ export class ProjectileTextureSheet {
   ) {
     const texture = this.textures.get(key);
     if (!texture) return;
+    const dpr = window.devicePixelRatio || 1;
 
     ctx.save();
 
@@ -774,10 +781,10 @@ export class ProjectileTextureSheet {
 
     ctx.drawImage(
       this.canvas,
-      texture.x,
-      texture.y,
-      texture.width,
-      texture.height,
+      Math.floor(texture.x * dpr),
+      Math.floor(texture.y * dpr),
+      Math.floor(texture.width * dpr),
+      Math.floor(texture.height * dpr),
       -texture.width / 2,
       -texture.height / 2,
       texture.width,
@@ -797,6 +804,7 @@ export class ProjectileTextureSheet {
   ) {
     const texture = this.shadowTextures.get(key);
     if (!texture) return;
+    const dpr = window.devicePixelRatio || 1;
 
     ctx.save();
 
@@ -810,10 +818,10 @@ export class ProjectileTextureSheet {
 
     ctx.drawImage(
       this.shadowCanvas,
-      texture.x,
-      texture.y,
-      texture.width,
-      texture.height,
+      Math.floor(texture.x * dpr),
+      Math.floor(texture.y * dpr),
+      Math.floor(texture.width * dpr),
+      Math.floor(texture.height * dpr),
       -texture.width / 2,
       -texture.height / 2,
       texture.width,
