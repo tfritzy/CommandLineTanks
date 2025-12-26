@@ -781,10 +781,10 @@ export class ProjectileTextureSheet {
 
     ctx.drawImage(
       this.canvas,
-      Math.round(texture.x * dpr),
-      Math.round(texture.y * dpr),
-      Math.round(texture.width * dpr),
-      Math.round(texture.height * dpr),
+      Math.floor(texture.x * dpr),
+      Math.floor(texture.y * dpr),
+      Math.floor(texture.width * dpr),
+      Math.floor(texture.height * dpr),
       -texture.width / 2,
       -texture.height / 2,
       texture.width,
@@ -818,10 +818,10 @@ export class ProjectileTextureSheet {
 
     ctx.drawImage(
       this.shadowCanvas,
-      Math.round(texture.x * dpr),
-      Math.round(texture.y * dpr),
-      Math.round(texture.width * dpr),
-      Math.round(texture.height * dpr),
+      Math.floor(texture.x * dpr),
+      Math.floor(texture.y * dpr),
+      Math.floor(texture.width * dpr),
+      Math.floor(texture.height * dpr),
       -texture.width / 2,
       -texture.height / 2,
       texture.width,

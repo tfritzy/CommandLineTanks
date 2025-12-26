@@ -2,7 +2,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { type PickupRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
-import { UNIT_TO_PIXEL } from "../game";
+import { UNIT_TO_PIXEL } from "../constants";
 import { pickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
 
 interface PickupData {

@@ -12,7 +12,6 @@ import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
 import { ProjectileTrailManager } from "./managers/ProjectileTrailManager";
 import { UNIT_TO_PIXEL } from "./constants";
 
-export { UNIT_TO_PIXEL };
 const CAMERA_FOLLOW_SPEED = 15;
 
 export class Game {

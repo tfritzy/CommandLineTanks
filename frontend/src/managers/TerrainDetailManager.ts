@@ -201,10 +201,10 @@ export class TerrainDetailManager {
 
           ctx.drawImage(
             shadowCanvas,
-            Math.round(texture.x * dpr),
-            Math.round(texture.y * dpr),
-            Math.round(texture.width * dpr),
-            Math.round(texture.height * dpr),
+            Math.floor(texture.x * dpr),
+            Math.floor(texture.y * dpr),
+            Math.floor(texture.width * dpr),
+            Math.floor(texture.height * dpr),
             Math.round((objX * unitToPixel + offset) * dpr) / dpr,
             Math.round((objY * unitToPixel + offset) * dpr) / dpr,
             scaledSize,
@@ -254,10 +254,10 @@ export class TerrainDetailManager {
 
             ctx.drawImage(
               bodyCanvas,
-              Math.round(texture.x * dpr),
-              Math.round(texture.y * dpr),
-              Math.round(texture.width * dpr),
-              Math.round(texture.height * dpr),
+              Math.floor(texture.x * dpr),
+              Math.floor(texture.y * dpr),
+              Math.floor(texture.width * dpr),
+              Math.floor(texture.height * dpr),
               Math.round((objX * unitToPixel + offset) * dpr) / dpr,
               Math.round((objY * unitToPixel + offset) * dpr) / dpr,
               scaledSize,

@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../game";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { FLASH_DURATION } from "../../utils/colors";
 import { type TerrainDetailRow } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";

@@ -1,5 +1,5 @@
 import { TerrainDebrisParticles } from "../objects/particles/TerrainDebrisParticles";
-import { UNIT_TO_PIXEL } from "../game";
+import { UNIT_TO_PIXEL } from "../constants";
 import { isPointInViewport } from "../utils/viewport";
 
 export class TerrainDebrisParticlesManager {

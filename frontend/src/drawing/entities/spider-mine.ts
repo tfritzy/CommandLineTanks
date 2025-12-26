@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../game";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { TEAM_COLORS } from "../../constants";
 
 export function drawSpiderMineShadow(

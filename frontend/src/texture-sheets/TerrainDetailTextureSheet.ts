@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../game";
+import { UNIT_TO_PIXEL } from "../constants";
 import { drawRockShadow, drawRockBody } from "../drawing/terrain-details/rock";
 import { drawTreeShadow, drawTreeBody } from "../drawing/terrain-details/tree";
 import { drawHayBaleShadow, drawHayBaleBody } from "../drawing/terrain-details/hay-bale";

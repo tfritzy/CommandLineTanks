@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../game";
+import { UNIT_TO_PIXEL } from "../constants";
 import { drawHealthPackShadow, drawHealthPackBody } from "../drawing/entities/health-pack";
 import { drawShieldPickupShadow, drawShieldPickupBody } from "../drawing/entities/shield-pickup";
 import { drawUnknownPickupShadow, drawUnknownPickupBody } from "../drawing/entities/unknown-pickup";
@@ -235,10 +235,10 @@ export class PickupTextureSheet {
 
     ctx.drawImage(
       this.canvas,
-      Math.round(texture.x * dpr),
-      Math.round(texture.y * dpr),
-      Math.round(texture.width * dpr),
-      Math.round(texture.height * dpr),
+      Math.floor(texture.x * dpr),
+      Math.floor(texture.y * dpr),
+      Math.floor(texture.width * dpr),
+      Math.floor(texture.height * dpr),
       Math.round((x - texture.width / 2) * dpr) / dpr,
       Math.round((y - texture.height / 2) * dpr) / dpr,
       texture.width,
