@@ -132,33 +132,21 @@ export class PickupTextureSheet {
 
     switch (key) {
       case "triple-shooter": {
-        const arcAngle = 0.4;
-        const arcRadius = 0.25;
+        const triangleSpacing = 0.15;
+        const cos30 = Math.sqrt(3) / 2;
+        const sin30 = 0.5;
+        const trianglePositions = [
+          { x: 0, y: triangleSpacing },
+          { x: -triangleSpacing * cos30, y: -triangleSpacing * sin30 },
+          { x: triangleSpacing * cos30, y: -triangleSpacing * sin30 }
+        ];
 
         for (let i = 0; i < 3; i++) {
-          const projectileAngle = angle + (i - 1) * arcAngle;
-          const offsetX = Math.cos(angle + Math.PI / 2) * (i - 1) * arcRadius * UNIT_TO_PIXEL;
-          const offsetY = Math.sin(angle + Math.PI / 2) * (i - 1) * arcRadius * UNIT_TO_PIXEL;
-          const forwardOffset = i === 1 ? 0.1 * UNIT_TO_PIXEL : 0;
-          const projX = offsetX + Math.cos(angle) * forwardOffset;
-          const projY = offsetY + Math.sin(angle) * forwardOffset;
-          const projVelX = Math.cos(projectileAngle);
-          const projVelY = Math.sin(projectileAngle);
-
-          const projectile = new NormalProjectile(projX / UNIT_TO_PIXEL, projY / UNIT_TO_PIXEL, projVelX, projVelY, 0.1, 0);
+          const projectile = new NormalProjectile(trianglePositions[i].x, trianglePositions[i].y, velocityX, velocityY, 0.1, 0);
           projectile.drawShadow(this.ctx, projectileTextureSheet);
         }
         for (let i = 0; i < 3; i++) {
-          const projectileAngle = angle + (i - 1) * arcAngle;
-          const offsetX = Math.cos(angle + Math.PI / 2) * (i - 1) * arcRadius * UNIT_TO_PIXEL;
-          const offsetY = Math.sin(angle + Math.PI / 2) * (i - 1) * arcRadius * UNIT_TO_PIXEL;
-          const forwardOffset = i === 1 ? 0.1 * UNIT_TO_PIXEL : 0;
-          const projX = offsetX + Math.cos(angle) * forwardOffset;
-          const projY = offsetY + Math.sin(angle) * forwardOffset;
-          const projVelX = Math.cos(projectileAngle);
-          const projVelY = Math.sin(projectileAngle);
-
-          const projectile = new NormalProjectile(projX / UNIT_TO_PIXEL, projY / UNIT_TO_PIXEL, projVelX, projVelY, 0.1, 0);
+          const projectile = new NormalProjectile(trianglePositions[i].x, trianglePositions[i].y, velocityX, velocityY, 0.1, 0);
           projectile.drawBody(this.ctx, projectileTextureSheet);
         }
         break;
