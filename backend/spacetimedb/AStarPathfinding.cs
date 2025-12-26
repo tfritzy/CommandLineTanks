@@ -76,7 +76,7 @@ public static class AStarPathfinding
                     node = node.Parent;
                 }
                 fullPath.Reverse();
-                return SimplifyPath(fullPath);
+                return SimplifyPath(fullPath, startX + 0.5f, startY + 0.5f);
             }
 
             (int dx, int dy)[] neighbors = new[] {
@@ -159,7 +159,7 @@ public static class AStarPathfinding
                 node = node.Parent;
             }
             partialPath.Reverse();
-            return SimplifyPath(partialPath);
+            return SimplifyPath(partialPath, startX + 0.5f, startY + 0.5f);
         }
 
         return emptyPath;
@@ -172,7 +172,7 @@ public static class AStarPathfinding
         return 10 * (dx + dy) + (14 - 2 * 10) * Math.Min(dx, dy);
     }
 
-    private static List<(float x, float y)> SimplifyPath(List<(float x, float y)> fullPath)
+    private static List<(float x, float y)> SimplifyPath(List<(float x, float y)> fullPath, float startX, float startY)
     {
         if (fullPath.Count <= 1)
         {
@@ -181,8 +181,8 @@ public static class AStarPathfinding
 
         var simplifiedPath = new List<(float x, float y)>();
 
-        int currentDirectionX = Math.Sign(fullPath[1].x - fullPath[0].x);
-        int currentDirectionY = Math.Sign(fullPath[1].y - fullPath[0].y);
+        int currentDirectionX = Math.Sign(fullPath[0].x - startX);
+        int currentDirectionY = Math.Sign(fullPath[0].y - startY);
 
         for (int i = 1; i < fullPath.Count; i++)
         {
