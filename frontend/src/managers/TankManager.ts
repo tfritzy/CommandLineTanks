@@ -3,6 +3,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
 import { TargetingReticle } from "../objects/TargetingReticle";
+import { ScreenShake } from "../utils/ScreenShake";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -12,12 +13,14 @@ export class TankManager {
   private worldId: string;
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
+  private screenShake: ScreenShake;
 
-  constructor(worldId: string) {
+  constructor(worldId: string, screenShake: ScreenShake) {
     this.worldId = worldId;
     this.particlesManager = new DeadTankParticlesManager();
     this.indicatorManager = new TankIndicatorManager();
     this.targetingReticle = new TargetingReticle();
+    this.screenShake = screenShake;
     this.subscribeToTanks();
   }
 
@@ -63,6 +66,10 @@ export class TankManager {
         if (oldTank.health > 0 && newTank.health <= 0) {
           const pos = tank.getPosition();
           this.particlesManager.spawnParticles(pos.x, pos.y, newTank.alliance);
+          
+          if (newTank.id === this.playerTankId) {
+            this.screenShake.shake(20, 0.5);
+          }
         }
 
         if (oldTank.target !== null && newTank.target === null && newTank.health > 0) {
