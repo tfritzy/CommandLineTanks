@@ -1,4 +1,5 @@
 import { getFlashColor } from "../../utils/colors";
+import { TERRAIN_DETAIL_COLORS } from "../../constants";
 
 export function drawTreeShadow(
   ctx: CanvasRenderingContext2D,
@@ -25,12 +26,12 @@ export function drawTreeBody(
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.clip();
 
-  ctx.fillStyle = getFlashColor("#3e4c7e", flashTimer);
+  ctx.fillStyle = getFlashColor(TERRAIN_DETAIL_COLORS.TREE.BASE, flashTimer);
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = getFlashColor("#495f94", flashTimer);
+  ctx.fillStyle = getFlashColor(TERRAIN_DETAIL_COLORS.TREE.FOLIAGE, flashTimer);
   ctx.beginPath();
   const dividerCenterX = centerX + radius * 0.4;
   const dividerCenterY = centerY - radius * 0.4;

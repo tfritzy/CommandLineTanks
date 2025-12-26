@@ -63,4 +63,8 @@ export class Rock extends TerrainDetailObject {
     this.drawShadow(ctx);
     this.drawBody(ctx);
   }
+
+  public getType(): string {
+    return "Rock";
+  }
 }

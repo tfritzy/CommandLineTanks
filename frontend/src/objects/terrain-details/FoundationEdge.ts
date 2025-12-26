@@ -27,4 +27,8 @@ export class FoundationEdge extends TerrainDetailObject {
     this.drawShadow(ctx);
     this.drawBody(ctx);
   }
+
+  public getType(): string {
+    return "FoundationEdge";
+  }
 }

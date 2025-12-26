@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../constants";
+import { UNIT_TO_PIXEL, TERRAIN_DETAIL_COLORS } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
 
 export function drawHayBaleShadow(
@@ -20,12 +20,12 @@ export function drawHayBaleBody(
   radius: number,
   flashTimer: number
 ) {
-  ctx.fillStyle = getFlashColor("#f5c47c", flashTimer);
+  ctx.fillStyle = getFlashColor(TERRAIN_DETAIL_COLORS.HAY_BALE.BODY, flashTimer);
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = getFlashColor("#e39764", flashTimer);
+  ctx.strokeStyle = getFlashColor(TERRAIN_DETAIL_COLORS.HAY_BALE.RING, flashTimer);
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius * 0.7, 0, Math.PI * 2);

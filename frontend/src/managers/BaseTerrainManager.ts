@@ -180,4 +180,8 @@ export class BaseTerrainManager {
   public getWorldHeight(): number {
     return this.worldHeight;
   }
+
+  public getBaseTerrainLayer(): BaseTerrainType[] {
+    return this.baseTerrainLayer;
+  }
 }
