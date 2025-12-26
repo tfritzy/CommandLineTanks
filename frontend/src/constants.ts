@@ -11,3 +11,32 @@ export const TERRAIN_COLORS = {
   LAKE: "#5a78b2",
   GRID: "#4a4b5b22"
 };
+
+export const TERRAIN_DETAIL_COLORS = {
+  TREE: {
+    BASE: "#3e4c7e",
+    FOLIAGE: "#495f94"
+  },
+  ROCK: {
+    BODY: "#4a4b5b",
+    SHADOW: "#3e3f4d",
+    HIGHLIGHT: "#565769",
+    OUTLINE: "#2e2e43"
+  },
+  HAY_BALE: {
+    BODY: "#f5c47c",
+    RING: "#e39764"
+  },
+  FOUNDATION: {
+    BASE: "#707b89"
+  },
+  FENCE: {
+    RAIL: "#e39764",
+    POST: "#c06852"
+  },
+  TARGET_DUMMY: {
+    BODY: "#813645",
+    RIM: "#c06852",
+    CENTER: "#f5c47c"
+  }
+};

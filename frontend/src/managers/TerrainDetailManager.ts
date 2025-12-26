@@ -295,4 +295,8 @@ export class TerrainDetailManager {
       viewportHeight
     );
   }
+
+  public getDetailObjectsByPosition(): (TerrainDetailObject | null)[][] {
+    return this.detailObjectsByPosition;
+  }
 }

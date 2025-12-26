@@ -99,4 +99,6 @@ export abstract class TerrainDetailObject {
   protected getWorldY(): number {
     return this.y * UNIT_TO_PIXEL;
   }
+
+  public abstract getType(): string;
 }

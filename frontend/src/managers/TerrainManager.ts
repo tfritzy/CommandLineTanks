@@ -128,4 +128,12 @@ export class TerrainManager {
   public getWorldHeight(): number {
     return this.baseTerrainManager.getWorldHeight();
   }
+
+  public getBaseTerrainLayer() {
+    return this.baseTerrainManager.getBaseTerrainLayer();
+  }
+
+  public getTerrainDetailsByPosition() {
+    return this.detailManager?.getDetailObjectsByPosition() ?? null;
+  }
 }

@@ -27,4 +27,8 @@ export class TargetDummy extends TerrainDetailObject {
     this.drawShadow(ctx);
     this.drawBody(ctx);
   }
+
+  public getType(): string {
+    return "TargetDummy";
+  }
 }

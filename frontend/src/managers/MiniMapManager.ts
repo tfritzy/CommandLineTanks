@@ -1,5 +1,6 @@
 import { TankManager } from "./TankManager";
 import { TerrainManager } from "./TerrainManager";
+import { TERRAIN_COLORS, TERRAIN_DETAIL_COLORS, TEAM_COLORS } from "../constants";
 
 export class MiniMapManager {
   private tankManager: TankManager;
@@ -7,6 +8,7 @@ export class MiniMapManager {
   private miniMapMaxSize: number = 150;
   private margin: number = 20;
   private tankIndicatorRadius: number = 5;
+  private spawnPaddingRatio: number = 0.25;
 
   constructor(tankManager: TankManager, terrainManager: TerrainManager) {
     this.tankManager = tankManager;
@@ -39,13 +41,9 @@ export class MiniMapManager {
 
     ctx.save();
 
-    ctx.fillStyle = "#2e2e43";
-    ctx.fillRect(
-      miniMapX,
-      miniMapY,
-      miniMapWidth,
-      miniMapHeight
-    );
+    this.drawTerrain(ctx, miniMapX, miniMapY, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
+
+    this.drawSpawnZones(ctx, miniMapX, miniMapY, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
 
     ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
     ctx.lineWidth = 1;
@@ -70,5 +68,96 @@ export class MiniMapManager {
     ctx.fill();
 
     ctx.restore();
+  }
+
+  private drawTerrain(
+    ctx: CanvasRenderingContext2D,
+    miniMapX: number,
+    miniMapY: number,
+    miniMapWidth: number,
+    miniMapHeight: number,
+    worldWidth: number,
+    worldHeight: number
+  ) {
+    const baseTerrainLayer = this.terrainManager.getBaseTerrainLayer();
+    const terrainDetailsByPosition = this.terrainManager.getTerrainDetailsByPosition();
+
+    if (!baseTerrainLayer || baseTerrainLayer.length === 0) return;
+
+    const pixelWidth = miniMapWidth / worldWidth;
+    const pixelHeight = miniMapHeight / worldHeight;
+
+    for (let tileY = 0; tileY < worldHeight; tileY++) {
+      for (let tileX = 0; tileX < worldWidth; tileX++) {
+        const index = tileY * worldWidth + tileX;
+        const terrain = baseTerrainLayer[index];
+
+        let color: string;
+        if (terrain.tag === "Lake") {
+          color = TERRAIN_COLORS.LAKE;
+        } else {
+          color = TERRAIN_COLORS.GROUND;
+        }
+
+        if (terrainDetailsByPosition && tileY < terrainDetailsByPosition.length && tileX < terrainDetailsByPosition[tileY].length) {
+          const detail = terrainDetailsByPosition[tileY][tileX];
+          if (detail) {
+            const detailType = detail.getType();
+            if (detailType === "Tree") {
+              color = TERRAIN_DETAIL_COLORS.TREE.BASE;
+            } else if (detailType === "Rock") {
+              color = TERRAIN_DETAIL_COLORS.ROCK.BODY;
+            } else if (detailType === "HayBale") {
+              color = TERRAIN_DETAIL_COLORS.HAY_BALE.BODY;
+            } else if (detailType === "FoundationEdge" || detailType === "FoundationCorner") {
+              color = TERRAIN_DETAIL_COLORS.FOUNDATION.BASE;
+            } else if (detailType === "FenceEdge" || detailType === "FenceCorner") {
+              color = TERRAIN_DETAIL_COLORS.FENCE.RAIL;
+            } else if (detailType === "TargetDummy") {
+              color = TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY;
+            }
+          }
+        }
+
+        ctx.fillStyle = color;
+        ctx.fillRect(
+          miniMapX + tileX * pixelWidth,
+          miniMapY + tileY * pixelHeight,
+          Math.ceil(pixelWidth),
+          Math.ceil(pixelHeight)
+        );
+      }
+    }
+  }
+
+  private drawSpawnZones(
+    ctx: CanvasRenderingContext2D,
+    miniMapX: number,
+    miniMapY: number,
+    miniMapWidth: number,
+    miniMapHeight: number,
+    worldWidth: number,
+    worldHeight: number
+  ) {
+    const halfWidth = worldWidth / 2;
+    const paddingX = halfWidth * this.spawnPaddingRatio;
+    const paddingY = worldHeight * this.spawnPaddingRatio;
+
+    const pixelWidth = miniMapWidth / worldWidth;
+    const pixelHeight = miniMapHeight / worldHeight;
+
+    ctx.fillStyle = TEAM_COLORS.RED + "33";
+    const redSpawnX = miniMapX + paddingX * pixelWidth;
+    const redSpawnY = miniMapY + paddingY * pixelHeight;
+    const redSpawnWidth = (halfWidth - 2 * paddingX) * pixelWidth;
+    const redSpawnHeight = (worldHeight - 2 * paddingY) * pixelHeight;
+    ctx.fillRect(redSpawnX, redSpawnY, redSpawnWidth, redSpawnHeight);
+
+    ctx.fillStyle = TEAM_COLORS.BLUE + "33";
+    const blueSpawnX = miniMapX + (halfWidth + paddingX) * pixelWidth;
+    const blueSpawnY = miniMapY + paddingY * pixelHeight;
+    const blueSpawnWidth = (halfWidth - 2 * paddingX) * pixelWidth;
+    const blueSpawnHeight = (worldHeight - 2 * paddingY) * pixelHeight;
+    ctx.fillRect(blueSpawnX, blueSpawnY, blueSpawnWidth, blueSpawnHeight);
   }
 }

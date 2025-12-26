@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../constants";
+import { UNIT_TO_PIXEL, TERRAIN_DETAIL_COLORS } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
 
 export function drawFenceCornerShadow(
@@ -52,8 +52,8 @@ export function drawFenceCornerBody(
   ctx.rotate((rotation * 90 * Math.PI) / 180);
   ctx.translate(-centerX, -centerY);
 
-  const railColor = getFlashColor("#e39764", flashTimer);
-  const postColor = getFlashColor("#c06852", flashTimer);
+  const railColor = getFlashColor(TERRAIN_DETAIL_COLORS.FENCE.RAIL, flashTimer);
+  const postColor = getFlashColor(TERRAIN_DETAIL_COLORS.FENCE.POST, flashTimer);
 
   ctx.fillStyle = railColor;
   ctx.fillRect(x, y - UNIT_TO_PIXEL * 0.03, UNIT_TO_PIXEL * 0.5, UNIT_TO_PIXEL * 0.06);
