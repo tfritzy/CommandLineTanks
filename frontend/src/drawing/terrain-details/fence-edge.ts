@@ -11,6 +11,14 @@ export function drawFenceEdgeShadow(
 ) {
   ctx.save();
 
+  const edgeOffset = UNIT_TO_PIXEL * 0.5;
+  const offsetX = rotation === 1 ? -edgeOffset : rotation === 3 ? edgeOffset : 0;
+  const offsetY = rotation === 0 ? edgeOffset : rotation === 2 ? -edgeOffset : 0;
+  x += offsetX;
+  y += offsetY;
+  centerX += offsetX;
+  centerY += offsetY;
+
   const shadowOffset = UNIT_TO_PIXEL * 0.06;
   const angle = (rotation * 90 * Math.PI) / 180;
   const lsX = shadowOffset * (Math.sin(angle) - Math.cos(angle));
@@ -51,6 +59,14 @@ export function drawFenceEdgeBody(
   flashTimer: number
 ) {
   ctx.save();
+
+  const edgeOffset = UNIT_TO_PIXEL * 0.5;
+  const offsetX = rotation === 1 ? -edgeOffset : rotation === 3 ? edgeOffset : 0;
+  const offsetY = rotation === 0 ? edgeOffset : rotation === 2 ? -edgeOffset : 0;
+  x += offsetX;
+  y += offsetY;
+  centerX += offsetX;
+  centerY += offsetY;
 
   ctx.translate(centerX, centerY);
   ctx.rotate((rotation * 90 * Math.PI) / 180);
