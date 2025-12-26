@@ -1,3 +1,6 @@
+import { UNIT_TO_PIXEL } from "../../constants";
+import { isPointInViewport } from "../../utils/viewport";
+
 const ANGLE_SPREAD_RADIANS = 0.8;
 const FRICTION_FACTOR = 0.92;
 
@@ -55,8 +58,16 @@ export class MuzzleFlashParticles {
     this.isDead = allDead;
   }
 
-  public getParticles(): Particle[] {
-    return this.particles;
+  public getVisibleParticles(cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): Particle[] {
+    return this.particles.filter(p => {
+      if (p.lifetime >= p.maxLifetime) return false;
+      
+      const px = p.x * UNIT_TO_PIXEL;
+      const py = p.y * UNIT_TO_PIXEL;
+      const pSize = p.size * UNIT_TO_PIXEL;
+      
+      return isPointInViewport(px, py, pSize, cameraX, cameraY, viewportWidth, viewportHeight);
+    });
   }
 
   public getIsDead(): boolean {

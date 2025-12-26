@@ -20,7 +20,8 @@ export class MuzzleFlashParticlesManager {
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
     for (const system of this.particleSystems) {
-      drawMuzzleFlashParticles(ctx, system.getParticles(), cameraX, cameraY, viewportWidth, viewportHeight);
+      const visibleParticles = system.getVisibleParticles(cameraX, cameraY, viewportWidth, viewportHeight);
+      drawMuzzleFlashParticles(ctx, visibleParticles);
     }
   }
 }
