@@ -57,7 +57,8 @@ public static partial class Types
         FoundationCorner,
         FenceEdge,
         FenceCorner,
-        TargetDummy
+        TargetDummy,
+        DeadTree
     }
 
     [Type]
