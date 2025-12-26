@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getConnection } from '../spacetimedb-connection';
 import { type Infer } from 'spacetimedb';
 import ScoreRow from '../../module_bindings/score_type';
@@ -15,9 +15,15 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
     const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
     const [isVisible, setIsVisible] = useState(false);
 
+    const connection = getConnection();
+    const isHomeworld = useMemo(() => {
+        if (!connection?.identity) return false;
+        const identityString = connection.identity.toHexString().toLowerCase();
+        return identityString === worldId;
+    }, [connection, worldId]);
+
     useEffect(() => {
-        const connection = getConnection();
-        if (!connection) return;
+        if (!connection || isHomeworld) return;
 
         const subscriptionHandle = connection
             .subscriptionBuilder()
@@ -79,9 +85,9 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             clearInterval(interval);
             subscriptionHandle.unsubscribe();
         };
-    }, [worldId]);
+    }, [worldId, connection, isHomeworld]);
 
-    if (!isVisible || timeRemaining === null) {
+    if (!isVisible || timeRemaining === null || isHomeworld) {
         return null;
     }
 

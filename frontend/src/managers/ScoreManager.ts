@@ -14,9 +14,18 @@ export class ScoreManager {
   private playerScores: Map<string, PlayerScore> = new Map();
   private maxKills: number = 1;
   private sortedPlayers: PlayerScore[] = [];
+  private worldId: string;
+  private isHomeworld: boolean;
 
   constructor(worldId: string) {
-    this.subscribeToTanks(worldId);
+    this.worldId = worldId;
+    
+    const connection = getConnection();
+    this.isHomeworld = connection?.identity 
+      ? connection.identity.toHexString().toLowerCase() === worldId
+      : false;
+    
+    this.subscribeToTanks(this.worldId);
   }
 
   private static createPlayerScore(tank: Infer<typeof TankRow>): PlayerScore {
@@ -63,6 +72,10 @@ export class ScoreManager {
   }
 
   public draw(ctx: CanvasRenderingContext2D, canvasWidth: number) {
+    if (this.isHomeworld) {
+      return;
+    }
+    
     ctx.save();
     
     const padding = 10;
