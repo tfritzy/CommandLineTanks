@@ -91,6 +91,9 @@ export class Tank {
     if (this.health <= 0) return;
     const currentTimeMicros = BigInt(Date.now() * 1000);
     const isImmune = currentTimeMicros < this.immunityUntil;
+    const remainingImmunityMicros = isImmune ? Number(this.immunityUntil - currentTimeMicros) : 0;
+    const remainingImmunitySeconds = remainingImmunityMicros / 1_000_000;
+    
     drawTankBody(ctx, {
       x: this.x,
       y: this.y,
@@ -101,6 +104,7 @@ export class Tank {
       health: this.health,
       hasShield: this.hasShield,
       isImmune: isImmune,
+      remainingImmunitySeconds: remainingImmunitySeconds,
     });
   }
 

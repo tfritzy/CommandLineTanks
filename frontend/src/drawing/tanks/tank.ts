@@ -20,6 +20,7 @@ interface TankDrawParams {
   health: number;
   hasShield: boolean;
   isImmune: boolean;
+  remainingImmunitySeconds: number;
 }
 
 export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -104,6 +105,13 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.fillStyle = "#f5c47c";
   ctx.textAlign = "center";
   ctx.fillText(params.name, 0, -30);
+  
+  if (params.isImmune && params.remainingImmunitySeconds > 0) {
+    ctx.font = "12px monospace";
+    ctx.fillStyle = "#7396d5";
+    ctx.fillText(`${params.remainingImmunitySeconds.toFixed(1)}s`, 0, -16);
+  }
+  
   ctx.restore();
 
   if (params.hasShield) {
