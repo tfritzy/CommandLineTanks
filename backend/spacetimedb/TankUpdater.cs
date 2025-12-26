@@ -177,6 +177,33 @@ public static partial class TankUpdater
                 needsUpdate = true;
             }
 
+            if (tank.RemainingRepairCooldownMicros > 0)
+            {
+                var newRemainingRepairCooldown = Math.Max(0, tank.RemainingRepairCooldownMicros - (long)deltaTimeMicros);
+                tank = tank with { RemainingRepairCooldownMicros = newRemainingRepairCooldown };
+                needsUpdate = true;
+            }
+
+            if (tank.IsRepairing)
+            {
+                var newHealth = Math.Min(tank.MaxHealth, tank.Health + Module.REPAIR_HEALTH_PER_TICK);
+                
+                if (newHealth >= tank.MaxHealth)
+                {
+                    tank = tank with 
+                    { 
+                        Health = tank.MaxHealth,
+                        IsRepairing = false
+                    };
+                    needsUpdate = true;
+                }
+                else
+                {
+                    tank = tank with { Health = newHealth };
+                    needsUpdate = true;
+                }
+            }
+
             if (tank.Path.Length > 0)
             {
                 var targetPos = tank.Path[0];

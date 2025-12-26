@@ -69,6 +69,15 @@ export class TankManager {
           const pos = tank.getPosition();
           this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, "Target lost");
         }
+
+        if (oldTank.isRepairing && !newTank.isRepairing && newTank.health > 0) {
+          const pos = tank.getPosition();
+          if (newTank.health >= newTank.maxHealth) {
+            this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, "Repair complete");
+          } else {
+            this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, "Repair interrupted");
+          }
+        }
         
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);

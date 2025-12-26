@@ -111,6 +111,12 @@ public static partial class Module
         public long RemainingOverdriveDurationMicros;
 
         public long RemainingImmunityMicros;
+
+        public long RemainingRepairCooldownMicros;
+
+        public bool IsRepairing;
+
+        public ulong RepairStartedAt;
     }
 
     [Table(Name = "projectile", Public = true)]

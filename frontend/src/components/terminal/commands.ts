@@ -82,7 +82,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     return [
       "Commands:",
       "  drive, d             Drive to a tank, direction, or coordinate using pathfinding",
-      "  reverse, r           Reverse in the direction the tank is facing",
       "  stop, s              Stop the tank immediately",
       "  aim, a               Aim turret at an angle or direction",
       "  target, t            Target another tank by name",
@@ -90,6 +89,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  switch, w            Switch to a different gun",
       "  smokescreen, sm      Deploy a smokescreen that disrupts enemy targeting",
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
+      "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
       "  findgame             Join a game world",
       "  clear, c             Clear the terminal output",
@@ -134,22 +134,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  drive 10 5      (10 units right, 5 units down)",
         "  drive -10 0     (10 units left)",
         "  drive 0 -15 75  (15 units up at 75% throttle)"
-      ];
-
-    case "reverse":
-    case "r":
-      return [
-        "reverse, r - Reverse in the direction the tank is facing",
-        "",
-        "Usage: reverse <distance>",
-        "",
-        "Arguments:",
-        "  <distance>    Distance to reverse in units (required)",
-        "                Reverses in the -direction of the tank's body rotation",
-        "",
-        "Examples:",
-        "  reverse 3",
-        "  r 2"
       ];
 
     case "stop":
@@ -269,6 +253,22 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  overdrive",
         "  od"
+      ];
+
+    case "repair":
+    case "rep":
+      return [
+        "repair, rep - Repair your tank",
+        "",
+        "Usage: repair",
+        "",
+        "Starts repairing your tank, regenerating health over time.",
+        "Repair is interrupted if you take damage or issue a movement command.",
+        "60 second cooldown.",
+        "",
+        "Examples:",
+        "  repair",
+        "  rep"
       ];
 
     case "respawn":
@@ -436,43 +436,6 @@ export function target(connection: DbConnection, worldId: string, args: string[]
   } else {
     return [`Targeting tank '${targetTank.name}'`];
   }
-}
-
-export function reverse(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (isPlayerDead(connection, worldId)) {
-    return [
-      "reverse: error: cannot reverse while dead",
-      "",
-      "Use 'respawn' to respawn"
-    ];
-  }
-
-  if (args.length < 1) {
-    return [
-      "reverse: error: missing required argument '<distance>'",
-      "",
-      "Usage: reverse <distance>",
-      "       reverse 3"
-    ];
-  }
-
-  const parsed = Number.parseFloat(args[0]);
-  if (Number.isNaN(parsed)) {
-    return [
-      `reverse: error: invalid value '${args[0]}' for '<distance>': must be a valid number`,
-      "",
-      "Usage: reverse <distance>",
-      "       reverse 3"
-    ];
-  }
-
-  const distance = parsed;
-
-  connection.reducers.reverse({ worldId, distance });
-
-  return [
-    `Reversing ${distance} ${distance != 1 ? "units" : "unit"}`,
-  ];
 }
 
 export function stop(connection: DbConnection, worldId: string, args: string[]): string[] {
@@ -881,6 +844,55 @@ export function overdrive(connection: DbConnection, worldId: string, args: strin
 
   return [
     "Activating overdrive! +25% speed for 10 seconds",
+  ];
+}
+
+export function repair(connection: DbConnection, worldId: string, args: string[]): string[] {
+  if (isPlayerDead(connection, worldId)) {
+    return [
+      "repair: error: cannot repair while dead",
+      "",
+      "Use 'respawn' to respawn"
+    ];
+  }
+
+  if (args.length > 0) {
+    return [
+      "repair: error: repair command takes no arguments",
+      "",
+      "Usage: repair",
+      "       rep"
+    ];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
+  const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
+  
+  if (myTank) {
+    if (myTank.health >= myTank.maxHealth) {
+      return [
+        "repair: error: tank is already at full health",
+        "",
+        `Health: ${myTank.health}/${myTank.maxHealth}`
+      ];
+    }
+
+    const remainingMicros = myTank.remainingRepairCooldownMicros;
+    
+    if (remainingMicros > 0n) {
+      const remaining = Number(remainingMicros) / 1_000_000;
+      return [
+        `repair: error: ability is on cooldown`,
+        "",
+        `Time remaining: ${Math.ceil(remaining)} seconds`
+      ];
+    }
+  }
+
+  connection.reducers.repair({ worldId });
+
+  return [
+    "Repairing... (interrupted by damage or movement)",
   ];
 }
 

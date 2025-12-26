@@ -3,6 +3,7 @@ import { type EventContext } from "../../module_bindings";
 import { drawAbilitySlot } from "../drawing/ui/ability-slot";
 import { drawSmokescreenIcon } from "../drawing/ui/smokescreen-icon";
 import { drawOverdriveIcon } from "../drawing/ui/overdrive-icon";
+import { drawRepairIcon } from "../drawing/ui/repair-icon";
 
 const MICROSECONDS_TO_SECONDS = 1_000_000;
 
@@ -15,9 +16,11 @@ interface Ability {
 export class AbilitiesBarManager {
   private remainingSmokescreenCooldownMicros: bigint = 0n;
   private remainingOverdriveCooldownMicros: bigint = 0n;
+  private remainingRepairCooldownMicros: bigint = 0n;
   private playerTankId: string | null = null;
   private readonly SMOKESCREEN_COOLDOWN_SECONDS = 60;
   private readonly OVERDRIVE_COOLDOWN_SECONDS = 60;
+  private readonly REPAIR_COOLDOWN_SECONDS = 60;
 
   constructor(worldId: string) {
     this.subscribeToPlayerTank(worldId);
@@ -35,6 +38,7 @@ export class AbilitiesBarManager {
         this.playerTankId = tank.id;
         this.remainingSmokescreenCooldownMicros = tank.remainingSmokescreenCooldownMicros;
         this.remainingOverdriveCooldownMicros = tank.remainingOverdriveCooldownMicros;
+        this.remainingRepairCooldownMicros = tank.remainingRepairCooldownMicros;
       }
     });
 
@@ -42,6 +46,7 @@ export class AbilitiesBarManager {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
         this.remainingSmokescreenCooldownMicros = newTank.remainingSmokescreenCooldownMicros;
         this.remainingOverdriveCooldownMicros = newTank.remainingOverdriveCooldownMicros;
+        this.remainingRepairCooldownMicros = newTank.remainingRepairCooldownMicros;
       }
     });
 
@@ -50,6 +55,7 @@ export class AbilitiesBarManager {
         this.playerTankId = null;
         this.remainingSmokescreenCooldownMicros = 0n;
         this.remainingOverdriveCooldownMicros = 0n;
+        this.remainingRepairCooldownMicros = 0n;
       }
     });
   }
@@ -69,6 +75,11 @@ export class AbilitiesBarManager {
         drawIcon: drawOverdriveIcon,
         remainingCooldownMicros: this.remainingOverdriveCooldownMicros,
         cooldownDuration: this.OVERDRIVE_COOLDOWN_SECONDS,
+      },
+      {
+        drawIcon: drawRepairIcon,
+        remainingCooldownMicros: this.remainingRepairCooldownMicros,
+        cooldownDuration: this.REPAIR_COOLDOWN_SECONDS,
       },
     ];
 

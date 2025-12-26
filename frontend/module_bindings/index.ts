@@ -59,12 +59,12 @@ import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
 import Overdrive from "./overdrive_reducer";
 export { Overdrive };
+import Repair from "./repair_reducer";
+export { Repair };
 import ResetWorld from "./reset_world_reducer";
 export { ResetWorld };
 import Respawn from "./respawn_reducer";
 export { Respawn };
-import Reverse from "./reverse_reducer";
-export { Reverse };
 import Smokescreen from "./smokescreen_reducer";
 export { Smokescreen };
 import SpawnPickup from "./spawn_pickup_reducer";
@@ -580,9 +580,9 @@ const reducersSchema = __reducers(
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),
   __reducerSchema("overdrive", Overdrive),
+  __reducerSchema("repair", Repair),
   __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
-  __reducerSchema("reverse", Reverse),
   __reducerSchema("smokescreen", Smokescreen),
   __reducerSchema("SpawnPickup", SpawnPickup),
   __reducerSchema("stop", Stop),

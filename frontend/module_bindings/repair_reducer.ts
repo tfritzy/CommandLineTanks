@@ -12,5 +12,4 @@ import {
 
 export default {
   worldId: __t.string(),
-  distance: __t.f32(),
 };
