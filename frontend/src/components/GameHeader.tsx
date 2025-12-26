@@ -17,8 +17,9 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
 
     const connection = getConnection();
     const isHomeworld = useMemo(() => {
-        const identityString = connection?.identity?.toHexString().toLowerCase();
-        return identityString !== undefined && identityString === worldId;
+        if (!connection?.identity) return false;
+        const identityString = connection.identity.toHexString().toLowerCase();
+        return identityString === worldId;
     }, [connection, worldId]);
 
     useEffect(() => {

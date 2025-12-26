@@ -18,7 +18,7 @@ export class ScoreManager {
 
   constructor(worldId: string) {
     this.worldId = worldId;
-    this.subscribeToTanks(worldId);
+    this.subscribeToTanks(this.worldId);
   }
 
   private isHomeworld(): boolean {
