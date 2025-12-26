@@ -8,7 +8,7 @@ export class Rock extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(0.38, 0.2, 13.37, 42.42);
+    const radius = this.getRadius(0.38, 0, 13.37, 42.42);
 
     const shadowOffset = radius * 0.2;
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
@@ -26,7 +26,7 @@ export class Rock extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(0.38, 0.2, 13.37, 42.42);
+    const radius = this.getRadius(0.38, 0, 13.37, 42.42);
 
     const bodyColor = getFlashColor("#4a4b5b", this.flashTimer);
     const shadowColor = getFlashColor("#3e3f4d", this.flashTimer);

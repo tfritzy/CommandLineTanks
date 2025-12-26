@@ -2,19 +2,13 @@ import { TerrainDetailObject } from "./TerrainDetailObject";
 import { getFlashColor } from "../../utils/colors";
 
 export class Tree extends TerrainDetailObject {
-  public getSizeScale(): number {
-    const seed = this.getX() * 7.77 + this.getY() * 3.33;
-    const pseudoRandom = (Math.abs(Math.sin(seed) * 10000) % 1);
-    return 0.95 + pseudoRandom * 0.35;
-  }
-
   public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(0.7, 0.15, 7.77, 3.33);
+    const radius = this.getRadius(0.7, 0, 7.77, 3.33);
 
     const shadowOffsetX = -radius * 0.4;
     const shadowOffsetY = radius * 0.4;
@@ -32,7 +26,7 @@ export class Tree extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(0.7, 0.15, 7.77, 3.33);
+    const radius = this.getRadius(0.7, 0, 7.77, 3.33);
 
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
