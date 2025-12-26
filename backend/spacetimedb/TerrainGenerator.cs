@@ -15,7 +15,7 @@ public static partial class TerrainGenerator
     private const int MIN_LAKES = 1;
     private const int MAX_ADDITIONAL_LAKES = 2;
     private const float LAKE_NOISE_SCALE = 0.08f;
-    private const float LAKE_NOISE_THRESHOLD = 0.35f;
+    private const float LAKE_NOISE_THRESHOLD = 0.42f;
     private const float LAKE_NOISE_OFFSET_RANGE = 1000f;
     private const int ROTATION_NORTH = 0;
     private const int ROTATION_EAST = 1;
