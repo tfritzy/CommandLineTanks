@@ -82,7 +82,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     return [
       "Commands:",
       "  drive, d             Drive to a tank, direction, or coordinate using pathfinding",
-      "  reverse, r           Reverse in the direction the tank is facing",
       "  stop, s              Stop the tank immediately",
       "  aim, a               Aim turret at an angle or direction",
       "  target, t            Target another tank by name",
@@ -135,22 +134,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  drive 10 5      (10 units right, 5 units down)",
         "  drive -10 0     (10 units left)",
         "  drive 0 -15 75  (15 units up at 75% throttle)"
-      ];
-
-    case "reverse":
-    case "r":
-      return [
-        "reverse, r - Reverse in the direction the tank is facing",
-        "",
-        "Usage: reverse <distance>",
-        "",
-        "Arguments:",
-        "  <distance>    Distance to reverse in units (required)",
-        "                Reverses in the -direction of the tank's body rotation",
-        "",
-        "Examples:",
-        "  reverse 3",
-        "  r 2"
       ];
 
     case "stop":
@@ -453,43 +436,6 @@ export function target(connection: DbConnection, worldId: string, args: string[]
   } else {
     return [`Targeting tank '${targetTank.name}'`];
   }
-}
-
-export function reverse(connection: DbConnection, worldId: string, args: string[]): string[] {
-  if (isPlayerDead(connection, worldId)) {
-    return [
-      "reverse: error: cannot reverse while dead",
-      "",
-      "Use 'respawn' to respawn"
-    ];
-  }
-
-  if (args.length < 1) {
-    return [
-      "reverse: error: missing required argument '<distance>'",
-      "",
-      "Usage: reverse <distance>",
-      "       reverse 3"
-    ];
-  }
-
-  const parsed = Number.parseFloat(args[0]);
-  if (Number.isNaN(parsed)) {
-    return [
-      `reverse: error: invalid value '${args[0]}' for '<distance>': must be a valid number`,
-      "",
-      "Usage: reverse <distance>",
-      "       reverse 3"
-    ];
-  }
-
-  const distance = parsed;
-
-  connection.reducers.reverse({ worldId, distance });
-
-  return [
-    `Reversing ${distance} ${distance != 1 ? "units" : "unit"}`,
-  ];
 }
 
 export function stop(connection: DbConnection, worldId: string, args: string[]): string[] {
