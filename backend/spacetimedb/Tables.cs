@@ -40,17 +40,7 @@ public static partial class Module
         public string WorldId;
 
         public bool[] Map;
-        public int Width;
-        public int Height;
-    }
-
-    [Table(Name = "projectile_collision_map", Public = true)]
-    public partial struct ProjectileCollisionMap
-    {
-        [PrimaryKey]
-        public string WorldId;
-
-        public bool[] Map;
+        public bool[] ProjectileCollisionMap;
         public int Width;
         public int Height;
     }

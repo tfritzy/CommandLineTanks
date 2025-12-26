@@ -127,28 +127,28 @@ public static partial class ProjectileUpdater
     private static (bool collided, Projectile projectile, bool mapChanged) HandleTerrainCollision(
         ReducerContext ctx,
         Projectile projectile,
-        ref Module.ProjectileCollisionMap projectileCollisionMap,
+        ref Module.TraversibilityMap traversibilityMap,
         string worldId,
         double deltaTime)
     {
         int projectileTileX = (int)projectile.PositionX;
         int projectileTileY = (int)projectile.PositionY;
 
-        if (projectileTileX < 0 || projectileTileX >= projectileCollisionMap.Width ||
-            projectileTileY < 0 || projectileTileY >= projectileCollisionMap.Height)
+        if (projectileTileX < 0 || projectileTileX >= traversibilityMap.Width ||
+            projectileTileY < 0 || projectileTileY >= traversibilityMap.Height)
         {
             return (false, projectile, false);
         }
 
-        int tileIndex = projectileTileY * projectileCollisionMap.Width + projectileTileX;
-        bool tileIsTraversable = tileIndex < projectileCollisionMap.Map.Length && projectileCollisionMap.Map[tileIndex];
+        int tileIndex = projectileTileY * traversibilityMap.Width + projectileTileX;
+        bool tileIsTraversable = tileIndex < traversibilityMap.ProjectileCollisionMap.Length && traversibilityMap.ProjectileCollisionMap[tileIndex];
 
         if (projectile.PassThroughTerrain)
         {
             if (projectile.CollisionRadius > 0)
             {
                 bool terrainChanged;
-                (projectile, terrainChanged) = DamageTerrainInRadius(ctx, projectile, ref projectileCollisionMap, worldId);
+                (projectile, terrainChanged) = DamageTerrainInRadius(ctx, projectile, ref traversibilityMap, worldId);
                 return (false, projectile, terrainChanged);
             }
             return (false, projectile, false);
@@ -172,7 +172,7 @@ public static partial class ProjectileUpdater
             return (false, projectile, false);
         }
 
-        bool mapChanged = DamageTerrainAtTile(ctx, worldId, projectileTileX, projectileTileY, tileIndex, projectile.Damage, ref projectileCollisionMap);
+        bool mapChanged = DamageTerrainAtTile(ctx, worldId, projectileTileX, projectileTileY, tileIndex, projectile.Damage, ref traversibilityMap);
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
         return (true, projectile, mapChanged);
@@ -181,7 +181,7 @@ public static partial class ProjectileUpdater
     private static (Projectile projectile, bool mapChanged) DamageTerrainInRadius(
         ReducerContext ctx,
         Projectile projectile,
-        ref Module.ProjectileCollisionMap projectileCollisionMap,
+        ref Module.TraversibilityMap traversibilityMap,
         string worldId)
     {
         int collisionTileRadius = (int)Math.Ceiling(projectile.CollisionRadius);
@@ -208,8 +208,8 @@ public static partial class ProjectileUpdater
                 int tileX = centerTileX + dx;
                 int tileY = centerTileY + dy;
 
-                if (tileX < 0 || tileX >= projectileCollisionMap.Width ||
-                    tileY < 0 || tileY >= projectileCollisionMap.Height)
+                if (tileX < 0 || tileX >= traversibilityMap.Width ||
+                    tileY < 0 || tileY >= traversibilityMap.Height)
                 {
                     continue;
                 }
@@ -236,8 +236,8 @@ public static partial class ProjectileUpdater
 
                     if (!alreadyDamaged)
                     {
-                        int tileIndex = tileY * projectileCollisionMap.Width + tileX;
-                        if (DamageTerrainAtTile(ctx, worldId, tileX, tileY, tileIndex, projectile.Damage, ref projectileCollisionMap))
+                        int tileIndex = tileY * traversibilityMap.Width + tileX;
+                        if (DamageTerrainAtTile(ctx, worldId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap))
                         {
                             traversibilityMapChanged = true;
                         }
@@ -386,7 +386,7 @@ public static partial class ProjectileUpdater
         ReducerContext ctx,
         Projectile projectile,
         string worldId,
-        ref Module.ProjectileCollisionMap projectileCollisionMap,
+        ref Module.TraversibilityMap traversibilityMap,
         int minRegionX,
         int maxRegionX,
         int minRegionY,
@@ -453,7 +453,7 @@ public static partial class ProjectileUpdater
                                 {
                                     if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
                                     {
-                                        bool mapChanged = ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, worldId, ref projectileCollisionMap);
+                                        bool mapChanged = ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, worldId, ref traversibilityMap);
                                         ctx.Db.projectile.Id.Delete(projectile.Id);
                                         return (true, projectile, mapChanged);
                                     }
@@ -554,11 +554,11 @@ public static partial class ProjectileUpdater
             LastTickAt = currentTime
         });
 
-        var projectileCollisionMapQuery = ctx.Db.projectile_collision_map.WorldId.Find(args.WorldId);
-        if (projectileCollisionMapQuery == null) return;
-        var projectileCollisionMap = projectileCollisionMapQuery.Value;
+        var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
+        if (traversibilityMapQuery == null) return;
+        var traversibilityMap = traversibilityMapQuery.Value;
 
-        bool projectileCollisionMapChanged = false;
+        bool traversibilityMapChanged = false;
 
         foreach (var iProjectile in ctx.Db.projectile.WorldId.Filter(args.WorldId))
         {
@@ -571,9 +571,9 @@ public static partial class ProjectileUpdater
             {
                 if (projectile.ExplosionTrigger == ExplosionTrigger.OnExpiration)
                 {
-                    if (ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, args.WorldId, ref projectileCollisionMap))
+                    if (ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, args.WorldId, ref traversibilityMap))
                     {
-                        projectileCollisionMapChanged = true;
+                        traversibilityMapChanged = true;
                     }
                 }
                 ctx.Db.projectile.Id.Delete(projectile.Id);
@@ -605,22 +605,22 @@ public static partial class ProjectileUpdater
 
             bool collided;
             bool mapChanged;
-            (collided, projectile, mapChanged) = HandleTerrainCollision(ctx, projectile, ref projectileCollisionMap, args.WorldId, deltaTime);
+            (collided, projectile, mapChanged) = HandleTerrainCollision(ctx, projectile, ref traversibilityMap, args.WorldId, deltaTime);
 
             if (mapChanged)
             {
-                projectileCollisionMapChanged = true;
+                traversibilityMapChanged = true;
             }
 
             if (collided) continue;
 
             var (minRegionX, maxRegionX, minRegionY, maxRegionY) = CalculateTankCollisionRegions(projectile);
 
-            (collided, projectile, mapChanged) = HandleTankCollisions(ctx, projectile, args.WorldId, ref projectileCollisionMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
+            (collided, projectile, mapChanged) = HandleTankCollisions(ctx, projectile, args.WorldId, ref traversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
 
             if (mapChanged)
             {
-                projectileCollisionMapChanged = true;
+                traversibilityMapChanged = true;
             }
 
             if (collided) continue;
@@ -632,9 +632,9 @@ public static partial class ProjectileUpdater
             ctx.Db.projectile.Id.Update(projectile);
         }
 
-        if (projectileCollisionMapChanged)
+        if (traversibilityMapChanged)
         {
-            ctx.Db.projectile_collision_map.WorldId.Update(projectileCollisionMap);
+            ctx.Db.traversibility_map.WorldId.Update(traversibilityMap);
         }
     }
 }

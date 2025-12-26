@@ -87,12 +87,6 @@ public static partial class Module
             ctx.Db.traversibility_map.WorldId.Delete(worldId);
         }
 
-        var projectileCollisionMap = ctx.Db.projectile_collision_map.WorldId.Find(worldId);
-        if (projectileCollisionMap != null)
-        {
-            ctx.Db.projectile_collision_map.WorldId.Delete(worldId);
-        }
-
         foreach (var tankUpdater in ctx.Db.ScheduledTankUpdates.WorldId.Filter(worldId))
         {
             ctx.Db.ScheduledTankUpdates.ScheduledId.Delete(tankUpdater.ScheduledId);

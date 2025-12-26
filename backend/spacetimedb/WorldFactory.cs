@@ -59,14 +59,7 @@ public static partial class Module
         {
             WorldId = worldId,
             Map = traversibilityMap,
-            Width = TerrainGenerator.GetWorldWidth(),
-            Height = TerrainGenerator.GetWorldHeight()
-        });
-
-        ctx.Db.projectile_collision_map.Insert(new ProjectileCollisionMap
-        {
-            WorldId = worldId,
-            Map = projectileCollisionMap,
+            ProjectileCollisionMap = projectileCollisionMap,
             Width = TerrainGenerator.GetWorldWidth(),
             Height = TerrainGenerator.GetWorldHeight()
         });

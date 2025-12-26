@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class ProjectileUpdater
 {
-    public static bool ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, string worldId, ref Module.ProjectileCollisionMap projectileCollisionMap)
+    public static bool ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, string worldId, ref Module.TraversibilityMap traversibilityMap)
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
         {
@@ -54,8 +54,8 @@ public static partial class ProjectileUpdater
                 int tileX = explosionTileX + dx;
                 int tileY = explosionTileY + dy;
 
-                if (tileX < 0 || tileX >= projectileCollisionMap.Width ||
-                    tileY < 0 || tileY >= projectileCollisionMap.Height)
+                if (tileX < 0 || tileX >= traversibilityMap.Width ||
+                    tileY < 0 || tileY >= traversibilityMap.Height)
                 {
                     continue;
                 }
@@ -70,8 +70,8 @@ public static partial class ProjectileUpdater
 
                 if (distanceSquared <= explosionRadiusSquared)
                 {
-                    int tileIndex = tileY * projectileCollisionMap.Width + tileX;
-                    if (DamageTerrainAtTile(ctx, worldId, tileX, tileY, tileIndex, projectile.Damage, ref projectileCollisionMap))
+                    int tileIndex = tileY * traversibilityMap.Width + tileX;
+                    if (DamageTerrainAtTile(ctx, worldId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap))
                     {
                         traversibilityMapChanged = true;
                     }
@@ -90,7 +90,7 @@ public static partial class ProjectileUpdater
         int gridY,
         int tileIndex,
         int damage,
-        ref Module.ProjectileCollisionMap projectileCollisionMap)
+        ref Module.TraversibilityMap traversibilityMap)
     {
         foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((worldId, gridX, gridY)))
         {
@@ -104,16 +104,8 @@ public static partial class ProjectileUpdater
             {
                 ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
 
-                projectileCollisionMap.Map[tileIndex] = true;
-
-                var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(worldId);
-                if (traversibilityMapQuery != null)
-                {
-                    var traversibilityMap = traversibilityMapQuery.Value;
-                    traversibilityMap.Map[tileIndex] = true;
-                    ctx.Db.traversibility_map.WorldId.Update(traversibilityMap);
-                }
-
+                traversibilityMap.Map[tileIndex] = true;
+                traversibilityMap.ProjectileCollisionMap[tileIndex] = true;
                 return true;
             }
             else
