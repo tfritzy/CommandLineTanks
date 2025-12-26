@@ -1,5 +1,7 @@
 const OVERDRIVE_ICON_READY_COLOR = '#f5c47c';
 const OVERDRIVE_ICON_COOLDOWN_COLOR = '#707b89';
+const BOLT_WIDTH_SCALE = 0.35;
+const BOLT_HEIGHT_SCALE = 0.5;
 
 export function drawOverdriveIcon(
   ctx: CanvasRenderingContext2D,
@@ -12,12 +14,11 @@ export function drawOverdriveIcon(
   ctx.translate(x, y);
 
   const color = isReady ? OVERDRIVE_ICON_READY_COLOR : OVERDRIVE_ICON_COOLDOWN_COLOR;
-  
   ctx.fillStyle = color;
   ctx.globalAlpha = 0.9;
 
-  const boltWidth = size * 0.35;
-  const boltHeight = size * 0.5;
+  const boltWidth = size * BOLT_WIDTH_SCALE;
+  const boltHeight = size * BOLT_HEIGHT_SCALE;
   
   ctx.beginPath();
   ctx.moveTo(-boltWidth * 0.2, -boltHeight * 0.5);
