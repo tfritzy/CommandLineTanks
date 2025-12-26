@@ -15,20 +15,17 @@ export class ScoreManager {
   private maxKills: number = 1;
   private sortedPlayers: PlayerScore[] = [];
   private worldId: string;
+  private isHomeworld: boolean;
 
   constructor(worldId: string) {
     this.worldId = worldId;
-    this.subscribeToTanks(this.worldId);
-  }
-
-  private isHomeworld(): boolean {
-    const connection = getConnection();
-    if (!connection || !connection.identity) {
-      return false;
-    }
     
-    const identityString = connection.identity.toHexString().toLowerCase();
-    return identityString === this.worldId;
+    const connection = getConnection();
+    this.isHomeworld = connection?.identity 
+      ? connection.identity.toHexString().toLowerCase() === worldId
+      : false;
+    
+    this.subscribeToTanks(this.worldId);
   }
 
   private static createPlayerScore(tank: Infer<typeof TankRow>): PlayerScore {
@@ -75,7 +72,7 @@ export class ScoreManager {
   }
 
   public draw(ctx: CanvasRenderingContext2D, canvasWidth: number) {
-    if (this.isHomeworld()) {
+    if (this.isHomeworld) {
       return;
     }
     
