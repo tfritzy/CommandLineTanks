@@ -1,6 +1,7 @@
 import { TankManager } from "./TankManager";
 import { TerrainManager } from "./TerrainManager";
 import { TERRAIN_COLORS, TERRAIN_DETAIL_COLORS, TEAM_COLORS } from "../constants";
+import { TerrainDetailType } from "../objects/terrain-details/TerrainDetailObject";
 
 export class MiniMapManager {
   private tankManager: TankManager;
@@ -9,10 +10,26 @@ export class MiniMapManager {
   private margin: number = 20;
   private tankIndicatorRadius: number = 5;
   private spawnPaddingRatio: number = 0.25;
+  private baseLayerCanvas: HTMLCanvasElement | null = null;
+  private baseLayerContext: CanvasRenderingContext2D | null = null;
+  private lastWorldWidth: number = 0;
+  private lastWorldHeight: number = 0;
+  private needsRedraw: boolean = true;
 
   constructor(tankManager: TankManager, terrainManager: TerrainManager) {
     this.tankManager = tankManager;
     this.terrainManager = terrainManager;
+    this.subscribeToTerrainChanges();
+  }
+
+  private subscribeToTerrainChanges() {
+    this.terrainManager.onTerrainDetailDeleted(() => {
+      this.markForRedraw();
+    });
+  }
+
+  public markForRedraw() {
+    this.needsRedraw = true;
   }
 
   public draw(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
@@ -39,11 +56,19 @@ export class MiniMapManager {
     const miniMapX = canvasWidth - miniMapWidth - this.margin;
     const miniMapY = canvasHeight - miniMapHeight - this.margin;
 
+    const worldChanged = worldWidth !== this.lastWorldWidth || worldHeight !== this.lastWorldHeight;
+    if (worldChanged || this.needsRedraw || !this.baseLayerCanvas) {
+      this.createBaseLayer(miniMapWidth, miniMapHeight, worldWidth, worldHeight);
+      this.lastWorldWidth = worldWidth;
+      this.lastWorldHeight = worldHeight;
+      this.needsRedraw = false;
+    }
+
     ctx.save();
 
-    this.drawTerrain(ctx, miniMapX, miniMapY, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
-
-    this.drawSpawnZones(ctx, miniMapX, miniMapY, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
+    if (this.baseLayerCanvas) {
+      ctx.drawImage(this.baseLayerCanvas, miniMapX, miniMapY);
+    }
 
     ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
     ctx.lineWidth = 1;
@@ -70,6 +95,26 @@ export class MiniMapManager {
     ctx.restore();
   }
 
+  private createBaseLayer(
+    miniMapWidth: number,
+    miniMapHeight: number,
+    worldWidth: number,
+    worldHeight: number
+  ) {
+    if (!this.baseLayerCanvas) {
+      this.baseLayerCanvas = document.createElement('canvas');
+      this.baseLayerContext = this.baseLayerCanvas.getContext('2d');
+    }
+
+    if (!this.baseLayerContext) return;
+
+    this.baseLayerCanvas.width = miniMapWidth;
+    this.baseLayerCanvas.height = miniMapHeight;
+
+    this.drawTerrain(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
+    this.drawSpawnZones(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
+  }
+
   private drawTerrain(
     ctx: CanvasRenderingContext2D,
     miniMapX: number,
@@ -87,15 +132,17 @@ export class MiniMapManager {
     const pixelWidth = miniMapWidth / worldWidth;
     const pixelHeight = miniMapHeight / worldHeight;
 
-    const detailColorMap: Record<string, string> = {
-      Tree: TERRAIN_DETAIL_COLORS.TREE.BASE,
-      Rock: TERRAIN_DETAIL_COLORS.ROCK.BODY,
-      HayBale: TERRAIN_DETAIL_COLORS.HAY_BALE.BODY,
-      FoundationEdge: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
-      FoundationCorner: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
-      FenceEdge: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
-      FenceCorner: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
-      TargetDummy: TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY
+    const detailColorMap: Record<TerrainDetailType, string> = {
+      [TerrainDetailType.Tree]: TERRAIN_DETAIL_COLORS.TREE.BASE,
+      [TerrainDetailType.Rock]: TERRAIN_DETAIL_COLORS.ROCK.BODY,
+      [TerrainDetailType.HayBale]: TERRAIN_DETAIL_COLORS.HAY_BALE.BODY,
+      [TerrainDetailType.FoundationEdge]: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
+      [TerrainDetailType.FoundationCorner]: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
+      [TerrainDetailType.FenceEdge]: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
+      [TerrainDetailType.FenceCorner]: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
+      [TerrainDetailType.TargetDummy]: TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY,
+      [TerrainDetailType.Label]: TERRAIN_COLORS.GROUND,
+      [TerrainDetailType.None]: TERRAIN_COLORS.GROUND
     };
 
     for (let tileY = 0; tileY < worldHeight; tileY++) {

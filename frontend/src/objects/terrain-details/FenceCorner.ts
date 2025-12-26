@@ -1,4 +1,4 @@
-import { TerrainDetailObject } from "./TerrainDetailObject";
+import { TerrainDetailObject, TerrainDetailType } from "./TerrainDetailObject";
 import { drawFenceCornerShadow, drawFenceCornerBody } from "../../drawing/terrain-details/fence-corner";
 
 export class FenceCorner extends TerrainDetailObject {
@@ -28,7 +28,7 @@ export class FenceCorner extends TerrainDetailObject {
     this.drawBody(ctx);
   }
 
-  public getType(): string {
-    return "FenceCorner";
+  public getType(): TerrainDetailType {
+    return TerrainDetailType.FenceCorner;
   }
 }

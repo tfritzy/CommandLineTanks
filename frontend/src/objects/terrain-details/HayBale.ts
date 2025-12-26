@@ -1,5 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
-import { TerrainDetailObject } from "./TerrainDetailObject";
+import { TerrainDetailObject, TerrainDetailType } from "./TerrainDetailObject";
 import { getFlashColor } from "../../utils/colors";
 
 export class HayBale extends TerrainDetailObject {
@@ -49,7 +49,7 @@ export class HayBale extends TerrainDetailObject {
     this.drawBody(ctx);
   }
 
-  public getType(): string {
-    return "HayBale";
+  public getType(): TerrainDetailType {
+    return TerrainDetailType.HayBale;
   }
 }

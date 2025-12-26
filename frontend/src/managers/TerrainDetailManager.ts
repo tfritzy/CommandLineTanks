@@ -26,6 +26,7 @@ export class TerrainDetailManager {
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
   private terrainDebrisParticles: TerrainDebrisParticlesManager =
     new TerrainDebrisParticlesManager();
+  private onDetailDeletedCallbacks: (() => void)[] = [];
 
   constructor(worldId: string, worldWidth: number, worldHeight: number) {
     this.worldId = worldId;
@@ -101,6 +102,8 @@ export class TerrainDetailManager {
           }
         }
         this.detailObjects.delete(detail.id);
+        
+        this.onDetailDeletedCallbacks.forEach(callback => callback());
       }
     );
   }
@@ -298,5 +301,9 @@ export class TerrainDetailManager {
 
   public getDetailObjectsByPosition(): (TerrainDetailObject | null)[][] {
     return this.detailObjectsByPosition;
+  }
+
+  public onDetailDeleted(callback: () => void): void {
+    this.onDetailDeletedCallbacks.push(callback);
   }
 }
