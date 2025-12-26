@@ -129,7 +129,7 @@ export default function GameView() {
               cursor: 'text',
               wordBreak: 'break-all'
             }}>
-              {window.location.origin}/world/{worldId}
+              {window.location.origin}/world/{encodeURIComponent(worldId)}
             </div>
           </div>
         )}
