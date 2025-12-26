@@ -33,6 +33,12 @@ public static partial class Module
             float posX = detail.x + 0.5f;
             float posY = detail.y + 0.5f;
 
+            if (detail.type == TerrainDetailType.Tree)
+            {
+                posX += (float)(ctx.Rng.NextDouble() * 0.5 - 0.25);
+                posY += (float)(ctx.Rng.NextDouble() * 0.5 - 0.25);
+            }
+
             ctx.Db.terrain_detail.Insert(new TerrainDetail
             {
                 Id = terrainDetailId,
