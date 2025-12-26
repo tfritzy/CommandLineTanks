@@ -30,6 +30,7 @@ export class Tank {
   private selectedGunIndex: number;
   private flashTimer: number = 0;
   private hasShield: boolean = false;
+  private immunityUntil: bigint = 0n;
 
   constructor(
     id: string,
@@ -46,7 +47,8 @@ export class Tank {
     path: PathEntry[] = [],
     guns: Infer<typeof Gun>[] = [],
     selectedGunIndex: number = 0,
-    hasShield: boolean = false
+    hasShield: boolean = false,
+    immunityUntil: bigint = 0n
   ) {
     this.id = id;
     this.x = x;
@@ -64,6 +66,7 @@ export class Tank {
     this.guns = guns;
     this.selectedGunIndex = selectedGunIndex;
     this.hasShield = hasShield;
+    this.immunityUntil = immunityUntil;
   }
 
   public getAllianceColor(): string {
@@ -86,6 +89,8 @@ export class Tank {
 
   public drawBody(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
+    const currentTime = BigInt(Date.now() * 1000);
+    const isImmune = currentTime < this.immunityUntil;
     drawTankBody(ctx, {
       x: this.x,
       y: this.y,
@@ -95,6 +100,7 @@ export class Tank {
       name: this.name,
       health: this.health,
       hasShield: this.hasShield,
+      isImmune: isImmune,
     });
   }
 
@@ -151,6 +157,14 @@ export class Tank {
 
   public setHasShield(hasShield: boolean) {
     this.hasShield = hasShield;
+  }
+
+  public setImmunityUntil(immunityUntil: bigint) {
+    this.immunityUntil = immunityUntil;
+  }
+
+  public isImmune(currentTime: bigint): boolean {
+    return currentTime < this.immunityUntil;
   }
 
   public update(deltaTime: number) {

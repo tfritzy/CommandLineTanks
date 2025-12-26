@@ -17,6 +17,7 @@ interface TankDrawParams {
   name: string;
   health: number;
   hasShield: boolean;
+  isImmune: boolean;
 }
 
 export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -39,6 +40,13 @@ export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: numb
 export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawParams) {
   ctx.save();
   ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
+
+  if (params.isImmune) {
+    const flashRate = 0.2;
+    const flashCycle = Date.now() / 1000 / flashRate;
+    const opacity = Math.abs(Math.sin(flashCycle * Math.PI)) * 0.5 + 0.5;
+    ctx.globalAlpha = opacity;
+  }
 
   const allianceColor = params.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
   const bodyColor = getFlashColor(allianceColor, params.flashTimer);
