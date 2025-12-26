@@ -9,6 +9,7 @@ export abstract class Projectile {
   protected size: number;
   protected alliance: number;
   protected explosionRadius: number | undefined;
+  protected trackingStrength: number;
 
   constructor(
     x: number,
@@ -17,7 +18,8 @@ export abstract class Projectile {
     velocityY: number,
     size: number,
     alliance: number,
-    explosionRadius?: number
+    explosionRadius?: number,
+    trackingStrength?: number
   ) {
     this.x = x;
     this.y = y;
@@ -26,6 +28,7 @@ export abstract class Projectile {
     this.size = size;
     this.alliance = alliance;
     this.explosionRadius = explosionRadius;
+    this.trackingStrength = trackingStrength || 0;
   }
 
   public draw(ctx: CanvasRenderingContext2D, textureSheet: any) {

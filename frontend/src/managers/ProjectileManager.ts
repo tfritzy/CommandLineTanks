@@ -37,7 +37,8 @@ export class ProjectileManager {
           newProjectile.velocity.y,
           newProjectile.size,
           newProjectile.alliance,
-          newProjectile.explosionRadius
+          newProjectile.explosionRadius,
+          newProjectile.trackingStrength
         );
         this.projectiles.set(newProjectile.id, projectile);
       }

@@ -3,6 +3,13 @@ import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpac
 import { ProjectileTextureSheet } from "../../texture-sheets/ProjectileTextureSheet";
 
 export class MissileProjectile extends Projectile {
+  public update(deltaTime: number) {
+    if (this.trackingStrength > 0) {
+      return;
+    }
+    super.update(deltaTime);
+  }
+
   public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
     const { x: centerX, y: centerY } = this.getShadowScreenPosition();
     const angle = Math.atan2(this.velocityY, this.velocityX);
