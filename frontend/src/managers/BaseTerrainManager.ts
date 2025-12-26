@@ -17,8 +17,7 @@ export class BaseTerrainManager {
   constructor(worldId: string) {
     this.worldId = worldId;
     this.subscribeToWorld();
-    const dpr = window.devicePixelRatio || 1;
-    this.lakeTextureSheet = generateLakeTextureSheet(UNIT_TO_PIXEL, dpr);
+    this.lakeTextureSheet = generateLakeTextureSheet(UNIT_TO_PIXEL);
   }
 
   private subscribeToWorld() {
@@ -31,14 +30,12 @@ export class BaseTerrainManager {
       .subscribe([`SELECT * FROM world WHERE Id = '${this.worldId}'`]);
 
     connection.db.world.onInsert((_ctx, world) => {
-      console.log("World data received:", world);
       this.worldWidth = world.width;
       this.worldHeight = world.height;
       this.baseTerrainLayer = world.baseTerrainLayer;
     });
 
     connection.db.world.onUpdate((_ctx, _oldWorld, newWorld) => {
-      console.log("World data updated:", newWorld);
       this.worldWidth = newWorld.width;
       this.worldHeight = newWorld.height;
       this.baseTerrainLayer = newWorld.baseTerrainLayer;
@@ -98,24 +95,29 @@ export class BaseTerrainManager {
 
         if (tileCase === 0) continue;
 
-        const dpr = window.devicePixelRatio || 1;
         const sheetCol = tileCase % 4;
         const sheetRow = Math.floor(tileCase / 4);
-        const srcX = sheetCol * UNIT_TO_PIXEL * dpr;
-        const srcY = sheetRow * UNIT_TO_PIXEL * dpr;
+        const srcX = sheetCol * UNIT_TO_PIXEL;
+        const srcY = sheetRow * UNIT_TO_PIXEL;
 
-        const worldX = (renderX + 0.5) * UNIT_TO_PIXEL;
-        const worldY = (renderY + 0.5) * UNIT_TO_PIXEL;
+        const worldX = Math.floor((renderX + 0.5) * UNIT_TO_PIXEL);
+        const worldY = Math.floor((renderY + 0.5) * UNIT_TO_PIXEL);
 
         ctx.drawImage(
           this.lakeTextureSheet,
-          srcX, srcY, UNIT_TO_PIXEL * dpr, UNIT_TO_PIXEL * dpr,
-          worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL
+          srcX,
+          srcY,
+          UNIT_TO_PIXEL,
+          UNIT_TO_PIXEL,
+          worldX,
+          worldY,
+          UNIT_TO_PIXEL,
+          UNIT_TO_PIXEL
         );
       }
     }
 
-    this.drawGrid(ctx, startTileX, endTileX, startTileY, endTileY);
+    // this.drawGrid(ctx, startTileX, endTileX, startTileY, endTileY);
   }
 
   private drawFarms(
@@ -171,7 +173,7 @@ export class BaseTerrainManager {
     ctx.strokeStyle = TERRAIN_COLORS.GRID;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    
+
     for (let tileY = startTileY; tileY <= endTileY; tileY++) {
       for (let tileX = startTileX; tileX <= endTileX; tileX++) {
         if (

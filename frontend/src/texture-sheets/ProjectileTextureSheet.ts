@@ -16,31 +16,28 @@ export class ProjectileTextureSheet {
   private shadowTextures: Map<string, ProjectileTexture> = new Map();
 
   constructor() {
-    const dpr = window.devicePixelRatio || 1;
     const logicalSize = 1024;
 
     this.canvas = document.createElement("canvas");
-    this.canvas.width = logicalSize * dpr;
-    this.canvas.height = logicalSize * dpr;
+    this.canvas.width = logicalSize;
+    this.canvas.height = logicalSize;
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
       throw new Error("Failed to get 2D context for projectile texture sheet");
     }
     this.ctx = ctx;
-    this.ctx.scale(dpr, dpr);
     this.ctx.imageSmoothingEnabled = false;
 
     this.shadowCanvas = document.createElement("canvas");
-    this.shadowCanvas.width = logicalSize * dpr;
-    this.shadowCanvas.height = logicalSize * dpr;
+    this.shadowCanvas.width = logicalSize;
+    this.shadowCanvas.height = logicalSize;
 
     const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
       throw new Error("Failed to get 2D context for shadow texture sheet");
     }
     this.shadowCtx = shadowCtx;
-    this.shadowCtx.scale(dpr, dpr);
     this.shadowCtx.imageSmoothingEnabled = false;
 
     this.initializeTextures();
@@ -767,7 +764,6 @@ export class ProjectileTextureSheet {
   ) {
     const texture = this.textures.get(key);
     if (!texture) return;
-    const dpr = window.devicePixelRatio || 1;
 
     ctx.save();
 
@@ -781,10 +777,10 @@ export class ProjectileTextureSheet {
 
     ctx.drawImage(
       this.canvas,
-      Math.floor(texture.x * dpr),
-      Math.floor(texture.y * dpr),
-      Math.floor(texture.width * dpr),
-      Math.floor(texture.height * dpr),
+      texture.x,
+      texture.y,
+      texture.width,
+      texture.height,
       -texture.width / 2,
       -texture.height / 2,
       texture.width,
@@ -804,7 +800,6 @@ export class ProjectileTextureSheet {
   ) {
     const texture = this.shadowTextures.get(key);
     if (!texture) return;
-    const dpr = window.devicePixelRatio || 1;
 
     ctx.save();
 
@@ -818,10 +813,10 @@ export class ProjectileTextureSheet {
 
     ctx.drawImage(
       this.shadowCanvas,
-      Math.floor(texture.x * dpr),
-      Math.floor(texture.y * dpr),
-      Math.floor(texture.width * dpr),
-      Math.floor(texture.height * dpr),
+      texture.x,
+      texture.y,
+      texture.width,
+      texture.height,
       -texture.width / 2,
       -texture.height / 2,
       texture.width,

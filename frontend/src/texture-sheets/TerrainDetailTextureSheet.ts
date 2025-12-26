@@ -1,12 +1,30 @@
 import { UNIT_TO_PIXEL } from "../constants";
 import { drawRockShadow, drawRockBody } from "../drawing/terrain-details/rock";
 import { drawTreeShadow, drawTreeBody } from "../drawing/terrain-details/tree";
-import { drawHayBaleShadow, drawHayBaleBody } from "../drawing/terrain-details/hay-bale";
-import { drawFenceEdgeShadow, drawFenceEdgeBody } from "../drawing/terrain-details/fence-edge";
-import { drawFenceCornerShadow, drawFenceCornerBody } from "../drawing/terrain-details/fence-corner";
-import { drawFoundationEdgeShadow, drawFoundationEdgeBody } from "../drawing/terrain-details/foundation-edge";
-import { drawFoundationCornerShadow, drawFoundationCornerBody } from "../drawing/terrain-details/foundation-corner";
-import { drawTargetDummyShadow, drawTargetDummyBody } from "../drawing/terrain-details/target-dummy";
+import {
+  drawHayBaleShadow,
+  drawHayBaleBody,
+} from "../drawing/terrain-details/hay-bale";
+import {
+  drawFenceEdgeShadow,
+  drawFenceEdgeBody,
+} from "../drawing/terrain-details/fence-edge";
+import {
+  drawFenceCornerShadow,
+  drawFenceCornerBody,
+} from "../drawing/terrain-details/fence-corner";
+import {
+  drawFoundationEdgeShadow,
+  drawFoundationEdgeBody,
+} from "../drawing/terrain-details/foundation-edge";
+import {
+  drawFoundationCornerShadow,
+  drawFoundationCornerBody,
+} from "../drawing/terrain-details/foundation-corner";
+import {
+  drawTargetDummyShadow,
+  drawTargetDummyBody,
+} from "../drawing/terrain-details/target-dummy";
 
 export interface TerrainDetailTexture {
   x: number;
@@ -24,12 +42,11 @@ export class TerrainDetailTextureSheet {
   private shadowTextures: Map<string, TerrainDetailTexture> = new Map();
 
   constructor() {
-    const dpr = window.devicePixelRatio || 1;
     const logicalSize = 2048;
 
     this.canvas = document.createElement("canvas");
-    this.canvas.width = logicalSize * dpr;
-    this.canvas.height = logicalSize * dpr;
+    this.canvas.width = logicalSize;
+    this.canvas.height = logicalSize;
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) {
@@ -38,19 +55,17 @@ export class TerrainDetailTextureSheet {
       );
     }
     this.ctx = ctx;
-    this.ctx.scale(dpr, dpr);
     this.ctx.imageSmoothingEnabled = false;
 
     this.shadowCanvas = document.createElement("canvas");
-    this.shadowCanvas.width = logicalSize * dpr;
-    this.shadowCanvas.height = logicalSize * dpr;
+    this.shadowCanvas.width = logicalSize;
+    this.shadowCanvas.height = logicalSize;
 
     const shadowCtx = this.shadowCanvas.getContext("2d");
     if (!shadowCtx) {
       throw new Error("Failed to get 2D context for shadow texture sheet");
     }
     this.shadowCtx = shadowCtx;
-    this.shadowCtx.scale(dpr, dpr);
     this.shadowCtx.imageSmoothingEnabled = false;
 
     this.initializeTextures();
@@ -77,7 +92,13 @@ export class TerrainDetailTextureSheet {
     currentY += cellSize;
 
     for (let rot = 0; rot < 4; rot++) {
-      this.renderFenceEdge(`fenceedge-${rot}`, currentX, currentY, cellSize, rot);
+      this.renderFenceEdge(
+        `fenceedge-${rot}`,
+        currentX,
+        currentY,
+        cellSize,
+        rot
+      );
       currentX += cellSize;
     }
 
@@ -85,7 +106,13 @@ export class TerrainDetailTextureSheet {
     currentY += cellSize;
 
     for (let rot = 0; rot < 4; rot++) {
-      this.renderFenceCorner(`fencecorner-${rot}`, currentX, currentY, cellSize, rot);
+      this.renderFenceCorner(
+        `fencecorner-${rot}`,
+        currentX,
+        currentY,
+        cellSize,
+        rot
+      );
       currentX += cellSize;
     }
 
@@ -93,7 +120,13 @@ export class TerrainDetailTextureSheet {
     currentY += cellSize;
 
     for (let rot = 0; rot < 4; rot++) {
-      this.renderFoundationEdge(`foundationedge-${rot}`, currentX, currentY, cellSize, rot);
+      this.renderFoundationEdge(
+        `foundationedge-${rot}`,
+        currentX,
+        currentY,
+        cellSize,
+        rot
+      );
       currentX += cellSize;
     }
 
@@ -101,12 +134,23 @@ export class TerrainDetailTextureSheet {
     currentY += cellSize;
 
     for (let rot = 0; rot < 4; rot++) {
-      this.renderFoundationCorner(`foundationcorner-${rot}`, currentX, currentY, cellSize, rot);
+      this.renderFoundationCorner(
+        `foundationcorner-${rot}`,
+        currentX,
+        currentY,
+        cellSize,
+        rot
+      );
       currentX += cellSize;
     }
   }
 
-  private renderRock(key: string, atlasX: number, atlasY: number, cellSize: number) {
+  private renderRock(
+    key: string,
+    atlasX: number,
+    atlasY: number,
+    cellSize: number
+  ) {
     const padding = 8;
     const centerOffset = cellSize / 2;
     const centerX = atlasX + centerOffset;
@@ -138,7 +182,12 @@ export class TerrainDetailTextureSheet {
     });
   }
 
-  private renderTree(key: string, atlasX: number, atlasY: number, cellSize: number) {
+  private renderTree(
+    key: string,
+    atlasX: number,
+    atlasY: number,
+    cellSize: number
+  ) {
     const padding = 8;
     const centerOffset = cellSize / 2;
     const centerX = atlasX + centerOffset;
@@ -170,7 +219,12 @@ export class TerrainDetailTextureSheet {
     });
   }
 
-  private renderHayBale(key: string, atlasX: number, atlasY: number, cellSize: number) {
+  private renderHayBale(
+    key: string,
+    atlasX: number,
+    atlasY: number,
+    cellSize: number
+  ) {
     const padding = 8;
     const centerOffset = cellSize / 2;
     const centerX = atlasX + centerOffset;
@@ -202,7 +256,12 @@ export class TerrainDetailTextureSheet {
     });
   }
 
-  private renderTargetDummy(key: string, atlasX: number, atlasY: number, cellSize: number) {
+  private renderTargetDummy(
+    key: string,
+    atlasX: number,
+    atlasY: number,
+    cellSize: number
+  ) {
     const padding = 8;
     const centerOffset = cellSize / 2;
     const centerX = atlasX + centerOffset;
@@ -233,7 +292,13 @@ export class TerrainDetailTextureSheet {
     });
   }
 
-  private renderFenceEdge(key: string, atlasX: number, atlasY: number, cellSize: number, rotation: number) {
+  private renderFenceEdge(
+    key: string,
+    atlasX: number,
+    atlasY: number,
+    cellSize: number,
+    rotation: number
+  ) {
     const padding = 8;
     const centerOffset = cellSize / 2;
     const x = atlasX + centerOffset;
@@ -262,7 +327,13 @@ export class TerrainDetailTextureSheet {
     });
   }
 
-  private renderFenceCorner(key: string, atlasX: number, atlasY: number, cellSize: number, rotation: number) {
+  private renderFenceCorner(
+    key: string,
+    atlasX: number,
+    atlasY: number,
+    cellSize: number,
+    rotation: number
+  ) {
     const padding = 8;
     const centerOffset = cellSize / 2;
     const x = atlasX + centerOffset;
@@ -291,7 +362,13 @@ export class TerrainDetailTextureSheet {
     });
   }
 
-  private renderFoundationEdge(key: string, atlasX: number, atlasY: number, cellSize: number, rotation: number) {
+  private renderFoundationEdge(
+    key: string,
+    atlasX: number,
+    atlasY: number,
+    cellSize: number,
+    rotation: number
+  ) {
     const padding = 8;
     const centerOffset = cellSize / 2;
     const x = atlasX + centerOffset;
@@ -320,7 +397,13 @@ export class TerrainDetailTextureSheet {
     });
   }
 
-  private renderFoundationCorner(key: string, atlasX: number, atlasY: number, cellSize: number, rotation: number) {
+  private renderFoundationCorner(
+    key: string,
+    atlasX: number,
+    atlasY: number,
+    cellSize: number,
+    rotation: number
+  ) {
     const padding = 8;
     const centerOffset = cellSize / 2;
     const x = atlasX + centerOffset;

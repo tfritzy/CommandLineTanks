@@ -3,31 +3,31 @@ import { TERRAIN_COLORS } from "../constants";
 const SHEET_COLS = 4;
 const SHEET_ROWS = 4;
 
-export function generateLakeTextureSheet(tileSize: number, dpr: number): HTMLCanvasElement {
-  const canvas = document.createElement('canvas');
-  canvas.width = tileSize * SHEET_COLS * dpr;
-  canvas.height = tileSize * SHEET_ROWS * dpr;
-  const ctx = canvas.getContext('2d')!;
-  ctx.scale(dpr, dpr);
-  
+export function generateLakeTextureSheet(tileSize: number): HTMLCanvasElement {
+  const canvas = document.createElement("canvas");
+  canvas.width = tileSize * SHEET_COLS;
+  canvas.height = tileSize * SHEET_ROWS;
+  const ctx = canvas.getContext("2d")!;
+  ctx.imageSmoothingEnabled = false;
+
   for (let caseNum = 0; caseNum < 16; caseNum++) {
     const sheetX = (caseNum % SHEET_COLS) * tileSize;
     const sheetY = Math.floor(caseNum / SHEET_COLS) * tileSize;
-    
+
     const tl = (caseNum & 0b1000) !== 0;
     const tr = (caseNum & 0b0100) !== 0;
     const bl = (caseNum & 0b0010) !== 0;
     const br = (caseNum & 0b0001) !== 0;
-    
+
     ctx.save();
     ctx.translate(sheetX, sheetY);
     ctx.clearRect(0, 0, tileSize, tileSize);
-    
+
     drawLakeTileCase(ctx, tl, tr, bl, br, tileSize);
-    
+
     ctx.restore();
   }
-  
+
   return canvas;
 }
 
@@ -41,12 +41,12 @@ function drawLakeTileCase(
 ) {
   ctx.fillStyle = TERRAIN_COLORS.GROUND;
   ctx.fillRect(0, 0, size, size);
-  
+
   ctx.fillStyle = TERRAIN_COLORS.LAKE;
   ctx.beginPath();
-  
+
   const lakeCount = [tl, tr, br, bl].filter(Boolean).length;
-  
+
   if (lakeCount === 0) {
     return;
   } else if (lakeCount === 4) {
@@ -63,17 +63,20 @@ function drawLakeTileCase(
   } else if (lakeCount === 3) {
     drawThreeCorners(ctx, tl, tr, bl, br, size);
   }
-  
+
   ctx.fill();
 }
 
 function drawSingleCorner(
   ctx: CanvasRenderingContext2D,
-  tl: boolean, tr: boolean, bl: boolean, br: boolean,
+  tl: boolean,
+  tr: boolean,
+  bl: boolean,
+  br: boolean,
   size: number
 ) {
   const HALF = size / 2;
-  
+
   if (tl) {
     ctx.moveTo(0, HALF);
     ctx.arc(0, 0, HALF, Math.PI * 0.5, 0, true);
@@ -96,11 +99,14 @@ function drawSingleCorner(
 
 function drawAdjacentCorners(
   ctx: CanvasRenderingContext2D,
-  tl: boolean, tr: boolean, bl: boolean, br: boolean,
+  tl: boolean,
+  tr: boolean,
+  bl: boolean,
+  br: boolean,
   size: number
 ) {
   const HALF = size / 2;
-  
+
   if (tl && tr) {
     ctx.rect(0, 0, size, HALF);
   } else if (tr && br) {
@@ -114,11 +120,14 @@ function drawAdjacentCorners(
 
 function drawDiagonalCorners(
   ctx: CanvasRenderingContext2D,
-  tl: boolean, tr: boolean, bl: boolean, br: boolean,
+  tl: boolean,
+  tr: boolean,
+  bl: boolean,
+  br: boolean,
   size: number
 ) {
   const HALF = size / 2;
-  
+
   if (tl) {
     ctx.moveTo(0, HALF);
     ctx.arc(0, 0, HALF, Math.PI * 0.5, 0, true);
@@ -147,17 +156,20 @@ function drawDiagonalCorners(
 
 function drawThreeCorners(
   ctx: CanvasRenderingContext2D,
-  tl: boolean, tr: boolean, bl: boolean, br: boolean,
+  tl: boolean,
+  tr: boolean,
+  bl: boolean,
+  br: boolean,
   size: number
 ) {
   const HALF = size / 2;
-  
+
   ctx.rect(0, 0, size, size);
   ctx.fill();
-  
+
   ctx.fillStyle = TERRAIN_COLORS.GROUND;
   ctx.beginPath();
-  
+
   if (!tl) {
     ctx.moveTo(0, HALF);
     ctx.arc(0, 0, HALF, Math.PI * 0.5, 0, true);

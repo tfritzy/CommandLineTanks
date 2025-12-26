@@ -53,7 +53,10 @@ export class Game {
     this.scoreManager = new ScoreManager(worldId);
     this.gunInventoryManager = new GunInventoryManager(worldId);
     this.pickupManager = new PickupManager(worldId);
-    this.miniMapManager = new MiniMapManager(this.tankManager, this.terrainManager);
+    this.miniMapManager = new MiniMapManager(
+      this.tankManager,
+      this.terrainManager
+    );
     this.killManager = new KillManager(worldId);
     this.spiderMineManager = new SpiderMineManager(worldId);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
@@ -64,17 +67,15 @@ export class Game {
   private resizeCanvas() {
     const parent = this.canvas.parentElement;
     if (parent) {
-      const dpr = window.devicePixelRatio || 1;
       const displayWidth = parent.clientWidth;
       const displayHeight = parent.clientHeight;
 
-      this.canvas.width = displayWidth * dpr;
-      this.canvas.height = displayHeight * dpr;
+      this.canvas.width = displayWidth;
+      this.canvas.height = displayHeight;
 
       this.canvas.style.width = `${displayWidth}px`;
       this.canvas.style.height = `${displayHeight}px`;
 
-      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.ctx.imageSmoothingEnabled = false;
     }
   }
@@ -87,9 +88,8 @@ export class Game {
     const worldHeight = this.terrainManager.getWorldHeight();
     if (worldWidth === 0 || worldHeight === 0) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const displayWidth = this.canvas.width / dpr;
-    const displayHeight = this.canvas.height / dpr;
+    const displayWidth = this.canvas.width;
+    const displayHeight = this.canvas.height;
 
     const playerPos = playerTank.getPosition();
     const playerGridX = Math.floor(playerPos.x);
@@ -107,7 +107,11 @@ export class Game {
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
 
-    for (let x = Math.max(0, startX); x <= Math.min(worldWidth - 1, endX); x++) {
+    for (
+      let x = Math.max(0, startX);
+      x <= Math.min(worldWidth - 1, endX);
+      x++
+    ) {
       const relativeX = x - playerGridX;
 
       if (relativeX % LABEL_INTERVAL === 0 && relativeX !== 0) {
@@ -118,7 +122,11 @@ export class Game {
       }
     }
 
-    for (let y = Math.max(0, startY); y <= Math.min(worldHeight - 1, endY); y++) {
+    for (
+      let y = Math.max(0, startY);
+      y <= Math.min(worldHeight - 1, endY);
+      y++
+    ) {
       const relativeY = playerGridY - y;
 
       if (relativeY % LABEL_INTERVAL === 0 && relativeY !== 0) {
@@ -145,9 +153,8 @@ export class Game {
     this.spiderMineManager.update(deltaTime);
     this.smokeCloudManager.update(deltaTime);
 
-    const dpr = window.devicePixelRatio || 1;
-    const displayWidth = this.canvas.width / dpr;
-    const displayHeight = this.canvas.height / dpr;
+    const displayWidth = this.canvas.width;
+    const displayHeight = this.canvas.height;
 
     this.ctx.fillStyle = "#2e2e43";
     this.ctx.fillRect(0, 0, displayWidth, displayHeight);
@@ -168,6 +175,9 @@ export class Game {
     const lerpFactor = Math.min(1, clampedDeltaTime * CAMERA_FOLLOW_SPEED);
     this.currentCameraX += (targetCameraX - this.currentCameraX) * lerpFactor;
     this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
+
+    this.currentCameraX = Math.round(this.currentCameraX);
+    this.currentCameraY = Math.round(this.currentCameraY);
 
     this.ctx.translate(-this.currentCameraX, -this.currentCameraY);
 
@@ -192,9 +202,14 @@ export class Game {
 
     this.drawRelativeDistanceLabels(this.currentCameraX, this.currentCameraY);
 
-
     this.tankManager.drawBodies(this.ctx);
-    this.tankManager.drawParticles(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
+    this.tankManager.drawParticles(
+      this.ctx,
+      this.currentCameraX,
+      this.currentCameraY,
+      displayWidth,
+      displayHeight
+    );
 
     this.spiderMineManager.draw(this.ctx);
 
@@ -232,10 +247,27 @@ export class Game {
       displayHeight
     );
 
-    this.projectileManager.drawShadows(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
-    this.projectileManager.drawBodies(this.ctx, this.currentCameraX, this.currentCameraY, displayWidth, displayHeight);
+    this.projectileManager.drawShadows(
+      this.ctx,
+      this.currentCameraX,
+      this.currentCameraY,
+      displayWidth,
+      displayHeight
+    );
+    this.projectileManager.drawBodies(
+      this.ctx,
+      this.currentCameraX,
+      this.currentCameraY,
+      displayWidth,
+      displayHeight
+    );
 
-    this.projectileTrailManager.draw(this.ctx, this.currentCameraX, this.currentCameraY, this.time);
+    this.projectileTrailManager.draw(
+      this.ctx,
+      this.currentCameraX,
+      this.currentCameraY,
+      this.time
+    );
 
     // this.collisionVisualizationManager.draw(
     //   this.ctx,
@@ -258,9 +290,8 @@ export class Game {
 
   public start() {
     if (!this.animationFrameId) {
-      const dpr = window.devicePixelRatio || 1;
-      const displayWidth = this.canvas.width / dpr;
-      const displayHeight = this.canvas.height / dpr;
+      const displayWidth = this.canvas.width;
+      const displayHeight = this.canvas.height;
 
       const playerTank = this.tankManager.getPlayerTank();
       if (playerTank) {

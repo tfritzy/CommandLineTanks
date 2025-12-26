@@ -13,6 +13,7 @@ import Vector2Float from "./vector_2_float_type";
 import ProjectileType from "./projectile_type_type";
 import ExplosionTrigger from "./explosion_trigger_type";
 import DamagedTile from "./damaged_tile_type";
+import DamagedTank from "./damaged_tank_type";
 
 
 export default __t.row({
@@ -48,5 +49,8 @@ export default __t.row({
   bounce: __t.bool(),
   get recentlyDamagedTiles() {
     return __t.array(DamagedTile);
+  },
+  get recentlyHitTanks() {
+    return __t.array(DamagedTank);
   },
 });

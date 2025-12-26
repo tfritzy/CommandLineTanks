@@ -179,7 +179,6 @@ export class TerrainDetailManager {
 
     const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
     const renderSize = UNIT_TO_PIXEL * 2;
-    const dpr = window.devicePixelRatio || 1;
 
     ctx.imageSmoothingEnabled = false;
 
@@ -201,12 +200,12 @@ export class TerrainDetailManager {
 
           ctx.drawImage(
             shadowCanvas,
-            Math.floor(texture.x * dpr),
-            Math.floor(texture.y * dpr),
-            Math.floor(texture.width * dpr),
-            Math.floor(texture.height * dpr),
-            Math.round((objX * UNIT_TO_PIXEL + offset) * dpr) / dpr,
-            Math.round((objY * UNIT_TO_PIXEL + offset) * dpr) / dpr,
+            texture.x,
+            texture.y,
+            texture.width,
+            texture.height,
+            objX * UNIT_TO_PIXEL + offset,
+            objY * UNIT_TO_PIXEL + offset,
             scaledSize,
             scaledSize
           );
@@ -230,7 +229,6 @@ export class TerrainDetailManager {
 
     const bodyCanvas = terrainDetailTextureSheet.getCanvas();
     const renderSize = UNIT_TO_PIXEL * 2;
-    const dpr = window.devicePixelRatio || 1;
 
     ctx.imageSmoothingEnabled = false;
 
@@ -242,7 +240,9 @@ export class TerrainDetailManager {
         if (obj.getFlashTimer() > 0) {
           obj.drawBody(ctx);
         } else {
-          const texture = terrainDetailTextureSheet.getTexture(this.getTextureKey(obj));
+          const texture = terrainDetailTextureSheet.getTexture(
+            this.getTextureKey(obj)
+          );
 
           if (!texture) {
             console.log("no body texture");
@@ -253,12 +253,12 @@ export class TerrainDetailManager {
 
             ctx.drawImage(
               bodyCanvas,
-              Math.floor(texture.x * dpr),
-              Math.floor(texture.y * dpr),
-              Math.floor(texture.width * dpr),
-              Math.floor(texture.height * dpr),
-              Math.round((objX * UNIT_TO_PIXEL + offset) * dpr) / dpr,
-              Math.round((objY * UNIT_TO_PIXEL + offset) * dpr) / dpr,
+              texture.x,
+              texture.y,
+              texture.width,
+              texture.height,
+              objX * UNIT_TO_PIXEL + offset,
+              objY * UNIT_TO_PIXEL + offset,
               scaledSize,
               scaledSize
             );

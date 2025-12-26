@@ -137,6 +137,8 @@ export { WorldRow };
 // Import and reexport all types
 import BaseTerrain from "./base_terrain_type";
 export { BaseTerrain };
+import DamagedTank from "./damaged_tank_type";
+export { DamagedTank };
 import DamagedTile from "./damaged_tile_type";
 export { DamagedTile };
 import ExplosionTrigger from "./explosion_trigger_type";
