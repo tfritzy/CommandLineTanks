@@ -16,6 +16,7 @@ export default function GameView() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [isDead, setIsDead] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -118,18 +119,55 @@ export default function GameView() {
             <div style={{ fontSize: '16px', color: '#a9bcbf', marginBottom: '10px' }}>
               Invite friends to join this world:
             </div>
-            <div style={{
-              fontSize: '14px',
-              color: '#fcfbf3',
-              background: '#4a4b5b',
-              padding: '12px 16px',
-              borderRadius: '4px',
-              fontFamily: "'JetBrains Mono', monospace",
-              userSelect: 'all',
-              cursor: 'text',
-              wordBreak: 'break-all'
-            }}>
-              {window.location.origin}/world/{encodeURIComponent(worldId)}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div style={{
+                flex: 1,
+                fontSize: '14px',
+                color: '#fcfbf3',
+                background: '#4a4b5b',
+                padding: '12px 16px',
+                borderRadius: '4px',
+                fontFamily: "'JetBrains Mono', monospace",
+                userSelect: 'all',
+                cursor: 'text',
+                wordBreak: 'break-all'
+              }}>
+                {window.location.origin}/world/{encodeURIComponent(worldId)}
+              </div>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
+                  navigator.clipboard.writeText(url).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  });
+                }}
+                style={{
+                  padding: '12px 20px',
+                  fontSize: '14px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 'bold',
+                  color: '#fcfbf3',
+                  background: copied ? '#3c6c54' : '#5a78b2',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseEnter={(e) => {
+                  if (!copied) {
+                    e.currentTarget.style.background = '#7396d5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!copied) {
+                    e.currentTarget.style.background = '#5a78b2';
+                  }
+                }}
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
             </div>
           </div>
         )}
