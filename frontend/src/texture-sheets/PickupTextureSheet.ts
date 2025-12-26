@@ -136,21 +136,11 @@ export class PickupTextureSheet {
         ];
 
         for (let i = 0; i < 3; i++) {
-          const projX = trianglePositions[i].x * UNIT_TO_PIXEL;
-          const projY = trianglePositions[i].y * UNIT_TO_PIXEL;
-          const projVelX = velocityX;
-          const projVelY = velocityY;
-
-          const projectile = new NormalProjectile(projX / UNIT_TO_PIXEL, projY / UNIT_TO_PIXEL, projVelX, projVelY, 0.1, 0);
+          const projectile = new NormalProjectile(trianglePositions[i].x, trianglePositions[i].y, velocityX, velocityY, 0.1, 0);
           projectile.drawShadow(this.ctx, projectileTextureSheet);
         }
         for (let i = 0; i < 3; i++) {
-          const projX = trianglePositions[i].x * UNIT_TO_PIXEL;
-          const projY = trianglePositions[i].y * UNIT_TO_PIXEL;
-          const projVelX = velocityX;
-          const projVelY = velocityY;
-
-          const projectile = new NormalProjectile(projX / UNIT_TO_PIXEL, projY / UNIT_TO_PIXEL, projVelX, projVelY, 0.1, 0);
+          const projectile = new NormalProjectile(trianglePositions[i].x, trianglePositions[i].y, velocityX, velocityY, 0.1, 0);
           projectile.drawBody(this.ctx, projectileTextureSheet);
         }
         break;
