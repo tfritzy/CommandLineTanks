@@ -87,7 +87,7 @@ public static partial class Module
     public static readonly Gun BOOMERANG_GUN = new Gun
     {
         GunType = GunType.Boomerang,
-        Ammo = 3,
+        Ammo = 1,
         ProjectileCount = 1,
         SpreadAngle = 0,
         Damage = 50,
