@@ -8,7 +8,7 @@ export class MiniMapManager {
   private miniMapMaxSize: number = 150;
   private margin: number = 20;
   private tankIndicatorRadius: number = 5;
-  private spawnPaddingRatio: number = 0.25;
+  private spawnZoneWidth: number = 5;
   private baseLayerCanvas: HTMLCanvasElement | null = null;
   private baseLayerContext: CanvasRenderingContext2D | null = null;
   private lastWorldWidth: number = 0;
@@ -187,25 +187,21 @@ export class MiniMapManager {
     worldWidth: number,
     worldHeight: number
   ) {
-    const halfWidth = worldWidth / 2;
-    const paddingX = halfWidth * this.spawnPaddingRatio;
-    const paddingY = worldHeight * this.spawnPaddingRatio;
-
     const pixelWidth = miniMapWidth / worldWidth;
     const pixelHeight = miniMapHeight / worldHeight;
 
     ctx.fillStyle = TEAM_COLORS.RED + "33";
-    const redSpawnX = miniMapX + paddingX * pixelWidth;
-    const redSpawnY = miniMapY + paddingY * pixelHeight;
-    const redSpawnWidth = (halfWidth - 2 * paddingX) * pixelWidth;
-    const redSpawnHeight = (worldHeight - 2 * paddingY) * pixelHeight;
+    const redSpawnX = miniMapX;
+    const redSpawnY = miniMapY;
+    const redSpawnWidth = this.spawnZoneWidth * pixelWidth;
+    const redSpawnHeight = worldHeight * pixelHeight;
     ctx.fillRect(redSpawnX, redSpawnY, redSpawnWidth, redSpawnHeight);
 
     ctx.fillStyle = TEAM_COLORS.BLUE + "33";
-    const blueSpawnX = miniMapX + (halfWidth + paddingX) * pixelWidth;
-    const blueSpawnY = miniMapY + paddingY * pixelHeight;
-    const blueSpawnWidth = (halfWidth - 2 * paddingX) * pixelWidth;
-    const blueSpawnHeight = (worldHeight - 2 * paddingY) * pixelHeight;
+    const blueSpawnX = miniMapX + (worldWidth - this.spawnZoneWidth) * pixelWidth;
+    const blueSpawnY = miniMapY;
+    const blueSpawnWidth = this.spawnZoneWidth * pixelWidth;
+    const blueSpawnHeight = worldHeight * pixelHeight;
     ctx.fillRect(blueSpawnX, blueSpawnY, blueSpawnWidth, blueSpawnHeight);
   }
 }
