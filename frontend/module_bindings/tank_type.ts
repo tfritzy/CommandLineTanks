@@ -52,7 +52,7 @@ export default __t.object("Tank", {
   hasShield: __t.bool(),
   overdriveCooldownEnd: __t.u64(),
   overdriveActiveUntil: __t.u64(),
-  immunityUntil: __t.u64(),
+  remainingImmunityMicros: __t.i64(),
 });
 
 

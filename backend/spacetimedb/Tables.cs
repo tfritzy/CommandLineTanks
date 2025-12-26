@@ -109,7 +109,7 @@ public static partial class Module
 
         public ulong OverdriveActiveUntil;
 
-        public ulong ImmunityUntil;
+        public long RemainingImmunityMicros;
     }
 
     [Table(Name = "projectile", Public = true)]

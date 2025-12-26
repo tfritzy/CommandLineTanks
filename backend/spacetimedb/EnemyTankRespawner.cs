@@ -27,7 +27,7 @@ public static partial class EnemyTankRespawner
                 var respawnedTank = tank with
                 {
                     Health = Module.TANK_HEALTH,
-                    ImmunityUntil = ctx.Timestamp.Microseconds + (ulong)Module.SPAWN_IMMUNITY_DURATION_MICROS
+                    RemainingImmunityMicros = Module.SPAWN_IMMUNITY_DURATION_MICROS
                 };
                 ctx.Db.tank.Id.Update(respawnedTank);
                 Log.Info($"Respawned enemy tank {respawnedTank.Name} at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");

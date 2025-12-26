@@ -30,7 +30,7 @@ export class Tank {
   private selectedGunIndex: number;
   private flashTimer: number = 0;
   private hasShield: boolean = false;
-  private immunityUntil: bigint = 0n;
+  private remainingImmunityMicros: bigint = 0n;
 
   constructor(
     id: string,
@@ -48,7 +48,7 @@ export class Tank {
     guns: Infer<typeof Gun>[] = [],
     selectedGunIndex: number = 0,
     hasShield: boolean = false,
-    immunityUntil: bigint = 0n
+    remainingImmunityMicros: bigint = 0n
   ) {
     this.id = id;
     this.x = x;
@@ -66,7 +66,7 @@ export class Tank {
     this.guns = guns;
     this.selectedGunIndex = selectedGunIndex;
     this.hasShield = hasShield;
-    this.immunityUntil = immunityUntil;
+    this.remainingImmunityMicros = remainingImmunityMicros;
   }
 
   public getAllianceColor(): string {
@@ -89,11 +89,7 @@ export class Tank {
 
   public drawBody(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
-    const currentTimeMicros = BigInt(Date.now() * 1000);
-    const isImmune = currentTimeMicros < this.immunityUntil;
-    const remainingImmunityMicros = isImmune ? Number(this.immunityUntil - currentTimeMicros) : 0;
-    const remainingImmunitySeconds = remainingImmunityMicros / 1_000_000;
-    
+    const isImmune = this.remainingImmunityMicros > 0;
     drawTankBody(ctx, {
       x: this.x,
       y: this.y,
@@ -104,7 +100,6 @@ export class Tank {
       health: this.health,
       hasShield: this.hasShield,
       isImmune: isImmune,
-      remainingImmunitySeconds: remainingImmunitySeconds,
     });
   }
 
@@ -163,8 +158,8 @@ export class Tank {
     this.hasShield = hasShield;
   }
 
-  public setImmunityUntil(immunityUntil: bigint) {
-    this.immunityUntil = immunityUntil;
+  public setRemainingImmunityMicros(remainingImmunityMicros: bigint) {
+    this.remainingImmunityMicros = remainingImmunityMicros;
   }
 
   public update(deltaTime: number) {

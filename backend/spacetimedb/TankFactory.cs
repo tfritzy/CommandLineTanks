@@ -37,7 +37,7 @@ public static partial class Module
             HasShield = false,
             OverdriveCooldownEnd = 0,
             OverdriveActiveUntil = 0,
-            ImmunityUntil = ctx.Timestamp.Microseconds + (ulong)SPAWN_IMMUNITY_DURATION_MICROS
+            RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS
         };
 
         return respawnedTank;
@@ -79,7 +79,7 @@ public static partial class Module
             TurretAngularVelocity = 0,
             OverdriveCooldownEnd = 0,
             OverdriveActiveUntil = 0,
-            ImmunityUntil = ctx.Timestamp.Microseconds + (ulong)SPAWN_IMMUNITY_DURATION_MICROS
+            RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS
         };
     }
 

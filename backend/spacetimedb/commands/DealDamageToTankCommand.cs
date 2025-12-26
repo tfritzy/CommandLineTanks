@@ -10,7 +10,7 @@ public static partial class Module
         int attackerAlliance,
         string worldId)
     {
-        if (ctx.Timestamp.Microseconds < tank.ImmunityUntil)
+        if (tank.RemainingImmunityMicros > 0)
         {
             return;
         }
