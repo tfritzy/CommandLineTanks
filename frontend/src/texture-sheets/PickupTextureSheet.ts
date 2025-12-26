@@ -129,10 +129,12 @@ export class PickupTextureSheet {
     switch (key) {
       case "triple-shooter": {
         const triangleSpacing = 0.15;
+        const cos30 = Math.sqrt(3) / 2;
+        const sin30 = 0.5;
         const trianglePositions = [
           { x: 0, y: triangleSpacing },
-          { x: -triangleSpacing * 0.866, y: -triangleSpacing * 0.5 },
-          { x: triangleSpacing * 0.866, y: -triangleSpacing * 0.5 }
+          { x: -triangleSpacing * cos30, y: -triangleSpacing * sin30 },
+          { x: triangleSpacing * cos30, y: -triangleSpacing * sin30 }
         ];
 
         for (let i = 0; i < 3; i++) {
