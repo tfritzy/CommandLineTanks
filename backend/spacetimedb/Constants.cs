@@ -22,7 +22,7 @@ public static partial class Module
     public const float OVERDRIVE_SPEED_MULTIPLIER = 1.25f;
     public const long SPAWN_IMMUNITY_DURATION_MICROS = 3_000_000;
     public const long REPAIR_COOLDOWN_MICROS = 60_000_000;
-    public const int REPAIR_HEALTH_PER_SECOND = 20;
+    public const int REPAIR_HEALTH_PER_TICK = 1;
 
     public static readonly Gun BASE_GUN = new Gun
     {

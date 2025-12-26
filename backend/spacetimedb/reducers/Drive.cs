@@ -7,11 +7,6 @@ public static partial class Module
     {
         if (tank.Health <= 0) return;
 
-        if (tank.IsRepairing)
-        {
-            tank = tank with { IsRepairing = false };
-        }
-
         Vector2Float rootPos = tank.Path.Length > 0 && append ? tank.Path[^1].Position : new Vector2Float(tank.PositionX, tank.PositionY);
         Vector2Float nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
 
