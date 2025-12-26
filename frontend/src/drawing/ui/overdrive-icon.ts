@@ -13,9 +13,7 @@ export function drawOverdriveIcon(
 
   const color = isReady ? OVERDRIVE_ICON_READY_COLOR : OVERDRIVE_ICON_COOLDOWN_COLOR;
   
-  ctx.strokeStyle = color;
   ctx.fillStyle = color;
-  ctx.lineWidth = size * 0.08;
   ctx.globalAlpha = 0.9;
 
   const boltWidth = size * 0.35;
