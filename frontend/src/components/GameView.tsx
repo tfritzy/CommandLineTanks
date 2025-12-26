@@ -112,8 +112,24 @@ export default function GameView() {
             <div style={{ fontSize: '36px', marginBottom: '20px', color: '#e39764' }}>
               YOU DIED
             </div>
-            <div style={{ fontSize: '18px', color: '#a9bcbf' }}>
+            <div style={{ fontSize: '18px', color: '#a9bcbf', marginBottom: '30px' }}>
               Call the respawn command to respawn
+            </div>
+            <div style={{ fontSize: '16px', color: '#a9bcbf', marginBottom: '10px' }}>
+              Invite friends to join this world:
+            </div>
+            <div style={{
+              fontSize: '14px',
+              color: '#fcfbf3',
+              background: '#4a4b5b',
+              padding: '12px 16px',
+              borderRadius: '4px',
+              fontFamily: "'JetBrains Mono', monospace",
+              userSelect: 'all',
+              cursor: 'text',
+              wordBreak: 'break-all'
+            }}>
+              {window.location.origin}/world/{worldId}
             </div>
           </div>
         )}
