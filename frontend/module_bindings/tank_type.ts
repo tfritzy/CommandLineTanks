@@ -53,6 +53,11 @@ export default __t.object("Tank", {
   overdriveCooldownEnd: __t.u64(),
   overdriveActiveUntil: __t.u64(),
   remainingImmunityMicros: __t.i64(),
+  remainingSmokescreenCooldownMicros: __t.i64(),
+  remainingOverdriveCooldownMicros: __t.i64(),
+  remainingRepairCooldownMicros: __t.i64(),
+  isRepairing: __t.bool(),
+  repairStartedAt: __t.u64(),
 });
 
 
