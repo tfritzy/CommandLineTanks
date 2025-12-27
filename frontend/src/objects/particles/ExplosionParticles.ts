@@ -1,5 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
+import { drawExplosionParticles } from "../../drawing";
 
 interface Particle {
   x: number;
@@ -23,10 +24,8 @@ export class ExplosionParticles {
     const count = 20;
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      // Spread them out more from the center
       const dist = Math.random() * explosionRadius * 0.5;
       
-      // Add some outward velocity
       const speed = 0.3 + Math.random() * 1.5;
       
       this.particles.push({
@@ -50,16 +49,13 @@ export class ExplosionParticles {
       if (p.lifetime < p.maxLifetime) {
         allDead = false;
         
-        // Move particles outward
         p.x += p.velocityX * deltaTime;
         p.y += p.velocityY * deltaTime;
         
-        // Apply some friction
         p.velocityX *= Math.pow(0.1, deltaTime);
         p.velocityY *= Math.pow(0.1, deltaTime);
 
         const progress = p.lifetime / p.maxLifetime;
-        // Expand quickly to max size
         p.size = p.maxSize * Math.min(1, progress * 5);
       }
     }
@@ -67,8 +63,6 @@ export class ExplosionParticles {
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    ctx.save();
-
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -80,15 +74,8 @@ export class ExplosionParticles {
         continue;
       }
 
-      const progress = p.lifetime / p.maxLifetime;
-      ctx.globalAlpha = 1 - progress;
-      
-      ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.fill();
+      drawExplosionParticles(ctx, p);
     }
-    ctx.restore();
   }
 
   public getIsDead(): boolean {

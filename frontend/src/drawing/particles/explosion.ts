@@ -11,24 +11,21 @@ interface Particle {
 
 export function drawExplosionParticles(
   ctx: CanvasRenderingContext2D,
-  particles: Particle[]
+  particle: Particle
 ) {
   ctx.save();
 
-  for (const p of particles) {
-    if (p.lifetime >= p.maxLifetime) continue;
+  const px = particle.x * UNIT_TO_PIXEL;
+  const py = particle.y * UNIT_TO_PIXEL;
+  const pSize = particle.size * UNIT_TO_PIXEL;
 
-    const px = p.x * UNIT_TO_PIXEL;
-    const py = p.y * UNIT_TO_PIXEL;
-    const pSize = p.size * UNIT_TO_PIXEL;
+  const progress = particle.lifetime / particle.maxLifetime;
+  ctx.globalAlpha = 1 - progress;
+  
+  ctx.beginPath();
+  ctx.arc(px, py, pSize, 0, Math.PI * 2);
+  ctx.fillStyle = particle.color;
+  ctx.fill();
 
-    const progress = p.lifetime / p.maxLifetime;
-    ctx.globalAlpha = 1 - progress;
-    
-    ctx.beginPath();
-    ctx.arc(px, py, pSize, 0, Math.PI * 2);
-    ctx.fillStyle = p.color;
-    ctx.fill();
-  }
   ctx.restore();
 }
