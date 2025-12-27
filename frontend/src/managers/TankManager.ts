@@ -173,14 +173,11 @@ export class TankManager {
       _oldState: Infer<typeof TankFireStateRow>,
       newState: Infer<typeof TankFireStateRow>
     ) => {
-      const tank = this.tanks.get(newState.tankId);
-      if (tank) {
-        const tankRow = connection.db.tank.id.find(newState.tankId);
-        if (tankRow && tankRow.health > 0) {
-          const barrelTipX = tankRow.positionX + Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
-          const barrelTipY = tankRow.positionY + Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
-          this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, tankRow.turretRotation, tankRow.alliance);
-        }
+      const tankRow = connection.db.tank.id.find(newState.tankId);
+      if (tankRow && tankRow.health > 0) {
+        const barrelTipX = tankRow.positionX + Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+        const barrelTipY = tankRow.positionY + Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+        this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, tankRow.turretRotation, tankRow.alliance);
       }
     };
 
