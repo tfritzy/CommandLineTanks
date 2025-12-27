@@ -40,7 +40,7 @@ function App() {
   return (
     <Routes>
       <Route path="/world/:worldId" element={<GameView />} />
-      <Route path="/" element={
+      <Route path="*" element={
         <div style={{
           width: '100vw',
           height: '100vh',
