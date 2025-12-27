@@ -7,6 +7,8 @@ import { SmokeCloudParticles } from "../objects/particles/SmokeCloudParticles";
 export class SmokeCloudManager {
   private particleSystems: Map<string, SmokeCloudParticles> = new Map();
   private worldId: string;
+  private handleCloudInsert: ((ctx: EventContext, cloud: Infer<typeof SmokeCloudRow>) => void) | null = null;
+  private handleCloudDelete: ((ctx: EventContext, cloud: Infer<typeof SmokeCloudRow>) => void) | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -25,19 +27,29 @@ export class SmokeCloudManager {
       .onError((e) => console.error("Smoke cloud subscription error", e))
       .subscribe([`SELECT * FROM smoke_cloud WHERE WorldId = '${this.worldId}'`]);
 
-    connection.db.smokeCloud.onInsert((_ctx: EventContext, cloud: Infer<typeof SmokeCloudRow>) => {
-      if (cloud.worldId === this.worldId) {
-        const particles = new SmokeCloudParticles(cloud.positionX, cloud.positionY, cloud.radius);
-        this.particleSystems.set(cloud.id, particles);
-      }
-    });
+    this.handleCloudInsert = (_ctx: EventContext, cloud: Infer<typeof SmokeCloudRow>) => {
+      if (cloud.worldId !== this.worldId) return;
+      const particles = new SmokeCloudParticles(cloud.positionX, cloud.positionY, cloud.radius);
+      this.particleSystems.set(cloud.id, particles);
+    };
 
-    connection.db.smokeCloud.onDelete((_ctx: EventContext, cloud: Infer<typeof SmokeCloudRow>) => {
+    this.handleCloudDelete = (_ctx: EventContext, cloud: Infer<typeof SmokeCloudRow>) => {
+      if (cloud.worldId !== this.worldId) return;
       const system = this.particleSystems.get(cloud.id);
       if (system) {
         system.stopEmitting();
       }
-    });
+    };
+
+    connection.db.smokeCloud.onInsert(this.handleCloudInsert);
+    connection.db.smokeCloud.onDelete(this.handleCloudDelete);
+
+    for (const cloud of connection.db.smokeCloud.iter()) {
+      if (cloud.worldId === this.worldId) {
+        const particles = new SmokeCloudParticles(cloud.positionX, cloud.positionY, cloud.radius);
+        this.particleSystems.set(cloud.id, particles);
+      }
+    }
   }
 
   public update(deltaTime: number): void {
@@ -56,5 +68,10 @@ export class SmokeCloudManager {
   }
 
   public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleCloudInsert) connection.db.smokeCloud.removeOnInsert(this.handleCloudInsert);
+      if (this.handleCloudDelete) connection.db.smokeCloud.removeOnDelete(this.handleCloudDelete);
+    }
   }
 }

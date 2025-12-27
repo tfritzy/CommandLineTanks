@@ -66,6 +66,7 @@ export class TerrainDetailManager {
       ]);
 
     this.handleDetailInsert = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+      if (detail.worldId !== this.worldId) return;
       this.createDetailObject(detail);
     };
 
@@ -74,6 +75,7 @@ export class TerrainDetailManager {
       _oldDetail: Infer<typeof TerrainDetailRow>,
       newDetail: Infer<typeof TerrainDetailRow>
     ) => {
+      if (newDetail.worldId !== this.worldId) return;
       const existingObj = this.detailObjects.get(newDetail.id);
       if (existingObj) {
         existingObj.setData(newDetail);
@@ -83,6 +85,7 @@ export class TerrainDetailManager {
     };
 
     this.handleDetailDelete = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+      if (detail.worldId !== this.worldId) return;
       const obj = this.detailObjects.get(detail.id);
       if (obj) {
         const x = Math.floor(obj.getX());
@@ -99,7 +102,7 @@ export class TerrainDetailManager {
             detail.positionX,
             detail.positionY
           );
-        }TerrainDetailManager
+        }
       }
       this.detailObjects.delete(detail.id);
       this.onDetailDeletedCallbacks.forEach(callback => callback());
@@ -108,6 +111,12 @@ export class TerrainDetailManager {
     connection.db.terrainDetail.onInsert(this.handleDetailInsert);
     connection.db.terrainDetail.onUpdate(this.handleDetailUpdate);
     connection.db.terrainDetail.onDelete(this.handleDetailDelete);
+
+    for (const detail of connection.db.terrainDetail.iter()) {
+      if (detail.worldId === this.worldId) {
+        this.createDetailObject(detail);
+      }
+    }
   }
 
   public destroy() {

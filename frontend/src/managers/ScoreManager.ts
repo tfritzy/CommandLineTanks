@@ -60,16 +60,19 @@ export class ScoreManager {
       .subscribe([`SELECT * FROM tank WHERE WorldId = '${worldId}'`]);
 
     this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      if (tank.worldId !== worldId) return;
       this.playerScores.set(tank.id, ScoreManager.createPlayerScore(tank));
       this.updateLeaderboard();
     };
 
     this.handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+      if (newTank.worldId !== worldId) return;
       this.playerScores.set(newTank.id, ScoreManager.createPlayerScore(newTank));
       this.updateLeaderboard();
     };
 
     this.handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      if (tank.worldId !== worldId) return;
       this.playerScores.delete(tank.id);
       this.updateLeaderboard();
     };
@@ -77,6 +80,13 @@ export class ScoreManager {
     connection.db.tank.onInsert(this.handleTankInsert);
     connection.db.tank.onUpdate(this.handleTankUpdate);
     connection.db.tank.onDelete(this.handleTankDelete);
+
+    for (const tank of connection.db.tank.iter()) {
+      if (tank.worldId === worldId) {
+        this.playerScores.set(tank.id, ScoreManager.createPlayerScore(tank));
+      }
+    }
+    this.updateLeaderboard();
   }
 
   public destroy() {

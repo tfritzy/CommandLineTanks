@@ -37,6 +37,7 @@ export class KillManager {
       .subscribe([`SELECT * FROM kills WHERE WorldId = '${this.worldId}'`]);
 
     this.handleKillInsert = (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
+      if (kill.worldId !== this.worldId) return;
       if (connection.identity && kill.killer.isEqual(connection.identity)) {
         const notification: KillNotification = {
           id: kill.id,
@@ -49,12 +50,25 @@ export class KillManager {
     };
 
     this.handleKillDelete = (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
+      if (kill.worldId !== this.worldId) return;
       this.kills.delete(kill.id);
       this.deletedKills.delete(kill.id);
     };
 
     connection.db.kills.onInsert(this.handleKillInsert);
     connection.db.kills.onDelete(this.handleKillDelete);
+
+    for (const kill of connection.db.kills.iter()) {
+      if (kill.worldId === this.worldId && connection.identity && kill.killer.isEqual(connection.identity)) {
+        const notification: KillNotification = {
+          id: kill.id,
+          killeeName: kill.killeeName,
+          timestamp: Date.now(),
+          displayTime: 0
+        };
+        this.kills.set(kill.id, notification);
+      }
+    }
   }
 
   public destroy() {
