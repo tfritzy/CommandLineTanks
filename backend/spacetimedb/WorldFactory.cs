@@ -73,13 +73,6 @@ public static partial class Module
 
         StartWorldTickers(ctx, worldId);
 
-        ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 1_000_000 }),
-            WorldId = worldId
-        });
-
         PickupSpawner.InitializePickupSpawner(ctx, worldId, 5);
 
         SpiderMineUpdater.InitializeSpiderMineUpdater(ctx, worldId);
