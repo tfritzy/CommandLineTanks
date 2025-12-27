@@ -21,6 +21,7 @@ public static partial class Module
             Height = TerrainGenerator.GetWorldHeight(),
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
+            IsHomeWorld = false,
             GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             GameDurationMicros = GAME_DURATION_MICROS
         };

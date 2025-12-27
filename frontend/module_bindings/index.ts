@@ -518,6 +518,10 @@ const tablesSchema = __schema(
   __table({
     name: 'world',
     indexes: [
+      { name: 'GameState_IsHomeWorld', algorithm: 'btree', columns: [
+        'gameState',
+        'isHomeWorld',
+      ] },
       { name: 'GameState', algorithm: 'btree', columns: [
         'gameState',
       ] },

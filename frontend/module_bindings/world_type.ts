@@ -25,6 +25,7 @@ export default __t.object("World", {
   get gameState() {
     return GameState;
   },
+  isHomeWorld: __t.bool(),
   gameStartedAt: __t.u64(),
   gameDurationMicros: __t.i64(),
 });

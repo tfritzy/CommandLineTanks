@@ -15,7 +15,7 @@ public static partial class Module
             return;
         }
 
-        World? world = ctx.Db.world.GameState.Filter(GameState.Playing).FirstOrDefault();
+        World? world = ctx.Db.world.GameState_IsHomeWorld.Filter((GameState.Playing, false)).FirstOrDefault();
 
         if (world == null)
         {

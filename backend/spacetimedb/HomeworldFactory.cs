@@ -30,7 +30,8 @@ public static partial class Module
             Width = worldSize,
             Height = worldSize,
             BaseTerrainLayer = baseTerrain,
-            GameState = GameState.Playing
+            GameState = GameState.Playing,
+            IsHomeWorld = true
         };
 
         ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates

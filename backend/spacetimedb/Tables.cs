@@ -17,6 +17,7 @@ public static partial class Module
     }
 
     [Table(Name = "world", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameState), nameof(IsHomeWorld) })]
     public partial struct World
     {
         [PrimaryKey]
@@ -29,6 +30,7 @@ public static partial class Module
         public BaseTerrain[] BaseTerrainLayer;
         [SpacetimeDB.Index.BTree]
         public GameState GameState;
+        public bool IsHomeWorld;
         public ulong GameStartedAt;
         public long GameDurationMicros;
     }
