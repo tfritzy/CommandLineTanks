@@ -102,7 +102,7 @@ export class TerrainDetailManager {
             detail.positionX,
             detail.positionY
           );
-        }TerrainDetailManager
+        }
       }
       this.detailObjects.delete(detail.id);
       this.onDetailDeletedCallbacks.forEach(callback => callback());
