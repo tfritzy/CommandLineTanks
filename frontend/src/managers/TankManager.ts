@@ -89,8 +89,8 @@ export class TankManager {
         }
 
         if (
-          oldTank.target !== null &&
-          newTank.target === null &&
+          oldTank.target != null &&
+          newTank.target == null &&
           newTank.health > 0
         ) {
           const pos = tank.getPosition();
