@@ -197,28 +197,5 @@ public static partial class Module
         Damping = 0.6f,
         Bounce = false,
         ProjectileSize = .2f,
-        RaycastRange = null,
-    };
-
-    public static readonly Gun SNIPER_GUN = new Gun
-    {
-        GunType = GunType.Sniper,
-        Ammo = 10,
-        ProjectileCount = 1,
-        SpreadAngle = 0,
-        Damage = 75,
-        TrackingStrength = 0,
-        TrackingRadius = 0,
-        ProjectileType = ProjectileType.Sniper,
-        LifetimeSeconds = 0.5f,
-        MaxCollisions = 0,
-        PassThroughTerrain = true,
-        CollisionRadius = 0.05f,
-        ExplosionRadius = null,
-        ExplosionTrigger = ExplosionTrigger.None,
-        Damping = null,
-        Bounce = false,
-        ProjectileSize = .15f,
-        RaycastRange = 20.0f,
     };
 }

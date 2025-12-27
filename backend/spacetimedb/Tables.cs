@@ -279,24 +279,4 @@ public static partial class Module
 
         public Vector2Float Velocity;
     }
-
-    [Table(Name = "projectile_trail", Public = true)]
-    public partial struct ProjectileTrail
-    {
-        [PrimaryKey]
-        public string Id;
-
-        [SpacetimeDB.Index.BTree]
-        public string WorldId;
-
-        public float StartX;
-        public float StartY;
-
-        public float EndX;
-        public float EndY;
-
-        public ProjectileTrailType Type;
-
-        public ulong SpawnedAt;
-    }
 }
