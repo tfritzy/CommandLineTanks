@@ -29,7 +29,7 @@ export class MuzzleFlashParticles {
       const angleOffset = (Math.random() - 0.5) * ANGLE_SPREAD_RADIANS;
       const particleAngle = angle + angleOffset;
       
-      const speed = 6 + Math.random() * 8;
+      const speed = 3 + Math.random() * 4;
       
       this.particles.push({
         x,
@@ -38,7 +38,7 @@ export class MuzzleFlashParticles {
         velocityY: Math.sin(particleAngle) * speed,
         size: 0.03 + Math.random() * 0.04,
         lifetime: 0,
-        maxLifetime: 0.08 + Math.random() * 0.08,
+        maxLifetime: 0.04 + Math.random() * 0.04,
         color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
