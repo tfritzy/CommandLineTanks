@@ -4,6 +4,7 @@ import { Game } from '../game';
 import TerminalComponent from './terminal/Terminal';
 import ResultsScreen from './ResultsScreen';
 import GameHeader from './GameHeader';
+import JoinWorldModal from './JoinWorldModal';
 import { getConnection } from '../spacetimedb-connection';
 import { useWorldSwitcher } from '../hooks/useWorldSwitcher';
 import { type Infer } from 'spacetimedb';
@@ -18,6 +19,8 @@ export default function GameView() {
   const [isDead, setIsDead] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [hasTank, setHasTank] = useState<boolean | null>(null);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -46,8 +49,25 @@ export default function GameView() {
     const connection = getConnection();
     if (!connection) return;
 
+    const checkHasTank = () => {
+      const tanks = Array.from(connection.db.tank.iter());
+      const playerTank = tanks.find(
+        t => connection.identity && t.owner.isEqual(connection.identity) && t.worldId === worldId
+      );
+      const hasPlayerTank = !!playerTank;
+      setHasTank(hasPlayerTank);
+      setShowJoinModal(!hasPlayerTank);
+      if (playerTank) {
+        setIsDead(playerTank.health <= 0);
+      }
+    };
+
+    checkHasTank();
+
     const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+        setHasTank(true);
+        setShowJoinModal(false);
         setIsDead(tank.health <= 0);
       }
     };
@@ -58,12 +78,21 @@ export default function GameView() {
       }
     };
 
+    const handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+        setHasTank(false);
+        setShowJoinModal(true);
+      }
+    };
+
     connection.db.tank.onInsert(handleTankInsert);
     connection.db.tank.onUpdate(handleTankUpdate);
+    connection.db.tank.onDelete(handleTankDelete);
 
     return () => {
       connection.db.tank.removeOnInsert(handleTankInsert);
       connection.db.tank.removeOnUpdate(handleTankUpdate);
+      connection.db.tank.removeOnDelete(handleTankDelete);
     };
   }, [worldId]);
 
@@ -94,7 +123,10 @@ export default function GameView() {
             backgroundColor: '#2e2e43',
           }}
         />
-        {isDead && (
+        {showJoinModal && (
+          <JoinWorldModal worldId={worldId} onJoin={() => setShowJoinModal(false)} />
+        )}
+        {!showJoinModal && isDead && (
           <div style={{
             position: 'absolute',
             top: '50%',

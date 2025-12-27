@@ -51,6 +51,8 @@ import EndGame from "./end_game_reducer";
 export { EndGame };
 import FindWorld from "./find_world_reducer";
 export { FindWorld };
+import JoinWorld from "./join_world_reducer";
+export { JoinWorld };
 import Fire from "./fire_reducer";
 export { Fire };
 import HandleConnect from "./handle_connect_reducer";
@@ -578,6 +580,7 @@ const reducersSchema = __reducers(
   __reducerSchema("driveToTank", DriveToTank),
   __reducerSchema("EndGame", EndGame),
   __reducerSchema("findWorld", FindWorld),
+  __reducerSchema("joinWorld", JoinWorld),
   __reducerSchema("fire", Fire),
   __reducerSchema("overdrive", Overdrive),
   __reducerSchema("repair", Repair),
