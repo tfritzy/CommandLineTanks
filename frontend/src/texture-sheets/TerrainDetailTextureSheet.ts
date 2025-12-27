@@ -85,7 +85,13 @@ export class TerrainDetailTextureSheet {
     this.renderRock("rock", currentX, currentY, cellSize);
     currentX += cellSize;
 
-    this.renderTree("tree", currentX, currentY, cellSize);
+    this.renderTree("tree-0", currentX, currentY, cellSize, 0);
+    currentX += cellSize;
+
+    this.renderTree("tree-1", currentX, currentY, cellSize, 1);
+    currentX += cellSize;
+
+    this.renderTree("tree-2", currentX, currentY, cellSize, 2);
     currentX += cellSize;
 
     this.renderDeadTree("deadtree", currentX, currentY, cellSize);
@@ -194,7 +200,8 @@ export class TerrainDetailTextureSheet {
     key: string,
     atlasX: number,
     atlasY: number,
-    cellSize: number
+    cellSize: number,
+    variant: number = 0
   ) {
     const padding = 8;
     const centerOffset = cellSize / 2;
@@ -209,7 +216,7 @@ export class TerrainDetailTextureSheet {
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
-    drawTreeBody(this.ctx, 0, 0, radius, 0);
+    drawTreeBody(this.ctx, 0, 0, radius, 0, variant);
     this.ctx.restore();
 
     this.textures.set(key, {

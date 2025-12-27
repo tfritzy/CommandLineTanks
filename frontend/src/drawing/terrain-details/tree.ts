@@ -20,18 +20,26 @@ export function drawTreeBody(
   centerX: number,
   centerY: number,
   radius: number,
-  flashTimer: number
+  flashTimer: number,
+  variant: number = 0
 ) {
+  const variants = [
+    TERRAIN_DETAIL_COLORS.TREE.VARIANT_0,
+    TERRAIN_DETAIL_COLORS.TREE.VARIANT_1,
+    TERRAIN_DETAIL_COLORS.TREE.VARIANT_2
+  ];
+  const colors = variants[variant % 3];
+
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.clip();
 
-  ctx.fillStyle = getFlashColor(TERRAIN_DETAIL_COLORS.TREE.BASE, flashTimer);
+  ctx.fillStyle = getFlashColor(colors.BASE, flashTimer);
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = getFlashColor(TERRAIN_DETAIL_COLORS.TREE.FOLIAGE, flashTimer);
+  ctx.fillStyle = getFlashColor(colors.FOLIAGE, flashTimer);
   ctx.beginPath();
   const dividerCenterX = centerX + radius * 0.4;
   const dividerCenterY = centerY - radius * 0.4;

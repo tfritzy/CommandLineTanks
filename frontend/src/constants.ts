@@ -16,8 +16,18 @@ export const TERRAIN_COLORS = {
 
 export const TERRAIN_DETAIL_COLORS = {
   TREE: {
-    BASE: "#3e4c7e",
-    FOLIAGE: "#495f94"
+    VARIANT_0: {
+      BASE: "#3e4c7e",
+      FOLIAGE: "#495f94"
+    },
+    VARIANT_1: {
+      BASE: "#4e9363",
+      FOLIAGE: "#6ec077"
+    },
+    VARIANT_2: {
+      BASE: "#3c6c54",
+      FOLIAGE: "#5c8995"
+    }
   },
   DEAD_TREE: {
     BASE: "#542240",

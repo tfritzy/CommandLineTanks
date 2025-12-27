@@ -303,6 +303,11 @@ export class TerrainDetailManager {
   private getTextureKey(obj: TerrainDetailObject): string {
     const type = obj.constructor.name.toLowerCase();
 
+    if (type === "tree") {
+      const variant = obj.getRotation();
+      return `tree-${variant}`;
+    }
+
     if (type.includes("fence") || type.includes("foundation")) {
       return `${type}-${obj.getRotation()}`;
     }

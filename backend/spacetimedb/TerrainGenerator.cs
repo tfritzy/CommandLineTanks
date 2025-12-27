@@ -329,7 +329,7 @@ public static partial class TerrainGenerator
                             if (nx >= 0 && nx < WORLD_WIDTH && ny >= 0 && ny < WORLD_HEIGHT)
                             {
                                 var neighborType = terrainDetail[ny * WORLD_WIDTH + nx];
-                                if (neighborType == TerrainDetailType.Tree || neighborType == TerrainDetailType.DeadTree)
+                                if (neighborType == TerrainDetailType.Tree)
                                 {
                                     neighborHasTree = true;
                                     break;
@@ -341,14 +341,8 @@ public static partial class TerrainGenerator
 
                     if (!neighborHasTree)
                     {
-                        if (random.NextSingle() < 0.15f)
-                        {
-                            terrainDetail[index] = TerrainDetailType.DeadTree;
-                        }
-                        else
-                        {
-                            terrainDetail[index] = TerrainDetailType.Tree;
-                        }
+                        terrainDetail[index] = TerrainDetailType.Tree;
+                        rotationArray[index] = random.Next(3);
                     }
                 }
             }
