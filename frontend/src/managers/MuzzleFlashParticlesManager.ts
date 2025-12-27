@@ -3,8 +3,8 @@ import { MuzzleFlashParticles } from "../objects/particles/MuzzleFlashParticles"
 export class MuzzleFlashParticlesManager {
   private particleSystems: MuzzleFlashParticles[] = [];
 
-  public spawnMuzzleFlash(x: number, y: number, angle: number): void {
-    const particles = new MuzzleFlashParticles(x, y, angle);
+  public spawnMuzzleFlash(x: number, y: number, angle: number, alliance: number): void {
+    const particles = new MuzzleFlashParticles(x, y, angle, alliance);
     this.particleSystems.push(particles);
   }
 
