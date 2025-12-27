@@ -31,6 +31,10 @@ export class Tank {
   private flashTimer: number = 0;
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
+  private isPlayerTank: boolean = false;
+  private previousPosition: { x: number; y: number } | null = null;
+  private targetPosition: { x: number; y: number } | null = null;
+  private lerpProgress: number = 0;
 
   constructor(
     id: string,
@@ -115,8 +119,22 @@ export class Tank {
   }
 
   public setPosition(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+    if (this.isPlayerTank) {
+      this.x = x;
+      this.y = y;
+    } else {
+      if (this.targetPosition === null) {
+        this.x = x;
+        this.y = y;
+        this.targetPosition = { x, y };
+        this.previousPosition = { x, y };
+        this.lerpProgress = 0;
+      } else {
+        this.previousPosition = { ...this.targetPosition };
+        this.targetPosition = { x, y };
+        this.lerpProgress = 0;
+      }
+    }
   }
 
   public setTurretRotation(rotation: number) {
@@ -167,31 +185,44 @@ export class Tank {
     this.remainingImmunityMicros = remainingImmunityMicros;
   }
 
+  public setIsPlayerTank(isPlayerTank: boolean) {
+    this.isPlayerTank = isPlayerTank;
+  }
+
   public update(deltaTime: number) {
     if (this.flashTimer > 0) {
       this.flashTimer = Math.max(0, this.flashTimer - deltaTime);
     }
 
-    if (this.path.length > 0) {
-      const target = this.path[0].position;
+    if (this.isPlayerTank) {
+      if (this.path.length > 0) {
+        const target = this.path[0].position;
 
-      if (this.velocityX !== 0 || this.velocityY !== 0) {
-        const newX = this.x + this.velocityX * deltaTime;
-        const newY = this.y + this.velocityY * deltaTime;
+        if (this.velocityX !== 0 || this.velocityY !== 0) {
+          const newX = this.x + this.velocityX * deltaTime;
+          const newY = this.y + this.velocityY * deltaTime;
 
-        const currentDistSq =
-          (target.x - this.x) ** 2 + (target.y - this.y) ** 2;
-        const newDistSq = (target.x - newX) ** 2 + (target.y - newY) ** 2;
+          const currentDistSq =
+            (target.x - this.x) ** 2 + (target.y - this.y) ** 2;
+          const newDistSq = (target.x - newX) ** 2 + (target.y - newY) ** 2;
 
-        if (newDistSq > currentDistSq) {
-          this.x = target.x;
-          this.y = target.y;
-          this.velocityX = 0;
-          this.velocityY = 0;
-        } else {
-          this.x = newX;
-          this.y = newY;
+          if (newDistSq > currentDistSq) {
+            this.x = target.x;
+            this.y = target.y;
+            this.velocityX = 0;
+            this.velocityY = 0;
+          } else {
+            this.x = newX;
+            this.y = newY;
+          }
         }
+      }
+    } else {
+      if (this.previousPosition && this.targetPosition) {
+        this.lerpProgress = Math.min(1, this.lerpProgress + deltaTime * 10);
+        
+        this.x = this.previousPosition.x + (this.targetPosition.x - this.previousPosition.x) * this.lerpProgress;
+        this.y = this.previousPosition.y + (this.targetPosition.y - this.previousPosition.y) * this.lerpProgress;
       }
     }
 
