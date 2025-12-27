@@ -9,7 +9,7 @@ type PathEntry = {
   throttlePercent: number;
 };
 
-
+const POSITION_LERP_SPEED = 10;
 
 export class Tank {
   public arrayIndex: number = -1;
@@ -219,7 +219,7 @@ export class Tank {
       }
     } else {
       if (this.previousPosition && this.targetPosition) {
-        this.lerpProgress = Math.min(1, this.lerpProgress + deltaTime * 10);
+        this.lerpProgress = Math.min(1, this.lerpProgress + deltaTime * POSITION_LERP_SPEED);
         
         this.x = this.previousPosition.x + (this.targetPosition.x - this.previousPosition.x) * this.lerpProgress;
         this.y = this.previousPosition.y + (this.targetPosition.y - this.previousPosition.y) * this.lerpProgress;
