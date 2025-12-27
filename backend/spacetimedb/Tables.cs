@@ -286,6 +286,9 @@ public static partial class Module
         [PrimaryKey]
         public string TankId;
 
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
         public ulong LastFireTime;
     }
 }

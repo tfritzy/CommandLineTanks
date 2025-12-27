@@ -40,12 +40,12 @@ public static partial class Module
     {
         foreach (var tank in ctx.Db.tank.WorldId.Filter(worldId))
         {
-            var fireState = ctx.Db.tank_fire_state.TankId.Find(tank.Id);
-            if (fireState != null)
-            {
-                ctx.Db.tank_fire_state.TankId.Delete(tank.Id);
-            }
             ctx.Db.tank.Id.Delete(tank.Id);
+        }
+
+        foreach (var fireState in ctx.Db.tank_fire_state.WorldId.Filter(worldId))
+        {
+            ctx.Db.tank_fire_state.TankId.Delete(fireState.TankId);
         }
 
         foreach (var projectile in ctx.Db.projectile.WorldId.Filter(worldId))

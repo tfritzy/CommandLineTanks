@@ -92,6 +92,7 @@ public static partial class Module
         var newFireState = new TankFireState
         {
             TankId = tank.Id,
+            WorldId = tank.WorldId,
             LastFireTime = currentTime
         };
         if (fireState != null)

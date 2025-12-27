@@ -493,6 +493,9 @@ const tablesSchema = __schema(
       { name: 'TankId', algorithm: 'btree', columns: [
         'tankId',
       ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
     ],
     constraints: [
       { name: 'tank_fire_state_TankId_key', constraint: 'unique', columns: ['tankId'] },

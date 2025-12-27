@@ -12,5 +12,6 @@ import {
 
 export default __t.row({
   tankId: __t.string().primaryKey(),
+  worldId: __t.string(),
   lastFireTime: __t.u64(),
 });
