@@ -4,6 +4,8 @@ export abstract class Projectile {
   public static readonly SHADOW_OFFSET = 4;
   protected x: number;
   protected y: number;
+  protected previousX: number;
+  protected previousY: number;
   protected velocityX: number;
   protected velocityY: number;
   protected size: number;
@@ -11,6 +13,7 @@ export abstract class Projectile {
   protected explosionRadius: number | undefined;
   protected trackingStrength: number;
   protected trackingRadius: number;
+  protected lastUpdateTime: number;
 
   constructor(
     x: number,
@@ -25,6 +28,8 @@ export abstract class Projectile {
   ) {
     this.x = x;
     this.y = y;
+    this.previousX = x;
+    this.previousY = y;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
     this.size = size;
@@ -32,6 +37,7 @@ export abstract class Projectile {
     this.explosionRadius = explosionRadius;
     this.trackingStrength = trackingStrength || 0;
     this.trackingRadius = trackingRadius || 0;
+    this.lastUpdateTime = performance.now() / 1000;
   }
 
   public draw(ctx: CanvasRenderingContext2D, textureSheet: any) {
@@ -47,8 +53,11 @@ export abstract class Projectile {
   ): void;
 
   public setPosition(x: number, y: number) {
+    this.previousX = this.x;
+    this.previousY = this.y;
     this.x = x;
     this.y = y;
+    this.lastUpdateTime = performance.now() / 1000;
   }
 
   public setVelocity(velocityX: number, velocityY: number) {
@@ -56,57 +65,36 @@ export abstract class Projectile {
     this.velocityY = velocityY;
   }
 
-  public update(deltaTime: number, tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
-    if (this.trackingStrength > 0 && this.trackingRadius > 0 && tankManager) {
-      const speed = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
-      
-      let closestTarget = null;
-      let closestDistanceSquared = this.trackingRadius * this.trackingRadius;
-      
-      for (const tank of tankManager.getAllTanks()) {
-        const tankPos = tank.getPosition();
-        const tankAlliance = tank.getAlliance();
-        
-        if (tankAlliance !== this.alliance && tank.getHealth() > 0) {
-          const dx = tankPos.x - this.x;
-          const dy = tankPos.y - this.y;
-          const distanceSquared = dx * dx + dy * dy;
-          
-          if (distanceSquared < closestDistanceSquared) {
-            closestDistanceSquared = distanceSquared;
-            closestTarget = tankPos;
-          }
-        }
-      }
-      
-      if (closestTarget) {
-        const targetDx = closestTarget.x - this.x;
-        const targetDy = closestTarget.y - this.y;
-        const targetAngle = Math.atan2(targetDy, targetDx);
-        
-        const currentAngle = Math.atan2(this.velocityY, this.velocityX);
-        let angleDiff = targetAngle - currentAngle;
-        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-        
-        const turnAmount = Math.sign(angleDiff) * Math.min(Math.abs(angleDiff), this.trackingStrength * deltaTime);
-        const newAngle = currentAngle + turnAmount;
-        
-        this.velocityX = Math.cos(newAngle) * speed;
-        this.velocityY = Math.sin(newAngle) * speed;
-      }
+  public update(_deltaTime: number, _tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
+  }
+
+  private getInterpolatedPosition(currentTime: number): { x: number; y: number } {
+    const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
+    const speed = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
+    const expectedTravelTime = speed > 0 ? Math.sqrt(
+      Math.pow(this.x - this.previousX, 2) + Math.pow(this.y - this.previousY, 2)
+    ) / speed : 0;
+    
+    if (expectedTravelTime === 0) {
+      return { x: this.x, y: this.y };
     }
     
-    this.x += this.velocityX * deltaTime;
-    this.y += this.velocityY * deltaTime;
+    const t = Math.min(1, timeSinceLastUpdate / expectedTravelTime);
+    
+    return {
+      x: this.previousX + (this.x - this.previousX) * t,
+      y: this.previousY + (this.y - this.previousY) * t
+    };
   }
 
   public getX(): number {
-    return this.x;
+    const pos = this.getInterpolatedPosition(performance.now() / 1000);
+    return pos.x;
   }
 
   public getY(): number {
-    return this.y;
+    const pos = this.getInterpolatedPosition(performance.now() / 1000);
+    return pos.y;
   }
 
   public getVelocityX(): number {
@@ -130,16 +118,18 @@ export abstract class Projectile {
   }
 
   protected getScreenPosition(): { x: number; y: number } {
+    const pos = this.getInterpolatedPosition(performance.now() / 1000);
     return {
-      x: this.x * UNIT_TO_PIXEL,
-      y: this.y * UNIT_TO_PIXEL,
+      x: pos.x * UNIT_TO_PIXEL,
+      y: pos.y * UNIT_TO_PIXEL,
     };
   }
 
   protected getShadowScreenPosition(): { x: number; y: number } {
+    const pos = this.getInterpolatedPosition(performance.now() / 1000);
     return {
-      x: this.x * UNIT_TO_PIXEL - Projectile.SHADOW_OFFSET,
-      y: this.y * UNIT_TO_PIXEL + Projectile.SHADOW_OFFSET,
+      x: pos.x * UNIT_TO_PIXEL - Projectile.SHADOW_OFFSET,
+      y: pos.y * UNIT_TO_PIXEL + Projectile.SHADOW_OFFSET,
     };
   }
 
