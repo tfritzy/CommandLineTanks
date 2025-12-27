@@ -27,7 +27,6 @@ export default function JoinWorldModal({ worldId, onJoin }: JoinWorldModalProps)
       fontFamily: "'JetBrains Mono', monospace",
       fontSize: '18px',
       border: '4px solid #5a78b2',
-      boxShadow: '0 0 20px rgba(90, 120, 178, 0.5)',
       zIndex: 1000
     }}>
       <div style={{ fontSize: '32px', marginBottom: '20px', color: '#7396d5', fontWeight: 'bold' }}>

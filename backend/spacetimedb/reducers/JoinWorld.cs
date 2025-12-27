@@ -13,47 +13,11 @@ public static partial class Module
             return;
         }
 
-        var world = ctx.Db.world.Id.Find(worldId);
-        if (world == null)
+        var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, "");
+        if (tank != null)
         {
-            Log.Error($"World {worldId} not found");
-            return;
+            ctx.Db.tank.Insert(tank.Value);
+            Log.Info($"Player {player.Value.Name} joined world {worldId} with tank {tank.Value.Id} named {tank.Value.Name}");
         }
-
-        Tank existingTank = ctx.Db.tank.Owner.Filter(ctx.Sender).Where(t => t.WorldId == worldId).FirstOrDefault();
-        if (!string.IsNullOrEmpty(existingTank.Id))
-        {
-            Log.Info("Player already has tank in world");
-            return;
-        }
-
-        var tankName = AllocateTankName(ctx, worldId);
-        if (tankName == null)
-        {
-            Log.Error($"No available tank names in world {world.Value.Name}");
-            return;
-        }
-
-        int alliance0Count = 0;
-        int alliance1Count = 0;
-        foreach (var t in ctx.Db.tank.WorldId.Filter(worldId))
-        {
-            if (t.Alliance == 0)
-            {
-                alliance0Count++;
-            }
-            else if (t.Alliance == 1)
-            {
-                alliance1Count++;
-            }
-        }
-
-        int assignedAlliance = alliance0Count <= alliance1Count ? 0 : 1;
-
-        var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
-
-        var tank = BuildTank(ctx, worldId, ctx.Sender, tankName, "", assignedAlliance, spawnX, spawnY, false);
-        ctx.Db.tank.Insert(tank);
-        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tank.Id} named {tankName}");
     }
 }

@@ -45,33 +45,11 @@ public static partial class Module
             StopWorldTickers(ctx, identityString);
         }
 
-        var tankName = AllocateTankName(ctx, world.Value.Id);
-        if (tankName == null)
+        var tank = CreateTankInWorld(ctx, world.Value.Id, ctx.Sender, joinCode);
+        if (tank != null)
         {
-            Log.Error($"No available tank names in world {world.Value.Name}");
-            return;
+            ctx.Db.tank.Insert(tank.Value);
+            Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tank.Value.Id} named {tank.Value.Name} (joinCode: {joinCode})");
         }
-
-        int alliance0Count = 0;
-        int alliance1Count = 0;
-        foreach (var t in ctx.Db.tank.WorldId.Filter(world.Value.Id))
-        {
-            if (t.Alliance == 0)
-            {
-                alliance0Count++;
-            }
-            else if (t.Alliance == 1)
-            {
-                alliance1Count++;
-            }
-        }
-
-        int assignedAlliance = alliance0Count <= alliance1Count ? 0 : 1;
-
-        var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
-
-        var tank = BuildTank(ctx, world.Value.Id, ctx.Sender, tankName, joinCode, assignedAlliance, spawnX, spawnY, false);
-        ctx.Db.tank.Insert(tank);
-        Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tank.Id} named {tankName} (joinCode: {joinCode})");
     }
 }

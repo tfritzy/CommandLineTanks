@@ -48,22 +48,11 @@ export default function GameView() {
     const connection = getConnection();
     if (!connection) return;
 
-    const checkHasTank = () => {
-      const tanks = Array.from(connection.db.tank.iter());
-      const playerTank = tanks.find(
-        t => connection.identity && t.owner.isEqual(connection.identity) && t.worldId === worldId
-      );
-      const hasPlayerTank = !!playerTank;
-      setShowJoinModal(!hasPlayerTank);
-      if (playerTank) {
-        setIsDead(playerTank.health <= 0);
-      }
-    };
-
-    checkHasTank();
+    let hasReceivedTankData = false;
 
     const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+        hasReceivedTankData = true;
         setShowJoinModal(false);
         setIsDead(tank.health <= 0);
       }
@@ -85,7 +74,14 @@ export default function GameView() {
     connection.db.tank.onUpdate(handleTankUpdate);
     connection.db.tank.onDelete(handleTankDelete);
 
+    const checkTimeout = setTimeout(() => {
+      if (!hasReceivedTankData) {
+        setShowJoinModal(true);
+      }
+    }, 500);
+
     return () => {
+      clearTimeout(checkTimeout);
       connection.db.tank.removeOnInsert(handleTankInsert);
       connection.db.tank.removeOnUpdate(handleTankUpdate);
       connection.db.tank.removeOnDelete(handleTankDelete);
@@ -136,7 +132,6 @@ export default function GameView() {
             fontSize: '24px',
             fontWeight: 'bold',
             border: '4px solid #813645',
-            boxShadow: '0 0 20px rgba(129, 54, 69, 0.5)',
             zIndex: 1000
           }}>
             <div style={{ fontSize: '36px', marginBottom: '20px', color: '#e39764' }}>
