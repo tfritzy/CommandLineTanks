@@ -141,7 +141,7 @@ public static partial class BehaviorTreeAI
                 break;
 
             case BehaviorTreeLogic.AIAction.Escape:
-                tank = DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
+                tank = DriveTowards(tank, decision.TargetX, decision.TargetY);
                 break;
 
             case BehaviorTreeLogic.AIAction.None:
@@ -173,7 +173,7 @@ public static partial class BehaviorTreeAI
         };
     }
 
-    private static Tank DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
+    private static Tank DriveTowards(Tank tank, int targetX, int targetY)
     {
         int currentX = (int)tank.PositionX;
         int currentY = (int)tank.PositionY;
