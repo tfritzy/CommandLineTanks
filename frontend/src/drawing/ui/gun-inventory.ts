@@ -9,7 +9,7 @@ export function drawGunSlot(
 ) {
   ctx.save();
 
-  ctx.fillStyle = hasGun ? "#4a4b5b" : "#2a152d";
+  ctx.fillStyle = hasGun ? "#4a4b5b" : "#2e2e43";
   ctx.globalAlpha = hasGun ? 0.8 : 0.3;
 
   const radius = 4;

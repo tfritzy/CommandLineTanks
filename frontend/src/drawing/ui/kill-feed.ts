@@ -27,7 +27,7 @@ export function drawKillNotification(
   ctx.translate(x, y);
   ctx.scale(scale, scale);
 
-  ctx.fillStyle = '#2a152daa';
+  ctx.fillStyle = '#2e2e43aa';
   
   const radius = 4;
   ctx.beginPath();

@@ -105,7 +105,7 @@ export class GunInventoryManager {
 
     ctx.save();
 
-    ctx.fillStyle = gun ? "#4a4b5b" : "#2a152d";
+    ctx.fillStyle = gun ? "#4a4b5b" : "#2e2e43";
     ctx.globalAlpha = gun ? 0.8 : 0.3;
 
     const radius = 4;
