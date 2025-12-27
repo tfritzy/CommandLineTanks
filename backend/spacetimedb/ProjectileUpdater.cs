@@ -628,7 +628,8 @@ public static partial class ProjectileUpdater
                     PositionY = interpolatedY
                 };
 
-                (collided, projectile, mapChanged) = HandleTerrainCollision(ctx, projectile, ref traversibilityMap, args.WorldId, deltaTime);
+                double stepDeltaTime = deltaTime / numSteps;
+                (collided, projectile, mapChanged) = HandleTerrainCollision(ctx, projectile, ref traversibilityMap, args.WorldId, stepDeltaTime);
 
                 if (mapChanged)
                 {
