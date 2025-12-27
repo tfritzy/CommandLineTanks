@@ -21,8 +21,7 @@ export class MuzzleFlashParticles {
   private isDead = false;
 
   constructor(x: number, y: number, angle: number, alliance: number) {
-    const baseColor = alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
-    const colors = [baseColor, "#fcfbf3"];
+    const color = alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
     
     const particleCount = 8 + Math.floor(Math.random() * 5);
     for (let i = 0; i < particleCount; i++) {
@@ -38,8 +37,8 @@ export class MuzzleFlashParticles {
         velocityY: Math.sin(particleAngle) * speed,
         size: 0.03 + Math.random() * 0.04,
         lifetime: 0,
-        maxLifetime: 0.04 + Math.random() * 0.04,
-        color: colors[Math.floor(Math.random() * colors.length)]
+        maxLifetime: 0.06 + Math.random() * 0.06,
+        color: color
       });
     }
   }

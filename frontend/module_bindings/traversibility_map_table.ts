@@ -11,9 +11,9 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  worldId: __t.string().primaryKey().name("WorldId"),
-  map: __t.array(__t.bool()).name("Map"),
-  projectileCollisionMap: __t.array(__t.bool()).name("ProjectileCollisionMap"),
-  width: __t.i32().name("Width"),
-  height: __t.i32().name("Height"),
+  worldId: __t.string().primaryKey(),
+  map: __t.array(__t.bool()),
+  projectileCollisionMap: __t.array(__t.bool()),
+  width: __t.i32(),
+  height: __t.i32(),
 });
