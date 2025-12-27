@@ -14,6 +14,8 @@ export abstract class Projectile {
   protected trackingStrength: number;
   protected trackingRadius: number;
   protected lastUpdateTime: number;
+  private cachedInterpolatedPos: { x: number; y: number } | null = null;
+  private cachedTime: number = 0;
 
   constructor(
     x: number,
@@ -66,9 +68,16 @@ export abstract class Projectile {
   }
 
   public update(_deltaTime: number, _tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
+    this.cachedInterpolatedPos = null;
   }
 
-  private getInterpolatedPosition(currentTime: number): { x: number; y: number } {
+  private getInterpolatedPosition(): { x: number; y: number } {
+    const currentTime = performance.now() / 1000;
+    
+    if (this.cachedInterpolatedPos && this.cachedTime === currentTime) {
+      return this.cachedInterpolatedPos;
+    }
+    
     const timeSinceLastUpdate = currentTime - this.lastUpdateTime;
     const speed = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
     const expectedTravelTime = speed > 0 ? Math.sqrt(
@@ -76,25 +85,27 @@ export abstract class Projectile {
     ) / speed : 0;
     
     if (expectedTravelTime === 0) {
-      return { x: this.x, y: this.y };
+      this.cachedInterpolatedPos = { x: this.x, y: this.y };
+      this.cachedTime = currentTime;
+      return this.cachedInterpolatedPos;
     }
     
     const t = Math.min(1, timeSinceLastUpdate / expectedTravelTime);
     
-    return {
+    this.cachedInterpolatedPos = {
       x: this.previousX + (this.x - this.previousX) * t,
       y: this.previousY + (this.y - this.previousY) * t
     };
+    this.cachedTime = currentTime;
+    return this.cachedInterpolatedPos;
   }
 
   public getX(): number {
-    const pos = this.getInterpolatedPosition(performance.now() / 1000);
-    return pos.x;
+    return this.getInterpolatedPosition().x;
   }
 
   public getY(): number {
-    const pos = this.getInterpolatedPosition(performance.now() / 1000);
-    return pos.y;
+    return this.getInterpolatedPosition().y;
   }
 
   public getVelocityX(): number {
@@ -118,7 +129,7 @@ export abstract class Projectile {
   }
 
   protected getScreenPosition(): { x: number; y: number } {
-    const pos = this.getInterpolatedPosition(performance.now() / 1000);
+    const pos = this.getInterpolatedPosition();
     return {
       x: pos.x * UNIT_TO_PIXEL,
       y: pos.y * UNIT_TO_PIXEL,
@@ -126,7 +137,7 @@ export abstract class Projectile {
   }
 
   protected getShadowScreenPosition(): { x: number; y: number } {
-    const pos = this.getInterpolatedPosition(performance.now() / 1000);
+    const pos = this.getInterpolatedPosition();
     return {
       x: pos.x * UNIT_TO_PIXEL - Projectile.SHADOW_OFFSET,
       y: pos.y * UNIT_TO_PIXEL + Projectile.SHADOW_OFFSET,
