@@ -1,5 +1,4 @@
 import { MuzzleFlashParticles } from "../objects/particles/MuzzleFlashParticles";
-import { drawMuzzleFlashParticles } from "../drawing";
 
 export class MuzzleFlashParticlesManager {
   private particleSystems: MuzzleFlashParticles[] = [];
@@ -20,8 +19,7 @@ export class MuzzleFlashParticlesManager {
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
     for (const system of this.particleSystems) {
-      const visibleParticles = system.getVisibleParticles(cameraX, cameraY, viewportWidth, viewportHeight);
-      drawMuzzleFlashParticles(ctx, visibleParticles);
+      system.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
     }
   }
 }
