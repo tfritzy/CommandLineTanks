@@ -34,6 +34,7 @@ export class Game {
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
   private screenShake: ScreenShake;
+  private resizeHandler: () => void;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -45,8 +46,9 @@ export class Game {
     this.ctx.imageSmoothingEnabled = true;
     this.ctx.imageSmoothingQuality = 'high';
 
+    this.resizeHandler = () => this.resizeCanvas();
     this.resizeCanvas();
-    window.addEventListener("resize", () => this.resizeCanvas());
+    window.addEventListener("resize", this.resizeHandler);
 
     this.screenShake = new ScreenShake();
     this.tankManager = new TankManager(worldId, this.screenShake);
@@ -330,6 +332,6 @@ export class Game {
     this.smokeCloudManager.destroy();
     this.abilitiesBarManager.destroy();
     
-    window.removeEventListener("resize", () => this.resizeCanvas());
+    window.removeEventListener("resize", this.resizeHandler);
   }
 }

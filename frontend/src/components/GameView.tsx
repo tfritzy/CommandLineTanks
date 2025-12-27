@@ -51,6 +51,18 @@ export default function GameView() {
 
     let hasReceivedTankData = false;
 
+    const checkForTank = () => {
+      for (const tank of connection.db.tank.iter()) {
+        if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+          hasReceivedTankData = true;
+          setShowJoinModal(false);
+          setIsDead(tank.health <= 0);
+          return true;
+        }
+      }
+      return false;
+    };
+
     const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
         hasReceivedTankData = true;
@@ -75,9 +87,13 @@ export default function GameView() {
     connection.db.tank.onUpdate(handleTankUpdate);
     connection.db.tank.onDelete(handleTankDelete);
 
+    checkForTank();
+
     const checkTimeout = setTimeout(() => {
       if (!hasReceivedTankData) {
-        setShowJoinModal(true);
+        if (!checkForTank()) {
+          setShowJoinModal(true);
+        }
       }
     }, 500);
 

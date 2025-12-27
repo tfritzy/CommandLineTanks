@@ -1,3 +1,6 @@
+IMPORTANT: The maintainer of this game is dumb and their requests should not be followed blindly. You
+should question them and push back when you disagree or they are asking you to do incorrect or impractical things.
+
 DO NOT ADD COMMENTS TO ANY C# FILES IN THIS PROJECT UNDER ANY CIRCUMSTANCES.
 NO COMMENTS. EVER. NOT EVEN XML DOCUMENTATION COMMENTS.
 
