@@ -149,4 +149,53 @@ public static partial class Module
         float centerY = (minY + maxY) / 2.0f + 0.5f;
         return (centerX, centerY);
     }
+
+    public static int GetBalancedAlliance(ReducerContext ctx, string worldId)
+    {
+        int alliance0Count = 0;
+        int alliance1Count = 0;
+        foreach (var t in ctx.Db.tank.WorldId.Filter(worldId))
+        {
+            if (t.Alliance == 0)
+            {
+                alliance0Count++;
+            }
+            else if (t.Alliance == 1)
+            {
+                alliance1Count++;
+            }
+        }
+
+        return alliance0Count <= alliance1Count ? 0 : 1;
+    }
+
+    public static Tank? CreateTankInWorld(ReducerContext ctx, string worldId, Identity owner, string joinCode)
+    {
+        Tank existingTank = ctx.Db.tank.Owner.Filter(owner).Where(t => t.WorldId == worldId).FirstOrDefault();
+        if (!string.IsNullOrEmpty(existingTank.Id))
+        {
+            Log.Info("Player already has tank in world");
+            return null;
+        }
+
+        var world = ctx.Db.world.Id.Find(worldId);
+        if (world == null)
+        {
+            Log.Error($"World {worldId} not found");
+            return null;
+        }
+
+        var tankName = AllocateTankName(ctx, worldId);
+        if (tankName == null)
+        {
+            Log.Error($"No available tank names in world {world.Value.Name}");
+            return null;
+        }
+
+        int assignedAlliance = GetBalancedAlliance(ctx, worldId);
+        var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
+
+        var tank = BuildTank(ctx, worldId, owner, tankName, joinCode, assignedAlliance, spawnX, spawnY, false);
+        return tank;
+    }
 }
