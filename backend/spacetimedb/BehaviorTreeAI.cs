@@ -187,7 +187,7 @@ public static partial class BehaviorTreeAI
         Vector2 targetPos = new Vector2(targetX, targetY);
         Vector2 offset = new Vector2(targetPos.X - currentPos.X, targetPos.Y - currentPos.Y);
 
-        Vector2Float rootPos = tank.Path.Length > 0 ? tank.Path[^1].Position : new Vector2Float(tank.PositionX, tank.PositionY);
+        Vector2Float rootPos = new Vector2Float(tank.PositionX, tank.PositionY);
         Vector2Float nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
 
         PathEntry entry = new()
