@@ -16,6 +16,8 @@ export default function GameView() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [isDead, setIsDead] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -112,8 +114,57 @@ export default function GameView() {
             <div style={{ fontSize: '36px', marginBottom: '20px', color: '#e39764' }}>
               YOU DIED
             </div>
-            <div style={{ fontSize: '18px', color: '#a9bcbf' }}>
+            <div style={{ fontSize: '18px', color: '#a9bcbf', marginBottom: '30px' }}>
               Call the respawn command to respawn
+            </div>
+            <div style={{ fontSize: '16px', color: '#a9bcbf', marginBottom: '10px' }}>
+              Invite friends to join this world:
+            </div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div style={{
+                flex: 1,
+                fontSize: '14px',
+                color: '#fcfbf3',
+                background: '#4a4b5b',
+                padding: '12px 16px',
+                borderRadius: '4px',
+                fontFamily: "'JetBrains Mono', monospace",
+                userSelect: 'all',
+                cursor: 'text',
+                wordBreak: 'break-all'
+              }}>
+                {window.location.origin}/world/{encodeURIComponent(worldId)}
+              </div>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
+                  navigator.clipboard.writeText(url)
+                    .then(() => {
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    })
+                    .catch(() => {
+                      setCopied(false);
+                    });
+                }}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                style={{
+                  padding: '12px 20px',
+                  fontSize: '14px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 'bold',
+                  color: '#fcfbf3',
+                  background: copied ? '#3c6c54' : (isHovering ? '#7396d5' : '#5a78b2'),
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
             </div>
           </div>
         )}
