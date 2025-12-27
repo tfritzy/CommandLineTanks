@@ -4,6 +4,7 @@ import { Game } from '../game';
 import TerminalComponent from './terminal/Terminal';
 import ResultsScreen from './ResultsScreen';
 import GameHeader from './GameHeader';
+import JoinWorldModal from './JoinWorldModal';
 import { getConnection } from '../spacetimedb-connection';
 import { useWorldSwitcher } from '../hooks/useWorldSwitcher';
 import { type Infer } from 'spacetimedb';
@@ -18,6 +19,7 @@ export default function GameView() {
   const [isDead, setIsDead] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -47,8 +49,12 @@ export default function GameView() {
     const connection = getConnection();
     if (!connection) return;
 
+    let hasReceivedTankData = false;
+
     const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+        hasReceivedTankData = true;
+        setShowJoinModal(false);
         setIsDead(tank.health <= 0);
       }
     };
@@ -59,12 +65,27 @@ export default function GameView() {
       }
     };
 
+    const handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+        setShowJoinModal(true);
+      }
+    };
+
     connection.db.tank.onInsert(handleTankInsert);
     connection.db.tank.onUpdate(handleTankUpdate);
+    connection.db.tank.onDelete(handleTankDelete);
+
+    const checkTimeout = setTimeout(() => {
+      if (!hasReceivedTankData) {
+        setShowJoinModal(true);
+      }
+    }, 500);
 
     return () => {
+      clearTimeout(checkTimeout);
       connection.db.tank.removeOnInsert(handleTankInsert);
       connection.db.tank.removeOnUpdate(handleTankUpdate);
+      connection.db.tank.removeOnDelete(handleTankDelete);
     };
   }, [worldId]);
 
@@ -95,7 +116,10 @@ export default function GameView() {
             backgroundColor: '#2e2e43',
           }}
         />
-        {isDead && (
+        {showJoinModal && (
+          <JoinWorldModal worldId={worldId} onJoin={() => setShowJoinModal(false)} />
+        )}
+        {!showJoinModal && isDead && (
           <div style={{
             position: 'absolute',
             top: '50%',
@@ -109,7 +133,6 @@ export default function GameView() {
             fontSize: '24px',
             fontWeight: 'bold',
             border: '4px solid #813645',
-            boxShadow: '0 0 20px rgba(129, 54, 69, 0.5)',
             zIndex: 1000
           }}>
             <div style={{ fontSize: '36px', marginBottom: '20px', color: '#e39764' }}>

@@ -49,6 +49,8 @@ import EndGameReducer from "./end_game_reducer";
 export { EndGameReducer };
 import FindWorldReducer from "./find_world_reducer";
 export { FindWorldReducer };
+import JoinWorld from "./join_world_reducer";
+export { JoinWorld };
 import FireReducer from "./fire_reducer";
 export { FireReducer };
 import HandleConnectReducer from "./handle_connect_reducer";
@@ -540,6 +542,7 @@ const reducersSchema = __reducers(
   __reducerSchema("driveToTank", DriveToTankReducer),
   __reducerSchema("EndGame", EndGameReducer),
   __reducerSchema("findWorld", FindWorldReducer),
+  __reducerSchema("joinWorld", JoinWorld),
   __reducerSchema("fire", FireReducer),
   __reducerSchema("overdrive", OverdriveReducer),
   __reducerSchema("repair", RepairReducer),
