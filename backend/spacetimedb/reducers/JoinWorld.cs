@@ -52,7 +52,7 @@ public static partial class Module
 
         var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
 
-        var tank = BuildTank(ctx, worldId, ctx.Sender, tankName, worldId, assignedAlliance, spawnX, spawnY, false);
+        var tank = BuildTank(ctx, worldId, ctx.Sender, tankName, "", assignedAlliance, spawnX, spawnY, false);
         ctx.Db.tank.Insert(tank);
         Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tank.Id} named {tankName}");
     }
