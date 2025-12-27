@@ -133,7 +133,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(42, 21, 45, 0.95)',
+            backgroundColor: 'rgba(46, 46, 67, 0.95)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
