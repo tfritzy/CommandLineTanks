@@ -38,7 +38,6 @@ export default __t.object("Gun", {
   damping: __t.option(__t.f32()),
   bounce: __t.bool(),
   projectileSize: __t.f32(),
-  raycastRange: __t.option(__t.f32()),
 });
 
 
