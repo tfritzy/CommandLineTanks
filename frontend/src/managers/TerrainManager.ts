@@ -23,6 +23,7 @@ export class TerrainManager {
     if (!connection) return;
 
     this.handleWorldInsert = (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+      if (world.id !== this.worldId) return;
       this.baseTerrainManager.updateWorld(world.width, world.height, world.baseTerrainLayer);
       
       if (!this.detailManager) {
@@ -37,6 +38,7 @@ export class TerrainManager {
     };
 
     this.handleWorldUpdate = (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
+      if (newWorld.id !== this.worldId) return;
       this.baseTerrainManager.updateWorld(newWorld.width, newWorld.height, newWorld.baseTerrainLayer);
       
       if (!this.detailManager) {
@@ -55,6 +57,19 @@ export class TerrainManager {
 
     connection.db.world.onInsert(this.handleWorldInsert);
     connection.db.world.onUpdate(this.handleWorldUpdate);
+
+    const cachedWorld = connection.db.world.Id.find(this.worldId);
+    if (cachedWorld) {
+      this.baseTerrainManager.updateWorld(cachedWorld.width, cachedWorld.height, cachedWorld.baseTerrainLayer);
+      
+      if (!this.detailManager) {
+        this.detailManager = new TerrainDetailManager(
+          this.worldId,
+          cachedWorld.width,
+          cachedWorld.height
+        );
+      }
+    }
   }
 
   public destroy() {

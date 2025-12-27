@@ -6,6 +6,9 @@ import { type Infer } from "spacetimedb";
 export class SpiderMineManager {
   private spiderMines: Map<string, SpiderMine> = new Map();
   private worldId: string;
+  private handleMineInsert: ((ctx: EventContext, mine: Infer<typeof SpiderMineRow>) => void) | null = null;
+  private handleMineUpdate: ((ctx: EventContext, oldMine: Infer<typeof SpiderMineRow>, newMine: Infer<typeof SpiderMineRow>) => void) | null = null;
+  private handleMineDelete: ((ctx: EventContext, mine: Infer<typeof SpiderMineRow>) => void) | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -21,7 +24,8 @@ export class SpiderMineManager {
       .onError((e) => console.log("Spider mine subscription error", e))
       .subscribe([`SELECT * FROM spider_mine WHERE WorldId = '${this.worldId}'`]);
 
-    connection.db.spiderMine.onInsert((_ctx: EventContext, mine: Infer<typeof SpiderMineRow>) => {
+    this.handleMineInsert = (_ctx: EventContext, mine: Infer<typeof SpiderMineRow>) => {
+      if (mine.worldId !== this.worldId) return;
       const newMine = new SpiderMine(
         mine.id,
         mine.positionX,
@@ -34,9 +38,10 @@ export class SpiderMineManager {
         mine.velocity.y
       );
       this.spiderMines.set(mine.id, newMine);
-    });
+    };
 
-    connection.db.spiderMine.onUpdate((_ctx: EventContext, _oldMine: Infer<typeof SpiderMineRow>, newMine: Infer<typeof SpiderMineRow>) => {
+    this.handleMineUpdate = (_ctx: EventContext, _oldMine: Infer<typeof SpiderMineRow>, newMine: Infer<typeof SpiderMineRow>) => {
+      if (newMine.worldId !== this.worldId) return;
       const mine = this.spiderMines.get(newMine.id);
       if (mine) {
         mine.setPosition(newMine.positionX, newMine.positionY);
@@ -45,11 +50,33 @@ export class SpiderMineManager {
         mine.setPlantingStartedAt(newMine.plantingStartedAt);
         mine.setVelocity(newMine.velocity.x, newMine.velocity.y);
       }
-    });
+    };
 
-    connection.db.spiderMine.onDelete((_ctx: EventContext, mine: Infer<typeof SpiderMineRow>) => {
+    this.handleMineDelete = (_ctx: EventContext, mine: Infer<typeof SpiderMineRow>) => {
+      if (mine.worldId !== this.worldId) return;
       this.spiderMines.delete(mine.id);
-    });
+    };
+
+    connection.db.spiderMine.onInsert(this.handleMineInsert);
+    connection.db.spiderMine.onUpdate(this.handleMineUpdate);
+    connection.db.spiderMine.onDelete(this.handleMineDelete);
+
+    for (const mine of connection.db.spiderMine.iter()) {
+      if (mine.worldId === this.worldId) {
+        const newMine = new SpiderMine(
+          mine.id,
+          mine.positionX,
+          mine.positionY,
+          mine.alliance,
+          mine.health,
+          mine.isPlanted,
+          mine.plantingStartedAt,
+          mine.velocity.x,
+          mine.velocity.y
+        );
+        this.spiderMines.set(mine.id, newMine);
+      }
+    }
   }
 
   public update(deltaTime: number) {
@@ -73,5 +100,11 @@ export class SpiderMineManager {
   }
 
   public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleMineInsert) connection.db.spiderMine.removeOnInsert(this.handleMineInsert);
+      if (this.handleMineUpdate) connection.db.spiderMine.removeOnUpdate(this.handleMineUpdate);
+      if (this.handleMineDelete) connection.db.spiderMine.removeOnDelete(this.handleMineDelete);
+    }
   }
 }

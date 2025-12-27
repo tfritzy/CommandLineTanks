@@ -42,6 +42,7 @@ export class ProjectileManager {
       ]);
 
     this.handleProjectileUpdate = (_ctx: EventContext, _oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => {
+      if (newProjectile.worldId !== this.worldId) return;
       let projectile = this.projectiles.get(newProjectile.id);
       if (!projectile) {
         projectile = ProjectileFactory.create(
@@ -77,6 +78,7 @@ export class ProjectileManager {
     };
 
     this.handleProjectileDelete = (_ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => {
+      if (projectile.worldId !== this.worldId) return;
       const localProjectile = this.projectiles.get(projectile.id);
       if (localProjectile) {
         localProjectile.spawnDeathParticles(this.particlesManager);
@@ -86,6 +88,24 @@ export class ProjectileManager {
 
     connection.db.projectile.onUpdate(this.handleProjectileUpdate);
     connection.db.projectile.onDelete(this.handleProjectileDelete);
+
+    for (const projectile of connection.db.projectile.iter()) {
+      if (projectile.worldId === this.worldId) {
+        const localProjectile = ProjectileFactory.create(
+          projectile.projectileType.tag,
+          projectile.positionX,
+          projectile.positionY,
+          projectile.velocity.x,
+          projectile.velocity.y,
+          projectile.size,
+          projectile.alliance,
+          projectile.explosionRadius,
+          projectile.trackingStrength,
+          projectile.trackingRadius
+        );
+        this.projectiles.set(projectile.id, localProjectile);
+      }
+    }
   }
 
   public destroy() {

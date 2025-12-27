@@ -34,10 +34,10 @@ export class GunInventoryManager {
     }
 
     this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      if (tank.worldId !== worldId) return;
       if (
         connection.identity &&
-        tank.owner.isEqual(connection.identity) &&
-        tank.worldId === worldId
+        tank.owner.isEqual(connection.identity)
       ) {
         this.playerTankId = tank.id;
         this.guns = [...tank.guns];
@@ -47,10 +47,10 @@ export class GunInventoryManager {
     };
 
     this.handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+      if (newTank.worldId !== worldId) return;
       if (
         connection.identity &&
-        newTank.owner.isEqual(connection.identity) &&
-        newTank.worldId === worldId
+        newTank.owner.isEqual(connection.identity)
       ) {
         this.guns = [...newTank.guns];
         this.selectedGunIndex = newTank.selectedGunIndex;
@@ -59,6 +59,7 @@ export class GunInventoryManager {
     };
 
     this.handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      if (tank.worldId !== worldId) return;
       if (this.playerTankId === tank.id) {
         this.playerTankId = null;
         this.guns = [];
@@ -69,6 +70,15 @@ export class GunInventoryManager {
     connection.db.tank.onInsert(this.handleTankInsert);
     connection.db.tank.onUpdate(this.handleTankUpdate);
     connection.db.tank.onDelete(this.handleTankDelete);
+
+    for (const tank of connection.db.tank.iter()) {
+      if (tank.worldId === worldId && connection.identity && tank.owner.isEqual(connection.identity)) {
+        this.playerTankId = tank.id;
+        this.guns = [...tank.guns];
+        this.selectedGunIndex = tank.selectedGunIndex;
+        this.playerAlliance = tank.alliance;
+      }
+    }
   }
 
   public destroy() {

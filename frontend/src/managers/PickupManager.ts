@@ -35,6 +35,7 @@ export class PickupManager {
       .subscribe([`SELECT * FROM pickup WHERE WorldId = '${this.worldId}'`]);
 
     this.handlePickupInsert = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+      if (pickup.worldId !== this.worldId) return;
       this.pickups.set(pickup.id, {
         id: pickup.id,
         positionX: pickup.positionX,
@@ -44,11 +45,23 @@ export class PickupManager {
     };
 
     this.handlePickupDelete = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+      if (pickup.worldId !== this.worldId) return;
       this.pickups.delete(pickup.id);
     };
 
     connection.db.pickup.onInsert(this.handlePickupInsert);
     connection.db.pickup.onDelete(this.handlePickupDelete);
+
+    for (const pickup of connection.db.pickup.iter()) {
+      if (pickup.worldId === this.worldId) {
+        this.pickups.set(pickup.id, {
+          id: pickup.id,
+          positionX: pickup.positionX,
+          positionY: pickup.positionY,
+          type: pickup.type,
+        });
+      }
+    }
   }
 
   public destroy() {

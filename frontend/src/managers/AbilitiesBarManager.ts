@@ -4,6 +4,8 @@ import { drawAbilitySlot } from "../drawing/ui/ability-slot";
 import { drawSmokescreenIcon } from "../drawing/ui/smokescreen-icon";
 import { drawOverdriveIcon } from "../drawing/ui/overdrive-icon";
 import { drawRepairIcon } from "../drawing/ui/repair-icon";
+import { type Infer } from "spacetimedb";
+import TankRow from "../../module_bindings/tank_type";
 
 const MICROSECONDS_TO_SECONDS = 1_000_000;
 
@@ -21,6 +23,9 @@ export class AbilitiesBarManager {
   private readonly SMOKESCREEN_COOLDOWN_SECONDS = 60;
   private readonly OVERDRIVE_COOLDOWN_SECONDS = 60;
   private readonly REPAIR_COOLDOWN_SECONDS = 60;
+  private handleTankInsert: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankUpdate: ((ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankDelete: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
 
   constructor(worldId: string) {
     this.subscribeToPlayerTank(worldId);
@@ -33,31 +38,47 @@ export class AbilitiesBarManager {
       return;
     }
 
-    connection.db.tank.onInsert((_ctx: EventContext, tank) => {
-      if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+    this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      if (tank.worldId !== worldId) return;
+      if (connection.identity && tank.owner.isEqual(connection.identity)) {
         this.playerTankId = tank.id;
         this.remainingSmokescreenCooldownMicros = tank.remainingSmokescreenCooldownMicros;
         this.remainingOverdriveCooldownMicros = tank.remainingOverdriveCooldownMicros;
         this.remainingRepairCooldownMicros = tank.remainingRepairCooldownMicros;
       }
-    });
+    };
 
-    connection.db.tank.onUpdate((_ctx: EventContext, _oldTank, newTank) => {
-      if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
+    this.handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+      if (newTank.worldId !== worldId) return;
+      if (connection.identity && newTank.owner.isEqual(connection.identity)) {
         this.remainingSmokescreenCooldownMicros = newTank.remainingSmokescreenCooldownMicros;
         this.remainingOverdriveCooldownMicros = newTank.remainingOverdriveCooldownMicros;
         this.remainingRepairCooldownMicros = newTank.remainingRepairCooldownMicros;
       }
-    });
+    };
 
-    connection.db.tank.onDelete((_ctx: EventContext, tank) => {
+    this.handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+      if (tank.worldId !== worldId) return;
       if (this.playerTankId === tank.id) {
         this.playerTankId = null;
         this.remainingSmokescreenCooldownMicros = 0n;
         this.remainingOverdriveCooldownMicros = 0n;
         this.remainingRepairCooldownMicros = 0n;
       }
-    });
+    };
+
+    connection.db.tank.onInsert(this.handleTankInsert);
+    connection.db.tank.onUpdate(this.handleTankUpdate);
+    connection.db.tank.onDelete(this.handleTankDelete);
+
+    for (const tank of connection.db.tank.iter()) {
+      if (tank.worldId === worldId && connection.identity && tank.owner.isEqual(connection.identity)) {
+        this.playerTankId = tank.id;
+        this.remainingSmokescreenCooldownMicros = tank.remainingSmokescreenCooldownMicros;
+        this.remainingOverdriveCooldownMicros = tank.remainingOverdriveCooldownMicros;
+        this.remainingRepairCooldownMicros = tank.remainingRepairCooldownMicros;
+      }
+    }
   }
 
   public draw(ctx: CanvasRenderingContext2D, _canvasWidth: number, canvasHeight: number) {
@@ -110,5 +131,11 @@ export class AbilitiesBarManager {
   }
 
   public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleTankInsert) connection.db.tank.removeOnInsert(this.handleTankInsert);
+      if (this.handleTankUpdate) connection.db.tank.removeOnUpdate(this.handleTankUpdate);
+      if (this.handleTankDelete) connection.db.tank.removeOnDelete(this.handleTankDelete);
+    }
   }
 }

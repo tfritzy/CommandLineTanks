@@ -58,6 +58,7 @@ export class TankManager {
       _ctx: EventContext,
       tank: Infer<typeof TankRow>
     ) => {
+      if (tank.worldId !== this.worldId) return;
       this.buildTank(tank);
 
       if (
@@ -75,6 +76,7 @@ export class TankManager {
       oldTank: Infer<typeof TankRow>,
       newTank: Infer<typeof TankRow>
     ) => {
+      if (newTank.worldId !== this.worldId) return;
       const tank = this.tanks.get(newTank.id);
       if (tank) {
         if (oldTank.health > 0 && newTank.health <= 0) {
@@ -152,6 +154,7 @@ export class TankManager {
       _ctx: EventContext,
       tank: Infer<typeof TankRow>
     ) => {
+      if (tank.worldId !== this.worldId) return;
       this.tanks.delete(tank.id);
 
       if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
@@ -166,6 +169,20 @@ export class TankManager {
     connection.db.tank.onInsert(this.handleTankInsert);
     connection.db.tank.onUpdate(this.handleTankUpdate);
     connection.db.tank.onDelete(this.handleTankDelete);
+
+    for (const tank of connection.db.tank.iter()) {
+      if (tank.worldId === this.worldId) {
+        this.buildTank(tank);
+
+        if (
+          connection.identity &&
+          tank.owner.isEqual(connection.identity)
+        ) {
+          this.playerTankId = tank.id;
+          this.updatePlayerTarget(tank.target);
+        }
+      }
+    }
   }
 
   buildTank(tank: Infer<typeof TankRow>) {
