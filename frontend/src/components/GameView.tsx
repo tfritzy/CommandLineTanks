@@ -20,7 +20,6 @@ export default function GameView() {
   const [copied, setCopied] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
-  const [hasTank, setHasTank] = useState<boolean | null>(null);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -55,7 +54,6 @@ export default function GameView() {
         t => connection.identity && t.owner.isEqual(connection.identity) && t.worldId === worldId
       );
       const hasPlayerTank = !!playerTank;
-      setHasTank(hasPlayerTank);
       setShowJoinModal(!hasPlayerTank);
       if (playerTank) {
         setIsDead(playerTank.health <= 0);
@@ -66,7 +64,6 @@ export default function GameView() {
 
     const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
-        setHasTank(true);
         setShowJoinModal(false);
         setIsDead(tank.health <= 0);
       }
@@ -80,7 +77,6 @@ export default function GameView() {
 
     const handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
-        setHasTank(false);
         setShowJoinModal(true);
       }
     };
