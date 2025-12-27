@@ -187,7 +187,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                 width: '100%',
                 height: '500px',
                 maxHeight: '50vh',
-                background: '#2e2e43',
+                background: '#2a152d',
                 borderTop: '1px solid #5a78b2',
                 display: 'flex',
                 justifyContent: 'center',

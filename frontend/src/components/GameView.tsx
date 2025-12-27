@@ -100,7 +100,7 @@ export default function GameView() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            background: '#2e2e43',
+            background: '#2a152d',
             padding: '40px 60px',
             textAlign: 'center',
             color: '#e6eeed',
