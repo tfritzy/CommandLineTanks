@@ -612,6 +612,7 @@ public static partial class ProjectileUpdater
 
             const float MIN_STEP = 0.5f;
             int numSteps = Math.Max(1, (int)Math.Ceiling(distanceTraveled / MIN_STEP));
+            double stepDeltaTime = deltaTime / numSteps;
 
             bool collided = false;
             bool mapChanged;
@@ -628,7 +629,6 @@ public static partial class ProjectileUpdater
                     PositionY = interpolatedY
                 };
 
-                double stepDeltaTime = deltaTime / numSteps;
                 (collided, projectile, mapChanged) = HandleTerrainCollision(ctx, projectile, ref traversibilityMap, args.WorldId, stepDeltaTime);
 
                 if (mapChanged)
