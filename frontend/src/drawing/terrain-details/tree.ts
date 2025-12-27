@@ -28,7 +28,7 @@ export function drawTreeBody(
     TERRAIN_DETAIL_COLORS.TREE.VARIANT_1,
     TERRAIN_DETAIL_COLORS.TREE.VARIANT_2
   ];
-  const colors = variants[variant % variants.length];
+  const colors = variants[Math.max(0, Math.min(variant, variants.length - 1))];
 
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);

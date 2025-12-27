@@ -46,7 +46,7 @@ public static partial class TerrainGenerator
 
         Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, random);
 
-        GenerateTrees(terrainDetailArray, baseTerrain, fieldTiles, random);
+        GenerateTrees(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random);
 
         GenerateStructures(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random);
 
@@ -288,7 +288,7 @@ public static partial class TerrainGenerator
         return result;
     }
 
-    private static void GenerateTrees(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random)
+    private static void GenerateTrees(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random)
     {
         float scale = 0.1f;
         float threshold = 0.2f;
