@@ -83,7 +83,8 @@ export abstract class Projectile {
     const dx = this.x - this.previousX;
     const dy = this.y - this.previousY;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    const expectedTravelTime = speed > 0 ? distance / speed : 0;
+    const MIN_SPEED = 0.01;
+    const expectedTravelTime = speed > MIN_SPEED ? distance / speed : 0;
     
     if (expectedTravelTime === 0) {
       this.cachedInterpolatedPos = { x: this.x, y: this.y };
