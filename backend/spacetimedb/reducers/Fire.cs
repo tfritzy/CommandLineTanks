@@ -10,25 +10,26 @@ public static partial class Module
         if (maybeTank == null) return;
         var tank = maybeTank.Value;
 
-        FireTankWeapon(ctx, tank);
+        tank = FireTankWeapon(ctx, tank);
+        ctx.Db.tank.Id.Update(tank);
     }
 
-    public static bool FireTankWeapon(ReducerContext ctx, Tank tank)
+    public static Tank FireTankWeapon(ReducerContext ctx, Tank tank)
     {
-        if (tank.Health <= 0) return false;
+        if (tank.Health <= 0) return tank;
 
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         if (tank.LastFireTime != 0)
         {
             ulong timeSinceLastFire = currentTime - tank.LastFireTime;
-            if (timeSinceLastFire < FIRE_RATE_LIMIT_MICROS) return false;
+            if (timeSinceLastFire < FIRE_RATE_LIMIT_MICROS) return tank;
         }
 
-        if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return false;
+        if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return tank;
 
         var gun = tank.Guns[tank.SelectedGunIndex];
 
-        if (gun.Ammo != null && gun.Ammo <= 0) return false;
+        if (gun.Ammo != null && gun.Ammo <= 0) return tank;
 
         if (gun.RaycastRange.HasValue)
         {
@@ -92,10 +93,7 @@ public static partial class Module
         }
 
         tank.LastFireTime = currentTime;
-        ctx.Db.tank.Id.Update(tank);
-
-        Log.Info($"Tank {tank.Name} fired {gun.GunType}. Ammo remaining: {gun.Ammo?.ToString() ?? "unlimited"}");
-        return true;
+        return tank;
     }
 
     private static void FireRaycastWeapon(ReducerContext ctx, Tank tank, Types.Gun gun)

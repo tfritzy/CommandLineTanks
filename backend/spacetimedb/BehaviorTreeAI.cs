@@ -3,6 +3,7 @@ using static Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Module;
 
 public static partial class BehaviorTreeAI
 {
@@ -21,9 +22,9 @@ public static partial class BehaviorTreeAI
     {
         private readonly ReducerContext _ctx;
         private readonly string _worldId;
-        private List<Module.Tank>? _allTanks;
-        private List<Module.Pickup>? _allPickups;
-        private Module.TraversibilityMap? _traversibilityMap;
+        private List<Tank>? _allTanks;
+        private List<Pickup>? _allPickups;
+        private TraversibilityMap? _traversibilityMap;
         private bool _traversibilityMapLoaded;
 
         public AIContext(ReducerContext ctx, string worldId)
@@ -37,7 +38,7 @@ public static partial class BehaviorTreeAI
             return _ctx.Rng;
         }
 
-        public List<Module.Tank> GetAllTanks()
+        public List<Tank> GetAllTanks()
         {
             if (_allTanks == null)
             {
@@ -46,7 +47,7 @@ public static partial class BehaviorTreeAI
             return _allTanks;
         }
 
-        public List<Module.Pickup> GetAllPickups()
+        public List<Pickup> GetAllPickups()
         {
             if (_allPickups == null)
             {
@@ -55,7 +56,7 @@ public static partial class BehaviorTreeAI
             return _allPickups;
         }
 
-        public Module.TraversibilityMap? GetTraversibilityMap()
+        public TraversibilityMap? GetTraversibilityMap()
         {
             if (!_traversibilityMapLoaded)
             {
@@ -76,7 +77,7 @@ public static partial class BehaviorTreeAI
         {
             if (tank.Health <= 0)
             {
-                var respawnedTank = Module.RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
+                var respawnedTank = RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
                 ctx.Db.tank.Id.Update(respawnedTank);
                 continue;
             }
@@ -85,7 +86,7 @@ public static partial class BehaviorTreeAI
         }
     }
 
-    private static void EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, AIContext aiContext)
+    private static void EvaluateBehaviorTree(ReducerContext ctx, Tank tank, AIContext aiContext)
     {
         var decision = BehaviorTreeLogic.EvaluateBehaviorTree(tank, aiContext);
 
@@ -94,17 +95,17 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.MoveTowardsPickup:
                 if (decision.TargetPickup != null && decision.Path.Count > 0)
                 {
-                    SetPath(ctx, tank, decision.Path);
+                    tank = SetPath(ctx, tank, decision.Path);
                 }
                 break;
 
             case BehaviorTreeLogic.AIAction.AimAndFire:
                 if (decision.TargetTank != null)
                 {
-                    Module.TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
+                    tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
                     if (decision.ShouldFire)
                     {
-                        Module.FireTankWeapon(ctx, tank);
+                        tank = FireTankWeapon(ctx, tank);
                     }
                 }
                 break;
@@ -119,8 +120,8 @@ public static partial class BehaviorTreeAI
                     };
                     ctx.Db.tank.Id.Update(tank);
 
-                    Module.TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
-                    Module.FireTankWeapon(ctx, tank);
+                    tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
+                    tank = FireTankWeapon(ctx, tank);
                 }
                 break;
 
@@ -130,12 +131,12 @@ public static partial class BehaviorTreeAI
                     if (decision.TargetTank != null)
                     {
                         var distanceToTarget = BehaviorTreeLogic.GetDistance(tank.PositionX, tank.PositionY, decision.TargetTank.Value.PositionX, decision.TargetTank.Value.PositionY);
-                        if (distanceToTarget <= Module.MAX_TARGETING_RANGE)
+                        if (distanceToTarget <= MAX_TARGETING_RANGE)
                         {
-                            Module.TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
+                            tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
                         }
                     }
-                    SetPath(ctx, tank, decision.Path);
+                    tank = SetPath(ctx, tank, decision.Path);
                 }
                 break;
 
@@ -146,9 +147,11 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.None:
                 break;
         }
+
+        ctx.Db.tank.Id.Update(tank);
     }
 
-    private static void SetPath(ReducerContext ctx, Module.Tank tank, List<(int x, int y)> path)
+    private static Tank SetPath(ReducerContext ctx, Tank tank, List<(int x, int y)> path)
     {
         var pathEntries = path.Select(waypoint => new PathEntry
         {
@@ -157,16 +160,14 @@ public static partial class BehaviorTreeAI
             Reverse = false
         }).ToArray();
 
-        tank = tank with
+        return tank with
         {
             Path = pathEntries,
             Velocity = new Vector2Float(0, 0)
         };
-
-        ctx.Db.tank.Id.Update(tank);
     }
 
-    private static void DriveTowards(ReducerContext ctx, Module.Tank tank, int targetX, int targetY)
+    private static void DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
     {
         int currentX = (int)tank.PositionX;
         int currentY = (int)tank.PositionY;
@@ -180,6 +181,6 @@ public static partial class BehaviorTreeAI
         Vector2 targetPos = new Vector2(targetX, targetY);
         Vector2 offset = new Vector2(targetPos.X - currentPos.X, targetPos.Y - currentPos.Y);
 
-        Module.DriveToPosition(ctx, tank, offset, 1.0f, false);
+        DriveToPosition(ctx, tank, offset, 1.0f, false);
     }
 }

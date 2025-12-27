@@ -14,6 +14,7 @@ export class MiniMapManager {
   private lastWorldWidth: number = 0;
   private lastWorldHeight: number = 0;
   private needsRedraw: boolean = true;
+  private lastDpr: number = 0;
 
   constructor(tankManager: TankManager, terrainManager: TerrainManager) {
     this.tankManager = tankManager;
@@ -40,6 +41,7 @@ export class MiniMapManager {
     const playerTank = this.tankManager.getPlayerTank();
     if (!playerTank) return;
 
+    const dpr = window.devicePixelRatio || 1;
     const aspectRatio = worldWidth / worldHeight;
     let miniMapWidth: number;
     let miniMapHeight: number;
@@ -56,17 +58,20 @@ export class MiniMapManager {
     const miniMapY = canvasHeight - miniMapHeight - this.margin;
 
     const worldChanged = worldWidth !== this.lastWorldWidth || worldHeight !== this.lastWorldHeight;
-    if (worldChanged || this.needsRedraw || !this.baseLayerCanvas) {
-      this.createBaseLayer(miniMapWidth, miniMapHeight, worldWidth, worldHeight);
+    const dprChanged = dpr !== this.lastDpr;
+    if (worldChanged || dprChanged || this.needsRedraw || !this.baseLayerCanvas) {
+      this.createBaseLayer(miniMapWidth, miniMapHeight, worldWidth, worldHeight, dpr);
       this.lastWorldWidth = worldWidth;
       this.lastWorldHeight = worldHeight;
+      this.lastDpr = dpr;
       this.needsRedraw = false;
     }
 
     ctx.save();
+    ctx.imageSmoothingEnabled = false;
 
     if (this.baseLayerCanvas) {
-      ctx.drawImage(this.baseLayerCanvas, miniMapX, miniMapY);
+      ctx.drawImage(this.baseLayerCanvas, miniMapX, miniMapY, miniMapWidth, miniMapHeight);
     }
 
     ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
@@ -98,17 +103,25 @@ export class MiniMapManager {
     miniMapWidth: number,
     miniMapHeight: number,
     worldWidth: number,
-    worldHeight: number
+    worldHeight: number,
+    dpr: number
   ) {
     if (!this.baseLayerCanvas) {
       this.baseLayerCanvas = document.createElement('canvas');
       this.baseLayerContext = this.baseLayerCanvas.getContext('2d');
+      if (this.baseLayerContext) {
+        this.baseLayerContext.imageSmoothingEnabled = false;
+      }
     }
 
     if (!this.baseLayerContext) return;
 
-    this.baseLayerCanvas.width = miniMapWidth;
-    this.baseLayerCanvas.height = miniMapHeight;
+    this.baseLayerCanvas.width = miniMapWidth * dpr;
+    this.baseLayerCanvas.height = miniMapHeight * dpr;
+    
+    this.baseLayerContext.setTransform(1, 0, 0, 1, 0, 0);
+    this.baseLayerContext.scale(dpr, dpr);
+    this.baseLayerContext.imageSmoothingEnabled = false;
 
     this.drawTerrain(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
     this.drawSpawnZones(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
