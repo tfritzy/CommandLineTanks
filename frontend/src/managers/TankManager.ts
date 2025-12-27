@@ -9,6 +9,7 @@ import { GUN_BARREL_LENGTH } from "../constants";
 import type { SubscriptionHandle, EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
+import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -33,6 +34,13 @@ export class TankManager {
     | null = null;
   private handleTankDelete:
     | ((ctx: EventContext, tank: Infer<typeof TankRow>) => void)
+    | null = null;
+  private handleFireStateUpdate:
+    | ((
+        ctx: EventContext,
+        oldState: Infer<typeof TankFireStateRow>,
+        newState: Infer<typeof TankFireStateRow>
+      ) => void)
     | null = null;
 
   constructor(worldId: string, screenShake: ScreenShake) {
@@ -101,12 +109,6 @@ export class TankManager {
           );
         }
 
-        if (oldTank.lastFireTime !== newTank.lastFireTime && newTank.health > 0) {
-          const barrelTipX = newTank.positionX + Math.cos(newTank.turretRotation) * GUN_BARREL_LENGTH;
-          const barrelTipY = newTank.positionY + Math.sin(newTank.turretRotation) * GUN_BARREL_LENGTH;
-          this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, newTank.turretRotation, newTank.alliance);
-        }
-
         if (oldTank.isRepairing && !newTank.isRepairing && newTank.health > 0) {
           const pos = tank.getPosition();
           if (newTank.health >= newTank.maxHealth) {
@@ -166,9 +168,26 @@ export class TankManager {
       }
     };
 
+    this.handleFireStateUpdate = (
+      _ctx: EventContext,
+      _oldState: Infer<typeof TankFireStateRow>,
+      newState: Infer<typeof TankFireStateRow>
+    ) => {
+      const tank = this.tanks.get(newState.tankId);
+      if (tank) {
+        const tankRow = connection.db.tank.id.find(newState.tankId);
+        if (tankRow && tankRow.health > 0) {
+          const barrelTipX = tankRow.positionX + Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+          const barrelTipY = tankRow.positionY + Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+          this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, tankRow.turretRotation, tankRow.alliance);
+        }
+      }
+    };
+
     connection.db.tank.onInsert(this.handleTankInsert);
     connection.db.tank.onUpdate(this.handleTankUpdate);
     connection.db.tank.onDelete(this.handleTankDelete);
+    connection.db.tankFireState.onUpdate(this.handleFireStateUpdate);
 
     for (const tank of connection.db.tank.iter()) {
       if (tank.worldId === this.worldId) {
@@ -216,6 +235,8 @@ export class TankManager {
         connection.db.tank.removeOnUpdate(this.handleTankUpdate);
       if (this.handleTankDelete)
         connection.db.tank.removeOnDelete(this.handleTankDelete);
+      if (this.handleFireStateUpdate)
+        connection.db.tankFireState.removeOnUpdate(this.handleFireStateUpdate);
     }
 
     if (this.subscriptionHandle) {
