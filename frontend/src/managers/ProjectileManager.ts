@@ -5,6 +5,9 @@ import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet
 import { UNIT_TO_PIXEL } from "../constants";
 import type { TankManager } from "./TankManager";
 import { ScreenShake } from "../utils/ScreenShake";
+import type { SubscriptionHandle, EventContext } from "../../module_bindings";
+import { type Infer } from "spacetimedb";
+import ProjectileRow from "../../module_bindings/projectile_type";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
@@ -12,6 +15,9 @@ export class ProjectileManager {
   private particlesManager: ProjectileImpactParticlesManager;
   private tankManager: TankManager | null = null;
   private screenShake: ScreenShake;
+  private subscriptionHandle: SubscriptionHandle | null = null;
+  private handleProjectileUpdate: ((ctx: EventContext, oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => void) | null = null;
+  private handleProjectileDelete: ((ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => void) | null = null;
 
   constructor(worldId: string, screenShake: ScreenShake) {
     this.worldId = worldId;
@@ -28,14 +34,14 @@ export class ProjectileManager {
     const connection = getConnection();
     if (!connection) return;
 
-    connection
+    this.subscriptionHandle = connection
       .subscriptionBuilder()
       .onError((e) => console.log("Projectile subscription error", e))
       .subscribe([
         `SELECT * FROM projectile WHERE WorldId = '${this.worldId}'`,
       ]);
 
-    connection.db.projectile.onUpdate((_ctx, _oldProjectile, newProjectile) => {
+    this.handleProjectileUpdate = (_ctx: EventContext, _oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => {
       let projectile = this.projectiles.get(newProjectile.id);
       if (!projectile) {
         projectile = ProjectileFactory.create(
@@ -68,20 +74,35 @@ export class ProjectileManager {
           newProjectile.velocity.y
         );
       }
-    });
+    };
 
-    connection.db.projectile.onDelete((_ctx, projectile) => {
+    this.handleProjectileDelete = (_ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => {
       const localProjectile = this.projectiles.get(projectile.id);
       if (localProjectile) {
         localProjectile.spawnDeathParticles(this.particlesManager);
       }
       this.projectiles.delete(projectile.id);
-    });
+    };
+
+    connection.db.projectile.onUpdate(this.handleProjectileUpdate);
+    connection.db.projectile.onDelete(this.handleProjectileDelete);
+  }
+
+  public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleProjectileUpdate) connection.db.projectile.removeOnUpdate(this.handleProjectileUpdate);
+      if (this.handleProjectileDelete) connection.db.projectile.removeOnDelete(this.handleProjectileDelete);
+    }
+
+    if (this.subscriptionHandle) {
+      this.subscriptionHandle.unsubscribe();
+    }
   }
 
   public update(deltaTime: number) {
     for (const projectile of this.projectiles.values()) {
-      projectile.update(deltaTime, this.tankManager);
+      projectile.update(deltaTime, this.tankManager ?? undefined);
     }
     this.particlesManager.update(deltaTime);
   }

@@ -13,11 +13,13 @@ public static partial class Module
 
         var baseTerrain = new BaseTerrain[totalTiles];
         var traversibilityMap = new bool[totalTiles];
+        var projectileCollisionMap = new bool[totalTiles];
 
         for (int i = 0; i < totalTiles; i++)
         {
             baseTerrain[i] = BaseTerrain.Ground;
             traversibilityMap[i] = true;
+            projectileCollisionMap[i] = true;
         }
 
         var world = new World
@@ -61,6 +63,7 @@ public static partial class Module
             if (traversibilityMap[rIndex] && (Math.Abs(rx - 20) > 5 || Math.Abs(ry - 20) > 5))
             {
                 traversibilityMap[rIndex] = false;
+                projectileCollisionMap[rIndex] = false;
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
                 {
                     Id = GenerateId(ctx, "td"),
@@ -84,6 +87,7 @@ public static partial class Module
             if (traversibilityMap[tIndex] && (Math.Abs(tx - 20) > 5 || Math.Abs(ty - 20) > 5))
             {
                 traversibilityMap[tIndex] = false;
+                projectileCollisionMap[tIndex] = false;
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
                 {
                     Id = GenerateId(ctx, "td"),
@@ -191,6 +195,7 @@ public static partial class Module
         {
             WorldId = identityString,
             Map = traversibilityMap,
+            ProjectileCollisionMap = projectileCollisionMap,
             Width = worldSize,
             Height = worldSize
         });

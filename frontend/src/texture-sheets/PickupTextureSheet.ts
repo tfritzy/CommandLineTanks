@@ -316,12 +316,14 @@ export class PickupTextureSheet {
     const texture = this.textures.get(key);
     if (!texture) return;
 
+    const dpr = getNormalizedDPR();
+
     ctx.drawImage(
       this.canvas,
-      texture.x,
-      texture.y,
-      texture.width,
-      texture.height,
+      texture.x * dpr,
+      texture.y * dpr,
+      texture.width * dpr,
+      texture.height * dpr,
       x - texture.width / 2,
       y - texture.height / 2,
       texture.width,

@@ -54,4 +54,7 @@ export class SmokeCloudManager {
       system.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
     }
   }
+
+  public destroy() {
+  }
 }

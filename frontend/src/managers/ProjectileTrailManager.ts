@@ -81,4 +81,7 @@ export class ProjectileTrailManager {
       ctx.restore();
     }
   }
+
+  public destroy() {
+  }
 }

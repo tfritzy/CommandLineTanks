@@ -1,9 +1,10 @@
 import { getConnection } from "../spacetimedb-connection";
-import { type PickupRow, type EventContext } from "../../module_bindings";
+import { type PickupRow, type EventContext, type SubscriptionHandle } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
 import { UNIT_TO_PIXEL } from "../constants";
 import { pickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
+import { drawMoagBody, drawMoagShadow } from "../drawing";
 
 interface PickupData {
   id: string;
@@ -15,6 +16,9 @@ interface PickupData {
 export class PickupManager {
   private pickups: Map<string, PickupData> = new Map();
   private worldId: string;
+  private subscriptionHandle: SubscriptionHandle | null = null;
+  private handlePickupInsert: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
+  private handlePickupDelete: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -25,27 +29,38 @@ export class PickupManager {
     const connection = getConnection();
     if (!connection) return;
 
-    connection
+    this.subscriptionHandle = connection
       .subscriptionBuilder()
       .onError((e) => console.log("Pickups subscription error", e))
       .subscribe([`SELECT * FROM pickup WHERE WorldId = '${this.worldId}'`]);
 
-    connection.db.pickup.onInsert(
-      (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-        this.pickups.set(pickup.id, {
-          id: pickup.id,
-          positionX: pickup.positionX,
-          positionY: pickup.positionY,
-          type: pickup.type,
-        });
-      }
-    );
+    this.handlePickupInsert = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+      this.pickups.set(pickup.id, {
+        id: pickup.id,
+        positionX: pickup.positionX,
+        positionY: pickup.positionY,
+        type: pickup.type,
+      });
+    };
 
-    connection.db.pickup.onDelete(
-      (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-        this.pickups.delete(pickup.id);
-      }
-    );
+    this.handlePickupDelete = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+      this.pickups.delete(pickup.id);
+    };
+
+    connection.db.pickup.onInsert(this.handlePickupInsert);
+    connection.db.pickup.onDelete(this.handlePickupDelete);
+  }
+
+  public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handlePickupInsert) connection.db.pickup.removeOnInsert(this.handlePickupInsert);
+      if (this.handlePickupDelete) connection.db.pickup.removeOnDelete(this.handlePickupDelete);
+    }
+
+    if (this.subscriptionHandle) {
+      this.subscriptionHandle.unsubscribe();
+    }
   }
 
   public draw(
@@ -99,7 +114,8 @@ export class PickupManager {
         pickupTextureSheet.draw(ctx, "rocket", worldX, worldY);
         break;
       case "Moag":
-        pickupTextureSheet.draw(ctx, "moag", worldX, worldY);
+        drawMoagShadow(ctx, worldX - 4, worldY + 4, 0.3);
+        drawMoagBody(ctx, worldX, worldY, 0.3, 0);
         break;
       case "SpiderMine":
         pickupTextureSheet.draw(ctx, "spider-mine", worldX, worldY);

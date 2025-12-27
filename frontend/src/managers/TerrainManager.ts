@@ -1,11 +1,16 @@
 import { getConnection } from "../spacetimedb-connection";
 import { BaseTerrainManager } from "./BaseTerrainManager";
 import { TerrainDetailManager } from "./TerrainDetailManager";
+import { type EventContext } from "../../module_bindings";
+import { type Infer } from "spacetimedb";
+import WorldRow from "../../module_bindings/world_type";
 
 export class TerrainManager {
   private baseTerrainManager: BaseTerrainManager;
   private detailManager: TerrainDetailManager | null = null;
   private worldId: string;
+  private handleWorldInsert: ((ctx: EventContext, world: Infer<typeof WorldRow>) => void) | null = null;
+  private handleWorldUpdate: ((ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => void) | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -17,7 +22,7 @@ export class TerrainManager {
     const connection = getConnection();
     if (!connection) return;
 
-    connection.db.world.onInsert((_ctx, world) => {
+    this.handleWorldInsert = (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
       if (!this.detailManager) {
         this.detailManager = new TerrainDetailManager(
           this.worldId,
@@ -27,9 +32,9 @@ export class TerrainManager {
       } else {
         this.detailManager.updateWorldDimensions(world.width, world.height);
       }
-    });
+    };
 
-    connection.db.world.onUpdate((_ctx, _oldWorld, newWorld) => {
+    this.handleWorldUpdate = (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
       if (!this.detailManager) {
         this.detailManager = new TerrainDetailManager(
           this.worldId,
@@ -42,7 +47,18 @@ export class TerrainManager {
           newWorld.height
         );
       }
-    });
+    };
+
+    connection.db.world.onInsert(this.handleWorldInsert);
+    connection.db.world.onUpdate(this.handleWorldUpdate);
+  }
+
+  public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleWorldInsert) connection.db.world.removeOnInsert(this.handleWorldInsert);
+      if (this.handleWorldUpdate) connection.db.world.removeOnUpdate(this.handleWorldUpdate);
+    }
   }
 
   public update(deltaTime: number) {

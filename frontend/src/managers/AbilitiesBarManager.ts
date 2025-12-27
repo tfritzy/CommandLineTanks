@@ -108,4 +108,7 @@ export class AbilitiesBarManager {
       );
     });
   }
+
+  public destroy() {
+  }
 }

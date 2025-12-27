@@ -4,6 +4,7 @@ import { type Infer } from "spacetimedb";
 import { generateLakeTextureSheet } from "../utils/lake-texture-generator";
 import { getRenderTileCase } from "../utils/terrain-render-analyzer";
 import { TERRAIN_COLORS, UNIT_TO_PIXEL } from "../constants";
+import { getNormalizedDPR } from "../utils/dpr";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -63,6 +64,8 @@ export class BaseTerrainManager {
 
     this.drawFarms(ctx, startTileX, endTileX, startTileY, endTileY);
 
+    const dpr = getNormalizedDPR();
+
     for (let renderY = startRenderY; renderY <= endRenderY; renderY++) {
       for (let renderX = startRenderX; renderX <= endRenderX; renderX++) {
         const tileCase = getRenderTileCase(
@@ -77,8 +80,8 @@ export class BaseTerrainManager {
 
         const sheetCol = tileCase % 4;
         const sheetRow = Math.floor(tileCase / 4);
-        const srcX = sheetCol * UNIT_TO_PIXEL;
-        const srcY = sheetRow * UNIT_TO_PIXEL;
+        const srcX = sheetCol * UNIT_TO_PIXEL * dpr;
+        const srcY = sheetRow * UNIT_TO_PIXEL * dpr;
 
         const worldX = Math.floor((renderX + 0.5) * UNIT_TO_PIXEL);
         const worldY = Math.floor((renderY + 0.5) * UNIT_TO_PIXEL);
@@ -87,8 +90,8 @@ export class BaseTerrainManager {
           this.lakeTextureSheet,
           srcX,
           srcY,
-          UNIT_TO_PIXEL,
-          UNIT_TO_PIXEL,
+          UNIT_TO_PIXEL * dpr,
+          UNIT_TO_PIXEL * dpr,
           worldX,
           worldY,
           UNIT_TO_PIXEL,

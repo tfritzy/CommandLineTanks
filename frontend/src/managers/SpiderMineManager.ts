@@ -71,4 +71,7 @@ export class SpiderMineManager {
   public getSpiderMine(id: string): SpiderMine | undefined {
     return this.spiderMines.get(id);
   }
+
+  public destroy() {
+  }
 }

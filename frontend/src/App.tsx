@@ -19,7 +19,7 @@ function App() {
     }).catch((error) => {
       console.error('Failed to establish SpacetimeDB connection:', error);
     });
-  }, [navigate]);
+  }, []);
 
   if (!isSpacetimeConnected) {
     return (

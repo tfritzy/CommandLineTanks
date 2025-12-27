@@ -13,6 +13,7 @@ import {
 export default __t.object("TraversibilityMap", {
   worldId: __t.string(),
   map: __t.array(__t.bool()),
+  projectileCollisionMap: __t.array(__t.bool()),
   width: __t.i32(),
   height: __t.i32(),
 });

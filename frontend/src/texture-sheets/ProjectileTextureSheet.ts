@@ -718,6 +718,8 @@ export class ProjectileTextureSheet {
     const texture = this.textures.get(key);
     if (!texture) return;
 
+    const dpr = getNormalizedDPR();
+
     ctx.save();
 
     ctx.translate(x, y);
@@ -730,10 +732,10 @@ export class ProjectileTextureSheet {
 
     ctx.drawImage(
       this.canvas,
-      texture.x,
-      texture.y,
-      texture.width,
-      texture.height,
+      texture.x * dpr,
+      texture.y * dpr,
+      texture.width * dpr,
+      texture.height * dpr,
       -texture.width / 2,
       -texture.height / 2,
       texture.width,
@@ -754,6 +756,8 @@ export class ProjectileTextureSheet {
     const texture = this.shadowTextures.get(key);
     if (!texture) return;
 
+    const dpr = getNormalizedDPR();
+
     ctx.save();
 
     ctx.translate(x, y);
@@ -766,10 +770,10 @@ export class ProjectileTextureSheet {
 
     ctx.drawImage(
       this.shadowCanvas,
-      texture.x,
-      texture.y,
-      texture.width,
-      texture.height,
+      texture.x * dpr,
+      texture.y * dpr,
+      texture.width * dpr,
+      texture.height * dpr,
       -texture.width / 2,
       -texture.height / 2,
       texture.width,

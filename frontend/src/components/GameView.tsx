@@ -21,6 +21,7 @@ export default function GameView() {
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
+      console.log("Switch to", newWorldId);
       navigate(`/world/${newWorldId}`);
     }
   };

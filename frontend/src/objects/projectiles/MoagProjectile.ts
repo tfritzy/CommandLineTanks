@@ -1,18 +1,17 @@
 import { Projectile } from "./Projectile";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
 import { ProjectileTextureSheet } from "../../texture-sheets/ProjectileTextureSheet";
+import { drawMoagShadow, drawMoagBody } from "../../drawing";
 
 export class MoagProjectile extends Projectile {
-  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawShadow(ctx: CanvasRenderingContext2D, _textureSheet: ProjectileTextureSheet) {
     const { x: centerX, y: centerY } = this.getShadowScreenPosition();
-    const key = this.getTextureKey('moag');
-    textureSheet.drawShadow(ctx, key, centerX, centerY, this.size);
+    drawMoagShadow(ctx, centerX, centerY, this.size);
   }
 
-  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawBody(ctx: CanvasRenderingContext2D, _textureSheet: ProjectileTextureSheet) {
     const { x: centerX, y: centerY } = this.getScreenPosition();
-    const key = this.getTextureKey('moag');
-    textureSheet.drawProjectile(ctx, key, centerX, centerY, this.size);
+    drawMoagBody(ctx, centerX, centerY, this.size, this.alliance);
   }
 
   public spawnDeathParticles(

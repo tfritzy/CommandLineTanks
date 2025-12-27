@@ -1,7 +1,7 @@
 import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import KillRow from "../../module_bindings/kills_table";
-import { type EventContext } from "../../module_bindings";
+import { type EventContext, type SubscriptionHandle } from "../../module_bindings";
 import { drawKillNotification } from "../drawing/ui/kill-feed";
 
 interface KillNotification {
@@ -15,6 +15,9 @@ export class KillManager {
   private kills: Map<string, KillNotification> = new Map();
   private worldId: string;
   private deletedKills: Set<string> = new Set();
+  private subscriptionHandle: SubscriptionHandle | null = null;
+  private handleKillInsert: ((ctx: EventContext, kill: Infer<typeof KillRow>) => void) | null = null;
+  private handleKillDelete: ((ctx: EventContext, kill: Infer<typeof KillRow>) => void) | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -28,12 +31,12 @@ export class KillManager {
       return;
     }
 
-    connection
+    this.subscriptionHandle = connection
       .subscriptionBuilder()
       .onError((e) => console.error("Kills subscription error", e))
       .subscribe([`SELECT * FROM kills WHERE WorldId = '${this.worldId}'`]);
 
-    connection.db.kills.onInsert((_ctx: EventContext, kill: Infer<typeof KillRow>) => {
+    this.handleKillInsert = (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
       if (connection.identity && kill.killer.isEqual(connection.identity)) {
         const notification: KillNotification = {
           id: kill.id,
@@ -43,12 +46,27 @@ export class KillManager {
         };
         this.kills.set(kill.id, notification);
       }
-    });
+    };
 
-    connection.db.kills.onDelete((_ctx: EventContext, kill: Infer<typeof KillRow>) => {
+    this.handleKillDelete = (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
       this.kills.delete(kill.id);
       this.deletedKills.delete(kill.id);
-    });
+    };
+
+    connection.db.kills.onInsert(this.handleKillInsert);
+    connection.db.kills.onDelete(this.handleKillDelete);
+  }
+
+  public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleKillInsert) connection.db.kills.removeOnInsert(this.handleKillInsert);
+      if (this.handleKillDelete) connection.db.kills.removeOnDelete(this.handleKillDelete);
+    }
+
+    if (this.subscriptionHandle) {
+      this.subscriptionHandle.unsubscribe();
+    }
   }
 
   private deleteKill(killId: string) {

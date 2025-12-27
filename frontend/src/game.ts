@@ -161,8 +161,11 @@ export class Game {
     this.spiderMineManager.update(deltaTime);
     this.smokeCloudManager.update(deltaTime);
 
-    const displayWidth = this.canvas.width;
-    const displayHeight = this.canvas.height;
+    const dpr = window.devicePixelRatio || 1;
+    const displayWidth = this.canvas.width / dpr;
+    const displayHeight = this.canvas.height / dpr;
+
+    this.ctx.clearRect(0, 0, displayWidth, displayHeight);
 
     this.ctx.save();
 
@@ -300,8 +303,9 @@ export class Game {
 
   public start() {
     if (!this.animationFrameId) {
-      const displayWidth = this.canvas.width;
-      const displayHeight = this.canvas.height;
+      const dpr = window.devicePixelRatio || 1;
+      const displayWidth = this.canvas.width / dpr;
+      const displayHeight = this.canvas.height / dpr;
 
       const playerTank = this.tankManager.getPlayerTank();
       if (playerTank) {
@@ -324,6 +328,19 @@ export class Game {
 
   public destroy() {
     this.stop();
+    
+    this.tankManager.destroy();
+    this.projectileManager.destroy();
+    this.terrainManager.destroy();
+    this.scoreManager.destroy();
+    this.gunInventoryManager.destroy();
+    this.pickupManager.destroy();
+    this.killManager.destroy();
+    this.spiderMineManager.destroy();
+    this.smokeCloudManager.destroy();
+    this.abilitiesBarManager.destroy();
+    this.projectileTrailManager.destroy();
+    
     window.removeEventListener("resize", () => this.resizeCanvas());
   }
 }

@@ -1,7 +1,7 @@
 import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
-import { type EventContext } from "../../module_bindings";
+import { type EventContext, type SubscriptionHandle } from "../../module_bindings";
 import { drawPlayerScore } from "../drawing/ui/scoreboard";
 
 interface PlayerScore {
@@ -16,6 +16,10 @@ export class ScoreManager {
   private sortedPlayers: PlayerScore[] = [];
   private worldId: string;
   private isHomeworld: boolean;
+  private subscriptionHandle: SubscriptionHandle | null = null;
+  private handleTankInsert: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankUpdate: ((ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankDelete: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -50,25 +54,42 @@ export class ScoreManager {
       return;
     }
 
-    connection
+    this.subscriptionHandle = connection
       .subscriptionBuilder()
       .onError((e) => console.error("Tank subscription error", e))
       .subscribe([`SELECT * FROM tank WHERE WorldId = '${worldId}'`]);
 
-    connection.db.tank.onInsert((_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+    this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       this.playerScores.set(tank.id, ScoreManager.createPlayerScore(tank));
       this.updateLeaderboard();
-    });
+    };
 
-    connection.db.tank.onUpdate((_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+    this.handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
       this.playerScores.set(newTank.id, ScoreManager.createPlayerScore(newTank));
       this.updateLeaderboard();
-    });
+    };
 
-    connection.db.tank.onDelete((_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+    this.handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       this.playerScores.delete(tank.id);
       this.updateLeaderboard();
-    });
+    };
+
+    connection.db.tank.onInsert(this.handleTankInsert);
+    connection.db.tank.onUpdate(this.handleTankUpdate);
+    connection.db.tank.onDelete(this.handleTankDelete);
+  }
+
+  public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleTankInsert) connection.db.tank.removeOnInsert(this.handleTankInsert);
+      if (this.handleTankUpdate) connection.db.tank.removeOnUpdate(this.handleTankUpdate);
+      if (this.handleTankDelete) connection.db.tank.removeOnDelete(this.handleTankDelete);
+    }
+
+    if (this.subscriptionHandle) {
+      this.subscriptionHandle.unsubscribe();
+    }
   }
 
   public draw(ctx: CanvasRenderingContext2D, canvasWidth: number) {

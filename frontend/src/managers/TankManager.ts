@@ -4,6 +4,9 @@ import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
 import { TargetingReticle } from "../objects/TargetingReticle";
 import { ScreenShake } from "../utils/ScreenShake";
+import type { SubscriptionHandle, EventContext } from "../../module_bindings";
+import { type Infer } from "spacetimedb";
+import TankRow from "../../module_bindings/tank_type";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -14,6 +17,10 @@ export class TankManager {
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
   private screenShake: ScreenShake;
+  private subscriptionHandle: SubscriptionHandle | null = null;
+  private handleTankInsert: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankUpdate: ((ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankDelete: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
 
   constructor(worldId: string, screenShake: ScreenShake) {
     this.worldId = worldId;
@@ -28,12 +35,12 @@ export class TankManager {
     const connection = getConnection();
     if (!connection) return;
 
-    connection
+    this.subscriptionHandle = connection
       .subscriptionBuilder()
       .onError((e) => console.log("Ah fuck", e))
       .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
 
-    connection.db.tank.onInsert((_ctx, tank) => {
+    this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       const newTank = new Tank(
         tank.id,
         tank.positionX,
@@ -58,9 +65,9 @@ export class TankManager {
         this.playerTankId = tank.id;
         this.updatePlayerTarget(tank.target);
       }
-    });
+    };
 
-    connection.db.tank.onUpdate((_ctx, oldTank, newTank) => {
+    this.handleTankUpdate = (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
       const tank = this.tanks.get(newTank.id);
       if (tank) {
         if (oldTank.health > 0 && newTank.health <= 0) {
@@ -104,9 +111,9 @@ export class TankManager {
           this.updatePlayerTarget(newTank.target);
         }
       }
-    });
+    };
 
-    connection.db.tank.onDelete((_ctx, tank) => {
+    this.handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       this.tanks.delete(tank.id);
 
       if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
@@ -116,7 +123,24 @@ export class TankManager {
       if (this.playerTargetTankId === tank.id && tank.worldId == this.worldId) {
         this.updatePlayerTarget(null);
       }
-    });
+    };
+
+    connection.db.tank.onInsert(this.handleTankInsert);
+    connection.db.tank.onUpdate(this.handleTankUpdate);
+    connection.db.tank.onDelete(this.handleTankDelete);
+  }
+
+  public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleTankInsert) connection.db.tank.removeOnInsert(this.handleTankInsert);
+      if (this.handleTankUpdate) connection.db.tank.removeOnUpdate(this.handleTankUpdate);
+      if (this.handleTankDelete) connection.db.tank.removeOnDelete(this.handleTankDelete);
+    }
+
+    if (this.subscriptionHandle) {
+      this.subscriptionHandle.unsubscribe();
+    }
   }
 
   private updatePlayerTarget(targetId: string | null | undefined) {

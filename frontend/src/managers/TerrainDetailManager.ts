@@ -18,6 +18,7 @@ import { FenceCorner } from "../objects/terrain-details/FenceCorner";
 import { TargetDummy } from "../objects/terrain-details/TargetDummy";
 import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
 import { terrainDetailTextureSheet } from "../texture-sheets/TerrainDetailTextureSheet";
+import { getNormalizedDPR } from "../utils/dpr";
 
 export class TerrainDetailManager {
   private worldWidth: number = 0;
@@ -185,6 +186,7 @@ export class TerrainDetailManager {
 
     const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
     const renderSize = UNIT_TO_PIXEL * 2;
+    const dpr = getNormalizedDPR();
 
     ctx.imageSmoothingEnabled = false;
 
@@ -198,7 +200,7 @@ export class TerrainDetailManager {
         );
 
         if (!texture) {
-          console.log("no shadow texture");
+          console.warn("no texture");
         } else {
           const scale = obj.getSizeScale();
           const scaledSize = renderSize * scale;
@@ -206,10 +208,10 @@ export class TerrainDetailManager {
 
           ctx.drawImage(
             shadowCanvas,
-            texture.x,
-            texture.y,
-            texture.width,
-            texture.height,
+            texture.x * dpr,
+            texture.y * dpr,
+            texture.width * dpr,
+            texture.height * dpr,
             objX * UNIT_TO_PIXEL + offset,
             objY * UNIT_TO_PIXEL + offset,
             scaledSize,
@@ -235,6 +237,7 @@ export class TerrainDetailManager {
 
     const bodyCanvas = terrainDetailTextureSheet.getCanvas();
     const renderSize = UNIT_TO_PIXEL * 2;
+    const dpr = getNormalizedDPR();
 
     ctx.imageSmoothingEnabled = false;
 
@@ -251,7 +254,7 @@ export class TerrainDetailManager {
           );
 
           if (!texture) {
-            console.log("no body texture");
+            console.warn("no texture");
           } else {
             const scale = obj.getSizeScale();
             const scaledSize = renderSize * scale;
@@ -259,10 +262,10 @@ export class TerrainDetailManager {
 
             ctx.drawImage(
               bodyCanvas,
-              texture.x,
-              texture.y,
-              texture.width,
-              texture.height,
+              texture.x * dpr,
+              texture.y * dpr,
+              texture.width * dpr,
+              texture.height * dpr,
               objX * UNIT_TO_PIXEL + offset,
               objY * UNIT_TO_PIXEL + offset,
               scaledSize,

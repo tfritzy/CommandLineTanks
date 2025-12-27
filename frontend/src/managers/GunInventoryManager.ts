@@ -1,6 +1,8 @@
 import { type Infer } from "spacetimedb";
 import { getConnection } from "../spacetimedb-connection";
 import Gun from "../../module_bindings/gun_type";
+import { type EventContext } from "../../module_bindings";
+import TankRow from "../../module_bindings/tank_type";
 import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
 import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
 import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
@@ -16,6 +18,9 @@ export class GunInventoryManager {
   private selectedGunIndex: number = 0;
   private playerTankId: string | null = null;
   private playerAlliance: number = 0;
+  private handleTankInsert: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankUpdate: ((ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankDelete: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
 
   constructor(worldId: string) {
     this.subscribeToPlayerTank(worldId);
@@ -28,7 +33,7 @@ export class GunInventoryManager {
       return;
     }
 
-    connection.db.tank.onInsert((_ctx, tank) => {
+    this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (
         connection.identity &&
         tank.owner.isEqual(connection.identity) &&
@@ -39,9 +44,9 @@ export class GunInventoryManager {
         this.selectedGunIndex = tank.selectedGunIndex;
         this.playerAlliance = tank.alliance;
       }
-    });
+    };
 
-    connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
+    this.handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
       if (
         connection.identity &&
         newTank.owner.isEqual(connection.identity) &&
@@ -51,15 +56,28 @@ export class GunInventoryManager {
         this.selectedGunIndex = newTank.selectedGunIndex;
         this.playerAlliance = newTank.alliance;
       }
-    });
+    };
 
-    connection.db.tank.onDelete((_ctx, tank) => {
+    this.handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (this.playerTankId === tank.id) {
         this.playerTankId = null;
         this.guns = [];
         this.selectedGunIndex = 0;
       }
-    });
+    };
+
+    connection.db.tank.onInsert(this.handleTankInsert);
+    connection.db.tank.onUpdate(this.handleTankUpdate);
+    connection.db.tank.onDelete(this.handleTankDelete);
+  }
+
+  public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleTankInsert) connection.db.tank.removeOnInsert(this.handleTankInsert);
+      if (this.handleTankUpdate) connection.db.tank.removeOnUpdate(this.handleTankUpdate);
+      if (this.handleTankDelete) connection.db.tank.removeOnDelete(this.handleTankDelete);
+    }
   }
 
   private drawGunGraphic(
