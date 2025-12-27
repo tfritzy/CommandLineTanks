@@ -16,10 +16,13 @@ public static partial class Module
     public static void CleanupResultsGames(ReducerContext ctx, ScheduledGameCleanup args)
     {
         var worldsToDelete = new System.Collections.Generic.List<string>();
-        
+
         foreach (var world in ctx.Db.world.GameState.Filter(GameState.Results))
         {
-            worldsToDelete.Add(world.Id);
+            if (world.CreatedAt + (ulong)world.GameDurationMicros + 60_000_000 < (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
+            {
+                worldsToDelete.Add(world.Id);
+            }
         }
 
         foreach (var worldId in worldsToDelete)
@@ -112,12 +115,9 @@ public static partial class Module
             ctx.Db.ScheduledSpiderMineUpdates.ScheduledId.Delete(spiderMineUpdate.ScheduledId);
         }
 
-        foreach (var worldReset in ctx.Db.ScheduledWorldReset.Iter())
+        foreach (var worldReset in ctx.Db.ScheduledWorldReset.WorldId.Filter(worldId))
         {
-            if (worldReset.WorldId == worldId)
-            {
-                ctx.Db.ScheduledWorldReset.ScheduledId.Delete(worldReset.ScheduledId);
-            }
+            ctx.Db.ScheduledWorldReset.ScheduledId.Delete(worldReset.ScheduledId);
         }
 
         foreach (var gameEnd in ctx.Db.ScheduledGameEnd.WorldId.Filter(worldId))

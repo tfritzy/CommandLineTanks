@@ -27,4 +27,5 @@ export default __t.row({
   },
   gameStartedAt: __t.u64(),
   gameDurationMicros: __t.i64(),
+  gameEndedAt: __t.u64(),
 });

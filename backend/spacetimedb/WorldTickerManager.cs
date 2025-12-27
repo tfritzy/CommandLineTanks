@@ -12,6 +12,7 @@ public static partial class Module
         [PrimaryKey]
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
+        [SpacetimeDB.Index.BTree]
         public string WorldId;
     }
 
@@ -55,6 +56,11 @@ public static partial class Module
         foreach (var projectileTrailCleanup in ctx.Db.ScheduledProjectileTrailCleanup.WorldId.Filter(worldId))
         {
             ctx.Db.ScheduledProjectileTrailCleanup.ScheduledId.Delete(projectileTrailCleanup.ScheduledId);
+        }
+
+        foreach (var worldReset in ctx.Db.ScheduledWorldReset.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledWorldReset.ScheduledId.Delete(worldReset.ScheduledId);
         }
 
         Log.Info($"Stopped tickers for world {worldId}");

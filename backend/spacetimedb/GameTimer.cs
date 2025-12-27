@@ -27,7 +27,7 @@ public static partial class GameTimer
         var updatedWorld = world.Value with { GameState = GameState.Results };
         ctx.Db.world.Id.Update(updatedWorld);
 
-        Module.StopWorldTickers(ctx, args.WorldId);
+        StopWorldTickers(ctx, args.WorldId);
 
         ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
         {
@@ -44,6 +44,5 @@ public static partial class GameTimer
             team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
             team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
         }
-        Log.Info($"Game time limit reached! Team 0: {team0Kills} kills, Team 1: {team1Kills} kills. Game ending in 30 seconds...");
     }
 }

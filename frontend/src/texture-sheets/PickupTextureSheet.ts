@@ -33,7 +33,7 @@ export class PickupTextureSheet {
   private ctx: CanvasRenderingContext2D;
   private textures: Map<string, PickupTexture> = new Map();
 
-  private static readonly CANVAS_SIZE = 512;
+  private static readonly CANVAS_SIZE = 1024;
   private static readonly CELL_SIZE_MULTIPLIER = 1.2;
   private static readonly PADDING = 10;
 

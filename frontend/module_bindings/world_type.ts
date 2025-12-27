@@ -27,6 +27,7 @@ export default __t.object("World", {
   },
   gameStartedAt: __t.u64(),
   gameDurationMicros: __t.i64(),
+  gameEndedAt: __t.u64(),
 });
 
 

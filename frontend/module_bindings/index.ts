@@ -356,6 +356,9 @@ const tablesSchema = __schema(
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
       ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
     ],
     constraints: [
       { name: 'ScheduledWorldReset_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
