@@ -47,7 +47,6 @@ export default __t.object("Tank", {
     return __t.array(Gun);
   },
   selectedGunIndex: __t.i32(),
-  lastFireTime: __t.u64(),
   remainingSmokescreenCooldownMicros: __t.i64(),
   hasShield: __t.bool(),
   remainingOverdriveCooldownMicros: __t.i64(),

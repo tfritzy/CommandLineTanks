@@ -123,6 +123,8 @@ import SpiderMineRow from "./spider_mine_table";
 export { SpiderMineRow };
 import TankRow from "./tank_table";
 export { TankRow };
+import TankFireStateRow from "./tank_fire_state_table";
+export { TankFireStateRow };
 import TerrainDetailRow from "./terrain_detail_table";
 export { TerrainDetailRow };
 import TraversibilityMapRow from "./traversibility_map_table";
@@ -485,6 +487,17 @@ const tablesSchema = __schema(
       { name: 'tank_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, TankRow),
+  __table({
+    name: 'tank_fire_state',
+    indexes: [
+      { name: 'TankId', algorithm: 'btree', columns: [
+        'tankId',
+      ] },
+    ],
+    constraints: [
+      { name: 'tank_fire_state_TankId_key', constraint: 'unique', columns: ['tankId'] },
+    ],
+  }, TankFireStateRow),
   __table({
     name: 'terrain_detail',
     indexes: [
