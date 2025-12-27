@@ -1,4 +1,3 @@
-import { getConnection } from "../spacetimedb-connection";
 import { BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import { generateLakeTextureSheet } from "../utils/lake-texture-generator";
@@ -12,35 +11,16 @@ export class BaseTerrainManager {
   private worldWidth: number = 0;
   private worldHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
-  private worldId: string;
   private lakeTextureSheet: HTMLCanvasElement | null = null;
 
-  constructor(worldId: string) {
-    this.worldId = worldId;
-    this.subscribeToWorld();
+  constructor() {
     this.lakeTextureSheet = generateLakeTextureSheet(UNIT_TO_PIXEL);
   }
 
-  private subscribeToWorld() {
-    const connection = getConnection();
-    if (!connection) return;
-
-    connection
-      .subscriptionBuilder()
-      .onError((e) => console.log("BaseTerrainManager subscription error", e))
-      .subscribe([`SELECT * FROM world WHERE Id = '${this.worldId}'`]);
-
-    connection.db.world.onInsert((_ctx, world) => {
-      this.worldWidth = world.width;
-      this.worldHeight = world.height;
-      this.baseTerrainLayer = world.baseTerrainLayer;
-    });
-
-    connection.db.world.onUpdate((_ctx, _oldWorld, newWorld) => {
-      this.worldWidth = newWorld.width;
-      this.worldHeight = newWorld.height;
-      this.baseTerrainLayer = newWorld.baseTerrainLayer;
-    });
+  public updateWorld(width: number, height: number, baseTerrainLayer: BaseTerrainType[]) {
+    this.worldWidth = width;
+    this.worldHeight = height;
+    this.baseTerrainLayer = baseTerrainLayer;
   }
 
   public draw(
@@ -100,7 +80,7 @@ export class BaseTerrainManager {
       }
     }
 
-    // this.drawGrid(ctx, startTileX, endTileX, startTileY, endTileY);
+    this.drawGrid(ctx, startTileX, endTileX, startTileY, endTileY);
   }
 
   private drawFarms(

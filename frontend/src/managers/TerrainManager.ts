@@ -14,7 +14,7 @@ export class TerrainManager {
 
   constructor(worldId: string) {
     this.worldId = worldId;
-    this.baseTerrainManager = new BaseTerrainManager(worldId);
+    this.baseTerrainManager = new BaseTerrainManager();
     this.subscribeToWorldForDetails();
   }
 
@@ -23,6 +23,8 @@ export class TerrainManager {
     if (!connection) return;
 
     this.handleWorldInsert = (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+      this.baseTerrainManager.updateWorld(world.width, world.height, world.baseTerrainLayer);
+      
       if (!this.detailManager) {
         this.detailManager = new TerrainDetailManager(
           this.worldId,
@@ -35,6 +37,8 @@ export class TerrainManager {
     };
 
     this.handleWorldUpdate = (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
+      this.baseTerrainManager.updateWorld(newWorld.width, newWorld.height, newWorld.baseTerrainLayer);
+      
       if (!this.detailManager) {
         this.detailManager = new TerrainDetailManager(
           this.worldId,
@@ -58,6 +62,9 @@ export class TerrainManager {
     if (connection) {
       if (this.handleWorldInsert) connection.db.world.removeOnInsert(this.handleWorldInsert);
       if (this.handleWorldUpdate) connection.db.world.removeOnUpdate(this.handleWorldUpdate);
+    }
+    if (this.detailManager) {
+      this.detailManager.destroy();
     }
   }
 

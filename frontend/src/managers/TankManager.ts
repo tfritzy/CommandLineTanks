@@ -18,9 +18,19 @@ export class TankManager {
   private indicatorManager: TankIndicatorManager;
   private screenShake: ScreenShake;
   private subscriptionHandle: SubscriptionHandle | null = null;
-  private handleTankInsert: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
-  private handleTankUpdate: ((ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => void) | null = null;
-  private handleTankDelete: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankInsert:
+    | ((ctx: EventContext, tank: Infer<typeof TankRow>) => void)
+    | null = null;
+  private handleTankUpdate:
+    | ((
+        ctx: EventContext,
+        oldTank: Infer<typeof TankRow>,
+        newTank: Infer<typeof TankRow>
+      ) => void)
+    | null = null;
+  private handleTankDelete:
+    | ((ctx: EventContext, tank: Infer<typeof TankRow>) => void)
+    | null = null;
 
   constructor(worldId: string, screenShake: ScreenShake) {
     this.worldId = worldId;
@@ -40,59 +50,68 @@ export class TankManager {
       .onError((e) => console.log("Ah fuck", e))
       .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
 
-    this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-      const newTank = new Tank(
-        tank.id,
-        tank.positionX,
-        tank.positionY,
-        tank.turretRotation,
-        tank.name,
-        tank.alliance,
-        tank.health,
-        tank.maxHealth,
-        tank.velocity.x,
-        tank.velocity.y,
-        tank.turretAngularVelocity,
-        tank.path,
-        tank.guns,
-        tank.selectedGunIndex,
-        tank.hasShield,
-        tank.remainingImmunityMicros
-      );
-      this.tanks.set(tank.id, newTank);
+    this.handleTankInsert = (
+      _ctx: EventContext,
+      tank: Infer<typeof TankRow>
+    ) => {
+      this.buildTank(tank);
 
-      if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId == this.worldId) {
+      if (
+        connection.identity &&
+        tank.owner.isEqual(connection.identity) &&
+        tank.worldId == this.worldId
+      ) {
         this.playerTankId = tank.id;
         this.updatePlayerTarget(tank.target);
       }
     };
 
-    this.handleTankUpdate = (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+    this.handleTankUpdate = (
+      _ctx: EventContext,
+      oldTank: Infer<typeof TankRow>,
+      newTank: Infer<typeof TankRow>
+    ) => {
       const tank = this.tanks.get(newTank.id);
       if (tank) {
         if (oldTank.health > 0 && newTank.health <= 0) {
           const pos = tank.getPosition();
           this.particlesManager.spawnParticles(pos.x, pos.y, newTank.alliance);
-          
+
           if (newTank.id === this.playerTankId) {
             this.screenShake.shake(20, 0.5);
           }
         }
 
-        if (oldTank.target !== null && newTank.target === null && newTank.health > 0) {
+        if (
+          oldTank.target !== null &&
+          newTank.target === null &&
+          newTank.health > 0
+        ) {
           const pos = tank.getPosition();
-          this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, "Target lost");
+          this.indicatorManager.spawnFloatingLabel(
+            pos.x,
+            pos.y - 0.5,
+            "Target lost"
+          );
         }
 
         if (oldTank.isRepairing && !newTank.isRepairing && newTank.health > 0) {
           const pos = tank.getPosition();
           if (newTank.health >= newTank.maxHealth) {
-            this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, "Repair complete");
+            this.indicatorManager.spawnFloatingLabel(
+              pos.x,
+              pos.y - 0.5,
+              "Repair complete"
+            );
           } else {
-            this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, "Repair interrupted");
+            this.indicatorManager.spawnFloatingLabel(
+              pos.x,
+              pos.y - 0.5,
+              "Repair interrupted"
+            );
           }
         }
-        
+
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
         tank.setVelocity(newTank.velocity.x, newTank.velocity.y);
@@ -104,16 +123,25 @@ export class TankManager {
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
         tank.setHasShield(newTank.hasShield);
         tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
+      } else {
+        this.buildTank(newTank);
       }
 
-      if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId == this.worldId) {
+      if (
+        connection.identity &&
+        newTank.owner.isEqual(connection.identity) &&
+        newTank.worldId == this.worldId
+      ) {
         if (oldTank.target !== newTank.target) {
           this.updatePlayerTarget(newTank.target);
         }
       }
     };
 
-    this.handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+    this.handleTankDelete = (
+      _ctx: EventContext,
+      tank: Infer<typeof TankRow>
+    ) => {
       this.tanks.delete(tank.id);
 
       if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
@@ -130,12 +158,37 @@ export class TankManager {
     connection.db.tank.onDelete(this.handleTankDelete);
   }
 
+  buildTank(tank: Infer<typeof TankRow>) {
+    const newTank = new Tank(
+      tank.id,
+      tank.positionX,
+      tank.positionY,
+      tank.turretRotation,
+      tank.name,
+      tank.alliance,
+      tank.health,
+      tank.maxHealth,
+      tank.velocity.x,
+      tank.velocity.y,
+      tank.turretAngularVelocity,
+      tank.path,
+      tank.guns,
+      tank.selectedGunIndex,
+      tank.hasShield,
+      tank.remainingImmunityMicros
+    );
+    this.tanks.set(tank.id, newTank);
+  }
+
   public destroy() {
     const connection = getConnection();
     if (connection) {
-      if (this.handleTankInsert) connection.db.tank.removeOnInsert(this.handleTankInsert);
-      if (this.handleTankUpdate) connection.db.tank.removeOnUpdate(this.handleTankUpdate);
-      if (this.handleTankDelete) connection.db.tank.removeOnDelete(this.handleTankDelete);
+      if (this.handleTankInsert)
+        connection.db.tank.removeOnInsert(this.handleTankInsert);
+      if (this.handleTankUpdate)
+        connection.db.tank.removeOnUpdate(this.handleTankUpdate);
+      if (this.handleTankDelete)
+        connection.db.tank.removeOnDelete(this.handleTankDelete);
     }
 
     if (this.subscriptionHandle) {
@@ -145,7 +198,7 @@ export class TankManager {
 
   private updatePlayerTarget(targetId: string | null | undefined) {
     const newTargetId = targetId ?? null;
-    
+
     if (this.playerTargetTankId === newTargetId) {
       return;
     }
@@ -210,8 +263,20 @@ export class TankManager {
     this.targetingReticle.draw(ctx);
   }
 
-  public drawParticles(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
-    this.particlesManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+  public drawParticles(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
+    this.particlesManager.draw(
+      ctx,
+      cameraX,
+      cameraY,
+      viewportWidth,
+      viewportHeight
+    );
   }
 
   public getAllTanks(): IterableIterator<Tank> {

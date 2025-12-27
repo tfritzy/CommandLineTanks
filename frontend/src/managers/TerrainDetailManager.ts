@@ -29,6 +29,9 @@ export class TerrainDetailManager {
   private terrainDebrisParticles: TerrainDebrisParticlesManager =
     new TerrainDebrisParticlesManager();
   private onDetailDeletedCallbacks: (() => void)[] = [];
+  private handleDetailInsert: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
+  private handleDetailUpdate: ((ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => void) | null = null;
+  private handleDetailDelete: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
 
   constructor(worldId: string, worldWidth: number, worldHeight: number) {
     this.worldId = worldId;
@@ -62,51 +65,60 @@ export class TerrainDetailManager {
         `SELECT * FROM terrain_detail WHERE WorldId = '${this.worldId}'`,
       ]);
 
-    connection.db.terrainDetail.onInsert(
-      (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
-        this.createDetailObject(detail);
-      }
-    );
+    this.handleDetailInsert = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+      this.createDetailObject(detail);
+    };
 
-    connection.db.terrainDetail.onUpdate(
-      (
-        _ctx: EventContext,
-        _oldDetail: Infer<typeof TerrainDetailRow>,
-        newDetail: Infer<typeof TerrainDetailRow>
-      ) => {
-        const existingObj = this.detailObjects.get(newDetail.id);
-        if (existingObj) {
-          existingObj.setData(newDetail);
-        } else {
-          this.createDetailObject(newDetail);
+    this.handleDetailUpdate = (
+      _ctx: EventContext,
+      _oldDetail: Infer<typeof TerrainDetailRow>,
+      newDetail: Infer<typeof TerrainDetailRow>
+    ) => {
+      const existingObj = this.detailObjects.get(newDetail.id);
+      if (existingObj) {
+        existingObj.setData(newDetail);
+      } else {
+        this.createDetailObject(newDetail);
+      }
+    };
+
+    this.handleDetailDelete = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+      const obj = this.detailObjects.get(detail.id);
+      if (obj) {
+        const x = Math.floor(obj.getX());
+        const y = Math.floor(obj.getY());
+        if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
+          this.detailObjectsByPosition[y][x] = null;
         }
-      }
-    );
 
-    connection.db.terrainDetail.onDelete(
-      (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
-        const obj = this.detailObjects.get(detail.id);
-        if (obj) {
-          const x = Math.floor(obj.getX());
-          const y = Math.floor(obj.getY());
-          if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
-            this.detailObjectsByPosition[y][x] = null;
-          }
-
-          if (
-            detail.type.tag === "FenceEdge" ||
-            detail.type.tag === "FenceCorner"
-          ) {
-            this.terrainDebrisParticles.spawnParticles(
-              detail.positionX,
-              detail.positionY
-            );
-          }
-        }
-        this.detailObjects.delete(detail.id);
-        this.onDetailDeletedCallbacks.forEach(callback => callback());
+        if (
+          detail.type.tag === "FenceEdge" ||
+          detail.type.tag === "FenceCorner"
+        ) {
+          this.terrainDebrisParticles.spawnParticles(
+            detail.positionX,
+            detail.positionY
+          );
+        }TerrainDetailManager
       }
-    );
+      this.detailObjects.delete(detail.id);
+      this.onDetailDeletedCallbacks.forEach(callback => callback());
+    };
+
+    connection.db.terrainDetail.onInsert(this.handleDetailInsert);
+    connection.db.terrainDetail.onUpdate(this.handleDetailUpdate);
+    connection.db.terrainDetail.onDelete(this.handleDetailDelete);
+  }
+
+  public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleDetailInsert) connection.db.terrainDetail.removeOnInsert(this.handleDetailInsert);
+      if (this.handleDetailUpdate) connection.db.terrainDetail.removeOnUpdate(this.handleDetailUpdate);
+      if (this.handleDetailDelete) connection.db.terrainDetail.removeOnDelete(this.handleDetailDelete);
+    }
+    this.detailObjects.clear();
+    this.onDetailDeletedCallbacks = [];
   }
 
   public update(deltaTime: number) {
