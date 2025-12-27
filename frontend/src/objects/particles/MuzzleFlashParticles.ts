@@ -1,3 +1,5 @@
+import { UNIT_TO_PIXEL } from "../../constants";
+import { isPointInViewport } from "../../utils/viewport";
 import { drawMuzzleFlashParticles } from "../../drawing";
 
 const ANGLE_SPREAD_RADIANS = 0.8;
@@ -58,7 +60,19 @@ export class MuzzleFlashParticles {
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    drawMuzzleFlashParticles(ctx, this.particles, cameraX, cameraY, viewportWidth, viewportHeight);
+    for (const p of this.particles) {
+      if (p.lifetime >= p.maxLifetime) continue;
+
+      const px = p.x * UNIT_TO_PIXEL;
+      const py = p.y * UNIT_TO_PIXEL;
+      const pSize = p.size * UNIT_TO_PIXEL;
+
+      if (!isPointInViewport(px, py, pSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
+        continue;
+      }
+
+      drawMuzzleFlashParticles(ctx, p);
+    }
   }
 
   public getIsDead(): boolean {
