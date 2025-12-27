@@ -610,7 +610,7 @@ public static partial class ProjectileUpdater
             float deltaY = newPositionY - oldPositionY;
             float distanceTraveled = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-            const float MIN_STEP = 0.5f;
+            const float MIN_STEP = 0.25f;
             int numSteps = Math.Max(1, (int)Math.Ceiling(distanceTraveled / MIN_STEP));
             double stepDeltaTime = deltaTime / numSteps;
 
@@ -619,7 +619,7 @@ public static partial class ProjectileUpdater
 
             for (int step = 0; step < numSteps && !collided; step++)
             {
-                float t = (step + 1) / (float)numSteps;
+                float t = (step + 0.5f) / (float)numSteps;
                 float interpolatedX = oldPositionX + deltaX * t;
                 float interpolatedY = oldPositionY + deltaY * t;
 
