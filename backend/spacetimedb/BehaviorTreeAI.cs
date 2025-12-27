@@ -82,11 +82,12 @@ public static partial class BehaviorTreeAI
                 continue;
             }
 
-            EvaluateBehaviorTree(ctx, tank, aiContext);
+            var mutatedTank = EvaluateAIAndMutateTank(ctx, tank, aiContext);
+            ctx.Db.tank.Id.Update(mutatedTank);
         }
     }
 
-    private static void EvaluateBehaviorTree(ReducerContext ctx, Tank tank, AIContext aiContext)
+    public static Tank EvaluateAIAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
     {
         var decision = BehaviorTreeLogic.EvaluateBehaviorTree(tank, aiContext);
 
@@ -95,7 +96,7 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.MoveTowardsPickup:
                 if (decision.TargetPickup != null && decision.Path.Count > 0)
                 {
-                    tank = SetPath(ctx, tank, decision.Path);
+                    tank = SetPath(tank, decision.Path);
                 }
                 break;
 
@@ -118,7 +119,6 @@ public static partial class BehaviorTreeAI
                         Path = [],
                         Velocity = new Vector2Float(0, 0)
                     };
-                    ctx.Db.tank.Id.Update(tank);
 
                     tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
                     tank = FireTankWeapon(ctx, tank);
@@ -136,22 +136,28 @@ public static partial class BehaviorTreeAI
                             tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
                         }
                     }
-                    tank = SetPath(ctx, tank, decision.Path);
+                    tank = SetPath(tank, decision.Path);
                 }
                 break;
 
             case BehaviorTreeLogic.AIAction.Escape:
-                DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
+                tank = DriveTowards(tank, decision.TargetX, decision.TargetY);
                 break;
 
             case BehaviorTreeLogic.AIAction.None:
                 break;
         }
 
-        ctx.Db.tank.Id.Update(tank);
+        return tank;
     }
 
-    private static Tank SetPath(ReducerContext ctx, Tank tank, List<(int x, int y)> path)
+    private static void EvaluateBehaviorTree(ReducerContext ctx, Tank tank, AIContext aiContext)
+    {
+        var mutatedTank = EvaluateAIAndMutateTank(ctx, tank, aiContext);
+        ctx.Db.tank.Id.Update(mutatedTank);
+    }
+
+    private static Tank SetPath(Tank tank, List<(int x, int y)> path)
     {
         var pathEntries = path.Select(waypoint => new PathEntry
         {
@@ -167,20 +173,34 @@ public static partial class BehaviorTreeAI
         };
     }
 
-    private static void DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
+    private static Tank DriveTowards(Tank tank, int targetX, int targetY)
     {
         int currentX = (int)tank.PositionX;
         int currentY = (int)tank.PositionY;
 
         if (targetX == currentX && targetY == currentY)
         {
-            return;
+            return tank;
         }
 
         Vector2 currentPos = new Vector2(currentX, currentY);
         Vector2 targetPos = new Vector2(targetX, targetY);
         Vector2 offset = new Vector2(targetPos.X - currentPos.X, targetPos.Y - currentPos.Y);
 
-        DriveToPosition(ctx, tank, offset, 1.0f, false);
+        Vector2Float rootPos = new Vector2Float(tank.PositionX, tank.PositionY);
+        Vector2Float nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
+
+        PathEntry entry = new()
+        {
+            ThrottlePercent = 1.0f,
+            Position = nextPos,
+            Reverse = false
+        };
+
+        return tank with
+        {
+            Path = [entry],
+            Velocity = new Vector2Float(0, 0)
+        };
     }
 }
