@@ -601,35 +601,55 @@ public static partial class ProjectileUpdater
                 };
             }
 
-            projectile = projectile with
-            {
-                PositionX = (float)(projectile.PositionX + projectile.Velocity.X * deltaTime),
-                PositionY = (float)(projectile.PositionY + projectile.Velocity.Y * deltaTime)
-            };
+            float oldPositionX = projectile.PositionX;
+            float oldPositionY = projectile.PositionY;
+            float newPositionX = (float)(projectile.PositionX + projectile.Velocity.X * deltaTime);
+            float newPositionY = (float)(projectile.PositionY + projectile.Velocity.Y * deltaTime);
 
-            bool collided;
+            float deltaX = newPositionX - oldPositionX;
+            float deltaY = newPositionY - oldPositionY;
+            float distanceTraveled = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+
+            const float MIN_STEP = 0.5f;
+            int numSteps = Math.Max(1, (int)Math.Ceiling(distanceTraveled / MIN_STEP));
+
+            bool collided = false;
             bool mapChanged;
-            (collided, projectile, mapChanged) = HandleTerrainCollision(ctx, projectile, ref traversibilityMap, args.WorldId, deltaTime);
 
-            if (mapChanged)
+            for (int step = 0; step < numSteps && !collided; step++)
             {
-                traversibilityMapChanged = true;
+                float t = (step + 1) / (float)numSteps;
+                float interpolatedX = oldPositionX + deltaX * t;
+                float interpolatedY = oldPositionY + deltaY * t;
+
+                projectile = projectile with
+                {
+                    PositionX = interpolatedX,
+                    PositionY = interpolatedY
+                };
+
+                (collided, projectile, mapChanged) = HandleTerrainCollision(ctx, projectile, ref traversibilityMap, args.WorldId, deltaTime);
+
+                if (mapChanged)
+                {
+                    traversibilityMapChanged = true;
+                }
+
+                if (collided) break;
+
+                var (minRegionX, maxRegionX, minRegionY, maxRegionY) = CalculateTankCollisionRegions(projectile);
+
+                (collided, projectile, mapChanged) = HandleTankCollisions(ctx, projectile, args.WorldId, ref traversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
+
+                if (mapChanged)
+                {
+                    traversibilityMapChanged = true;
+                }
+
+                if (collided) break;
+
+                (collided, projectile) = HandleSpiderMineCollision(ctx, projectile, args.WorldId, minRegionX, maxRegionX, minRegionY, maxRegionY);
             }
-
-            if (collided) continue;
-
-            var (minRegionX, maxRegionX, minRegionY, maxRegionY) = CalculateTankCollisionRegions(projectile);
-
-            (collided, projectile, mapChanged) = HandleTankCollisions(ctx, projectile, args.WorldId, ref traversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
-
-            if (mapChanged)
-            {
-                traversibilityMapChanged = true;
-            }
-
-            if (collided) continue;
-
-            (collided, projectile) = HandleSpiderMineCollision(ctx, projectile, args.WorldId, minRegionX, maxRegionX, minRegionY, maxRegionY);
 
             if (collided) continue;
 
