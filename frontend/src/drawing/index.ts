@@ -7,6 +7,7 @@ export * from "./projectiles/boomerang";
 export * from "./projectiles/normal";
 export * from "./projectiles/spider-mine-projectile";
 export * from "./particles/explosion";
+export * from "./particles/muzzle-flash";
 export * from "./terrain-details/rock";
 export * from "./terrain-details/tree";
 export * from "./terrain-details/dead-tree";
