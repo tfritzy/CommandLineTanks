@@ -21,6 +21,7 @@ public static partial class TerrainGenerator
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
     private const int ROTATION_WEST = 3;
+    private const int TREE_VARIANT_COUNT = 3;
 
     private static readonly int[] p = new int[512];
 
@@ -45,7 +46,7 @@ public static partial class TerrainGenerator
 
         Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, random);
 
-        GenerateTrees(terrainDetailArray, baseTerrain, fieldTiles, random);
+        GenerateTrees(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random);
 
         GenerateStructures(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random);
 
@@ -287,7 +288,7 @@ public static partial class TerrainGenerator
         return result;
     }
 
-    private static void GenerateTrees(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random)
+    private static void GenerateTrees(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random)
     {
         float scale = 0.1f;
         float threshold = 0.2f;
@@ -329,7 +330,7 @@ public static partial class TerrainGenerator
                             if (nx >= 0 && nx < WORLD_WIDTH && ny >= 0 && ny < WORLD_HEIGHT)
                             {
                                 var neighborType = terrainDetail[ny * WORLD_WIDTH + nx];
-                                if (neighborType == TerrainDetailType.Tree || neighborType == TerrainDetailType.DeadTree)
+                                if (neighborType == TerrainDetailType.Tree)
                                 {
                                     neighborHasTree = true;
                                     break;
@@ -341,14 +342,8 @@ public static partial class TerrainGenerator
 
                     if (!neighborHasTree)
                     {
-                        if (random.NextSingle() < 0.15f)
-                        {
-                            terrainDetail[index] = TerrainDetailType.DeadTree;
-                        }
-                        else
-                        {
-                            terrainDetail[index] = TerrainDetailType.Tree;
-                        }
+                        terrainDetail[index] = TerrainDetailType.Tree;
+                        rotationArray[index] = random.Next(TREE_VARIANT_COUNT);
                     }
                 }
             }

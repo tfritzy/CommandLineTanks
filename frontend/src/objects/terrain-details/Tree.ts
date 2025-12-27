@@ -1,5 +1,5 @@
 import { TerrainDetailObject } from "./TerrainDetailObject";
-import { getFlashColor } from "../../utils/colors";
+import { drawTreeShadow, drawTreeBody } from "../../drawing/terrain-details/tree";
 
 export class Tree extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
@@ -9,14 +9,7 @@ export class Tree extends TerrainDetailObject {
     const centerX = x;
     const centerY = y;
     const radius = this.getRadius(0.7, 0, 7.77, 3.33);
-
-    const shadowOffsetX = -radius * 0.4;
-    const shadowOffsetY = radius * 0.4;
-    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    ctx.beginPath();
-    ctx.arc(centerX + shadowOffsetX, centerY + shadowOffsetY, radius, 0, Math.PI * 2);
-    ctx.fill();
-
+    drawTreeShadow(ctx, centerX, centerY, radius);
     ctx.restore();
   }
 
@@ -27,24 +20,8 @@ export class Tree extends TerrainDetailObject {
     const centerX = x;
     const centerY = y;
     const radius = this.getRadius(0.7, 0, 7.77, 3.33);
-
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    ctx.clip();
-
-    ctx.fillStyle = getFlashColor("#3e4c7e", this.flashTimer);
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = getFlashColor("#495f94", this.flashTimer);
-    ctx.beginPath();
-    const dividerCenterX = centerX + radius * 0.4;
-    const dividerCenterY = centerY - radius * 0.4;
-    const dividerRadius = radius * 1.3;
-    ctx.arc(dividerCenterX, dividerCenterY, dividerRadius, 0, Math.PI * 2);
-    ctx.fill();
-
+    const variant = this.getRotation();
+    drawTreeBody(ctx, centerX, centerY, radius, this.flashTimer, variant);
     ctx.restore();
     this.drawLabel(ctx);
   }
