@@ -4,6 +4,8 @@ import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
 import { TargetingReticle } from "../objects/TargetingReticle";
 import { ScreenShake } from "../utils/ScreenShake";
+import { MuzzleFlashParticlesManager } from "./MuzzleFlashParticlesManager";
+import { GUN_BARREL_LENGTH } from "../constants";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -14,11 +16,13 @@ export class TankManager {
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
   private screenShake: ScreenShake;
+  private muzzleFlashManager: MuzzleFlashParticlesManager;
 
   constructor(worldId: string, screenShake: ScreenShake) {
     this.worldId = worldId;
     this.particlesManager = new DeadTankParticlesManager();
     this.indicatorManager = new TankIndicatorManager();
+    this.muzzleFlashManager = new MuzzleFlashParticlesManager();
     this.targetingReticle = new TargetingReticle();
     this.screenShake = screenShake;
     this.subscribeToTanks();
@@ -75,6 +79,12 @@ export class TankManager {
         if (oldTank.target !== null && newTank.target === null && newTank.health > 0) {
           const pos = tank.getPosition();
           this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, "Target lost");
+        }
+
+        if (oldTank.lastFireTime !== newTank.lastFireTime && newTank.health > 0) {
+          const barrelTipX = newTank.positionX + Math.cos(newTank.turretRotation) * GUN_BARREL_LENGTH;
+          const barrelTipY = newTank.positionY + Math.sin(newTank.turretRotation) * GUN_BARREL_LENGTH;
+          this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, newTank.turretRotation);
         }
 
         if (oldTank.isRepairing && !newTank.isRepairing && newTank.health > 0) {
@@ -144,6 +154,7 @@ export class TankManager {
     }
     this.particlesManager.update(deltaTime);
     this.indicatorManager.update(deltaTime);
+    this.muzzleFlashManager.update(deltaTime);
   }
 
   public getPlayerTank(): Tank | null {
@@ -188,6 +199,7 @@ export class TankManager {
 
   public drawParticles(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number) {
     this.particlesManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+    this.muzzleFlashManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
   }
 
   public getAllTanks(): IterableIterator<Tank> {
