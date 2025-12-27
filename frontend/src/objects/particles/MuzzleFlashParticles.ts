@@ -1,6 +1,9 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
-import { drawExplosionParticles } from "../../drawing";
+import { drawMuzzleFlashParticles } from "../../drawing";
+
+const ANGLE_SPREAD_RADIANS = 0.8;
+const FRICTION_FACTOR = 0.92;
 
 interface Particle {
   x: number;
@@ -8,60 +11,49 @@ interface Particle {
   velocityX: number;
   velocityY: number;
   size: number;
-  maxSize: number;
   lifetime: number;
   maxLifetime: number;
   color: string;
 }
 
-export class ExplosionParticles {
+export class MuzzleFlashParticles {
   private particles: Particle[] = [];
   private isDead = false;
 
-  constructor(x: number, y: number, explosionRadius: number) {
-    const colors = ["#fceba8", "#f5c47c", "#e39764"];
+  constructor(x: number, y: number, angle: number) {
+    const colors = ["#fcfbf3", "#fceba8"];
     
-    const count = 20;
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      // Spread them out more from the center
-      const dist = Math.random() * explosionRadius * 0.5;
+    const particleCount = 8 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < particleCount; i++) {
+      const angleOffset = (Math.random() - 0.5) * ANGLE_SPREAD_RADIANS;
+      const particleAngle = angle + angleOffset;
       
-      // Add some outward velocity
-      const speed = 0.3 + Math.random() * 1.5;
+      const speed = 3 + Math.random() * 4;
       
       this.particles.push({
-        x: x + Math.cos(angle) * dist,
-        y: y + Math.sin(angle) * dist,
-        velocityX: Math.cos(angle) * speed,
-        velocityY: Math.sin(angle) * speed,
-        size: 0,
-        maxSize: explosionRadius * (0.2 + Math.random() * 0.3),
+        x,
+        y,
+        velocityX: Math.cos(particleAngle) * speed,
+        velocityY: Math.sin(particleAngle) * speed,
+        size: 0.03 + Math.random() * 0.04,
         lifetime: 0,
-        maxLifetime: 0.2 + Math.random() * 0.4,
-        color: colors[i % colors.length]
+        maxLifetime: 0.08 + Math.random() * 0.08,
+        color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
   }
 
   public update(deltaTime: number): void {
+    const frictionMultiplier = Math.pow(FRICTION_FACTOR, deltaTime);
     let allDead = true;
     for (const p of this.particles) {
       p.lifetime += deltaTime;
       if (p.lifetime < p.maxLifetime) {
-        allDead = false;
-        
-        // Move particles outward
         p.x += p.velocityX * deltaTime;
         p.y += p.velocityY * deltaTime;
-        
-        // Apply some friction
-        p.velocityX *= Math.pow(0.1, deltaTime);
-        p.velocityY *= Math.pow(0.1, deltaTime);
-
-        const progress = p.lifetime / p.maxLifetime;
-        // Expand quickly to max size
-        p.size = p.maxSize * Math.min(1, progress * 5);
+        p.velocityX *= frictionMultiplier;
+        p.velocityY *= frictionMultiplier;
+        allDead = false;
       }
     }
     this.isDead = allDead;
@@ -74,12 +66,12 @@ export class ExplosionParticles {
       const px = p.x * UNIT_TO_PIXEL;
       const py = p.y * UNIT_TO_PIXEL;
       const pSize = p.size * UNIT_TO_PIXEL;
-      
+
       if (!isPointInViewport(px, py, pSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
         continue;
       }
 
-      drawExplosionParticles(ctx, p);
+      drawMuzzleFlashParticles(ctx, p);
     }
   }
 
