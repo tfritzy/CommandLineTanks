@@ -184,24 +184,6 @@ export class ProjectileTextureSheet {
       currentY,
       radius
     );
-    currentX += radius * 4 + padding * 4;
-
-    this.addNormalProjectile(
-      "sniper-red",
-      TEAM_COLORS.RED,
-      currentX,
-      currentY,
-      radius * 0.6
-    );
-    currentX += radius * 2 + padding * 4;
-
-    this.addNormalProjectile(
-      "sniper-blue",
-      TEAM_COLORS.BLUE,
-      currentX,
-      currentY,
-      radius * 0.6
-    );
   }
 
   private addNormalProjectile(

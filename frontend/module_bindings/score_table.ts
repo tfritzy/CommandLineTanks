@@ -11,6 +11,6 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  worldId: __t.string().primaryKey(),
-  kills: __t.array(__t.i32()),
+  worldId: __t.string().primaryKey().name("WorldId"),
+  kills: __t.array(__t.i32()).name("Kills"),
 });

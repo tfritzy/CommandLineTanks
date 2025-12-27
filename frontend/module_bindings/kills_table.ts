@@ -11,9 +11,9 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  killer: __t.identity(),
-  killeeName: __t.string(),
-  timestamp: __t.u64(),
+  id: __t.string().primaryKey().name("Id"),
+  worldId: __t.string().name("WorldId"),
+  killer: __t.identity().name("Killer"),
+  killeeName: __t.string().name("KilleeName"),
+  timestamp: __t.u64().name("Timestamp"),
 });

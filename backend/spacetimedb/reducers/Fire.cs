@@ -31,11 +31,7 @@ public static partial class Module
 
         if (gun.Ammo != null && gun.Ammo <= 0) return tank;
 
-        if (gun.RaycastRange.HasValue)
-        {
-            FireRaycastWeapon(ctx, tank, gun);
-        }
-        else if (gun.ProjectileCount == 1)
+        if (gun.ProjectileCount == 1)
         {
             CreateProjectile(ctx, tank, tank.PositionX, tank.PositionY, tank.TurretRotation, gun);
         }
@@ -94,83 +90,5 @@ public static partial class Module
 
         tank.LastFireTime = currentTime;
         return tank;
-    }
-
-    private static void FireRaycastWeapon(ReducerContext ctx, Tank tank, Types.Gun gun)
-    {
-        float raycastRange = gun.RaycastRange!.Value;
-        float angle = tank.TurretRotation;
-
-        float startX = tank.PositionX + (float)Math.Cos(angle) * GUN_BARREL_LENGTH;
-        float startY = tank.PositionY + (float)Math.Sin(angle) * GUN_BARREL_LENGTH;
-
-        float endX = startX + (float)Math.Cos(angle) * raycastRange;
-        float endY = startY + (float)Math.Sin(angle) * raycastRange;
-
-        var hitTanks = new System.Collections.Generic.List<Tank>();
-
-        foreach (var targetTank in ctx.Db.tank.WorldId.Filter(tank.WorldId))
-        {
-            if (targetTank.Id == tank.Id || targetTank.Health <= 0) continue;
-            if (targetTank.Alliance == tank.Alliance) continue;
-
-            float distanceToLine = PointToLineDistance(
-                targetTank.PositionX, targetTank.PositionY,
-                startX, startY,
-                endX, endY
-            );
-
-            if (distanceToLine <= TANK_COLLISION_RADIUS)
-            {
-                float tankDx = targetTank.PositionX - startX;
-                float tankDy = targetTank.PositionY - startY;
-                float rayDx = endX - startX;
-                float rayDy = endY - startY;
-                float projection = (tankDx * rayDx + tankDy * rayDy) / (rayDx * rayDx + rayDy * rayDy);
-
-                if (projection >= 0 && projection <= 1)
-                {
-                    hitTanks.Add(targetTank);
-                }
-            }
-        }
-
-        foreach (var hitTank in hitTanks)
-        {
-            Module.DealDamageToTankCommand(ctx, hitTank, gun.Damage, tank.Id, tank.Alliance, tank.WorldId);
-        }
-
-        var projectileTrailId = GenerateId(ctx, "ptl");
-        ctx.Db.projectile_trail.Insert(new ProjectileTrail
-        {
-            Id = projectileTrailId,
-            WorldId = tank.WorldId,
-            StartX = startX,
-            StartY = startY,
-            EndX = endX,
-            EndY = endY,
-            Type = Types.ProjectileTrailType.Sniper,
-            SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-        });
-    }
-
-    private static float PointToLineDistance(float px, float py, float x1, float y1, float x2, float y2)
-    {
-        float dx = x2 - x1;
-        float dy = y2 - y1;
-        float lengthSquared = dx * dx + dy * dy;
-
-        if (lengthSquared == 0)
-        {
-            return (float)Math.Sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1));
-        }
-
-        float t = ((px - x1) * dx + (py - y1) * dy) / lengthSquared;
-        t = Math.Max(0, Math.Min(1, t));
-
-        float closestX = x1 + t * dx;
-        float closestY = y1 + t * dy;
-
-        return (float)Math.Sqrt((px - closestX) * (px - closestX) + (py - closestY) * (py - closestY));
     }
 }

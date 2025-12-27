@@ -166,8 +166,7 @@ public static partial class Module
             PickupType.Boomerang,
             PickupType.Grenade,
             PickupType.Rocket,
-            PickupType.Moag,
-            PickupType.Sniper
+            PickupType.Moag
         };
 
         for (int i = 0; i < pickups.Length; i++)

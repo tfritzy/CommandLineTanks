@@ -53,11 +53,6 @@ public static partial class Module
             ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
         }
 
-        foreach (var projectileTrailCleanup in ctx.Db.ScheduledProjectileTrailCleanup.WorldId.Filter(worldId))
-        {
-            ctx.Db.ScheduledProjectileTrailCleanup.ScheduledId.Delete(projectileTrailCleanup.ScheduledId);
-        }
-
         foreach (var worldReset in ctx.Db.ScheduledWorldReset.WorldId.Filter(worldId))
         {
             ctx.Db.ScheduledWorldReset.ScheduledId.Delete(worldReset.ScheduledId);

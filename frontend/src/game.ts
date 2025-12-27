@@ -9,7 +9,6 @@ import { KillManager } from "./managers/KillManager";
 import { SpiderMineManager } from "./managers/SpiderMineManager";
 import { SmokeCloudManager } from "./managers/SmokeCloudManager";
 import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
-import { ProjectileTrailManager } from "./managers/ProjectileTrailManager";
 import { UNIT_TO_PIXEL } from "./constants";
 import { ScreenShake } from "./utils/ScreenShake";
 
@@ -32,7 +31,6 @@ export class Game {
   private spiderMineManager: SpiderMineManager;
   private smokeCloudManager: SmokeCloudManager;
   private abilitiesBarManager: AbilitiesBarManager;
-  private projectileTrailManager: ProjectileTrailManager;
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
   private screenShake: ScreenShake;
@@ -66,7 +64,6 @@ export class Game {
     this.spiderMineManager = new SpiderMineManager(worldId);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
     this.abilitiesBarManager = new AbilitiesBarManager(worldId);
-    this.projectileTrailManager = new ProjectileTrailManager(worldId);
   }
 
   private resizeCanvas() {
@@ -275,13 +272,6 @@ export class Game {
       displayHeight
     );
 
-    this.projectileTrailManager.draw(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      this.time
-    );
-
     // this.collisionVisualizationManager.draw(
     //   this.ctx,
     //   cameraX,
@@ -339,7 +329,6 @@ export class Game {
     this.spiderMineManager.destroy();
     this.smokeCloudManager.destroy();
     this.abilitiesBarManager.destroy();
-    this.projectileTrailManager.destroy();
     
     window.removeEventListener("resize", () => this.resizeCanvas());
   }

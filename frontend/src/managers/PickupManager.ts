@@ -120,9 +120,6 @@ export class PickupManager {
       case "SpiderMine":
         pickupTextureSheet.draw(ctx, "spider-mine", worldX, worldY);
         break;
-      case "Sniper":
-        pickupTextureSheet.draw(ctx, "sniper", worldX, worldY);
-        break;
       default:
         pickupTextureSheet.draw(ctx, "unknown", worldX, worldY);
         break;
