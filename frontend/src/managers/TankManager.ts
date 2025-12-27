@@ -104,7 +104,7 @@ export class TankManager {
         if (oldTank.lastFireTime !== newTank.lastFireTime && newTank.health > 0) {
           const barrelTipX = newTank.positionX + Math.cos(newTank.turretRotation) * GUN_BARREL_LENGTH;
           const barrelTipY = newTank.positionY + Math.sin(newTank.turretRotation) * GUN_BARREL_LENGTH;
-          this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, newTank.turretRotation);
+          this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, newTank.turretRotation, newTank.alliance);
         }
 
         if (oldTank.isRepairing && !newTank.isRepairing && newTank.health > 0) {

@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../constants";
+import { UNIT_TO_PIXEL, TEAM_COLORS } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
 import { drawMuzzleFlashParticles } from "../../drawing";
 
@@ -20,8 +20,9 @@ export class MuzzleFlashParticles {
   private particles: Particle[] = [];
   private isDead = false;
 
-  constructor(x: number, y: number, angle: number) {
-    const colors = ["#fcfbf3", "#fceba8"];
+  constructor(x: number, y: number, angle: number, alliance: number) {
+    const baseColor = alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+    const colors = [baseColor, "#fcfbf3"];
     
     const particleCount = 8 + Math.floor(Math.random() * 5);
     for (let i = 0; i < particleCount; i++) {
@@ -37,7 +38,7 @@ export class MuzzleFlashParticles {
         velocityY: Math.sin(particleAngle) * speed,
         size: 0.03 + Math.random() * 0.04,
         lifetime: 0,
-        maxLifetime: 0.08 + Math.random() * 0.08,
+        maxLifetime: 0.04 + Math.random() * 0.04,
         color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
