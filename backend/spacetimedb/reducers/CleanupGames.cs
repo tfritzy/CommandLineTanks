@@ -53,6 +53,11 @@ public static partial class Module
             ctx.Db.tank_path.TankId.Delete(pathState.TankId);
         }
 
+        foreach (var aimState in ctx.Db.random_aim_state.WorldId.Filter(worldId))
+        {
+            ctx.Db.random_aim_state.TankId.Delete(aimState.TankId);
+        }
+
         foreach (var projectile in ctx.Db.projectile.WorldId.Filter(worldId))
         {
             ctx.Db.projectile.Id.Delete(projectile.Id);

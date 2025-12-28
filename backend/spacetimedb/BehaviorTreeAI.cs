@@ -42,6 +42,9 @@ public static partial class BehaviorTreeAI
                 case AIBehavior.Tilebound:
                     mutatedTank = TileboundAI.EvaluateAndMutateTank(ctx, tank, aiContext);
                     break;
+                case AIBehavior.RandomAim:
+                    mutatedTank = RandomAimAI.EvaluateAndMutateTank(ctx, tank, aiContext);
+                    break;
             }
 
             ctx.Db.tank.Id.Update(mutatedTank);

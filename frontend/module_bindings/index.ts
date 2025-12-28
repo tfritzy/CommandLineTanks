@@ -115,6 +115,8 @@ import PlayerRow from "./player_table";
 export { PlayerRow };
 import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
+import RandomAimStateRow from "./random_aim_state_table";
+export { RandomAimStateRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
 import SmokeCloudRow from "./smoke_cloud_table";
@@ -135,6 +137,8 @@ import WorldRow from "./world_table";
 export { WorldRow };
 
 // Import and reexport all types
+import AiBehavior from "./ai_behavior_type";
+export { AiBehavior };
 import BaseTerrain from "./base_terrain_type";
 export { BaseTerrain };
 import DamagedTank from "./damaged_tank_type";
@@ -163,6 +167,8 @@ import Projectile from "./projectile_type";
 export { Projectile };
 import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
+import RandomAimState from "./random_aim_state_type";
+export { RandomAimState };
 import ScheduledAiUpdate from "./scheduled_ai_update_type";
 export { ScheduledAiUpdate };
 import ScheduledEnemyTankRespawnCheck from "./scheduled_enemy_tank_respawn_check_type";
@@ -410,6 +416,20 @@ const tablesSchema = __schema(
       { name: 'projectile_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, ProjectileRow),
+  __table({
+    name: 'random_aim_state',
+    indexes: [
+      { name: 'TankId', algorithm: 'btree', columns: [
+        'tankId',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'random_aim_state_TankId_key', constraint: 'unique', columns: ['tankId'] },
+    ],
+  }, RandomAimStateRow),
   __table({
     name: 'score',
     indexes: [

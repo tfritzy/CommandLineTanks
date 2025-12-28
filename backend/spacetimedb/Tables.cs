@@ -296,6 +296,18 @@ public static partial class Module
         public ulong LastFireTime;
     }
 
+    [Table(Name = "random_aim_state", Public = true)]
+    public partial struct RandomAimState
+    {
+        [PrimaryKey]
+        public string TankId;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public float TargetAngle;
+    }
+
     [Table(Name = "tank_path", Public = true)]
     public partial struct TankPath
     {

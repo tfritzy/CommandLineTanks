@@ -146,9 +146,11 @@ public static partial class Module
         });
 
         var enemyTankPositions = new[] { (15, 15), (25, 15), (15, 25), (25, 25) };
+        int tankIndex = 0;
         foreach (var (x, y) in enemyTankPositions)
         {
             var tankName = AllocateTankName(ctx, identityString) ?? "Enemy";
+            var aiBehavior = tankIndex == 0 ? AIBehavior.RandomAim : AIBehavior.Tilebound;
             var enemyTank = BuildTank(
                 ctx,
                 identityString,
@@ -158,10 +160,42 @@ public static partial class Module
                 1,
                 x + 0.5f,
                 y + 0.5f,
-                AIBehavior.Tilebound
+                aiBehavior
             );
             enemyTank.Id = GenerateId(ctx, "enmy");
             ctx.Db.tank.Insert(enemyTank);
+
+            if (tankIndex == 0)
+            {
+                var dummyPositions = new[]
+                {
+                    (x - 3, y), (x + 3, y),
+                    (x, y - 3), (x, y + 3),
+                    (x - 2, y - 2), (x + 2, y - 2),
+                    (x - 2, y + 2), (x + 2, y + 2)
+                };
+
+                foreach (var (dx, dy) in dummyPositions)
+                {
+                    if (dx >= 0 && dx < worldSize && dy >= 0 && dy < worldSize)
+                    {
+                        ctx.Db.terrain_detail.Insert(new TerrainDetail
+                        {
+                            Id = GenerateId(ctx, "td"),
+                            WorldId = identityString,
+                            PositionX = dx + 0.5f,
+                            PositionY = dy + 0.5f,
+                            GridX = dx,
+                            GridY = dy,
+                            Type = TerrainDetailType.TargetDummy,
+                            Health = 100,
+                            Rotation = 0
+                        });
+                    }
+                }
+            }
+
+            tankIndex++;
         }
 
         var pickups = new[]
