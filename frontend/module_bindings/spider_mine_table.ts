@@ -13,19 +13,19 @@ import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey().name("Id"),
-  worldId: __t.string().name("WorldId"),
-  shooterTankId: __t.string().name("ShooterTankId"),
-  alliance: __t.i32().name("Alliance"),
-  positionX: __t.f32().name("PositionX"),
-  positionY: __t.f32().name("PositionY"),
-  collisionRegionX: __t.i32().name("CollisionRegionX"),
-  collisionRegionY: __t.i32().name("CollisionRegionY"),
-  health: __t.i32().name("Health"),
-  targetTankId: __t.option(__t.string()).name("TargetTankId"),
-  isPlanted: __t.bool().name("IsPlanted"),
-  plantingStartedAt: __t.u64().name("PlantingStartedAt"),
+  id: __t.string().primaryKey(),
+  worldId: __t.string(),
+  shooterTankId: __t.string(),
+  alliance: __t.i32(),
+  positionX: __t.f32(),
+  positionY: __t.f32(),
+  collisionRegionX: __t.i32(),
+  collisionRegionY: __t.i32(),
+  health: __t.i32(),
+  targetTankId: __t.option(__t.string()),
+  isPlanted: __t.bool(),
+  plantingStartedAt: __t.u64(),
   get velocity() {
-    return Vector2Float.name("Velocity");
+    return Vector2Float;
   },
 });

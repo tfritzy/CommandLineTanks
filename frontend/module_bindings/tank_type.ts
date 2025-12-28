@@ -10,6 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import Vector2Float from "./vector_2_float_type";
+import PathEntry from "./path_entry_type";
 import Gun from "./gun_type";
 
 
@@ -29,6 +30,9 @@ export default __t.object("Tank", {
   collisionRegionY: __t.i32(),
   target: __t.option(__t.string()),
   targetLead: __t.f32(),
+  get path() {
+    return __t.array(PathEntry);
+  },
   topSpeed: __t.f32(),
   turretRotationSpeed: __t.f32(),
   positionX: __t.f32(),
