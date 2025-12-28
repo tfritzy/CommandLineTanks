@@ -33,7 +33,7 @@ export class SpiderMineManager {
         mine.alliance,
         mine.health,
         mine.isPlanted,
-        mine.plantingStartedAt,
+        Number(mine.plantingStartedAt),
         mine.velocity.x,
         mine.velocity.y
       );
@@ -47,7 +47,7 @@ export class SpiderMineManager {
         mine.setPosition(newMine.positionX, newMine.positionY);
         mine.setHealth(newMine.health);
         mine.setIsPlanted(newMine.isPlanted);
-        mine.setPlantingStartedAt(newMine.plantingStartedAt);
+        mine.setPlantingStartedAt(Number(newMine.plantingStartedAt));
         mine.setVelocity(newMine.velocity.x, newMine.velocity.y);
       }
     };
@@ -70,7 +70,7 @@ export class SpiderMineManager {
           mine.alliance,
           mine.health,
           mine.isPlanted,
-          mine.plantingStartedAt,
+          Number(mine.plantingStartedAt),
           mine.velocity.x,
           mine.velocity.y
         );
