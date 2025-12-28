@@ -7,6 +7,8 @@ using static Module;
 
 public static partial class BehaviorTreeAI
 {
+    private const int MAX_POSITION_SEARCH_ATTEMPTS = 50;
+
     [Table(Scheduled = nameof(UpdateAI))]
     public partial struct ScheduledAIUpdate
     {
@@ -263,7 +265,12 @@ public static partial class BehaviorTreeAI
         int minY = Math.Max(0, currentY - squareSize / 2);
         int maxY = Math.Min(traversibilityMap.Height - 1, currentY + squareSize / 2);
 
-        for (int attempt = 0; attempt < 50; attempt++)
+        if (minX > maxX || minY > maxY)
+        {
+            return (currentX, currentY);
+        }
+
+        for (int attempt = 0; attempt < MAX_POSITION_SEARCH_ATTEMPTS; attempt++)
         {
             int targetX = minX + rng.Next(maxX - minX + 1);
             int targetY = minY + rng.Next(maxY - minY + 1);
