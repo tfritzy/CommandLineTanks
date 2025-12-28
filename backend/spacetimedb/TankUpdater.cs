@@ -120,17 +120,13 @@ public static partial class TankUpdater
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
 
-        var newTickCount = args.TickCount + 1;
-        bool shouldEvaluateAI = (newTickCount % 16) == 1;
-
         ctx.Db.ScheduledTankUpdates.ScheduledId.Update(args with
         {
             LastTickAt = currentTime,
-            TickCount = newTickCount
+            TickCount = args.TickCount + 1
         });
 
         var updateContext = new TankUpdateContext(ctx, args.WorldId);
-        BehaviorTreeAI.AIContext? aiContext = shouldEvaluateAI ? new BehaviorTreeAI.AIContext(ctx, args.WorldId) : null;
 
         foreach (var iTank in ctx.Db.tank.WorldId.Filter(args.WorldId))
         {
@@ -139,18 +135,7 @@ public static partial class TankUpdater
 
             if (tank.Health <= 0)
             {
-                if (tank.IsBot && shouldEvaluateAI && aiContext != null)
-                {
-                    var respawnedTank = Module.RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
-                    ctx.Db.tank.Id.Update(respawnedTank);
-                }
                 continue;
-            }
-
-            if (tank.IsBot && shouldEvaluateAI && aiContext != null)
-            {
-                tank = BehaviorTreeAI.EvaluateAIAndMutateTank(ctx, tank, aiContext);
-                needsUpdate = true;
             }
 
             int newCollisionRegionX = (int)(tank.PositionX / Module.COLLISION_REGION_SIZE);
