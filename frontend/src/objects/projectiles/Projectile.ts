@@ -4,6 +4,8 @@ export abstract class Projectile {
   public static readonly SHADOW_OFFSET = 4;
   protected x: number;
   protected y: number;
+  protected velocityX: number;
+  protected velocityY: number;
   protected size: number;
   protected alliance: number;
   protected explosionRadius: number | undefined;
@@ -25,6 +27,8 @@ export abstract class Projectile {
   ) {
     this.x = x;
     this.y = y;
+    this.velocityX = velocityX;
+    this.velocityY = velocityY;
     this.size = size;
     this.alliance = alliance;
     this.explosionRadius = explosionRadius;
@@ -57,6 +61,11 @@ export abstract class Projectile {
     this.positionBuffer = this.positionBuffer.filter(
       (p) => p.serverTimestampMs > cutoffTime
     );
+  }
+
+  public setVelocity(velocityX: number, velocityY: number) {
+    this.velocityX = velocityX;
+    this.velocityY = velocityY;
   }
 
   public update(_deltaTime: number, _tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
