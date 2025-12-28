@@ -2,6 +2,9 @@ export const UNIT_TO_PIXEL = 50;
 
 export const GUN_BARREL_LENGTH = 0.4;
 
+export const ARRIVAL_THRESHOLD = 0.1;
+export const OVERDRIVE_SPEED_MULTIPLIER = 1.25;
+
 export const TEAM_COLORS = {
   RED: "#ff5555",
   BLUE: "#5555ff"

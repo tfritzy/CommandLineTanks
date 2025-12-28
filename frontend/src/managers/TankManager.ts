@@ -135,6 +135,8 @@ export class TankManager {
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
         tank.setHasShield(newTank.hasShield);
         tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
+        tank.setTopSpeed(newTank.topSpeed);
+        tank.setRemainingOverdriveDurationMicros(newTank.remainingOverdriveDurationMicros);
       } else {
         this.buildTank(newTank);
       }
@@ -205,7 +207,9 @@ export class TankManager {
       tank.guns,
       tank.selectedGunIndex,
       tank.hasShield,
-      tank.remainingImmunityMicros
+      tank.remainingImmunityMicros,
+      tank.topSpeed,
+      tank.remainingOverdriveDurationMicros
     );
     
     if (isPlayerTank) {

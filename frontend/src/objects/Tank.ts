@@ -1,7 +1,7 @@
 import { type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
-import { TEAM_COLORS } from "../constants";
+import { TEAM_COLORS, ARRIVAL_THRESHOLD, OVERDRIVE_SPEED_MULTIPLIER } from "../constants";
 import { drawTankShadow, drawTankBody, drawTankHealthBar, drawTankPath, drawTankNameLabel } from "../drawing/tanks/tank";
 
 type PathEntry = {
@@ -32,6 +32,8 @@ export class Tank {
   private flashTimer: number = 0;
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
+  private remainingOverdriveDurationMicros: bigint = 0n;
+  private topSpeed: number = 3.0;
   private isPlayerTank: boolean = false;
   private positionBuffer: Array<{ x: number; y: number; timestamp: number }> = [];
 
@@ -51,7 +53,9 @@ export class Tank {
     guns: Infer<typeof Gun>[] = [],
     selectedGunIndex: number = 0,
     hasShield: boolean = false,
-    remainingImmunityMicros: bigint = 0n
+    remainingImmunityMicros: bigint = 0n,
+    topSpeed: number = 3.0,
+    remainingOverdriveDurationMicros: bigint = 0n
   ) {
     this.id = id;
     this.x = x;
@@ -70,6 +74,8 @@ export class Tank {
     this.selectedGunIndex = selectedGunIndex;
     this.hasShield = hasShield;
     this.remainingImmunityMicros = remainingImmunityMicros;
+    this.topSpeed = topSpeed;
+    this.remainingOverdriveDurationMicros = remainingOverdriveDurationMicros;
   }
 
   public getAllianceColor(): string {
@@ -186,6 +192,14 @@ export class Tank {
     this.remainingImmunityMicros = remainingImmunityMicros;
   }
 
+  public setTopSpeed(topSpeed: number) {
+    this.topSpeed = topSpeed;
+  }
+
+  public setRemainingOverdriveDurationMicros(remainingOverdriveDurationMicros: bigint) {
+    this.remainingOverdriveDurationMicros = remainingOverdriveDurationMicros;
+  }
+
   public setIsPlayerTank(isPlayerTank: boolean) {
     this.isPlayerTank = isPlayerTank;
   }
@@ -197,25 +211,50 @@ export class Tank {
 
     if (this.isPlayerTank) {
       if (this.path.length > 0) {
-        const target = this.path[0].position;
+        const targetPos = this.path[0];
+        const deltaX = targetPos.position.x - this.x;
+        const deltaY = targetPos.position.y - this.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        if (this.velocityX !== 0 || this.velocityY !== 0) {
-          const newX = this.x + this.velocityX * deltaTime;
-          const newY = this.y + this.velocityY * deltaTime;
+        const speedMultiplier = this.remainingOverdriveDurationMicros > 0 ? OVERDRIVE_SPEED_MULTIPLIER : 1.0;
+        const moveSpeed = this.topSpeed * targetPos.throttlePercent * speedMultiplier;
+        const moveDistance = moveSpeed * deltaTime;
 
-          const currentDistSq =
-            (target.x - this.x) ** 2 + (target.y - this.y) ** 2;
-          const newDistSq = (target.x - newX) ** 2 + (target.y - newY) ** 2;
+        if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance) {
+          this.x = targetPos.position.x;
+          this.y = targetPos.position.y;
+          this.path = this.path.slice(1);
 
-          if (newDistSq > currentDistSq) {
-            this.x = target.x;
-            this.y = target.y;
+          if (this.path.length > 0) {
+            const nextTarget = this.path[0];
+            const nextDeltaX = nextTarget.position.x - this.x;
+            const nextDeltaY = nextTarget.position.y - this.y;
+            const nextDistance = Math.sqrt(nextDeltaX * nextDeltaX + nextDeltaY * nextDeltaY);
+
+            if (nextDistance > 0) {
+              const nextDirX = nextDeltaX / nextDistance;
+              const nextDirY = nextDeltaY / nextDistance;
+              const nextSpeedMultiplier = this.remainingOverdriveDurationMicros > 0 ? OVERDRIVE_SPEED_MULTIPLIER : 1.0;
+              const nextMoveSpeed = this.topSpeed * nextTarget.throttlePercent * nextSpeedMultiplier;
+
+              this.velocityX = nextDirX * nextMoveSpeed;
+              this.velocityY = nextDirY * nextMoveSpeed;
+            } else {
+              this.velocityX = 0;
+              this.velocityY = 0;
+            }
+          } else {
             this.velocityX = 0;
             this.velocityY = 0;
-          } else {
-            this.x = newX;
-            this.y = newY;
           }
+        } else {
+          const dirX = deltaX / distance;
+          const dirY = deltaY / distance;
+
+          this.x = this.x + dirX * moveDistance;
+          this.y = this.y + dirY * moveDistance;
+          this.velocityX = dirX * moveSpeed;
+          this.velocityY = dirY * moveSpeed;
         }
       }
     } else {
