@@ -227,8 +227,7 @@ export class Tank {
       let next = this.positionBuffer[1];
 
       for (let i = 0; i < this.positionBuffer.length - 1; i++) {
-        if (this.positionBuffer[i].timestamp <= renderTime &&
-            this.positionBuffer[i + 1].timestamp >= renderTime) {
+        if (this.positionBuffer[i + 1].timestamp > renderTime) {
           prev = this.positionBuffer[i];
           next = this.positionBuffer[i + 1];
           break;
@@ -237,7 +236,7 @@ export class Tank {
 
       const total = next.timestamp - prev.timestamp;
       const elapsed = renderTime - prev.timestamp;
-      const t = total > 0 ? elapsed / total : 0;
+      const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
 
       this.x = prev.x + (next.x - prev.x) * t;
       this.y = prev.y + (next.y - prev.y) * t;
