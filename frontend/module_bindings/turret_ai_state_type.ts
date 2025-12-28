@@ -10,14 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-// The tagged union or sum type for the algebraic type `AiBehavior`.
-const AiBehavior = __t.enum("AiBehavior", {None: __t.unit(),
-  GameAI: __t.unit(),
-  Tilebound: __t.unit(),
-  RandomAim: __t.unit(),
-  Turret: __t.unit(),
+export default __t.object("TurretAiState", {
+  tankId: __t.string(),
+  worldId: __t.string(),
+  lastTargetSwitchTime: __t.u64(),
 });
-
-export default AiBehavior;
 
 
