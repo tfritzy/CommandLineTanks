@@ -4,7 +4,7 @@ using System.Linq;
 using SpacetimeDB;
 using static Types;
 
-public static class BehaviorTreeLogic
+public static class GameAILogic
 {
     public enum AIAction
     {
@@ -27,7 +27,7 @@ public static class BehaviorTreeLogic
         public List<(int x, int y)> Path { get; set; } = new List<(int x, int y)>();
     }
 
-    public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, BehaviorTreeAI.AIContext context)
+    public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, AIContext context)
     {
         var allTanks = context.GetAllTanks();
         var pathState = context.GetTankPath(tank.Id);

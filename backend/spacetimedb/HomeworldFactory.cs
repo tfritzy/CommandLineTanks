@@ -50,7 +50,12 @@ public static partial class Module
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
-        EnemyTankRespawner.InitializeEnemyTankRespawner(ctx, identityString);
+        ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
+            WorldId = identityString
+        });
 
         ctx.Db.world.Insert(world);
 
@@ -153,7 +158,7 @@ public static partial class Module
                 1,
                 x + 0.5f,
                 y + 0.5f,
-                AIBehavior.None
+                AIBehavior.Tutorial
             );
             enemyTank.Id = GenerateId(ctx, "enmy");
             ctx.Db.tank.Insert(enemyTank);

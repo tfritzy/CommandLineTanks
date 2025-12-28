@@ -119,7 +119,7 @@ public static partial class Types
     public enum AIBehavior : byte
     {
         None,
-        BehaviorTree,
+        GameAI,
         Tutorial
     }
 
@@ -158,5 +158,13 @@ public static partial class Types
     {
         public string TankId;
         public ulong DamagedAt;
+    }
+}
+
+public static class AIBehaviorExtensions
+{
+    public static bool IsAI(this Types.AIBehavior behavior)
+    {
+        return behavior != Types.AIBehavior.None;
     }
 }

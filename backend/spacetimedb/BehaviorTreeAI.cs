@@ -7,8 +7,6 @@ using static Module;
 
 public static partial class BehaviorTreeAI
 {
-    private const int MAX_POSITION_SEARCH_ATTEMPTS = 50;
-
     [Table(Scheduled = nameof(UpdateAI))]
     public partial struct ScheduledAIUpdate
     {
@@ -20,80 +18,19 @@ public static partial class BehaviorTreeAI
         public string WorldId;
     }
 
-    public class AIContext
-    {
-        private readonly ReducerContext _ctx;
-        private readonly string _worldId;
-        private List<Tank>? _allTanks;
-        private List<Pickup>? _allPickups;
-        private TraversibilityMap? _traversibilityMap;
-        private bool _traversibilityMapLoaded;
-        private Dictionary<string, Module.TankPath?>? _tankPaths;
-
-        public AIContext(ReducerContext ctx, string worldId)
-        {
-            _ctx = ctx;
-            _worldId = worldId;
-        }
-
-        public Random GetRandom()
-        {
-            return _ctx.Rng;
-        }
-
-        public List<Tank> GetAllTanks()
-        {
-            if (_allTanks == null)
-            {
-                _allTanks = _ctx.Db.tank.WorldId.Filter(_worldId).ToList();
-            }
-            return _allTanks;
-        }
-
-        public List<Pickup> GetAllPickups()
-        {
-            if (_allPickups == null)
-            {
-                _allPickups = _ctx.Db.pickup.WorldId.Filter(_worldId).ToList();
-            }
-            return _allPickups;
-        }
-
-        public TraversibilityMap? GetTraversibilityMap()
-        {
-            if (!_traversibilityMapLoaded)
-            {
-                _traversibilityMap = _ctx.Db.traversibility_map.WorldId.Find(_worldId);
-                _traversibilityMapLoaded = true;
-            }
-            return _traversibilityMap;
-        }
-
-        public Module.TankPath? GetTankPath(string tankId)
-        {
-            if (_tankPaths == null)
-            {
-                _tankPaths = new Dictionary<string, Module.TankPath?>();
-            }
-
-            if (!_tankPaths.ContainsKey(tankId))
-            {
-                _tankPaths[tankId] = _ctx.Db.tank_path.TankId.Find(tankId);
-            }
-
-            return _tankPaths[tankId];
-        }
-    }
-
     [Reducer]
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
         var aiContext = new AIContext(ctx, args.WorldId);
-        var behaviorTreeTanks = ctx.Db.tank.WorldId_AIBehavior.Filter((args.WorldId, AIBehavior.BehaviorTree)).ToList();
-        var tutorialTanks = ctx.Db.tank.WorldId_AIBehavior.Filter((args.WorldId, AIBehavior.Tutorial)).ToList();
+        var allTanks = ctx.Db.tank.WorldId.Filter(args.WorldId).ToList();
 
-        foreach (var tank in behaviorTreeTanks)
+        foreach (var tank in allTanks)
         {
+            if (!tank.AIBehavior.IsAI())
+            {
+                continue;
+            }
+
             if (tank.Health <= 0)
             {
                 var respawnedTank = RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
@@ -101,187 +38,19 @@ public static partial class BehaviorTreeAI
                 continue;
             }
 
-            var mutatedTank = EvaluateAIAndMutateTank(ctx, tank, aiContext);
+            Tank mutatedTank = tank;
+            switch (tank.AIBehavior)
+            {
+                case AIBehavior.GameAI:
+                    mutatedTank = GameAI.EvaluateAndMutateTank(ctx, tank, aiContext);
+                    break;
+                case AIBehavior.Tutorial:
+                    mutatedTank = TutorialAI.EvaluateAndMutateTank(ctx, tank, aiContext);
+                    break;
+            }
+
             ctx.Db.tank.Id.Update(mutatedTank);
         }
-
-        foreach (var tank in tutorialTanks)
-        {
-            if (tank.Health <= 0)
-            {
-                var respawnedTank = RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
-                ctx.Db.tank.Id.Update(respawnedTank);
-                continue;
-            }
-
-            var mutatedTank = EvaluateTutorialAIAndMutateTank(ctx, tank, aiContext);
-            ctx.Db.tank.Id.Update(mutatedTank);
-        }
-    }
-
-    public static Tank EvaluateAIAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
-    {
-        var decision = BehaviorTreeLogic.EvaluateBehaviorTree(ctx, tank, aiContext);
-
-        switch (decision.Action)
-        {
-            case BehaviorTreeLogic.AIAction.MoveTowardsPickup:
-                if (decision.TargetPickup != null && decision.Path.Count > 0)
-                {
-                    SetPath(ctx, tank, decision.Path);
-                }
-                break;
-
-            case BehaviorTreeLogic.AIAction.AimAndFire:
-                if (decision.TargetTank != null)
-                {
-                    tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
-                    if (decision.ShouldFire)
-                    {
-                        tank = FireTankWeapon(ctx, tank);
-                    }
-                }
-                break;
-
-            case BehaviorTreeLogic.AIAction.StopMoving:
-                if (decision.TargetTank != null)
-                {
-                    DeleteTankPathIfExists(ctx, tank.Id);
-
-                    tank = tank with
-                    {
-                        Velocity = new Vector2Float(0, 0)
-                    };
-
-                    tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
-                    tank = FireTankWeapon(ctx, tank);
-                }
-                break;
-
-            case BehaviorTreeLogic.AIAction.MoveTowardsEnemy:
-                if (decision.Path.Count > 0)
-                {
-                    if (decision.TargetTank != null)
-                    {
-                        var distanceToTarget = BehaviorTreeLogic.GetDistance(tank.PositionX, tank.PositionY, decision.TargetTank.Value.PositionX, decision.TargetTank.Value.PositionY);
-                        if (distanceToTarget <= MAX_TARGETING_RANGE)
-                        {
-                            tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
-                        }
-                    }
-                    SetPath(ctx, tank, decision.Path);
-                }
-                break;
-
-            case BehaviorTreeLogic.AIAction.Escape:
-                DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
-                break;
-
-            case BehaviorTreeLogic.AIAction.None:
-                break;
-        }
-
-        return tank;
-    }
-
-    private static void SetPath(ReducerContext ctx, Tank tank, List<(int x, int y)> path)
-    {
-        var pathEntries = path.Select(waypoint => new PathEntry
-        {
-            Position = new Vector2Float(waypoint.x, waypoint.y),
-            ThrottlePercent = 1.0f,
-            Reverse = false
-        }).ToArray();
-
-        var newPathState = new Module.TankPath
-        {
-            TankId = tank.Id,
-            WorldId = tank.WorldId,
-            Path = pathEntries
-        };
-
-        UpsertTankPath(ctx, newPathState);
-    }
-
-    private static void DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
-    {
-        int currentX = (int)tank.PositionX;
-        int currentY = (int)tank.PositionY;
-
-        if (targetX == currentX && targetY == currentY)
-        {
-            return;
-        }
-
-        Vector2 currentPos = new Vector2(currentX, currentY);
-        Vector2 targetPos = new Vector2(targetX, targetY);
-        Vector2 offset = new Vector2(targetPos.X - currentPos.X, targetPos.Y - currentPos.Y);
-
-        Vector2Float rootPos = new Vector2Float(tank.PositionX, tank.PositionY);
-        Vector2Float nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
-
-        PathEntry entry = new()
-        {
-            ThrottlePercent = 1.0f,
-            Position = nextPos,
-            Reverse = false
-        };
-
-        var newPathState = new Module.TankPath
-        {
-            TankId = tank.Id,
-            WorldId = tank.WorldId,
-            Path = [entry]
-        };
-
-        UpsertTankPath(ctx, newPathState);
-    }
-
-    public static Tank EvaluateTutorialAIAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
-    {
-        var pathState = aiContext.GetTankPath(tank.Id);
-        bool isCurrentlyMoving = pathState != null && pathState.Value.Path.Length > 0;
-
-        if (!isCurrentlyMoving)
-        {
-            var traversibilityMap = aiContext.GetTraversibilityMap();
-            if (traversibilityMap != null)
-            {
-                var (targetX, targetY) = FindRandomPositionInSquare(tank, traversibilityMap.Value, aiContext.GetRandom(), 6);
-                DriveTowards(ctx, tank, targetX, targetY);
-            }
-        }
-
-        return tank;
-    }
-
-    private static (int x, int y) FindRandomPositionInSquare(Tank tank, Module.TraversibilityMap traversibilityMap, Random rng, int squareSize)
-    {
-        int currentX = (int)tank.PositionX;
-        int currentY = (int)tank.PositionY;
-
-        int minX = Math.Max(0, currentX - squareSize / 2);
-        int maxX = Math.Min(traversibilityMap.Width - 1, currentX + squareSize / 2);
-        int minY = Math.Max(0, currentY - squareSize / 2);
-        int maxY = Math.Min(traversibilityMap.Height - 1, currentY + squareSize / 2);
-
-        if (minX > maxX || minY > maxY)
-        {
-            return (currentX, currentY);
-        }
-
-        for (int attempt = 0; attempt < MAX_POSITION_SEARCH_ATTEMPTS; attempt++)
-        {
-            int targetX = minX + rng.Next(maxX - minX + 1);
-            int targetY = minY + rng.Next(maxY - minY + 1);
-
-            int index = targetY * traversibilityMap.Width + targetX;
-            if (index >= 0 && index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
-            {
-                return (targetX, targetY);
-            }
-        }
-
-        return (currentX, currentY);
     }
 }
+
