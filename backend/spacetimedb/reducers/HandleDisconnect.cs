@@ -19,6 +19,13 @@ public static partial class Module
             {
                 ctx.Db.tank_fire_state.TankId.Delete(tank.Id);
             }
+
+            var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
+            if (pathState != null)
+            {
+                ctx.Db.tank_path.TankId.Delete(tank.Id);
+            }
+
             ctx.Db.tank.Id.Delete(tank.Id);
             Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} named {tank.Name ?? "Unknown"}");
         }

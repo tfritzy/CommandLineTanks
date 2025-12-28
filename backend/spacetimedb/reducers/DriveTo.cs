@@ -59,9 +59,25 @@ public static partial class Module
             });
         }
 
+        var newPathState = new TankPath
+        {
+            TankId = tank.Id,
+            WorldId = tank.WorldId,
+            Path = pathEntries.ToArray()
+        };
+
+        var existingPath = ctx.Db.tank_path.TankId.Find(tank.Id);
+        if (existingPath != null)
+        {
+            ctx.Db.tank_path.TankId.Update(newPathState);
+        }
+        else
+        {
+            ctx.Db.tank_path.Insert(newPathState);
+        }
+
         tank = tank with
         {
-            Path = pathEntries.ToArray(),
             Velocity = new Vector2Float(0, 0)
         };
 

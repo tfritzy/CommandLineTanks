@@ -27,10 +27,11 @@ public static class BehaviorTreeLogic
         public List<(int x, int y)> Path { get; set; } = new List<(int x, int y)>();
     }
 
-    public static AIDecision EvaluateBehaviorTree(Module.Tank tank, BehaviorTreeAI.AIContext context)
+    public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, BehaviorTreeAI.AIContext context)
     {
         var allTanks = context.GetAllTanks();
-        bool isCurrentlyMoving = tank.Path.Length > 0;
+        var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
+        bool isCurrentlyMoving = pathState != null && pathState.Value.Path.Length > 0;
 
         var nearbyTank = FindNearestTank(tank, allTanks);
         if (nearbyTank != null)
