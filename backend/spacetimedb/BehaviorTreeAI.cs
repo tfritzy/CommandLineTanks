@@ -16,6 +16,7 @@ public static partial class BehaviorTreeAI
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
         public string WorldId;
+        public int TickCount;
     }
 
     [Reducer]
@@ -51,12 +52,15 @@ public static partial class BehaviorTreeAI
                     mutatedTank = RandomAimAI.EvaluateAndMutateTank(ctx, tank, aiContext);
                     break;
                 case AIBehavior.Turret:
-                    mutatedTank = TurretAI.EvaluateAndMutateTank(ctx, tank, aiContext);
+                    mutatedTank = TurretAI.EvaluateAndMutateTank(ctx, tank, aiContext, args.TickCount);
                     break;
             }
 
             ctx.Db.tank.Id.Update(mutatedTank);
         }
+
+        var updatedArgs = args with { TickCount = args.TickCount + 1 };
+        ctx.Db.ScheduledAIUpdate.ScheduledId.Update(updatedArgs);
     }
 }
 

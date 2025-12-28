@@ -131,8 +131,6 @@ import TerrainDetailRow from "./terrain_detail_table";
 export { TerrainDetailRow };
 import TraversibilityMapRow from "./traversibility_map_table";
 export { TraversibilityMapRow };
-import TurretAiStateRow from "./turret_ai_state_table";
-export { TurretAiStateRow };
 import WorldRow from "./world_table";
 export { WorldRow };
 
@@ -205,8 +203,6 @@ import TerrainDetailType from "./terrain_detail_type_type";
 export { TerrainDetailType };
 import TraversibilityMap from "./traversibility_map_type";
 export { TraversibilityMap };
-import TurretAiState from "./turret_ai_state_type";
-export { TurretAiState };
 import Vector2Float from "./vector_2_float_type";
 export { Vector2Float };
 import World from "./world_type";
@@ -557,20 +553,6 @@ const tablesSchema = __schema(
       { name: 'traversibility_map_WorldId_key', constraint: 'unique', columns: ['worldId'] },
     ],
   }, TraversibilityMapRow),
-  __table({
-    name: 'turret_ai_state',
-    indexes: [
-      { name: 'TankId', algorithm: 'btree', columns: [
-        'tankId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
-      ] },
-    ],
-    constraints: [
-      { name: 'turret_ai_state_TankId_key', constraint: 'unique', columns: ['tankId'] },
-    ],
-  }, TurretAiStateRow),
   __table({
     name: 'world',
     indexes: [

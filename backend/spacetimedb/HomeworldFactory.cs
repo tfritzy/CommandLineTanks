@@ -54,7 +54,8 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
-            WorldId = identityString
+            WorldId = identityString,
+            TickCount = 0
         });
 
         ctx.Db.world.Insert(world);

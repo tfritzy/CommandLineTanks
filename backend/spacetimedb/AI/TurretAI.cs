@@ -8,23 +8,22 @@ public static partial class TurretAI
 {
     private const int TILE_SIZE = 6;
     private const float AIM_TOLERANCE = 0.05f;
-    private const ulong TARGET_SWITCH_INTERVAL_MICROS = 5_000_000;
+    private const int TARGET_SWITCH_TICK_INTERVAL = 5;
 
-    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
+    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext, int tickCount)
     {
-        var turretState = ctx.Db.turret_ai_state.TankId.Find(tank.Id);
-        ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        bool shouldSwitch = (tickCount % TARGET_SWITCH_TICK_INTERVAL) == 0;
 
-        if (turretState == null || ShouldSwitchTarget(turretState.Value, currentTime))
+        if (shouldSwitch || tank.Target == null)
         {
-            tank = SelectNewTarget(ctx, tank, aiContext, currentTime);
+            tank = SelectNewTarget(ctx, tank, aiContext);
         }
         else if (tank.Target != null)
         {
             var targetTank = ctx.Db.tank.Id.Find(tank.Target);
             if (targetTank == null || targetTank.Value.Health <= 0 || !IsInSameTile(tank, targetTank.Value))
             {
-                tank = SelectNewTarget(ctx, tank, aiContext, currentTime);
+                tank = SelectNewTarget(ctx, tank, aiContext);
             }
         }
 
@@ -40,21 +39,11 @@ public static partial class TurretAI
         return tank;
     }
 
-    private static bool ShouldSwitchTarget(TurretAIState state, ulong currentTime)
-    {
-        if (state.LastTargetSwitchTime == 0)
-        {
-            return true;
-        }
-        ulong timeSinceLastSwitch = currentTime - state.LastTargetSwitchTime;
-        return timeSinceLastSwitch >= TARGET_SWITCH_INTERVAL_MICROS;
-    }
-
-    private static Tank SelectNewTarget(ReducerContext ctx, Tank tank, AIContext aiContext, ulong currentTime)
+    private static Tank SelectNewTarget(ReducerContext ctx, Tank tank, AIContext aiContext)
     {
         var allTanks = aiContext.GetAllTanks();
         var tanksInTile = allTanks
-            .Where(t => t.Id != tank.Id && t.Health > 0 && IsInSameTile(tank, t))
+            .Where(t => t.Id != tank.Id && t.Health > 0 && t.IsBot && IsInSameTile(tank, t))
             .ToList();
 
         Tank updatedTank = tank;
@@ -67,23 +56,6 @@ public static partial class TurretAI
         else
         {
             updatedTank = tank with { Target = null };
-        }
-
-        var state = new TurretAIState
-        {
-            TankId = tank.Id,
-            WorldId = tank.WorldId,
-            LastTargetSwitchTime = currentTime
-        };
-
-        var existingState = ctx.Db.turret_ai_state.TankId.Find(tank.Id);
-        if (existingState != null)
-        {
-            ctx.Db.turret_ai_state.TankId.Update(state);
-        }
-        else
-        {
-            ctx.Db.turret_ai_state.Insert(state);
         }
 
         return updatedTank;

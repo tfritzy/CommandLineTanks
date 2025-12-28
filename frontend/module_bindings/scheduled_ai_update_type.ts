@@ -14,6 +14,7 @@ export default __t.object("ScheduledAiUpdate", {
   scheduledId: __t.u64(),
   scheduledAt: __t.scheduleAt(),
   worldId: __t.string(),
+  tickCount: __t.i32(),
 });
 
 
