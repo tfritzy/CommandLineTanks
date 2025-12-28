@@ -19,9 +19,10 @@ public static partial class Module
         if (tank.Health <= 0) return tank;
 
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        if (tank.LastFireTime != 0)
+        var fireState = ctx.Db.tank_fire_state.TankId.Find(tank.Id);
+        if (fireState != null && fireState.Value.LastFireTime != 0)
         {
-            ulong timeSinceLastFire = currentTime - tank.LastFireTime;
+            ulong timeSinceLastFire = currentTime - fireState.Value.LastFireTime;
             if (timeSinceLastFire < FIRE_RATE_LIMIT_MICROS) return tank;
         }
 
@@ -88,7 +89,21 @@ public static partial class Module
             }
         }
 
-        tank.LastFireTime = currentTime;
+        var newFireState = new TankFireState
+        {
+            TankId = tank.Id,
+            WorldId = tank.WorldId,
+            LastFireTime = currentTime
+        };
+        if (fireState != null)
+        {
+            ctx.Db.tank_fire_state.TankId.Update(newFireState);
+        }
+        else
+        {
+            ctx.Db.tank_fire_state.Insert(newFireState);
+        }
+
         return tank;
     }
 }

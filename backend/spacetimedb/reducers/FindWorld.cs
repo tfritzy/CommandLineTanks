@@ -36,6 +36,11 @@ public static partial class Module
         var homeworldTanks = ctx.Db.tank.WorldId.Filter(identityString).Where(t => t.Owner == ctx.Sender);
         foreach (var homeworldTank in homeworldTanks)
         {
+            var fireState = ctx.Db.tank_fire_state.TankId.Find(homeworldTank.Id);
+            if (fireState != null)
+            {
+                ctx.Db.tank_fire_state.TankId.Delete(homeworldTank.Id);
+            }
             ctx.Db.tank.Id.Delete(homeworldTank.Id);
             Log.Info($"Deleted homeworld tank {homeworldTank.Id} for player {player.Value.Name}");
         }

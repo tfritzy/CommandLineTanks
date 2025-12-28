@@ -102,8 +102,6 @@ public static partial class Module
         public Gun[] Guns;
         public int SelectedGunIndex;
 
-        public ulong LastFireTime;
-
         public long RemainingSmokescreenCooldownMicros;
 
         public bool HasShield;
@@ -280,5 +278,17 @@ public static partial class Module
         public ulong PlantingStartedAt;
 
         public Vector2Float Velocity;
+    }
+
+    [Table(Name = "tank_fire_state", Public = true)]
+    public partial struct TankFireState
+    {
+        [PrimaryKey]
+        public string TankId;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public ulong LastFireTime;
     }
 }
