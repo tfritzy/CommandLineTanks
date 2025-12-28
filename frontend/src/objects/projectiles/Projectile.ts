@@ -1,5 +1,8 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 
+const INTERPOLATION_DELAY = 100;
+const BUFFER_DURATION = 200;
+
 export abstract class Projectile {
   public static readonly SHADOW_OFFSET = 4;
   protected x: number;
@@ -11,6 +14,7 @@ export abstract class Projectile {
   protected explosionRadius: number | undefined;
   protected trackingStrength: number;
   protected trackingRadius: number;
+  private positionBuffer: Array<{ x: number; y: number; timestamp: number }> = [];
 
   constructor(
     x: number,
@@ -47,8 +51,19 @@ export abstract class Projectile {
   ): void;
 
   public setPosition(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+    this.positionBuffer.push({
+      x,
+      y,
+      timestamp: performance.now()
+    });
+
+    const cutoffTime = performance.now() - BUFFER_DURATION;
+    this.positionBuffer = this.positionBuffer.filter(p => p.timestamp > cutoffTime);
+
+    if (this.positionBuffer.length === 1) {
+      this.x = x;
+      this.y = y;
+    }
   }
 
   public setVelocity(velocityX: number, velocityY: number) {
@@ -57,6 +72,28 @@ export abstract class Projectile {
   }
 
   public update(deltaTime: number, tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
+    if (this.positionBuffer.length >= 2) {
+      const renderTime = performance.now() - INTERPOLATION_DELAY;
+
+      let prev = this.positionBuffer[0];
+      let next = this.positionBuffer[1];
+
+      for (let i = 0; i < this.positionBuffer.length - 1; i++) {
+        if (this.positionBuffer[i + 1].timestamp > renderTime) {
+          prev = this.positionBuffer[i];
+          next = this.positionBuffer[i + 1];
+          break;
+        }
+      }
+
+      const total = next.timestamp - prev.timestamp;
+      const elapsed = renderTime - prev.timestamp;
+      const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
+
+      this.x = prev.x + (next.x - prev.x) * t;
+      this.y = prev.y + (next.y - prev.y) * t;
+    }
+
     if (this.trackingStrength > 0 && this.trackingRadius > 0 && tankManager) {
       const speed = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
       
@@ -96,9 +133,6 @@ export abstract class Projectile {
         this.velocityY = Math.sin(newAngle) * speed;
       }
     }
-    
-    this.x += this.velocityX * deltaTime;
-    this.y += this.velocityY * deltaTime;
   }
 
   public getX(): number {
