@@ -186,6 +186,9 @@ export class TankManager {
   }
 
   buildTank(tank: Infer<typeof TankRow>) {
+    const connection = getConnection();
+    const isPlayerTank = connection?.identity && tank.owner.isEqual(connection.identity);
+    
     const newTank = new Tank(
       tank.id,
       tank.positionX,
@@ -204,6 +207,11 @@ export class TankManager {
       tank.hasShield,
       tank.remainingImmunityMicros
     );
+    
+    if (isPlayerTank) {
+      newTank.setIsPlayerTank(true);
+    }
+    
     this.tanks.set(tank.id, newTank);
   }
 
