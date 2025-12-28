@@ -15,6 +15,7 @@ public static partial class Module
         DeleteTankPathIfExists(ctx, tank.Id);
 
         tank.Velocity = new Vector2Float(0, 0);
+        tank.UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         ctx.Db.tank.Id.Update(tank);
         Log.Info($"Tank {tank.Name} stopped");
     }
