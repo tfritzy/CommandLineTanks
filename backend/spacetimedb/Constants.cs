@@ -119,7 +119,7 @@ public static partial class Module
         TrackingStrength = 0,
         TrackingRadius = 0,
         ProjectileType = ProjectileType.Grenade,
-        LifetimeSeconds = 2.5f,
+        LifetimeSeconds = 1.5f,
         MaxCollisions = 9999,
         PassThroughTerrain = false,
         CollisionRadius = 0.1f,
