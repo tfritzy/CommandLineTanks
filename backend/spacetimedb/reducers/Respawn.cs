@@ -12,6 +12,8 @@ public static partial class Module
 
         if (tank.Health > 0) return;
 
+        DeleteTankPathIfExists(ctx, tank.Id);
+
         var respawnedTank = RespawnTank(ctx, tank, worldId, tank.Alliance);
         ctx.Db.tank.Id.Update(respawnedTank);
         Log.Info($"Tank {tank.Name} respawned at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");

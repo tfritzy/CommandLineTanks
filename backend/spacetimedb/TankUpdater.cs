@@ -221,9 +221,11 @@ public static partial class TankUpdater
                 }
             }
 
-            if (tank.Path.Length > 0)
+            var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
+            if (pathState != null && pathState.Value.Path.Length > 0)
             {
-                var targetPos = tank.Path[0];
+                var currentPath = pathState.Value.Path;
+                var targetPos = currentPath[0];
                 var deltaX = targetPos.Position.X - tank.PositionX;
                 var deltaY = targetPos.Position.Y - tank.PositionY;
                 var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -234,8 +236,8 @@ public static partial class TankUpdater
 
                 if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
                 {
-                    var newPath = new PathEntry[tank.Path.Length - 1];
-                    Array.Copy(tank.Path, 1, newPath, 0, newPath.Length);
+                    var newPath = new PathEntry[currentPath.Length - 1];
+                    Array.Copy(currentPath, 1, newPath, 0, newPath.Length);
 
                     if (newPath.Length > 0)
                     {
@@ -255,8 +257,7 @@ public static partial class TankUpdater
                             {
                                 PositionX = targetPos.Position.X,
                                 PositionY = targetPos.Position.Y,
-                                Velocity = new Vector2Float((float)(nextDirX * nextMoveSpeed), (float)(nextDirY * nextMoveSpeed)),
-                                Path = newPath
+                                Velocity = new Vector2Float((float)(nextDirX * nextMoveSpeed), (float)(nextDirY * nextMoveSpeed))
                             };
                         }
                         else
@@ -265,10 +266,11 @@ public static partial class TankUpdater
                             {
                                 PositionX = targetPos.Position.X,
                                 PositionY = targetPos.Position.Y,
-                                Velocity = new Vector2Float(0, 0),
-                                Path = newPath
+                                Velocity = new Vector2Float(0, 0)
                             };
                         }
+
+                        ctx.Db.tank_path.TankId.Update(pathState.Value with { Path = newPath });
                     }
                     else
                     {
@@ -276,9 +278,10 @@ public static partial class TankUpdater
                         {
                             PositionX = targetPos.Position.X,
                             PositionY = targetPos.Position.Y,
-                            Velocity = new Vector2Float(0, 0),
-                            Path = newPath
+                            Velocity = new Vector2Float(0, 0)
                         };
+
+                        ctx.Db.tank_path.TankId.Delete(tank.Id);
                     }
                     needsUpdate = true;
                 }

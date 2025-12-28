@@ -7,7 +7,10 @@ public static partial class Module
     {
         if (tank.Health <= 0) return;
 
-        Vector2Float rootPos = tank.Path.Length > 0 && append ? tank.Path[^1].Position : new Vector2Float(tank.PositionX, tank.PositionY);
+        var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
+        PathEntry[] currentPath = pathState?.Path ?? [];
+
+        Vector2Float rootPos = currentPath.Length > 0 && append ? currentPath[^1].Position : new Vector2Float(tank.PositionX, tank.PositionY);
         Vector2Float nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
 
         PathEntry entry = new()
@@ -17,19 +20,28 @@ public static partial class Module
             Reverse = false
         };
 
+        PathEntry[] newPath;
         if (append)
         {
-            tank = tank with { Path = [.. tank.Path, entry] };
+            newPath = [.. currentPath, entry];
         }
         else
         {
+            newPath = [entry];
             tank = tank with
             {
-                Path = [entry],
                 Velocity = new Vector2Float(0, 0)
             };
+            ctx.Db.tank.Id.Update(tank);
         }
 
-        ctx.Db.tank.Id.Update(tank);
+        var newPathState = new TankPath
+        {
+            TankId = tank.Id,
+            WorldId = tank.WorldId,
+            Path = newPath
+        };
+
+        UpsertTankPath(ctx, newPathState);
     }
 }

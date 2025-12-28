@@ -86,7 +86,6 @@ public static partial class Module
         public string? Target;
         public float TargetLead;
 
-        public PathEntry[] Path;
         public float TopSpeed;
         public float TurretRotationSpeed;
 
@@ -290,5 +289,17 @@ public static partial class Module
         public string WorldId;
 
         public ulong LastFireTime;
+    }
+
+    [Table(Name = "tank_path", Public = true)]
+    public partial struct TankPath
+    {
+        [PrimaryKey]
+        public string TankId;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public PathEntry[] Path;
     }
 }

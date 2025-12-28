@@ -26,6 +26,7 @@ public static partial class BehaviorTreeAI
         private List<Pickup>? _allPickups;
         private TraversibilityMap? _traversibilityMap;
         private bool _traversibilityMapLoaded;
+        private Dictionary<string, Module.TankPath?>? _tankPaths;
 
         public AIContext(ReducerContext ctx, string worldId)
         {
@@ -65,6 +66,21 @@ public static partial class BehaviorTreeAI
             }
             return _traversibilityMap;
         }
+
+        public Module.TankPath? GetTankPath(string tankId)
+        {
+            if (_tankPaths == null)
+            {
+                _tankPaths = new Dictionary<string, Module.TankPath?>();
+            }
+
+            if (!_tankPaths.ContainsKey(tankId))
+            {
+                _tankPaths[tankId] = _ctx.Db.tank_path.TankId.Find(tankId);
+            }
+
+            return _tankPaths[tankId];
+        }
     }
 
     [Reducer]
@@ -89,14 +105,14 @@ public static partial class BehaviorTreeAI
 
     public static Tank EvaluateAIAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
     {
-        var decision = BehaviorTreeLogic.EvaluateBehaviorTree(tank, aiContext);
+        var decision = BehaviorTreeLogic.EvaluateBehaviorTree(ctx, tank, aiContext);
 
         switch (decision.Action)
         {
             case BehaviorTreeLogic.AIAction.MoveTowardsPickup:
                 if (decision.TargetPickup != null && decision.Path.Count > 0)
                 {
-                    tank = SetPath(tank, decision.Path);
+                    SetPath(ctx, tank, decision.Path);
                 }
                 break;
 
@@ -114,9 +130,10 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.StopMoving:
                 if (decision.TargetTank != null)
                 {
+                    DeleteTankPathIfExists(ctx, tank.Id);
+
                     tank = tank with
                     {
-                        Path = [],
                         Velocity = new Vector2Float(0, 0)
                     };
 
@@ -136,12 +153,12 @@ public static partial class BehaviorTreeAI
                             tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
                         }
                     }
-                    tank = SetPath(tank, decision.Path);
+                    SetPath(ctx, tank, decision.Path);
                 }
                 break;
 
             case BehaviorTreeLogic.AIAction.Escape:
-                tank = DriveTowards(tank, decision.TargetX, decision.TargetY);
+                DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
                 break;
 
             case BehaviorTreeLogic.AIAction.None:
@@ -151,7 +168,7 @@ public static partial class BehaviorTreeAI
         return tank;
     }
 
-    private static Tank SetPath(Tank tank, List<(int x, int y)> path)
+    private static void SetPath(ReducerContext ctx, Tank tank, List<(int x, int y)> path)
     {
         var pathEntries = path.Select(waypoint => new PathEntry
         {
@@ -160,21 +177,24 @@ public static partial class BehaviorTreeAI
             Reverse = false
         }).ToArray();
 
-        return tank with
+        var newPathState = new Module.TankPath
         {
-            Path = pathEntries,
-            Velocity = new Vector2Float(0, 0)
+            TankId = tank.Id,
+            WorldId = tank.WorldId,
+            Path = pathEntries
         };
+
+        UpsertTankPath(ctx, newPathState);
     }
 
-    private static Tank DriveTowards(Tank tank, int targetX, int targetY)
+    private static void DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
     {
         int currentX = (int)tank.PositionX;
         int currentY = (int)tank.PositionY;
 
         if (targetX == currentX && targetY == currentY)
         {
-            return tank;
+            return;
         }
 
         Vector2 currentPos = new Vector2(currentX, currentY);
@@ -191,10 +211,13 @@ public static partial class BehaviorTreeAI
             Reverse = false
         };
 
-        return tank with
+        var newPathState = new Module.TankPath
         {
-            Path = [entry],
-            Velocity = new Vector2Float(0, 0)
+            TankId = tank.Id,
+            WorldId = tank.WorldId,
+            Path = [entry]
         };
+
+        UpsertTankPath(ctx, newPathState);
     }
 }

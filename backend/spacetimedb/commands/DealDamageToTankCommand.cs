@@ -31,6 +31,8 @@ public static partial class Module
 
         if (newHealth <= 0)
         {
+            DeleteTankPathIfExists(ctx, tank.Id);
+
             var killedTank = tank with
             {
                 Health = newHealth,
