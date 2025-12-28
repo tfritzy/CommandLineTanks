@@ -120,7 +120,7 @@ public static partial class Types
     {
         None,
         GameAI,
-        Tutorial
+        Tilebound
     }
 
     [Type]

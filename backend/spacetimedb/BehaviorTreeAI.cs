@@ -39,8 +39,8 @@ public static partial class BehaviorTreeAI
                 case AIBehavior.GameAI:
                     mutatedTank = GameAI.EvaluateAndMutateTank(ctx, tank, aiContext);
                     break;
-                case AIBehavior.Tutorial:
-                    mutatedTank = TutorialAI.EvaluateAndMutateTank(ctx, tank, aiContext);
+                case AIBehavior.Tilebound:
+                    mutatedTank = TileboundAI.EvaluateAndMutateTank(ctx, tank, aiContext);
                     break;
             }
 

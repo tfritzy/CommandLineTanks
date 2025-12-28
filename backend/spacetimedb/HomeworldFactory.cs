@@ -158,7 +158,7 @@ public static partial class Module
                 1,
                 x + 0.5f,
                 y + 0.5f,
-                AIBehavior.Tutorial
+                AIBehavior.Tilebound
             );
             enemyTank.Id = GenerateId(ctx, "enmy");
             ctx.Db.tank.Insert(enemyTank);
