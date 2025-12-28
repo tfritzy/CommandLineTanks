@@ -54,6 +54,7 @@ export default __t.object("Projectile", {
   get recentlyHitTanks() {
     return __t.array(DamagedTank);
   },
+  updatedAt: __t.u64(),
 });
 
 

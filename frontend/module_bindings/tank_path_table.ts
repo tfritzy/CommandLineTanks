@@ -13,9 +13,9 @@ import PathEntry from "./path_entry_type";
 
 
 export default __t.row({
-  tankId: __t.string().primaryKey().name("TankId"),
-  worldId: __t.string().name("WorldId"),
+  tankId: __t.string().primaryKey(),
+  worldId: __t.string(),
   get path() {
-    return __t.array(PathEntry).name("Path");
+    return __t.array(PathEntry);
   },
 });

@@ -604,7 +604,8 @@ public static partial class ProjectileUpdater
             projectile = projectile with
             {
                 PositionX = (float)(projectile.PositionX + projectile.Velocity.X * deltaTime),
-                PositionY = (float)(projectile.PositionY + projectile.Velocity.Y * deltaTime)
+                PositionY = (float)(projectile.PositionY + projectile.Velocity.Y * deltaTime),
+                UpdatedAt = currentTime
             };
 
             bool collided;

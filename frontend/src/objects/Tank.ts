@@ -1,7 +1,7 @@
 import { type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
-import { TEAM_COLORS } from "../constants";
+import { TEAM_COLORS, INTERPOLATION_DELAY, BUFFER_DURATION } from "../constants";
 import {
   drawTankShadow,
   drawTankBody,
@@ -14,9 +14,6 @@ type PathEntry = {
   position: { x: number; y: number };
   throttlePercent: number;
 };
-
-const INTERPOLATION_DELAY = 100;
-const BUFFER_DURATION = 200;
 
 export class Tank {
   public arrayIndex: number = -1;

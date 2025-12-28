@@ -54,4 +54,5 @@ export default __t.row({
   get recentlyHitTanks() {
     return __t.array(DamagedTank);
   },
+  updatedAt: __t.u64(),
 });
