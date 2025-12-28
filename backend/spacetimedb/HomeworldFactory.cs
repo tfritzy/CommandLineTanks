@@ -160,6 +160,8 @@ public static partial class Module
             tankIndex++;
         }
 
+        SpawnTurretDemonstrationArea(ctx, identityString, 10, 30);
+
         var pickups = new[]
         {
             PickupType.TripleShooter,
@@ -288,5 +290,43 @@ public static partial class Module
         );
         enemyTank.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(enemyTank);
+    }
+
+    private static void SpawnTurretDemonstrationArea(ReducerContext ctx, string worldId, int centerX, int centerY)
+    {
+        var turretName = AllocateTankName(ctx, worldId) ?? "Turret";
+        var turretTank = BuildTank(
+            ctx,
+            worldId,
+            Identity.From(new byte[32]),
+            turretName,
+            "",
+            1,
+            centerX + 0.5f,
+            centerY + 0.5f,
+            AIBehavior.Turret
+        );
+        turretTank.Id = GenerateId(ctx, "enmy");
+        ctx.Db.tank.Insert(turretTank);
+
+        var tileboundPositions = new[] { (centerX + 2, centerY + 2), (centerX + 3, centerY + 3) };
+        foreach (var (x, y) in tileboundPositions)
+        {
+            SpawnTileboundTank(ctx, worldId, x, y);
+        }
+
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = GenerateId(ctx, "td"),
+            WorldId = worldId,
+            PositionX = centerX + 0.5f,
+            PositionY = centerY - 2.5f,
+            GridX = centerX,
+            GridY = centerY - 2,
+            Type = TerrainDetailType.Label,
+            Health = 100,
+            Label = "Turret AI Demo",
+            Rotation = 0
+        });
     }
 }
