@@ -167,16 +167,38 @@ public static partial class Module
 
             if (tankIndex == 0)
             {
-                var dummyPositions = new[]
+                int dummyDistance = 5;
+                int dummiesPerSide = 3;
+                
+                for (int i = 0; i < dummiesPerSide * 4; i++)
                 {
-                    (x - 3, y), (x + 3, y),
-                    (x, y - 3), (x, y + 3),
-                    (x - 2, y - 2), (x + 2, y - 2),
-                    (x - 2, y + 2), (x + 2, y + 2)
-                };
+                    int side = i / dummiesPerSide;
+                    int positionOnSide = i % dummiesPerSide;
+                    int offset = (positionOnSide - dummiesPerSide / 2) * 2;
+                    
+                    int dx = x;
+                    int dy = y;
+                    
+                    switch (side)
+                    {
+                        case 0:
+                            dx = x + offset;
+                            dy = y - dummyDistance;
+                            break;
+                        case 1:
+                            dx = x + dummyDistance;
+                            dy = y + offset;
+                            break;
+                        case 2:
+                            dx = x + offset;
+                            dy = y + dummyDistance;
+                            break;
+                        case 3:
+                            dx = x - dummyDistance;
+                            dy = y + offset;
+                            break;
+                    }
 
-                foreach (var (dx, dy) in dummyPositions)
-                {
                     if (dx >= 0 && dx < worldSize && dy >= 0 && dy < worldSize)
                     {
                         ctx.Db.terrain_detail.Insert(new TerrainDetail
