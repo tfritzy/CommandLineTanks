@@ -89,10 +89,44 @@ public static partial class TileboundAI
 
         UpsertTankPath(ctx, newPathState);
 
+        var (direction, distance) = OffsetToDirectionAndDistance(offset.X, offset.Y);
         var updatedTank = tank with
         {
-            Message = $"drive {offset.X} {-offset.Y}"
+            Message = $"drive {direction} {distance}"
         };
         ctx.Db.tank.Id.Update(updatedTank);
+    }
+
+    private static (string direction, int distance) OffsetToDirectionAndDistance(int offsetX, int offsetY)
+    {
+        if (offsetX == 0 && offsetY == 0)
+        {
+            return ("north", 0);
+        }
+
+        int absX = Math.Abs(offsetX);
+        int absY = Math.Abs(offsetY);
+
+        if (absX > absY * 2)
+        {
+            return (offsetX > 0 ? "east" : "west", absX);
+        }
+        else if (absY > absX * 2)
+        {
+            return (offsetY > 0 ? "south" : "north", absY);
+        }
+        else
+        {
+            int distance = Math.Max(absX, absY);
+            
+            if (offsetX > 0 && offsetY < 0)
+                return ("northeast", distance);
+            else if (offsetX > 0 && offsetY > 0)
+                return ("southeast", distance);
+            else if (offsetX < 0 && offsetY > 0)
+                return ("southwest", distance);
+            else
+                return ("northwest", distance);
+        }
     }
 }

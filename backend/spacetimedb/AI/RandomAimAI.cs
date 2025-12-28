@@ -15,29 +15,56 @@ public static partial class RandomAimAI
         {
             tank = FireTankWeapon(ctx, tank);
             
-            float targetAngle = GetRandomAngle(aiContext.GetRandom());
-            float targetAngleDegrees = (float)(-targetAngle * 180.0 / Math.PI);
+            var (targetAngle, directionName) = GetRandomAngle(aiContext.GetRandom());
+            string message;
+            if (directionName != null)
+            {
+                message = $"aim {directionName}";
+            }
+            else
+            {
+                float targetAngleDegrees = (float)(-targetAngle * 180.0 / Math.PI);
+                message = $"aim {targetAngleDegrees:F0}";
+            }
+            
             tank = tank with
             {
                 TargetTurretRotation = NormalizeAngleToTarget(targetAngle, tank.TurretRotation),
                 Target = null,
-                Message = $"aim {targetAngleDegrees:F0}"
+                Message = message
             };
         }
 
         return tank;
     }
 
-    private static float GetRandomAngle(Random rng)
+    private static (float angle, string? directionName) GetRandomAngle(Random rng)
     {
         if (rng.Next(2) == 0)
         {
-            return DirectionToAngle((Direction)rng.Next(8));
+            var direction = (Direction)rng.Next(8);
+            return (DirectionToAngle(direction), DirectionToName(direction));
         }
         else
         {
-            return (float)(rng.NextDouble() * Math.PI * 2);
+            return ((float)(rng.NextDouble() * Math.PI * 2), null);
         }
+    }
+
+    private static string DirectionToName(Direction direction)
+    {
+        return direction switch
+        {
+            Direction.North => "north",
+            Direction.NorthEast => "northeast",
+            Direction.East => "east",
+            Direction.SouthEast => "southeast",
+            Direction.South => "south",
+            Direction.SouthWest => "southwest",
+            Direction.West => "west",
+            Direction.NorthWest => "northwest",
+            _ => "north"
+        };
     }
 
     private static float DirectionToAngle(Direction direction)
