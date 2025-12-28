@@ -18,7 +18,8 @@ public static partial class PickupSpawner
         PickupType.Rocket,
         PickupType.Moag,
         PickupType.SpiderMine,
-        PickupType.Shield
+        PickupType.Shield,
+        PickupType.Sniper
     };
 
     public static readonly PickupType[] NON_HEALTH_PICKUP_TYPES = PICKUP_TYPES
@@ -33,7 +34,8 @@ public static partial class PickupSpawner
         { PickupType.Grenade, Module.GRENADE_GUN },
         { PickupType.Rocket, Module.ROCKET_GUN },
         { PickupType.Moag, Module.MOAG_GUN },
-        { PickupType.SpiderMine, Module.SPIDER_MINE_GUN }
+        { PickupType.SpiderMine, Module.SPIDER_MINE_GUN },
+        { PickupType.Sniper, Module.SNIPER_GUN }
     };
 
     [Table(Scheduled = nameof(SpawnPickup))]
