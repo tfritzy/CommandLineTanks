@@ -123,7 +123,8 @@ public static partial class Types
     {
         None,
         GameAI,
-        Tilebound
+        Tilebound,
+        RandomAim
     }
 
     [Type]

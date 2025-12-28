@@ -146,22 +146,18 @@ public static partial class Module
         });
 
         var enemyTankPositions = new[] { (15, 15), (25, 15), (15, 25), (25, 25) };
+        int tankIndex = 0;
         foreach (var (x, y) in enemyTankPositions)
         {
-            var tankName = AllocateTankName(ctx, identityString) ?? "Enemy";
-            var enemyTank = BuildTank(
-                ctx,
-                identityString,
-                Identity.From(new byte[32]),
-                tankName,
-                "",
-                1,
-                x + 0.5f,
-                y + 0.5f,
-                AIBehavior.Tilebound
-            );
-            enemyTank.Id = GenerateId(ctx, "enmy");
-            ctx.Db.tank.Insert(enemyTank);
+            if (tankIndex == 0)
+            {
+                SpawnRandomAimTankWithDummies(ctx, identityString, x, y, worldSize);
+            }
+            else
+            {
+                SpawnTileboundTank(ctx, identityString, x, y);
+            }
+            tankIndex++;
         }
 
         var pickups = new[]
@@ -207,5 +203,90 @@ public static partial class Module
         });
 
         Log.Info($"Created homeworld for identity {identityString}");
+    }
+
+    private static void SpawnRandomAimTankWithDummies(ReducerContext ctx, string worldId, int x, int y, int worldSize)
+    {
+        var tankName = AllocateTankName(ctx, worldId) ?? "Enemy";
+        var enemyTank = BuildTank(
+            ctx,
+            worldId,
+            Identity.From(new byte[32]),
+            tankName,
+            "",
+            1,
+            x + 0.5f,
+            y + 0.5f,
+            AIBehavior.RandomAim
+        );
+        enemyTank.Id = GenerateId(ctx, "enmy");
+        ctx.Db.tank.Insert(enemyTank);
+
+        int dummyDistance = 5;
+        int dummiesPerSide = 3;
+
+        for (int i = 0; i < dummiesPerSide * 4; i++)
+        {
+            int side = i / dummiesPerSide;
+            int positionOnSide = i % dummiesPerSide;
+            int offset = (positionOnSide - dummiesPerSide / 2) * 2;
+
+            int dx = x;
+            int dy = y;
+
+            switch (side)
+            {
+                case 0:
+                    dx = x + offset;
+                    dy = y - dummyDistance;
+                    break;
+                case 1:
+                    dx = x + dummyDistance;
+                    dy = y + offset;
+                    break;
+                case 2:
+                    dx = x + offset;
+                    dy = y + dummyDistance;
+                    break;
+                case 3:
+                    dx = x - dummyDistance;
+                    dy = y + offset;
+                    break;
+            }
+
+            if (dx >= 0 && dx < worldSize && dy >= 0 && dy < worldSize)
+            {
+                ctx.Db.terrain_detail.Insert(new TerrainDetail
+                {
+                    Id = GenerateId(ctx, "td"),
+                    WorldId = worldId,
+                    PositionX = dx + 0.5f,
+                    PositionY = dy + 0.5f,
+                    GridX = dx,
+                    GridY = dy,
+                    Type = TerrainDetailType.TargetDummy,
+                    Health = 100,
+                    Rotation = 0
+                });
+            }
+        }
+    }
+
+    private static void SpawnTileboundTank(ReducerContext ctx, string worldId, int x, int y)
+    {
+        var tankName = AllocateTankName(ctx, worldId) ?? "Enemy";
+        var enemyTank = BuildTank(
+            ctx,
+            worldId,
+            Identity.From(new byte[32]),
+            tankName,
+            "",
+            1,
+            x + 0.5f,
+            y + 0.5f,
+            AIBehavior.Tilebound
+        );
+        enemyTank.Id = GenerateId(ctx, "enmy");
+        ctx.Db.tank.Insert(enemyTank);
     }
 }

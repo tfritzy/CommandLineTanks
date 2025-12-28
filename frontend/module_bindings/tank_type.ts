@@ -10,6 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import Vector2Float from "./vector_2_float_type";
+import AiBehavior from "./ai_behavior_type";
 import Gun from "./gun_type";
 
 
@@ -20,6 +21,9 @@ export default __t.object("Tank", {
   name: __t.string(),
   joinCode: __t.option(__t.string()),
   isBot: __t.bool(),
+  get aiBehavior() {
+    return AiBehavior;
+  },
   alliance: __t.i32(),
   health: __t.i32(),
   maxHealth: __t.i32(),

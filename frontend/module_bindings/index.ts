@@ -135,6 +135,8 @@ import WorldRow from "./world_table";
 export { WorldRow };
 
 // Import and reexport all types
+import AiBehavior from "./ai_behavior_type";
+export { AiBehavior };
 import BaseTerrain from "./base_terrain_type";
 export { BaseTerrain };
 import DamagedTank from "./damaged_tank_type";
