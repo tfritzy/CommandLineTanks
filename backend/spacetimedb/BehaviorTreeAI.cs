@@ -22,15 +22,10 @@ public static partial class BehaviorTreeAI
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
         var aiContext = new AIContext(ctx, args.WorldId);
-        var allTanks = ctx.Db.tank.WorldId.Filter(args.WorldId).ToList();
+        var aiTanks = ctx.Db.tank.WorldId_IsBot.Filter((args.WorldId, true)).ToList();
 
-        foreach (var tank in allTanks)
+        foreach (var tank in aiTanks)
         {
-            if (!tank.AIBehavior.IsAI())
-            {
-                continue;
-            }
-
             if (tank.Health <= 0)
             {
                 var respawnedTank = RespawnTank(ctx, tank, args.WorldId, tank.Alliance);

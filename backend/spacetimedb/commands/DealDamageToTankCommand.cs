@@ -50,7 +50,7 @@ public static partial class Module
                 };
                 ctx.Db.tank.Id.Update(updatedShooterTank);
 
-                var killeeName = tank.AIBehavior != AIBehavior.None ? $"[Bot] {tank.Name}" : tank.Name;
+                var killeeName = tank.IsBot ? $"[Bot] {tank.Name}" : tank.Name;
                 ctx.Db.kills.Insert(new Kill
                 {
                     Id = GenerateId(ctx, "k"),

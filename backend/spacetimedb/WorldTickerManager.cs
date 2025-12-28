@@ -126,7 +126,7 @@ public static partial class Module
         var tanks = new List<Module.Tank>();
         foreach (var tank in ctx.Db.tank.WorldId.Filter(args.WorldId))
         {
-            if (tank.AIBehavior == AIBehavior.None)
+            if (!tank.IsBot)
             {
                 tanks.Add(tank);
             }

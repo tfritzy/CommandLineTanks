@@ -56,6 +56,7 @@ public static partial class Module
             Owner = owner,
             Name = name,
             JoinCode = joinCode,
+            IsBot = aiBehavior != AIBehavior.None,
             AIBehavior = aiBehavior,
             Alliance = alliance,
             Health = TANK_HEALTH,
