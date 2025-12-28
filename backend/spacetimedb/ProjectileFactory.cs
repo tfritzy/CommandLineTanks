@@ -38,7 +38,8 @@ public static partial class Module
             Damping = gun.Damping,
             Bounce = gun.Bounce,
             RecentlyDamagedTiles = new DamagedTile[0],
-            RecentlyHitTanks = new DamagedTank[0]
+            RecentlyHitTanks = new DamagedTank[0],
+            UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
         ctx.Db.projectile.Insert(projectile);

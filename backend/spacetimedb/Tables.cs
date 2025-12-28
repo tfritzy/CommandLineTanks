@@ -159,6 +159,7 @@ public static partial class Module
         public bool Bounce;
         public DamagedTile[] RecentlyDamagedTiles;
         public DamagedTank[] RecentlyHitTanks;
+        public ulong UpdatedAt;
     }
 
     [Table(Name = "score", Public = true)]
