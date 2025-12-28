@@ -9,10 +9,13 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import PathEntry from "./path_entry_type";
+
 
 export default __t.row({
-  scheduledId: __t.u64().primaryKey().name("ScheduledId"),
-  scheduledAt: __t.scheduleAt().name("ScheduledAt"),
+  tankId: __t.string().primaryKey().name("TankId"),
   worldId: __t.string().name("WorldId"),
-  smokeCloudId: __t.string().name("SmokeCloudId"),
+  get path() {
+    return __t.array(PathEntry).name("Path");
+  },
 });

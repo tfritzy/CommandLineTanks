@@ -11,12 +11,12 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  worldId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  collisionRegionX: __t.i32(),
-  collisionRegionY: __t.i32(),
-  spawnedAt: __t.u64(),
-  radius: __t.f32(),
+  id: __t.string().primaryKey().name("Id"),
+  worldId: __t.string().name("WorldId"),
+  positionX: __t.f32().name("PositionX"),
+  positionY: __t.f32().name("PositionY"),
+  collisionRegionX: __t.i32().name("CollisionRegionX"),
+  collisionRegionY: __t.i32().name("CollisionRegionY"),
+  spawnedAt: __t.u64().name("SpawnedAt"),
+  radius: __t.f32().name("Radius"),
 });

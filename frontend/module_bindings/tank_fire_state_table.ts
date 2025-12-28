@@ -11,7 +11,7 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  tankId: __t.string().primaryKey(),
-  worldId: __t.string(),
-  lastFireTime: __t.u64(),
+  tankId: __t.string().primaryKey().name("TankId"),
+  worldId: __t.string().name("WorldId"),
+  lastFireTime: __t.u64().name("LastFireTime"),
 });

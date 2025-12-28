@@ -14,18 +14,18 @@ import GameState from "./game_state_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  name: __t.string(),
-  createdAt: __t.u64(),
-  width: __t.i32(),
-  height: __t.i32(),
+  id: __t.string().primaryKey().name("Id"),
+  name: __t.string().name("Name"),
+  createdAt: __t.u64().name("CreatedAt"),
+  width: __t.i32().name("Width"),
+  height: __t.i32().name("Height"),
   get baseTerrainLayer() {
-    return __t.array(BaseTerrain);
+    return __t.array(BaseTerrain).name("BaseTerrainLayer");
   },
   get gameState() {
-    return GameState;
+    return GameState.name("GameState");
   },
-  isHomeWorld: __t.bool(),
-  gameStartedAt: __t.u64(),
-  gameDurationMicros: __t.i64(),
+  isHomeWorld: __t.bool().name("IsHomeWorld"),
+  gameStartedAt: __t.u64().name("GameStartedAt"),
+  gameDurationMicros: __t.i64().name("GameDurationMicros"),
 });

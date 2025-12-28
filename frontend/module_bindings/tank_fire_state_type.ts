@@ -16,3 +16,4 @@ export default __t.object("TankFireState", {
   lastFireTime: __t.u64(),
 });
 
+
