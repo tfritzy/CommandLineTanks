@@ -421,6 +421,7 @@ public static partial class TankUpdater
 
             if (needsUpdate)
             {
+                tank = tank with { UpdatedAt = currentTime };
                 ctx.Db.tank.Id.Update(tank);
             }
         }

@@ -116,6 +116,8 @@ public static partial class Module
         public bool IsRepairing;
 
         public ulong RepairStartedAt;
+
+        public ulong UpdatedAt;
     }
 
     [Table(Name = "projectile", Public = true)]

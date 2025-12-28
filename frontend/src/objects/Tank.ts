@@ -37,7 +37,7 @@ export class Tank {
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
   private isPlayerTank: boolean = false;
-  private positionBuffer: Array<{ x: number; y: number; timestamp: number }> =
+  private positionBuffer: Array<{ x: number; y: number; serverTimestampMs: number }> =
     [];
 
   constructor(
@@ -127,18 +127,18 @@ export class Tank {
     drawTankPath(ctx, this.x, this.y, this.path, lineColor, dotColor);
   }
 
-  public setPosition(x: number, y: number) {
-    const now = performance.now();
+  public setPosition(x: number, y: number, serverTimestampMicros: bigint) {
+    const serverTimestampMs = Number(serverTimestampMicros / 1000n);
 
     this.positionBuffer.push({
       x,
       y,
-      timestamp: now,
+      serverTimestampMs,
     });
 
-    const cutoffTime = now - BUFFER_DURATION;
+    const cutoffTime = serverTimestampMs - BUFFER_DURATION;
     this.positionBuffer = this.positionBuffer.filter(
-      (p) => p.timestamp > cutoffTime
+      (p) => p.serverTimestampMs > cutoffTime
     );
   }
 
@@ -202,13 +202,14 @@ export class Tank {
       return;
     }
 
-    const renderTime = performance.now() - INTERPOLATION_DELAY;
+    const latestServerTime = this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs;
+    const renderTime = latestServerTime - INTERPOLATION_DELAY;
 
     let prev = this.positionBuffer[0];
     let next = this.positionBuffer[1];
 
     for (let i = 0; i < this.positionBuffer.length - 1; i++) {
-      if (this.positionBuffer[i + 1].timestamp > renderTime) {
+      if (this.positionBuffer[i + 1].serverTimestampMs > renderTime) {
         prev = this.positionBuffer[i];
         next = this.positionBuffer[i + 1];
         break;
@@ -217,7 +218,7 @@ export class Tank {
 
     if (
       renderTime >=
-      this.positionBuffer[this.positionBuffer.length - 1].timestamp
+      this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs
     ) {
       const last = this.positionBuffer[this.positionBuffer.length - 1];
       this.x = last.x;
@@ -225,8 +226,8 @@ export class Tank {
       return;
     }
 
-    const total = next.timestamp - prev.timestamp;
-    const elapsed = renderTime - prev.timestamp;
+    const total = next.serverTimestampMs - prev.serverTimestampMs;
+    const elapsed = renderTime - prev.serverTimestampMs;
     const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
 
     this.x = prev.x + (next.x - prev.x) * t;

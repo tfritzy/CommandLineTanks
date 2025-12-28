@@ -14,6 +14,7 @@ public static partial class Module
 
         tank.TargetTurretRotation = normalizedAngle;
         tank.Target = null;
+        tank.UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         ctx.Db.tank.Id.Update(tank);
     }
 }

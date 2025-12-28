@@ -39,7 +39,8 @@ public static partial class Module
             RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
             RemainingRepairCooldownMicros = 0,
             IsRepairing = false,
-            RepairStartedAt = 0
+            RepairStartedAt = 0,
+            UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
         return respawnedTank;
@@ -82,7 +83,8 @@ public static partial class Module
             RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
             RemainingRepairCooldownMicros = 0,
             IsRepairing = false,
-            RepairStartedAt = 0
+            RepairStartedAt = 0,
+            UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
     }
 

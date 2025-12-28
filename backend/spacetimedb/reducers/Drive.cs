@@ -30,7 +30,8 @@ public static partial class Module
             newPath = [entry];
             tank = tank with
             {
-                Velocity = new Vector2Float(0, 0)
+                Velocity = new Vector2Float(0, 0),
+                UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             };
             ctx.Db.tank.Id.Update(tank);
         }

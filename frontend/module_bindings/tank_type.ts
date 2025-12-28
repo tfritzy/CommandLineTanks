@@ -55,6 +55,7 @@ export default __t.object("Tank", {
   remainingRepairCooldownMicros: __t.i64(),
   isRepairing: __t.bool(),
   repairStartedAt: __t.u64(),
+  updatedAt: __t.u64(),
 });
 
 

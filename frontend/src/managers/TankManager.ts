@@ -126,7 +126,7 @@ export class TankManager {
           }
         }
 
-        tank.setPosition(newTank.positionX, newTank.positionY);
+        tank.setPosition(newTank.positionX, newTank.positionY, newTank.updatedAt);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
         tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
         tank.setTurretRotation(newTank.turretRotation);
