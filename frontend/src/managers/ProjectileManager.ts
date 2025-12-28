@@ -71,10 +71,6 @@ export class ProjectileManager {
           newProjectile.positionY,
           newProjectile.updatedAt
         );
-        projectile.setVelocity(
-          newProjectile.velocity.x,
-          newProjectile.velocity.y
-        );
       }
     };
 

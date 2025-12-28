@@ -1,14 +1,9 @@
-import { UNIT_TO_PIXEL } from "../../constants";
-
-const INTERPOLATION_DELAY = 100;
-const BUFFER_DURATION = 200;
+import { UNIT_TO_PIXEL, INTERPOLATION_DELAY, BUFFER_DURATION } from "../../constants";
 
 export abstract class Projectile {
   public static readonly SHADOW_OFFSET = 4;
   protected x: number;
   protected y: number;
-  protected velocityX: number;
-  protected velocityY: number;
   protected size: number;
   protected alliance: number;
   protected explosionRadius: number | undefined;
@@ -30,8 +25,6 @@ export abstract class Projectile {
   ) {
     this.x = x;
     this.y = y;
-    this.velocityX = velocityX;
-    this.velocityY = velocityY;
     this.size = size;
     this.alliance = alliance;
     this.explosionRadius = explosionRadius;
@@ -64,11 +57,6 @@ export abstract class Projectile {
     this.positionBuffer = this.positionBuffer.filter(
       (p) => p.serverTimestampMs > cutoffTime
     );
-  }
-
-  public setVelocity(velocityX: number, velocityY: number) {
-    this.velocityX = velocityX;
-    this.velocityY = velocityY;
   }
 
   public update(_deltaTime: number, _tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
@@ -118,14 +106,6 @@ export abstract class Projectile {
 
   public getY(): number {
     return this.y;
-  }
-
-  public getVelocityX(): number {
-    return this.velocityX;
-  }
-
-  public getVelocityY(): number {
-    return this.velocityY;
   }
 
   public getAlliance(): number {
