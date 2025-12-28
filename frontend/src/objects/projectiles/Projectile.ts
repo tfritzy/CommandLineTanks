@@ -71,7 +71,7 @@ export abstract class Projectile {
     this.velocityY = velocityY;
   }
 
-  public update(deltaTime: number, tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
+  public update(_deltaTime: number, _tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
     if (this.positionBuffer.length === 0) return;
 
     if (this.positionBuffer.length === 1) {
