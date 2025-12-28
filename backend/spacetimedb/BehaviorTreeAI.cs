@@ -87,9 +87,10 @@ public static partial class BehaviorTreeAI
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
         var aiContext = new AIContext(ctx, args.WorldId);
-        var botTanks = ctx.Db.tank.WorldId_IsBot.Filter((args.WorldId, true)).ToList();
+        var behaviorTreeTanks = ctx.Db.tank.WorldId_AIBehavior.Filter((args.WorldId, AIBehavior.BehaviorTree)).ToList();
+        var tutorialTanks = ctx.Db.tank.WorldId_AIBehavior.Filter((args.WorldId, AIBehavior.Tutorial)).ToList();
 
-        foreach (var tank in botTanks)
+        foreach (var tank in behaviorTreeTanks)
         {
             if (tank.Health <= 0)
             {
@@ -99,6 +100,19 @@ public static partial class BehaviorTreeAI
             }
 
             var mutatedTank = EvaluateAIAndMutateTank(ctx, tank, aiContext);
+            ctx.Db.tank.Id.Update(mutatedTank);
+        }
+
+        foreach (var tank in tutorialTanks)
+        {
+            if (tank.Health <= 0)
+            {
+                var respawnedTank = RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
+                ctx.Db.tank.Id.Update(respawnedTank);
+                continue;
+            }
+
+            var mutatedTank = EvaluateTutorialAIAndMutateTank(ctx, tank, aiContext);
             ctx.Db.tank.Id.Update(mutatedTank);
         }
     }
@@ -219,5 +233,48 @@ public static partial class BehaviorTreeAI
         };
 
         UpsertTankPath(ctx, newPathState);
+    }
+
+    public static Tank EvaluateTutorialAIAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
+    {
+        var pathState = aiContext.GetTankPath(tank.Id);
+        bool isCurrentlyMoving = pathState != null && pathState.Value.Path.Length > 0;
+
+        if (!isCurrentlyMoving)
+        {
+            var traversibilityMap = aiContext.GetTraversibilityMap();
+            if (traversibilityMap != null)
+            {
+                var (targetX, targetY) = FindRandomPositionInSquare(tank, traversibilityMap.Value, aiContext.GetRandom(), 6);
+                DriveTowards(ctx, tank, targetX, targetY);
+            }
+        }
+
+        return tank;
+    }
+
+    private static (int x, int y) FindRandomPositionInSquare(Tank tank, Module.TraversibilityMap traversibilityMap, Random rng, int squareSize)
+    {
+        int currentX = (int)tank.PositionX;
+        int currentY = (int)tank.PositionY;
+
+        int minX = Math.Max(0, currentX - squareSize / 2);
+        int maxX = Math.Min(traversibilityMap.Width - 1, currentX + squareSize / 2);
+        int minY = Math.Max(0, currentY - squareSize / 2);
+        int maxY = Math.Min(traversibilityMap.Height - 1, currentY + squareSize / 2);
+
+        for (int attempt = 0; attempt < 50; attempt++)
+        {
+            int targetX = minX + rng.Next(maxX - minX + 1);
+            int targetY = minY + rng.Next(maxY - minY + 1);
+
+            int index = targetY * traversibilityMap.Width + targetX;
+            if (index >= 0 && index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
+            {
+                return (targetX, targetY);
+            }
+        }
+
+        return (currentX, currentY);
     }
 }

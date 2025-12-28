@@ -116,6 +116,14 @@ public static partial class Types
     }
 
     [Type]
+    public enum AIBehavior : byte
+    {
+        None,
+        BehaviorTree,
+        Tutorial
+    }
+
+    [Type]
     public partial struct Gun
     {
         public GunType GunType;
