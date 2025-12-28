@@ -1,6 +1,6 @@
-import { UNIT_TO_PIXEL } from "../../constants";
+import { TERRAIN_DETAIL_RADIUS } from "../../constants";
 import { TerrainDetailObject } from "./TerrainDetailObject";
-import { getFlashColor } from "../../utils/colors";
+import { drawHayBaleShadow, drawHayBaleBody } from "../../drawing/terrain-details/hay-bale";
 
 export class HayBale extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
@@ -9,12 +9,8 @@ export class HayBale extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(0.3, 0, 21.21, 12.12);
-
-    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    ctx.beginPath();
-    ctx.arc(centerX - UNIT_TO_PIXEL * 0.15, centerY + UNIT_TO_PIXEL * 0.15, radius, 0, Math.PI * 2);
-    ctx.fill();
+    const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.HAY_BALE, 0, 21.21, 12.12);
+    drawHayBaleShadow(ctx, centerX, centerY, radius);
     ctx.restore();
   }
 
@@ -24,22 +20,8 @@ export class HayBale extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(0.3, 0, 21.21, 12.12);
-
-    ctx.fillStyle = getFlashColor("#f5c47c", this.flashTimer);
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = getFlashColor("#e39764", this.flashTimer);
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius * 0.7, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius * 0.4, 0, Math.PI * 2);
-    ctx.stroke();
-
+    const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.HAY_BALE, 0, 21.21, 12.12);
+    drawHayBaleBody(ctx, centerX, centerY, radius, this.flashTimer);
     ctx.restore();
     this.drawLabel(ctx);
   }

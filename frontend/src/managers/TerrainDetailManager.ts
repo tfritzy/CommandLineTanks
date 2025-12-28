@@ -8,7 +8,6 @@ import { UNIT_TO_PIXEL } from "../constants";
 import { TerrainDetailObject } from "../objects/terrain-details/TerrainDetailObject";
 import { Rock } from "../objects/terrain-details/Rock";
 import { Tree } from "../objects/terrain-details/Tree";
-import { DeadTree } from "../objects/terrain-details/DeadTree";
 import { HayBale } from "../objects/terrain-details/HayBale";
 import { Label } from "../objects/terrain-details/Label";
 import { FoundationEdge } from "../objects/terrain-details/FoundationEdge";
@@ -156,9 +155,6 @@ export class TerrainDetailManager {
       case "Tree":
         obj = new Tree(x, y, label, health, rotation);
         break;
-      case "DeadTree":
-        obj = new DeadTree(x, y, label, health, rotation);
-        break;
       case "HayBale":
         obj = new HayBale(x, y, label, health, rotation);
         break;
@@ -302,10 +298,6 @@ export class TerrainDetailManager {
 
   private getTextureKey(obj: TerrainDetailObject): string {
     const type = obj.constructor.name.toLowerCase();
-
-    if (type === "tree") {
-      return "tree-0";
-    }
 
     if (type.includes("fence") || type.includes("foundation")) {
       return `${type}-${obj.getRotation()}`;
