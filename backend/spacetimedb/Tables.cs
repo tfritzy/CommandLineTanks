@@ -307,4 +307,16 @@ public static partial class Module
 
         public PathEntry[] Path;
     }
+
+    [Table(Name = "turret_ai_state", Public = true)]
+    public partial struct TurretAIState
+    {
+        [PrimaryKey]
+        public string TankId;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public ulong LastTargetSwitchTime;
+    }
 }

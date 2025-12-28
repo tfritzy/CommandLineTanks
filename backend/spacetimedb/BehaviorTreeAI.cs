@@ -50,6 +50,9 @@ public static partial class BehaviorTreeAI
                 case AIBehavior.RandomAim:
                     mutatedTank = RandomAimAI.EvaluateAndMutateTank(ctx, tank, aiContext);
                     break;
+                case AIBehavior.Turret:
+                    mutatedTank = TurretAI.EvaluateAndMutateTank(ctx, tank, aiContext);
+                    break;
             }
 
             ctx.Db.tank.Id.Update(mutatedTank);
