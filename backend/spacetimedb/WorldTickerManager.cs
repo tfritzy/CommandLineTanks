@@ -53,6 +53,11 @@ public static partial class Module
             ctx.Db.ScheduledWorldReset.ScheduledId.Delete(worldReset.ScheduledId);
         }
 
+        foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.WorldId.Filter(worldId))
+        {
+            ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
+        }
+
         Log.Info($"Stopped tickers for world {worldId}");
     }
 
@@ -65,8 +70,7 @@ public static partial class Module
                 ScheduledId = 0,
                 ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
                 WorldId = worldId,
-                LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-                TickCount = 0
+                LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             });
         }
 
@@ -84,6 +88,16 @@ public static partial class Module
         if (!ctx.Db.ScheduledSpiderMineUpdates.WorldId.Filter(worldId).Any())
         {
             SpiderMineUpdater.InitializeSpiderMineUpdater(ctx, worldId);
+        }
+
+        if (!ctx.Db.ScheduledAIUpdate.WorldId.Filter(worldId).Any())
+        {
+            ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
+                WorldId = worldId
+            });
         }
 
         Log.Info($"Started tickers for world {worldId}");
