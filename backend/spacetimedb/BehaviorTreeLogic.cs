@@ -119,61 +119,66 @@ public static class BehaviorTreeLogic
         {
             var distanceToTarget = GetDistance(tank.PositionX, tank.PositionY, target.Value.PositionX, target.Value.PositionY);
 
-            if (distanceToTarget < 10f && HasLineOfSight(tank, target.Value, context.GetTraversibilityMap()))
+            if (distanceToTarget < 10f)
             {
-                if (isCurrentlyMoving)
+                var tMap = context.GetTraversibilityMap();
+                if (HasLineOfSight(tank, target.Value, tMap))
                 {
+                    if (isCurrentlyMoving)
+                    {
+                        return new AIDecision
+                        {
+                            Action = AIAction.StopMoving,
+                            TargetTank = target
+                        };
+                    }
+
                     return new AIDecision
                     {
-                        Action = AIAction.StopMoving,
-                        TargetTank = target
+                        Action = AIAction.AimAndFire,
+                        TargetTank = target,
+                        ShouldFire = true
                     };
                 }
-
-                return new AIDecision
-                {
-                    Action = AIAction.AimAndFire,
-                    TargetTank = target,
-                    ShouldFire = true
-                };
             }
 
-            var tMap = context.GetTraversibilityMap();
-            if (tMap != null)
+            if (!isCurrentlyMoving)
             {
-                var path = FindPathTowards(tank, GetGridPosition(target.Value.PositionX), GetGridPosition(target.Value.PositionY), tMap);
-                if (path.Count > 0)
+                var tMap = context.GetTraversibilityMap();
+                if (tMap != null)
                 {
-                    return new AIDecision
+                    var path = FindPathTowards(tank, GetGridPosition(target.Value.PositionX), GetGridPosition(target.Value.PositionY), tMap);
+                    if (path.Count > 0)
                     {
-                        Action = AIAction.MoveTowardsEnemy,
-                        TargetTank = target,
-                        Path = path
-                    };
+                        return new AIDecision
+                        {
+                            Action = AIAction.MoveTowardsEnemy,
+                            TargetTank = target,
+                            Path = path
+                        };
+                    }
                 }
             }
         }
 
-        var nearbyPickup = FindNearestPickup(tank, context.GetAllPickups());
-        if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value))
+        if (!isCurrentlyMoving)
         {
-            if (isCurrentlyMoving)
+            var nearbyPickup = FindNearestPickup(tank, context.GetAllPickups());
+            if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value))
             {
-                return new AIDecision { Action = AIAction.None };
-            }
-
-            var tMap = context.GetTraversibilityMap();
-            if (tMap != null)
-            {
-                var path = FindPathTowards(tank, (int)nearbyPickup.Value.PositionX, (int)nearbyPickup.Value.PositionY, tMap);
-                if (path.Count > 0)
+                var tMap = context.GetTraversibilityMap();
+                if (tMap != null)
                 {
-                    return new AIDecision
+                    var path = FindPathTowards(tank, (int)nearbyPickup.Value.PositionX, (int)nearbyPickup.Value.PositionY, tMap);
+                    if (path.Count > 0)
                     {
-                        Action = AIAction.MoveTowardsPickup,
-                        TargetPickup = nearbyPickup,
-                        Path = path
-                    };
+                        return new AIDecision
+                        {
+                            Action = AIAction.MoveTowardsPickup,
+                            TargetPickup = nearbyPickup,
+                            Path = path
+                        };
+                    }
                 }
             }
         }
@@ -276,8 +281,11 @@ public static class BehaviorTreeLogic
         Module.Pickup? nearest = null;
         float minDistance = float.MaxValue;
 
-        foreach (var pickup in allPickups.Where(p => p.WorldId == tank.WorldId && p.Type == PickupType.Health))
+        foreach (var pickup in allPickups)
         {
+            if (pickup.WorldId != tank.WorldId || pickup.Type != PickupType.Health)
+                continue;
+
             var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
             if (distance < minDistance)
             {
@@ -294,8 +302,11 @@ public static class BehaviorTreeLogic
         Module.Pickup? nearest = null;
         float minDistance = float.MaxValue;
 
-        foreach (var pickup in allPickups.Where(p => p.WorldId == tank.WorldId))
+        foreach (var pickup in allPickups)
         {
+            if (pickup.WorldId != tank.WorldId)
+                continue;
+
             var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
             if (distance < minDistance)
             {

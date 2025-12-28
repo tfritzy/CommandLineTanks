@@ -20,15 +20,9 @@ export function drawTreeBody(
   centerX: number,
   centerY: number,
   radius: number,
-  flashTimer: number,
-  variant: number = 0
+  flashTimer: number
 ) {
-  const variants = [
-    TERRAIN_DETAIL_COLORS.TREE.VARIANT_0,
-    TERRAIN_DETAIL_COLORS.TREE.VARIANT_1,
-    TERRAIN_DETAIL_COLORS.TREE.VARIANT_2
-  ];
-  const colors = variants[Math.max(0, Math.min(variant, variants.length - 1))];
+  const colors = TERRAIN_DETAIL_COLORS.TREE;
 
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);

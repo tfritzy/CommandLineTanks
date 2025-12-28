@@ -20,8 +20,7 @@ export class Tree extends TerrainDetailObject {
     const centerX = x;
     const centerY = y;
     const radius = this.getRadius(0.7, 0, 7.77, 3.33);
-    const variant = this.getRotation();
-    drawTreeBody(ctx, centerX, centerY, radius, this.flashTimer, variant);
+    drawTreeBody(ctx, centerX, centerY, radius, this.flashTimer);
     ctx.restore();
     this.drawLabel(ctx);
   }

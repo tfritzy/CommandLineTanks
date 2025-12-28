@@ -21,7 +21,6 @@ public static partial class TerrainGenerator
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
     private const int ROTATION_WEST = 3;
-    private const int TREE_VARIANT_COUNT = 3;
 
     private static readonly int[] p = new int[512];
 
@@ -343,7 +342,7 @@ public static partial class TerrainGenerator
                     if (!neighborHasTree)
                     {
                         terrainDetail[index] = TerrainDetailType.Tree;
-                        rotationArray[index] = random.Next(TREE_VARIANT_COUNT);
+                        rotationArray[index] = 0;
                     }
                 }
             }

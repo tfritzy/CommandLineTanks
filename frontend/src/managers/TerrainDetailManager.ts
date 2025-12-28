@@ -221,7 +221,7 @@ export class TerrainDetailManager {
         );
 
         if (!texture) {
-          console.warn("no texture");
+          console.warn("no texture", this.getTextureKey(obj));
         } else {
           const scale = obj.getSizeScale();
           const scaledSize = renderSize * scale;
@@ -304,8 +304,7 @@ export class TerrainDetailManager {
     const type = obj.constructor.name.toLowerCase();
 
     if (type === "tree") {
-      const variant = obj.getRotation();
-      return `tree-${variant}`;
+      return "tree-0";
     }
 
     if (type.includes("fence") || type.includes("foundation")) {

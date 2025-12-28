@@ -2,7 +2,13 @@ import { type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
 import { TEAM_COLORS } from "../constants";
-import { drawTankShadow, drawTankBody, drawTankHealthBar, drawTankPath, drawTankNameLabel } from "../drawing/tanks/tank";
+import {
+  drawTankShadow,
+  drawTankBody,
+  drawTankHealthBar,
+  drawTankPath,
+  drawTankNameLabel,
+} from "../drawing/tanks/tank";
 
 type PathEntry = {
   position: { x: number; y: number };
@@ -19,8 +25,6 @@ export class Tank {
   private y: number;
   private turretRotation: number;
   private targetTurretRotation: number;
-  private velocityX: number;
-  private velocityY: number;
   private turretAngularVelocity: number;
   private path: PathEntry[];
   private name: string;
@@ -33,7 +37,8 @@ export class Tank {
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
   private isPlayerTank: boolean = false;
-  private positionBuffer: Array<{ x: number; y: number; timestamp: number }> = [];
+  private positionBuffer: Array<{ x: number; y: number; timestamp: number }> =
+    [];
 
   constructor(
     id: string,
@@ -44,8 +49,6 @@ export class Tank {
     alliance: number,
     health: number,
     maxHealth: number = 100,
-    velocityX: number = 0,
-    velocityY: number = 0,
     turretAngularVelocity: number = 0,
     path: PathEntry[] = [],
     guns: Infer<typeof Gun>[] = [],
@@ -62,8 +65,6 @@ export class Tank {
     this.alliance = alliance;
     this.health = health;
     this.maxHealth = maxHealth;
-    this.velocityX = velocityX;
-    this.velocityY = velocityY;
     this.turretAngularVelocity = turretAngularVelocity;
     this.path = path;
     this.guns = guns;
@@ -82,7 +83,14 @@ export class Tank {
   }
 
   public drawHealthBar(ctx: CanvasRenderingContext2D) {
-    drawTankHealthBar(ctx, this.x, this.y, this.health, this.maxHealth, this.getAllianceColor());
+    drawTankHealthBar(
+      ctx,
+      this.x,
+      this.y,
+      this.health,
+      this.maxHealth,
+      this.getAllianceColor()
+    );
   }
 
   public drawNameLabel(ctx: CanvasRenderingContext2D) {
@@ -112,30 +120,26 @@ export class Tank {
   }
 
   public drawPath(ctx: CanvasRenderingContext2D) {
-    const lineColor = this.alliance === 0 ? TEAM_COLORS.RED + "66" : TEAM_COLORS.BLUE + "66";
-    const dotColor = this.alliance === 0 ? TEAM_COLORS.RED + "ff" : TEAM_COLORS.BLUE + "ff";
+    const lineColor =
+      this.alliance === 0 ? TEAM_COLORS.RED + "66" : TEAM_COLORS.BLUE + "66";
+    const dotColor =
+      this.alliance === 0 ? TEAM_COLORS.RED + "ff" : TEAM_COLORS.BLUE + "ff";
     drawTankPath(ctx, this.x, this.y, this.path, lineColor, dotColor);
   }
 
   public setPosition(x: number, y: number) {
-    if (this.isPlayerTank) {
-      this.x = x;
-      this.y = y;
-    } else {
-      this.positionBuffer.push({
-        x,
-        y,
-        timestamp: performance.now()
-      });
+    const now = performance.now();
 
-      const cutoffTime = performance.now() - BUFFER_DURATION;
-      this.positionBuffer = this.positionBuffer.filter(p => p.timestamp > cutoffTime);
+    this.positionBuffer.push({
+      x,
+      y,
+      timestamp: now,
+    });
 
-      if (this.positionBuffer.length === 1) {
-        this.x = x;
-        this.y = y;
-      }
-    }
+    const cutoffTime = now - BUFFER_DURATION;
+    this.positionBuffer = this.positionBuffer.filter(
+      (p) => p.timestamp > cutoffTime
+    );
   }
 
   public setTurretRotation(rotation: number) {
@@ -144,11 +148,6 @@ export class Tank {
 
   public setTargetTurretRotation(rotation: number) {
     this.targetTurretRotation = rotation;
-  }
-
-  public setVelocity(velocityX: number, velocityY: number) {
-    this.velocityX = velocityX;
-    this.velocityY = velocityY;
   }
 
   public setTurretAngularVelocity(turretAngularVelocity: number) {
@@ -195,52 +194,44 @@ export class Tank {
       this.flashTimer = Math.max(0, this.flashTimer - deltaTime);
     }
 
-    if (this.isPlayerTank) {
-      if (this.path.length > 0) {
-        const target = this.path[0].position;
+    if (this.positionBuffer.length === 0) return;
 
-        if (this.velocityX !== 0 || this.velocityY !== 0) {
-          const newX = this.x + this.velocityX * deltaTime;
-          const newY = this.y + this.velocityY * deltaTime;
-
-          const currentDistSq =
-            (target.x - this.x) ** 2 + (target.y - this.y) ** 2;
-          const newDistSq = (target.x - newX) ** 2 + (target.y - newY) ** 2;
-
-          if (newDistSq > currentDistSq) {
-            this.x = target.x;
-            this.y = target.y;
-            this.velocityX = 0;
-            this.velocityY = 0;
-          } else {
-            this.x = newX;
-            this.y = newY;
-          }
-        }
-      }
-    } else {
-      if (this.positionBuffer.length < 2) return;
-
-      const renderTime = performance.now() - INTERPOLATION_DELAY;
-
-      let prev = this.positionBuffer[0];
-      let next = this.positionBuffer[1];
-
-      for (let i = 0; i < this.positionBuffer.length - 1; i++) {
-        if (this.positionBuffer[i + 1].timestamp > renderTime) {
-          prev = this.positionBuffer[i];
-          next = this.positionBuffer[i + 1];
-          break;
-        }
-      }
-
-      const total = next.timestamp - prev.timestamp;
-      const elapsed = renderTime - prev.timestamp;
-      const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
-
-      this.x = prev.x + (next.x - prev.x) * t;
-      this.y = prev.y + (next.y - prev.y) * t;
+    if (this.positionBuffer.length === 1) {
+      this.x = this.positionBuffer[0].x;
+      this.y = this.positionBuffer[0].y;
+      return;
     }
+
+    const renderTime = performance.now() - INTERPOLATION_DELAY;
+
+    let prev = this.positionBuffer[0];
+    let next = this.positionBuffer[1];
+
+    for (let i = 0; i < this.positionBuffer.length - 1; i++) {
+      if (this.positionBuffer[i + 1].timestamp > renderTime) {
+        prev = this.positionBuffer[i];
+        next = this.positionBuffer[i + 1];
+        break;
+      }
+    }
+
+    if (
+      renderTime >=
+      this.positionBuffer[this.positionBuffer.length - 1].timestamp
+    ) {
+      const last = this.positionBuffer[this.positionBuffer.length - 1];
+      this.x = last.x;
+      this.y = last.y;
+      return;
+    }
+
+    const total = next.timestamp - prev.timestamp;
+    const elapsed = renderTime - prev.timestamp;
+    const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
+
+    this.x = prev.x + (next.x - prev.x) * t;
+    this.y = prev.y + (next.y - prev.y) * t;
+    // }
 
     if (this.turretAngularVelocity !== 0) {
       let currentDiff = this.targetTurretRotation - this.turretRotation;

@@ -35,6 +35,9 @@ export class Game {
   private currentCameraY: number = 0;
   private screenShake: ScreenShake;
   private resizeHandler: () => void;
+  private fps: number = 0;
+  private fpsFrameCount: number = 0;
+  private fpsLastUpdate: number = 0;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -152,6 +155,13 @@ export class Game {
       this.lastFrameTime === 0 ? 0 : (currentTime - this.lastFrameTime) / 1000;
     this.lastFrameTime = currentTime;
     this.time += deltaTime;
+
+    this.fpsFrameCount++;
+    if (currentTime - this.fpsLastUpdate >= 1000) {
+      this.fps = Math.round((this.fpsFrameCount * 1000) / (currentTime - this.fpsLastUpdate));
+      this.fpsFrameCount = 0;
+      this.fpsLastUpdate = currentTime;
+    }
 
     this.tankManager.update(deltaTime);
     this.projectileManager.update(deltaTime);
@@ -289,6 +299,17 @@ export class Game {
     this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
     this.abilitiesBarManager.draw(this.ctx, displayWidth, displayHeight);
     this.killManager.draw(this.ctx, displayWidth, displayHeight);
+
+    if (this.fps > 0) {
+      this.ctx.save();
+      this.ctx.font = "14px monospace";
+      this.ctx.fillStyle = "#fcfbf3";
+      this.ctx.strokeStyle = "#2e2e43";
+      this.ctx.lineWidth = 3;
+      this.ctx.strokeText(`FPS: ${this.fps}`, 10, 20);
+      this.ctx.fillText(`FPS: ${this.fps}`, 10, 20);
+      this.ctx.restore();
+    }
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }

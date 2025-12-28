@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public const long NETWORK_TICK_RATE_MICROS = 1_000_000 / 60;
+    public const long NETWORK_TICK_RATE_MICROS = 1_000_000 / 30;
     public const float PROJECTILE_SPEED = 7.0f;
     public const float GUN_BARREL_LENGTH = 0.4f;
     public const int TANK_HEALTH = 100;
@@ -17,7 +17,6 @@ public static partial class Module
     public const long SMOKESCREEN_COOLDOWN_MICROS = 60_000_000;
     public const float SMOKESCREEN_RADIUS = 3.0f;
     public const long SMOKESCREEN_DURATION_MICROS = 5_000_000;
-    public const long OVERDRIVE_COOLDOWN_MICROS = 60_000_000;
     public const long OVERDRIVE_DURATION_MICROS = 10_000_000;
     public const float OVERDRIVE_SPEED_MULTIPLIER = 1.25f;
     public const long SPAWN_IMMUNITY_DURATION_MICROS = 3_000_000;

@@ -128,8 +128,8 @@ export class TankManager {
 
         tank.setPosition(newTank.positionX, newTank.positionY);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
-        tank.setVelocity(newTank.velocity.x, newTank.velocity.y);
         tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
+        tank.setTurretRotation(newTank.turretRotation);
         tank.setPath(newTank.path);
         tank.setHealth(newTank.health);
         tank.setAlliance(newTank.alliance);
@@ -214,8 +214,6 @@ export class TankManager {
       tank.alliance,
       tank.health,
       tank.maxHealth,
-      tank.velocity.x,
-      tank.velocity.y,
       tank.turretAngularVelocity,
       tank.path,
       tank.guns,

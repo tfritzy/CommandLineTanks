@@ -141,7 +141,7 @@ public static partial class TankUpdater
             {
                 if (tank.IsBot && shouldEvaluateAI && aiContext != null)
                 {
-                    var respawnedTank = RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
+                    var respawnedTank = Module.RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
                     ctx.Db.tank.Id.Update(respawnedTank);
                 }
                 continue;
@@ -204,11 +204,11 @@ public static partial class TankUpdater
             if (tank.IsRepairing)
             {
                 var newHealth = Math.Min(tank.MaxHealth, tank.Health + Module.REPAIR_HEALTH_PER_TICK);
-                
+
                 if (newHealth >= tank.MaxHealth)
                 {
-                    tank = tank with 
-                    { 
+                    tank = tank with
+                    {
                         Health = tank.MaxHealth,
                         IsRepairing = false
                     };

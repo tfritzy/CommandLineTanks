@@ -145,7 +145,7 @@ export class MiniMapManager {
     const pixelHeight = miniMapHeight / worldHeight;
 
     const detailColorMap: Record<string, string> = {
-      Tree: TERRAIN_DETAIL_COLORS.TREE.VARIANT_0.BASE,
+      Tree: TERRAIN_DETAIL_COLORS.TREE.BASE,
       Rock: TERRAIN_DETAIL_COLORS.ROCK.BODY,
       HayBale: TERRAIN_DETAIL_COLORS.HAY_BALE.BODY,
       FoundationEdge: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,

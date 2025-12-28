@@ -151,12 +151,6 @@ public static partial class BehaviorTreeAI
         return tank;
     }
 
-    private static void EvaluateBehaviorTree(ReducerContext ctx, Tank tank, AIContext aiContext)
-    {
-        var mutatedTank = EvaluateAIAndMutateTank(ctx, tank, aiContext);
-        ctx.Db.tank.Id.Update(mutatedTank);
-    }
-
     private static Tank SetPath(Tank tank, List<(int x, int y)> path)
     {
         var pathEntries = path.Select(waypoint => new PathEntry

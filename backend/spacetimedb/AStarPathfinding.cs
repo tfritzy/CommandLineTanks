@@ -1,18 +1,10 @@
 using System;
 using System.Collections.Generic;
-using SpacetimeDB;
 
 public static class AStarPathfinding
 {
-    private class AStarNode
-    {
-        public int X;
-        public int Y;
-        public int GCost;
-        public int HCost;
-        public int FCost => GCost + HCost;
-        public AStarNode? Parent;
-    }
+    private const int STRAIGHT_COST = 10;
+    private const int DIAGONAL_COST = 14;
 
     public static List<(float x, float y)> FindPath(
         int startX,
@@ -23,182 +15,136 @@ public static class AStarPathfinding
     {
         var emptyPath = new List<(float x, float y)>();
 
-        if (startX == targetX && startY == targetY)
-        {
+        int width = traversibilityMap.Width;
+        int height = traversibilityMap.Height;
+
+        if (startX < 0 || startX >= width || startY < 0 || startY >= height)
             return emptyPath;
-        }
+        if (targetX < 0 || targetX >= width || targetY < 0 || targetY >= height)
+            return emptyPath;
 
-        var openSet = new List<AStarNode>();
+        if (startX == targetX && startY == targetY)
+            return emptyPath;
+
+        var gCost = new Dictionary<int, int>();
+        var fCost = new Dictionary<int, int>();
+        var cameFrom = new Dictionary<int, int>();
         var closedSet = new HashSet<int>();
-        AStarNode? closestNode = null;
-        int closestDistance = int.MaxValue;
 
-        var startNode = new AStarNode
+        var openSet = new PriorityQueue<int, int>();
+
+        int startIndex = startY * width + startX;
+        int targetIndex = targetY * width + targetX;
+
+        gCost[startIndex] = 0;
+        int startH = Heuristic(startX, startY, targetX, targetY);
+        fCost[startIndex] = startH;
+        openSet.Enqueue(startIndex, fCost[startIndex]);
+
+        int closestNode = startIndex;
+        int closestH = startH;
+
+        while (openSet.Count > 0)
         {
-            X = startX,
-            Y = startY,
-            GCost = 0,
-            HCost = CalculateHeuristic(startX, startY, targetX, targetY),
-            Parent = null
-        };
+            int current = openSet.Dequeue();
 
-        openSet.Add(startNode);
-        closestNode = startNode;
-        closestDistance = startNode.HCost;
-
-        int maxIterations = 500;
-        int iterations = 0;
-
-        while (openSet.Count > 0 && iterations < maxIterations)
-        {
-            iterations++;
-
-            openSet.Sort((a, b) => a.FCost.CompareTo(b.FCost));
-            var current = openSet[0];
-            openSet.RemoveAt(0);
-
-            int currentIndex = current.Y * traversibilityMap.Width + current.X;
-            closedSet.Add(currentIndex);
-
-            if (current.HCost < closestDistance)
+            if (current == targetIndex)
             {
+                return ReconstructPath(cameFrom, current, width);
+            }
+
+            if (closedSet.Contains(current))
+                continue;
+
+            closedSet.Add(current);
+
+            int currentH = Heuristic(current % width, current / width, targetX, targetY);
+            if (currentH < closestH)
+            {
+                closestH = currentH;
                 closestNode = current;
-                closestDistance = current.HCost;
             }
 
-            if (current.X == targetX && current.Y == targetY)
+            int currentX = current % width;
+            int currentY = current / width;
+            int currentG = gCost[current];
+
+            for (int dy = -1; dy <= 1; dy++)
             {
-                var fullPath = new List<(float x, float y)>();
-                var node = current;
-                while (node.Parent != null)
+                for (int dx = -1; dx <= 1; dx++)
                 {
-                    fullPath.Add((node.X + 0.5f, node.Y + 0.5f));
-                    node = node.Parent;
-                }
-                fullPath.Reverse();
-                return SimplifyPath(fullPath, startX + 0.5f, startY + 0.5f);
-            }
-
-            (int dx, int dy)[] neighbors = new[] {
-                (1, 0), (-1, 0), (0, 1), (0, -1),
-                (1, 1), (-1, 1), (1, -1), (-1, -1)
-            };
-
-            foreach (var (dx, dy) in neighbors)
-            {
-                int neighborX = current.X + dx;
-                int neighborY = current.Y + dy;
-
-                if (neighborX < 0 || neighborX >= traversibilityMap.Width ||
-                    neighborY < 0 || neighborY >= traversibilityMap.Height)
-                {
-                    continue;
-                }
-
-                int neighborIndex = neighborY * traversibilityMap.Width + neighborX;
-
-                if (closedSet.Contains(neighborIndex))
-                {
-                    continue;
-                }
-
-                if (!traversibilityMap.Map[neighborIndex])
-                {
-                    continue;
-                }
-
-                bool isDiagonal = dx != 0 && dy != 0;
-                if (isDiagonal)
-                {
-                    int horizontalX = current.X + dx;
-                    int horizontalY = current.Y;
-                    int verticalX = current.X;
-                    int verticalY = current.Y + dy;
-
-                    int horizontalIndex = horizontalY * traversibilityMap.Width + horizontalX;
-                    int verticalIndex = verticalY * traversibilityMap.Width + verticalX;
-
-                    if (!traversibilityMap.Map[horizontalIndex] && !traversibilityMap.Map[verticalIndex])
-                    {
+                    if (dx == 0 && dy == 0)
                         continue;
-                    }
-                }
-                int newGCost = current.GCost + (isDiagonal ? 14 : 10);
-                var existingNode = openSet.Find(n => n.X == neighborX && n.Y == neighborY);
 
-                if (existingNode != null)
-                {
-                    if (newGCost < existingNode.GCost)
+                    int neighborX = currentX + dx;
+                    int neighborY = currentY + dy;
+
+                    if (neighborX < 0 || neighborX >= width || neighborY < 0 || neighborY >= height)
+                        continue;
+
+                    int neighborIndex = neighborY * width + neighborX;
+
+                    if (closedSet.Contains(neighborIndex))
+                        continue;
+
+                    if (!traversibilityMap.Map[neighborIndex])
+                        continue;
+
+                    bool isDiagonal = dx != 0 && dy != 0;
+                    if (isDiagonal)
                     {
-                        existingNode.GCost = newGCost;
-                        existingNode.Parent = current;
+                        int adjacentH = currentY * width + neighborX;
+                        int adjacentV = neighborY * width + currentX;
+                        if (!traversibilityMap.Map[adjacentH] || !traversibilityMap.Map[adjacentV])
+                            continue;
                     }
-                }
-                else
-                {
-                    var neighborNode = new AStarNode
+
+                    int moveCost = isDiagonal ? DIAGONAL_COST : STRAIGHT_COST;
+                    int tentativeG = currentG + moveCost;
+
+                    if (!gCost.TryGetValue(neighborIndex, out int existingG) || tentativeG < existingG)
                     {
-                        X = neighborX,
-                        Y = neighborY,
-                        GCost = newGCost,
-                        HCost = CalculateHeuristic(neighborX, neighborY, targetX, targetY),
-                        Parent = current
-                    };
-                    openSet.Add(neighborNode);
+                        cameFrom[neighborIndex] = current;
+                        gCost[neighborIndex] = tentativeG;
+                        int f = tentativeG + Heuristic(neighborX, neighborY, targetX, targetY);
+                        fCost[neighborIndex] = f;
+                        openSet.Enqueue(neighborIndex, f);
+                    }
                 }
             }
         }
 
-        if (closestNode != null && closestNode.Parent != null)
+        if (closestNode != startIndex)
         {
-            var partialPath = new List<(float x, float y)>();
-            var node = closestNode;
-            while (node.Parent != null)
-            {
-                partialPath.Add((node.X + 0.5f, node.Y + 0.5f));
-                node = node.Parent;
-            }
-            partialPath.Reverse();
-            return SimplifyPath(partialPath, startX + 0.5f, startY + 0.5f);
+            return ReconstructPath(cameFrom, closestNode, width);
         }
 
         return emptyPath;
     }
 
-    private static int CalculateHeuristic(int fromX, int fromY, int toX, int toY)
+    private static int Heuristic(int fromX, int fromY, int toX, int toY)
     {
         int dx = Math.Abs(toX - fromX);
         int dy = Math.Abs(toY - fromY);
-        return 10 * (dx + dy) + (14 - 2 * 10) * Math.Min(dx, dy);
+        return STRAIGHT_COST * (dx + dy) + (DIAGONAL_COST - 2 * STRAIGHT_COST) * Math.Min(dx, dy);
     }
 
-    private static List<(float x, float y)> SimplifyPath(List<(float x, float y)> fullPath, float startX, float startY)
+    private static List<(float x, float y)> ReconstructPath(
+        Dictionary<int, int> cameFrom,
+        int current,
+        int width)
     {
-        if (fullPath.Count <= 1)
+        var path = new List<(float x, float y)>();
+
+        while (cameFrom.ContainsKey(current))
         {
-            return fullPath;
+            int x = current % width;
+            int y = current / width;
+            path.Add((x + 0.5f, y + 0.5f));
+            current = cameFrom[current];
         }
 
-        var simplifiedPath = new List<(float x, float y)>();
-
-        int currentDirectionX = Math.Sign(fullPath[0].x - startX);
-        int currentDirectionY = Math.Sign(fullPath[0].y - startY);
-
-        for (int i = 1; i < fullPath.Count; i++)
-        {
-            int dirX = Math.Sign(fullPath[i].x - fullPath[i - 1].x);
-            int dirY = Math.Sign(fullPath[i].y - fullPath[i - 1].y);
-
-            if (dirX != currentDirectionX || dirY != currentDirectionY)
-            {
-                simplifiedPath.Add(fullPath[i - 1]);
-                currentDirectionX = dirX;
-                currentDirectionY = dirY;
-            }
-        }
-
-        simplifiedPath.Add(fullPath[^1]);
-
-        return simplifiedPath;
+        path.Reverse();
+        return path;
     }
 }
