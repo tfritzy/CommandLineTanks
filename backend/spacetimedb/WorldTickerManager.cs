@@ -165,7 +165,7 @@ public static partial class Module
                 newAlliance,
                 spawnX,
                 spawnY,
-                false);
+                AIBehavior.None);
             ctx.Db.tank.Insert(newTank);
         }
 

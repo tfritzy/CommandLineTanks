@@ -69,6 +69,8 @@ public static partial class Module
 
         public bool IsBot;
 
+        public AIBehavior AIBehavior;
+
         public int Alliance;
 
         public int Health;

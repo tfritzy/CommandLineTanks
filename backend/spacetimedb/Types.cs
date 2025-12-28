@@ -116,6 +116,14 @@ public static partial class Types
     }
 
     [Type]
+    public enum AIBehavior : byte
+    {
+        None,
+        GameAI,
+        Tilebound
+    }
+
+    [Type]
     public partial struct Gun
     {
         public GunType GunType;
@@ -150,5 +158,13 @@ public static partial class Types
     {
         public string TankId;
         public ulong DamagedAt;
+    }
+}
+
+public static class AIBehaviorExtensions
+{
+    public static bool IsAI(this Types.AIBehavior behavior)
+    {
+        return behavior != Types.AIBehavior.None;
     }
 }
