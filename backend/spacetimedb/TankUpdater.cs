@@ -193,7 +193,8 @@ public static partial class TankUpdater
                     tank = tank with
                     {
                         Health = tank.MaxHealth,
-                        IsRepairing = false
+                        IsRepairing = false,
+                        Message = "Repair complete"
                     };
                     needsUpdate = true;
                 }

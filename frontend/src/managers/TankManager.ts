@@ -96,23 +96,6 @@ export class TankManager {
           }
         }
 
-        if (oldTank.isRepairing && !newTank.isRepairing && newTank.health > 0) {
-          const pos = tank.getPosition();
-          if (newTank.health >= newTank.maxHealth) {
-            this.indicatorManager.spawnFloatingLabel(
-              pos.x,
-              pos.y - 0.5,
-              "Repair complete"
-            );
-          } else {
-            this.indicatorManager.spawnFloatingLabel(
-              pos.x,
-              pos.y - 0.5,
-              "Repair interrupted"
-            );
-          }
-        }
-
         tank.setPosition(newTank.positionX, newTank.positionY, newTank.updatedAt);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
         tank.setTurretAngularVelocity(newTank.turretAngularVelocity);

@@ -16,11 +16,12 @@ public static partial class RandomAimAI
             tank = FireTankWeapon(ctx, tank);
             
             float targetAngle = GetRandomAngle(aiContext.GetRandom());
+            float targetAngleDegrees = (float)(-targetAngle * 180.0 / Math.PI);
             tank = tank with
             {
                 TargetTurretRotation = NormalizeAngleToTarget(targetAngle, tank.TurretRotation),
                 Target = null,
-                Message = $"aim {tank.WorldId} {targetAngle:F2}"
+                Message = $"aim {targetAngleDegrees:F0}"
             };
         }
 

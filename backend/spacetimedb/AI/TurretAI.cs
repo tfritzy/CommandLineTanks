@@ -62,7 +62,7 @@ public static partial class TurretAI
             updatedTank = TargetTankByName(ctx, tank, targetTank.Name, 0);
             updatedTank = updatedTank with
             {
-                Message = $"targetTank {tank.WorldId} {targetTank.Name} 0"
+                Message = $"target {targetTank.Name}"
             };
         }
         else

@@ -91,7 +91,7 @@ public static partial class TileboundAI
 
         var updatedTank = tank with
         {
-            Message = $"driveTo {targetX} {targetY} 1"
+            Message = $"drive {offset.X} {-offset.Y}"
         };
         ctx.Db.tank.Id.Update(updatedTank);
     }
