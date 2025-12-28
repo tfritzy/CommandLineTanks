@@ -96,7 +96,8 @@ public static partial class Module
             {
                 ScheduledId = 0,
                 ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
-                WorldId = worldId
+                WorldId = worldId,
+                TickCount = 0
             });
         }
 
