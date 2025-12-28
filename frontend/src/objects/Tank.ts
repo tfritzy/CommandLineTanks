@@ -9,7 +9,8 @@ type PathEntry = {
   throttlePercent: number;
 };
 
-const POSITION_LERP_SPEED = 10;
+const INTERPOLATION_DELAY = 100;
+const BUFFER_DURATION = 200;
 
 export class Tank {
   public arrayIndex: number = -1;
@@ -32,9 +33,7 @@ export class Tank {
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
   private isPlayerTank: boolean = false;
-  private previousPosition: { x: number; y: number } | null = null;
-  private targetPosition: { x: number; y: number } | null = null;
-  private lerpProgress: number = 0;
+  private positionBuffer: Array<{ x: number; y: number; timestamp: number }> = [];
 
   constructor(
     id: string,
@@ -123,16 +122,18 @@ export class Tank {
       this.x = x;
       this.y = y;
     } else {
-      if (this.targetPosition === null) {
+      this.positionBuffer.push({
+        x,
+        y,
+        timestamp: performance.now()
+      });
+
+      const cutoffTime = performance.now() - BUFFER_DURATION;
+      this.positionBuffer = this.positionBuffer.filter(p => p.timestamp > cutoffTime);
+
+      if (this.positionBuffer.length === 1) {
         this.x = x;
         this.y = y;
-        this.targetPosition = { x, y };
-        this.previousPosition = { x, y };
-        this.lerpProgress = 0;
-      } else {
-        this.previousPosition = { ...this.targetPosition };
-        this.targetPosition = { x, y };
-        this.lerpProgress = 0;
       }
     }
   }
@@ -218,12 +219,28 @@ export class Tank {
         }
       }
     } else {
-      if (this.previousPosition && this.targetPosition) {
-        this.lerpProgress = Math.min(1, this.lerpProgress + deltaTime * POSITION_LERP_SPEED);
-        
-        this.x = this.previousPosition.x + (this.targetPosition.x - this.previousPosition.x) * this.lerpProgress;
-        this.y = this.previousPosition.y + (this.targetPosition.y - this.previousPosition.y) * this.lerpProgress;
+      if (this.positionBuffer.length < 2) return;
+
+      const renderTime = performance.now() - INTERPOLATION_DELAY;
+
+      let prev = this.positionBuffer[0];
+      let next = this.positionBuffer[1];
+
+      for (let i = 0; i < this.positionBuffer.length - 1; i++) {
+        if (this.positionBuffer[i].timestamp <= renderTime &&
+            this.positionBuffer[i + 1].timestamp >= renderTime) {
+          prev = this.positionBuffer[i];
+          next = this.positionBuffer[i + 1];
+          break;
+        }
       }
+
+      const total = next.timestamp - prev.timestamp;
+      const elapsed = renderTime - prev.timestamp;
+      const t = total > 0 ? elapsed / total : 0;
+
+      this.x = prev.x + (next.x - prev.x) * t;
+      this.y = prev.y + (next.y - prev.y) * t;
     }
 
     if (this.turretAngularVelocity !== 0) {
