@@ -31,11 +31,7 @@ public static partial class Module
 
         if (newHealth <= 0)
         {
-            var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
-            if (pathState != null)
-            {
-                ctx.Db.tank_path.TankId.Delete(tank.Id);
-            }
+            DeleteTankPathIfExists(ctx, tank.Id);
 
             var killedTank = tank with
             {

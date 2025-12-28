@@ -66,15 +66,7 @@ public static partial class Module
             Path = pathEntries.ToArray()
         };
 
-        var existingPath = ctx.Db.tank_path.TankId.Find(tank.Id);
-        if (existingPath != null)
-        {
-            ctx.Db.tank_path.TankId.Update(newPathState);
-        }
-        else
-        {
-            ctx.Db.tank_path.Insert(newPathState);
-        }
+        UpsertTankPath(ctx, newPathState);
 
         tank = tank with
         {

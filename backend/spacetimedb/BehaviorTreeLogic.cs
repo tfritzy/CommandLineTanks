@@ -30,7 +30,7 @@ public static class BehaviorTreeLogic
     public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, BehaviorTreeAI.AIContext context)
     {
         var allTanks = context.GetAllTanks();
-        var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
+        var pathState = context.GetTankPath(tank.Id);
         bool isCurrentlyMoving = pathState != null && pathState.Value.Path.Length > 0;
 
         var nearbyTank = FindNearestTank(tank, allTanks);

@@ -26,6 +26,7 @@ public static partial class BehaviorTreeAI
         private List<Pickup>? _allPickups;
         private TraversibilityMap? _traversibilityMap;
         private bool _traversibilityMapLoaded;
+        private Dictionary<string, Module.TankPath?>? _tankPaths;
 
         public AIContext(ReducerContext ctx, string worldId)
         {
@@ -64,6 +65,21 @@ public static partial class BehaviorTreeAI
                 _traversibilityMapLoaded = true;
             }
             return _traversibilityMap;
+        }
+
+        public Module.TankPath? GetTankPath(string tankId)
+        {
+            if (_tankPaths == null)
+            {
+                _tankPaths = new Dictionary<string, Module.TankPath?>();
+            }
+
+            if (!_tankPaths.ContainsKey(tankId))
+            {
+                _tankPaths[tankId] = _ctx.Db.tank_path.TankId.Find(tankId);
+            }
+
+            return _tankPaths[tankId];
         }
     }
 
@@ -114,11 +130,7 @@ public static partial class BehaviorTreeAI
             case BehaviorTreeLogic.AIAction.StopMoving:
                 if (decision.TargetTank != null)
                 {
-                    var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
-                    if (pathState != null)
-                    {
-                        ctx.Db.tank_path.TankId.Delete(tank.Id);
-                    }
+                    DeleteTankPathIfExists(ctx, tank.Id);
 
                     tank = tank with
                     {
@@ -172,15 +184,7 @@ public static partial class BehaviorTreeAI
             Path = pathEntries
         };
 
-        var existingPath = ctx.Db.tank_path.TankId.Find(tank.Id);
-        if (existingPath != null)
-        {
-            ctx.Db.tank_path.TankId.Update(newPathState);
-        }
-        else
-        {
-            ctx.Db.tank_path.Insert(newPathState);
-        }
+        UpsertTankPath(ctx, newPathState);
     }
 
     private static void DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
@@ -214,14 +218,6 @@ public static partial class BehaviorTreeAI
             Path = [entry]
         };
 
-        var existingPath = ctx.Db.tank_path.TankId.Find(tank.Id);
-        if (existingPath != null)
-        {
-            ctx.Db.tank_path.TankId.Update(newPathState);
-        }
-        else
-        {
-            ctx.Db.tank_path.Insert(newPathState);
-        }
+        UpsertTankPath(ctx, newPathState);
     }
 }

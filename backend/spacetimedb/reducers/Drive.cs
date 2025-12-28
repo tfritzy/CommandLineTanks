@@ -42,13 +42,6 @@ public static partial class Module
             Path = newPath
         };
 
-        if (pathState != null)
-        {
-            ctx.Db.tank_path.TankId.Update(newPathState);
-        }
-        else
-        {
-            ctx.Db.tank_path.Insert(newPathState);
-        }
+        UpsertTankPath(ctx, newPathState);
     }
 }

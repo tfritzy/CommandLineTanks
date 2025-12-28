@@ -12,11 +12,7 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
-        if (pathState != null)
-        {
-            ctx.Db.tank_path.TankId.Delete(tank.Id);
-        }
+        DeleteTankPathIfExists(ctx, tank.Id);
 
         tank.Velocity = new Vector2Float(0, 0);
         ctx.Db.tank.Id.Update(tank);
