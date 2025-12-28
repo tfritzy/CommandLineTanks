@@ -12,7 +12,7 @@ public static partial class TurretAI
 
     public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext, int tickCount)
     {
-        bool shouldSwitch = (tickCount % TARGET_SWITCH_TICK_INTERVAL) == 0;
+        bool shouldSwitch = tickCount > 0 && (tickCount % TARGET_SWITCH_TICK_INTERVAL) == 0;
 
         if (shouldSwitch || tank.Target == null)
         {
@@ -41,9 +41,17 @@ public static partial class TurretAI
 
     private static Tank SelectNewTarget(ReducerContext ctx, Tank tank, AIContext aiContext)
     {
+        int turretTileX = (int)tank.PositionX / TILE_SIZE;
+        int turretTileY = (int)tank.PositionY / TILE_SIZE;
+
         var allTanks = aiContext.GetAllTanks();
         var tanksInTile = allTanks
-            .Where(t => t.Id != tank.Id && t.Health > 0 && t.IsBot && IsInSameTile(tank, t))
+            .Where(t => t.Id != tank.Id && t.Health > 0 && t.IsBot)
+            .Where(t => {
+                int tankTileX = (int)t.PositionX / TILE_SIZE;
+                int tankTileY = (int)t.PositionY / TILE_SIZE;
+                return tankTileX == turretTileX && tankTileY == turretTileY;
+            })
             .ToList();
 
         Tank updatedTank = tank;
