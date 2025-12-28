@@ -34,7 +34,7 @@ export class Tank {
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
   private isPlayerTank: boolean = false;
-  private message: string | null | undefined = null;
+  private message: string | null = null;
   private positionBuffer: Array<{ x: number; y: number; serverTimestampMs: number }> =
     [];
 
@@ -194,10 +194,10 @@ export class Tank {
   }
 
   public setMessage(message: string | null | undefined) {
-    this.message = message;
+    this.message = message ?? null;
   }
 
-  public getMessage(): string | null | undefined {
+  public getMessage(): string | null {
     return this.message;
   }
 
