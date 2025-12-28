@@ -33,6 +33,7 @@ export default __t.row({
   collisionRegionY: __t.i32(),
   target: __t.option(__t.string()),
   targetLead: __t.f32(),
+  message: __t.option(__t.string()),
   topSpeed: __t.f32(),
   turretRotationSpeed: __t.f32(),
   positionX: __t.f32(),

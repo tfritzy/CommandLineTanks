@@ -19,7 +19,8 @@ public static partial class RandomAimAI
             tank = tank with
             {
                 TargetTurretRotation = NormalizeAngleToTarget(targetAngle, tank.TurretRotation),
-                Target = null
+                Target = null,
+                Message = $"aim {tank.WorldId} {targetAngle:F2}"
             };
         }
 

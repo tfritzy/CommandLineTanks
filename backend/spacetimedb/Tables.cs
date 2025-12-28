@@ -88,6 +88,8 @@ public static partial class Module
         public string? Target;
         public float TargetLead;
 
+        public string? Message;
+
         public float TopSpeed;
         public float TurretRotationSpeed;
 

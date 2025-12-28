@@ -34,6 +34,7 @@ export class Tank {
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
   private isPlayerTank: boolean = false;
+  private message: string | null | undefined = null;
   private positionBuffer: Array<{ x: number; y: number; serverTimestampMs: number }> =
     [];
 
@@ -93,6 +94,12 @@ export class Tank {
   public drawNameLabel(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
     drawTankNameLabel(ctx, this.x, this.y, this.name);
+  }
+
+  public drawMessageLabel(ctx: CanvasRenderingContext2D) {
+    if (this.health <= 0) return;
+    if (!this.message) return;
+    drawTankNameLabel(ctx, this.x, this.y - 0.5, this.message);
   }
 
   public drawShadow(ctx: CanvasRenderingContext2D) {
@@ -184,6 +191,14 @@ export class Tank {
 
   public setIsPlayerTank(isPlayerTank: boolean) {
     this.isPlayerTank = isPlayerTank;
+  }
+
+  public setMessage(message: string | null | undefined) {
+    this.message = message;
+  }
+
+  public getMessage(): string | null | undefined {
+    return this.message;
   }
 
   public update(deltaTime: number) {

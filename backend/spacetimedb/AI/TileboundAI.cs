@@ -88,5 +88,11 @@ public static partial class TileboundAI
         };
 
         UpsertTankPath(ctx, newPathState);
+
+        var updatedTank = tank with
+        {
+            Message = $"driveTo {targetX} {targetY} 1"
+        };
+        ctx.Db.tank.Id.Update(updatedTank);
     }
 }
