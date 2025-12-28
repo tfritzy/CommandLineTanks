@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 public static partial class TerrainGenerator
 {
-    private const int WORLD_WIDTH = 100;
-    private const int WORLD_HEIGHT = 54;
+    private const int WORLD_WIDTH = 40;
+    private const int WORLD_HEIGHT = 40;
     private const int FIELD_MIN_SIZE = 5;
     private const int FIELD_MAX_SIZE = 10;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
