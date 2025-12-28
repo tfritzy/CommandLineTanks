@@ -9,7 +9,7 @@ export class Tree extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.TREE, 0, 7.77, 3.33);
+    const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.TREE, 0.15, 7.77, 3.33);
     drawTreeShadow(ctx, centerX, centerY, radius);
     ctx.restore();
   }
@@ -20,7 +20,7 @@ export class Tree extends TerrainDetailObject {
     const y = this.getWorldY();
     const centerX = x;
     const centerY = y;
-    const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.TREE, 0, 7.77, 3.33);
+    const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.TREE, 0.15, 7.77, 3.33);
     drawTreeBody(ctx, centerX, centerY, radius, this.flashTimer);
     ctx.restore();
     this.drawLabel(ctx);
