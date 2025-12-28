@@ -714,6 +714,7 @@ export class ProjectileTextureSheet {
     const padding = 2;
     const bulletLength = radius * 4;
     const bulletWidth = radius * 0.4;
+    const bulletBackRatio = 0.1;
     const centerX = x + bulletLength + padding;
     const centerY = y + bulletWidth + padding;
 
@@ -723,8 +724,8 @@ export class ProjectileTextureSheet {
     this.shadowCtx.beginPath();
     this.shadowCtx.moveTo(bulletLength, 0);
     this.shadowCtx.lineTo(0, -bulletWidth);
-    this.shadowCtx.lineTo(-bulletLength * 0.1, -bulletWidth);
-    this.shadowCtx.lineTo(-bulletLength * 0.1, bulletWidth);
+    this.shadowCtx.lineTo(-bulletLength * bulletBackRatio, -bulletWidth);
+    this.shadowCtx.lineTo(-bulletLength * bulletBackRatio, bulletWidth);
     this.shadowCtx.lineTo(0, bulletWidth);
     this.shadowCtx.closePath();
     this.shadowCtx.fill();
@@ -737,8 +738,8 @@ export class ProjectileTextureSheet {
     this.ctx.beginPath();
     this.ctx.moveTo(bulletLength, 0);
     this.ctx.lineTo(0, -bulletWidth);
-    this.ctx.lineTo(-bulletLength * 0.1, -bulletWidth);
-    this.ctx.lineTo(-bulletLength * 0.1, bulletWidth);
+    this.ctx.lineTo(-bulletLength * bulletBackRatio, -bulletWidth);
+    this.ctx.lineTo(-bulletLength * bulletBackRatio, bulletWidth);
     this.ctx.lineTo(0, bulletWidth);
     this.ctx.closePath();
     this.ctx.fill();
@@ -746,8 +747,8 @@ export class ProjectileTextureSheet {
     this.ctx.fillStyle = color;
     this.ctx.beginPath();
     this.ctx.moveTo(0, -bulletWidth);
-    this.ctx.lineTo(-bulletLength * 0.1, -bulletWidth);
-    this.ctx.lineTo(-bulletLength * 0.1, bulletWidth);
+    this.ctx.lineTo(-bulletLength * bulletBackRatio, -bulletWidth);
+    this.ctx.lineTo(-bulletLength * bulletBackRatio, bulletWidth);
     this.ctx.lineTo(0, bulletWidth);
     this.ctx.closePath();
     this.ctx.fill();
@@ -760,7 +761,7 @@ export class ProjectileTextureSheet {
     const textureData = {
       x: x,
       y: y,
-      width: bulletLength + bulletLength * 0.1 + padding * 2,
+      width: bulletLength + bulletLength * bulletBackRatio + padding * 2,
       height: bulletWidth * 2 + padding * 2,
     };
 
