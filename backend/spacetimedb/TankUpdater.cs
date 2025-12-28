@@ -110,7 +110,6 @@ public static partial class TankUpdater
         [SpacetimeDB.Index.BTree]
         public string WorldId;
         public ulong LastTickAt;
-        public ulong TickCount;
     }
 
     [Reducer]
@@ -122,8 +121,7 @@ public static partial class TankUpdater
 
         ctx.Db.ScheduledTankUpdates.ScheduledId.Update(args with
         {
-            LastTickAt = currentTime,
-            TickCount = args.TickCount + 1
+            LastTickAt = currentTime
         });
 
         var updateContext = new TankUpdateContext(ctx, args.WorldId);

@@ -70,8 +70,7 @@ public static partial class Module
                 ScheduledId = 0,
                 ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
                 WorldId = worldId,
-                LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-                TickCount = 0
+                LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             });
         }
 
