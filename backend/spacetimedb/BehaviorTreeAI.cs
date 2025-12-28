@@ -28,7 +28,12 @@ public static partial class BehaviorTreeAI
         {
             if (tank.Health <= 0)
             {
-                var respawnedTank = RespawnTank(ctx, tank, args.WorldId, tank.Alliance);
+                (float, float)? spawnPosition = null;
+                if (tank.AIBehavior == AIBehavior.Tilebound)
+                {
+                    spawnPosition = (tank.PositionX, tank.PositionY);
+                }
+                var respawnedTank = RespawnTank(ctx, tank, args.WorldId, tank.Alliance, false, spawnPosition);
                 ctx.Db.tank.Id.Update(respawnedTank);
                 continue;
             }

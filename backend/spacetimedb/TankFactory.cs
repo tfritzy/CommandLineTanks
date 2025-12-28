@@ -7,7 +7,7 @@ public static partial class Module
     private const int MAX_SPAWN_ATTEMPTS = 100;
     private const int SPAWN_ZONE_WIDTH = 5;
 
-    public static Tank RespawnTank(ReducerContext ctx, Tank tank, string worldId, int alliance, bool resetKills = false)
+    public static Tank RespawnTank(ReducerContext ctx, Tank tank, string worldId, int alliance, bool resetKills = false, (float, float)? spawnPosition = null)
     {
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
         if (traversibilityMap == null)
@@ -15,7 +15,7 @@ public static partial class Module
             return tank;
         }
 
-        var (spawnX, spawnY) = FindSpawnPosition(ctx, traversibilityMap.Value, alliance, ctx.Rng);
+        var (spawnX, spawnY) = spawnPosition ?? FindSpawnPosition(ctx, traversibilityMap.Value, alliance, ctx.Rng);
 
         var respawnedTank = tank with
         {
