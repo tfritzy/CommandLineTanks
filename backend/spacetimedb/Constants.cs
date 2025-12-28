@@ -44,6 +44,7 @@ public static partial class Module
         Damping = null,
         Bounce = false,
         ProjectileSize = .1f,
+        ProjectileSpeed = PROJECTILE_SPEED,
     };
 
     public static readonly Gun TRIPLE_SHOOTER_GUN = new Gun
@@ -65,6 +66,7 @@ public static partial class Module
         Damping = null,
         Bounce = false,
         ProjectileSize = .1f,
+        ProjectileSpeed = PROJECTILE_SPEED,
     };
 
     public static readonly Gun MISSILE_LAUNCHER_GUN = new Gun
@@ -86,6 +88,7 @@ public static partial class Module
         Damping = null,
         Bounce = false,
         ProjectileSize = .2f,
+        ProjectileSpeed = PROJECTILE_SPEED,
     };
 
     public static readonly Gun BOOMERANG_GUN = new Gun
@@ -107,6 +110,7 @@ public static partial class Module
         Damping = null,
         Bounce = false,
         ProjectileSize = .3f,
+        ProjectileSpeed = PROJECTILE_SPEED,
     };
 
     public static readonly Gun GRENADE_GUN = new Gun
@@ -128,6 +132,7 @@ public static partial class Module
         Damping = 0.3f,
         Bounce = true,
         ProjectileSize = .3f,
+        ProjectileSpeed = PROJECTILE_SPEED,
     };
 
     public static readonly Gun ROCKET_GUN = new Gun
@@ -149,6 +154,7 @@ public static partial class Module
         Damping = null,
         Bounce = false,
         ProjectileSize = .2f,
+        ProjectileSpeed = PROJECTILE_SPEED,
     };
 
     public static readonly Gun MOAG_GUN = new Gun
@@ -170,6 +176,7 @@ public static partial class Module
         Damping = null,
         Bounce = false,
         ProjectileSize = 1f,
+        ProjectileSpeed = PROJECTILE_SPEED,
     };
 
     public static readonly Gun SPIDER_MINE_GUN = new Gun
@@ -191,5 +198,28 @@ public static partial class Module
         Damping = 0.6f,
         Bounce = false,
         ProjectileSize = .2f,
+        ProjectileSpeed = PROJECTILE_SPEED,
+    };
+
+    public static readonly Gun SNIPER_GUN = new Gun
+    {
+        GunType = GunType.Sniper,
+        Ammo = 10,
+        ProjectileCount = 1,
+        SpreadAngle = 0,
+        Damage = 100,
+        TrackingStrength = 0,
+        TrackingRadius = 0,
+        ProjectileType = ProjectileType.Sniper,
+        LifetimeSeconds = 10.0f,
+        MaxCollisions = 1,
+        PassThroughTerrain = false,
+        CollisionRadius = 0.1f,
+        ExplosionRadius = null,
+        ExplosionTrigger = ExplosionTrigger.None,
+        Damping = null,
+        Bounce = false,
+        ProjectileSize = .15f,
+        ProjectileSpeed = 15.0f,
     };
 }

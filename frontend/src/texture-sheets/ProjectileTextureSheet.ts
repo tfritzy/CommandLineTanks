@@ -184,6 +184,25 @@ export class ProjectileTextureSheet {
       currentY,
       radius
     );
+    currentX = 0;
+    currentY += rowHeight;
+
+    this.addSniperProjectile(
+      "sniper-red",
+      TEAM_COLORS.RED,
+      currentX,
+      currentY,
+      radius
+    );
+    currentX += radius * 6 + padding * 4;
+
+    this.addSniperProjectile(
+      "sniper-blue",
+      TEAM_COLORS.BLUE,
+      currentX,
+      currentY,
+      radius
+    );
   }
 
   private addNormalProjectile(
@@ -679,6 +698,70 @@ export class ProjectileTextureSheet {
       y: y,
       width: legLength * 2 + padding * 2,
       height: legLength * 2 + padding * 2,
+    };
+
+    this.textures.set(key, textureData);
+    this.shadowTextures.set(key, textureData);
+  }
+
+  private addSniperProjectile(
+    key: string,
+    color: string,
+    x: number,
+    y: number,
+    radius: number
+  ) {
+    const padding = 2;
+    const bulletLength = radius * 4;
+    const bulletWidth = radius * 0.4;
+    const centerX = x + bulletLength + padding;
+    const centerY = y + bulletWidth + padding;
+
+    this.shadowCtx.save();
+    this.shadowCtx.translate(centerX, centerY);
+    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    this.shadowCtx.beginPath();
+    this.shadowCtx.moveTo(bulletLength, 0);
+    this.shadowCtx.lineTo(0, -bulletWidth);
+    this.shadowCtx.lineTo(-bulletLength * 0.1, -bulletWidth);
+    this.shadowCtx.lineTo(-bulletLength * 0.1, bulletWidth);
+    this.shadowCtx.lineTo(0, bulletWidth);
+    this.shadowCtx.closePath();
+    this.shadowCtx.fill();
+    this.shadowCtx.restore();
+
+    this.ctx.save();
+    this.ctx.translate(centerX, centerY);
+
+    this.ctx.fillStyle = "#a9bcbf";
+    this.ctx.beginPath();
+    this.ctx.moveTo(bulletLength, 0);
+    this.ctx.lineTo(0, -bulletWidth);
+    this.ctx.lineTo(-bulletLength * 0.1, -bulletWidth);
+    this.ctx.lineTo(-bulletLength * 0.1, bulletWidth);
+    this.ctx.lineTo(0, bulletWidth);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    this.ctx.fillStyle = color;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, -bulletWidth);
+    this.ctx.lineTo(-bulletLength * 0.1, -bulletWidth);
+    this.ctx.lineTo(-bulletLength * 0.1, bulletWidth);
+    this.ctx.lineTo(0, bulletWidth);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    this.ctx.strokeStyle = "#2e2e43";
+    this.ctx.lineWidth = 1;
+    this.ctx.stroke();
+    this.ctx.restore();
+
+    const textureData = {
+      x: x,
+      y: y,
+      width: bulletLength + bulletLength * 0.1 + padding * 2,
+      height: bulletWidth * 2 + padding * 2,
     };
 
     this.textures.set(key, textureData);

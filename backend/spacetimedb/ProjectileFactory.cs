@@ -6,8 +6,8 @@ public static partial class Module
 {
     private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, Gun gun)
     {
-        float velocityX = (float)Math.Cos(angle) * PROJECTILE_SPEED;
-        float velocityY = (float)Math.Sin(angle) * PROJECTILE_SPEED;
+        float velocityX = (float)Math.Cos(angle) * gun.ProjectileSpeed;
+        float velocityY = (float)Math.Sin(angle) * gun.ProjectileSpeed;
 
         var projectileId = GenerateId(ctx, "prj");
         var projectile = new Projectile
@@ -18,7 +18,7 @@ public static partial class Module
             Alliance = tank.Alliance,
             PositionX = startX,
             PositionY = startY,
-            Speed = PROJECTILE_SPEED,
+            Speed = gun.ProjectileSpeed,
             Size = gun.ProjectileSize,
             Velocity = new Vector2Float(velocityX, velocityY),
             Damage = gun.Damage,
