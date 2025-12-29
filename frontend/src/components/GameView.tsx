@@ -138,73 +138,130 @@ export default function GameView() {
         {!showJoinModal && isDead && (
           <div style={{
             position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: '#2a152d',
-            padding: '40px 60px',
-            textAlign: 'center',
-            color: '#e6eeed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'radial-gradient(ellipse at center, rgba(192, 104, 82, 0.15) 0%, rgba(46, 46, 67, 0.85) 60%)',
+            backdropFilter: 'blur(2px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
             fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '24px',
-            fontWeight: 'bold',
-            border: '4px solid #813645',
-            zIndex: 1000
+            zIndex: 1000,
+            animation: 'fadeIn 0.3s ease-out'
           }}>
-            <div style={{ fontSize: '36px', marginBottom: '20px', color: '#e39764' }}>
-              YOU DIED
+            <style>{`
+              @keyframes fadeIn {
+                from {
+                  opacity: 0;
+                }
+                to {
+                  opacity: 1;
+                }
+              }
+            `}</style>
+            
+            <div style={{
+              fontSize: '120px',
+              fontWeight: 900,
+              color: '#c06852',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              marginBottom: '40px',
+              textShadow: '0 4px 20px rgba(192, 104, 82, 0.5), 0 0 60px rgba(192, 104, 82, 0.3)',
+              lineHeight: 1
+            }}>
+              ELIMINATED
             </div>
-            <div style={{ fontSize: '18px', color: '#a9bcbf', marginBottom: '30px' }}>
-              Call the respawn command to respawn
+
+            <div style={{
+              fontSize: '20px',
+              color: '#e6eeed',
+              marginBottom: '8px',
+              letterSpacing: '0.05em',
+              fontWeight: 300
+            }}>
+              Type <span style={{ 
+                color: '#fceba8', 
+                fontWeight: 500,
+                padding: '2px 8px',
+                background: 'rgba(252, 235, 168, 0.1)',
+                borderRadius: '2px'
+              }}>respawn</span> to rejoin the battle
             </div>
-            <div style={{ fontSize: '16px', color: '#a9bcbf', marginBottom: '10px' }}>
-              Invite friends to join this world:
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+
+            <div style={{
+              position: 'absolute',
+              bottom: '60px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '90%',
+              maxWidth: '600px',
+              textAlign: 'center'
+            }}>
               <div style={{
-                flex: 1,
-                fontSize: '14px',
-                color: '#fcfbf3',
-                background: '#4a4b5b',
-                padding: '12px 16px',
-                borderRadius: '4px',
-                fontFamily: "'JetBrains Mono', monospace",
-                userSelect: 'all',
-                cursor: 'text',
-                wordBreak: 'break-all'
+                fontSize: '12px',
+                color: '#707b89',
+                marginBottom: '12px',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase'
               }}>
-                {window.location.origin}/world/{encodeURIComponent(worldId)}
+                Share World
               </div>
-              <button
-                onClick={() => {
-                  const url = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
-                  navigator.clipboard.writeText(url)
-                    .then(() => {
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 2000);
-                    })
-                    .catch(() => {
-                      setCopied(false);
-                    });
-                }}
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
-                style={{
-                  padding: '12px 20px',
-                  fontSize: '14px',
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                alignItems: 'stretch'
+              }}>
+                <div style={{
+                  flex: 1,
+                  fontSize: '13px',
+                  color: '#a9bcbf',
+                  background: 'rgba(74, 75, 91, 0.5)',
+                  padding: '10px 14px',
                   fontFamily: "'JetBrains Mono', monospace",
-                  fontWeight: 'bold',
-                  color: '#fcfbf3',
-                  background: copied ? '#3c6c54' : (isHovering ? '#7396d5' : '#5a78b2'),
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  transition: 'background 0.2s',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
+                  userSelect: 'all',
+                  cursor: 'text',
+                  wordBreak: 'break-all',
+                  border: '1px solid rgba(112, 123, 137, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  {window.location.origin}/world/{encodeURIComponent(worldId)}
+                </div>
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
+                    navigator.clipboard.writeText(url)
+                      .then(() => {
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      })
+                      .catch(() => {
+                        setCopied(false);
+                      });
+                  }}
+                  onMouseEnter={() => setIsHovering(true)}
+                  onMouseLeave={() => setIsHovering(false)}
+                  style={{
+                    padding: '10px 18px',
+                    fontSize: '13px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontWeight: 500,
+                    color: '#fcfbf3',
+                    background: copied ? '#4e9363' : (isHovering ? '#5c8995' : '#405967'),
+                    border: '1px solid rgba(112, 123, 137, 0.3)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap',
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  {copied ? '✓ COPIED' : 'COPY'}
+                </button>
+              </div>
             </div>
           </div>
         )}
