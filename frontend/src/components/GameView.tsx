@@ -119,11 +119,8 @@ export default function GameView() {
     };
 
     const worldCheckTimeout = setTimeout(() => {
-      if (!checkWorldExists()) {
-        setWorldNotFound(true);
-      } else {
-        setWorldNotFound(false);
-      }
+      const exists = checkWorldExists();
+      setWorldNotFound(!exists);
     }, 1500);
 
     return () => {
