@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getConnection, setPendingJoinCode } from '../../spacetimedb-connection';
-import { aim, drive, fire, help, respawn, stop, switchGun, target, findGame, joinGame, smokescreen, overdrive, repair, createGame } from './commands';
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create } from './commands';
 import GameCreationFlow from '../GameCreationFlow';
 
 interface TerminalComponentProps {
@@ -154,23 +154,18 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         newOutput.push(...respawnOutput);
                         break;
                     }
-                    case 'creategame': {
-                        const createGameOutput = createGame(connection, args);
-                        if (typeof createGameOutput === 'object' && 'type' in createGameOutput && createGameOutput.type === 'open_flow') {
+                    case 'create': {
+                        const createOutput = create(connection, args);
+                        if (typeof createOutput === 'object' && 'type' in createOutput && createOutput.type === 'open_flow') {
                             setShowGameCreationFlow(true);
                         } else {
-                            newOutput.push(...createGameOutput);
+                            newOutput.push(...createOutput);
                         }
                         break;
                     }
-                    case 'findgame': {
-                        const findGameOutput = findGame(connection, args);
-                        newOutput.push(...findGameOutput);
-                        break;
-                    }
-                    case 'joingame': {
-                        const joinGameOutput = joinGame(connection, args);
-                        newOutput.push(...joinGameOutput);
+                    case 'join': {
+                        const joinOutput = join(connection, args);
+                        newOutput.push(...joinOutput);
                         break;
                     }
                     case 'help':
