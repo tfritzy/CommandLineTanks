@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import WorldVisibility from '../../module_bindings/world_visibility_type';
+import { type Infer } from "spacetimedb";
 
 interface GameCreationFlowProps {
-    onComplete: (worldName: string, isPrivate: boolean, passcode: string, botCount: number, gameDurationMinutes: number) => void;
+    onComplete: (worldName: string, visibility: Infer<typeof WorldVisibility>, passcode: string, botCount: number, gameDurationMinutes: number) => void;
     onCancel: () => void;
 }
 
 type FlowStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration';
+type VisibilityOption = 'public' | 'private' | 'customPublic';
 
 export default function GameCreationFlow({ onComplete, onCancel }: GameCreationFlowProps) {
     const [step, setStep] = useState<FlowStep>('name');
     const [worldName, setWorldName] = useState('');
-    const [selectedVisibility, setSelectedVisibility] = useState<'public' | 'private'>('public');
+    const [selectedVisibility, setSelectedVisibility] = useState<VisibilityOption>('public');
     const [passcode, setPasscode] = useState('');
     const [botCount, setBotCount] = useState(0);
     const [gameDuration, setGameDuration] = useState(5);
@@ -43,9 +46,20 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
             }
 
             if (step === 'visibility') {
-                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    setSelectedVisibility(prev => prev === 'public' ? 'private' : 'public');
+                    setSelectedVisibility(prev => {
+                        if (prev === 'public') return 'customPublic';
+                        if (prev === 'customPublic') return 'private';
+                        return 'public';
+                    });
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setSelectedVisibility(prev => {
+                        if (prev === 'public') return 'private';
+                        if (prev === 'private') return 'customPublic';
+                        return 'public';
+                    });
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
                     if (selectedVisibility === 'private') {
@@ -74,7 +88,10 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                     setGameDuration(prev => Math.max(1, prev - 1));
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
-                    onComplete(worldName, selectedVisibility === 'private', passcode, botCount, gameDuration);
+                    const visibility = selectedVisibility === 'public' ? WorldVisibility.Public : 
+                                     selectedVisibility === 'private' ? WorldVisibility.Private : 
+                                     WorldVisibility.CustomPublic;
+                    onComplete(worldName, visibility, passcode, botCount, gameDuration);
                 }
             }
         };
@@ -157,7 +174,18 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                             }}>
                                 {selectedVisibility === 'public' ? '▶ ' : '  '}Public Game
                                 <div style={{ fontSize: '12px', color: '#a9bcbf', marginTop: '5px' }}>
-                                    Anyone can join
+                                    Anyone can join automatically
+                                </div>
+                            </div>
+                            <div style={{
+                                padding: '15px 20px',
+                                background: selectedVisibility === 'customPublic' ? '#5a78b2' : '#4f2d4d',
+                                border: `2px solid ${selectedVisibility === 'customPublic' ? '#7396d5' : '#5a78b2'}`,
+                                fontSize: '16px'
+                            }}>
+                                {selectedVisibility === 'customPublic' ? '▶ ' : '  '}Custom Public Game
+                                <div style={{ fontSize: '12px', color: '#a9bcbf', marginTop: '5px' }}>
+                                    Join by world ID only
                                 </div>
                             </div>
                             <div style={{

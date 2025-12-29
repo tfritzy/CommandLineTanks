@@ -11,7 +11,7 @@ public static partial class Module
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
         bool[] traversibilityMap,
         bool[] projectileCollisionMap,
-        bool isPrivate = false,
+        WorldVisibility visibility = WorldVisibility.Public,
         string passcode = "",
         long? gameDurationMicros = null)
     {
@@ -30,7 +30,7 @@ public static partial class Module
             IsHomeWorld = false,
             GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             GameDurationMicros = duration,
-            IsPrivate = isPrivate,
+            Visibility = visibility,
             HasPasscode = hasPasscode
         };
 

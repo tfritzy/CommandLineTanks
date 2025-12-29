@@ -10,15 +10,12 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-import WorldVisibility from "./world_visibility_type";
+// The tagged union or sum type for the algebraic type `WorldVisibility`.
+const WorldVisibility = __t.enum("WorldVisibility", {Public: __t.unit(),
+  Private: __t.unit(),
+  CustomPublic: __t.unit(),
+});
 
-export default {
-  joinCode: __t.string(),
-  worldName: __t.string(),
-  get visibility() {
-    return WorldVisibility;
-  },
-  passcode: __t.string(),
-  botCount: __t.i32(),
-  gameDurationMicros: __t.i64(),
-};
+export default WorldVisibility;
+
+

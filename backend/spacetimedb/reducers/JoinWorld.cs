@@ -17,7 +17,7 @@ public static partial class Module
 
         if (string.IsNullOrEmpty(worldId))
         {
-            world = ctx.Db.world.GameState_IsHomeWorld_IsPrivate.Filter((GameState.Playing, false, false)).FirstOrDefault();
+            world = ctx.Db.world.GameState_IsHomeWorld_Visibility.Filter((GameState.Playing, false, WorldVisibility.Public)).FirstOrDefault();
             
             if (world == null)
             {
@@ -33,7 +33,7 @@ public static partial class Module
                     terrainDetails,
                     traversibilityMap,
                     projectileCollisionMap,
-                    false,
+                    WorldVisibility.Public,
                     ""
                 );
 

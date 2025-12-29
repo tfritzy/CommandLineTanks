@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { getConnection, setPendingJoinCode } from '../../spacetimedb-connection';
 import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create } from './commands';
 import GameCreationFlow from '../GameCreationFlow';
+import WorldVisibility from '../../module_bindings/world_visibility_type';
+import { type Infer } from "spacetimedb";
 
 interface TerminalComponentProps {
     worldId: string;
@@ -192,7 +194,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         setInput('');
     };
 
-    const handleGameCreationComplete = (worldName: string, isPrivate: boolean, passcode: string, botCount: number, gameDurationMinutes: number) => {
+    const handleGameCreationComplete = (worldName: string, visibility: Infer<typeof WorldVisibility>, passcode: string, botCount: number, gameDurationMinutes: number) => {
         setShowGameCreationFlow(false);
         
         const connection = getConnection();
@@ -210,15 +212,18 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         connection.reducers.createWorld({ 
             joinCode,
             worldName,
-            isPrivate, 
+            visibility, 
             passcode: passcode || '',
             botCount,
             gameDurationMicros
         });
 
+        const visibilityLabel = visibility.tag === 'Public' ? 'public' : 
+                               visibility.tag === 'Private' ? 'private' : 
+                               'custom public';
         const newOutput = [
             ...output,
-            `Creating ${isPrivate ? 'private' : 'public'} game "${worldName}"...`,
+            `Creating ${visibilityLabel} game "${worldName}"...`,
             `Bots: ${botCount}, Duration: ${gameDurationMinutes} min`,
             ""
         ].filter(line => line !== '');

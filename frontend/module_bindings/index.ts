@@ -211,6 +211,8 @@ import World from "./world_type";
 export { World };
 import WorldPasscode from "./world_passcode_type";
 export { WorldPasscode };
+import WorldVisibility from "./world_visibility_type";
+export { WorldVisibility };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
@@ -560,10 +562,10 @@ const tablesSchema = __schema(
   __table({
     name: 'world',
     indexes: [
-      { name: 'GameState_IsHomeWorld_IsPrivate', algorithm: 'btree', columns: [
+      { name: 'GameState_IsHomeWorld_Visibility', algorithm: 'btree', columns: [
         'gameState',
         'isHomeWorld',
-        'isPrivate',
+        'visibility',
       ] },
       { name: 'GameState', algorithm: 'btree', columns: [
         'gameState',
