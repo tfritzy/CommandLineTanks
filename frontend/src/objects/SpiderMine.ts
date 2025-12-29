@@ -11,6 +11,7 @@ export class SpiderMine {
   private plantingStartedAt: number;
   private velocityX: number;
   private velocityY: number;
+  private cachedPosition: { x: number; y: number } = { x: 0, y: 0 };
 
   constructor(
     id: string,
@@ -79,7 +80,9 @@ export class SpiderMine {
   }
 
   public getPosition(): { x: number; y: number } {
-    return { x: this.x, y: this.y };
+    this.cachedPosition.x = this.x;
+    this.cachedPosition.y = this.y;
+    return this.cachedPosition;
   }
 
   public getHealth(): number {

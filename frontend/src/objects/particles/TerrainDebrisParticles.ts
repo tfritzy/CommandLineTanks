@@ -7,10 +7,12 @@ export class TerrainDebrisParticles {
   private isDead = false;
   private x: number;
   private y: number;
+  private cachedPosition: { x: number; y: number };
 
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
+    this.cachedPosition = { x, y };
     const fenceColors = ["#a9bcbf", "#707b89", "#4a4b5b"];
     
     const particleCount = 8 + Math.floor(Math.random() * 8);
@@ -76,6 +78,8 @@ export class TerrainDebrisParticles {
   }
 
   public getPosition(): { x: number; y: number } {
-    return { x: this.x, y: this.y };
+    this.cachedPosition.x = this.x;
+    this.cachedPosition.y = this.y;
+    return this.cachedPosition;
   }
 }

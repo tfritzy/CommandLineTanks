@@ -43,6 +43,7 @@ export class Tank {
   private message: string | null = null;
   private positionBuffer: Array<{ x: number; y: number; serverTimestampMs: number }> =
     [];
+  private cachedPosition: { x: number; y: number } = { x: 0, y: 0 };
 
   constructor(
     id: string,
@@ -280,7 +281,9 @@ export class Tank {
 
   // Getters
   public getPosition(): { x: number; y: number } {
-    return { x: this.x, y: this.y };
+    this.cachedPosition.x = this.x;
+    this.cachedPosition.y = this.y;
+    return this.cachedPosition;
   }
 
   public getTurretRotation(): number {
