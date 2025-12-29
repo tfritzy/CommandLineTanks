@@ -81,6 +81,7 @@ export default function GameView() {
 
     const handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+        setIsDead(false);
         setShowJoinModal(true);
       }
     };
@@ -177,7 +178,7 @@ export default function GameView() {
             justifyContent: 'center',
             fontFamily: "'JetBrains Mono', monospace",
             zIndex: 1000,
-            animation: 'fadeIn 0.3s ease-out'
+            animation: 'fadeIn 0.15s ease-out 1s both'
           }}>
             <style>{`
               @keyframes fadeIn {
