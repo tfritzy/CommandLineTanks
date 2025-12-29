@@ -218,7 +218,7 @@ public static partial class Module
             ctx,
             worldId,
             Identity.From(new byte[32]),
-            "Bot",
+            "AimBot",
             targetCode,
             "",
             0,
@@ -233,11 +233,12 @@ public static partial class Module
     private static void SpawnTileboundTank(ReducerContext ctx, string worldId, int x, int y)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "enemy";
+        var preyNumber = ctx.Rng.Next(1000, 9999);
         var enemyTank = BuildTank(
             ctx,
             worldId,
             Identity.From(new byte[32]),
-            "Bot",
+            $"Prey{preyNumber}",
             targetCode,
             "",
             1,
@@ -256,7 +257,7 @@ public static partial class Module
             ctx,
             worldId,
             Identity.From(new byte[32]),
-            "Bot",
+            "TargetBot",
             targetCode,
             "",
             0,
