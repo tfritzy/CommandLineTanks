@@ -17,12 +17,11 @@ export default function GameView() {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
-  const [showEliminatedScreen, setShowEliminatedScreen] = useState(false);
+  const [isDead, setIsDead] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
-  const eliminationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -54,28 +53,12 @@ export default function GameView() {
 
     let hasReceivedTankData = false;
 
-    const handleDeathStateChange = (isDead: boolean) => {
-      if (eliminationTimeoutRef.current) {
-        clearTimeout(eliminationTimeoutRef.current);
-        eliminationTimeoutRef.current = null;
-      }
-
-      if (isDead) {
-        eliminationTimeoutRef.current = setTimeout(() => {
-          setShowEliminatedScreen(true);
-        }, 1000);
-      } else {
-        setShowEliminatedScreen(false);
-      }
-    };
-
     const checkForTank = () => {
       for (const tank of connection.db.tank.iter()) {
         if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
           hasReceivedTankData = true;
           setShowJoinModal(false);
-          const tankIsDead = tank.health <= 0;
-          handleDeathStateChange(tankIsDead);
+          setIsDead(tank.health <= 0);
           return true;
         }
       }
@@ -86,31 +69,19 @@ export default function GameView() {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
         hasReceivedTankData = true;
         setShowJoinModal(false);
-        const tankIsDead = tank.health <= 0;
-        handleDeathStateChange(tankIsDead);
+        setIsDead(tank.health <= 0);
       }
     };
 
     const handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
-        const wasAlive = _oldTank.health > 0;
-        const isNowDead = newTank.health <= 0;
-        if (wasAlive && isNowDead) {
-          handleDeathStateChange(true);
-        } else if (!isNowDead) {
-          handleDeathStateChange(false);
-        }
+        setIsDead(newTank.health <= 0);
       }
     };
 
     const handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
-        if (eliminationTimeoutRef.current) {
-          clearTimeout(eliminationTimeoutRef.current);
-          eliminationTimeoutRef.current = null;
-        }
         setShowJoinModal(true);
-        setShowEliminatedScreen(false);
       }
     };
 
@@ -130,10 +101,6 @@ export default function GameView() {
 
     return () => {
       clearTimeout(checkTimeout);
-      if (eliminationTimeoutRef.current) {
-        clearTimeout(eliminationTimeoutRef.current);
-        eliminationTimeoutRef.current = null;
-      }
       connection.db.tank.removeOnInsert(handleTankInsert);
       connection.db.tank.removeOnUpdate(handleTankUpdate);
       connection.db.tank.removeOnDelete(handleTankDelete);
@@ -195,7 +162,7 @@ export default function GameView() {
         {showJoinModal && (
           <JoinWorldModal worldId={worldId} onJoin={() => setShowJoinModal(false)} />
         )}
-        {!showJoinModal && showEliminatedScreen && (
+        {!showJoinModal && isDead && (
           <div style={{
             position: 'absolute',
             top: 0,
@@ -210,7 +177,7 @@ export default function GameView() {
             justifyContent: 'center',
             fontFamily: "'JetBrains Mono', monospace",
             zIndex: 1000,
-            animation: 'fadeIn 0.3s ease-out'
+            animation: 'fadeIn 0.3s ease-out 1s both'
           }}>
             <style>{`
               @keyframes fadeIn {
