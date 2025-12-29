@@ -91,6 +91,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
+      "  creategame           Create a new game world",
       "  findgame             Join a game world",
       "  clear, c             Clear the terminal output",
       "  help, h              Display help information",
@@ -287,13 +288,27 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  respawn"
       ];
 
+    case "creategame":
+      return [
+        "creategame - Create a new game world",
+        "",
+        "Usage: creategame",
+        "",
+        "Opens an interactive flow to create a new game world.",
+        "You can choose to make it public or private with a passcode.",
+        "After creation, you'll be automatically joined to the new game.",
+        "",
+        "Examples:",
+        "  creategame"
+      ];
+
     case "findgame":
       return [
         "findgame - Join a game world",
         "",
         "Usage: findgame",
         "",
-        "Finds and joins an available game world.",
+        "Finds and joins an available public game world.",
         "",
         "Examples:",
         "  findgame"
@@ -898,5 +913,17 @@ export function repair(connection: DbConnection, worldId: string, args: string[]
   return [
     "Repairing... (interrupted by damage or movement)",
   ];
+}
+
+export function createGame(_connection: DbConnection, args: string[]): string[] | { type: 'open_flow' } {
+  if (args.length > 0) {
+    return [
+      "creategame: error: creategame command takes no arguments",
+      "",
+      "Usage: creategame"
+    ];
+  }
+
+  return { type: 'open_flow' };
 }
 

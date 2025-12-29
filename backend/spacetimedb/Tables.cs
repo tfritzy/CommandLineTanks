@@ -33,6 +33,8 @@ public static partial class Module
         public bool IsHomeWorld;
         public ulong GameStartedAt;
         public long GameDurationMicros;
+        public bool IsPrivate;
+        public string? Passcode;
     }
 
     [Table(Name = "traversibility_map", Public = true)]

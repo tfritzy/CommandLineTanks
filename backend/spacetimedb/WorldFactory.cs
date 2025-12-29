@@ -10,7 +10,9 @@ public static partial class Module
         BaseTerrain[] baseTerrain,
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
         bool[] traversibilityMap,
-        bool[] projectileCollisionMap)
+        bool[] projectileCollisionMap,
+        bool isPrivate = false,
+        string? passcode = null)
     {
         var world = new World
         {
@@ -23,7 +25,9 @@ public static partial class Module
             GameState = GameState.Playing,
             IsHomeWorld = false,
             GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            GameDurationMicros = GAME_DURATION_MICROS
+            GameDurationMicros = GAME_DURATION_MICROS,
+            IsPrivate = isPrivate,
+            Passcode = passcode
         };
 
         ctx.Db.world.Insert(world);

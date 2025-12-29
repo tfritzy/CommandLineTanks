@@ -39,6 +39,8 @@ import CleanupResultsGames from "./cleanup_results_games_reducer";
 export { CleanupResultsGames };
 import CleanupSmokeCloud from "./cleanup_smoke_cloud_reducer";
 export { CleanupSmokeCloud };
+import CreateWorld from "./create_world_reducer";
+export { CreateWorld };
 import DeleteKill from "./delete_kill_reducer";
 export { DeleteKill };
 import DriveTo from "./drive_to_reducer";
@@ -57,6 +59,8 @@ import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
 import JoinWorld from "./join_world_reducer";
 export { JoinWorld };
+import JoinWorldWithPasscode from "./join_world_with_passcode_reducer";
+export { JoinWorldWithPasscode };
 import Overdrive from "./overdrive_reducer";
 export { Overdrive };
 import Repair from "./repair_reducer";
@@ -579,6 +583,7 @@ const reducersSchema = __reducers(
   __reducerSchema("CheckAndRespawnEnemyTanks", CheckAndRespawnEnemyTanks),
   __reducerSchema("CleanupResultsGames", CleanupResultsGames),
   __reducerSchema("CleanupSmokeCloud", CleanupSmokeCloud),
+  __reducerSchema("createWorld", CreateWorld),
   __reducerSchema("delete_kill", DeleteKill),
   __reducerSchema("driveTo", DriveTo),
   __reducerSchema("driveToTank", DriveToTank),
@@ -586,6 +591,7 @@ const reducersSchema = __reducers(
   __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),
   __reducerSchema("joinWorld", JoinWorld),
+  __reducerSchema("joinWorldWithPasscode", JoinWorldWithPasscode),
   __reducerSchema("overdrive", Overdrive),
   __reducerSchema("repair", Repair),
   __reducerSchema("ResetWorld", ResetWorld),

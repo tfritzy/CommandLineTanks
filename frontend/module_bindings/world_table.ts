@@ -28,4 +28,6 @@ export default __t.row({
   isHomeWorld: __t.bool(),
   gameStartedAt: __t.u64(),
   gameDurationMicros: __t.i64(),
+  isPrivate: __t.bool(),
+  passcode: __t.option(__t.string()),
 });
