@@ -79,6 +79,16 @@ Before starting on a request related to spacetimedb, read: https://spacetimedb.c
 - Create separate drawing functions in `frontend/src/drawing/` that accept particle data and handle canvas rendering
 - Example: `MuzzleFlashParticles` class manages particles, `drawMuzzleFlashParticles()` function in `drawing/particles/` handles rendering
 
+### Minimize Garbage Collection
+
+- Avoid creating unnecessary objects and arrays in hot paths (render loops, update cycles, event handlers)
+- DO NOT use `.filter()`, `.map()`, `.splice()`, or spread operators in hot paths - use in-place operations instead
+- Use swap-and-pop pattern for array removal: swap item to end, then truncate length
+- Reuse arrays and objects instead of creating new ones (e.g., sort buffers, cached position objects)
+- Example: Replace `array = array.filter(x => condition)` with in-place compaction loop
+- Example: Replace `array.splice(i, 1)` with `array[i] = array[array.length-1]; array.length--`
+- Cache objects returned by getters instead of creating new ones each call
+
 ### Table Accessors
 
 - Table names in the database are snake_case (e.g., `terrain_detail`, `tank`)
