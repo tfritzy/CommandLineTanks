@@ -250,7 +250,6 @@ export class Game {
       displayHeight
     );
     this.tankManager.drawNameLabels(this.ctx);
-    this.tankManager.drawMessageLabels(this.ctx);
     this.tankManager.drawHealthBars(this.ctx);
     this.tankManager.drawTankIndicators(this.ctx);
 
