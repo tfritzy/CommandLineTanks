@@ -3,21 +3,21 @@ using SpacetimeDB;
 public static partial class Module
 {
     [Reducer]
-    public static void targetTank(ReducerContext ctx, string worldId, string targetName, float lead)
+    public static void targetTank(ReducerContext ctx, string worldId, string targetCode, float lead)
     {
         Tank tank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (tank.Id == null) return;
 
-        tank = TargetTankByName(ctx, tank, targetName, lead);
+        tank = TargetTankByCode(ctx, tank, targetCode, lead);
         ctx.Db.tank.Id.Update(tank);
     }
 
-    public static Tank TargetTankByName(ReducerContext ctx, Tank tank, string targetName, float lead)
+    public static Tank TargetTankByCode(ReducerContext ctx, Tank tank, string targetCode, float lead)
     {
         if (tank.Health <= 0) return tank;
 
-        var targetNameLower = targetName.ToLower();
-        var targetTank = ctx.Db.tank.WorldId_Name.Filter((tank.WorldId, targetNameLower)).FirstOrDefault();
+        var targetCodeLower = targetCode.ToLower();
+        var targetTank = ctx.Db.tank.WorldId_TargetCode.Filter((tank.WorldId, targetCodeLower)).FirstOrDefault();
 
         if (targetTank.Id == null)
         {

@@ -54,7 +54,7 @@ public static partial class Module
         if (tank != null)
         {
             ctx.Db.tank.Insert(tank.Value);
-            Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tank.Value.Id} named {tank.Value.Name} (joinCode: {joinCode})");
+            Log.Info($"Player {player.Value.Name} joined world {world.Value.Name} with tank {tank.Value.Id} named {tank.Value.Name} (targetCode: {tank.Value.TargetCode}, joinCode: {joinCode})");
         }
     }
 }

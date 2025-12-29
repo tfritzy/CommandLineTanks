@@ -11,24 +11,24 @@ public static partial class Module
         "yankee", "zulu"
     ];
 
-    public static string? AllocateTankName(ReducerContext ctx, string worldId)
+    public static string? AllocateTargetCode(ReducerContext ctx, string worldId)
     {
         var tanksInWorld = ctx.Db.tank.WorldId.Filter(worldId);
-        var usedNames = new HashSet<string>();
+        var usedCodes = new HashSet<string>();
         
         foreach (var tank in tanksInWorld)
         {
-            if (tank.Name != null)
+            if (tank.TargetCode != null)
             {
-                usedNames.Add(tank.Name);
+                usedCodes.Add(tank.TargetCode);
             }
         }
 
-        foreach (var name in NatoPhoneticAlphabet)
+        foreach (var code in NatoPhoneticAlphabet)
         {
-            if (!usedNames.Contains(name))
+            if (!usedCodes.Contains(code))
             {
-                return name;
+                return code;
             }
         }
 

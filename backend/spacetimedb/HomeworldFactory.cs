@@ -213,12 +213,13 @@ public static partial class Module
 
     private static void SpawnRandomAimTankWithDummies(ReducerContext ctx, string worldId, int x, int y, int worldSize)
     {
-        var tankName = AllocateTankName(ctx, worldId) ?? "Enemy";
+        var targetCode = AllocateTargetCode(ctx, worldId) ?? "enemy";
         var enemyTank = BuildTank(
             ctx,
             worldId,
             Identity.From(new byte[32]),
-            tankName,
+            "Bot",
+            targetCode,
             "",
             0,
             x + 0.5f,
@@ -231,12 +232,13 @@ public static partial class Module
 
     private static void SpawnTileboundTank(ReducerContext ctx, string worldId, int x, int y)
     {
-        var tankName = AllocateTankName(ctx, worldId) ?? "Enemy";
+        var targetCode = AllocateTargetCode(ctx, worldId) ?? "enemy";
         var enemyTank = BuildTank(
             ctx,
             worldId,
             Identity.From(new byte[32]),
-            tankName,
+            "Bot",
+            targetCode,
             "",
             1,
             x + 0.5f,
@@ -249,12 +251,13 @@ public static partial class Module
 
     private static void SpawnTurretDemonstrationArea(ReducerContext ctx, string worldId, int centerX, int centerY)
     {
-        var turretName = AllocateTankName(ctx, worldId) ?? "Turret";
+        var targetCode = AllocateTargetCode(ctx, worldId) ?? "turret";
         var turretTank = BuildTank(
             ctx,
             worldId,
             Identity.From(new byte[32]),
-            turretName,
+            "Bot",
+            targetCode,
             "",
             0,
             centerX + 0.5f,

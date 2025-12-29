@@ -48,7 +48,7 @@ public static partial class Module
     }
 
     [Table(Name = "tank", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Name) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(TargetCode) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Owner) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(IsBot) })]
@@ -64,6 +64,8 @@ public static partial class Module
         public Identity Owner;
 
         public string Name;
+
+        public string TargetCode;
 
         public string? JoinCode;
 
