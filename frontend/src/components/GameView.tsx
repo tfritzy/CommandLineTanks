@@ -17,11 +17,12 @@ export default function GameView() {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
-  const [isDead, setIsDead] = useState(false);
+  const [showEliminatedScreen, setShowEliminatedScreen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
+  const eliminationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -53,12 +54,28 @@ export default function GameView() {
 
     let hasReceivedTankData = false;
 
+    const handleDeathStateChange = (isDead: boolean) => {
+      if (eliminationTimeoutRef.current) {
+        clearTimeout(eliminationTimeoutRef.current);
+        eliminationTimeoutRef.current = null;
+      }
+
+      if (isDead) {
+        eliminationTimeoutRef.current = setTimeout(() => {
+          setShowEliminatedScreen(true);
+        }, 1000);
+      } else {
+        setShowEliminatedScreen(false);
+      }
+    };
+
     const checkForTank = () => {
       for (const tank of connection.db.tank.iter()) {
         if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
           hasReceivedTankData = true;
           setShowJoinModal(false);
-          setIsDead(tank.health <= 0);
+          const tankIsDead = tank.health <= 0;
+          handleDeathStateChange(tankIsDead);
           return true;
         }
       }
@@ -69,19 +86,32 @@ export default function GameView() {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
         hasReceivedTankData = true;
         setShowJoinModal(false);
-        setIsDead(tank.health <= 0);
+        const tankIsDead = tank.health <= 0;
+        handleDeathStateChange(tankIsDead);
       }
     };
 
     const handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
-        setIsDead(newTank.health <= 0);
+        const wasAlive = _oldTank.health > 0;
+        const isNowDead = newTank.health <= 0;
+        
+        if (wasAlive && isNowDead) {
+          handleDeathStateChange(true);
+        } else if (!isNowDead) {
+          handleDeathStateChange(false);
+        }
       }
     };
 
     const handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+        if (eliminationTimeoutRef.current) {
+          clearTimeout(eliminationTimeoutRef.current);
+          eliminationTimeoutRef.current = null;
+        }
         setShowJoinModal(true);
+        setShowEliminatedScreen(false);
       }
     };
 
@@ -101,6 +131,10 @@ export default function GameView() {
 
     return () => {
       clearTimeout(checkTimeout);
+      if (eliminationTimeoutRef.current) {
+        clearTimeout(eliminationTimeoutRef.current);
+        eliminationTimeoutRef.current = null;
+      }
       connection.db.tank.removeOnInsert(handleTankInsert);
       connection.db.tank.removeOnUpdate(handleTankUpdate);
       connection.db.tank.removeOnDelete(handleTankDelete);
@@ -162,7 +196,7 @@ export default function GameView() {
         {showJoinModal && (
           <JoinWorldModal worldId={worldId} onJoin={() => setShowJoinModal(false)} />
         )}
-        {!showJoinModal && isDead && (
+        {!showJoinModal && showEliminatedScreen && (
           <div style={{
             position: 'absolute',
             top: 0,
