@@ -40,7 +40,10 @@ export class GunInventoryManager {
         tank.owner.isEqual(connection.identity)
       ) {
         this.playerTankId = tank.id;
-        this.guns = [...tank.guns];
+        this.guns.length = 0;
+        for (let i = 0; i < tank.guns.length; i++) {
+          this.guns.push(tank.guns[i]);
+        }
         this.selectedGunIndex = tank.selectedGunIndex;
         this.playerAlliance = tank.alliance;
       }
@@ -52,7 +55,10 @@ export class GunInventoryManager {
         connection.identity &&
         newTank.owner.isEqual(connection.identity)
       ) {
-        this.guns = [...newTank.guns];
+        this.guns.length = 0;
+        for (let i = 0; i < newTank.guns.length; i++) {
+          this.guns.push(newTank.guns[i]);
+        }
         this.selectedGunIndex = newTank.selectedGunIndex;
         this.playerAlliance = newTank.alliance;
       }
@@ -62,7 +68,7 @@ export class GunInventoryManager {
       if (tank.worldId !== worldId) return;
       if (this.playerTankId === tank.id) {
         this.playerTankId = null;
-        this.guns = [];
+        this.guns.length = 0;
         this.selectedGunIndex = 0;
       }
     };
@@ -74,7 +80,10 @@ export class GunInventoryManager {
     for (const tank of connection.db.tank.iter()) {
       if (tank.worldId === worldId && connection.identity && tank.owner.isEqual(connection.identity)) {
         this.playerTankId = tank.id;
-        this.guns = [...tank.guns];
+        this.guns.length = 0;
+        for (let i = 0; i < tank.guns.length; i++) {
+          this.guns.push(tank.guns[i]);
+        }
         this.selectedGunIndex = tank.selectedGunIndex;
         this.playerAlliance = tank.alliance;
       }

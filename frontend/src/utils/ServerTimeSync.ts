@@ -3,6 +3,7 @@ export class ServerTimeSync {
   private offsetSamples: number[] = [];
   private readonly MAX_SAMPLES = 50;
   private currentOffset: number = 0;
+  private sortBuffer: number[] = [];
 
   private constructor() {}
 
@@ -29,13 +30,20 @@ export class ServerTimeSync {
       return;
     }
 
-    const sorted = [...this.offsetSamples].sort((a, b) => a - b);
-    const median = sorted[Math.floor(sorted.length / 2)];
+    this.sortBuffer.length = this.offsetSamples.length;
+    for (let i = 0; i < this.offsetSamples.length; i++) {
+      this.sortBuffer[i] = this.offsetSamples[i];
+    }
+    this.sortBuffer.sort((a, b) => a - b);
+    const median = this.sortBuffer[Math.floor(this.sortBuffer.length / 2)];
     
     const threshold = 10;
-    const validSamples = this.offsetSamples.filter(
-      sample => Math.abs(sample - median) < threshold
-    );
+    const validSamples: number[] = [];
+    for (let i = 0; i < this.offsetSamples.length; i++) {
+      if (Math.abs(this.offsetSamples[i] - median) < threshold) {
+        validSamples.push(this.offsetSamples[i]);
+      }
+    }
     
     if (validSamples.length === 0) {
       this.currentOffset = median;
@@ -61,7 +69,8 @@ export class ServerTimeSync {
   }
 
   public reset(): void {
-    this.offsetSamples = [];
+    this.offsetSamples.length = 0;
+    this.sortBuffer.length = 0;
     this.currentOffset = 0;
   }
 }

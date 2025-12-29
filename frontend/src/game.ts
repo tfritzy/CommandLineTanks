@@ -298,7 +298,7 @@ export class Game {
     this.miniMapManager.draw(this.ctx, displayWidth, displayHeight);
     this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
     this.abilitiesBarManager.draw(this.ctx, displayWidth, displayHeight);
-    this.killManager.draw(this.ctx, displayWidth, displayHeight);
+    this.killManager.draw(this.ctx, displayWidth);
 
     if (this.fps > 0) {
       this.ctx.save();
