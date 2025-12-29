@@ -57,5 +57,6 @@ export default __t.row({
   remainingRepairCooldownMicros: __t.i64(),
   isRepairing: __t.bool(),
   repairStartedAt: __t.u64(),
+  deathTimestamp: __t.u64(),
   updatedAt: __t.u64(),
 });
