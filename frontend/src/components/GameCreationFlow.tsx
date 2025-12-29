@@ -1,25 +1,47 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface GameCreationFlowProps {
-    onComplete: (isPrivate: boolean, passcode: string) => void;
+    onComplete: (worldName: string, isPrivate: boolean, passcode: string, botCount: number, gameDurationMinutes: number) => void;
     onCancel: () => void;
 }
 
-type FlowStep = 'visibility' | 'passcode';
+type FlowStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration';
 
 export default function GameCreationFlow({ onComplete, onCancel }: GameCreationFlowProps) {
-    const [step, setStep] = useState<FlowStep>('visibility');
+    const [step, setStep] = useState<FlowStep>('name');
+    const [worldName, setWorldName] = useState('');
     const [selectedVisibility, setSelectedVisibility] = useState<'public' | 'private'>('public');
     const [passcode, setPasscode] = useState('');
+    const [botCount, setBotCount] = useState(0);
+    const [gameDuration, setGameDuration] = useState(5);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const handlePasscodeCancel = useCallback(() => {
-        setStep('visibility');
-        setPasscode('');
-    }, []);
+    const handleBack = useCallback(() => {
+        if (step === 'name') {
+            onCancel();
+        } else if (step === 'visibility') {
+            setStep('name');
+        } else if (step === 'passcode') {
+            setStep('visibility');
+        } else if (step === 'bots') {
+            if (selectedVisibility === 'private' && passcode) {
+                setStep('passcode');
+            } else {
+                setStep('visibility');
+            }
+        } else if (step === 'duration') {
+            setStep('bots');
+        }
+    }, [step, selectedVisibility, passcode, onCancel]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                handleBack();
+                return;
+            }
+
             if (step === 'visibility') {
                 if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                     e.preventDefault();
@@ -29,60 +51,99 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                     if (selectedVisibility === 'private') {
                         setStep('passcode');
                     } else {
-                        onComplete(false, '');
+                        setStep('bots');
                     }
-                } else if (e.key === 'Escape') {
-                    e.preventDefault();
-                    onCancel();
                 }
-            } else if (step === 'passcode') {
-                if (e.key === 'Escape') {
+            } else if (step === 'bots') {
+                if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    handlePasscodeCancel();
+                    setBotCount(prev => Math.min(10, prev + 2));
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setBotCount(prev => Math.max(0, prev - 2));
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    setStep('duration');
+                }
+            } else if (step === 'duration') {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setGameDuration(prev => Math.min(20, prev + 1));
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setGameDuration(prev => Math.max(1, prev - 1));
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    onComplete(worldName, selectedVisibility === 'private', passcode, botCount, gameDuration);
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [step, selectedVisibility, onComplete, onCancel, handlePasscodeCancel]);
+    }, [step, selectedVisibility, worldName, passcode, botCount, gameDuration, handleBack, onComplete]);
 
     useEffect(() => {
-        if (step === 'passcode' && inputRef.current) {
+        if (inputRef.current) {
             inputRef.current.focus();
         }
     }, [step]);
 
-    const handlePasscodeSubmit = (e: React.FormEvent) => {
+    const handleNameSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onComplete(true, passcode);
+        if (worldName.trim()) {
+            setStep('visibility');
+        }
     };
 
-    return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(42, 21, 45, 0.95)',
-            zIndex: 1000
-        }}>
-            <div style={{
-                background: '#2a152d',
-                padding: '40px 60px',
-                border: '4px solid #5a78b2',
-                color: '#e6eeed',
-                fontFamily: "'JetBrains Mono', monospace",
-                minWidth: '500px'
-            }}>
-                {step === 'visibility' ? (
+    const handlePasscodeSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setStep('bots');
+    };
+
+    const renderStep = () => {
+        switch (step) {
+            case 'name':
+                return (
                     <>
                         <div style={{ fontSize: '24px', marginBottom: '30px', color: '#7396d5', fontWeight: 'bold', textAlign: 'center' }}>
                             Create New Game
+                        </div>
+                        <div style={{ fontSize: '16px', marginBottom: '20px', color: '#a9bcbf' }}>
+                            Enter a name for your world:
+                        </div>
+                        <form onSubmit={handleNameSubmit}>
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={worldName}
+                                onChange={(e) => setWorldName(e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    padding: '15px',
+                                    marginBottom: '30px',
+                                    background: '#4f2d4d',
+                                    border: '2px solid #5a78b2',
+                                    color: '#e6eeed',
+                                    fontFamily: "'JetBrains Mono', monospace",
+                                    fontSize: '16px',
+                                    outline: 'none',
+                                    boxSizing: 'border-box'
+                                }}
+                                placeholder="My Awesome Game"
+                            />
+                        </form>
+                        <div style={{ fontSize: '12px', color: '#96dc7f', textAlign: 'center' }}>
+                            Press Enter to continue, Esc to cancel
+                        </div>
+                    </>
+                );
+
+            case 'visibility':
+                return (
+                    <>
+                        <div style={{ fontSize: '24px', marginBottom: '30px', color: '#7396d5', fontWeight: 'bold', textAlign: 'center' }}>
+                            Game Visibility
                         </div>
                         <div style={{ fontSize: '16px', marginBottom: '20px', color: '#a9bcbf' }}>
                             Select game visibility:
@@ -92,8 +153,6 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                                 padding: '15px 20px',
                                 background: selectedVisibility === 'public' ? '#5a78b2' : '#4f2d4d',
                                 border: `2px solid ${selectedVisibility === 'public' ? '#7396d5' : '#5a78b2'}`,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
                                 fontSize: '16px'
                             }}>
                                 {selectedVisibility === 'public' ? '▶ ' : '  '}Public Game
@@ -105,8 +164,6 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                                 padding: '15px 20px',
                                 background: selectedVisibility === 'private' ? '#5a78b2' : '#4f2d4d',
                                 border: `2px solid ${selectedVisibility === 'private' ? '#7396d5' : '#5a78b2'}`,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
                                 fontSize: '16px'
                             }}>
                                 {selectedVisibility === 'private' ? '▶ ' : '  '}Private Game
@@ -116,10 +173,13 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                             </div>
                         </div>
                         <div style={{ fontSize: '12px', color: '#96dc7f', textAlign: 'center' }}>
-                            Use ↑↓ arrow keys to select, Enter to continue, Esc to cancel
+                            Use ↑↓ to select, Enter to continue, Esc to go back
                         </div>
                     </>
-                ) : (
+                );
+
+            case 'passcode':
+                return (
                     <>
                         <div style={{ fontSize: '24px', marginBottom: '30px', color: '#7396d5', fontWeight: 'bold', textAlign: 'center' }}>
                             Set Passcode
@@ -147,53 +207,95 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                                 }}
                                 placeholder="Enter passcode..."
                             />
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <button
-                                    type="submit"
-                                    style={{
-                                        flex: 1,
-                                        padding: '15px',
-                                        fontSize: '16px',
-                                        fontFamily: "'JetBrains Mono', monospace",
-                                        fontWeight: 'bold',
-                                        color: '#fcfbf3',
-                                        background: '#5a78b2',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        transition: 'background 0.2s'
-                                    }}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = '#7396d5'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = '#5a78b2'}
-                                >
-                                    Create Game
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handlePasscodeCancel}
-                                    style={{
-                                        flex: 1,
-                                        padding: '15px',
-                                        fontSize: '16px',
-                                        fontFamily: "'JetBrains Mono', monospace",
-                                        fontWeight: 'bold',
-                                        color: '#e6eeed',
-                                        background: '#4f2d4d',
-                                        border: '2px solid #5a78b2',
-                                        cursor: 'pointer',
-                                        transition: 'background 0.2s'
-                                    }}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = '#5b3a56'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = '#4f2d4d'}
-                                >
-                                    Back
-                                </button>
-                            </div>
                         </form>
-                        <div style={{ fontSize: '12px', color: '#96dc7f', textAlign: 'center', marginTop: '15px' }}>
-                            Press Enter to create, or click Back to return
+                        <div style={{ fontSize: '12px', color: '#96dc7f', textAlign: 'center' }}>
+                            Press Enter to continue, Esc to go back
                         </div>
                     </>
-                )}
+                );
+
+            case 'bots':
+                return (
+                    <>
+                        <div style={{ fontSize: '24px', marginBottom: '30px', color: '#7396d5', fontWeight: 'bold', textAlign: 'center' }}>
+                            Bot Count
+                        </div>
+                        <div style={{ fontSize: '16px', marginBottom: '20px', color: '#a9bcbf' }}>
+                            Select number of AI bots (even numbers only):
+                        </div>
+                        <div style={{
+                            padding: '30px',
+                            marginBottom: '30px',
+                            background: '#4f2d4d',
+                            border: '2px solid #5a78b2',
+                            textAlign: 'center'
+                        }}>
+                            <div style={{ fontSize: '48px', color: '#7396d5', fontWeight: 'bold' }}>
+                                {botCount}
+                            </div>
+                            <div style={{ fontSize: '14px', color: '#a9bcbf', marginTop: '10px' }}>
+                                {botCount === 0 ? 'No bots' : `${botCount / 2} per team`}
+                            </div>
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#96dc7f', textAlign: 'center' }}>
+                            Use ↑↓ to adjust, Enter to continue, Esc to go back
+                        </div>
+                    </>
+                );
+
+            case 'duration':
+                return (
+                    <>
+                        <div style={{ fontSize: '24px', marginBottom: '30px', color: '#7396d5', fontWeight: 'bold', textAlign: 'center' }}>
+                            Game Duration
+                        </div>
+                        <div style={{ fontSize: '16px', marginBottom: '20px', color: '#a9bcbf' }}>
+                            Select game duration:
+                        </div>
+                        <div style={{
+                            padding: '30px',
+                            marginBottom: '30px',
+                            background: '#4f2d4d',
+                            border: '2px solid #5a78b2',
+                            textAlign: 'center'
+                        }}>
+                            <div style={{ fontSize: '48px', color: '#7396d5', fontWeight: 'bold' }}>
+                                {gameDuration}
+                            </div>
+                            <div style={{ fontSize: '14px', color: '#a9bcbf', marginTop: '10px' }}>
+                                {gameDuration === 1 ? 'minute' : 'minutes'}
+                            </div>
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#96dc7f', textAlign: 'center' }}>
+                            Use ↑↓ to adjust, Enter to create game, Esc to go back
+                        </div>
+                    </>
+                );
+        }
+    };
+
+    return (
+        <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(42, 21, 45, 0.95)',
+            zIndex: 1000
+        }}>
+            <div style={{
+                background: '#2a152d',
+                padding: '40px 60px',
+                border: '4px solid #5a78b2',
+                color: '#e6eeed',
+                fontFamily: "'JetBrains Mono', monospace",
+                minWidth: '500px'
+            }}>
+                {renderStep()}
             </div>
         </div>
     );

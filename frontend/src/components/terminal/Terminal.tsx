@@ -197,7 +197,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         setInput('');
     };
 
-    const handleGameCreationComplete = (isPrivate: boolean, passcode: string) => {
+    const handleGameCreationComplete = (worldName: string, isPrivate: boolean, passcode: string, botCount: number, gameDurationMinutes: number) => {
         setShowGameCreationFlow(false);
         
         const connection = getConnection();
@@ -207,19 +207,23 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             return;
         }
 
-        const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-        setPendingJoinCode(joinCode);
+        const worldId = `temp_${Date.now()}`;
+        setPendingJoinCode(worldId);
+        
+        const gameDurationMicros = gameDurationMinutes * 60 * 1000000;
         
         connection.reducers.createWorld({ 
-            joinCode, 
+            worldName,
             isPrivate, 
-            passcode: passcode || null 
+            passcode: passcode || '',
+            botCount,
+            gameDurationMicros
         });
 
         const newOutput = [
             ...output,
-            `Creating ${isPrivate ? 'private' : 'public'} game world...`,
-            isPrivate && passcode ? `Passcode set: ${passcode}` : '',
+            `Creating ${isPrivate ? 'private' : 'public'} game "${worldName}"...`,
+            `Bots: ${botCount}, Duration: ${gameDurationMinutes} min`,
             ""
         ].filter(line => line !== '');
         setOutput(newOutput);
