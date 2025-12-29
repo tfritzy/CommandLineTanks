@@ -12,6 +12,6 @@ import {
 
 export default {
   worldId: __t.string(),
-  tankName: __t.string(),
+  targetCode: __t.string(),
   throttle: __t.f32(),
 };

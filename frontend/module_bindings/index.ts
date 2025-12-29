@@ -479,13 +479,13 @@ const tablesSchema = __schema(
         'worldId',
         'isBot',
       ] },
-      { name: 'WorldId_Name', algorithm: 'btree', columns: [
-        'worldId',
-        'name',
-      ] },
       { name: 'WorldId_Owner', algorithm: 'btree', columns: [
         'worldId',
         'owner',
+      ] },
+      { name: 'WorldId_TargetCode', algorithm: 'btree', columns: [
+        'worldId',
+        'targetCode',
       ] },
       { name: 'WorldId', algorithm: 'btree', columns: [
         'worldId',

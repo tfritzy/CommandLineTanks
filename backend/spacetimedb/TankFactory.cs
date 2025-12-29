@@ -47,7 +47,7 @@ public static partial class Module
         return respawnedTank;
     }
 
-    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string joinCode, int alliance, float positionX, float positionY, AIBehavior aiBehavior = AIBehavior.None)
+    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string targetCode, string joinCode, int alliance, float positionX, float positionY, AIBehavior aiBehavior = AIBehavior.None)
     {
         var tankId = GenerateId(ctx, "tnk");
         return new Tank
@@ -56,6 +56,7 @@ public static partial class Module
             WorldId = worldId,
             Owner = owner,
             Name = name,
+            TargetCode = targetCode,
             JoinCode = joinCode,
             IsBot = aiBehavior != AIBehavior.None,
             AIBehavior = aiBehavior,
@@ -186,17 +187,20 @@ public static partial class Module
             return null;
         }
 
-        var tankName = AllocateTankName(ctx, worldId);
-        if (tankName == null)
+        var targetCode = AllocateTargetCode(ctx, worldId);
+        if (targetCode == null)
         {
-            Log.Error($"No available tank names in world {world.Value.Name}");
+            Log.Error($"No available target codes in world {world.Value.Name}");
             return null;
         }
+
+        var player = ctx.Db.player.Identity.Find(owner);
+        var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
         int assignedAlliance = GetBalancedAlliance(ctx, worldId);
         var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
 
-        var tank = BuildTank(ctx, worldId, owner, tankName, joinCode, assignedAlliance, spawnX, spawnY, AIBehavior.None);
+        var tank = BuildTank(ctx, worldId, owner, playerName, targetCode, joinCode, assignedAlliance, spawnX, spawnY, AIBehavior.None);
         return tank;
     }
 }

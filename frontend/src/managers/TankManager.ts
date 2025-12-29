@@ -139,6 +139,7 @@ export class TankManager {
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
         tank.setHasShield(newTank.hasShield);
         tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
+        tank.setMessage(newTank.message ?? null);
       } else {
         this.buildTank(newTank);
       }
@@ -266,6 +267,7 @@ export class TankManager {
       tank.positionY,
       tank.turretRotation,
       tank.name,
+      tank.targetCode,
       tank.alliance,
       tank.health,
       tank.maxHealth,

@@ -12,6 +12,6 @@ import {
 
 export default {
   worldId: __t.string(),
-  targetName: __t.string(),
+  targetCode: __t.string(),
   lead: __t.f32(),
 };
