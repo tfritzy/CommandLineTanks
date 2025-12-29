@@ -5,6 +5,7 @@ import TerminalComponent from './terminal/Terminal';
 import ResultsScreen from './ResultsScreen';
 import GameHeader from './GameHeader';
 import JoinWorldModal from './JoinWorldModal';
+import WorldNotFound from './WorldNotFound';
 import { getConnection } from '../spacetimedb-connection';
 import { useWorldSwitcher } from '../hooks/useWorldSwitcher';
 import { type Infer } from 'spacetimedb';
@@ -20,6 +21,7 @@ export default function GameView() {
   const [copied, setCopied] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const [worldNotFound, setWorldNotFound] = useState(false);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -105,8 +107,33 @@ export default function GameView() {
     };
   }, [worldId]);
 
+  useEffect(() => {
+    if (!worldId) return;
+
+    const connection = getConnection();
+    if (!connection) return;
+
+    const checkWorldExists = () => {
+      const world = connection.db.world.Id.find(worldId);
+      return world !== undefined;
+    };
+
+    const worldCheckTimeout = setTimeout(() => {
+      const exists = checkWorldExists();
+      setWorldNotFound(!exists);
+    }, 1500);
+
+    return () => {
+      clearTimeout(worldCheckTimeout);
+    };
+  }, [worldId]);
+
   if (!worldId) {
     return null;
+  }
+
+  if (worldNotFound) {
+    return <WorldNotFound worldId={worldId} />;
   }
 
   return (
