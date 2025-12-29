@@ -72,7 +72,7 @@ public class AIContext
     {
         var tanks = GetAllTanks();
         Tank? closestTank = null;
-        float closestDistance = float.MaxValue;
+        float closestDistanceSquared = float.MaxValue;
 
         foreach (var tank in tanks)
         {
@@ -83,11 +83,11 @@ public class AIContext
 
             float dx = tank.PositionX - sourceTank.PositionX;
             float dy = tank.PositionY - sourceTank.PositionY;
-            float distance = (float)Math.Sqrt(dx * dx + dy * dy);
+            float distanceSquared = dx * dx + dy * dy;
 
-            if (distance < closestDistance)
+            if (distanceSquared < closestDistanceSquared)
             {
-                closestDistance = distance;
+                closestDistanceSquared = distanceSquared;
                 closestTank = tank;
             }
         }

@@ -24,8 +24,7 @@ public static partial class AimBotAI
         }
         else
         {
-            tank = FireTankWeapon(ctx, tank);
-            tank = tank with
+            tank = FireTankWeapon(ctx, tank) with
             {
                 Message = "fire"
             };
