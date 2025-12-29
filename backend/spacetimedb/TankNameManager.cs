@@ -3,32 +3,34 @@ using System.Collections.Generic;
 
 public static partial class Module
 {
-    private static readonly string[] NatoPhoneticAlphabet = [
-        "alpha", "bravo", "charlie", "delta", "echo", "foxtrot",
-        "golf", "hotel", "india", "juliet", "kilo", "lima",
-        "mike", "november", "oscar", "papa", "quebec", "romeo",
-        "sierra", "tango", "uniform", "victor", "whiskey", "xray",
-        "yankee", "zulu"
+    private static readonly char[] Letters = [
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+        'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+        'u', 'v', 'w', 'x', 'y', 'z'
     ];
 
-    public static string? AllocateTankName(ReducerContext ctx, string worldId)
+    public static string? AllocateTargetCode(ReducerContext ctx, string worldId)
     {
         var tanksInWorld = ctx.Db.tank.WorldId.Filter(worldId);
-        var usedNames = new HashSet<string>();
+        var usedCodes = new HashSet<string>();
         
         foreach (var tank in tanksInWorld)
         {
-            if (tank.Name != null)
+            if (tank.TargetCode != null)
             {
-                usedNames.Add(tank.Name);
+                usedCodes.Add(tank.TargetCode);
             }
         }
 
-        foreach (var name in NatoPhoneticAlphabet)
+        for (int i = 0; i < 260; i++)
         {
-            if (!usedNames.Contains(name))
+            var letter = Letters[ctx.Rng.Next(Letters.Length)];
+            var digit = ctx.Rng.Next(10);
+            var code = $"{letter}{digit}";
+            
+            if (!usedCodes.Contains(code))
             {
-                return name;
+                return code;
             }
         }
 

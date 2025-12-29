@@ -23,7 +23,7 @@ public static partial class GameAI
             case GameAILogic.AIAction.AimAndFire:
                 if (decision.TargetTank != null)
                 {
-                    tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
+                    tank = TargetTankByCode(ctx, tank, decision.TargetTank.Value.TargetCode, 0);
                     if (decision.ShouldFire)
                     {
                         tank = FireTankWeapon(ctx, tank);
@@ -41,7 +41,7 @@ public static partial class GameAI
                         Velocity = new Vector2Float(0, 0)
                     };
 
-                    tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
+                    tank = TargetTankByCode(ctx, tank, decision.TargetTank.Value.TargetCode, 0);
                     tank = FireTankWeapon(ctx, tank);
                 }
                 break;
@@ -54,7 +54,7 @@ public static partial class GameAI
                         var distanceToTarget = GameAILogic.GetDistance(tank.PositionX, tank.PositionY, decision.TargetTank.Value.PositionX, decision.TargetTank.Value.PositionY);
                         if (distanceToTarget <= MAX_TARGETING_RANGE)
                         {
-                            tank = TargetTankByName(ctx, tank, decision.TargetTank.Value.Name, 0);
+                            tank = TargetTankByCode(ctx, tank, decision.TargetTank.Value.TargetCode, 0);
                         }
                     }
                     SetPath(ctx, tank, decision.Path);

@@ -164,6 +164,7 @@ public static partial class Module
                 newWorldId,
                 tank.Owner,
                 tank.Name,
+                tank.TargetCode,
                 args.WorldId,
                 newAlliance,
                 spawnX,

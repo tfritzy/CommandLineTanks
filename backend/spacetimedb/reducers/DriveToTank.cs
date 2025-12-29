@@ -4,7 +4,7 @@ using System.Linq;
 public static partial class Module
 {
     [Reducer]
-    public static void driveToTank(ReducerContext ctx, string worldId, string tankName, float throttle)
+    public static void driveToTank(ReducerContext ctx, string worldId, string targetCode, float throttle)
     {
         Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
@@ -12,7 +12,7 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        Tank? maybeTargetTank = ctx.Db.tank.WorldId_Name.Filter((worldId, tankName.ToLower())).FirstOrDefault();
+        Tank? maybeTargetTank = ctx.Db.tank.WorldId_TargetCode.Filter((worldId, targetCode.ToLower())).FirstOrDefault();
         if (maybeTargetTank == null) return;
         var targetTank = maybeTargetTank.Value;
 

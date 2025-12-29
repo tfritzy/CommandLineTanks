@@ -36,11 +36,11 @@ public static partial class Module
         {
             for (int i = 0; i < 2; i++)
             {
-                var tankName = AllocateTankName(ctx, worldId);
-                if (tankName == null) continue;
+                var targetCode = AllocateTargetCode(ctx, worldId);
+                if (targetCode == null) continue;
 
                 var (spawnX, spawnY) = FindSpawnPosition(ctx, world, alliance, ctx.Rng);
-                var botTank = BuildTank(ctx, worldId, ctx.Sender, tankName, "", alliance, spawnX, spawnY, AIBehavior.GameAI);
+                var botTank = BuildTank(ctx, worldId, ctx.Sender, "Bot", targetCode, "", alliance, spawnX, spawnY, AIBehavior.GameAI);
                 ctx.Db.tank.Insert(botTank);
             }
         }
