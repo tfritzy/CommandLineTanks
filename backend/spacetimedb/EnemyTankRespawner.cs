@@ -24,6 +24,11 @@ public static partial class EnemyTankRespawner
         {
             if (tank.Alliance == 1 && tank.Health <= 0)
             {
+                if (tank.DeathTimestamp == 0)
+                {
+                    continue;
+                }
+
                 ulong currentTimestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
                 ulong timeSinceDeath = currentTimestamp - tank.DeathTimestamp;
 
