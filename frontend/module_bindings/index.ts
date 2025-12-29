@@ -137,6 +137,8 @@ import TraversibilityMapRow from "./traversibility_map_table";
 export { TraversibilityMapRow };
 import WorldRow from "./world_table";
 export { WorldRow };
+import WorldPasscodeRow from "./world_passcode_table";
+export { WorldPasscodeRow };
 
 // Import and reexport all types
 import AiBehavior from "./ai_behavior_type";
@@ -211,6 +213,8 @@ import Vector2Float from "./vector_2_float_type";
 export { Vector2Float };
 import World from "./world_type";
 export { World };
+import WorldPasscode from "./world_passcode_type";
+export { WorldPasscode };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
@@ -560,9 +564,10 @@ const tablesSchema = __schema(
   __table({
     name: 'world',
     indexes: [
-      { name: 'GameState_IsHomeWorld', algorithm: 'btree', columns: [
+      { name: 'GameState_IsHomeWorld_IsPrivate', algorithm: 'btree', columns: [
         'gameState',
         'isHomeWorld',
+        'isPrivate',
       ] },
       { name: 'GameState', algorithm: 'btree', columns: [
         'gameState',
@@ -575,6 +580,17 @@ const tablesSchema = __schema(
       { name: 'world_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, WorldRow),
+  __table({
+    name: 'world_passcode',
+    indexes: [
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'world_passcode_WorldId_key', constraint: 'unique', columns: ['worldId'] },
+    ],
+  }, WorldPasscodeRow),
 );
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */

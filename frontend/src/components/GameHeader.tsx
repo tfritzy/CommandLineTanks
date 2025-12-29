@@ -14,7 +14,6 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
     const [team1Kills, setTeam1Kills] = useState(0);
     const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
     const [isVisible, setIsVisible] = useState(false);
-    const [showCopied, setShowCopied] = useState(false);
 
     const connection = getConnection();
     const isHomeworld = useMemo(() => {
@@ -22,19 +21,6 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         const identityString = connection.identity.toHexString().toLowerCase();
         return identityString === worldId;
     }, [connection, worldId]);
-
-    const handleCopyWorldId = () => {
-        navigator.clipboard.writeText(worldId)
-            .then(() => {
-                setShowCopied(true);
-                setTimeout(() => setShowCopied(false), 2000);
-            })
-            .catch((error) => {
-                console.error('Failed to copy world ID:', error);
-                setShowCopied(true);
-                setTimeout(() => setShowCopied(false), 2000);
-            });
-    };
 
     useEffect(() => {
         if (!connection || isHomeworld) return;
@@ -116,7 +102,6 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             zIndex: 1000,
         } as React.CSSProperties}>
@@ -171,31 +156,6 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
                     {team1Kills}
                 </div>
             </div>
-            <button
-                onClick={handleCopyWorldId}
-                style={{
-                    marginTop: '4px',
-                    padding: '4px 12px',
-                    backgroundColor: '#4f2d4d',
-                    border: '1px solid #5a78b2',
-                    color: '#96dc7f',
-                    fontSize: '10px',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))',
-                }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#5b3a56';
-                    e.currentTarget.style.borderColor = '#7396d5';
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#4f2d4d';
-                    e.currentTarget.style.borderColor = '#5a78b2';
-                }}
-            >
-                {showCopied ? '✓ Copied!' : `Share: ${worldId.substring(0, 10)}...`}
-            </button>
         </div >
     );
 }

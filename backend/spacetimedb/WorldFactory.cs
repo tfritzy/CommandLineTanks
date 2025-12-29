@@ -14,6 +14,8 @@ public static partial class Module
         bool isPrivate = false,
         string? passcode = null)
     {
+        var hasPasscode = !string.IsNullOrEmpty(passcode);
+        
         var world = new World
         {
             Id = worldId,
@@ -27,10 +29,19 @@ public static partial class Module
             GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             GameDurationMicros = GAME_DURATION_MICROS,
             IsPrivate = isPrivate,
-            Passcode = passcode
+            HasPasscode = hasPasscode
         };
 
         ctx.Db.world.Insert(world);
+
+        if (hasPasscode)
+        {
+            ctx.Db.world_passcode.Insert(new WorldPasscode
+            {
+                WorldId = worldId,
+                Passcode = passcode!
+            });
+        }
 
         foreach (var detail in terrainDetails)
         {

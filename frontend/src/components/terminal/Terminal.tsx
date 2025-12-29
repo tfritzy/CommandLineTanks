@@ -158,7 +158,6 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         const createGameOutput = createGame(connection, args);
                         if (typeof createGameOutput === 'object' && 'type' in createGameOutput && createGameOutput.type === 'open_flow') {
                             setShowGameCreationFlow(true);
-                            newOutput.push("Opening game creation flow...");
                         } else {
                             newOutput.push(...createGameOutput);
                         }

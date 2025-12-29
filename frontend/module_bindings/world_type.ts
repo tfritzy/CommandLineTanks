@@ -29,7 +29,7 @@ export default __t.object("World", {
   gameStartedAt: __t.u64(),
   gameDurationMicros: __t.i64(),
   isPrivate: __t.bool(),
-  passcode: __t.option(__t.string()),
+  hasPasscode: __t.bool(),
 });
 
 

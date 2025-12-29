@@ -15,9 +15,7 @@ public static partial class Module
             return;
         }
 
-        World? world = ctx.Db.world.GameState_IsHomeWorld.Filter((GameState.Playing, false))
-            .Where(w => !w.IsPrivate)
-            .FirstOrDefault();
+        World? world = ctx.Db.world.GameState_IsHomeWorld_IsPrivate.Filter((GameState.Playing, false, false)).FirstOrDefault();
 
         if (world == null)
         {

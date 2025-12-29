@@ -38,10 +38,14 @@ public static partial class Module
             return;
         }
 
-        if (world.Value.IsPrivate && world.Value.Passcode != passcode)
+        if (world.Value.HasPasscode)
         {
-            Log.Error($"Invalid passcode for private world {worldId}");
-            return;
+            var worldPasscode = ctx.Db.world_passcode.WorldId.Find(worldId);
+            if (worldPasscode == null || worldPasscode.Value.Passcode != passcode)
+            {
+                Log.Error($"Invalid passcode for private world {worldId}");
+                return;
+            }
         }
 
         var identityString = ctx.Sender.ToString().ToLower();
