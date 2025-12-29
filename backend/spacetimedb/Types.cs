@@ -125,7 +125,9 @@ public static partial class Types
         GameAI,
         Tilebound,
         RandomAim,
-        Turret
+        Turret,
+        TargetBot,
+        AimBot
     }
 
     [Type]
