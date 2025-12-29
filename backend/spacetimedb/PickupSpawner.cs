@@ -220,15 +220,7 @@ public static partial class PickupSpawner
 
     public static (int gridX, int gridY) GetHomeworldPickupPosition(PickupType pickupType)
     {
-        int index = -1;
-        for (int i = 0; i < HOMEWORLD_PICKUP_TYPES.Length; i++)
-        {
-            if (HOMEWORLD_PICKUP_TYPES[i] == pickupType)
-            {
-                index = i;
-                break;
-            }
-        }
+        int index = Array.IndexOf(HOMEWORLD_PICKUP_TYPES, pickupType);
 
         if (index < 0)
         {
