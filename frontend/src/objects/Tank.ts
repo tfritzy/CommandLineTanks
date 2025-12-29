@@ -8,6 +8,7 @@ import {
   drawTankHealthBar,
   drawTankPath,
   drawTankNameLabel,
+  drawTankTextLabel,
 } from "../drawing/tanks/tank";
 import { ServerTimeSync } from "../utils/ServerTimeSync";
 
@@ -106,7 +107,7 @@ export class Tank {
   public drawMessageLabel(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
     if (!this.message) return;
-    drawTankNameLabel(ctx, this.x, this.y - 0.5, this.message);
+    drawTankTextLabel(ctx, this.x, this.y - 0.5, this.message);
   }
 
   public drawShadow(ctx: CanvasRenderingContext2D) {

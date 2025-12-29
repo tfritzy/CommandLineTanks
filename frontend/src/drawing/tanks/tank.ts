@@ -142,6 +142,21 @@ export function drawTankNameLabel(
   ctx.restore();
 }
 
+export function drawTankTextLabel(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  text: string
+) {
+  ctx.save();
+  ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
+  ctx.font = "14px monospace";
+  ctx.fillStyle = "#f5c47c";
+  ctx.textAlign = "center";
+  ctx.fillText(text, 0, -30);
+  ctx.restore();
+}
+
 export function drawTankHealthBar(
   ctx: CanvasRenderingContext2D,
   x: number,
