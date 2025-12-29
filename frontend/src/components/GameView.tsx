@@ -81,6 +81,7 @@ export default function GameView() {
 
     const handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (connection.identity && tank.owner.isEqual(connection.identity) && tank.worldId === worldId) {
+        setIsDead(false);
         setShowJoinModal(true);
       }
     };
