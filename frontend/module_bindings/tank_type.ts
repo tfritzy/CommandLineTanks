@@ -19,6 +19,7 @@ export default __t.object("Tank", {
   worldId: __t.string(),
   owner: __t.identity(),
   name: __t.string(),
+  targetCode: __t.string(),
   joinCode: __t.option(__t.string()),
   isBot: __t.bool(),
   get aiBehavior() {
