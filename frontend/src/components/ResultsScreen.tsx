@@ -4,6 +4,7 @@ import type { Infer } from 'spacetimedb';
 import Tank from '../../module_bindings/tank_type';
 
 const WORLD_RESET_DELAY_SECONDS = 30;
+const COUNTDOWN_SECONDS = 10;
 
 type TankType = Infer<typeof Tank>;
 
@@ -13,10 +14,12 @@ interface ResultsScreenProps {
 
 export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const [timeRemaining, setTimeRemaining] = useState(WORLD_RESET_DELAY_SECONDS);
+    const [countdownRemaining, setCountdownRemaining] = useState(COUNTDOWN_SECONDS);
     const [tanks, setTanks] = useState<TankType[]>([]);
     const [team0Kills, setTeam0Kills] = useState(0);
     const [team1Kills, setTeam1Kills] = useState(0);
     const [showResults, setShowResults] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         const connection = getConnection();
@@ -24,6 +27,13 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
 
         const interval = setInterval(() => {
             setTimeRemaining((prev) => Math.max(0, prev - 1));
+            setCountdownRemaining((prev) => {
+                const newValue = Math.max(0, prev - 1);
+                if (newValue === 0 && prev > 0) {
+                    setShowModal(true);
+                }
+                return newValue;
+            });
         }, 1000);
 
         const subscriptionHandle = connection
@@ -54,8 +64,11 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             if (world && world.gameState.tag === 'Results') {
                 setShowResults(true);
                 setTimeRemaining(WORLD_RESET_DELAY_SECONDS);
+                setCountdownRemaining(COUNTDOWN_SECONDS);
+                setShowModal(false);
             } else {
                 setShowResults(false);
+                setShowModal(false);
             }
         };
 
@@ -92,10 +105,13 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
                     setShowResults(true);
                     setTimeRemaining(WORLD_RESET_DELAY_SECONDS);
+                    setCountdownRemaining(COUNTDOWN_SECONDS);
+                    setShowModal(false);
                     updateTanks();
                     updateScores();
                 } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
                     setShowResults(false);
+                    setShowModal(false);
                 }
             }
         });
@@ -104,6 +120,8 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             if (world.id === worldId && world.gameState.tag === 'Results') {
                 setShowResults(true);
                 setTimeRemaining(WORLD_RESET_DELAY_SECONDS);
+                setCountdownRemaining(COUNTDOWN_SECONDS);
+                setShowModal(false);
                 updateTanks();
                 updateScores();
             }
@@ -126,6 +144,28 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const winnerText = winningTeam === 0 ? 'Red Victory' : 'Blue Victory';
     const winnerColor = winningTeam === 0 ? '#c06852' : '#5a78b2';
 
+    if (!showModal) {
+        return (
+            <div style={{
+                position: 'absolute',
+                top: '80px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 2000,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '32px',
+                fontWeight: 500,
+                color: '#fcfbf3',
+                textAlign: 'center',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)'
+            }}>
+                Game ending in {countdownRemaining}
+            </div>
+        );
+    }
+
     return (
         <div style={{
             position: 'absolute',
@@ -138,8 +178,19 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 2000,
-            fontFamily: "'JetBrains Mono', monospace"
+            fontFamily: "'JetBrains Mono', monospace",
+            animation: 'fadeIn 0.5s ease-in'
         }}>
+            <style>{`
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                    }
+                    to {
+                        opacity: 1;
+                    }
+                }
+            `}</style>
             <div style={{
                 maxWidth: '900px',
                 width: '90%',
