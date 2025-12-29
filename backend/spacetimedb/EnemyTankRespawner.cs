@@ -24,6 +24,14 @@ public static partial class EnemyTankRespawner
         {
             if (tank.Alliance == 1 && tank.Health <= 0)
             {
+                ulong currentTimestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+                ulong timeSinceDeath = currentTimestamp - tank.DeathTimestamp;
+
+                if (timeSinceDeath < (ulong)Module.BOT_RESPAWN_DELAY_MICROS)
+                {
+                    continue;
+                }
+
                 var respawnedTank = tank with
                 {
                     Health = Module.TANK_HEALTH,
