@@ -110,7 +110,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "       drive <relative_x> <relative_y> [throttle]",
         "",
         "Arguments:",
-        "  <target_code>  Target code of the tank to drive to (e.g., alpha, bravo)",
+        "  <target_code>  Target code of the tank to drive to",
+        "                 Target codes are shown above each tank (e.g., a4, h8, z2)",
+        "                 Format: one letter + one digit",
         "  <direction>    Direction to drive (with pathfinding)",
         "                 Directions:",
         "                   ↑: north, up, n, u",
@@ -127,8 +129,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  [throttle]     Speed as percentage 1-100 (default: 100)",
         "",
         "Examples:",
-        "  drive alpha",
-        "  drive bravo 75",
+        "  drive a4",
+        "  drive h8 75",
         "  drive northeast 5",
         "  drive up 3 75",
         "  drive 10 5      (10 units right, 5 units down)",
@@ -186,13 +188,15 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Arguments:",
         "  <target_code> Target code of the tank to target (required)",
+        "                Target codes are shown above each tank (e.g., a4, h8, z2)",
+        "                Format: one letter + one digit",
         "  [lead]        Distance in units to lead the target (default: 0)",
         "                Aims ahead of the target based on their body direction",
         "",
         "Examples:",
-        "  target alpha",
-        "  target bravo 3",
-        "  t charlie 5"
+        "  target a4",
+        "  target h8 3",
+        "  t z2 5"
       ];
 
     case "fire":
@@ -386,8 +390,8 @@ export function target(connection: DbConnection, worldId: string, args: string[]
       "target: error: missing required argument '<target_code>'",
       "",
       "Usage: target <target_code> [lead]",
-      "       target alpha",
-      "       target bravo 3"
+      "       target a4",
+      "       target h8 3"
     ];
   }
 
@@ -405,7 +409,7 @@ export function target(connection: DbConnection, worldId: string, args: string[]
         `target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`,
         "",
         "Usage: target <target_code> [lead]",
-        "       target alpha 3"
+        "       target a4 3"
       ];
     }
     lead = parsedLead;
@@ -609,7 +613,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
       "Examples:",
       "  drive northeast 5",
       "  drive up 3 75",
-      "  drive alpha",
+      "  drive a4",
       "  drive 10 5      (10 units right, 5 units down)",
     ];
   }
@@ -637,7 +641,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
           `drive: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`,
           "",
           "Usage: drive <target_code> [throttle]",
-          "       drive alpha 75"
+          "       drive a4 75"
         ];
       } else {
         throttle = parsed / 100;
