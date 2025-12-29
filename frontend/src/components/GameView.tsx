@@ -95,7 +95,6 @@ export default function GameView() {
       if (connection.identity && newTank.owner.isEqual(connection.identity) && newTank.worldId === worldId) {
         const wasAlive = _oldTank.health > 0;
         const isNowDead = newTank.health <= 0;
-        
         if (wasAlive && isNowDead) {
           handleDeathStateChange(true);
         } else if (!isNowDead) {
