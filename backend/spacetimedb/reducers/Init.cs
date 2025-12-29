@@ -30,7 +30,7 @@ public static partial class Module
         Log.Info($"Initialized world {worldId}");
     }
 
-    private static void SpawnInitialBots(ReducerContext ctx, string worldId, World world)
+    public static void SpawnInitialBots(ReducerContext ctx, string worldId, World world)
     {
         for (int alliance = 0; alliance < 2; alliance++)
         {

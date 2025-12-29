@@ -124,6 +124,8 @@ public static partial class Module
         var newWorldId = Module.GenerateId(ctx, "w");
         var newWorld = CreateWorld(ctx, newWorldId, oldWorld.Value.Name, baseTerrain, terrainDetails.ToArray(), traversibilityMap, projectileCollisionMap);
 
+        SpawnInitialBots(ctx, newWorldId, newWorld);
+
         var tanks = new List<Module.Tank>();
         foreach (var tank in ctx.Db.tank.WorldId.Filter(args.WorldId))
         {
