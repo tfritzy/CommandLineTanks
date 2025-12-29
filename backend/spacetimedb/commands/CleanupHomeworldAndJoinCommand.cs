@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public static void CleanupHomeworldAndJoinCommand(ReducerContext ctx, string worldId)
+    public static void CleanupHomeworldAndJoinCommand(ReducerContext ctx, string worldId, string joinCode)
     {
         var identityString = ctx.Sender.ToString().ToLower();
         var homeworldTanks = ctx.Db.tank.WorldId.Filter(identityString).Where(t => t.Owner == ctx.Sender);
@@ -22,7 +22,7 @@ public static partial class Module
             StopWorldTickers(ctx, identityString);
         }
 
-        var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, worldId);
+        var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, joinCode);
         if (tank != null)
         {
             ctx.Db.tank.Insert(tank.Value);

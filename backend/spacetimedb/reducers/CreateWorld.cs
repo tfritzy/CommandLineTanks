@@ -4,7 +4,7 @@ using static Types;
 public static partial class Module
 {
     [Reducer]
-    public static void createWorld(ReducerContext ctx, string worldName, bool isPrivate, string passcode, int botCount, long gameDurationMicros)
+    public static void createWorld(ReducerContext ctx, string joinCode, string worldName, bool isPrivate, string passcode, int botCount, long gameDurationMicros)
     {
         Log.Info($"{ctx.Sender} is creating a world '{worldName}' (private: {isPrivate}, bots: {botCount})");
 
@@ -32,7 +32,7 @@ public static partial class Module
             gameDurationMicros
         );
 
-        CleanupHomeworldAndJoinCommand(ctx, world.Id);
+        CleanupHomeworldAndJoinCommand(ctx, world.Id, joinCode);
 
         for (int alliance = 0; alliance < 2; alliance++)
         {

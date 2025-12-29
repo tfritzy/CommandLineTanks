@@ -11,6 +11,7 @@ import {
 } from "spacetimedb";
 
 export default {
+  joinCode: __t.string(),
   worldName: __t.string(),
   isPrivate: __t.bool(),
   passcode: __t.string(),

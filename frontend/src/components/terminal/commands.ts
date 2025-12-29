@@ -922,10 +922,12 @@ export function join(connection: DbConnection, args: string[]): string[] {
   const worldId = args.length > 0 ? args[0] : null;
   const passcode = args.length > 1 ? args.slice(1).join(' ') : '';
 
-  setPendingJoinCode(worldId || `temp_${Date.now()}`);
+  const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  setPendingJoinCode(joinCode);
   
   connection.reducers.joinWorld({ 
     worldId, 
+    joinCode,
     passcode 
   });
 

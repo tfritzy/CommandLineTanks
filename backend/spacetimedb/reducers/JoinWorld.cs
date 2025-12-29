@@ -4,7 +4,7 @@ using static Types;
 public static partial class Module
 {
     [Reducer]
-    public static void joinWorld(ReducerContext ctx, string? worldId, string passcode)
+    public static void joinWorld(ReducerContext ctx, string? worldId, string joinCode, string passcode)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -66,7 +66,7 @@ public static partial class Module
             }
         }
 
-        CleanupHomeworldAndJoinCommand(ctx, world.Value.Id);
+        CleanupHomeworldAndJoinCommand(ctx, world.Value.Id, joinCode);
 
         Log.Info($"Player {player.Value.Name} joined world {world.Value.Id}");
     }

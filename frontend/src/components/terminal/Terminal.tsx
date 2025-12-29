@@ -202,12 +202,13 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             return;
         }
 
-        const worldId = `temp_${Date.now()}`;
-        setPendingJoinCode(worldId);
+        const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        setPendingJoinCode(joinCode);
         
         const gameDurationMicros = gameDurationMinutes * 60 * 1000000;
         
         connection.reducers.createWorld({ 
+            joinCode,
             worldName,
             isPrivate, 
             passcode: passcode || '',
