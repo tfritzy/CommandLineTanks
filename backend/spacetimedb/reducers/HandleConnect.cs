@@ -48,8 +48,8 @@ public static partial class Module
                     tankName,
                     "",
                     0,
-                    HOMEWORLD_SIZE / 2 + .5f,
-                    HOMEWORLD_SIZE / 2 + .5f);
+                    HOMEWORLD_WIDTH / 2 + .5f,
+                    HOMEWORLD_HEIGHT / 2 + .5f);
                 ctx.Db.tank.Insert(tank);
 
                 StartWorldTickers(ctx, identityString);
