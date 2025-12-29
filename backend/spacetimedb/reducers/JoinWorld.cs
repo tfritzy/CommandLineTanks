@@ -53,6 +53,12 @@ public static partial class Module
 
         if (world.Value.HasPasscode)
         {
+            if (string.IsNullOrEmpty(passcode))
+            {
+                Log.Error($"World {worldId} requires a passcode");
+                return;
+            }
+            
             var worldPasscode = ctx.Db.world_passcode.WorldId.Find(worldId);
             if (worldPasscode == null || worldPasscode.Value.Passcode != passcode)
             {
