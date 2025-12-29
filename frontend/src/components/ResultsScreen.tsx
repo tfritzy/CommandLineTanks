@@ -138,7 +138,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             clearInterval(interval);
             subscriptionHandle.unsubscribe();
         };
-    }, [worldId, gameEndTime, showModal]);
+    }, [worldId, gameEndTime]);
 
     if (!showResults) {
         return null;
