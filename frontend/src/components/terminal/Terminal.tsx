@@ -218,9 +218,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             gameDurationMicros
         });
 
-        const visibilityLabel = visibility.tag === 'Public' ? 'public' : 
-                               visibility.tag === 'Private' ? 'private' : 
-                               'custom public';
+        const visibilityLabel = visibility.tag === 'Private' ? 'private' : 'public';
         const newOutput = [
             ...output,
             `Creating ${visibilityLabel} game "${worldName}"...`,

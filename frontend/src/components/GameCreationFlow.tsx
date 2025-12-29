@@ -8,7 +8,7 @@ interface GameCreationFlowProps {
 }
 
 type FlowStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration';
-type VisibilityOption = 'public' | 'private' | 'customPublic';
+type VisibilityOption = 'public' | 'private';
 
 export default function GameCreationFlow({ onComplete, onCancel }: GameCreationFlowProps) {
     const [step, setStep] = useState<FlowStep>('name');
@@ -46,20 +46,9 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
             }
 
             if (step === 'visibility') {
-                if (e.key === 'ArrowUp') {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                     e.preventDefault();
-                    setSelectedVisibility(prev => {
-                        if (prev === 'public') return 'customPublic';
-                        if (prev === 'customPublic') return 'private';
-                        return 'public';
-                    });
-                } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    setSelectedVisibility(prev => {
-                        if (prev === 'public') return 'private';
-                        if (prev === 'private') return 'customPublic';
-                        return 'public';
-                    });
+                    setSelectedVisibility(prev => prev === 'public' ? 'private' : 'public');
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
                     if (selectedVisibility === 'private') {
@@ -88,9 +77,7 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                     setGameDuration(prev => Math.max(1, prev - 1));
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
-                    const visibility = selectedVisibility === 'public' ? WorldVisibility.Public : 
-                                     selectedVisibility === 'private' ? WorldVisibility.Private : 
-                                     WorldVisibility.CustomPublic;
+                    const visibility = selectedVisibility === 'private' ? WorldVisibility.Private : WorldVisibility.CustomPublic;
                     onComplete(worldName, visibility, passcode, botCount, gameDuration);
                 }
             }
@@ -173,17 +160,6 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                                 fontSize: '16px'
                             }}>
                                 {selectedVisibility === 'public' ? '▶ ' : '  '}Public Game
-                                <div style={{ fontSize: '12px', color: '#a9bcbf', marginTop: '5px' }}>
-                                    Anyone can join automatically
-                                </div>
-                            </div>
-                            <div style={{
-                                padding: '15px 20px',
-                                background: selectedVisibility === 'customPublic' ? '#5a78b2' : '#4f2d4d',
-                                border: `2px solid ${selectedVisibility === 'customPublic' ? '#7396d5' : '#5a78b2'}`,
-                                fontSize: '16px'
-                            }}>
-                                {selectedVisibility === 'customPublic' ? '▶ ' : '  '}Custom Public Game
                                 <div style={{ fontSize: '12px', color: '#a9bcbf', marginTop: '5px' }}>
                                     Join by world ID only
                                 </div>
