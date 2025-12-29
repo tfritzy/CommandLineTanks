@@ -1,6 +1,10 @@
 import { UNIT_TO_PIXEL } from "../constants";
 import { TEAM_COLORS } from "../constants";
 
+function snapToPixel(value: number): number {
+  return Math.round(value * UNIT_TO_PIXEL) / UNIT_TO_PIXEL;
+}
+
 export class Projectile {
   private x: number;
   private y: number;
@@ -65,8 +69,8 @@ export class Projectile {
   }
 
   public setPosition(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+    this.x = snapToPixel(x);
+    this.y = snapToPixel(y);
   }
 
   public setVelocity(velocityX: number, velocityY: number) {
@@ -75,8 +79,8 @@ export class Projectile {
   }
 
   public update(deltaTime: number) {
-    this.x += this.velocityX * deltaTime;
-    this.y += this.velocityY * deltaTime;
+    this.x = snapToPixel(this.x + this.velocityX * deltaTime);
+    this.y = snapToPixel(this.y + this.velocityY * deltaTime);
   }
 
   public getX(): number {

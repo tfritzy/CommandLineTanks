@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL, INTERPOLATION_DELAY, BUFFER_DURATION } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
 
 export abstract class Projectile {
   public static readonly SHADOW_OFFSET = 4;
@@ -11,8 +11,6 @@ export abstract class Projectile {
   protected explosionRadius: number | undefined;
   protected trackingStrength: number;
   protected trackingRadius: number;
-  private positionBuffer: Array<{ x: number; y: number; serverTimestampMs: number }> =
-    [];
 
   constructor(
     x: number,
@@ -48,19 +46,9 @@ export abstract class Projectile {
     textureSheet: any
   ): void;
 
-  public setPosition(x: number, y: number, serverTimestampMicros: bigint) {
-    const serverTimestampMs = Number(serverTimestampMicros / 1000n);
-
-    this.positionBuffer.push({
-      x,
-      y,
-      serverTimestampMs,
-    });
-
-    const cutoffTime = serverTimestampMs - BUFFER_DURATION;
-    this.positionBuffer = this.positionBuffer.filter(
-      (p) => p.serverTimestampMs > cutoffTime
-    );
+  public setPosition(x: number, y: number) {
+    this.x = x;
+    this.y = y;
   }
 
   public setVelocity(velocityX: number, velocityY: number) {
@@ -68,45 +56,9 @@ export abstract class Projectile {
     this.velocityY = velocityY;
   }
 
-  public update(_deltaTime: number, _tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
-    if (this.positionBuffer.length === 0) return;
-
-    if (this.positionBuffer.length === 1) {
-      this.x = this.positionBuffer[0].x;
-      this.y = this.positionBuffer[0].y;
-      return;
-    }
-
-    const latestServerTime = this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs;
-    const renderTime = latestServerTime - INTERPOLATION_DELAY;
-
-    let prev = this.positionBuffer[0];
-    let next = this.positionBuffer[1];
-
-    for (let i = 0; i < this.positionBuffer.length - 1; i++) {
-      if (this.positionBuffer[i + 1].serverTimestampMs > renderTime) {
-        prev = this.positionBuffer[i];
-        next = this.positionBuffer[i + 1];
-        break;
-      }
-    }
-
-    if (
-      renderTime >=
-      this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs
-    ) {
-      const last = this.positionBuffer[this.positionBuffer.length - 1];
-      this.x = last.x;
-      this.y = last.y;
-      return;
-    }
-
-    const total = next.serverTimestampMs - prev.serverTimestampMs;
-    const elapsed = renderTime - prev.serverTimestampMs;
-    const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
-
-    this.x = prev.x + (next.x - prev.x) * t;
-    this.y = prev.y + (next.y - prev.y) * t;
+  public update(deltaTime: number, _tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
+    this.x += this.velocityX * deltaTime;
+    this.y += this.velocityY * deltaTime;
   }
 
   public getX(): number {

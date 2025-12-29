@@ -68,8 +68,7 @@ export class ProjectileManager {
       if (projectile) {
         projectile.setPosition(
           newProjectile.positionX,
-          newProjectile.positionY,
-          newProjectile.updatedAt
+          newProjectile.positionY
         );
         projectile.setVelocity(
           newProjectile.velocity.x,

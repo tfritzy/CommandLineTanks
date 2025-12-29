@@ -217,7 +217,6 @@ export class TerrainDetailManager {
         );
 
         if (!texture) {
-          console.warn("no texture", this.getTextureKey(obj));
         } else {
           const scale = obj.getSizeScale();
           const scaledSize = renderSize * scale;
@@ -271,7 +270,6 @@ export class TerrainDetailManager {
           );
 
           if (!texture) {
-            console.warn("no texture");
           } else {
             const scale = obj.getSizeScale();
             const scaledSize = renderSize * scale;

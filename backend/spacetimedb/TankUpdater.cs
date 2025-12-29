@@ -220,6 +220,7 @@ public static partial class TankUpdater
 
                 if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
                 {
+                    var overshoot = moveDistance - distance;
                     var newPath = new PathEntry[currentPath.Length - 1];
                     Array.Copy(currentPath, 1, newPath, 0, newPath.Length);
 
@@ -237,10 +238,13 @@ public static partial class TankUpdater
                             var nextSpeedMultiplier = tank.RemainingOverdriveDurationMicros > 0 ? Module.OVERDRIVE_SPEED_MULTIPLIER : 1.0f;
                             var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent * nextSpeedMultiplier;
 
+                            var finalX = targetPos.Position.X + nextDirX * Math.Min(overshoot, nextDistance);
+                            var finalY = targetPos.Position.Y + nextDirY * Math.Min(overshoot, nextDistance);
+
                             tank = tank with
                             {
-                                PositionX = targetPos.Position.X,
-                                PositionY = targetPos.Position.Y,
+                                PositionX = (float)finalX,
+                                PositionY = (float)finalY,
                                 Velocity = new Vector2Float((float)(nextDirX * nextMoveSpeed), (float)(nextDirY * nextMoveSpeed))
                             };
                         }

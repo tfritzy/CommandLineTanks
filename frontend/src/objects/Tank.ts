@@ -1,7 +1,7 @@
 import { type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
-import { TEAM_COLORS, INTERPOLATION_DELAY, BUFFER_DURATION } from "../constants";
+import { TEAM_COLORS, INTERPOLATION_DELAY, BUFFER_DURATION, UNIT_TO_PIXEL } from "../constants";
 import {
   drawTankShadow,
   drawTankBody,
@@ -9,11 +9,16 @@ import {
   drawTankPath,
   drawTankNameLabel,
 } from "../drawing/tanks/tank";
+import { ServerTimeSync } from "../utils/ServerTimeSync";
 
 type PathEntry = {
   position: { x: number; y: number };
   throttlePercent: number;
 };
+
+function snapToPixel(value: number): number {
+  return Math.round(value * UNIT_TO_PIXEL) / UNIT_TO_PIXEL;
+}
 
 export class Tank {
   public arrayIndex: number = -1;
@@ -33,7 +38,6 @@ export class Tank {
   private flashTimer: number = 0;
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
-  private isPlayerTank: boolean = false;
   private message: string | null = null;
   private positionBuffer: Array<{ x: number; y: number; serverTimestampMs: number }> =
     [];
@@ -133,6 +137,8 @@ export class Tank {
 
   public setPosition(x: number, y: number, serverTimestampMicros: bigint) {
     const serverTimestampMs = Number(serverTimestampMicros / 1000n);
+    
+    ServerTimeSync.getInstance().recordServerTimestamp(serverTimestampMicros);
 
     this.positionBuffer.push({
       x,
@@ -189,10 +195,6 @@ export class Tank {
     this.remainingImmunityMicros = remainingImmunityMicros;
   }
 
-  public setIsPlayerTank(isPlayerTank: boolean) {
-    this.isPlayerTank = isPlayerTank;
-  }
-
   public setMessage(message: string | null | undefined) {
     this.message = message ?? null;
   }
@@ -206,45 +208,7 @@ export class Tank {
       this.flashTimer = Math.max(0, this.flashTimer - deltaTime);
     }
 
-    if (this.positionBuffer.length === 0) return;
-
-    if (this.positionBuffer.length === 1) {
-      this.x = this.positionBuffer[0].x;
-      this.y = this.positionBuffer[0].y;
-      return;
-    }
-
-    const latestServerTime = this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs;
-    const renderTime = latestServerTime - INTERPOLATION_DELAY;
-
-    let prev = this.positionBuffer[0];
-    let next = this.positionBuffer[1];
-
-    for (let i = 0; i < this.positionBuffer.length - 1; i++) {
-      if (this.positionBuffer[i + 1].serverTimestampMs > renderTime) {
-        prev = this.positionBuffer[i];
-        next = this.positionBuffer[i + 1];
-        break;
-      }
-    }
-
-    if (
-      renderTime >=
-      this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs
-    ) {
-      const last = this.positionBuffer[this.positionBuffer.length - 1];
-      this.x = last.x;
-      this.y = last.y;
-      return;
-    }
-
-    const total = next.serverTimestampMs - prev.serverTimestampMs;
-    const elapsed = renderTime - prev.serverTimestampMs;
-    const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
-
-    this.x = prev.x + (next.x - prev.x) * t;
-    this.y = prev.y + (next.y - prev.y) * t;
-    // }
+    this.updateInterpolatedMovement(deltaTime);
 
     if (this.turretAngularVelocity !== 0) {
       let currentDiff = this.targetTurretRotation - this.turretRotation;
@@ -264,6 +228,47 @@ export class Tank {
           this.turretRotation += 2 * Math.PI;
       }
     }
+  }
+
+  private updateInterpolatedMovement(_deltaTime: number) {
+    if (this.positionBuffer.length === 0) return;
+
+    if (this.positionBuffer.length === 1) {
+      this.x = snapToPixel(this.positionBuffer[0].x);
+      this.y = snapToPixel(this.positionBuffer[0].y);
+      return;
+    }
+
+    const currentServerTime = ServerTimeSync.getInstance().getServerTime();
+    const renderTime = currentServerTime - INTERPOLATION_DELAY;
+
+    let prev = this.positionBuffer[0];
+    let next = this.positionBuffer[1];
+
+    for (let i = 0; i < this.positionBuffer.length - 1; i++) {
+      if (this.positionBuffer[i + 1].serverTimestampMs > renderTime) {
+        prev = this.positionBuffer[i];
+        next = this.positionBuffer[i + 1];
+        break;
+      }
+    }
+
+    if (
+      renderTime >=
+      this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs
+    ) {
+      const last = this.positionBuffer[this.positionBuffer.length - 1];
+      this.x = snapToPixel(last.x);
+      this.y = snapToPixel(last.y);
+      return;
+    }
+
+    const total = next.serverTimestampMs - prev.serverTimestampMs;
+    const elapsed = renderTime - prev.serverTimestampMs;
+    const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
+
+    this.x = snapToPixel(prev.x + (next.x - prev.x) * t);
+    this.y = snapToPixel(prev.y + (next.y - prev.y) * t);
   }
 
   // Getters

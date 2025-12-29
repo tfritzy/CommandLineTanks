@@ -10,6 +10,7 @@ import type { SubscriptionHandle, EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
+import TankPathRow from "../../module_bindings/tank_path_table";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -42,6 +43,19 @@ export class TankManager {
         newState: Infer<typeof TankFireStateRow>
       ) => void)
     | null = null;
+  private handleTankPathInsert:
+    | ((ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => void)
+    | null = null;
+  private handleTankPathUpdate:
+    | ((
+        ctx: EventContext,
+        oldPath: Infer<typeof TankPathRow>,
+        newPath: Infer<typeof TankPathRow>
+      ) => void)
+    | null = null;
+  private handleTankPathDelete:
+    | ((ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => void)
+    | null = null;
 
   constructor(worldId: string, screenShake: ScreenShake) {
     this.worldId = worldId;
@@ -60,8 +74,18 @@ export class TankManager {
     this.subscriptionHandle = connection
       .subscriptionBuilder()
       .onError((e) => console.log("Ah fuck", e))
-      .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
+      .subscribe([
+        `SELECT * FROM tank WHERE WorldId = '${this.worldId}'`,
+        `SELECT * FROM tank_path WHERE WorldId = '${this.worldId}'`,
+      ]);
 
+    this.setupTankHandlers(connection);
+    this.setupTankPathHandlers(connection);
+    this.setupFireStateHandlers(connection);
+    this.loadInitialTanks(connection);
+  }
+
+  private setupTankHandlers(connection: any) {
     this.handleTankInsert = (
       _ctx: EventContext,
       tank: Infer<typeof TankRow>
@@ -96,11 +120,14 @@ export class TankManager {
           }
         }
 
-        tank.setPosition(newTank.positionX, newTank.positionY, newTank.updatedAt);
+        tank.setPosition(
+          newTank.positionX,
+          newTank.positionY,
+          newTank.updatedAt
+        );
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
         tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
         tank.setTurretRotation(newTank.turretRotation);
-        tank.setPath(newTank.path);
         tank.setHealth(newTank.health);
         tank.setAlliance(newTank.alliance);
         tank.setGuns(newTank.guns);
@@ -139,6 +166,52 @@ export class TankManager {
       }
     };
 
+    connection.db.tank.onInsert(this.handleTankInsert);
+    connection.db.tank.onUpdate(this.handleTankUpdate);
+    connection.db.tank.onDelete(this.handleTankDelete);
+  }
+
+  private setupTankPathHandlers(connection: any) {
+    this.handleTankPathInsert = (
+      _ctx: EventContext,
+      tankPath: Infer<typeof TankPathRow>
+    ) => {
+      if (tankPath.worldId !== this.worldId) return;
+      const tank = this.tanks.get(tankPath.tankId);
+      if (tank) {
+        tank.setPath(tankPath.path);
+      }
+    };
+
+    this.handleTankPathUpdate = (
+      _ctx: EventContext,
+      _oldPath: Infer<typeof TankPathRow>,
+      newPath: Infer<typeof TankPathRow>
+    ) => {
+      if (newPath.worldId !== this.worldId) return;
+      const tank = this.tanks.get(newPath.tankId);
+      if (tank) {
+        tank.setPath(newPath.path);
+      }
+    };
+
+    this.handleTankPathDelete = (
+      _ctx: EventContext,
+      tankPath: Infer<typeof TankPathRow>
+    ) => {
+      if (tankPath.worldId !== this.worldId) return;
+      const tank = this.tanks.get(tankPath.tankId);
+      if (tank) {
+        tank.setPath([]);
+      }
+    };
+
+    connection.db.tankPath.onInsert(this.handleTankPathInsert);
+    connection.db.tankPath.onUpdate(this.handleTankPathUpdate);
+    connection.db.tankPath.onDelete(this.handleTankPathDelete);
+  }
+
+  private setupFireStateHandlers(connection: any) {
     this.handleFireStateUpdate = (
       _ctx: EventContext,
       _oldState: Infer<typeof TankFireStateRow>,
@@ -146,25 +219,30 @@ export class TankManager {
     ) => {
       const tankRow = connection.db.tank.id.find(newState.tankId);
       if (tankRow && tankRow.health > 0) {
-        const barrelTipX = tankRow.positionX + Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
-        const barrelTipY = tankRow.positionY + Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
-        this.muzzleFlashManager.spawnMuzzleFlash(barrelTipX, barrelTipY, tankRow.turretRotation, tankRow.alliance);
+        const barrelTipX =
+          tankRow.positionX +
+          Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+        const barrelTipY =
+          tankRow.positionY +
+          Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+        this.muzzleFlashManager.spawnMuzzleFlash(
+          barrelTipX,
+          barrelTipY,
+          tankRow.turretRotation,
+          tankRow.alliance
+        );
       }
     };
 
-    connection.db.tank.onInsert(this.handleTankInsert);
-    connection.db.tank.onUpdate(this.handleTankUpdate);
-    connection.db.tank.onDelete(this.handleTankDelete);
     connection.db.tankFireState.onUpdate(this.handleFireStateUpdate);
+  }
 
+  private loadInitialTanks(connection: any) {
     for (const tank of connection.db.tank.iter()) {
       if (tank.worldId === this.worldId) {
         this.buildTank(tank);
 
-        if (
-          connection.identity &&
-          tank.owner.isEqual(connection.identity)
-        ) {
+        if (connection.identity && tank.owner.isEqual(connection.identity)) {
           this.playerTankId = tank.id;
           this.updatePlayerTarget(tank.target);
         }
@@ -174,8 +252,10 @@ export class TankManager {
 
   buildTank(tank: Infer<typeof TankRow>) {
     const connection = getConnection();
-    const isPlayerTank = connection?.identity && tank.owner.isEqual(connection.identity);
-    
+
+    const tankPath = connection?.db.tankPath.tankId.find(tank.id);
+    const path = tankPath?.path ?? [];
+
     const newTank = new Tank(
       tank.id,
       tank.positionX,
@@ -186,17 +266,13 @@ export class TankManager {
       tank.health,
       tank.maxHealth,
       tank.turretAngularVelocity,
-      tank.path,
+      path,
       tank.guns,
       tank.selectedGunIndex,
       tank.hasShield,
       tank.remainingImmunityMicros
     );
-    
-    if (isPlayerTank) {
-      newTank.setIsPlayerTank(true);
-    }
-    
+
     this.tanks.set(tank.id, newTank);
   }
 
@@ -211,6 +287,12 @@ export class TankManager {
         connection.db.tank.removeOnDelete(this.handleTankDelete);
       if (this.handleFireStateUpdate)
         connection.db.tankFireState.removeOnUpdate(this.handleFireStateUpdate);
+      if (this.handleTankPathInsert)
+        connection.db.tankPath.removeOnInsert(this.handleTankPathInsert);
+      if (this.handleTankPathUpdate)
+        connection.db.tankPath.removeOnUpdate(this.handleTankPathUpdate);
+      if (this.handleTankPathDelete)
+        connection.db.tankPath.removeOnDelete(this.handleTankPathDelete);
     }
 
     if (this.subscriptionHandle) {
@@ -306,7 +388,13 @@ export class TankManager {
       viewportWidth,
       viewportHeight
     );
-    this.muzzleFlashManager.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+    this.muzzleFlashManager.draw(
+      ctx,
+      cameraX,
+      cameraY,
+      viewportWidth,
+      viewportHeight
+    );
   }
 
   public getAllTanks(): IterableIterator<Tank> {
