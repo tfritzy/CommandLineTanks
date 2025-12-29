@@ -24,10 +24,24 @@ public static partial class EnemyTankRespawner
         {
             if (tank.Alliance == 1 && tank.Health <= 0)
             {
+                if (tank.DeathTimestamp == 0)
+                {
+                    continue;
+                }
+
+                ulong currentTimestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+                ulong timeSinceDeath = currentTimestamp - tank.DeathTimestamp;
+
+                if (timeSinceDeath < (ulong)Module.BOT_RESPAWN_DELAY_MICROS)
+                {
+                    continue;
+                }
+
                 var respawnedTank = tank with
                 {
                     Health = Module.TANK_HEALTH,
-                    RemainingImmunityMicros = Module.SPAWN_IMMUNITY_DURATION_MICROS
+                    RemainingImmunityMicros = Module.SPAWN_IMMUNITY_DURATION_MICROS,
+                    DeathTimestamp = 0
                 };
                 ctx.Db.tank.Id.Update(respawnedTank);
                 Log.Info($"Respawned enemy tank {respawnedTank.Name} at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");

@@ -29,6 +29,19 @@ public static partial class BehaviorTreeAI
         {
             if (tank.Health <= 0)
             {
+                if (tank.DeathTimestamp == 0)
+                {
+                    continue;
+                }
+
+                ulong currentTimestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+                ulong timeSinceDeath = currentTimestamp - tank.DeathTimestamp;
+
+                if (timeSinceDeath < (ulong)BOT_RESPAWN_DELAY_MICROS)
+                {
+                    continue;
+                }
+
                 (float, float)? spawnPosition = null;
                 if (tank.AIBehavior == AIBehavior.Tilebound)
                 {

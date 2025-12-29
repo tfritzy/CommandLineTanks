@@ -123,6 +123,8 @@ public static partial class Module
 
         public ulong RepairStartedAt;
 
+        public ulong DeathTimestamp;
+
         public ulong UpdatedAt;
     }
 

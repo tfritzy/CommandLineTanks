@@ -26,6 +26,8 @@ public static partial class Module
     public const long REPAIR_COOLDOWN_MICROS = 60_000_000;
     public const int REPAIR_HEALTH_PER_TICK = 1;
 
+    public const long BOT_RESPAWN_DELAY_MICROS = 5_000_000;
+
     public static readonly Gun BASE_GUN = new Gun
     {
         GunType = GunType.Base,

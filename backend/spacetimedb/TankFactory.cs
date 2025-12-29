@@ -41,6 +41,7 @@ public static partial class Module
             RemainingRepairCooldownMicros = 0,
             IsRepairing = false,
             RepairStartedAt = 0,
+            DeathTimestamp = 0,
             UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
@@ -88,6 +89,7 @@ public static partial class Module
             RemainingRepairCooldownMicros = 0,
             IsRepairing = false,
             RepairStartedAt = 0,
+            DeathTimestamp = 0,
             UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
     }
