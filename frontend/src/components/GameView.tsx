@@ -178,7 +178,7 @@ export default function GameView() {
             justifyContent: 'center',
             fontFamily: "'JetBrains Mono', monospace",
             zIndex: 1000,
-            animation: 'fadeIn 0.3s ease-out 1s both'
+            animation: 'fadeIn 0.15s ease-out 1s both'
           }}>
             <style>{`
               @keyframes fadeIn {
