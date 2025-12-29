@@ -15,6 +15,7 @@ export class KillManager {
   private kills: Map<string, KillNotification> = new Map();
   private worldId: string;
   private deletedKills: Set<string> = new Set();
+  private sortedNotifications: KillNotification[] = [];
   private subscriptionHandle: SubscriptionHandle | null = null;
   private handleKillInsert: ((ctx: EventContext, kill: Infer<typeof KillRow>) => void) | null = null;
   private handleKillDelete: ((ctx: EventContext, kill: Infer<typeof KillRow>) => void) | null = null;
@@ -104,12 +105,17 @@ export class KillManager {
     }
   }
 
-  public draw(ctx: CanvasRenderingContext2D, canvasWidth: number, _canvasHeight: number) {
-    const notifications = Array.from(this.kills.values())
-      .filter(n => n.displayTime < 3.0)
-      .sort((a, b) => b.timestamp - a.timestamp);
-
-    if (notifications.length === 0) return;
+  public draw(ctx: CanvasRenderingContext2D, canvasWidth: number) {
+    this.sortedNotifications.length = 0;
+    for (const notification of this.kills.values()) {
+      if (notification.displayTime < 3.0) {
+        this.sortedNotifications.push(notification);
+      }
+    }
+    
+    if (this.sortedNotifications.length === 0) return;
+    
+    this.sortedNotifications.sort((a, b) => b.timestamp - a.timestamp);
 
     ctx.save();
 
@@ -119,7 +125,7 @@ export class KillManager {
     const x = canvasWidth / 2;
     let y = 80;
 
-    for (const notification of notifications) {
+    for (const notification of this.sortedNotifications) {
       this.drawKillNotification(ctx, notification, x, y, notificationWidth, notificationHeight);
       y += notificationHeight + spacing;
     }

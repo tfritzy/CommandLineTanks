@@ -45,11 +45,20 @@ export class ScoreManager {
   }
 
   private updateLeaderboard() {
-    const allScores = Array.from(this.playerScores.values()).map(p => p.score);
-    const absScores = allScores.map(s => Math.abs(s));
-    this.maxScore = absScores.length > 0 ? Math.max(1, ...absScores) : 1;
-    this.sortedPlayers = Array.from(this.playerScores.values())
-      .sort((a, b) => b.score - a.score);
+    let maxAbsScore = 1;
+    for (const player of this.playerScores.values()) {
+      const absScore = Math.abs(player.score);
+      if (absScore > maxAbsScore) {
+        maxAbsScore = absScore;
+      }
+    }
+    this.maxScore = maxAbsScore;
+    
+    this.sortedPlayers.length = 0;
+    for (const player of this.playerScores.values()) {
+      this.sortedPlayers.push(player);
+    }
+    this.sortedPlayers.sort((a, b) => b.score - a.score);
   }
 
   private subscribeToTanks(worldId: string) {

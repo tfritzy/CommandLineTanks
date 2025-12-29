@@ -14,12 +14,17 @@ export class TankIndicatorManager {
   }
 
   public update(deltaTime: number): void {
-    for (let i = this.indicators.length - 1; i >= 0; i--) {
+    let writeIndex = 0;
+    for (let i = 0; i < this.indicators.length; i++) {
       this.indicators[i].update(deltaTime);
-      if (this.indicators[i].getIsDead()) {
-        this.indicators.splice(i, 1);
+      if (!this.indicators[i].getIsDead()) {
+        if (writeIndex !== i) {
+          this.indicators[writeIndex] = this.indicators[i];
+        }
+        writeIndex++;
       }
     }
+    this.indicators.length = writeIndex;
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
