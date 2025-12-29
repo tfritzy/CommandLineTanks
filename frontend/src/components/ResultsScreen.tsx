@@ -21,19 +21,18 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const [showResults, setShowResults] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [gameEndTime, setGameEndTime] = useState<bigint | null>(null);
+    const [countdownEndTime, setCountdownEndTime] = useState<number | null>(null);
 
     useEffect(() => {
         const connection = getConnection();
         if (!connection) return;
-
-        const serverTimeSync = ServerTimeSync.getInstance();
         
         const interval = setInterval(() => {
-            if (gameEndTime !== null) {
-                const serverTimeMicros = BigInt(Math.floor(serverTimeSync.getServerTime() * 1000));
-                const timeUntilModal = Number(gameEndTime + BigInt(COUNTDOWN_MICROS) - serverTimeMicros);
+            if (countdownEndTime !== null) {
+                const now = Date.now();
+                const timeUntilModal = countdownEndTime - now;
                 
-                setCountdownRemaining(Math.max(0, timeUntilModal));
+                setCountdownRemaining(Math.max(0, timeUntilModal * 1000));
                 
                 if (timeUntilModal <= 0 && !showModal) {
                     setShowModal(true);
@@ -70,11 +69,21 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 setShowResults(true);
                 const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
+                
+                const serverTimeSync = ServerTimeSync.getInstance();
+                const serverTimeMs = serverTimeSync.getServerTime();
+                const clientTimeMs = Date.now();
+                const gameEndTimeMs = Number(endTime / 1000n);
+                const countdownDurationMs = COUNTDOWN_MICROS / 1000;
+                const countdownEnd = clientTimeMs + (gameEndTimeMs - serverTimeMs) + countdownDurationMs;
+                setCountdownEndTime(countdownEnd);
+                
                 setShowModal(false);
             } else {
                 setShowResults(false);
                 setShowModal(false);
                 setGameEndTime(null);
+                setCountdownEndTime(null);
             }
         };
 
@@ -112,6 +121,15 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                     setShowResults(true);
                     const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros);
                     setGameEndTime(endTime);
+                    
+                    const serverTimeSync = ServerTimeSync.getInstance();
+                    const serverTimeMs = serverTimeSync.getServerTime();
+                    const clientTimeMs = Date.now();
+                    const gameEndTimeMs = Number(endTime / 1000n);
+                    const countdownDurationMs = COUNTDOWN_MICROS / 1000;
+                    const countdownEnd = clientTimeMs + (gameEndTimeMs - serverTimeMs) + countdownDurationMs;
+                    setCountdownEndTime(countdownEnd);
+                    
                     setShowModal(false);
                     updateTanks();
                     updateScores();
@@ -119,6 +137,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                     setShowResults(false);
                     setShowModal(false);
                     setGameEndTime(null);
+                    setCountdownEndTime(null);
                 }
             }
         });
@@ -128,6 +147,15 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 setShowResults(true);
                 const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
+                
+                const serverTimeSync = ServerTimeSync.getInstance();
+                const serverTimeMs = serverTimeSync.getServerTime();
+                const clientTimeMs = Date.now();
+                const gameEndTimeMs = Number(endTime / 1000n);
+                const countdownDurationMs = COUNTDOWN_MICROS / 1000;
+                const countdownEnd = clientTimeMs + (gameEndTimeMs - serverTimeMs) + countdownDurationMs;
+                setCountdownEndTime(countdownEnd);
+                
                 setShowModal(false);
                 updateTanks();
                 updateScores();
@@ -138,7 +166,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             clearInterval(interval);
             subscriptionHandle.unsubscribe();
         };
-    }, [worldId, gameEndTime]);
+    }, [worldId, countdownEndTime]);
 
     if (!showResults) {
         return null;
