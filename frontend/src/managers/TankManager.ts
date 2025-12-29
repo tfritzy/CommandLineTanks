@@ -96,36 +96,6 @@ export class TankManager {
           }
         }
 
-        if (
-          oldTank.target !== null &&
-          newTank.target === null &&
-          newTank.health > 0
-        ) {
-          const pos = tank.getPosition();
-          this.indicatorManager.spawnFloatingLabel(
-            pos.x,
-            pos.y - 0.5,
-            "Target lost"
-          );
-        }
-
-        if (oldTank.isRepairing && !newTank.isRepairing && newTank.health > 0) {
-          const pos = tank.getPosition();
-          if (newTank.health >= newTank.maxHealth) {
-            this.indicatorManager.spawnFloatingLabel(
-              pos.x,
-              pos.y - 0.5,
-              "Repair complete"
-            );
-          } else {
-            this.indicatorManager.spawnFloatingLabel(
-              pos.x,
-              pos.y - 0.5,
-              "Repair interrupted"
-            );
-          }
-        }
-
         tank.setPosition(newTank.positionX, newTank.positionY, newTank.updatedAt);
         tank.setTargetTurretRotation(newTank.targetTurretRotation);
         tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
@@ -137,6 +107,7 @@ export class TankManager {
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
         tank.setHasShield(newTank.hasShield);
         tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
+        tank.setMessage(newTank.message);
       } else {
         this.buildTank(newTank);
       }
@@ -307,6 +278,12 @@ export class TankManager {
   public drawNameLabels(ctx: CanvasRenderingContext2D) {
     for (const tank of this.tanks.values()) {
       tank.drawNameLabel(ctx);
+    }
+  }
+
+  public drawMessageLabels(ctx: CanvasRenderingContext2D) {
+    for (const tank of this.tanks.values()) {
+      tank.drawMessageLabel(ctx);
     }
   }
 

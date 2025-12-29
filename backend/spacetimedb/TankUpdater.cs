@@ -193,7 +193,8 @@ public static partial class TankUpdater
                     tank = tank with
                     {
                         Health = tank.MaxHealth,
-                        IsRepairing = false
+                        IsRepairing = false,
+                        Message = "Repair complete"
                     };
                     needsUpdate = true;
                 }
@@ -297,7 +298,7 @@ public static partial class TankUpdater
 
                     if (distanceSquared > Module.MAX_TARGETING_RANGE * Module.MAX_TARGETING_RANGE)
                     {
-                        tank = tank with { Target = null };
+                        tank = tank with { Target = null, Message = "Target lost" };
                         needsUpdate = true;
                     }
                     else
@@ -333,7 +334,7 @@ public static partial class TankUpdater
 
                         if (targetInSmoke)
                         {
-                            tank = tank with { Target = null };
+                            tank = tank with { Target = null, Message = "Target lost" };
                             needsUpdate = true;
                         }
                         else if (tank.TargetLead > 0)

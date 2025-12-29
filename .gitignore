@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# SpacetimeDB CLI binaries
+spacetime.tar.gz
+spacetimedb-cli
+spacetimedb-standalone

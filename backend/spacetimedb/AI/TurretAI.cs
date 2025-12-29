@@ -60,6 +60,10 @@ public static partial class TurretAI
         {
             var targetTank = tanksInTile[aiContext.GetRandom().Next(tanksInTile.Count)];
             updatedTank = TargetTankByName(ctx, tank, targetTank.Name, 0);
+            updatedTank = updatedTank with
+            {
+                Message = $"target {targetTank.Name}"
+            };
         }
         else
         {

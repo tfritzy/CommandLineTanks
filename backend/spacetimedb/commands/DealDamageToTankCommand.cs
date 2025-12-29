@@ -25,7 +25,7 @@ public static partial class Module
 
         if (tank.IsRepairing)
         {
-            tank = tank with { IsRepairing = false };
+            tank = tank with { IsRepairing = false, Message = "Repair interrupted" };
         }
 
         var newHealth = tank.Health - damage;
