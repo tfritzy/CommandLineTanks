@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface GameCreationFlowProps {
     onComplete: (isPrivate: boolean, passcode: string) => void;
@@ -12,6 +12,11 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
     const [selectedVisibility, setSelectedVisibility] = useState<'public' | 'private'>('public');
     const [passcode, setPasscode] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const handlePasscodeCancel = useCallback(() => {
+        setStep('visibility');
+        setPasscode('');
+    }, []);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -30,12 +35,17 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                     e.preventDefault();
                     onCancel();
                 }
+            } else if (step === 'passcode') {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    handlePasscodeCancel();
+                }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [step, selectedVisibility, onComplete, onCancel]);
+    }, [step, selectedVisibility, onComplete, onCancel, handlePasscodeCancel]);
 
     useEffect(() => {
         if (step === 'passcode' && inputRef.current) {
@@ -46,11 +56,6 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
     const handlePasscodeSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onComplete(true, passcode);
-    };
-
-    const handlePasscodeCancel = () => {
-        setStep('visibility');
-        setPasscode('');
     };
 
     return (

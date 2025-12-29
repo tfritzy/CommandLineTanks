@@ -24,9 +24,16 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
     }, [connection, worldId]);
 
     const handleCopyWorldId = () => {
-        navigator.clipboard.writeText(worldId);
-        setShowCopied(true);
-        setTimeout(() => setShowCopied(false), 2000);
+        navigator.clipboard.writeText(worldId)
+            .then(() => {
+                setShowCopied(true);
+                setTimeout(() => setShowCopied(false), 2000);
+            })
+            .catch((error) => {
+                console.error('Failed to copy world ID:', error);
+                setShowCopied(true);
+                setTimeout(() => setShowCopied(false), 2000);
+            });
     };
 
     useEffect(() => {
