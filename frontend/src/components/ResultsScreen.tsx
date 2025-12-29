@@ -23,6 +23,15 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const [gameEndTime, setGameEndTime] = useState<bigint | null>(null);
     const [countdownEndTime, setCountdownEndTime] = useState<number | null>(null);
 
+    const calculateCountdownEndTime = (gameEndTimeMicros: bigint): number => {
+        const serverTimeSync = ServerTimeSync.getInstance();
+        const serverTimeMs = serverTimeSync.getServerTime();
+        const clientTimeMs = Date.now();
+        const gameEndTimeMs = Number(gameEndTimeMicros / 1000n);
+        const countdownDurationMs = COUNTDOWN_MICROS / 1000;
+        return clientTimeMs + (gameEndTimeMs - serverTimeMs) + countdownDurationMs;
+    };
+
     useEffect(() => {
         const connection = getConnection();
         if (!connection) return;
@@ -69,15 +78,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 setShowResults(true);
                 const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
-                
-                const serverTimeSync = ServerTimeSync.getInstance();
-                const serverTimeMs = serverTimeSync.getServerTime();
-                const clientTimeMs = Date.now();
-                const gameEndTimeMs = Number(endTime / 1000n);
-                const countdownDurationMs = COUNTDOWN_MICROS / 1000;
-                const countdownEnd = clientTimeMs + (gameEndTimeMs - serverTimeMs) + countdownDurationMs;
-                setCountdownEndTime(countdownEnd);
-                
+                setCountdownEndTime(calculateCountdownEndTime(endTime));
                 setShowModal(false);
             } else {
                 setShowResults(false);
@@ -121,15 +122,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                     setShowResults(true);
                     const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros);
                     setGameEndTime(endTime);
-                    
-                    const serverTimeSync = ServerTimeSync.getInstance();
-                    const serverTimeMs = serverTimeSync.getServerTime();
-                    const clientTimeMs = Date.now();
-                    const gameEndTimeMs = Number(endTime / 1000n);
-                    const countdownDurationMs = COUNTDOWN_MICROS / 1000;
-                    const countdownEnd = clientTimeMs + (gameEndTimeMs - serverTimeMs) + countdownDurationMs;
-                    setCountdownEndTime(countdownEnd);
-                    
+                    setCountdownEndTime(calculateCountdownEndTime(endTime));
                     setShowModal(false);
                     updateTanks();
                     updateScores();
@@ -147,15 +140,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 setShowResults(true);
                 const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
-                
-                const serverTimeSync = ServerTimeSync.getInstance();
-                const serverTimeMs = serverTimeSync.getServerTime();
-                const clientTimeMs = Date.now();
-                const gameEndTimeMs = Number(endTime / 1000n);
-                const countdownDurationMs = COUNTDOWN_MICROS / 1000;
-                const countdownEnd = clientTimeMs + (gameEndTimeMs - serverTimeMs) + countdownDurationMs;
-                setCountdownEndTime(countdownEnd);
-                
+                setCountdownEndTime(calculateCountdownEndTime(endTime));
                 setShowModal(false);
                 updateTanks();
                 updateScores();
