@@ -111,27 +111,23 @@ public static partial class PickupSpawner
             }
 
             var existingPickup = ctx.Db.pickup.WorldId_GridX_GridY.Filter((worldId, gridX, gridY));
-            bool pickupExists = false;
-            foreach (var p in existingPickup)
+            
+            if (existingPickup.Any())
             {
-                pickupExists = true;
-                break;
+                continue;
             }
 
-            if (!pickupExists)
+            var pickupId = Module.GenerateId(ctx, "pickup");
+            ctx.Db.pickup.Insert(new Module.Pickup
             {
-                var pickupId = Module.GenerateId(ctx, "pickup");
-                ctx.Db.pickup.Insert(new Module.Pickup
-                {
-                    Id = pickupId,
-                    WorldId = worldId,
-                    PositionX = gridX + 0.5f,
-                    PositionY = gridY + 0.5f,
-                    GridX = gridX,
-                    GridY = gridY,
-                    Type = pickupType
-                });
-            }
+                Id = pickupId,
+                WorldId = worldId,
+                PositionX = gridX + 0.5f,
+                PositionY = gridY + 0.5f,
+                GridX = gridX,
+                GridY = gridY,
+                Type = pickupType
+            });
         }
     }
 
