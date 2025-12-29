@@ -217,62 +217,13 @@ public static partial class Module
             Identity.From(new byte[32]),
             tankName,
             "",
-            1,
+            0,
             x + 0.5f,
             y + 0.5f,
             AIBehavior.RandomAim
         );
         enemyTank.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(enemyTank);
-
-        int dummyDistance = 5;
-        int dummiesPerSide = 3;
-
-        for (int i = 0; i < dummiesPerSide * 4; i++)
-        {
-            int side = i / dummiesPerSide;
-            int positionOnSide = i % dummiesPerSide;
-            int offset = (positionOnSide - dummiesPerSide / 2) * 2;
-
-            int dx = x;
-            int dy = y;
-
-            switch (side)
-            {
-                case 0:
-                    dx = x + offset;
-                    dy = y - dummyDistance;
-                    break;
-                case 1:
-                    dx = x + dummyDistance;
-                    dy = y + offset;
-                    break;
-                case 2:
-                    dx = x + offset;
-                    dy = y + dummyDistance;
-                    break;
-                case 3:
-                    dx = x - dummyDistance;
-                    dy = y + offset;
-                    break;
-            }
-
-            if (dx >= 0 && dx < worldSize && dy >= 0 && dy < worldSize)
-            {
-                ctx.Db.terrain_detail.Insert(new TerrainDetail
-                {
-                    Id = GenerateId(ctx, "td"),
-                    WorldId = worldId,
-                    PositionX = dx + 0.5f,
-                    PositionY = dy + 0.5f,
-                    GridX = dx,
-                    GridY = dy,
-                    Type = TerrainDetailType.TargetDummy,
-                    Health = 100,
-                    Rotation = 0
-                });
-            }
-        }
     }
 
     private static void SpawnTileboundTank(ReducerContext ctx, string worldId, int x, int y)
@@ -302,7 +253,7 @@ public static partial class Module
             Identity.From(new byte[32]),
             turretName,
             "",
-            1,
+            0,
             centerX + 0.5f,
             centerY + 0.5f,
             AIBehavior.Turret
