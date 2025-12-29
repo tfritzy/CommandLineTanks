@@ -92,7 +92,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
       "  creategame           Create a new game world",
-      "  findgame             Join a game world",
+      "  findgame             Join a public game world",
+      "  joingame             Join a specific game world by ID",
       "  clear, c             Clear the terminal output",
       "  help, h              Display help information",
     ];
@@ -304,7 +305,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 
     case "findgame":
       return [
-        "findgame - Join a game world",
+        "findgame - Join a public game world",
         "",
         "Usage: findgame",
         "",
@@ -312,6 +313,24 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  findgame"
+      ];
+
+    case "joingame":
+      return [
+        "joingame - Join a specific game world by ID",
+        "",
+        "Usage: joingame <world_id> [passcode]",
+        "",
+        "Arguments:",
+        "  <world_id>  The ID of the world to join (required)",
+        "  [passcode]  The passcode for private worlds (optional)",
+        "",
+        "Join a specific world by its ID. If the world is private,",
+        "you must provide the correct passcode.",
+        "",
+        "Examples:",
+        "  joingame wld_abc123",
+        "  joingame wld_abc123 mysecretpass"
       ];
 
     case "help":
@@ -546,6 +565,34 @@ export function findGame(connection: DbConnection, args: string[]): string[] {
 
   return [
     "Searching for a game world...",
+  ];
+}
+
+export function joinGame(connection: DbConnection, args: string[]): string[] {
+  if (args.length < 1) {
+    return [
+      "joingame: error: missing required argument '<world_id>'",
+      "",
+      "Usage: joingame <world_id> [passcode]",
+      "       joingame wld_abc123",
+      "       joingame wld_abc123 mypasscode"
+    ];
+  }
+
+  const worldId = args[0];
+  const passcode = args.length > 1 ? args.slice(1).join(' ') : null;
+
+  const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  setPendingJoinCode(joinCode);
+  
+  connection.reducers.joinWorldWithPasscode({ 
+    worldId, 
+    joinCode, 
+    passcode 
+  });
+
+  return [
+    `Joining world ${worldId}...`,
   ];
 }
 

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getConnection, setPendingJoinCode } from '../../spacetimedb-connection';
-import { aim, drive, fire, help, respawn, stop, switchGun, target, findGame, smokescreen, overdrive, repair, createGame } from './commands';
+import { aim, drive, fire, help, respawn, stop, switchGun, target, findGame, joinGame, smokescreen, overdrive, repair, createGame } from './commands';
 import GameCreationFlow from '../GameCreationFlow';
 
 interface TerminalComponentProps {
@@ -167,6 +167,11 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                     case 'findgame': {
                         const findGameOutput = findGame(connection, args);
                         newOutput.push(...findGameOutput);
+                        break;
+                    }
+                    case 'joingame': {
+                        const joinGameOutput = joinGame(connection, args);
+                        newOutput.push(...joinGameOutput);
                         break;
                     }
                     case 'help':
