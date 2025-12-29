@@ -1,16 +1,16 @@
 export function drawPlayerScore(
   ctx: CanvasRenderingContext2D,
   name: string,
-  kills: number,
+  score: number,
   alliance: number,
   x: number,
   y: number,
   barWidth: number,
   barHeight: number,
-  maxKills: number
+  maxScore: number
 ) {
   const color = alliance === 0 ? 'rgba(157, 67, 67, 0.8)' : 'rgba(90, 120, 178, 0.8)';
-  const progress = kills / maxKills;
+  const progress = Math.abs(score) / maxScore;
   const radius = barHeight / 2;
 
   ctx.save();
@@ -33,8 +33,7 @@ export function drawPlayerScore(
 
   ctx.restore();
 
-  const killText = kills === 1 ? 'kill' : 'kills';
-  const text = `${name}  —  ${kills} ${killText}`;
+  const text = `${name}  —  ${score}`;
 
   ctx.font = '800 14px Poppins, sans-serif';
   ctx.textAlign = 'center';

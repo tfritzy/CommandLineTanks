@@ -7,12 +7,14 @@ import { drawPlayerScore } from "../drawing/ui/scoreboard";
 interface PlayerScore {
   name: string;
   kills: number;
+  deaths: number;
+  score: number;
   alliance: number;
 }
 
 export class ScoreManager {
   private playerScores: Map<string, PlayerScore> = new Map();
-  private maxKills: number = 1;
+  private maxScore: number = 1;
   private sortedPlayers: PlayerScore[] = [];
   private worldId: string;
   private isHomeworld: boolean;
@@ -36,15 +38,18 @@ export class ScoreManager {
     return {
       name: tank.name,
       kills: tank.kills,
+      deaths: tank.deaths,
+      score: tank.kills - tank.deaths,
       alliance: tank.alliance
     };
   }
 
   private updateLeaderboard() {
-    const allKills = Array.from(this.playerScores.values()).map(p => p.kills);
-    this.maxKills = allKills.length > 0 ? Math.max(1, ...allKills) : 1;
+    const allScores = Array.from(this.playerScores.values()).map(p => p.score);
+    const absScores = allScores.map(s => Math.abs(s));
+    this.maxScore = absScores.length > 0 ? Math.max(1, ...absScores) : 1;
     this.sortedPlayers = Array.from(this.playerScores.values())
-      .sort((a, b) => b.kills - a.kills);
+      .sort((a, b) => b.score - a.score);
   }
 
   private subscribeToTanks(worldId: string) {
@@ -132,6 +137,6 @@ export class ScoreManager {
     barWidth: number,
     barHeight: number
   ) {
-    drawPlayerScore(ctx, player.name, player.kills, player.alliance, x, y, barWidth, barHeight, this.maxKills);
+    drawPlayerScore(ctx, player.name, player.score, player.alliance, x, y, barWidth, barHeight, this.maxScore);
   }
 }
