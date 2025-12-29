@@ -12,6 +12,5 @@ import {
 
 export default {
   worldId: __t.option(__t.string()),
-  joinCode: __t.string(),
   passcode: __t.string(),
 };

@@ -4,7 +4,7 @@ using static Types;
 public static partial class Module
 {
     [Reducer]
-    public static void joinWorld(ReducerContext ctx, string? worldId, string joinCode, string passcode)
+    public static void joinWorld(ReducerContext ctx, string? worldId, string passcode)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -23,21 +23,14 @@ public static partial class Module
             {
                 Log.Info("No public worlds available, creating new world");
                 var newWorldId = GenerateWorldId(ctx);
-                var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
-                var terrainDetailArray = TerrainGenerator.ConvertToArray(
-                    terrainDetails,
-                    TerrainGenerator.GetWorldWidth(),
-                    TerrainGenerator.GetWorldHeight()
-                );
-                var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
-                var projectileCollisionMap = TerrainGenerator.CalculateProjectileCollisionMap(baseTerrain, terrainDetailArray);
+                var (baseTerrain, terrainDetails, traversibilityMap, projectileCollisionMap) = GenerateTerrainCommand(ctx);
 
                 world = CreateWorld(
                     ctx,
                     newWorldId,
                     "Public Game",
                     baseTerrain,
-                    terrainDetails.ToArray(),
+                    terrainDetails,
                     traversibilityMap,
                     projectileCollisionMap,
                     false,
@@ -73,7 +66,7 @@ public static partial class Module
             }
         }
 
-        CleanupHomeworldAndJoin(ctx, world.Value.Id, joinCode);
+        CleanupHomeworldAndJoinCommand(ctx, world.Value.Id);
 
         Log.Info($"Player {player.Value.Name} joined world {world.Value.Id}");
     }
