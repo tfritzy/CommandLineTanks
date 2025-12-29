@@ -13,6 +13,19 @@ public static partial class Module
             return;
         }
 
+        var world = ctx.Db.world.Id.Find(worldId);
+        if (world == null)
+        {
+            Log.Error($"World {worldId} not found");
+            return;
+        }
+
+        if (world.Value.HasPasscode)
+        {
+            Log.Error($"World {worldId} requires a passcode");
+            return;
+        }
+
         var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, "");
         if (tank != null)
         {
@@ -43,7 +56,7 @@ public static partial class Module
             var worldPasscode = ctx.Db.world_passcode.WorldId.Find(worldId);
             if (worldPasscode == null || worldPasscode.Value.Passcode != passcode)
             {
-                Log.Error($"Invalid passcode for private world {worldId}");
+                Log.Error($"Invalid passcode for world {worldId}");
                 return;
             }
         }
