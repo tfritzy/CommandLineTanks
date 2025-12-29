@@ -10,7 +10,7 @@ export function drawPlayerScore(
   maxScore: number
 ) {
   const color = alliance === 0 ? 'rgba(157, 67, 67, 0.8)' : 'rgba(90, 120, 178, 0.8)';
-  const progress = score / maxScore;
+  const progress = Math.abs(score) / maxScore;
   const radius = barHeight / 2;
 
   ctx.save();
