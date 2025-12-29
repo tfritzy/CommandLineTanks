@@ -12,6 +12,9 @@ import {
 
 export default {
   joinCode: __t.string(),
+  worldName: __t.string(),
   isPrivate: __t.bool(),
-  passcode: __t.option(__t.string()),
+  passcode: __t.string(),
+  botCount: __t.i32(),
+  gameDurationMicros: __t.i64(),
 };

@@ -4,7 +4,7 @@ using static Types;
 public static partial class Module
 {
     [Reducer]
-    public static void joinWorld(ReducerContext ctx, string worldId)
+    public static void joinWorld(ReducerContext ctx, string? worldId, string joinCode, string passcode)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -13,92 +13,68 @@ public static partial class Module
             return;
         }
 
-        var world = ctx.Db.world.Id.Find(worldId);
-        if (world == null)
-        {
-            Log.Error($"World {worldId} not found");
-            return;
-        }
+        World? world = null;
 
-        if (world.Value.HasPasscode)
+        if (string.IsNullOrEmpty(worldId))
         {
-            Log.Error($"World {worldId} requires a passcode");
-            return;
-        }
-
-        var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, "");
-        if (tank != null)
-        {
-            ctx.Db.tank.Insert(tank.Value);
-            Log.Info($"Player {player.Value.Name} joined world {worldId} with tank {tank.Value.Id} named {tank.Value.Name}");
-        }
-    }
-
-    [Reducer]
-    public static void joinWorldWithPasscode(ReducerContext ctx, string worldId, string joinCode, string? passcode)
-    {
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
-        if (player == null)
-        {
-            Log.Error("Player not found for identity");
-            return;
-        }
-
-        var world = ctx.Db.world.Id.Find(worldId);
-        if (world == null)
-        {
-            Log.Error($"World {worldId} not found");
-            return;
-        }
-
-        if (world.Value.HasPasscode)
-        {
-            if (string.IsNullOrEmpty(passcode))
-            {
-                Log.Error($"World {worldId} requires a passcode");
-                return;
-            }
+            world = ctx.Db.world.GameState_IsHomeWorld_IsPrivate.Filter((GameState.Playing, false, false)).FirstOrDefault();
             
-            var worldPasscode = ctx.Db.world_passcode.WorldId.Find(worldId);
-            if (worldPasscode == null || worldPasscode.Value.Passcode != passcode)
+            if (world == null)
             {
-                Log.Error($"Invalid passcode for world {worldId}");
+                Log.Info("No public worlds available, creating new world");
+                var newWorldId = GenerateWorldId(ctx);
+                var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
+                var terrainDetailArray = TerrainGenerator.ConvertToArray(
+                    terrainDetails,
+                    TerrainGenerator.GetWorldWidth(),
+                    TerrainGenerator.GetWorldHeight()
+                );
+                var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
+                var projectileCollisionMap = TerrainGenerator.CalculateProjectileCollisionMap(baseTerrain, terrainDetailArray);
+
+                world = CreateWorld(
+                    ctx,
+                    newWorldId,
+                    "Public Game",
+                    baseTerrain,
+                    terrainDetails.ToArray(),
+                    traversibilityMap,
+                    projectileCollisionMap,
+                    false,
+                    ""
+                );
+
+                SpawnInitialBots(ctx, newWorldId, world.Value);
+            }
+        }
+        else
+        {
+            world = ctx.Db.world.Id.Find(worldId);
+            if (world == null)
+            {
+                Log.Error($"World {worldId} not found");
                 return;
             }
-        }
 
-        var identityString = ctx.Sender.ToString().ToLower();
-        var homeworldTanks = ctx.Db.tank.WorldId.Filter(identityString).Where(t => t.Owner == ctx.Sender);
-        foreach (var homeworldTank in homeworldTanks)
-        {
-            var fireState = ctx.Db.tank_fire_state.TankId.Find(homeworldTank.Id);
-            if (fireState != null)
+            if (world.Value.HasPasscode)
             {
-                ctx.Db.tank_fire_state.TankId.Delete(homeworldTank.Id);
+                if (string.IsNullOrEmpty(passcode))
+                {
+                    Log.Error($"World {worldId} requires a passcode");
+                    return;
+                }
+                
+                var worldPasscode = ctx.Db.world_passcode.WorldId.Find(worldId);
+                if (worldPasscode == null || worldPasscode.Value.Passcode != passcode)
+                {
+                    Log.Error($"Invalid passcode for world {worldId}");
+                    return;
+                }
             }
-            ctx.Db.tank.Id.Delete(homeworldTank.Id);
-            Log.Info($"Deleted homeworld tank {homeworldTank.Id} for player {player.Value.Name}");
         }
 
-        if (!HasAnyTanksInWorld(ctx, identityString))
-        {
-            StopWorldTickers(ctx, identityString);
-        }
+        CleanupHomeworldAndJoin(ctx, world.Value.Id, joinCode);
 
-        Tank existingTank = ctx.Db.tank.Owner.Filter(ctx.Sender).Where(t => t.WorldId == worldId).FirstOrDefault();
-        if (!string.IsNullOrEmpty(existingTank.Id))
-        {
-            Log.Info("Player already had tank in world, so updated its join code");
-            existingTank.JoinCode = joinCode;
-            ctx.Db.tank.Id.Update(existingTank);
-            return;
-        }
-
-        var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, joinCode);
-        if (tank != null)
-        {
-            ctx.Db.tank.Insert(tank.Value);
-            Log.Info($"Player {player.Value.Name} joined world {worldId} with tank {tank.Value.Id} named {tank.Value.Name} (joinCode: {joinCode})");
-        }
+        Log.Info($"Player {player.Value.Name} joined world {world.Value.Id}");
     }
 }

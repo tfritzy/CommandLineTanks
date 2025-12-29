@@ -4,9 +4,9 @@ using static Types;
 public static partial class Module
 {
     [Reducer]
-    public static void createWorld(ReducerContext ctx, string joinCode, bool isPrivate, string? passcode)
+    public static void createWorld(ReducerContext ctx, string joinCode, string worldName, bool isPrivate, string passcode, int botCount, long gameDurationMicros)
     {
-        Log.Info($"{ctx.Sender} is creating a world (private: {isPrivate})");
+        Log.Info($"{ctx.Sender} is creating a world '{worldName}' (private: {isPrivate}, bots: {botCount})");
 
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -15,8 +15,7 @@ public static partial class Module
             return;
         }
 
-        var worldId = GenerateId(ctx, "wld");
-        var worldName = $"{player.Value.Name}'s Game";
+        var worldId = GenerateWorldId(ctx);
 
         var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
         var terrainDetailArray = TerrainGenerator.ConvertToArray(
@@ -36,9 +35,30 @@ public static partial class Module
             traversibilityMap,
             projectileCollisionMap,
             isPrivate,
-            passcode
+            passcode,
+            gameDurationMicros
         );
 
+        CleanupHomeworldAndJoin(ctx, world.Id, joinCode);
+
+        for (int alliance = 0; alliance < 2; alliance++)
+        {
+            for (int i = 0; i < botCount / 2; i++)
+            {
+                var targetCode = AllocateTargetCode(ctx, worldId);
+                if (targetCode == null) continue;
+
+                var (spawnX, spawnY) = FindSpawnPosition(ctx, world, alliance, ctx.Rng);
+                var botTank = BuildTank(ctx, worldId, ctx.Sender, "Bot", targetCode, "", alliance, spawnX, spawnY, AIBehavior.GameAI);
+                ctx.Db.tank.Insert(botTank);
+            }
+        }
+
+        Log.Info($"Player {player.Value.Name} created world '{world.Name}' ({world.Id})");
+    }
+
+    private static void CleanupHomeworldAndJoin(ReducerContext ctx, string worldId, string joinCode)
+    {
         var identityString = ctx.Sender.ToString().ToLower();
         var homeworldTanks = ctx.Db.tank.WorldId.Filter(identityString).Where(t => t.Owner == ctx.Sender);
         foreach (var homeworldTank in homeworldTanks)
@@ -49,7 +69,6 @@ public static partial class Module
                 ctx.Db.tank_fire_state.TankId.Delete(homeworldTank.Id);
             }
             ctx.Db.tank.Id.Delete(homeworldTank.Id);
-            Log.Info($"Deleted homeworld tank {homeworldTank.Id} for player {player.Value.Name}");
         }
 
         if (!HasAnyTanksInWorld(ctx, identityString))
@@ -57,13 +76,10 @@ public static partial class Module
             StopWorldTickers(ctx, identityString);
         }
 
-        var tank = CreateTankInWorld(ctx, world.Id, ctx.Sender, joinCode);
+        var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, joinCode);
         if (tank != null)
         {
             ctx.Db.tank.Insert(tank.Value);
-            Log.Info($"Player {player.Value.Name} created world {world.Name} ({world.Id}) with tank {tank.Value.Id} (joinCode: {joinCode})");
         }
-
-        SpawnInitialBots(ctx, worldId, world);
     }
 }

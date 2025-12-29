@@ -35,4 +35,17 @@ public static partial class Module
 
         return $"{prefix}_{new string(result)}";
     }
+
+    internal static string GenerateWorldId(ReducerContext ctx)
+    {
+        const string chars = "abcdefghijklmnopqrstuvwxyz";
+        var result = new char[4];
+        
+        for (int i = 0; i < 4; i++)
+        {
+            result[i] = chars[ctx.Rng.Next(chars.Length)];
+        }
+        
+        return new string(result);
+    }
 }
