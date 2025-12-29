@@ -7,32 +7,44 @@ public static partial class RandomAimAI
 {
     private const float AIM_TOLERANCE = 0.05f;
 
-    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
+    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext, int tickCount)
     {
+        bool isEvenTick = tickCount % 2 == 0;
         float angleDiff = Math.Abs(GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation));
 
-        if (angleDiff < AIM_TOLERANCE)
+        if (isEvenTick)
         {
-            tank = FireTankWeapon(ctx, tank);
-            
-            var (targetAngle, directionName) = GetRandomAngle(aiContext.GetRandom());
-            string message;
-            if (directionName != null)
+            if (angleDiff < AIM_TOLERANCE)
             {
-                message = $"aim {directionName}";
+                var (targetAngle, directionName) = GetRandomAngle(aiContext.GetRandom());
+                string message;
+                if (directionName != null)
+                {
+                    message = $"aim {directionName}";
+                }
+                else
+                {
+                    float targetAngleDegrees = (float)(-targetAngle * 180.0 / Math.PI);
+                    message = $"aim {targetAngleDegrees:F0}";
+                }
+                
+                tank = tank with
+                {
+                    TargetTurretRotation = NormalizeAngleToTarget(targetAngle, tank.TurretRotation),
+                    Target = null,
+                    Message = message
+                };
             }
-            else
+        }
+        else
+        {
+            if (angleDiff < AIM_TOLERANCE)
             {
-                float targetAngleDegrees = (float)(-targetAngle * 180.0 / Math.PI);
-                message = $"aim {targetAngleDegrees:F0}";
+                tank = FireTankWeapon(ctx, tank) with
+                {
+                    Message = "fire"
+                };
             }
-            
-            tank = tank with
-            {
-                TargetTurretRotation = NormalizeAngleToTarget(targetAngle, tank.TurretRotation),
-                Target = null,
-                Message = message
-            };
         }
 
         return tank;

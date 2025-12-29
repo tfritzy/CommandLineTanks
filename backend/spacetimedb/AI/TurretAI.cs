@@ -12,27 +12,36 @@ public static partial class TurretAI
 
     public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext, int tickCount)
     {
+        bool isEvenTick = tickCount % 2 == 0;
         bool shouldSwitch = tickCount > 0 && (tickCount % TARGET_SWITCH_TICK_INTERVAL) == 0;
 
-        if (shouldSwitch || tank.Target == null)
+        if (isEvenTick)
         {
-            tank = SelectNewTarget(ctx, tank, aiContext);
-        }
-        else if (tank.Target != null)
-        {
-            var targetTank = ctx.Db.tank.Id.Find(tank.Target);
-            if (targetTank == null || targetTank.Value.Health <= 0 || !IsInSameTile(tank, targetTank.Value))
+            if (shouldSwitch || tank.Target == null)
             {
                 tank = SelectNewTarget(ctx, tank, aiContext);
             }
-        }
-
-        if (tank.Target != null)
-        {
-            float angleDiff = Math.Abs(GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation));
-            if (angleDiff < AIM_TOLERANCE)
+            else if (tank.Target != null)
             {
-                tank = FireTankWeapon(ctx, tank);
+                var targetTank = ctx.Db.tank.Id.Find(tank.Target);
+                if (targetTank == null || targetTank.Value.Health <= 0 || !IsInSameTile(tank, targetTank.Value))
+                {
+                    tank = SelectNewTarget(ctx, tank, aiContext);
+                }
+            }
+        }
+        else
+        {
+            if (tank.Target != null)
+            {
+                float angleDiff = Math.Abs(GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation));
+                if (angleDiff < AIM_TOLERANCE)
+                {
+                    tank = FireTankWeapon(ctx, tank) with
+                    {
+                        Message = "fire"
+                    };
+                }
             }
         }
 

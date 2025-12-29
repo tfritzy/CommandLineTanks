@@ -67,4 +67,31 @@ public class AIContext
 
         return _tankPaths[tankId];
     }
+
+    public Tank? GetClosestEnemyTank(Tank sourceTank)
+    {
+        var tanks = GetAllTanks();
+        Tank? closestTank = null;
+        float closestDistanceSquared = float.MaxValue;
+
+        foreach (var tank in tanks)
+        {
+            if (tank.Id == sourceTank.Id || tank.Alliance == sourceTank.Alliance || tank.Health <= 0)
+            {
+                continue;
+            }
+
+            float dx = tank.PositionX - sourceTank.PositionX;
+            float dy = tank.PositionY - sourceTank.PositionY;
+            float distanceSquared = dx * dx + dy * dy;
+
+            if (distanceSquared < closestDistanceSquared)
+            {
+                closestDistanceSquared = distanceSquared;
+                closestTank = tank;
+            }
+        }
+
+        return closestTank;
+    }
 }

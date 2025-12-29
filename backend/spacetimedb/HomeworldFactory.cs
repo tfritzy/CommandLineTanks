@@ -4,12 +4,14 @@ using System;
 
 public static partial class Module
 {
-    private const int HOMEWORLD_SIZE = 40;
+    private const int HOMEWORLD_WIDTH = 30;
+    private const int HOMEWORLD_HEIGHT = 20;
 
     private static void CreateHomeworld(ReducerContext ctx, string identityString)
     {
-        int worldSize = HOMEWORLD_SIZE;
-        int totalTiles = worldSize * worldSize;
+        int worldWidth = HOMEWORLD_WIDTH;
+        int worldHeight = HOMEWORLD_HEIGHT;
+        int totalTiles = worldWidth * worldHeight;
 
         var baseTerrain = new BaseTerrain[totalTiles];
         var traversibilityMap = new bool[totalTiles];
@@ -27,8 +29,8 @@ public static partial class Module
             Id = identityString,
             Name = $"Homeworld",
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            Width = worldSize,
-            Height = worldSize,
+            Width = worldWidth,
+            Height = worldHeight,
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
             IsHomeWorld = true
@@ -71,10 +73,10 @@ public static partial class Module
 
         for (int i = 0; i < 15; i++)
         {
-            int rx = random.Next(worldSize);
-            int ry = random.Next(worldSize);
-            int rIndex = ry * worldSize + rx;
-            if (traversibilityMap[rIndex] && (Math.Abs(rx - 20) > 5 || Math.Abs(ry - 20) > 5))
+            int rx = random.Next(worldWidth);
+            int ry = random.Next(worldHeight);
+            int rIndex = ry * worldWidth + rx;
+            if (traversibilityMap[rIndex] && (Math.Abs(rx - worldWidth/2) > 5 || Math.Abs(ry - worldHeight/2) > 5))
             {
                 traversibilityMap[rIndex] = false;
                 projectileCollisionMap[rIndex] = false;
@@ -95,10 +97,10 @@ public static partial class Module
 
         for (int i = 0; i < 20; i++)
         {
-            int tx = random.Next(worldSize);
-            int ty = random.Next(worldSize);
-            int tIndex = ty * worldSize + tx;
-            if (traversibilityMap[tIndex] && (Math.Abs(tx - 20) > 5 || Math.Abs(ty - 20) > 5))
+            int tx = random.Next(worldWidth);
+            int ty = random.Next(worldHeight);
+            int tIndex = ty * worldWidth + tx;
+            if (traversibilityMap[tIndex] && (Math.Abs(tx - worldWidth/2) > 5 || Math.Abs(ty - worldHeight/2) > 5))
             {
                 traversibilityMap[tIndex] = false;
                 projectileCollisionMap[tIndex] = false;
@@ -128,9 +130,9 @@ public static partial class Module
         {
             Id = welcomeSignId,
             WorldId = identityString,
-            PositionX = worldSize / 2.0f + 0.5f,
+            PositionX = worldWidth / 2.0f + 0.5f,
             PositionY = 5.5f,
-            GridX = worldSize / 2,
+            GridX = worldWidth / 2,
             GridY = 5,
             Type = TerrainDetailType.Label,
             Health = 100,
@@ -143,9 +145,9 @@ public static partial class Module
         {
             Id = instructionSignId,
             WorldId = identityString,
-            PositionX = worldSize / 2.0f + 0.5f,
+            PositionX = worldWidth / 2.0f + 0.5f,
             PositionY = 6.5f,
-            GridX = worldSize / 2,
+            GridX = worldWidth / 2,
             GridY = 6,
             Type = TerrainDetailType.Label,
             Health = 100,
@@ -153,22 +155,8 @@ public static partial class Module
             Rotation = 0
         });
 
-        var enemyTankPositions = new[] { (15, 15), (25, 15), (15, 25), (25, 25) };
-        int tankIndex = 0;
-        foreach (var (x, y) in enemyTankPositions)
-        {
-            if (tankIndex == 0)
-            {
-                SpawnRandomAimTankWithDummies(ctx, identityString, x, y, worldSize);
-            }
-            else
-            {
-                SpawnTileboundTank(ctx, identityString, x, y);
-            }
-            tankIndex++;
-        }
-
-        SpawnTurretDemonstrationArea(ctx, identityString, 10, 30);
+        SpawnTurretBot(ctx, identityString, 5, worldHeight / 2);
+        SpawnRandomAimBot(ctx, identityString, worldWidth - 5, worldHeight / 2);
 
         var pickups = new[]
         {
@@ -184,8 +172,8 @@ public static partial class Module
 
         for (int i = 0; i < pickups.Length; i++)
         {
-            int px = 20 - pickups.Length + (i * 2);
-            int py = 25;
+            int px = worldWidth/2 - pickups.Length + (i * 2);
+            int py = worldHeight - 5;
 
             ctx.Db.pickup.Insert(new Pickup
             {
@@ -204,56 +192,17 @@ public static partial class Module
             WorldId = identityString,
             Map = traversibilityMap,
             ProjectileCollisionMap = projectileCollisionMap,
-            Width = worldSize,
-            Height = worldSize
+            Width = worldWidth,
+            Height = worldHeight
         });
 
         Log.Info($"Created homeworld for identity {identityString}");
     }
 
-    private static void SpawnRandomAimTankWithDummies(ReducerContext ctx, string worldId, int x, int y, int worldSize)
+    private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y)
     {
-        var targetCode = AllocateTargetCode(ctx, worldId) ?? "enemy";
-        var enemyTank = BuildTank(
-            ctx,
-            worldId,
-            Identity.From(new byte[32]),
-            "AimBot",
-            targetCode,
-            "",
-            0,
-            x + 0.5f,
-            y + 0.5f,
-            AIBehavior.RandomAim
-        );
-        enemyTank.Id = GenerateId(ctx, "enmy");
-        ctx.Db.tank.Insert(enemyTank);
-    }
-
-    private static void SpawnTileboundTank(ReducerContext ctx, string worldId, int x, int y)
-    {
-        var targetCode = AllocateTargetCode(ctx, worldId) ?? "enemy";
-        var preyNumber = ctx.Rng.Next(1000, 9999);
-        var enemyTank = BuildTank(
-            ctx,
-            worldId,
-            Identity.From(new byte[32]),
-            $"Prey{preyNumber}",
-            targetCode,
-            "",
-            1,
-            x + 0.5f,
-            y + 0.5f,
-            AIBehavior.Tilebound
-        );
-        enemyTank.Id = GenerateId(ctx, "enmy");
-        ctx.Db.tank.Insert(enemyTank);
-    }
-
-    private static void SpawnTurretDemonstrationArea(ReducerContext ctx, string worldId, int centerX, int centerY)
-    {
-        var targetCode = AllocateTargetCode(ctx, worldId) ?? "turret";
-        var turretTank = BuildTank(
+        var targetCode = AllocateTargetCode(ctx, worldId) ?? "Turret";
+        var turretBot = BuildTank(
             ctx,
             worldId,
             Identity.From(new byte[32]),
@@ -261,31 +210,30 @@ public static partial class Module
             targetCode,
             "",
             0,
-            centerX + 0.5f,
-            centerY + 0.5f,
+            x + 0.5f,
+            y + 0.5f,
             AIBehavior.Turret
         );
-        turretTank.Id = GenerateId(ctx, "enmy");
-        ctx.Db.tank.Insert(turretTank);
+        turretBot.Id = GenerateId(ctx, "enmy");
+        ctx.Db.tank.Insert(turretBot);
+    }
 
-        var tileboundPositions = new[] { (centerX + 2, centerY + 2), (centerX + 3, centerY + 3) };
-        foreach (var (x, y) in tileboundPositions)
-        {
-            SpawnTileboundTank(ctx, worldId, x, y);
-        }
-
-        ctx.Db.terrain_detail.Insert(new TerrainDetail
-        {
-            Id = GenerateId(ctx, "td"),
-            WorldId = worldId,
-            PositionX = centerX + 0.5f,
-            PositionY = centerY - 2.5f,
-            GridX = centerX,
-            GridY = centerY - 2,
-            Type = TerrainDetailType.Label,
-            Health = 100,
-            Label = "Turret AI Demo",
-            Rotation = 0
-        });
+    private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y)
+    {
+        var targetCode = AllocateTargetCode(ctx, worldId) ?? "AimBot";
+        var aimBot = BuildTank(
+            ctx,
+            worldId,
+            Identity.From(new byte[32]),
+            "AimBot",
+            targetCode,
+            "",
+            1,
+            x + 0.5f,
+            y + 0.5f,
+            AIBehavior.RandomAim
+        );
+        aimBot.Id = GenerateId(ctx, "enmy");
+        ctx.Db.tank.Insert(aimBot);
     }
 }
