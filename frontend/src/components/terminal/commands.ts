@@ -84,7 +84,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  drive, d             Drive to a tank, direction, or coordinate using pathfinding",
       "  stop, s              Stop the tank immediately",
       "  aim, a               Aim turret at an angle or direction",
-      "  target, t            Target another tank by name",
+      "  target, t            Target another tank by code",
       "  fire, f              Fire a projectile from your tank",
       "  switch, w            Switch to a different gun",
       "  smokescreen, sm      Deploy a smokescreen that disrupts enemy targeting",
@@ -105,12 +105,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "drive, d - Drive to a relative coordinate or tank using pathfinding",
         "",
-        "Usage: drive <tank_name> [throttle]",
+        "Usage: drive <target_code> [throttle]",
         "       drive <direction> [distance] [throttle]",
         "       drive <relative_x> <relative_y> [throttle]",
         "",
         "Arguments:",
-        "  <tank_name>    Name of the tank to drive to (e.g., alpha, bravo)",
+        "  <target_code>  Target code of the tank to drive to (e.g., alpha, bravo)",
         "  <direction>    Direction to drive (with pathfinding)",
         "                 Directions:",
         "                   ↑: north, up, n, u",
@@ -180,12 +180,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "target":
     case "t":
       return [
-        "target, t - Target another tank by name",
+        "target, t - Target another tank by code",
         "",
-        "Usage: target <tank_name> [lead]",
+        "Usage: target <target_code> [lead]",
         "",
         "Arguments:",
-        "  <tank_name>   Name of the tank to target (required)",
+        "  <target_code> Target code of the tank to target (required)",
         "  [lead]        Distance in units to lead the target (default: 0)",
         "                Aims ahead of the target based on their body direction",
         "",
@@ -357,7 +357,7 @@ export function aim(connection: DbConnection, worldId: string, args: string[]): 
         "Must be a number (degrees) or valid direction",
         "Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu",
         "",
-        "To target a tank by name, use: target <tank_name>",
+        "To target a tank by code, use: target <target_code>",
         "",
         "Usage: aim <angle|direction>",
         "       aim 90"
@@ -383,9 +383,9 @@ export function target(connection: DbConnection, worldId: string, args: string[]
 
   if (args.length < 1) {
     return [
-      "target: error: missing required argument '<tank_name>'",
+      "target: error: missing required argument '<target_code>'",
       "",
-      "Usage: target <tank_name> [lead]",
+      "Usage: target <target_code> [lead]",
       "       target alpha",
       "       target bravo 3"
     ];
@@ -395,7 +395,7 @@ export function target(connection: DbConnection, worldId: string, args: string[]
     return ["target: error: no connection"];
   }
 
-  const targetName = args[0];
+  const targetCode = args[0];
   let lead = 0;
 
   if (args.length > 1) {
@@ -404,7 +404,7 @@ export function target(connection: DbConnection, worldId: string, args: string[]
       return [
         `target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`,
         "",
-        "Usage: target <tank_name> [lead]",
+        "Usage: target <target_code> [lead]",
         "       target alpha 3"
       ];
     }
@@ -418,23 +418,23 @@ export function target(connection: DbConnection, worldId: string, args: string[]
     return ["target: error: no connection"];
   }
 
-  const targetNameLower = targetName.toLowerCase();
+  const targetCodeLower = targetCode.toLowerCase();
 
-  if (targetNameLower === myTank.name) {
+  if (targetCodeLower === myTank.targetCode) {
     return ["target: error: cannot target your own tank"];
   }
 
-  const targetTank = allTanks.find(t => t.name === targetNameLower);
+  const targetTank = allTanks.find(t => t.targetCode === targetCodeLower);
   if (!targetTank) {
-    return [`target: error: tank '${targetName}' not found`];
+    return [`target: error: tank with code '${targetCode}' not found`];
   }
 
-  connection.reducers.targetTank({ worldId, targetName: targetNameLower, lead });
+  connection.reducers.targetTank({ worldId, targetCode: targetCodeLower, lead });
 
   if (lead > 0) {
-    return [`Targeting tank '${targetTank.name}' with ${lead} unit${lead !== 1 ? 's' : ''} lead`];
+    return [`Targeting tank '${targetTank.targetCode}' (${targetTank.name}) with ${lead} unit${lead !== 1 ? 's' : ''} lead`];
   } else {
-    return [`Targeting tank '${targetTank.name}'`];
+    return [`Targeting tank '${targetTank.targetCode}' (${targetTank.name})`];
   }
 }
 
@@ -602,7 +602,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
     return [
       "drive: error: missing required arguments",
       "",
-      "Usage: drive <tank_name> [throttle]",
+      "Usage: drive <target_code> [throttle]",
       "       drive <direction> [distance] [throttle]",
       "       drive <relative_x> <relative_y> [throttle]",
       "",
@@ -626,7 +626,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
   }
 
   const firstArgLower = args[0].toLowerCase();
-  const targetTank = allTanks.find(t => t.name.toLowerCase() === firstArgLower);
+  const targetTank = allTanks.find(t => t.targetCode.toLowerCase() === firstArgLower);
 
   if (targetTank && targetTank.id !== myTank.id) {
     let throttle = 1;
@@ -636,7 +636,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
         return [
           `drive: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`,
           "",
-          "Usage: drive <tank_name> [throttle]",
+          "Usage: drive <target_code> [throttle]",
           "       drive alpha 75"
         ];
       } else {
@@ -644,10 +644,10 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
       }
     }
 
-    connection.reducers.driveToTank({ worldId, tankName: targetTank.name, throttle });
+    connection.reducers.driveToTank({ worldId, targetCode: targetTank.targetCode, throttle });
 
     return [
-      `Driving to tank '${targetTank.name}' at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+      `Driving to tank '${targetTank.targetCode}' (${targetTank.name}) at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
     ];
   }
 

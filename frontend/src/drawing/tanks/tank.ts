@@ -124,14 +124,21 @@ export function drawTankNameLabel(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
+  targetCode: string,
   name: string
 ) {
   ctx.save();
   ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
-  ctx.font = "14px monospace";
-  ctx.fillStyle = "#f5c47c";
+  
+  ctx.font = "bold 16px monospace";
+  ctx.fillStyle = "#fceba8";
   ctx.textAlign = "center";
-  ctx.fillText(name, 0, -30);
+  ctx.fillText(targetCode, 0, -38);
+  
+  ctx.font = "12px monospace";
+  ctx.fillStyle = "#a9bcbf";
+  ctx.fillText(name, 0, -24);
+  
   ctx.restore();
 }
 

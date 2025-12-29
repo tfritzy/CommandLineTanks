@@ -262,6 +262,7 @@ export class TankManager {
       tank.positionY,
       tank.turretRotation,
       tank.name,
+      tank.targetCode,
       tank.alliance,
       tank.health,
       tank.maxHealth,

@@ -30,6 +30,7 @@ export class Tank {
   private turretAngularVelocity: number;
   private path: PathEntry[];
   private name: string;
+  private targetCode: string;
   private alliance: number;
   private health: number;
   private maxHealth: number;
@@ -48,6 +49,7 @@ export class Tank {
     y: number,
     turretRotation: number,
     name: string,
+    targetCode: string,
     alliance: number,
     health: number,
     maxHealth: number = 100,
@@ -64,6 +66,7 @@ export class Tank {
     this.turretRotation = turretRotation;
     this.targetTurretRotation = turretRotation;
     this.name = name;
+    this.targetCode = targetCode;
     this.alliance = alliance;
     this.health = health;
     this.maxHealth = maxHealth;
@@ -97,7 +100,7 @@ export class Tank {
 
   public drawNameLabel(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
-    drawTankNameLabel(ctx, this.x, this.y, this.name);
+    drawTankNameLabel(ctx, this.x, this.y, this.targetCode, this.name);
   }
 
   public drawMessageLabel(ctx: CanvasRenderingContext2D) {
@@ -201,6 +204,14 @@ export class Tank {
 
   public getMessage(): string | null {
     return this.message;
+  }
+
+  public getTargetCode(): string {
+    return this.targetCode;
+  }
+
+  public getName(): string {
+    return this.name;
   }
 
   public update(deltaTime: number) {
