@@ -16,8 +16,6 @@ const AiBehavior = __t.enum("AiBehavior", {None: __t.unit(),
   Tilebound: __t.unit(),
   RandomAim: __t.unit(),
   Turret: __t.unit(),
-  TargetBot: __t.unit(),
-  AimBot: __t.unit(),
 });
 
 export default AiBehavior;

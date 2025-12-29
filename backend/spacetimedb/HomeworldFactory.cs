@@ -155,8 +155,8 @@ public static partial class Module
             Rotation = 0
         });
 
-        SpawnTargetBot(ctx, identityString, 5, worldHeight / 2);
-        SpawnAimBot(ctx, identityString, worldWidth - 5, worldHeight / 2);
+        SpawnTurretBot(ctx, identityString, 5, worldHeight / 2);
+        SpawnRandomAimBot(ctx, identityString, worldWidth - 5, worldHeight / 2);
 
         var pickups = new[]
         {
@@ -199,10 +199,10 @@ public static partial class Module
         Log.Info($"Created homeworld for identity {identityString}");
     }
 
-    private static void SpawnTargetBot(ReducerContext ctx, string worldId, int x, int y)
+    private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y)
     {
-        var tankName = AllocateTankName(ctx, worldId) ?? "TargetBot";
-        var targetBot = BuildTank(
+        var tankName = AllocateTankName(ctx, worldId) ?? "Turret";
+        var turretBot = BuildTank(
             ctx,
             worldId,
             Identity.From(new byte[32]),
@@ -211,13 +211,13 @@ public static partial class Module
             0,
             x + 0.5f,
             y + 0.5f,
-            AIBehavior.TargetBot
+            AIBehavior.Turret
         );
-        targetBot.Id = GenerateId(ctx, "enmy");
-        ctx.Db.tank.Insert(targetBot);
+        turretBot.Id = GenerateId(ctx, "enmy");
+        ctx.Db.tank.Insert(turretBot);
     }
 
-    private static void SpawnAimBot(ReducerContext ctx, string worldId, int x, int y)
+    private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y)
     {
         var tankName = AllocateTankName(ctx, worldId) ?? "AimBot";
         var aimBot = BuildTank(
@@ -229,7 +229,7 @@ public static partial class Module
             1,
             x + 0.5f,
             y + 0.5f,
-            AIBehavior.AimBot
+            AIBehavior.RandomAim
         );
         aimBot.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(aimBot);
