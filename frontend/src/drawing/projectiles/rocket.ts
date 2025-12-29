@@ -26,7 +26,8 @@ export function drawRocketBody(
   centerX: number,
   centerY: number,
   radius: number,
-  angle: number
+  angle: number,
+  color: string
 ) {
   ctx.save();
   
@@ -41,7 +42,7 @@ export function drawRocketBody(
   ctx.lineTo(0, radius * 0.4);
   ctx.fill();
 
-  ctx.fillStyle = "#4e9363";
+  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.ellipse(0, 0, radius * 3, radius * 1.2, 0, -Math.PI / 2, Math.PI / 2);
   ctx.lineTo(0, radius * 1.2);

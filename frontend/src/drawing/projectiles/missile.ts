@@ -26,7 +26,8 @@ export function drawMissileBody(
   centerX: number,
   centerY: number,
   radius: number,
-  angle: number
+  angle: number,
+  color: string
 ) {
   ctx.save();
   
@@ -41,7 +42,7 @@ export function drawMissileBody(
   ctx.lineTo(0, radius * 0.4);
   ctx.fill();
 
-  ctx.fillStyle = "#9d4343";
+  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(radius * 2, 0);
   ctx.lineTo(0, -radius * 0.8);

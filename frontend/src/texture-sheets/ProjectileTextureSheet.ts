@@ -1,5 +1,25 @@
 import { UNIT_TO_PIXEL, TEAM_COLORS } from "../constants";
 import { getNormalizedDPR } from "../utils/dpr";
+import {
+  drawNormalProjectileShadow,
+  drawNormalProjectileBody,
+} from "../drawing/projectiles/normal";
+import {
+  drawBoomerangShadow,
+  drawBoomerangBody,
+} from "../drawing/projectiles/boomerang";
+import { drawGrenadeShadow, drawGrenadeBody } from "../drawing/projectiles/grenade";
+import { drawMoagShadow, drawMoagBody } from "../drawing/projectiles/moag";
+import { drawRocketShadow, drawRocketBody } from "../drawing/projectiles/rocket";
+import { drawMissileShadow, drawMissileBody } from "../drawing/projectiles/missile";
+import {
+  drawSpiderMineShadow,
+  drawSpiderMineBody,
+} from "../drawing/projectiles/spidermine";
+import {
+  drawSniperProjectileShadow,
+  drawSniperProjectileBody,
+} from "../drawing/projectiles/sniper";
 
 export interface ProjectileTexture {
   x: number;
@@ -216,23 +236,8 @@ export class ProjectileTextureSheet {
     const centerX = x + radius + padding;
     const centerY = y + radius + padding;
 
-    this.shadowCtx.save();
-    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    this.shadowCtx.beginPath();
-    this.shadowCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    this.shadowCtx.fill();
-    this.shadowCtx.restore();
-
-    this.ctx.save();
-    this.ctx.fillStyle = color;
-    this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.strokeStyle = "#000000";
-    this.ctx.lineWidth = 1;
-    this.ctx.stroke();
-    this.ctx.restore();
+    drawNormalProjectileShadow(this.shadowCtx, centerX, centerY, radius);
+    drawNormalProjectileBody(this.ctx, centerX, centerY, radius, color);
 
     const textureData = {
       x: x,
@@ -258,49 +263,8 @@ export class ProjectileTextureSheet {
     const centerX = x + armLength + padding;
     const centerY = y + armLength + padding;
 
-    const drawBoomerang = (
-      ctx: CanvasRenderingContext2D,
-      isShadow: boolean
-    ) => {
-      ctx.save();
-      ctx.translate(centerX, centerY);
-
-      if (isShadow) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-      } else {
-        ctx.fillStyle = color;
-        ctx.strokeStyle = "#2e2e43";
-        ctx.lineWidth = 2;
-        ctx.lineJoin = "round";
-      }
-
-      for (let i = 0; i < 3; i++) {
-        ctx.save();
-        ctx.rotate((i * Math.PI * 2) / 3);
-
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(armLength, -armWidth * 0.4);
-        ctx.quadraticCurveTo(armLength * 1.1, 0, armLength, armWidth * 0.4);
-        ctx.lineTo(0, 0);
-        ctx.closePath();
-        ctx.fill();
-        if (!isShadow) ctx.stroke();
-
-        ctx.restore();
-      }
-
-      // Center hub
-      ctx.beginPath();
-      ctx.arc(0, 0, armWidth * 0.5, 0, Math.PI * 2);
-      ctx.fill();
-      if (!isShadow) ctx.stroke();
-
-      ctx.restore();
-    };
-
-    drawBoomerang(this.shadowCtx, true);
-    drawBoomerang(this.ctx, false);
+    drawBoomerangShadow(this.shadowCtx, centerX, centerY, armLength, armWidth);
+    drawBoomerangBody(this.ctx, centerX, centerY, armLength, armWidth, color);
 
     const textureData = {
       x: x,
@@ -323,125 +287,12 @@ export class ProjectileTextureSheet {
     const padding = 2;
     const centerX = x + radius + padding;
     const centerY = y + radius * 1.6 + padding;
-    const pinWidth = radius * 0.3;
-    const pinHeight = radius * 0.4;
-    const pinY = centerY - radius * 1.1;
-    const ringRadius = radius * 0.25;
-
-    this.shadowCtx.save();
-    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
-
-    this.shadowCtx.beginPath();
-    this.shadowCtx.ellipse(
-      centerX,
-      centerY,
-      radius,
-      radius * 1.1,
-      0,
-      0,
-      Math.PI * 2
-    );
-    this.shadowCtx.fill();
-
-    this.shadowCtx.fillRect(
-      centerX - pinWidth / 2,
-      pinY - pinHeight,
-      pinWidth,
-      pinHeight
-    );
-
-    this.shadowCtx.beginPath();
-    this.shadowCtx.arc(
-      centerX + pinWidth / 2,
-      pinY - pinHeight / 2,
-      ringRadius,
-      0,
-      Math.PI * 2
-    );
-    this.shadowCtx.fill();
-
-    this.shadowCtx.restore();
-
-    this.ctx.save();
 
     const shadowColor = color === TEAM_COLORS.RED ? "#813645" : "#3e4c7e";
     const highlightColor = color === TEAM_COLORS.RED ? "#e39764" : "#7396d5";
 
-    this.ctx.beginPath();
-    this.ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
-    this.ctx.clip();
-
-    this.ctx.fillStyle = color;
-    this.ctx.fill();
-
-    this.ctx.fillStyle = shadowColor;
-    this.ctx.beginPath();
-    this.ctx.arc(
-      centerX - radius * 0.2,
-      centerY + radius * 0.2,
-      radius * 1.2,
-      0,
-      Math.PI * 2
-    );
-    this.ctx.fill();
-
-    this.ctx.fillStyle = highlightColor;
-    this.ctx.beginPath();
-    this.ctx.arc(
-      centerX + radius * 0.2,
-      centerY - radius * 0.2,
-      radius * 1.2,
-      0,
-      Math.PI * 2
-    );
-    this.ctx.fill();
-
-    this.ctx.restore();
-
-    this.ctx.save();
-    this.ctx.strokeStyle = "#2e2e43";
-    this.ctx.lineWidth = Math.max(1, radius * 0.15);
-    this.ctx.beginPath();
-    this.ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
-    this.ctx.stroke();
-
-    this.ctx.beginPath();
-    this.ctx.moveTo(centerX - radius, centerY);
-    this.ctx.lineTo(centerX + radius, centerY);
-    this.ctx.stroke();
-
-    this.ctx.fillStyle = "#2e2e43";
-    this.ctx.fillRect(
-      centerX - pinWidth / 2,
-      pinY - pinHeight,
-      pinWidth,
-      pinHeight
-    );
-
-    this.ctx.fillStyle = "#707b89";
-    this.ctx.beginPath();
-    this.ctx.arc(
-      centerX + pinWidth / 2,
-      pinY - pinHeight / 2,
-      ringRadius,
-      0,
-      Math.PI * 2
-    );
-    this.ctx.fill();
-
-    this.ctx.strokeStyle = "#2e2e43";
-    this.ctx.lineWidth = Math.max(0.5, radius * 0.1);
-    this.ctx.beginPath();
-    this.ctx.arc(
-      centerX + pinWidth / 2,
-      pinY - pinHeight / 2,
-      ringRadius,
-      0,
-      Math.PI * 2
-    );
-    this.ctx.stroke();
-
-    this.ctx.restore();
+    drawGrenadeShadow(this.shadowCtx, centerX, centerY, radius);
+    drawGrenadeBody(this.ctx, centerX, centerY, radius, color, shadowColor, highlightColor);
 
     const textureData = {
       x: x,
@@ -465,25 +316,8 @@ export class ProjectileTextureSheet {
     const centerX = x + radius + padding;
     const centerY = y + radius + padding;
 
-    this.shadowCtx.save();
-    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    this.shadowCtx.beginPath();
-    this.shadowCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    this.shadowCtx.fill();
-    this.shadowCtx.restore();
-
-    this.ctx.save();
-    this.ctx.fillStyle = color;
-    this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.strokeStyle = "#000000";
-    this.ctx.lineWidth = 1;
-    this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    this.ctx.stroke();
-    this.ctx.restore();
+    drawMoagShadow(this.shadowCtx, centerX, centerY, 0.5);
+    drawMoagBody(this.ctx, centerX, centerY, 0.5, color === TEAM_COLORS.RED ? 0 : 1);
 
     const textureData = {
       x: x,
@@ -508,51 +342,8 @@ export class ProjectileTextureSheet {
     const centerX = x + radius * 3 + flameLength + padding;
     const centerY = y + radius * 1.2 + padding;
 
-    this.shadowCtx.save();
-    this.shadowCtx.translate(centerX, centerY);
-    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    this.shadowCtx.beginPath();
-    this.shadowCtx.ellipse(
-      0,
-      0,
-      radius * 3,
-      radius * 1.2,
-      0,
-      -Math.PI / 2,
-      Math.PI / 2
-    );
-    this.shadowCtx.lineTo(0, radius * 1.2);
-    this.shadowCtx.lineTo(0, -radius * 1.2);
-    this.shadowCtx.closePath();
-    this.shadowCtx.fill();
-    this.shadowCtx.restore();
-
-    this.ctx.save();
-    this.ctx.translate(centerX, centerY);
-
-    this.ctx.fillStyle = "#f5c47c";
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, -radius * 0.6);
-    this.ctx.lineTo(-flameLength, 0);
-    this.ctx.lineTo(0, radius * 0.6);
-    this.ctx.fill();
-
-    this.ctx.fillStyle = color;
-    this.ctx.beginPath();
-    this.ctx.ellipse(
-      0,
-      0,
-      radius * 3,
-      radius * 1.2,
-      0,
-      -Math.PI / 2,
-      Math.PI / 2
-    );
-    this.ctx.lineTo(0, radius * 1.2);
-    this.ctx.lineTo(0, -radius * 1.2);
-    this.ctx.closePath();
-    this.ctx.fill();
-    this.ctx.restore();
+    drawRocketShadow(this.shadowCtx, centerX, centerY, radius, 0);
+    drawRocketBody(this.ctx, centerX, centerY, radius, 0, color);
 
     const textureData = {
       x: x,
@@ -577,35 +368,8 @@ export class ProjectileTextureSheet {
     const centerX = x + flameLength + padding;
     const centerY = y + radius + padding;
 
-    this.shadowCtx.save();
-    this.shadowCtx.translate(centerX, centerY);
-    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    this.shadowCtx.beginPath();
-    this.shadowCtx.moveTo(radius * 2, 0);
-    this.shadowCtx.lineTo(0, -radius * 0.8);
-    this.shadowCtx.lineTo(0, radius * 0.8);
-    this.shadowCtx.closePath();
-    this.shadowCtx.fill();
-    this.shadowCtx.restore();
-
-    this.ctx.save();
-    this.ctx.translate(centerX, centerY);
-
-    this.ctx.fillStyle = "#f5c47c";
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, -radius * 0.4);
-    this.ctx.lineTo(-flameLength, 0);
-    this.ctx.lineTo(0, radius * 0.4);
-    this.ctx.fill();
-
-    this.ctx.fillStyle = color;
-    this.ctx.beginPath();
-    this.ctx.moveTo(radius * 2, 0);
-    this.ctx.lineTo(0, -radius * 0.8);
-    this.ctx.lineTo(0, radius * 0.8);
-    this.ctx.closePath();
-    this.ctx.fill();
-    this.ctx.restore();
+    drawMissileShadow(this.shadowCtx, centerX, centerY, radius, 0);
+    drawMissileBody(this.ctx, centerX, centerY, radius, 0, color);
 
     const textureData = {
       x: x,
@@ -630,68 +394,8 @@ export class ProjectileTextureSheet {
     const centerX = x + legLength + padding;
     const centerY = y + legLength + padding;
 
-    this.shadowCtx.save();
-    this.shadowCtx.translate(centerX, centerY);
-    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
-
-    this.shadowCtx.beginPath();
-    this.shadowCtx.arc(0, 0, radius * 0.8, 0, Math.PI * 2);
-    this.shadowCtx.fill();
-
-    for (let i = 0; i < 8; i++) {
-      const angle = (Math.PI * 2 * i) / 8;
-      const legX = Math.cos(angle) * legLength;
-      const legY = Math.sin(angle) * legLength;
-
-      this.shadowCtx.lineWidth = 2;
-      this.shadowCtx.strokeStyle = "rgba(0, 0, 0, 0.3)";
-      this.shadowCtx.beginPath();
-      this.shadowCtx.moveTo(0, 0);
-      this.shadowCtx.lineTo(legX, legY);
-      this.shadowCtx.stroke();
-    }
-
-    this.shadowCtx.restore();
-
-    this.ctx.save();
-    this.ctx.translate(centerX, centerY);
-
-    for (let i = 0; i < 8; i++) {
-      const angle = (Math.PI * 2 * i) / 8;
-      const legX = Math.cos(angle) * legLength;
-      const legY = Math.sin(angle) * legLength;
-      const midX = Math.cos(angle) * radius * 0.8;
-      const midY = Math.sin(angle) * radius * 0.8;
-
-      this.ctx.lineWidth = 2;
-      this.ctx.strokeStyle = "#2e2e43";
-      this.ctx.beginPath();
-      this.ctx.moveTo(midX, midY);
-      this.ctx.lineTo(legX * 0.7, legY * 0.7);
-      this.ctx.lineTo(legX, legY);
-      this.ctx.stroke();
-    }
-
-    this.ctx.fillStyle = color;
-    this.ctx.beginPath();
-    this.ctx.arc(0, 0, radius * 0.8, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.strokeStyle = "#2e2e43";
-    this.ctx.lineWidth = 1.5;
-    this.ctx.stroke();
-
-    const eyeRadius = radius * 0.2;
-    const eyeOffset = radius * 0.3;
-    this.ctx.fillStyle = "#c06852";
-    this.ctx.beginPath();
-    this.ctx.arc(-eyeOffset, -eyeOffset * 0.5, eyeRadius, 0, Math.PI * 2);
-    this.ctx.fill();
-    this.ctx.beginPath();
-    this.ctx.arc(eyeOffset, -eyeOffset * 0.5, eyeRadius, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.restore();
+    drawSpiderMineShadow(this.shadowCtx, centerX, centerY, radius, legLength);
+    drawSpiderMineBody(this.ctx, centerX, centerY, radius, legLength, color);
 
     const textureData = {
       x: x,
@@ -718,45 +422,25 @@ export class ProjectileTextureSheet {
     const centerX = x + bulletLength + padding;
     const centerY = y + bulletWidth + padding;
 
-    this.shadowCtx.save();
-    this.shadowCtx.translate(centerX, centerY);
-    this.shadowCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    this.shadowCtx.beginPath();
-    this.shadowCtx.moveTo(bulletLength, 0);
-    this.shadowCtx.lineTo(0, -bulletWidth);
-    this.shadowCtx.lineTo(-bulletLength * bulletBackRatio, -bulletWidth);
-    this.shadowCtx.lineTo(-bulletLength * bulletBackRatio, bulletWidth);
-    this.shadowCtx.lineTo(0, bulletWidth);
-    this.shadowCtx.closePath();
-    this.shadowCtx.fill();
-    this.shadowCtx.restore();
-
-    this.ctx.save();
-    this.ctx.translate(centerX, centerY);
-
-    this.ctx.fillStyle = "#a9bcbf";
-    this.ctx.beginPath();
-    this.ctx.moveTo(bulletLength, 0);
-    this.ctx.lineTo(0, -bulletWidth);
-    this.ctx.lineTo(-bulletLength * bulletBackRatio, -bulletWidth);
-    this.ctx.lineTo(-bulletLength * bulletBackRatio, bulletWidth);
-    this.ctx.lineTo(0, bulletWidth);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    this.ctx.fillStyle = color;
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, -bulletWidth);
-    this.ctx.lineTo(-bulletLength * bulletBackRatio, -bulletWidth);
-    this.ctx.lineTo(-bulletLength * bulletBackRatio, bulletWidth);
-    this.ctx.lineTo(0, bulletWidth);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    this.ctx.strokeStyle = "#2e2e43";
-    this.ctx.lineWidth = 1;
-    this.ctx.stroke();
-    this.ctx.restore();
+    drawSniperProjectileShadow(
+      this.shadowCtx,
+      centerX,
+      centerY,
+      bulletLength,
+      bulletWidth,
+      bulletBackRatio,
+      0
+    );
+    drawSniperProjectileBody(
+      this.ctx,
+      centerX,
+      centerY,
+      bulletLength,
+      bulletWidth,
+      bulletBackRatio,
+      0,
+      color
+    );
 
     const textureData = {
       x: x,

@@ -192,7 +192,7 @@ export class Game {
     const lerpFactor = Math.min(1, clampedDeltaTime * CAMERA_FOLLOW_SPEED);
     this.currentCameraX += (targetCameraX - this.currentCameraX) * lerpFactor;
     this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
-
+    
     this.currentCameraX = Math.round(this.currentCameraX);
     this.currentCameraY = Math.round(this.currentCameraY);
 

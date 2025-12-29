@@ -4,11 +4,35 @@ export function drawGrenadeShadow(
   centerY: number,
   radius: number
 ) {
+  const pinWidth = radius * 0.3;
+  const pinHeight = radius * 0.4;
+  const pinY = centerY - radius * 1.1;
+  const ringRadius = radius * 0.25;
+
   ctx.save();
   ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  
   ctx.beginPath();
   ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  ctx.fillRect(
+    centerX - pinWidth / 2,
+    pinY - pinHeight,
+    pinWidth,
+    pinHeight
+  );
+
+  ctx.beginPath();
+  ctx.arc(
+    centerX + pinWidth / 2,
+    pinY - pinHeight / 2,
+    ringRadius,
+    0,
+    Math.PI * 2
+  );
+  ctx.fill();
+
   ctx.restore();
 }
 
@@ -16,19 +40,18 @@ export function drawGrenadeBody(
   ctx: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
-  radius: number
+  radius: number,
+  color: string,
+  shadowColor: string,
+  highlightColor: string
 ) {
   ctx.save();
-  
-  const bodyColor = "#4e9363";
-  const shadowColor = "#3c6c54";
-  const highlightColor = "#6ec077";
   
   ctx.beginPath();
   ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
   ctx.clip();
   
-  ctx.fillStyle = bodyColor;
+  ctx.fillStyle = color;
   ctx.fill();
   
   ctx.fillStyle = shadowColor;

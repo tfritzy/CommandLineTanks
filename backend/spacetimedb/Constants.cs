@@ -44,7 +44,7 @@ public static partial class Module
         ExplosionTrigger = ExplosionTrigger.None,
         Damping = null,
         Bounce = false,
-        ProjectileSize = .1f,
+        ProjectileSize = .15f,
         ProjectileSpeed = PROJECTILE_SPEED,
     };
 
@@ -66,7 +66,7 @@ public static partial class Module
         ExplosionTrigger = ExplosionTrigger.None,
         Damping = null,
         Bounce = false,
-        ProjectileSize = .1f,
+        ProjectileSize = .15f,
         ProjectileSpeed = PROJECTILE_SPEED,
     };
 
