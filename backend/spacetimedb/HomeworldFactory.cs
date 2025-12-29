@@ -58,6 +58,13 @@ public static partial class Module
             TickCount = 0
         });
 
+        ctx.Db.ScheduledPickupSpawn.Insert(new PickupSpawner.ScheduledPickupSpawn
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 8_000_000 }),
+            WorldId = identityString
+        });
+
         ctx.Db.world.Insert(world);
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
@@ -177,23 +184,19 @@ public static partial class Module
 
         for (int i = 0; i < pickups.Length; i++)
         {
-            int px = 20 - (pickups.Length / 2) + i;
+            int px = 20 - pickups.Length + (i * 2);
+            int py = 25;
 
-            for (int row = 0; row < 10; row++)
+            ctx.Db.pickup.Insert(new Pickup
             {
-                int py = 25 + row;
-
-                ctx.Db.pickup.Insert(new Pickup
-                {
-                    Id = GenerateId(ctx, "p"),
-                    WorldId = identityString,
-                    PositionX = px + 0.5f,
-                    PositionY = py + 0.5f,
-                    GridX = px,
-                    GridY = py,
-                    Type = pickups[i]
-                });
-            }
+                Id = GenerateId(ctx, "p"),
+                WorldId = identityString,
+                PositionX = px + 0.5f,
+                PositionY = py + 0.5f,
+                GridX = px,
+                GridY = py,
+                Type = pickups[i]
+            });
         }
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap

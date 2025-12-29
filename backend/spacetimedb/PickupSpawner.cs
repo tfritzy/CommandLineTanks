@@ -26,6 +26,18 @@ public static partial class PickupSpawner
         .Where(t => t != PickupType.Health)
         .ToArray();
 
+    public static readonly PickupType[] HOMEWORLD_PICKUP_TYPES = new PickupType[]
+    {
+        PickupType.TripleShooter,
+        PickupType.MissileLauncher,
+        PickupType.Health,
+        PickupType.Boomerang,
+        PickupType.Grenade,
+        PickupType.Rocket,
+        PickupType.Moag,
+        PickupType.Sniper
+    };
+
     private static readonly Dictionary<PickupType, Gun> PickupToGunMap = new Dictionary<PickupType, Gun>
     {
         { PickupType.TripleShooter, Module.TRIPLE_SHOOTER_GUN },
@@ -52,27 +64,73 @@ public static partial class PickupSpawner
     [Reducer]
     public static void SpawnPickup(ReducerContext ctx, ScheduledPickupSpawn args)
     {
-        var existingPickups = ctx.Db.pickup.WorldId.Filter(args.WorldId);
-        int pickupCount = 0;
-        foreach (var pickup in existingPickups)
+        var world = ctx.Db.world.Id.Find(args.WorldId);
+        if (world == null) return;
+
+        if (world.Value.IsHomeWorld)
         {
-            pickupCount++;
+            SpawnHomeworldPickups(ctx, args.WorldId);
         }
-
-        if (pickupCount >= 15)
+        else
         {
-            return;
-        }
-
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
-        if (traversibilityMap == null) return;
-
-        int maxAttempts = 100;
-        for (int attempt = 0; attempt < maxAttempts; attempt++)
-        {
-            if (TrySpawnPickup(ctx, args.WorldId, traversibilityMap.Value))
+            var existingPickups = ctx.Db.pickup.WorldId.Filter(args.WorldId);
+            int pickupCount = 0;
+            foreach (var pickup in existingPickups)
             {
+                pickupCount++;
+            }
+
+            if (pickupCount >= 15)
+            {
+                return;
+            }
+
+            var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
+            if (traversibilityMap == null) return;
+
+            int maxAttempts = 100;
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                if (TrySpawnPickup(ctx, args.WorldId, traversibilityMap.Value))
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void SpawnHomeworldPickups(ReducerContext ctx, string worldId)
+    {
+        foreach (var pickupType in HOMEWORLD_PICKUP_TYPES)
+        {
+            var (gridX, gridY) = GetHomeworldPickupPosition(pickupType);
+            
+            if (gridX < 0 || gridY < 0)
+            {
+                continue;
+            }
+
+            var existingPickup = ctx.Db.pickup.WorldId_GridX_GridY.Filter((worldId, gridX, gridY));
+            bool pickupExists = false;
+            foreach (var p in existingPickup)
+            {
+                pickupExists = true;
                 break;
+            }
+
+            if (!pickupExists)
+            {
+                var pickupId = Module.GenerateId(ctx, "pickup");
+                ctx.Db.pickup.Insert(new Module.Pickup
+                {
+                    Id = pickupId,
+                    WorldId = worldId,
+                    PositionX = gridX + 0.5f,
+                    PositionY = gridY + 0.5f,
+                    GridX = gridX,
+                    GridY = gridY,
+                    Type = pickupType
+                });
             }
         }
     }
@@ -158,6 +216,28 @@ public static partial class PickupSpawner
 
         Log.Info($"Spawned {pickupType} at ({centerX}, {centerY}) in world {worldId}");
         return true;
+    }
+
+    public static (int gridX, int gridY) GetHomeworldPickupPosition(PickupType pickupType)
+    {
+        int index = -1;
+        for (int i = 0; i < HOMEWORLD_PICKUP_TYPES.Length; i++)
+        {
+            if (HOMEWORLD_PICKUP_TYPES[i] == pickupType)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index < 0)
+        {
+            return (-1, -1);
+        }
+
+        int gridX = 20 - HOMEWORLD_PICKUP_TYPES.Length + (index * 2);
+        int gridY = 25;
+        return (gridX, gridY);
     }
 
     public static (int x, int y) GenerateNormalDistributedPosition(Random random, int width, int height)
