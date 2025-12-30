@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { getConnection, setPendingJoinCode } from '../../spacetimedb-connection';
 import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create } from './commands';
 import GameCreationFlow from '../GameCreationFlow';
-import WorldVisibility from '../../module_bindings/world_visibility_type';
+import WorldVisibility from '../../../module_bindings/world_visibility_type';
 import { type Infer } from "spacetimedb";
 
 interface TerminalComponentProps {
@@ -160,7 +160,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         const createOutput = create(connection, args);
                         if (typeof createOutput === 'object' && 'type' in createOutput && createOutput.type === 'open_flow') {
                             setShowGameCreationFlow(true);
-                        } else {
+                        } else if (Array.isArray(createOutput)) {
                             newOutput.push(...createOutput);
                         }
                         break;
@@ -207,7 +207,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
         setPendingJoinCode(joinCode);
         
-        const gameDurationMicros = gameDurationMinutes * 60 * 1000000;
+        const gameDurationMicros = BigInt(gameDurationMinutes * 60 * 1000000);
         
         connection.reducers.createWorld({ 
             joinCode,

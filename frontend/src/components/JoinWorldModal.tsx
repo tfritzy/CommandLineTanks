@@ -10,7 +10,8 @@ export default function JoinWorldModal({ worldId, onJoin }: JoinWorldModalProps)
     const connection = getConnection();
     if (!connection) return;
 
-    connection.reducers.joinWorld({ worldId });
+    const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    connection.reducers.joinWorld({ worldId, joinCode, passcode: '' });
     onJoin();
   };
 

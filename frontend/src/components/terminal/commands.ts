@@ -919,7 +919,7 @@ export function create(_connection: DbConnection, args: string[]): string[] | { 
 }
 
 export function join(connection: DbConnection, args: string[]): string[] {
-  const worldId = args.length > 0 ? args[0] : null;
+  const worldId = args.length > 0 ? args[0] : undefined;
   const passcode = args.length > 1 ? args.slice(1).join(' ') : '';
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
