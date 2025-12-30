@@ -22,7 +22,8 @@ public static partial class Module
 
             DeleteTankPathIfExists(ctx, tank.Id);
 
-            ctx.Db.tank.Id.Delete(tank.Id);
+            RemoveTankFromWorld(ctx, tank);
+            
             Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} named {tank.Name ?? "Unknown"}");
         }
     }
