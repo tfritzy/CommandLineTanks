@@ -7,7 +7,7 @@ public static partial class Module
     private const int HOMEWORLD_WIDTH = 30;
     private const int HOMEWORLD_HEIGHT = 20;
 
-    private static string CreateHomeworld(ReducerContext ctx, string worldId)
+    private static void CreateHomeworld(ReducerContext ctx, string worldId)
     {
         int worldWidth = HOMEWORLD_WIDTH;
         int worldHeight = HOMEWORLD_HEIGHT;
@@ -203,7 +203,6 @@ public static partial class Module
         });
 
         Log.Info($"Created homeworld with id {worldId}");
-        return worldId;
     }
 
     private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance)
