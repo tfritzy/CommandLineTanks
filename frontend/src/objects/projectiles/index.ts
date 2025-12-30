@@ -5,7 +5,6 @@ import { RocketProjectile } from "./RocketProjectile";
 import { MissileProjectile } from "./MissileProjectile";
 import { MoagProjectile } from "./MoagProjectile";
 import { BoomerangProjectile } from "./BoomerangProjectile";
-import { SpiderMineProjectile } from "./SpiderMineProjectile";
 import { SniperProjectile } from "./SniperProjectile";
 
 export * from "./Projectile";
@@ -15,7 +14,6 @@ export * from "./RocketProjectile";
 export * from "./MissileProjectile";
 export * from "./MoagProjectile";
 export * from "./BoomerangProjectile";
-export * from "./SpiderMineProjectile";
 export * from "./SniperProjectile";
 
 export class ProjectileFactory {
@@ -42,8 +40,6 @@ export class ProjectileFactory {
         return new MoagProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
       case "Boomerang":
         return new BoomerangProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
-      case "SpiderMine":
-        return new SpiderMineProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
       case "Sniper":
         return new SniperProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
       default:

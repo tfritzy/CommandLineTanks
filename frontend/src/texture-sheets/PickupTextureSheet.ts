@@ -17,7 +17,6 @@ import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
 import { BoomerangProjectile } from "../objects/projectiles/BoomerangProjectile";
 import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
 import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
-import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
 import { SniperProjectile } from "../objects/projectiles/SniperProjectile";
 import { projectileTextureSheet } from "./ProjectileTextureSheet";
 import { getNormalizedDPR } from "../utils/dpr";
@@ -101,9 +100,6 @@ export class PickupTextureSheet {
     currentX += cellSize + PickupTextureSheet.PADDING;
 
     this.addProjectilePickup("moag", currentX, currentY, cellSize);
-    currentX += cellSize + PickupTextureSheet.PADDING;
-
-    this.addProjectilePickup("spider-mine", currentX, currentY, cellSize);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
     this.addProjectilePickup("sniper", currentX, currentY, cellSize);
@@ -258,19 +254,6 @@ export class PickupTextureSheet {
           velocityX,
           velocityY,
           0.25,
-          0
-        );
-        projectile.drawShadow(this.ctx, projectileTextureSheet);
-        projectile.drawBody(this.ctx, projectileTextureSheet);
-        break;
-      }
-      case "spider-mine": {
-        const projectile = new SpiderMineProjectile(
-          0,
-          0,
-          velocityX,
-          velocityY,
-          0.2,
           0
         );
         projectile.drawShadow(this.ctx, projectileTextureSheet);

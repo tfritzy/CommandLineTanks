@@ -38,11 +38,6 @@ public static partial class Module
             ctx.Db.ScheduledPickupSpawn.ScheduledId.Delete(pickupSpawn.ScheduledId);
         }
 
-        foreach (var spiderMineUpdate in ctx.Db.ScheduledSpiderMineUpdates.WorldId.Filter(worldId))
-        {
-            ctx.Db.ScheduledSpiderMineUpdates.ScheduledId.Delete(spiderMineUpdate.ScheduledId);
-        }
-
         foreach (var enemyTankRespawnCheck in ctx.Db.ScheduledEnemyTankRespawnCheck.WorldId.Filter(worldId))
         {
             ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
@@ -84,11 +79,6 @@ public static partial class Module
                 WorldId = worldId,
                 LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             });
-        }
-
-        if (!ctx.Db.ScheduledSpiderMineUpdates.WorldId.Filter(worldId).Any())
-        {
-            SpiderMineUpdater.InitializeSpiderMineUpdater(ctx, worldId);
         }
 
         if (!ctx.Db.ScheduledAIUpdate.WorldId.Filter(worldId).Any())

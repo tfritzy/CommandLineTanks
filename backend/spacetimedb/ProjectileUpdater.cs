@@ -159,13 +159,6 @@ public static partial class ProjectileUpdater
             return (false, projectile, false);
         }
 
-        if (projectile.ProjectileType == ProjectileType.SpiderMine)
-        {
-            Module.PlantSpiderMineCommand(ctx, projectile, worldId);
-            ctx.Db.projectile.Id.Delete(projectile.Id);
-            return (true, projectile, false);
-        }
-
         if (projectile.Bounce)
         {
             projectile = HandleProjectileBounce(projectile, projectileTileX, projectileTileY, deltaTime);
@@ -430,17 +423,6 @@ public static partial class ProjectileUpdater
 
                     if (distanceSquared <= collisionRadiusSquared)
                     {
-                        if (projectile.ProjectileType == ProjectileType.SpiderMine)
-                        {
-                            if (tank.Alliance != projectile.Alliance)
-                            {
-                                Module.PlantSpiderMineCommand(ctx, projectile, worldId);
-                                ctx.Db.projectile.Id.Delete(projectile.Id);
-                                return (true, projectile, false);
-                            }
-                            continue;
-                        }
-
                         if (HandleBoomerangReturn(ctx, projectile, tank))
                         {
                             return (true, projectile, false);
@@ -500,57 +482,6 @@ public static partial class ProjectileUpdater
         };
 
         return (false, projectile, false);
-    }
-
-    private static (bool collided, Projectile projectile) HandleSpiderMineCollision(
-        ReducerContext ctx,
-        Projectile projectile,
-        string worldId,
-        int minRegionX,
-        int maxRegionX,
-        int minRegionY,
-        int maxRegionY)
-    {
-        if (projectile.ProjectileType == ProjectileType.SpiderMine)
-        {
-            return (false, projectile);
-        }
-
-        float totalCollisionRadius = projectile.CollisionRadius + 0.2f;
-        float collisionRadiusSquared = totalCollisionRadius * totalCollisionRadius;
-
-        for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
-        {
-            if (regionX < 0) continue;
-
-            for (int regionY = minRegionY; regionY <= maxRegionY; regionY++)
-            {
-                if (regionY < 0) continue;
-
-                foreach (var mine in ctx.Db.spider_mine.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
-                {
-                    if (mine.Alliance != projectile.Alliance)
-                    {
-                        float dx = mine.PositionX - projectile.PositionX;
-                        float dy = mine.PositionY - projectile.PositionY;
-                        float distanceSquared = dx * dx + dy * dy;
-
-                        if (distanceSquared <= collisionRadiusSquared)
-                        {
-                            ctx.Db.spider_mine.Id.Delete(mine.Id);
-                            Log.Info($"Spider mine destroyed by projectile at ({mine.PositionX}, {mine.PositionY})");
-
-                            bool shouldDelete;
-                            (shouldDelete, projectile) = Module.IncrementProjectileCollision(ctx, projectile);
-
-                            return (shouldDelete, projectile);
-                        }
-                    }
-                }
-            }
-        }
-
-        return (false, projectile);
     }
 
     [Reducer]
@@ -634,10 +565,6 @@ public static partial class ProjectileUpdater
             {
                 traversibilityMapChanged = true;
             }
-
-            if (collided) continue;
-
-            (collided, projectile) = HandleSpiderMineCollision(ctx, projectile, args.WorldId, minRegionX, maxRegionX, minRegionY, maxRegionY);
 
             if (collided) continue;
 

@@ -130,9 +130,6 @@ export class PickupManager {
         drawMoagShadow(ctx, worldX - 4, worldY + 4, 0.3);
         drawMoagBody(ctx, worldX, worldY, 0.3, 0);
         break;
-      case "SpiderMine":
-        pickupTextureSheet.draw(ctx, "spider-mine", worldX, worldY);
-        break;
       case "Sniper":
         pickupTextureSheet.draw(ctx, "sniper", worldX, worldY);
         break;

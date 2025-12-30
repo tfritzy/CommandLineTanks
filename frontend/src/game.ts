@@ -6,7 +6,6 @@ import { GunInventoryManager } from "./managers/GunInventoryManager";
 import { PickupManager } from "./managers/PickupManager";
 import { MiniMapManager } from "./managers/MiniMapManager";
 import { KillManager } from "./managers/KillManager";
-import { SpiderMineManager } from "./managers/SpiderMineManager";
 import { SmokeCloudManager } from "./managers/SmokeCloudManager";
 import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
 import { UNIT_TO_PIXEL } from "./constants";
@@ -28,7 +27,6 @@ export class Game {
   private pickupManager: PickupManager;
   private miniMapManager: MiniMapManager;
   private killManager: KillManager;
-  private spiderMineManager: SpiderMineManager;
   private smokeCloudManager: SmokeCloudManager;
   private abilitiesBarManager: AbilitiesBarManager;
   private currentCameraX: number = 0;
@@ -66,7 +64,6 @@ export class Game {
       this.terrainManager
     );
     this.killManager = new KillManager(worldId);
-    this.spiderMineManager = new SpiderMineManager(worldId);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
     this.abilitiesBarManager = new AbilitiesBarManager(worldId);
   }
@@ -167,7 +164,6 @@ export class Game {
     this.projectileManager.update(deltaTime);
     this.terrainManager.update(deltaTime);
     this.killManager.update(deltaTime);
-    this.spiderMineManager.update(deltaTime);
     this.smokeCloudManager.update(deltaTime);
 
     const dpr = window.devicePixelRatio || 1;
@@ -231,8 +227,6 @@ export class Game {
       displayWidth,
       displayHeight
     );
-
-    this.spiderMineManager.draw(this.ctx);
 
     this.terrainManager.drawShadows(
       this.ctx,
@@ -349,7 +343,6 @@ export class Game {
     this.gunInventoryManager.destroy();
     this.pickupManager.destroy();
     this.killManager.destroy();
-    this.spiderMineManager.destroy();
     this.smokeCloudManager.destroy();
     this.abilitiesBarManager.destroy();
     

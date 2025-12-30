@@ -14,7 +14,6 @@ export * from "./terrain-details/foundation-corner";
 export * from "./terrain-details/foundation-edge";
 export * from "./terrain-details/target-dummy";
 export * from "./terrain/base-terrain";
-export * from "./entities/spider-mine";
 export * from "./entities/health-pack";
 export * from "./ui/floating-label";
 export * from "./ui/targeting-reticle";

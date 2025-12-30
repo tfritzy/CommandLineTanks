@@ -71,7 +71,6 @@ public static partial class Types
         Grenade,
         Rocket,
         Moag,
-        SpiderMine,
         Shield,
         Sniper
     }
@@ -101,7 +100,6 @@ public static partial class Types
         Grenade,
         Rocket,
         Moag,
-        SpiderMine,
         Sniper
     }
 
@@ -114,7 +112,6 @@ public static partial class Types
         Grenade,
         Rocket,
         Moag,
-        SpiderMine,
         Sniper
     }
 

@@ -13,10 +13,6 @@ import { drawMoagShadow, drawMoagBody } from "../drawing/projectiles/moag";
 import { drawRocketShadow, drawRocketBody } from "../drawing/projectiles/rocket";
 import { drawMissileShadow, drawMissileBody } from "../drawing/projectiles/missile";
 import {
-  drawSpiderMineShadow,
-  drawSpiderMineBody,
-} from "../drawing/projectiles/spidermine";
-import {
   drawSniperProjectileShadow,
   drawSniperProjectileBody,
 } from "../drawing/projectiles/sniper";
@@ -184,25 +180,6 @@ export class ProjectileTextureSheet {
       currentX,
       currentY,
       radius * 1.5
-    );
-    currentX = 0;
-    currentY += rowHeight;
-
-    this.addSpiderMineProjectile(
-      "spidermine-red",
-      TEAM_COLORS.RED,
-      currentX,
-      currentY,
-      radius
-    );
-    currentX += radius * 4 + padding * 4;
-
-    this.addSpiderMineProjectile(
-      "spidermine-blue",
-      TEAM_COLORS.BLUE,
-      currentX,
-      currentY,
-      radius
     );
     currentX = 0;
     currentY += rowHeight;
@@ -382,31 +359,6 @@ export class ProjectileTextureSheet {
     this.shadowTextures.set(key, textureData);
   }
 
-  private addSpiderMineProjectile(
-    key: string,
-    color: string,
-    x: number,
-    y: number,
-    radius: number
-  ) {
-    const padding = 2;
-    const legLength = radius * 1.2;
-    const centerX = x + legLength + padding;
-    const centerY = y + legLength + padding;
-
-    drawSpiderMineShadow(this.shadowCtx, centerX, centerY, radius, legLength);
-    drawSpiderMineBody(this.ctx, centerX, centerY, radius, legLength, color);
-
-    const textureData = {
-      x: x,
-      y: y,
-      width: legLength * 2 + padding * 2,
-      height: legLength * 2 + padding * 2,
-    };
-
-    this.textures.set(key, textureData);
-    this.shadowTextures.set(key, textureData);
-  }
 
   private addSniperProjectile(
     key: string,
