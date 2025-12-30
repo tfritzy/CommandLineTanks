@@ -122,17 +122,10 @@ public static partial class Module
 
         var width = TerrainGenerator.GetWorldWidth();
         var height = TerrainGenerator.GetWorldHeight();
-        var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng, width, height);
-        var terrainDetailArray = TerrainGenerator.ConvertToArray(
-            terrainDetails,
-            width,
-            height
-        );
-        var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
-        var projectileCollisionMap = TerrainGenerator.CalculateProjectileCollisionMap(baseTerrain, terrainDetailArray);
+        var (baseTerrain, terrainDetails, traversibilityMap, projectileCollisionMap) = GenerateTerrainCommand(ctx, width, height);
 
-        var newWorldId = Module.GenerateId(ctx, "w");
-        var newWorld = CreateWorld(ctx, newWorldId, oldWorld.Value.Name, baseTerrain, terrainDetails.ToArray(), traversibilityMap, projectileCollisionMap, width, height);
+        var newWorldId = Module.GenerateWorldId(ctx);
+        var newWorld = CreateWorld(ctx, newWorldId, oldWorld.Value.Name, baseTerrain, terrainDetails, traversibilityMap, projectileCollisionMap, width, height);
 
         SpawnInitialBots(ctx, newWorldId, newWorld);
         var shuffledIndices = new int[totalTanks];
