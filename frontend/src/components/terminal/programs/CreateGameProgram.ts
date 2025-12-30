@@ -28,7 +28,7 @@ export class CreateGameProgram extends Program {
         width: 50,
         height: 50
     };
-    private worldCreationSubscription: any = null;
+    private worldCreationSubscription: boolean = false;
 
     onEnter(): void {
         this.addOutput(
@@ -184,20 +184,20 @@ export class CreateGameProgram extends Program {
         
         this.step = 'waiting';
 
-        this.worldCreationSubscription = connection.db.world.onInsert((_ctx: EventContext, world: Infer<typeof WorldRow>) => {
-            const gameUrl = `${window.location.origin}/world/${encodeURIComponent(world.id)}`;
-            this.addOutput(
-                "",
-                "Game created successfully!",
-                "",
-                "Share this URL with friends to invite them:",
-                gameUrl,
-                ""
-            );
-            if (this.worldCreationSubscription) {
-                this.worldCreationSubscription.unsubscribe();
+        connection.db.world.onInsert((_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+            if (!this.worldCreationSubscription && world.name === this.state.name) {
+                this.worldCreationSubscription = true;
+                const gameUrl = `${window.location.origin}/world/${encodeURIComponent(world.id)}`;
+                this.addOutput(
+                    "",
+                    "Game created successfully!",
+                    "",
+                    "Share this URL with friends to invite them:",
+                    gameUrl,
+                    ""
+                );
+                this.exit();
             }
-            this.exit();
         });
 
         connection.reducers.createWorld({ 
@@ -221,8 +221,6 @@ export class CreateGameProgram extends Program {
     }
 
     onExit(): void {
-        if (this.worldCreationSubscription) {
-            this.worldCreationSubscription.unsubscribe();
-        }
+        this.worldCreationSubscription = true;
     }
 }
