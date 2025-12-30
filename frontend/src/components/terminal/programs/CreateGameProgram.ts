@@ -29,6 +29,7 @@ export class CreateGameProgram extends Program {
         height: 50
     };
     private worldCreationSubscription: boolean = false;
+    private creationTimestamp: number = 0;
 
     onEnter(): void {
         this.addOutput(
@@ -183,9 +184,12 @@ export class CreateGameProgram extends Program {
         const visibility = this.state.visibility === 'private' ? WorldVisibility.Private : WorldVisibility.CustomPublic;
         
         this.step = 'waiting';
+        this.creationTimestamp = Date.now();
 
         connection.db.world.onInsert((_ctx: EventContext, world: Infer<typeof WorldRow>) => {
-            if (!this.worldCreationSubscription && world.name === this.state.name) {
+            if (!this.worldCreationSubscription && 
+                world.name === this.state.name &&
+                Number(world.createdAt) >= this.creationTimestamp * 1000) {
                 this.worldCreationSubscription = true;
                 const gameUrl = `${window.location.origin}/world/${encodeURIComponent(world.id)}`;
                 this.addOutput(
