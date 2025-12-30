@@ -12,9 +12,9 @@ public static partial class Module
     public const float TANK_COLLISION_RADIUS = 0.5f;
     public const int COLLISION_REGION_SIZE = 4;
     public const long WORLD_RESET_DELAY_MICROS = 10_000_000;
-    public const float MISSILE_TRACKING_RADIUS = 8.0f;
+    public const float MISSILE_TRACKING_RADIUS = 5.5f;
     public const long GAME_DURATION_MICROS = 600_000_000;
-    public const float MAX_TARGETING_RANGE = 12.0f;
+    public const float MAX_TARGETING_RANGE = 18.0f;
     public const ulong FIRE_RATE_LIMIT_MICROS = 100_000;
     public const long SMOKESCREEN_COOLDOWN_MICROS = 60_000_000;
     public const float SMOKESCREEN_RADIUS = 3.0f;
@@ -104,7 +104,7 @@ public static partial class Module
         TrackingStrength = 0,
         TrackingRadius = 0,
         ProjectileType = ProjectileType.Boomerang,
-        LifetimeSeconds = 4.0f,
+        LifetimeSeconds = 3.0f,
         MaxCollisions = 10,
         PassThroughTerrain = true,
         CollisionRadius = 0.1f,

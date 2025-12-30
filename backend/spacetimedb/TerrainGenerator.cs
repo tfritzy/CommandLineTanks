@@ -12,8 +12,8 @@ public static partial class TerrainGenerator
     private const int FIELD_MIN_SIZE = 5;
     private const int FIELD_MAX_SIZE = 10;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
-    private const int MIN_STRUCTURES = 6;
-    private const int STRUCTURE_COUNT_RANGE = 7;
+    private const int MIN_STRUCTURES = 3;
+    private const int STRUCTURE_COUNT_RANGE = 4;
     private const int MIN_LAKES = 1;
     private const int MAX_ADDITIONAL_LAKES = 2;
     private const float LAKE_NOISE_SCALE = 0.08f;
@@ -392,89 +392,33 @@ public static partial class TerrainGenerator
                 bool validLocation = true;
                 int objectsToReplace = 0;
 
-                for (int x = startX; x < startX + structureWidth; x++)
+                for (int y = startY - 1; y <= startY + structureHeight; y++)
                 {
-                    int topIndex = startY * width + x;
-                    int bottomIndex = (startY + structureHeight - 1) * width + x;
-
-                    if (baseTerrain[topIndex] != BaseTerrain.Ground)
+                    for (int x = startX - 1; x <= startX + structureWidth; x++)
                     {
-                        validLocation = false;
-                        break;
-                    }
-                    if (baseTerrain[bottomIndex] != BaseTerrain.Ground)
-                    {
-                        validLocation = false;
-                        break;
-                    }
+                        if (x < 0 || x >= width || y < 0 || y >= height)
+                        {
+                            continue;
+                        }
 
-                    if (terrainDetail[topIndex] != TerrainDetailType.None)
-                    {
-                        if (baseTerrain[topIndex] == BaseTerrain.Farm || terrainDetail[topIndex] == TerrainDetailType.FenceEdge || terrainDetail[topIndex] == TerrainDetailType.FenceCorner)
-                        {
-                            validLocation = false;
-                            break;
-                        }
-                        objectsToReplace++;
-                        if (objectsToReplace > 2)
-                        {
-                            validLocation = false;
-                            break;
-                        }
-                    }
-
-                    if (terrainDetail[bottomIndex] != TerrainDetailType.None)
-                    {
-                        if (baseTerrain[bottomIndex] == BaseTerrain.Farm || terrainDetail[bottomIndex] == TerrainDetailType.FenceEdge || terrainDetail[bottomIndex] == TerrainDetailType.FenceCorner)
-                        {
-                            validLocation = false;
-                            break;
-                        }
-                        objectsToReplace++;
-                        if (objectsToReplace > 2)
-                        {
-                            validLocation = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (validLocation)
-                {
-                    for (int y = startY; y < startY + structureHeight; y++)
-                    {
-                        int leftIndex = y * width + startX;
-                        int rightIndex = y * width + (startX + structureWidth - 1);
-
-                        if (baseTerrain[leftIndex] != BaseTerrain.Ground)
-                        {
-                            validLocation = false;
-                            break;
-                        }
-                        if (baseTerrain[rightIndex] != BaseTerrain.Ground)
+                        int index = y * width + x;
+                        
+                        if (baseTerrain[index] != BaseTerrain.Ground)
                         {
                             validLocation = false;
                             break;
                         }
 
-                        if (terrainDetail[leftIndex] != TerrainDetailType.None)
+                        var detail = terrainDetail[index];
+                        if (detail == TerrainDetailType.FoundationEdge || detail == TerrainDetailType.FoundationCorner)
                         {
-                            if (baseTerrain[leftIndex] == BaseTerrain.Farm || terrainDetail[leftIndex] == TerrainDetailType.FenceEdge || terrainDetail[leftIndex] == TerrainDetailType.FenceCorner)
-                            {
-                                validLocation = false;
-                                break;
-                            }
-                            objectsToReplace++;
-                            if (objectsToReplace > 2)
-                            {
-                                validLocation = false;
-                                break;
-                            }
+                            validLocation = false;
+                            break;
                         }
 
-                        if (terrainDetail[rightIndex] != TerrainDetailType.None)
+                        if (detail != TerrainDetailType.None)
                         {
-                            if (baseTerrain[rightIndex] == BaseTerrain.Farm || terrainDetail[rightIndex] == TerrainDetailType.FenceEdge || terrainDetail[rightIndex] == TerrainDetailType.FenceCorner)
+                            if (baseTerrain[index] == BaseTerrain.Farm || detail == TerrainDetailType.FenceEdge || detail == TerrainDetailType.FenceCorner)
                             {
                                 validLocation = false;
                                 break;
@@ -487,6 +431,7 @@ public static partial class TerrainGenerator
                             }
                         }
                     }
+                    if (!validLocation) break;
                 }
 
                 if (validLocation)

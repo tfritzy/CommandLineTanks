@@ -105,6 +105,11 @@ export class Tank {
     drawTankNameLabel(ctx, this.x, this.y, this.targetCode, this.name);
   }
 
+  public drawNameLabelWithoutTargetCode(ctx: CanvasRenderingContext2D) {
+    if (this.health <= 0) return;
+    drawTankNameLabel(ctx, this.x, this.y, "", this.name);
+  }
+
   public drawMessageLabel(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
     if (!this.message) return;

@@ -17,9 +17,12 @@ public static partial class Module
 
         var (spawnX, spawnY) = spawnPosition ?? FindSpawnPosition(ctx, traversibilityMap.Value, alliance, ctx.Rng);
 
+        var newTargetCode = AllocateTargetCode(ctx, worldId) ?? tank.TargetCode;
+
         var respawnedTank = tank with
         {
             Alliance = alliance,
+            TargetCode = newTargetCode,
             Health = TANK_HEALTH,
             MaxHealth = TANK_HEALTH,
             Kills = resetKills ? 0 : tank.Kills,

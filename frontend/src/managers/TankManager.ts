@@ -369,7 +369,12 @@ export class TankManager {
 
   public drawNameLabels(ctx: CanvasRenderingContext2D) {
     for (const tank of this.tanks.values()) {
-      tank.drawNameLabel(ctx);
+      const isPlayerTank = tank.id === this.playerTankId;
+      if (isPlayerTank) {
+        tank.drawNameLabelWithoutTargetCode(ctx);
+      } else {
+        tank.drawNameLabel(ctx);
+      }
     }
   }
 
