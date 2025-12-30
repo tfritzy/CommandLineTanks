@@ -5,6 +5,8 @@ import ScoreRow from '../../module_bindings/score_type';
 import WorldRow from '../../module_bindings/world_type';
 import { type EventContext } from '../../module_bindings';
 
+const COUNTDOWN_WARNING_SECONDS = 10;
+
 interface GameHeaderProps {
     worldId: string;
 }
@@ -94,7 +96,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
     const minutes = Math.floor(timeRemaining / 60);
     const seconds = timeRemaining % 60;
     const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    const showCountdownWarning = timeRemaining <= 10 && timeRemaining > 0;
+    const showCountdownWarning = timeRemaining <= COUNTDOWN_WARNING_SECONDS && timeRemaining > 0;
 
     return (
         <>
