@@ -10,6 +10,7 @@ import TankRow from "../../module_bindings/tank_type";
 const MICROSECONDS_TO_SECONDS = 1_000_000;
 
 interface Ability {
+  name: string;
   drawIcon: (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isReady: boolean) => void;
   remainingCooldownMicros: bigint;
   cooldownDuration: number;
@@ -88,16 +89,19 @@ export class AbilitiesBarManager {
 
     const abilities: Ability[] = [
       {
+        name: 'smoke',
         drawIcon: drawSmokescreenIcon,
         remainingCooldownMicros: this.remainingSmokescreenCooldownMicros,
         cooldownDuration: this.SMOKESCREEN_COOLDOWN_SECONDS,
       },
       {
+        name: 'overdrive',
         drawIcon: drawOverdriveIcon,
         remainingCooldownMicros: this.remainingOverdriveCooldownMicros,
         cooldownDuration: this.OVERDRIVE_COOLDOWN_SECONDS,
       },
       {
+        name: 'repair',
         drawIcon: drawRepairIcon,
         remainingCooldownMicros: this.remainingRepairCooldownMicros,
         cooldownDuration: this.REPAIR_COOLDOWN_SECONDS,
@@ -125,7 +129,8 @@ export class AbilitiesBarManager {
         slotSize,
         ability.drawIcon,
         abilityProgress,
-        abilityCooldownRemaining
+        abilityCooldownRemaining,
+        ability.name
       );
     });
   }

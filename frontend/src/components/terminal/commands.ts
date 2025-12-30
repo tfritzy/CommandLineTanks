@@ -87,7 +87,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  target, t            Target another tank by code",
       "  fire, f              Fire a projectile from your tank",
       "  switch, w            Switch to a different gun",
-      "  smokescreen, sm      Deploy a smokescreen that disrupts enemy targeting",
+      "  smoke, sm            Deploy a smokescreen that disrupts enemy targeting",
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
@@ -231,18 +231,19 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  w 3"
       ];
 
+    case "smoke":
     case "smokescreen":
     case "sm":
       return [
-        "smokescreen, sm - Deploy a smokescreen",
+        "smoke, sm - Deploy a smokescreen",
         "",
-        "Usage: smokescreen",
+        "Usage: smoke",
         "",
         "Deploys a smoke cloud that disrupts enemy targeting.",
         "60 second cooldown.",
         "",
         "Examples:",
-        "  smokescreen",
+        "  smoke",
         "  sm"
       ];
 
@@ -798,7 +799,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
 export function smokescreen(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "smokescreen: error: cannot deploy smokescreen while dead",
+      "smoke: error: cannot deploy smoke while dead",
       "",
       "Use 'respawn' to respawn"
     ];
@@ -806,9 +807,9 @@ export function smokescreen(connection: DbConnection, worldId: string, args: str
 
   if (args.length > 0) {
     return [
-      "smokescreen: error: smokescreen command takes no arguments",
+      "smoke: error: smoke command takes no arguments",
       "",
-      "Usage: smokescreen",
+      "Usage: smoke",
       "       sm"
     ];
   }
@@ -822,17 +823,17 @@ export function smokescreen(connection: DbConnection, worldId: string, args: str
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
-        `smokescreen: error: ability is on cooldown`,
+        `smoke: error: ability is on cooldown`,
         "",
         `Time remaining: ${Math.ceil(remaining)} seconds`
       ];
     }
   }
 
-  connection.reducers.smokescreen({ worldId });
+  connection.reducers.smoke({ worldId });
 
   return [
-    "Deploying smokescreen...",
+    "Deploying smoke...",
   ];
 }
 
