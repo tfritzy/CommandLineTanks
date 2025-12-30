@@ -156,8 +156,13 @@ public static partial class Module
             Rotation = 0
         });
 
-        SpawnTurretBot(ctx, identityString, 5, worldHeight / 2);
-        SpawnRandomAimBot(ctx, identityString, worldWidth - 5, worldHeight / 2);
+        SpawnTurretBot(ctx, identityString, 5, worldHeight / 2, 0);
+        SpawnRandomAimBot(ctx, identityString, worldWidth - 5, worldHeight / 2, 0);
+
+        SpawnTileboundBot(ctx, identityString, 3, worldHeight / 2 - 2, 1);
+        SpawnTileboundBot(ctx, identityString, 3, worldHeight / 2 + 2, 1);
+        SpawnTileboundBot(ctx, identityString, worldWidth - 3, worldHeight / 2 - 2, 1);
+        SpawnTileboundBot(ctx, identityString, worldWidth - 3, worldHeight / 2 + 2, 1);
 
         var pickups = new[]
         {
@@ -200,7 +205,7 @@ public static partial class Module
         Log.Info($"Created homeworld for identity {identityString}");
     }
 
-    private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y)
+    private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "Turret";
         var turretBot = BuildTank(
@@ -210,7 +215,7 @@ public static partial class Module
             "TargetBot",
             targetCode,
             "",
-            0,
+            alliance,
             x + 0.5f,
             y + 0.5f,
             AIBehavior.Turret
@@ -219,7 +224,7 @@ public static partial class Module
         ctx.Db.tank.Insert(turretBot);
     }
 
-    private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y)
+    private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y, int alliance)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "AimBot";
         var aimBot = BuildTank(
@@ -229,12 +234,31 @@ public static partial class Module
             "AimBot",
             targetCode,
             "",
-            1,
+            alliance,
             x + 0.5f,
             y + 0.5f,
             AIBehavior.RandomAim
         );
         aimBot.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(aimBot);
+    }
+
+    private static void SpawnTileboundBot(ReducerContext ctx, string worldId, int x, int y, int alliance)
+    {
+        var targetCode = AllocateTargetCode(ctx, worldId) ?? "TileBot";
+        var tileboundBot = BuildTank(
+            ctx,
+            worldId,
+            Identity.From(new byte[32]),
+            "TileBot",
+            targetCode,
+            "",
+            alliance,
+            x + 0.5f,
+            y + 0.5f,
+            AIBehavior.Tilebound
+        );
+        tileboundBot.Id = GenerateId(ctx, "enmy");
+        ctx.Db.tank.Insert(tileboundBot);
     }
 }
