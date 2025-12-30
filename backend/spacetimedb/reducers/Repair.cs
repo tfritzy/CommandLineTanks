@@ -22,6 +22,8 @@ public static partial class Module
             return;
         }
 
+        DeleteTankPathIfExists(ctx, tank.Id);
+
         var updatedTank = tank with
         {
             RemainingRepairCooldownMicros = REPAIR_COOLDOWN_MICROS,
