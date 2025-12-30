@@ -304,8 +304,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  name",
-        "  name set Commander",
-        "  name set TankMaster"
+        "  name set Tank47",
+        "  name set Viper"
       ];
 
     case "create":
@@ -999,7 +999,7 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
       "name: error: missing required argument '<new_name>'",
       "",
       "Usage: name set <new_name>",
-      "       name set Commander"
+      "       name set Tank47"
     ];
   }
 
@@ -1010,7 +1010,7 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
       "name: error: name cannot be empty or whitespace",
       "",
       "Usage: name set <new_name>",
-      "       name set Commander"
+      "       name set Tank47"
     ];
   }
 
@@ -1021,7 +1021,7 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
       `Your name has ${newName.length} characters`,
       "",
       "Usage: name set <new_name>",
-      "       name set Commander"
+      "       name set Tank47"
     ];
   }
 
