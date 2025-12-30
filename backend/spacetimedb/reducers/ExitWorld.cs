@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using System.Linq;
 using static Types;
 
 public static partial class Module
@@ -23,17 +24,7 @@ public static partial class Module
 
         var currentTanks = ctx.Db.tank.Owner.Filter(ctx.Sender).ToList();
         
-        bool alreadyInHomeworld = false;
-        foreach (var currentTank in currentTanks)
-        {
-            if (currentTank.WorldId == identityString)
-            {
-                alreadyInHomeworld = true;
-                break;
-            }
-        }
-
-        if (alreadyInHomeworld)
+        if (currentTanks.Any(tank => tank.WorldId == identityString))
         {
             Log.Info($"Player {player.Value.Name} already in homeworld");
             return;
