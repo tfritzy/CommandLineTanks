@@ -93,6 +93,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  respawn              Respawn after death",
       "  create               Create a new game world",
       "  join                 Join or create a game world",
+      "  lobbies, l           List all available public games",
       "  clear, c             Clear the terminal output",
       "  help, h              Display help information",
     ];
@@ -321,6 +322,21 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  join",
         "  join abcd",
         "  join abcd mysecretpass"
+      ];
+
+    case "lobbies":
+    case "l":
+      return [
+        "lobbies, l - List all available public games",
+        "",
+        "Usage: lobbies",
+        "",
+        "Shows all public games currently available to join.",
+        "Displays game name, join code, player count, bot count, and duration.",
+        "",
+        "Examples:",
+        "  lobbies",
+        "  l"
       ];
 
     case "help":
@@ -919,7 +935,7 @@ export function create(_connection: DbConnection, args: string[]): string[] | { 
 }
 
 export function join(connection: DbConnection, args: string[]): string[] {
-  const worldId = args.length > 0 ? args[0] : null;
+  const worldId = args.length > 0 ? args[0] : undefined;
   const passcode = args.length > 1 ? args.slice(1).join(' ') : '';
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -940,5 +956,57 @@ export function join(connection: DbConnection, args: string[]): string[] {
   return [
     `Joining world ${worldId}...`,
   ];
+}
+
+export function lobbies(connection: DbConnection, args: string[]): string[] {
+  if (args.length > 0) {
+    return [
+      "lobbies: error: lobbies command takes no arguments",
+      "",
+      "Usage: lobbies",
+      "       l"
+    ];
+  }
+
+  const publicWorlds = Array.from(connection.db.world.iter()).filter(
+    w => !w.isHomeWorld && (w.visibility.tag === "Public" || w.visibility.tag === "CustomPublic") && w.gameState.tag === "Playing"
+  );
+
+  if (publicWorlds.length === 0) {
+    return [
+      "No public games currently available.",
+      "",
+      "Use 'create' to start a new game or 'join' to find/create one."
+    ];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter());
+  
+  const result: string[] = [
+    "Available Public Games:",
+    ""
+  ];
+
+  for (const world of publicWorlds) {
+    const worldTanks = allTanks.filter(t => t.worldId === world.id);
+    const playerCount = worldTanks.filter(t => !t.isBot).length;
+    const botCount = worldTanks.filter(t => t.isBot).length;
+    
+    const durationMinutes = Math.floor(Number(world.gameDurationMicros) / 60_000_000);
+    const durationText = durationMinutes === 1 ? "1 min" : `${durationMinutes} mins`;
+    
+    const elapsedMicros = Date.now() * 1000 - Number(world.gameStartedAt);
+    const remainingMicros = Number(world.gameDurationMicros) - elapsedMicros;
+    const remainingMinutes = Math.max(0, Math.ceil(remainingMicros / 60_000_000));
+    const timeText = remainingMinutes === 1 ? "1 min left" : `${remainingMinutes} mins left`;
+    
+    result.push(`  ${world.name}`);
+    result.push(`    Code: ${world.id} | Players: ${playerCount}/8 | Bots: ${botCount} | Duration: ${durationText} (${timeText})`);
+    result.push("");
+  }
+
+  result.push("Use 'join <code>' to join a game.");
+  
+  return result;
 }
 

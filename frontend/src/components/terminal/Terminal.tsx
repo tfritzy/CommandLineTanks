@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getConnection, setPendingJoinCode } from '../../spacetimedb-connection';
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create } from './commands';
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create, lobbies } from './commands';
 import GameCreationFlow from '../GameCreationFlow';
 import WorldVisibility from '../../module_bindings/world_visibility_type';
 import { type Infer } from "spacetimedb";
@@ -168,6 +168,12 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                     case 'join': {
                         const joinOutput = join(connection, args);
                         newOutput.push(...joinOutput);
+                        break;
+                    }
+                    case 'lobbies':
+                    case 'l': {
+                        const lobbiesOutput = lobbies(connection, args);
+                        newOutput.push(...lobbiesOutput);
                         break;
                     }
                     case 'help':
