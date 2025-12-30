@@ -53,11 +53,6 @@ public static partial class Module
             ctx.Db.ScheduledWorldReset.ScheduledId.Delete(worldReset.ScheduledId);
         }
 
-        foreach (var resultsShow in ctx.Db.ScheduledResultsShow.WorldId.Filter(worldId))
-        {
-            ctx.Db.ScheduledResultsShow.ScheduledId.Delete(resultsShow.ScheduledId);
-        }
-
         foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.WorldId.Filter(worldId))
         {
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);

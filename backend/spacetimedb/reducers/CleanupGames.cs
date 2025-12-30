@@ -125,11 +125,6 @@ public static partial class Module
             ctx.Db.ScheduledGameEnd.ScheduledId.Delete(gameEnd.ScheduledId);
         }
 
-        foreach (var resultsShow in ctx.Db.ScheduledResultsShow.WorldId.Filter(worldId))
-        {
-            ctx.Db.ScheduledResultsShow.ScheduledId.Delete(resultsShow.ScheduledId);
-        }
-
         foreach (var smokeCloudCleanup in ctx.Db.ScheduledSmokeCloudCleanup.WorldId.Filter(worldId))
         {
             ctx.Db.ScheduledSmokeCloudCleanup.ScheduledId.Delete(smokeCloudCleanup.ScheduledId);
