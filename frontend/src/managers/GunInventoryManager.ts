@@ -10,7 +10,6 @@ import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
 import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
 import { BoomerangProjectile } from "../objects/projectiles/BoomerangProjectile";
 import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
-import { SpiderMineProjectile } from "../objects/projectiles/SpiderMineProjectile";
 import { Projectile } from "../objects/projectiles/Projectile";
 
 export class GunInventoryManager {
@@ -245,15 +244,6 @@ export class GunInventoryManager {
         );
       case "Moag":
         return new MoagProjectile(x, y, velocityX, velocityY, 0.25, alliance);
-      case "SpiderMine":
-        return new SpiderMineProjectile(
-          x,
-          y,
-          velocityX,
-          velocityY,
-          size,
-          alliance
-        );
       default:
         return undefined;
     }
