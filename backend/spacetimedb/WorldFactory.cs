@@ -97,8 +97,6 @@ public static partial class Module
 
         PickupSpawner.InitializePickupSpawner(ctx, worldId, 5);
 
-        SpiderMineUpdater.InitializeSpiderMineUpdater(ctx, worldId);
-
         ctx.Db.ScheduledGameEnd.Insert(new GameTimer.ScheduledGameEnd
         {
             ScheduledId = 0,
