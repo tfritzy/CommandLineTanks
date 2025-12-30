@@ -74,12 +74,16 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
 
         const updateVisibility = () => {
             const world = connection.db.world.Id.find(worldId);
-            if (world && world.gameState.tag === 'Results') {
+            if (world && (world.gameState.tag === 'Results' || world.gameState.tag === 'Countdown')) {
                 setShowResults(true);
                 const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
                 setCountdownEndTime(calculateCountdownEndTime(endTime));
-                setShowModal(false);
+                if (world.gameState.tag === 'Results') {
+                    setShowModal(true);
+                } else {
+                    setShowModal(false);
+                }
             } else {
                 setShowResults(false);
                 setShowModal(false);
@@ -118,7 +122,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
 
         connection.db.world.onUpdate((_ctx, oldWorld, newWorld) => {
             if (newWorld.id === worldId) {
-                if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
+                if ((newWorld.gameState.tag === 'Results' || newWorld.gameState.tag === 'Countdown') && oldWorld.gameState.tag === 'Playing') {
                     setShowResults(true);
                     const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros);
                     setGameEndTime(endTime);
@@ -126,7 +130,11 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                     setShowModal(false);
                     updateTanks();
                     updateScores();
-                } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
+                } else if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Countdown') {
+                    setShowModal(true);
+                    updateTanks();
+                    updateScores();
+                } else if (newWorld.gameState.tag === 'Playing' && (oldWorld.gameState.tag === 'Results' || oldWorld.gameState.tag === 'Countdown')) {
                     setShowResults(false);
                     setShowModal(false);
                     setGameEndTime(null);
@@ -136,12 +144,16 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
         });
 
         connection.db.world.onInsert((_ctx, world) => {
-            if (world.id === worldId && world.gameState.tag === 'Results') {
+            if (world.id === worldId && (world.gameState.tag === 'Results' || world.gameState.tag === 'Countdown')) {
                 setShowResults(true);
                 const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
                 setCountdownEndTime(calculateCountdownEndTime(endTime));
-                setShowModal(false);
+                if (world.gameState.tag === 'Results') {
+                    setShowModal(true);
+                } else {
+                    setShowModal(false);
+                }
                 updateTanks();
                 updateScores();
             }

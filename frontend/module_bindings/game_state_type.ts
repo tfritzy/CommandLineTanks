@@ -12,6 +12,7 @@ import {
 
 // The tagged union or sum type for the algebraic type `GameState`.
 const GameState = __t.enum("GameState", {Playing: __t.unit(),
+  Countdown: __t.unit(),
   Results: __t.unit(),
 });
 
