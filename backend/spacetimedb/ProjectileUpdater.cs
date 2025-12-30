@@ -172,10 +172,17 @@ public static partial class ProjectileUpdater
             return (false, projectile, false);
         }
 
-        bool mapChanged = DamageTerrainAtTile(ctx, worldId, projectileTileX, projectileTileY, tileIndex, projectile.Damage, ref traversibilityMap);
+        if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0 && projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
+        {
+            bool mapChanged = ExplodeProjectileCommand(ctx, projectile, worldId, ref traversibilityMap);
+            ctx.Db.projectile.Id.Delete(projectile.Id);
+            return (true, projectile, mapChanged);
+        }
+
+        bool terrainDamageMapChanged = DamageTerrainAtTile(ctx, worldId, projectileTileX, projectileTileY, tileIndex, projectile.Damage, ref traversibilityMap);
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
-        return (true, projectile, mapChanged);
+        return (true, projectile, terrainDamageMapChanged);
     }
 
     private static (Projectile projectile, bool mapChanged) DamageTerrainInRadius(

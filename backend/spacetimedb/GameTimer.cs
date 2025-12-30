@@ -15,11 +15,51 @@ public static partial class GameTimer
         public string WorldId;
     }
 
+    [Table(Scheduled = nameof(ShowResults))]
+    public partial struct ScheduledResultsShow
+    {
+        [AutoInc]
+        [PrimaryKey]
+        public ulong ScheduledId;
+        public ScheduleAt ScheduledAt;
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+    }
+
     [Reducer]
     public static void EndGame(ReducerContext ctx, ScheduledGameEnd args)
     {
         var world = ctx.Db.world.Id.Find(args.WorldId);
         if (world == null || world.Value.GameState != GameState.Playing)
+        {
+            return;
+        }
+
+        var updatedWorld = world.Value with { GameState = GameState.Countdown };
+        ctx.Db.world.Id.Update(updatedWorld);
+
+        ctx.Db.ScheduledResultsShow.Insert(new ScheduledResultsShow
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
+            WorldId = args.WorldId
+        });
+
+        var score = ctx.Db.score.WorldId.Find(args.WorldId);
+        int team0Kills = 0;
+        int team1Kills = 0;
+        if (score != null)
+        {
+            team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
+            team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
+        }
+    }
+
+    [Reducer]
+    public static void ShowResults(ReducerContext ctx, ScheduledResultsShow args)
+    {
+        var world = ctx.Db.world.Id.Find(args.WorldId);
+        if (world == null || world.Value.GameState != GameState.Countdown)
         {
             return;
         }
@@ -35,14 +75,5 @@ public static partial class GameTimer
             ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
             WorldId = args.WorldId
         });
-
-        var score = ctx.Db.score.WorldId.Find(args.WorldId);
-        int team0Kills = 0;
-        int team1Kills = 0;
-        if (score != null)
-        {
-            team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
-            team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
-        }
     }
 }

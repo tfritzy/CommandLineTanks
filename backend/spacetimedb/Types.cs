@@ -80,6 +80,7 @@ public static partial class Types
     public enum GameState : byte
     {
         Playing,
+        Countdown,
         Results
     }
 

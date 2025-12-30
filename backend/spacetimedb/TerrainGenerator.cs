@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 public static partial class TerrainGenerator
 {
-    private const int DEFAULT_WORLD_WIDTH = 40;
-    private const int DEFAULT_WORLD_HEIGHT = 40;
+    private const int DEFAULT_WORLD_WIDTH = 64;
+    private const int DEFAULT_WORLD_HEIGHT = 64;
     private const int MAX_WORLD_WIDTH = 200;
     private const int MAX_WORLD_HEIGHT = 200;
     private const int FIELD_MIN_SIZE = 5;
@@ -17,7 +17,7 @@ public static partial class TerrainGenerator
     private const int MIN_LAKES = 1;
     private const int MAX_ADDITIONAL_LAKES = 2;
     private const float LAKE_NOISE_SCALE = 0.08f;
-    private const float LAKE_NOISE_THRESHOLD = 0.42f;
+    private const float LAKE_NOISE_THRESHOLD = 0.50f;
     private const float LAKE_NOISE_OFFSET_RANGE = 1000f;
     private const int ROTATION_NORTH = 0;
     private const int ROTATION_EAST = 1;
@@ -53,6 +53,8 @@ public static partial class TerrainGenerator
         GenerateTrees(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random, width, height);
 
         GenerateStructures(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random, width, height);
+
+        EnsureSpawnZonesConnected(baseTerrain, terrainDetailArray, random, width, height);
 
         for (int y = 0; y < height; y++)
         {
@@ -642,5 +644,94 @@ public static partial class TerrainGenerator
         int A = p[X] + Y, AA = p[A], AB = p[A + 1], B = p[X + 1] + Y, BA = p[B], BB = p[B + 1];
         return Lerp(v, Lerp(u, Grad(p[AA], x, y), Grad(p[BA], x - 1, y)),
                        Lerp(u, Grad(p[AB], x, y - 1), Grad(p[BB], x - 1, y - 1)));
+    }
+
+    private static void EnsureSpawnZonesConnected(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, Random random, int width, int height)
+    {
+        const int SPAWN_ZONE_WIDTH = 5;
+        
+        EnsureZoneConnected(baseTerrain, terrainDetail, 0, SPAWN_ZONE_WIDTH, 0, height, random, width, height);
+        
+        EnsureZoneConnected(baseTerrain, terrainDetail, width - SPAWN_ZONE_WIDTH, width, 0, height, random, width, height);
+    }
+
+    private static void EnsureZoneConnected(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, int minX, int maxX, int minY, int maxY, Random random, int width, int height)
+    {
+        var traversible = new bool[width * height];
+        for (int i = 0; i < traversible.Length; i++)
+        {
+            bool baseTraversible = baseTerrain[i] == BaseTerrain.Ground || baseTerrain[i] == BaseTerrain.Farm;
+            bool detailTraversible = terrainDetail[i] == TerrainDetailType.None || 
+                                     terrainDetail[i] == TerrainDetailType.FenceEdge || 
+                                     terrainDetail[i] == TerrainDetailType.FenceCorner ||
+                                     terrainDetail[i] == TerrainDetailType.DeadTree;
+            traversible[i] = baseTraversible && detailTraversible;
+        }
+
+        int startX = -1, startY = -1;
+        for (int y = minY; y < maxY; y++)
+        {
+            for (int x = minX; x < maxX; x++)
+            {
+                int index = y * width + x;
+                if (traversible[index])
+                {
+                    startX = x;
+                    startY = y;
+                    break;
+                }
+            }
+            if (startX >= 0) break;
+        }
+
+        if (startX < 0) return;
+
+        var visited = new bool[width * height];
+        var queue = new System.Collections.Generic.Queue<(int x, int y)>();
+        queue.Enqueue((startX, startY));
+        visited[startY * width + startX] = true;
+
+        while (queue.Count > 0)
+        {
+            var (x, y) = queue.Dequeue();
+            
+            int[] dx = { -1, 1, 0, 0 };
+            int[] dy = { 0, 0, -1, 1 };
+            
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                
+                if (nx >= minX && nx < maxX && ny >= minY && ny < maxY)
+                {
+                    int nindex = ny * width + nx;
+                    if (!visited[nindex] && traversible[nindex])
+                    {
+                        visited[nindex] = true;
+                        queue.Enqueue((nx, ny));
+                    }
+                }
+            }
+        }
+
+        for (int y = minY; y < maxY; y++)
+        {
+            for (int x = minX; x < maxX; x++)
+            {
+                int index = y * width + x;
+                if (traversible[index] && !visited[index])
+                {
+                    if (baseTerrain[index] == BaseTerrain.Lake)
+                    {
+                        baseTerrain[index] = BaseTerrain.Ground;
+                    }
+                    else if (terrainDetail[index] != TerrainDetailType.None)
+                    {
+                        terrainDetail[index] = TerrainDetailType.None;
+                    }
+                }
+            }
+        }
     }
 }
