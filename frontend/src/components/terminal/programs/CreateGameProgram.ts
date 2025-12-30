@@ -21,9 +21,9 @@ export class CreateGameProgram extends Program {
         visibility: 'private',
         passcode: '',
         botCount: 0,
-        duration: 5,
-        width: 40,
-        height: 40
+        duration: 10,
+        width: 50,
+        height: 50
     };
 
     onEnter(): void {
@@ -91,56 +91,72 @@ export class CreateGameProgram extends Program {
             this.addOutput("", "Enter a passcode for your private world (or leave empty):");
         } else {
             this.step = 'bots';
-            this.addOutput("", "How many AI bots would you like? (0-10, must be even)");
+            this.addOutput("", "How many AI bots would you like? (default: 0, 0-10, must be even)");
         }
     }
 
     private handlePasscodeInput(passcode: string): void {
         this.state.passcode = passcode;
         this.step = 'bots';
-        this.addOutput("", "How many AI bots would you like? (0-10, must be even)");
+        this.addOutput("", "How many AI bots would you like? (default: 0, 0-10, must be even)");
     }
 
     private handleBotsInput(input: string): void {
-        const botCount = parseInt(input);
-        if (isNaN(botCount) || botCount < 0 || botCount > 10 || botCount % 2 !== 0) {
-            this.addOutput("Please enter an even number between 0 and 10:");
-            return;
+        if (!input) {
+            this.state.botCount = 0;
+        } else {
+            const botCount = parseInt(input);
+            if (isNaN(botCount) || botCount < 0 || botCount > 10 || botCount % 2 !== 0) {
+                this.addOutput("Please enter an even number between 0 and 10 (or press Enter for default):");
+                return;
+            }
+            this.state.botCount = botCount;
         }
-        this.state.botCount = botCount;
         this.step = 'duration';
-        this.addOutput("", "Game duration in minutes? (1-20)");
+        this.addOutput("", "Game duration in minutes? (default: 10, 1-20)");
     }
 
     private handleDurationInput(input: string): void {
-        const duration = parseInt(input);
-        if (isNaN(duration) || duration < 1 || duration > 20) {
-            this.addOutput("Please enter a number between 1 and 20:");
-            return;
+        if (!input) {
+            this.state.duration = 10;
+        } else {
+            const duration = parseInt(input);
+            if (isNaN(duration) || duration < 1 || duration > 20) {
+                this.addOutput("Please enter a number between 1 and 20 (or press Enter for default):");
+                return;
+            }
+            this.state.duration = duration;
         }
-        this.state.duration = duration;
         this.step = 'width';
-        this.addOutput("", "Map width? (1-200)");
+        this.addOutput("", "Map width? (default: 50, 1-200)");
     }
 
     private handleWidthInput(input: string): void {
-        const width = parseInt(input);
-        if (isNaN(width) || width < 1 || width > 200) {
-            this.addOutput("Please enter a number between 1 and 200:");
-            return;
+        if (!input) {
+            this.state.width = 50;
+        } else {
+            const width = parseInt(input);
+            if (isNaN(width) || width < 1 || width > 200) {
+                this.addOutput("Please enter a number between 1 and 200 (or press Enter for default):");
+                return;
+            }
+            this.state.width = width;
         }
-        this.state.width = width;
         this.step = 'height';
-        this.addOutput("", "Map height? (1-200)");
+        this.addOutput("", "Map height? (default: 50, 1-200)");
     }
 
     private handleHeightInput(input: string): void {
-        const height = parseInt(input);
-        if (isNaN(height) || height < 1 || height > 200) {
-            this.addOutput("Please enter a number between 1 and 200:");
-            return;
+        if (!input) {
+            this.state.height = 50;
+        } else {
+            const height = parseInt(input);
+            if (isNaN(height) || height < 1 || height > 200) {
+                this.addOutput("Please enter a number between 1 and 200 (or press Enter for default):");
+                return;
+            }
+            this.state.height = height;
         }
-        this.state.height = height;
         this.createWorld();
     }
 
