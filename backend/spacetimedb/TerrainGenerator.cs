@@ -5,8 +5,10 @@ using System.Collections.Generic;
 
 public static partial class TerrainGenerator
 {
-    private const int WORLD_WIDTH = 40;
-    private const int WORLD_HEIGHT = 40;
+    private const int DEFAULT_WORLD_WIDTH = 40;
+    private const int DEFAULT_WORLD_HEIGHT = 40;
+    private const int MAX_WORLD_WIDTH = 200;
+    private const int MAX_WORLD_HEIGHT = 200;
     private const int FIELD_MIN_SIZE = 5;
     private const int FIELD_MAX_SIZE = 10;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
@@ -24,13 +26,16 @@ public static partial class TerrainGenerator
 
     private static readonly int[] p = new int[512];
 
-    public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random)
+    public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random, int width = DEFAULT_WORLD_WIDTH, int height = DEFAULT_WORLD_HEIGHT)
     {
+        width = Math.Clamp(width, 1, MAX_WORLD_WIDTH);
+        height = Math.Clamp(height, 1, MAX_WORLD_HEIGHT);
+        
         InitPerlin(random);
-        var baseTerrain = new BaseTerrain[WORLD_WIDTH * WORLD_HEIGHT];
+        var baseTerrain = new BaseTerrain[width * height];
         var terrainDetails = new List<(int x, int y, TerrainDetailType type, int rotation)>();
-        var terrainDetailArray = new TerrainDetailType[WORLD_WIDTH * WORLD_HEIGHT];
-        var rotationArray = new int[WORLD_WIDTH * WORLD_HEIGHT];
+        var terrainDetailArray = new TerrainDetailType[width * height];
+        var rotationArray = new int[width * height];
 
         for (int i = 0; i < baseTerrain.Length; i++)
         {
@@ -39,21 +44,21 @@ public static partial class TerrainGenerator
             rotationArray[i] = 0;
         }
 
-        GenerateRocks(terrainDetailArray, baseTerrain, random);
+        GenerateRocks(terrainDetailArray, baseTerrain, random, width, height);
 
-        GenerateLakes(baseTerrain, terrainDetailArray, random);
+        GenerateLakes(baseTerrain, terrainDetailArray, random, width, height);
 
-        Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, random);
+        Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, random, width, height);
 
-        GenerateTrees(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random);
+        GenerateTrees(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random, width, height);
 
-        GenerateStructures(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random);
+        GenerateStructures(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random, width, height);
 
-        for (int y = 0; y < WORLD_HEIGHT; y++)
+        for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < WORLD_WIDTH; x++)
+            for (int x = 0; x < width; x++)
             {
-                int index = y * WORLD_WIDTH + x;
+                int index = y * width + x;
                 var type = terrainDetailArray[index];
                 if (type != TerrainDetailType.None)
                 {
@@ -65,15 +70,15 @@ public static partial class TerrainGenerator
         return (baseTerrain, terrainDetails);
     }
 
-    private static void GenerateRocks(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random)
+    private static void GenerateRocks(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random, int width, int height)
     {
         int numRocks = 30 + random.Next(40);
 
         for (int i = 0; i < numRocks; i++)
         {
-            int x = random.Next(WORLD_WIDTH);
-            int y = random.Next(WORLD_HEIGHT);
-            int index = y * WORLD_WIDTH + x;
+            int x = random.Next(width);
+            int y = random.Next(height);
+            int index = y * width + x;
 
             if (baseTerrain[index] == BaseTerrain.Ground && terrainDetail[index] == TerrainDetailType.None)
             {
@@ -82,7 +87,7 @@ public static partial class TerrainGenerator
         }
     }
 
-    private static void GenerateLakes(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, Random random)
+    private static void GenerateLakes(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, Random random, int width, int height)
     {
         int numLakes = MIN_LAKES + random.Next(MAX_ADDITIONAL_LAKES + 1);
 
@@ -91,11 +96,11 @@ public static partial class TerrainGenerator
             float offsetX = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
             float offsetY = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
 
-            for (int y = 0; y < WORLD_HEIGHT; y++)
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < WORLD_WIDTH; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    int index = y * WORLD_WIDTH + x;
+                    int index = y * width + x;
 
                     if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
                     {
@@ -112,9 +117,9 @@ public static partial class TerrainGenerator
         }
     }
 
-    private static Vector2[] GenerateFields(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random)
+    private static Vector2[] GenerateFields(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random, int width, int height)
     {
-        var fieldTilesList = new Vector2[WORLD_WIDTH * WORLD_HEIGHT];
+        var fieldTilesList = new Vector2[width * height];
         int fieldTilesCount = 0;
         int numFields = 2 + random.Next(3);
 
@@ -129,8 +134,8 @@ public static partial class TerrainGenerator
 
                 int fieldWidth = FIELD_MIN_SIZE + random.Next(FIELD_MAX_SIZE - FIELD_MIN_SIZE + 1);
                 int fieldHeight = FIELD_MIN_SIZE + random.Next(FIELD_MAX_SIZE - FIELD_MIN_SIZE + 1);
-                int startX = random.Next(WORLD_WIDTH - fieldWidth);
-                int startY = random.Next(WORLD_HEIGHT - fieldHeight);
+                int startX = random.Next(width - fieldWidth);
+                int startY = random.Next(height - fieldHeight);
 
                 bool validLocation = true;
 
@@ -138,13 +143,13 @@ public static partial class TerrainGenerator
                 {
                     for (int x = startX - 1; x <= startX + fieldWidth; x++)
                     {
-                        if (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT)
+                        if (x < 0 || x >= width || y < 0 || y >= height)
                         {
                             validLocation = false;
                             break;
                         }
 
-                        int index = y * WORLD_WIDTH + x;
+                        int index = y * width + x;
                         if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
                         {
                             validLocation = false;
@@ -161,7 +166,7 @@ public static partial class TerrainGenerator
                     {
                         for (int x = startX; x < startX + fieldWidth; x++)
                         {
-                            int index = y * WORLD_WIDTH + x;
+                            int index = y * width + x;
                             baseTerrain[index] = BaseTerrain.Farm;
                             if (fieldTilesCount < fieldTilesList.Length)
                             {
@@ -180,7 +185,7 @@ public static partial class TerrainGenerator
                     {
                         if (topY >= 0)
                         {
-                            int fenceIndex = topY * WORLD_WIDTH + x;
+                            int fenceIndex = topY * width + x;
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
                                 terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
@@ -188,9 +193,9 @@ public static partial class TerrainGenerator
                             }
                         }
 
-                        if (bottomY < WORLD_HEIGHT)
+                        if (bottomY < height)
                         {
-                            int fenceIndex = bottomY * WORLD_WIDTH + x;
+                            int fenceIndex = bottomY * width + x;
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
                                 terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
@@ -203,7 +208,7 @@ public static partial class TerrainGenerator
                     {
                         if (leftX >= 0)
                         {
-                            int fenceIndex = y * WORLD_WIDTH + leftX;
+                            int fenceIndex = y * width + leftX;
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
                                 terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
@@ -211,9 +216,9 @@ public static partial class TerrainGenerator
                             }
                         }
 
-                        if (rightX < WORLD_WIDTH)
+                        if (rightX < width)
                         {
-                            int fenceIndex = y * WORLD_WIDTH + rightX;
+                            int fenceIndex = y * width + rightX;
                             if (terrainDetail[fenceIndex] == TerrainDetailType.None)
                             {
                                 terrainDetail[fenceIndex] = TerrainDetailType.FenceEdge;
@@ -224,7 +229,7 @@ public static partial class TerrainGenerator
 
                     if (topY >= 0 && leftX >= 0)
                     {
-                        int cornerIndex = topY * WORLD_WIDTH + leftX;
+                        int cornerIndex = topY * width + leftX;
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
                             terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
@@ -232,9 +237,9 @@ public static partial class TerrainGenerator
                         }
                     }
 
-                    if (topY >= 0 && rightX < WORLD_WIDTH)
+                    if (topY >= 0 && rightX < width)
                     {
-                        int cornerIndex = topY * WORLD_WIDTH + rightX;
+                        int cornerIndex = topY * width + rightX;
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
                             terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
@@ -242,9 +247,9 @@ public static partial class TerrainGenerator
                         }
                     }
 
-                    if (bottomY < WORLD_HEIGHT && leftX >= 0)
+                    if (bottomY < height && leftX >= 0)
                     {
-                        int cornerIndex = bottomY * WORLD_WIDTH + leftX;
+                        int cornerIndex = bottomY * width + leftX;
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
                             terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
@@ -252,9 +257,9 @@ public static partial class TerrainGenerator
                         }
                     }
 
-                    if (bottomY < WORLD_HEIGHT && rightX < WORLD_WIDTH)
+                    if (bottomY < height && rightX < width)
                     {
-                        int cornerIndex = bottomY * WORLD_WIDTH + rightX;
+                        int cornerIndex = bottomY * width + rightX;
                         if (terrainDetail[cornerIndex] == TerrainDetailType.None)
                         {
                             terrainDetail[cornerIndex] = TerrainDetailType.FenceCorner;
@@ -268,7 +273,7 @@ public static partial class TerrainGenerator
                         {
                             if ((x + y * 2) % 4 == 0)
                             {
-                                int hIndex = y * WORLD_WIDTH + x;
+                                int hIndex = y * width + x;
                                 if (baseTerrain[hIndex] == BaseTerrain.Farm)
                                 {
                                     terrainDetail[hIndex] = TerrainDetailType.HayBale;
@@ -287,16 +292,16 @@ public static partial class TerrainGenerator
         return result;
     }
 
-    private static void GenerateTrees(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random)
+    private static void GenerateTrees(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random, int width, int height)
     {
         float scale = 0.1f;
         float threshold = 0.2f;
 
-        for (int y = 0; y < WORLD_HEIGHT; y++)
+        for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < WORLD_WIDTH; x++)
+            for (int x = 0; x < width; x++)
             {
-                int index = y * WORLD_WIDTH + x;
+                int index = y * width + x;
 
                 if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
                 {
@@ -326,9 +331,9 @@ public static partial class TerrainGenerator
                             if (dx == 0 && dy == 0) continue;
                             int nx = x + dx;
                             int ny = y + dy;
-                            if (nx >= 0 && nx < WORLD_WIDTH && ny >= 0 && ny < WORLD_HEIGHT)
+                            if (nx >= 0 && nx < width && ny >= 0 && ny < height)
                             {
-                                var neighborType = terrainDetail[ny * WORLD_WIDTH + nx];
+                                var neighborType = terrainDetail[ny * width + nx];
                                 if (neighborType == TerrainDetailType.Tree)
                                 {
                                     neighborHasTree = true;
@@ -351,12 +356,12 @@ public static partial class TerrainGenerator
 
     public static int GetWorldWidth()
     {
-        return WORLD_WIDTH;
+        return DEFAULT_WORLD_WIDTH;
     }
 
     public static int GetWorldHeight()
     {
-        return WORLD_HEIGHT;
+        return DEFAULT_WORLD_HEIGHT;
     }
 
     private static void GenerateStructures(
@@ -364,7 +369,9 @@ public static partial class TerrainGenerator
         TerrainDetailType[] terrainDetail,
         BaseTerrain[] baseTerrain,
         Vector2[] fieldTiles,
-        Random random)
+        Random random,
+        int width,
+        int height)
     {
         int numStructures = MIN_STRUCTURES + random.Next(STRUCTURE_COUNT_RANGE);
 
@@ -379,16 +386,16 @@ public static partial class TerrainGenerator
 
                 int structureWidth = 4 + random.Next(5);
                 int structureHeight = 4 + random.Next(5);
-                int startX = random.Next(2, WORLD_WIDTH - structureWidth - 2);
-                int startY = random.Next(2, WORLD_HEIGHT - structureHeight - 2);
+                int startX = random.Next(2, width - structureWidth - 2);
+                int startY = random.Next(2, height - structureHeight - 2);
 
                 bool validLocation = true;
                 int objectsToReplace = 0;
 
                 for (int x = startX; x < startX + structureWidth; x++)
                 {
-                    int topIndex = startY * WORLD_WIDTH + x;
-                    int bottomIndex = (startY + structureHeight - 1) * WORLD_WIDTH + x;
+                    int topIndex = startY * width + x;
+                    int bottomIndex = (startY + structureHeight - 1) * width + x;
 
                     if (baseTerrain[topIndex] != BaseTerrain.Ground)
                     {
@@ -436,8 +443,8 @@ public static partial class TerrainGenerator
                 {
                     for (int y = startY; y < startY + structureHeight; y++)
                     {
-                        int leftIndex = y * WORLD_WIDTH + startX;
-                        int rightIndex = y * WORLD_WIDTH + (startX + structureWidth - 1);
+                        int leftIndex = y * width + startX;
+                        int rightIndex = y * width + (startX + structureWidth - 1);
 
                         if (baseTerrain[leftIndex] != BaseTerrain.Ground)
                         {
@@ -497,7 +504,7 @@ public static partial class TerrainGenerator
                             {
                                 if (random.NextSingle() > 0.2f)
                                 {
-                                    int index = startY * WORLD_WIDTH + x;
+                                    int index = startY * width + x;
                                     terrainDetail[index] = TerrainDetailType.FoundationEdge;
                                     rotationArray[index] = ROTATION_NORTH;
                                 }
@@ -510,7 +517,7 @@ public static partial class TerrainGenerator
                             {
                                 if (random.NextSingle() > 0.2f)
                                 {
-                                    int index = (startY + structureHeight - 1) * WORLD_WIDTH + x;
+                                    int index = (startY + structureHeight - 1) * width + x;
                                     terrainDetail[index] = TerrainDetailType.FoundationEdge;
                                     rotationArray[index] = ROTATION_SOUTH;
                                 }
@@ -526,7 +533,7 @@ public static partial class TerrainGenerator
                             {
                                 if (random.NextSingle() > 0.2f)
                                 {
-                                    int index = y * WORLD_WIDTH + startX;
+                                    int index = y * width + startX;
                                     terrainDetail[index] = TerrainDetailType.FoundationEdge;
                                     rotationArray[index] = ROTATION_WEST;
                                 }
@@ -539,7 +546,7 @@ public static partial class TerrainGenerator
                             {
                                 if (random.NextSingle() > 0.2f)
                                 {
-                                    int index = y * WORLD_WIDTH + (startX + structureWidth - 1);
+                                    int index = y * width + (startX + structureWidth - 1);
                                     terrainDetail[index] = TerrainDetailType.FoundationEdge;
                                     rotationArray[index] = ROTATION_EAST;
                                 }
@@ -549,28 +556,28 @@ public static partial class TerrainGenerator
 
                     if (!removeTopLeftCorner)
                     {
-                        int index = startY * WORLD_WIDTH + startX;
+                        int index = startY * width + startX;
                         terrainDetail[index] = TerrainDetailType.FoundationCorner;
                         rotationArray[index] = 0;
                     }
 
                     if (!removeTopRightCorner)
                     {
-                        int index = startY * WORLD_WIDTH + (startX + structureWidth - 1);
+                        int index = startY * width + (startX + structureWidth - 1);
                         terrainDetail[index] = TerrainDetailType.FoundationCorner;
                         rotationArray[index] = 1;
                     }
 
                     if (!removeBottomLeftCorner)
                     {
-                        int index = (startY + structureHeight - 1) * WORLD_WIDTH + startX;
+                        int index = (startY + structureHeight - 1) * width + startX;
                         terrainDetail[index] = TerrainDetailType.FoundationCorner;
                         rotationArray[index] = 3;
                     }
 
                     if (!removeBottomRightCorner)
                     {
-                        int index = (startY + structureHeight - 1) * WORLD_WIDTH + (startX + structureWidth - 1);
+                        int index = (startY + structureHeight - 1) * width + (startX + structureWidth - 1);
                         terrainDetail[index] = TerrainDetailType.FoundationCorner;
                         rotationArray[index] = 2;
                     }

@@ -3,11 +3,11 @@ import WorldVisibility from '../../module_bindings/world_visibility_type';
 import { type Infer } from "spacetimedb";
 
 interface GameCreationFlowProps {
-    onComplete: (worldName: string, visibility: Infer<typeof WorldVisibility>, passcode: string, botCount: number, gameDurationMinutes: number) => void;
+    onComplete: (worldName: string, visibility: Infer<typeof WorldVisibility>, passcode: string, botCount: number, gameDurationMinutes: number, width: number, height: number) => void;
     onCancel: () => void;
 }
 
-type FlowStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration';
+type FlowStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration' | 'mapSize';
 type VisibilityOption = 'public' | 'private';
 
 export default function GameCreationFlow({ onComplete, onCancel }: GameCreationFlowProps) {
@@ -17,6 +17,8 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
     const [passcode, setPasscode] = useState('');
     const [botCount, setBotCount] = useState(0);
     const [gameDuration, setGameDuration] = useState(5);
+    const [mapWidth, setMapWidth] = useState(40);
+    const [mapHeight, setMapHeight] = useState(40);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleBack = useCallback(() => {
@@ -34,6 +36,8 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
             }
         } else if (step === 'duration') {
             setStep('bots');
+        } else if (step === 'mapSize') {
+            setStep('duration');
         }
     }, [step, selectedVisibility, passcode, onCancel]);
 
@@ -77,15 +81,34 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                     setGameDuration(prev => Math.max(1, prev - 1));
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
+                    setStep('mapSize');
+                }
+            } else if (step === 'mapSize') {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        setMapHeight(prev => Math.min(200, prev + 10));
+                    } else {
+                        setMapWidth(prev => Math.min(200, prev + 10));
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        setMapHeight(prev => Math.max(20, prev - 10));
+                    } else {
+                        setMapWidth(prev => Math.max(20, prev - 10));
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
                     const visibility = selectedVisibility === 'private' ? WorldVisibility.Private : WorldVisibility.CustomPublic;
-                    onComplete(worldName, visibility, passcode, botCount, gameDuration);
+                    onComplete(worldName, visibility, passcode, botCount, gameDuration, mapWidth, mapHeight);
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [step, selectedVisibility, worldName, passcode, botCount, gameDuration, handleBack, onComplete]);
+    }, [step, selectedVisibility, worldName, passcode, botCount, gameDuration, mapWidth, mapHeight, handleBack, onComplete]);
 
     useEffect(() => {
         if (inputRef.current) {
@@ -271,7 +294,51 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                             </div>
                         </div>
                         <div style={{ fontSize: '12px', color: '#96dc7f', textAlign: 'center' }}>
-                            Use ↑↓ to adjust, Enter to create game, Esc to go back
+                            Use ↑↓ to adjust, Enter to continue, Esc to go back
+                        </div>
+                    </>
+                );
+
+            case 'mapSize':
+                return (
+                    <>
+                        <div style={{ fontSize: '24px', marginBottom: '30px', color: '#7396d5', fontWeight: 'bold', textAlign: 'center' }}>
+                            Map Size
+                        </div>
+                        <div style={{ fontSize: '16px', marginBottom: '20px', color: '#a9bcbf' }}>
+                            Select map dimensions:
+                        </div>
+                        <div style={{
+                            padding: '30px',
+                            marginBottom: '30px',
+                            background: '#4f2d4d',
+                            border: '2px solid #5a78b2',
+                            textAlign: 'center'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
+                                <div>
+                                    <div style={{ fontSize: '14px', color: '#a9bcbf', marginBottom: '10px' }}>
+                                        Width
+                                    </div>
+                                    <div style={{ fontSize: '36px', color: '#7396d5', fontWeight: 'bold' }}>
+                                        {mapWidth}
+                                    </div>
+                                </div>
+                                <div style={{ fontSize: '36px', color: '#5a78b2' }}>
+                                    ×
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '14px', color: '#a9bcbf', marginBottom: '10px' }}>
+                                        Height
+                                    </div>
+                                    <div style={{ fontSize: '36px', color: '#7396d5', fontWeight: 'bold' }}>
+                                        {mapHeight}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#96dc7f', textAlign: 'center' }}>
+                            Use ↑↓ for width, Shift+↑↓ for height, Enter to create, Esc to go back
                         </div>
                     </>
                 );

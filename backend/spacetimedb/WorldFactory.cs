@@ -11,6 +11,8 @@ public static partial class Module
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
         bool[] traversibilityMap,
         bool[] projectileCollisionMap,
+        int width,
+        int height,
         WorldVisibility visibility = WorldVisibility.Public,
         string passcode = "",
         long? gameDurationMicros = null)
@@ -23,8 +25,8 @@ public static partial class Module
             Id = worldId,
             Name = worldName,
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            Width = TerrainGenerator.GetWorldWidth(),
-            Height = TerrainGenerator.GetWorldHeight(),
+            Width = width,
+            Height = height,
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
             IsHomeWorld = false,
@@ -78,8 +80,8 @@ public static partial class Module
             WorldId = worldId,
             Map = traversibilityMap,
             ProjectileCollisionMap = projectileCollisionMap,
-            Width = TerrainGenerator.GetWorldWidth(),
-            Height = TerrainGenerator.GetWorldHeight()
+            Width = width,
+            Height = height
         });
 
         ctx.Db.score.Insert(new Score

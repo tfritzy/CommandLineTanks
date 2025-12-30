@@ -194,7 +194,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         setInput('');
     };
 
-    const handleGameCreationComplete = (worldName: string, visibility: Infer<typeof WorldVisibility>, passcode: string, botCount: number, gameDurationMinutes: number) => {
+    const handleGameCreationComplete = (worldName: string, visibility: Infer<typeof WorldVisibility>, passcode: string, botCount: number, gameDurationMinutes: number, width: number, height: number) => {
         setShowGameCreationFlow(false);
         
         const connection = getConnection();
@@ -215,14 +215,16 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             visibility, 
             passcode: passcode || '',
             botCount,
-            gameDurationMicros
+            gameDurationMicros,
+            width,
+            height
         });
 
         const visibilityLabel = visibility.tag === 'Private' ? 'private' : 'public';
         const newOutput = [
             ...output,
             `Creating ${visibilityLabel} game "${worldName}"...`,
-            `Bots: ${botCount}, Duration: ${gameDurationMinutes} min`,
+            `Bots: ${botCount}, Duration: ${gameDurationMinutes} min, Size: ${width}x${height}`,
             ""
         ].filter(line => line !== '');
         setOutput(newOutput);
