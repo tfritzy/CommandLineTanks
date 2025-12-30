@@ -24,7 +24,10 @@ public static partial class Module
                 var totalActivePlayers = 0;
                 foreach (var w in ctx.Db.world.IsHomeWorld.Filter(false))
                 {
-                    totalActivePlayers += w.CurrentPlayerCount;
+                    if (w.GameState == GameState.Playing)
+                    {
+                        totalActivePlayers += w.CurrentPlayerCount;
+                    }
                 }
 
                 if (totalActivePlayers == 0)
