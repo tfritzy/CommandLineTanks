@@ -171,6 +171,7 @@ public static partial class Module
                 spawnY,
                 AIBehavior.None);
             ctx.Db.tank.Insert(newTank);
+            IncrementPlayerCount(ctx, newWorldId);
         }
 
         Log.Info($"Created new world {newWorldId} from {args.WorldId}. Teams randomized, {totalTanks} tanks created.");

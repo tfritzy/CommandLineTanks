@@ -26,6 +26,7 @@ public static partial class Module
         if (tank != null)
         {
             ctx.Db.tank.Insert(tank.Value);
+            IncrementPlayerCount(ctx, worldId);
         }
     }
 }

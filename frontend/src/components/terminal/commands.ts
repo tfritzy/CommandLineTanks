@@ -1,8 +1,6 @@
 import { type DbConnection } from "../../../module_bindings";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 
-const MAX_PLAYERS_PER_WORLD = 8;
-
 function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
     return false;
@@ -982,31 +980,52 @@ export function lobbies(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  const allTanks = Array.from(connection.db.tank.iter());
-  
   const result: string[] = [
     "Available Public Games:",
     ""
   ];
 
+  function pad(str: string, length: number): string {
+    while (str.length < length) {
+      str += " ";
+    }
+    return str;
+  }
+
+  function repeat(str: string, count: number): string {
+    let result = "";
+    for (let i = 0; i < count; i++) {
+      result += str;
+    }
+    return result;
+  }
+
+  const codeWidth = 6;
+  const nameWidth = 25;
+  const playersWidth = 10;
+  const botsWidth = 6;
+  const durationWidth = 10;
+
+  const headerRow = `${pad("Code", codeWidth)} ${pad("Name", nameWidth)} ${pad("Players", playersWidth)} ${pad("Bots", botsWidth)} ${pad("Duration", durationWidth)}`;
+  const separatorRow = `${repeat("-", codeWidth)} ${repeat("-", nameWidth)} ${repeat("-", playersWidth)} ${repeat("-", botsWidth)} ${repeat("-", durationWidth)}`;
+  
+  result.push(headerRow);
+  result.push(separatorRow);
+
   for (const world of publicWorlds) {
-    const worldTanks = allTanks.filter(t => t.worldId === world.id);
-    const playerCount = worldTanks.filter(t => !t.isBot).length;
-    const botCount = worldTanks.filter(t => t.isBot).length;
+    const code = pad(world.id, codeWidth);
+    const name = world.name.length > nameWidth ? world.name.substring(0, nameWidth - 3) + "..." : pad(world.name, nameWidth);
+    const players = pad(`${world.currentPlayerCount}/${world.maxPlayers}`, playersWidth);
+    const bots = pad(String(world.botCount), botsWidth);
     
     const durationMinutes = Math.floor(Number(world.gameDurationMicros) / 60_000_000);
     const durationText = durationMinutes === 1 ? "1 min" : `${durationMinutes} mins`;
+    const duration = pad(durationText, durationWidth);
     
-    const elapsedMicros = Date.now() * 1000 - Number(world.gameStartedAt);
-    const remainingMicros = Number(world.gameDurationMicros) - elapsedMicros;
-    const remainingMinutes = Math.max(0, Math.ceil(remainingMicros / 60_000_000));
-    const timeText = remainingMinutes === 1 ? "1 min left" : `${remainingMinutes} mins left`;
-    
-    result.push(`  ${world.name}`);
-    result.push(`    Code: ${world.id} | Players: ${playerCount}/${MAX_PLAYERS_PER_WORLD} | Bots: ${botCount} | Duration: ${durationText} (${timeText})`);
-    result.push("");
+    result.push(`${code} ${name} ${players} ${bots} ${duration}`);
   }
 
+  result.push("");
   result.push("Use 'join <code>' to join a game.");
   
   return result;
