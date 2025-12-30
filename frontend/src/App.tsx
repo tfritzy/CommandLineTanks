@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { connectToSpacetimeDB } from './spacetimedb-connection';
 import GameView from './components/GameView';
@@ -7,6 +7,7 @@ function App() {
   const [isSpacetimeConnected, setIsSpacetimeConnected] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const initialPathnameRef = useRef(location.pathname);
 
   useEffect(() => {
     connectToSpacetimeDB().then((conn) => {
@@ -16,14 +17,14 @@ function App() {
         const identityString = conn.identity.toHexString();
         console.log(`Setting homeworld to identity: ${identityString}`);
         
-        if (!location.pathname.startsWith('/world/')) {
+        if (!initialPathnameRef.current.startsWith('/world/')) {
           navigate(`/world/${identityString}`);
         }
       }
     }).catch((error) => {
       console.error('Failed to establish SpacetimeDB connection:', error);
     });
-  }, []);
+  }, [navigate]);
 
   if (!isSpacetimeConnected) {
     return (
