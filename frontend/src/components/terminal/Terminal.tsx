@@ -302,15 +302,16 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                                 return (
                                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', marginTop: '4px' }}>
                                         <div style={{
-                                            background: '#4f2d4d',
+                                            background: 'rgba(74, 75, 91, 0.5)',
                                             padding: '8px 12px',
                                             fontFamily: "'JetBrains Mono', monospace",
                                             userSelect: 'all',
                                             cursor: 'text',
                                             wordBreak: 'break-all',
-                                            border: '1px solid #5a78b2',
+                                            border: '1px solid rgba(112, 123, 137, 0.3)',
                                             flex: 1,
-                                            color: '#7396d5'
+                                            color: '#7396d5',
+                                            fontSize: '12px'
                                         }}>
                                             {line.url}
                                         </div>
@@ -326,18 +327,20 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                                                     });
                                             }}
                                             style={{
-                                                background: copied ? '#96dc7f' : '#5a78b2',
-                                                color: copied ? '#2a152d' : '#e6eeed',
-                                                border: 'none',
+                                                background: copied ? '#4e9363' : '#405967',
+                                                color: '#fcfbf3',
+                                                border: '1px solid rgba(112, 123, 137, 0.3)',
                                                 padding: '8px 16px',
                                                 fontFamily: "'JetBrains Mono', monospace",
                                                 fontSize: '12px',
                                                 cursor: 'pointer',
-                                                transition: 'all 0.2s',
-                                                fontWeight: 'bold'
+                                                transition: 'all 0.2s ease',
+                                                fontWeight: 500,
+                                                letterSpacing: '0.05em',
+                                                whiteSpace: 'nowrap'
                                             }}
                                         >
-                                            {copied ? '✓ Copied!' : 'Copy'}
+                                            {copied ? '✓ COPIED' : 'COPY'}
                                         </button>
                                     </div>
                                 );
