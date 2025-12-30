@@ -14,8 +14,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [currentProgram, setCurrentProgram] = useState<Program | null>(null);
+    const [isCreatingGame, setIsCreatingGame] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const previousWorldIdRef = useRef<string>(worldId);
 
     useEffect(() => {
         inputRef.current?.focus();
@@ -28,12 +30,29 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     }, [output]);
 
     useEffect(() => {
+        if (isCreatingGame && worldId !== previousWorldIdRef.current) {
+            const gameUrl = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
+            setOutput(prev => [
+                ...prev,
+                "Game created successfully!",
+                "",
+                "Share this URL with friends to invite them:",
+                gameUrl,
+                ""
+            ]);
+            setIsCreatingGame(false);
+        }
+        previousWorldIdRef.current = worldId;
+    }, [worldId, isCreatingGame]);
+
+    useEffect(() => {
         if (!currentProgram) {
             const context: ProgramContext = {
                 output,
                 setOutput,
                 setInput,
-                exitProgram: () => setCurrentProgram(null)
+                exitProgram: () => setCurrentProgram(null),
+                onGameCreationStart: () => setIsCreatingGame(true)
             };
             
             const connection = getConnection();

@@ -168,6 +168,8 @@ export class CreateGameProgram extends Program {
             return;
         }
 
+        this.context.onGameCreationStart?.();
+
         const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
         setPendingJoinCode(joinCode);
         

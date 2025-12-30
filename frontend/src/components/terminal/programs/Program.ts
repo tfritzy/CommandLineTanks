@@ -3,6 +3,7 @@ export interface ProgramContext {
     setOutput: (output: string[]) => void;
     setInput: (input: string) => void;
     exitProgram: () => void;
+    onGameCreationStart?: () => void;
 }
 
 export abstract class Program {
