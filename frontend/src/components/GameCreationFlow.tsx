@@ -20,6 +20,8 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
     const [mapWidth, setMapWidth] = useState(40);
     const [mapHeight, setMapHeight] = useState(40);
     const inputRef = useRef<HTMLInputElement>(null);
+    const widthInputRef = useRef<HTMLInputElement>(null);
+    const heightInputRef = useRef<HTMLInputElement>(null);
 
     const handleBack = useCallback(() => {
         if (step === 'name') {
@@ -84,21 +86,7 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                     setStep('mapSize');
                 }
             } else if (step === 'mapSize') {
-                if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (e.shiftKey) {
-                        setMapHeight(prev => Math.min(200, prev + 10));
-                    } else {
-                        setMapWidth(prev => Math.min(200, prev + 10));
-                    }
-                } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (e.shiftKey) {
-                        setMapHeight(prev => Math.max(20, prev - 10));
-                    } else {
-                        setMapWidth(prev => Math.max(20, prev - 10));
-                    }
-                } else if (e.key === 'Enter') {
+                if (e.key === 'Enter') {
                     e.preventDefault();
                     const visibility = selectedVisibility === 'private' ? WorldVisibility.Private : WorldVisibility.CustomPublic;
                     onComplete(worldName, visibility, passcode, botCount, gameDuration, mapWidth, mapHeight);
@@ -111,7 +99,9 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
     }, [step, selectedVisibility, worldName, passcode, botCount, gameDuration, mapWidth, mapHeight, handleBack, onComplete]);
 
     useEffect(() => {
-        if (inputRef.current) {
+        if (step === 'mapSize' && widthInputRef.current) {
+            widthInputRef.current.focus();
+        } else if (inputRef.current) {
             inputRef.current.focus();
         }
     }, [step]);
@@ -306,39 +296,71 @@ export default function GameCreationFlow({ onComplete, onCancel }: GameCreationF
                             Map Size
                         </div>
                         <div style={{ fontSize: '16px', marginBottom: '20px', color: '#a9bcbf' }}>
-                            Select map dimensions:
+                            Enter map dimensions (1-200):
                         </div>
                         <div style={{
-                            padding: '30px',
-                            marginBottom: '30px',
-                            background: '#4f2d4d',
-                            border: '2px solid #5a78b2',
-                            textAlign: 'center'
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '20px',
+                            marginBottom: '30px'
                         }}>
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
-                                <div>
-                                    <div style={{ fontSize: '14px', color: '#a9bcbf', marginBottom: '10px' }}>
-                                        Width
-                                    </div>
-                                    <div style={{ fontSize: '36px', color: '#7396d5', fontWeight: 'bold' }}>
-                                        {mapWidth}
-                                    </div>
+                            <div>
+                                <div style={{ fontSize: '14px', color: '#a9bcbf', marginBottom: '10px' }}>
+                                    Width:
                                 </div>
-                                <div style={{ fontSize: '36px', color: '#5a78b2' }}>
-                                    ×
+                                <input
+                                    ref={widthInputRef}
+                                    type="number"
+                                    value={mapWidth}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value) || 1;
+                                        setMapWidth(Math.max(1, Math.min(200, val)));
+                                    }}
+                                    min="1"
+                                    max="200"
+                                    style={{
+                                        width: '100%',
+                                        padding: '15px',
+                                        background: '#4f2d4d',
+                                        border: '2px solid #5a78b2',
+                                        color: '#e6eeed',
+                                        fontFamily: "'JetBrains Mono', monospace",
+                                        fontSize: '16px',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <div style={{ fontSize: '14px', color: '#a9bcbf', marginBottom: '10px' }}>
+                                    Height:
                                 </div>
-                                <div>
-                                    <div style={{ fontSize: '14px', color: '#a9bcbf', marginBottom: '10px' }}>
-                                        Height
-                                    </div>
-                                    <div style={{ fontSize: '36px', color: '#7396d5', fontWeight: 'bold' }}>
-                                        {mapHeight}
-                                    </div>
-                                </div>
+                                <input
+                                    ref={heightInputRef}
+                                    type="number"
+                                    value={mapHeight}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value) || 1;
+                                        setMapHeight(Math.max(1, Math.min(200, val)));
+                                    }}
+                                    min="1"
+                                    max="200"
+                                    style={{
+                                        width: '100%',
+                                        padding: '15px',
+                                        background: '#4f2d4d',
+                                        border: '2px solid #5a78b2',
+                                        color: '#e6eeed',
+                                        fontFamily: "'JetBrains Mono', monospace",
+                                        fontSize: '16px',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                />
                             </div>
                         </div>
                         <div style={{ fontSize: '12px', color: '#96dc7f', textAlign: 'center' }}>
-                            Use ↑↓ for width, Shift+↑↓ for height, Enter to create, Esc to go back
+                            Press Enter to create game, Esc to go back
                         </div>
                     </>
                 );
