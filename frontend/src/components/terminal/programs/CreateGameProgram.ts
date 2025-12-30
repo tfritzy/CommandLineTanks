@@ -18,18 +18,13 @@ export class CreateGameProgram extends Program {
     private step: CreationStep = 'name';
     private state: CreationState = {
         name: '',
-        visibility: 'public',
+        visibility: 'private',
         passcode: '',
         botCount: 0,
         duration: 5,
         width: 40,
         height: 40
     };
-    private selectedVisibilityIndex: number = 0;
-    private visibilityOptions: Array<{ value: 'public' | 'private', label: string }> = [
-        { value: 'public', label: 'Public - Anyone can join with world ID' },
-        { value: 'private', label: 'Private - Requires passcode to join' }
-    ];
 
     onEnter(): void {
         this.addOutput(
@@ -47,6 +42,7 @@ export class CreateGameProgram extends Program {
                 this.handleNameInput(trimmedInput);
                 break;
             case 'visibility':
+                this.handleVisibilityInput(trimmedInput);
                 break;
             case 'passcode':
                 this.handlePasscodeInput(trimmedInput);
@@ -66,24 +62,7 @@ export class CreateGameProgram extends Program {
         }
     }
 
-    handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): boolean {
-        if (this.step === 'visibility') {
-            if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                this.selectedVisibilityIndex = Math.max(0, this.selectedVisibilityIndex - 1);
-                this.renderVisibilityOptions();
-                return true;
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                this.selectedVisibilityIndex = Math.min(this.visibilityOptions.length - 1, this.selectedVisibilityIndex + 1);
-                this.renderVisibilityOptions();
-                return true;
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                this.selectVisibility();
-                return true;
-            }
-        }
+    handleKeyDown(_e: React.KeyboardEvent<HTMLInputElement>): boolean {
         return false;
     }
 
@@ -94,43 +73,26 @@ export class CreateGameProgram extends Program {
         }
         this.state.name = name;
         this.step = 'visibility';
-        this.renderVisibilityOptions();
+        this.addOutput("", "Would you like this world to be public or private? (default: private)");
     }
 
-    private renderVisibilityOptions(): void {
-        const lines = [
-            "",
-            "Would you like this world to be public or private?",
-            ""
-        ];
-
-        this.visibilityOptions.forEach((option, index) => {
-            const prefix = index === this.selectedVisibilityIndex ? '❯ ' : '  ';
-            lines.push(`${prefix}${option.label}`);
-        });
-
-        lines.push("");
-        lines.push("Use ↑↓ to navigate, Enter to select, Esc to cancel");
-
-        this.setOutput([...this.context.output, ...lines]);
-    }
-
-    private selectVisibility(): void {
-        const selected = this.visibilityOptions[this.selectedVisibilityIndex];
-        this.state.visibility = selected.value;
-        
-        const newOutput = this.context.output.slice(0, -this.visibilityOptions.length - 4);
-        newOutput.push("", `Selected: ${selected.label}`, "");
-        
-        if (this.state.visibility === 'private') {
-            newOutput.push("Enter a passcode for your private world (or leave empty):");
-            this.step = 'passcode';
+    private handleVisibilityInput(input: string): void {
+        if (!input) {
+            this.state.visibility = 'private';
+        } else if (input.toLowerCase() === 'public' || input.toLowerCase() === 'private') {
+            this.state.visibility = input.toLowerCase() as 'public' | 'private';
         } else {
-            newOutput.push("How many AI bots would you like? (0-10, must be even)");
-            this.step = 'bots';
+            this.addOutput("Please enter 'public' or 'private' (or press Enter for default):");
+            return;
         }
-        
-        this.setOutput(newOutput);
+
+        if (this.state.visibility === 'private') {
+            this.step = 'passcode';
+            this.addOutput("", "Enter a passcode for your private world (or leave empty):");
+        } else {
+            this.step = 'bots';
+            this.addOutput("", "How many AI bots would you like? (0-10, must be even)");
+        }
     }
 
     private handlePasscodeInput(passcode: string): void {

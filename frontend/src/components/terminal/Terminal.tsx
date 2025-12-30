@@ -57,10 +57,11 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             return;
         }
 
-        if (e.key === 'Escape' && currentProgram && !(currentProgram instanceof RootProgram)) {
+        if (e.ctrlKey && e.key === 'c' && currentProgram && !(currentProgram instanceof RootProgram)) {
             e.preventDefault();
-            const newOutput = [...output, "", "Cancelled.", ""];
+            const newOutput = [...output, "", "^C", "Cancelled.", ""];
             setOutput(newOutput);
+            setInput('');
             setCurrentProgram(null);
             return;
         }
