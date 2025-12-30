@@ -210,7 +210,7 @@ public static partial class Module
         Ammo = 10,
         ProjectileCount = 1,
         SpreadAngle = 0,
-        Damage = 100,
+        Damage = 20,
         TrackingStrength = 0,
         TrackingRadius = 0,
         ProjectileType = ProjectileType.Sniper,

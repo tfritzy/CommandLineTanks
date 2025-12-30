@@ -294,8 +294,16 @@ public static partial class TerrainGenerator
 
     private static void GenerateTrees(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random, int width, int height)
     {
-        float scale = 0.1f;
-        float threshold = 0.2f;
+        float groveNoiseScale = 0.08f;
+        float groveThreshold = 0.2f;
+        
+        float treeNoiseScale = 0.4f;
+        float treeThreshold = 0.3f;
+        
+        float groveOffsetX = (float)(random.NextDouble() * 1000f);
+        float groveOffsetY = (float)(random.NextDouble() * 1000f);
+        float treeOffsetX = (float)(random.NextDouble() * 1000f);
+        float treeOffsetY = (float)(random.NextDouble() * 1000f);
 
         for (int y = 0; y < height; y++)
         {
@@ -308,43 +316,25 @@ public static partial class TerrainGenerator
                     continue;
                 }
 
-                float noiseValue = Noise(x * scale, y * scale);
-                if (noiseValue > threshold)
+                bool nearField = false;
+                for (int f = 0; f < fieldTiles.Length; f++)
                 {
-                    bool nearField = false;
-                    for (int f = 0; f < fieldTiles.Length; f++)
+                    if (Math.Abs(fieldTiles[f].X - x) <= 1 && Math.Abs(fieldTiles[f].Y - y) <= 1)
                     {
-                        if (Math.Abs(fieldTiles[f].X - x) <= 1 && Math.Abs(fieldTiles[f].Y - y) <= 1)
-                        {
-                            nearField = true;
-                            break;
-                        }
+                        nearField = true;
+                        break;
                     }
+                }
 
-                    if (nearField) continue;
+                if (nearField) continue;
 
-                    bool neighborHasTree = false;
-                    for (int dy = -1; dy <= 1; dy++)
-                    {
-                        for (int dx = -1; dx <= 1; dx++)
-                        {
-                            if (dx == 0 && dy == 0) continue;
-                            int nx = x + dx;
-                            int ny = y + dy;
-                            if (nx >= 0 && nx < width && ny >= 0 && ny < height)
-                            {
-                                var neighborType = terrainDetail[ny * width + nx];
-                                if (neighborType == TerrainDetailType.Tree)
-                                {
-                                    neighborHasTree = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (neighborHasTree) break;
-                    }
-
-                    if (!neighborHasTree)
+                float groveNoise = Noise((x + groveOffsetX) * groveNoiseScale, (y + groveOffsetY) * groveNoiseScale);
+                
+                if (groveNoise > groveThreshold)
+                {
+                    float treeNoise = Noise((x + treeOffsetX) * treeNoiseScale, (y + treeOffsetY) * treeNoiseScale);
+                    
+                    if (treeNoise > treeThreshold)
                     {
                         terrainDetail[index] = TerrainDetailType.Tree;
                         rotationArray[index] = 0;

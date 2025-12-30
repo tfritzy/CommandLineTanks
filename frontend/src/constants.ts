@@ -7,7 +7,7 @@ export const BUFFER_DURATION = 200;
 
 export const TERRAIN_DETAIL_RADIUS = {
   ROCK: 0.38,
-  TREE: 0.45,
+  TREE: 0.675,
   HAY_BALE: 0.35
 };
 
