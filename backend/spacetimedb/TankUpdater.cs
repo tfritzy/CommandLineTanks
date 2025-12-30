@@ -188,7 +188,7 @@ public static partial class TankUpdater
                 needsUpdate = true;
             }
 
-            if (tank.IsRepairing && newTickCount % 2 == 0)
+            if (tank.IsRepairing && newTickCount % Module.REPAIR_TICK_INTERVAL == 0)
             {
                 var newHealth = Math.Min(tank.MaxHealth, tank.Health + Module.REPAIR_HEALTH_PER_TICK);
 
