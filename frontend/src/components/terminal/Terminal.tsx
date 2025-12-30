@@ -19,6 +19,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     const [showGameCreationFlow, setShowGameCreationFlow] = useState(false);
     const [isCreatingGame, setIsCreatingGame] = useState(false);
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+    const [copyError, setCopyError] = useState<number | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const previousWorldIdRef = useRef<string>(worldId);
@@ -317,17 +318,25 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                                         </div>
                                         <button
                                             onClick={() => {
+                                                if (!navigator.clipboard) {
+                                                    setCopyError(i);
+                                                    setTimeout(() => setCopyError(null), 2000);
+                                                    return;
+                                                }
                                                 navigator.clipboard.writeText(line.url)
                                                     .then(() => {
                                                         setCopiedIndex(i);
+                                                        setCopyError(null);
                                                         setTimeout(() => setCopiedIndex(null), 2000);
                                                     })
-                                                    .catch((err) => {
-                                                        console.error('Failed to copy:', err);
+                                                    .catch(() => {
+                                                        setCopyError(i);
+                                                        setCopiedIndex(null);
+                                                        setTimeout(() => setCopyError(null), 2000);
                                                     });
                                             }}
                                             style={{
-                                                background: copiedIndex === i ? '#4e9363' : '#405967',
+                                                background: copiedIndex === i ? '#4e9363' : (copyError === i ? '#c06852' : '#405967'),
                                                 color: '#fcfbf3',
                                                 border: '1px solid rgba(112, 123, 137, 0.3)',
                                                 padding: '8px 16px',
@@ -340,7 +349,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                                                 whiteSpace: 'nowrap'
                                             }}
                                         >
-                                            {copiedIndex === i ? '✓ COPIED' : 'COPY'}
+                                            {copiedIndex === i ? '✓ COPIED' : (copyError === i ? '✗ FAILED' : 'COPY')}
                                         </button>
                                     </div>
                                 );
