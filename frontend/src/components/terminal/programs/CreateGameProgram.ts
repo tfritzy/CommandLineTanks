@@ -1,8 +1,11 @@
 import { Program } from './Program';
 import { getConnection, setPendingJoinCode } from '../../../spacetimedb-connection';
 import WorldVisibility from '../../../../module_bindings/world_visibility_type';
+import { type Infer } from 'spacetimedb';
+import { type EventContext } from '../../../../module_bindings';
+import WorldRow from '../../../../module_bindings/world_type';
 
-type CreationStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration' | 'width' | 'height';
+type CreationStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration' | 'width' | 'height' | 'waiting';
 
 interface CreationState {
     name: string;
@@ -25,6 +28,7 @@ export class CreateGameProgram extends Program {
         width: 50,
         height: 50
     };
+    private worldCreationSubscription: any = null;
 
     onEnter(): void {
         this.addOutput(
@@ -35,6 +39,10 @@ export class CreateGameProgram extends Program {
     }
 
     handleInput(input: string): void {
+        if (this.step === 'waiting') {
+            return;
+        }
+
         const trimmedInput = input.trim();
 
         switch (this.step) {
@@ -168,14 +176,30 @@ export class CreateGameProgram extends Program {
             return;
         }
 
-        this.context.onGameCreationStart?.();
-
         const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
         setPendingJoinCode(joinCode);
         
         const gameDurationMicros = BigInt(this.state.duration * 60 * 1000000);
         const visibility = this.state.visibility === 'private' ? WorldVisibility.Private : WorldVisibility.CustomPublic;
         
+        this.step = 'waiting';
+
+        this.worldCreationSubscription = connection.db.world.onInsert((_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+            const gameUrl = `${window.location.origin}/world/${encodeURIComponent(world.id)}`;
+            this.addOutput(
+                "",
+                "Game created successfully!",
+                "",
+                "Share this URL with friends to invite them:",
+                gameUrl,
+                ""
+            );
+            if (this.worldCreationSubscription) {
+                this.worldCreationSubscription.unsubscribe();
+            }
+            this.exit();
+        });
+
         connection.reducers.createWorld({ 
             joinCode,
             worldName: this.state.name,
@@ -194,7 +218,11 @@ export class CreateGameProgram extends Program {
             `Bots: ${this.state.botCount}, Duration: ${this.state.duration} min, Size: ${this.state.width}x${this.state.height}`,
             ""
         );
-        
-        this.exit();
+    }
+
+    onExit(): void {
+        if (this.worldCreationSubscription) {
+            this.worldCreationSubscription.unsubscribe();
+        }
     }
 }
