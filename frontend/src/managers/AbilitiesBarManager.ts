@@ -89,19 +89,19 @@ export class AbilitiesBarManager {
 
     const abilities: Ability[] = [
       {
-        name: 'Smokescreen',
+        name: 'smokescreen',
         drawIcon: drawSmokescreenIcon,
         remainingCooldownMicros: this.remainingSmokescreenCooldownMicros,
         cooldownDuration: this.SMOKESCREEN_COOLDOWN_SECONDS,
       },
       {
-        name: 'Overdrive',
+        name: 'overdrive',
         drawIcon: drawOverdriveIcon,
         remainingCooldownMicros: this.remainingOverdriveCooldownMicros,
         cooldownDuration: this.OVERDRIVE_COOLDOWN_SECONDS,
       },
       {
-        name: 'Repair',
+        name: 'repair',
         drawIcon: drawRepairIcon,
         remainingCooldownMicros: this.remainingRepairCooldownMicros,
         cooldownDuration: this.REPAIR_COOLDOWN_SECONDS,

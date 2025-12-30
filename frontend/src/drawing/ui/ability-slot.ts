@@ -3,6 +3,8 @@ const ABILITY_SLOT_BORDER = '#4a4b5b';
 const ABILITY_COOLDOWN_FILL = 'rgba(112, 123, 137, 0.4)';
 const ABILITY_TEXT_COLOR = '#fcfbf3';
 const ABILITY_TEXT_STROKE = '#000';
+const ABILITY_NAME_COLOR = '#fceba8';
+const ABILITY_NAME_BACKGROUND = 'rgba(252, 235, 168, 0.1)';
 
 export function drawAbilitySlot(
   ctx: CanvasRenderingContext2D,
@@ -63,16 +65,37 @@ export function drawAbilitySlot(
     ctx.fillText(cooldownText, x + size / 2, y + size - 4);
   }
 
-  ctx.fillStyle = ABILITY_TEXT_COLOR;
-  ctx.font = '10px Poppins, sans-serif';
+  ctx.globalAlpha = 1;
+  ctx.font = '9px Poppins, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.globalAlpha = 0.8;
   
-  ctx.strokeStyle = ABILITY_TEXT_STROKE;
-  ctx.lineWidth = 2;
-  ctx.strokeText(abilityName, x + size / 2, y + size + 4);
-  ctx.fillText(abilityName, x + size / 2, y + size + 4);
+  const textMetrics = ctx.measureText(abilityName);
+  const textWidth = textMetrics.width;
+  const textHeight = 9;
+  const padding = 3;
+  const bgWidth = textWidth + padding * 2;
+  const bgHeight = textHeight + padding * 2;
+  const bgX = x + size / 2 - bgWidth / 2;
+  const bgY = y + size + 4;
+  const bgRadius = 2;
+  
+  ctx.fillStyle = ABILITY_NAME_BACKGROUND;
+  ctx.beginPath();
+  ctx.moveTo(bgX + bgRadius, bgY);
+  ctx.lineTo(bgX + bgWidth - bgRadius, bgY);
+  ctx.quadraticCurveTo(bgX + bgWidth, bgY, bgX + bgWidth, bgY + bgRadius);
+  ctx.lineTo(bgX + bgWidth, bgY + bgHeight - bgRadius);
+  ctx.quadraticCurveTo(bgX + bgWidth, bgY + bgHeight, bgX + bgWidth - bgRadius, bgY + bgHeight);
+  ctx.lineTo(bgX + bgRadius, bgY + bgHeight);
+  ctx.quadraticCurveTo(bgX, bgY + bgHeight, bgX, bgY + bgHeight - bgRadius);
+  ctx.lineTo(bgX, bgY + bgRadius);
+  ctx.quadraticCurveTo(bgX, bgY, bgX + bgRadius, bgY);
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.fillStyle = ABILITY_NAME_COLOR;
+  ctx.fillText(abilityName, x + size / 2, bgY + padding);
 
   ctx.restore();
 }
