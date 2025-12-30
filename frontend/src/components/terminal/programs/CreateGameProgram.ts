@@ -1,6 +1,7 @@
 import { Program } from './Program';
 import { getConnection, setPendingJoinCode } from '../../../spacetimedb-connection';
 import WorldVisibility from '../../../../module_bindings/world_visibility_type';
+import { type ProgramContext } from './Program';
 
 type CreationStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration' | 'width' | 'height' | 'waiting';
 
@@ -28,7 +29,7 @@ export class CreateGameProgram extends Program {
     private waitingForWorldCreation: boolean = false;
     private previousWorldId: string = '';
 
-    constructor(context: any) {
+    constructor(context: ProgramContext) {
         super(context);
         this.previousWorldId = context.worldId;
     }
