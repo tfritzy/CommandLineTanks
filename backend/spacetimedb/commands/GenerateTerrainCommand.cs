@@ -3,13 +3,13 @@ using static Types;
 
 public static partial class Module
 {
-    public static (BaseTerrain[], (int x, int y, TerrainDetailType type, int rotation)[], bool[], bool[]) GenerateTerrainCommand(ReducerContext ctx)
+    public static (BaseTerrain[], (int x, int y, TerrainDetailType type, int rotation)[], bool[], bool[]) GenerateTerrainCommand(ReducerContext ctx, int width, int height)
     {
-        var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
+        var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng, width, height);
         var terrainDetailArray = TerrainGenerator.ConvertToArray(
             terrainDetails,
-            TerrainGenerator.GetWorldWidth(),
-            TerrainGenerator.GetWorldHeight()
+            width,
+            height
         );
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
         var projectileCollisionMap = TerrainGenerator.CalculateProjectileCollisionMap(baseTerrain, terrainDetailArray);
