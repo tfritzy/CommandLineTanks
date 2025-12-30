@@ -11,7 +11,8 @@ export function drawAbilitySlot(
   size: number,
   drawIcon: (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, isReady: boolean) => void,
   progress: number,
-  cooldownRemaining: number
+  cooldownRemaining: number,
+  abilityName: string
 ) {
   ctx.save();
 
@@ -61,6 +62,17 @@ export function drawAbilitySlot(
     ctx.strokeText(cooldownText, x + size / 2, y + size - 4);
     ctx.fillText(cooldownText, x + size / 2, y + size - 4);
   }
+
+  ctx.fillStyle = ABILITY_TEXT_COLOR;
+  ctx.font = '10px Poppins, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.globalAlpha = 0.8;
+  
+  ctx.strokeStyle = ABILITY_TEXT_STROKE;
+  ctx.lineWidth = 2;
+  ctx.strokeText(abilityName, x + size / 2, y + size + 4);
+  ctx.fillText(abilityName, x + size / 2, y + size + 4);
 
   ctx.restore();
 }
