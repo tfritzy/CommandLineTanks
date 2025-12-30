@@ -11,6 +11,8 @@ interface TerminalComponentProps {
 
 type OutputItem = string | { type: 'url', url: string };
 
+const COPY_FEEDBACK_DURATION_MS = 2000;
+
 function TerminalComponent({ worldId }: TerminalComponentProps) {
     const [output, setOutput] = useState<OutputItem[]>([]);
     const [input, setInput] = useState('');
@@ -23,6 +25,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const previousWorldIdRef = useRef<string>(worldId);
+    const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         inputRef.current?.focus();
@@ -33,6 +36,14 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             containerRef.current.scrollTop = containerRef.current.scrollHeight;
         }
     }, [output]);
+
+    useEffect(() => {
+        return () => {
+            if (copyTimeoutRef.current) {
+                clearTimeout(copyTimeoutRef.current);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (isCreatingGame && worldId !== previousWorldIdRef.current) {
@@ -318,21 +329,24 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                                         </div>
                                         <button
                                             onClick={() => {
+                                                if (copyTimeoutRef.current) {
+                                                    clearTimeout(copyTimeoutRef.current);
+                                                }
                                                 if (!navigator.clipboard) {
                                                     setCopyError(i);
-                                                    setTimeout(() => setCopyError(null), 2000);
+                                                    copyTimeoutRef.current = setTimeout(() => setCopyError(null), COPY_FEEDBACK_DURATION_MS);
                                                     return;
                                                 }
                                                 navigator.clipboard.writeText(line.url)
                                                     .then(() => {
                                                         setCopiedIndex(i);
                                                         setCopyError(null);
-                                                        setTimeout(() => setCopiedIndex(null), 2000);
+                                                        copyTimeoutRef.current = setTimeout(() => setCopiedIndex(null), COPY_FEEDBACK_DURATION_MS);
                                                     })
                                                     .catch(() => {
                                                         setCopyError(i);
                                                         setCopiedIndex(null);
-                                                        setTimeout(() => setCopyError(null), 2000);
+                                                        copyTimeoutRef.current = setTimeout(() => setCopyError(null), COPY_FEEDBACK_DURATION_MS);
                                                     });
                                             }}
                                             style={{
