@@ -91,6 +91,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
+      "  name                 View or change your player name",
       "  create               Create a new game world",
       "  join                 Join or create a game world",
       "  clear, c             Clear the terminal output",
@@ -286,6 +287,25 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  respawn"
+      ];
+
+    case "name":
+      return [
+        "name - View or change your player name",
+        "",
+        "Usage: name",
+        "       name set <new_name>",
+        "",
+        "Arguments:",
+        "  <new_name>  Your new player name (max 15 characters)",
+        "",
+        "With no arguments, displays your current name.",
+        "With 'set', changes your player name across all tanks and worlds.",
+        "",
+        "Examples:",
+        "  name",
+        "  name set Tank47",
+        "  name set Viper"
       ];
 
     case "create":
@@ -939,6 +959,76 @@ export function join(connection: DbConnection, args: string[]): string[] {
 
   return [
     `Joining world ${worldId}...`,
+  ];
+}
+
+export function changeName(connection: DbConnection, args: string[]): string[] {
+  if (!connection.identity) {
+    return ["name: error: no connection"];
+  }
+
+  const player = Array.from(connection.db.player.iter())
+    .find(p => p.identity.isEqual(connection.identity!));
+
+  if (!player) {
+    return ["name: error: player not found"];
+  }
+
+  if (args.length === 0) {
+    return [
+      `Your current name: ${player.name}`,
+      "",
+      "To change your name, use: name set <new_name>"
+    ];
+  }
+
+  if (args[0].toLowerCase() !== 'set') {
+    return [
+      "name: error: invalid subcommand",
+      "",
+      "Usage: name",
+      "       name set <new_name>",
+      "",
+      "Use 'name' to view your current name",
+      "Use 'name set <new_name>' to change your name"
+    ];
+  }
+
+  if (args.length < 2) {
+    return [
+      "name: error: missing required argument '<new_name>'",
+      "",
+      "Usage: name set <new_name>",
+      "       name set Tank47"
+    ];
+  }
+
+  const newName = args.slice(1).join(' ').trim();
+
+  if (newName.length === 0) {
+    return [
+      "name: error: name cannot be empty or whitespace",
+      "",
+      "Usage: name set <new_name>",
+      "       name set Tank47"
+    ];
+  }
+
+  if (newName.length > 15) {
+    return [
+      "name: error: name cannot exceed 15 characters",
+      "",
+      `Your name has ${newName.length} characters`,
+      "",
+      "Usage: name set <new_name>",
+      "       name set Tank47"
+    ];
+  }
+
+  connection.reducers.changeName({ newName });
+
+  return [
+    `Name changed to: ${newName}`,
   ];
 }
 

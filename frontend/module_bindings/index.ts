@@ -33,6 +33,8 @@ import {
 // Import and reexport all reducer arg types
 import Aim from "./aim_reducer";
 export { Aim };
+import ChangeName from "./change_name_reducer";
+export { ChangeName };
 import CheckAndRespawnEnemyTanks from "./check_and_respawn_enemy_tanks_reducer";
 export { CheckAndRespawnEnemyTanks };
 import CleanupResultsGames from "./cleanup_results_games_reducer";
@@ -594,6 +596,7 @@ const tablesSchema = __schema(
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
+  __reducerSchema("changeName", ChangeName),
   __reducerSchema("CheckAndRespawnEnemyTanks", CheckAndRespawnEnemyTanks),
   __reducerSchema("CleanupResultsGames", CleanupResultsGames),
   __reducerSchema("CleanupSmokeCloud", CleanupSmokeCloud),

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getConnection, setPendingJoinCode } from '../../spacetimedb-connection';
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create } from './commands';
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create, changeName } from './commands';
 import GameCreationFlow from '../GameCreationFlow';
 import WorldVisibility from '../../module_bindings/world_visibility_type';
 import { type Infer } from "spacetimedb";
@@ -154,6 +154,11 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                     case 'respawn': {
                         const respawnOutput = respawn(connection, worldId, args);
                         newOutput.push(...respawnOutput);
+                        break;
+                    }
+                    case 'name': {
+                        const nameOutput = changeName(connection, args);
+                        newOutput.push(...nameOutput);
                         break;
                     }
                     case 'create': {
