@@ -9,14 +9,19 @@ interface TerminalComponentProps {
     worldId: string;
 }
 
+type OutputItem = string | { type: 'url', url: string };
+
 function TerminalComponent({ worldId }: TerminalComponentProps) {
-    const [output, setOutput] = useState<string[]>([]);
+    const [output, setOutput] = useState<OutputItem[]>([]);
     const [input, setInput] = useState('');
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [showGameCreationFlow, setShowGameCreationFlow] = useState(false);
+    const [isCreatingGame, setIsCreatingGame] = useState(false);
+    const [copied, setCopied] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const previousWorldIdRef = useRef<string>(worldId);
 
     useEffect(() => {
         inputRef.current?.focus();
@@ -27,6 +32,22 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             containerRef.current.scrollTop = containerRef.current.scrollHeight;
         }
     }, [output]);
+
+    useEffect(() => {
+        if (isCreatingGame && worldId !== previousWorldIdRef.current) {
+            const gameUrl = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
+            setOutput(prev => [
+                ...prev,
+                "Game created successfully!",
+                "",
+                "Share this URL with friends to invite them:",
+                { type: 'url', url: gameUrl },
+                ""
+            ]);
+            setIsCreatingGame(false);
+        }
+        previousWorldIdRef.current = worldId;
+    }, [worldId, isCreatingGame]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'ArrowUp') {
@@ -218,6 +239,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             gameDurationMicros
         });
 
+        setIsCreatingGame(true);
+
         const visibilityLabel = visibility.tag === 'Private' ? 'private' : 'public';
         const newOutput = [
             ...output,
@@ -270,9 +293,57 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                     }}
                 >
                     <div>
-                        {output.map((line, i) => (
-                            <div key={i} style={{ minHeight: '1.5em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
-                        ))}
+                        {output.map((line, i) => {
+                            if (typeof line === 'string') {
+                                return (
+                                    <div key={i} style={{ minHeight: '1.5em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
+                                );
+                            } else if (line.type === 'url') {
+                                return (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', marginTop: '4px' }}>
+                                        <div style={{
+                                            background: '#4f2d4d',
+                                            padding: '8px 12px',
+                                            fontFamily: "'JetBrains Mono', monospace",
+                                            userSelect: 'all',
+                                            cursor: 'text',
+                                            wordBreak: 'break-all',
+                                            border: '1px solid #5a78b2',
+                                            flex: 1,
+                                            color: '#7396d5'
+                                        }}>
+                                            {line.url}
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(line.url)
+                                                    .then(() => {
+                                                        setCopied(true);
+                                                        setTimeout(() => setCopied(false), 2000);
+                                                    })
+                                                    .catch((err) => {
+                                                        console.error('Failed to copy:', err);
+                                                    });
+                                            }}
+                                            style={{
+                                                background: copied ? '#96dc7f' : '#5a78b2',
+                                                color: copied ? '#2a152d' : '#e6eeed',
+                                                border: 'none',
+                                                padding: '8px 16px',
+                                                fontFamily: "'JetBrains Mono', monospace",
+                                                fontSize: '12px',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            {copied ? '✓ Copied!' : 'Copy'}
+                                        </button>
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })}
                     </div>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
                         <span style={{ marginRight: '8px', color: '#96dc7f', fontWeight: 'bold' }}>❯</span>
