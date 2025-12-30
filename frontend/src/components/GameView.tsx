@@ -18,8 +18,6 @@ export default function GameView() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const [isDead, setIsDead] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
 
@@ -166,18 +164,17 @@ export default function GameView() {
         {!showJoinModal && isDead && (
           <div style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'radial-gradient(ellipse at center, rgba(192, 104, 82, 0.15) 0%, rgba(46, 46, 67, 0.85) 60%)',
-            backdropFilter: 'blur(2px)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'rgba(46, 46, 67, 0.95)',
+            backdropFilter: 'blur(4px)',
+            borderRadius: '8px',
+            border: '2px solid rgba(112, 123, 137, 0.3)',
+            padding: '40px 60px',
             fontFamily: "'JetBrains Mono', monospace",
             zIndex: 1000,
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
             animation: 'fadeIn 0.15s ease-out 1s both'
           }}>
             <style>{`
@@ -192,24 +189,26 @@ export default function GameView() {
             `}</style>
             
             <div style={{
-              fontSize: '120px',
+              fontSize: '48px',
               fontWeight: 900,
               color: '#c06852',
               letterSpacing: '0.15em',
               textTransform: 'uppercase',
-              marginBottom: '40px',
-              textShadow: '0 4px 20px rgba(192, 104, 82, 0.5), 0 0 60px rgba(192, 104, 82, 0.3)',
-              lineHeight: 1
+              marginBottom: '24px',
+              textShadow: '0 2px 12px rgba(192, 104, 82, 0.5)',
+              lineHeight: 1,
+              textAlign: 'center'
             }}>
               ELIMINATED
             </div>
 
             <div style={{
-              fontSize: '20px',
+              fontSize: '16px',
               color: '#e6eeed',
-              marginBottom: '8px',
+              marginBottom: '0px',
               letterSpacing: '0.05em',
-              fontWeight: 300
+              fontWeight: 300,
+              textAlign: 'center'
             }}>
               Type <span style={{ 
                 color: '#fceba8', 
@@ -218,78 +217,6 @@ export default function GameView() {
                 background: 'rgba(252, 235, 168, 0.1)',
                 borderRadius: '2px'
               }}>respawn</span> to rejoin the battle
-            </div>
-
-            <div style={{
-              position: 'absolute',
-              bottom: '60px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '90%',
-              maxWidth: '600px',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                fontSize: '12px',
-                color: '#707b89',
-                marginBottom: '12px',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase'
-              }}>
-                Share World
-              </div>
-              <div style={{
-                display: 'flex',
-                gap: '8px',
-                alignItems: 'stretch'
-              }}>
-                <div style={{
-                  flex: 1,
-                  fontSize: '13px',
-                  color: '#a9bcbf',
-                  background: 'rgba(74, 75, 91, 0.5)',
-                  padding: '10px 14px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  userSelect: 'all',
-                  cursor: 'text',
-                  wordBreak: 'break-all',
-                  border: '1px solid rgba(112, 123, 137, 0.3)',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}>
-                  {window.location.origin}/world/{encodeURIComponent(worldId)}
-                </div>
-                <button
-                  onClick={() => {
-                    const url = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
-                    navigator.clipboard.writeText(url)
-                      .then(() => {
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                      })
-                      .catch(() => {
-                        setCopied(false);
-                      });
-                  }}
-                  onMouseEnter={() => setIsHovering(true)}
-                  onMouseLeave={() => setIsHovering(false)}
-                  style={{
-                    padding: '10px 18px',
-                    fontSize: '13px',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontWeight: 500,
-                    color: '#fcfbf3',
-                    background: copied ? '#4e9363' : (isHovering ? '#5c8995' : '#405967'),
-                    border: '1px solid rgba(112, 123, 137, 0.3)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  {copied ? '✓ COPIED' : 'COPY'}
-                </button>
-              </div>
             </div>
           </div>
         )}

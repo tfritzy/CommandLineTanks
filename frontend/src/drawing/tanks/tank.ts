@@ -130,14 +130,21 @@ export function drawTankNameLabel(
   ctx.save();
   ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
   
-  ctx.font = "bold 16px monospace";
-  ctx.fillStyle = "#fceba8";
-  ctx.textAlign = "center";
-  ctx.fillText(targetCode, 0, -38);
-  
-  ctx.font = "12px monospace";
-  ctx.fillStyle = "#a9bcbf";
-  ctx.fillText(name, 0, -24);
+  if (targetCode) {
+    ctx.font = "bold 16px monospace";
+    ctx.fillStyle = "#fceba8";
+    ctx.textAlign = "center";
+    ctx.fillText(targetCode, 0, -38);
+    
+    ctx.font = "12px monospace";
+    ctx.fillStyle = "#a9bcbf";
+    ctx.fillText(name, 0, -24);
+  } else {
+    ctx.font = "12px monospace";
+    ctx.fillStyle = "#a9bcbf";
+    ctx.textAlign = "center";
+    ctx.fillText(name, 0, -31);
+  }
   
   ctx.restore();
 }

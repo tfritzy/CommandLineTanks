@@ -39,7 +39,7 @@ export class ScoreManager {
       name: tank.name,
       kills: tank.kills,
       deaths: tank.deaths,
-      score: tank.kills - tank.deaths,
+      score: Math.max(0, tank.kills - tank.deaths),
       alliance: tank.alliance
     };
   }
