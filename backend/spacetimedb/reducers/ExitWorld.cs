@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using static Types;
 
 public static partial class Module
 {
@@ -70,7 +71,8 @@ public static partial class Module
             "",
             0,
             HOMEWORLD_WIDTH / 2 + .5f,
-            HOMEWORLD_HEIGHT / 2 + .5f);
+            HOMEWORLD_HEIGHT / 2 + .5f,
+            AIBehavior.None);
         
         AddTankToWorld(ctx, newTank);
 
