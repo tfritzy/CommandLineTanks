@@ -110,6 +110,7 @@ public static partial class TankUpdater
         [SpacetimeDB.Index.BTree]
         public string WorldId;
         public ulong LastTickAt;
+        public ulong TickCount;
     }
 
     [Reducer]
@@ -119,9 +120,12 @@ public static partial class TankUpdater
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
 
+        var newTickCount = args.TickCount + 1;
+
         ctx.Db.ScheduledTankUpdates.ScheduledId.Update(args with
         {
-            LastTickAt = currentTime
+            LastTickAt = currentTime,
+            TickCount = newTickCount
         });
 
         var updateContext = new TankUpdateContext(ctx, args.WorldId);
@@ -184,7 +188,7 @@ public static partial class TankUpdater
                 needsUpdate = true;
             }
 
-            if (tank.IsRepairing)
+            if (tank.IsRepairing && newTickCount % Module.REPAIR_TICK_INTERVAL == 0)
             {
                 var newHealth = Math.Min(tank.MaxHealth, tank.Health + Module.REPAIR_HEALTH_PER_TICK);
 

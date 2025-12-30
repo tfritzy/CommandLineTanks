@@ -26,6 +26,7 @@ public static partial class Module
     public const long SPAWN_IMMUNITY_DURATION_MICROS = 3_000_000;
     public const long REPAIR_COOLDOWN_MICROS = 60_000_000;
     public const int REPAIR_HEALTH_PER_TICK = 1;
+    public const int REPAIR_TICK_INTERVAL = 2;
 
     public const long BOT_RESPAWN_DELAY_MICROS = 5_000_000;
 
