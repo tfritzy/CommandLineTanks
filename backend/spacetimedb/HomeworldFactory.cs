@@ -7,7 +7,7 @@ public static partial class Module
     private const int HOMEWORLD_WIDTH = 30;
     private const int HOMEWORLD_HEIGHT = 20;
 
-    private static void CreateHomeworld(ReducerContext ctx, string identityString)
+    private static string CreateHomeworld(ReducerContext ctx, string worldId)
     {
         int worldWidth = HOMEWORLD_WIDTH;
         int worldHeight = HOMEWORLD_HEIGHT;
@@ -26,7 +26,7 @@ public static partial class Module
 
         var world = new World
         {
-            Id = identityString,
+            Id = worldId,
             Name = $"Homeworld",
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             Width = worldWidth,
@@ -40,7 +40,7 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            WorldId = identityString,
+            WorldId = worldId,
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             TickCount = 0
         });
@@ -49,7 +49,7 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            WorldId = identityString,
+            WorldId = worldId,
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
@@ -57,7 +57,7 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
-            WorldId = identityString,
+            WorldId = worldId,
             TickCount = 0
         });
 
@@ -65,7 +65,7 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 8_000_000 }),
-            WorldId = identityString
+            WorldId = worldId
         });
 
         ctx.Db.world.Insert(world);
@@ -84,7 +84,7 @@ public static partial class Module
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
                 {
                     Id = GenerateId(ctx, "td"),
-                    WorldId = identityString,
+                    WorldId = worldId,
                     PositionX = rx + 0.5f,
                     PositionY = ry + 0.5f,
                     GridX = rx,
@@ -108,7 +108,7 @@ public static partial class Module
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
                 {
                     Id = GenerateId(ctx, "td"),
-                    WorldId = identityString,
+                    WorldId = worldId,
                     PositionX = tx + 0.5f,
                     PositionY = ty + 0.5f,
                     GridX = tx,
@@ -122,7 +122,7 @@ public static partial class Module
 
         ctx.Db.score.Insert(new Score
         {
-            WorldId = identityString,
+            WorldId = worldId,
             Kills = new int[] { 0, 0 }
         });
 
@@ -130,7 +130,7 @@ public static partial class Module
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
             Id = welcomeSignId,
-            WorldId = identityString,
+            WorldId = worldId,
             PositionX = worldWidth / 2.0f + 0.5f,
             PositionY = 5.5f,
             GridX = worldWidth / 2,
@@ -145,7 +145,7 @@ public static partial class Module
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
             Id = instructionSignId,
-            WorldId = identityString,
+            WorldId = worldId,
             PositionX = worldWidth / 2.0f + 0.5f,
             PositionY = 6.5f,
             GridX = worldWidth / 2,
@@ -156,13 +156,13 @@ public static partial class Module
             Rotation = 0
         });
 
-        SpawnTurretBot(ctx, identityString, 5, worldHeight / 2, 0);
-        SpawnRandomAimBot(ctx, identityString, worldWidth - 5, worldHeight / 2, 0);
+        SpawnTurretBot(ctx, worldId, 5, worldHeight / 2, 0);
+        SpawnRandomAimBot(ctx, worldId, worldWidth - 5, worldHeight / 2, 0);
 
-        SpawnTileboundBot(ctx, identityString, 3, worldHeight / 2 - 2, 1);
-        SpawnTileboundBot(ctx, identityString, 3, worldHeight / 2 + 2, 1);
-        SpawnTileboundBot(ctx, identityString, worldWidth - 3, worldHeight / 2 - 2, 1);
-        SpawnTileboundBot(ctx, identityString, worldWidth - 3, worldHeight / 2 + 2, 1);
+        SpawnTileboundBot(ctx, worldId, 3, worldHeight / 2 - 2, 1);
+        SpawnTileboundBot(ctx, worldId, 3, worldHeight / 2 + 2, 1);
+        SpawnTileboundBot(ctx, worldId, worldWidth - 3, worldHeight / 2 - 2, 1);
+        SpawnTileboundBot(ctx, worldId, worldWidth - 3, worldHeight / 2 + 2, 1);
 
         var pickups = new[]
         {
@@ -184,7 +184,7 @@ public static partial class Module
             ctx.Db.pickup.Insert(new Pickup
             {
                 Id = GenerateId(ctx, "p"),
-                WorldId = identityString,
+                WorldId = worldId,
                 PositionX = px + 0.5f,
                 PositionY = py + 0.5f,
                 GridX = px,
@@ -195,14 +195,15 @@ public static partial class Module
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
-            WorldId = identityString,
+            WorldId = worldId,
             Map = traversibilityMap,
             ProjectileCollisionMap = projectileCollisionMap,
             Width = worldWidth,
             Height = worldHeight
         });
 
-        Log.Info($"Created homeworld for identity {identityString}");
+        Log.Info($"Created homeworld with id {worldId}");
+        return worldId;
     }
 
     private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance)

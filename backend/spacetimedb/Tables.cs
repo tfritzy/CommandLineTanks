@@ -14,6 +14,7 @@ public static partial class Module
 
         public string Name;
         public ulong CreatedAt;
+        public string? HomeworldId;
     }
 
     [Table(Name = "world", Public = true)]
