@@ -1,6 +1,8 @@
 import { type DbConnection } from "../../../module_bindings";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 
+const MAX_PLAYERS_PER_WORLD = 8;
+
 function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
     return false;
@@ -1001,7 +1003,7 @@ export function lobbies(connection: DbConnection, args: string[]): string[] {
     const timeText = remainingMinutes === 1 ? "1 min left" : `${remainingMinutes} mins left`;
     
     result.push(`  ${world.name}`);
-    result.push(`    Code: ${world.id} | Players: ${playerCount}/8 | Bots: ${botCount} | Duration: ${durationText} (${timeText})`);
+    result.push(`    Code: ${world.id} | Players: ${playerCount}/${MAX_PLAYERS_PER_WORLD} | Bots: ${botCount} | Duration: ${durationText} (${timeText})`);
     result.push("");
   }
 
