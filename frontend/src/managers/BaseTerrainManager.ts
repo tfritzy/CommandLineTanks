@@ -133,8 +133,7 @@ export class BaseTerrainManager {
     startTileY: number,
     endTileY: number
   ) {
-    ctx.strokeStyle = TERRAIN_COLORS.GRID;
-    ctx.lineWidth = 1;
+    ctx.fillStyle = TERRAIN_COLORS.CHECKER;
     ctx.beginPath();
 
     for (let tileY = startTileY; tileY <= endTileY; tileY++) {
@@ -148,12 +147,14 @@ export class BaseTerrainManager {
           continue;
         }
 
-        const worldX = tileX * UNIT_TO_PIXEL;
-        const worldY = tileY * UNIT_TO_PIXEL;
-        ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
+        if ((tileX + tileY) % 2 === 0) {
+          const worldX = tileX * UNIT_TO_PIXEL;
+          const worldY = tileY * UNIT_TO_PIXEL;
+          ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
+        }
       }
     }
-    ctx.stroke();
+    ctx.fill();
   }
 
   public getWorldWidth(): number {
