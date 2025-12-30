@@ -23,7 +23,9 @@ public static partial class Module
             {
                 Log.Info("No public worlds available, creating new world");
                 var newWorldId = GenerateWorldId(ctx);
-                var (baseTerrain, terrainDetails, traversibilityMap, projectileCollisionMap) = GenerateTerrainCommand(ctx);
+                var width = TerrainGenerator.GetWorldWidth();
+                var height = TerrainGenerator.GetWorldHeight();
+                var (baseTerrain, terrainDetails, traversibilityMap, projectileCollisionMap) = GenerateTerrainCommand(ctx, width, height);
 
                 world = CreateWorld(
                     ctx,
@@ -33,6 +35,8 @@ public static partial class Module
                     terrainDetails,
                     traversibilityMap,
                     projectileCollisionMap,
+                    width,
+                    height,
                     WorldVisibility.Public,
                     ""
                 );

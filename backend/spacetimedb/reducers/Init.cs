@@ -8,16 +8,18 @@ public static partial class Module
     {
         var worldId = GenerateId(ctx, "wld");
 
-        var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng);
+        var width = TerrainGenerator.GetWorldWidth();
+        var height = TerrainGenerator.GetWorldHeight();
+        var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng, width, height);
         var terrainDetailArray = TerrainGenerator.ConvertToArray(
             terrainDetails,
-            TerrainGenerator.GetWorldWidth(),
-            TerrainGenerator.GetWorldHeight()
+            width,
+            height
         );
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
         var projectileCollisionMap = TerrainGenerator.CalculateProjectileCollisionMap(baseTerrain, terrainDetailArray);
 
-        var world = CreateWorld(ctx, worldId, "Default World", baseTerrain, terrainDetails.ToArray(), traversibilityMap, projectileCollisionMap);
+        var world = CreateWorld(ctx, worldId, "Default World", baseTerrain, terrainDetails.ToArray(), traversibilityMap, projectileCollisionMap, width, height);
 
         SpawnInitialBots(ctx, worldId, world);
 

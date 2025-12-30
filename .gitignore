@@ -27,3 +27,5 @@ dist-ssr
 spacetime.tar.gz
 spacetimedb-cli
 spacetimedb-standalone
+frontend/node_modules/
+frontend/package-lock.json
