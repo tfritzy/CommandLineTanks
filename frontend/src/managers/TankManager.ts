@@ -120,6 +120,10 @@ export class TankManager {
           }
         }
 
+        if (oldTank.health <= 0 && newTank.health > 0) {
+          tank.clearPositionBuffer();
+        }
+
         if (oldTank.message !== newTank.message && newTank.message) {
           const pos = tank.getPosition();
           this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, newTank.message);

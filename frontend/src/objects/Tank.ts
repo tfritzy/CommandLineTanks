@@ -164,6 +164,10 @@ export class Tank {
     this.positionBuffer.length = writeIndex;
   }
 
+  public clearPositionBuffer() {
+    this.positionBuffer.length = 0;
+  }
+
   public setTurretRotation(rotation: number) {
     this.turretRotation = rotation;
   }
