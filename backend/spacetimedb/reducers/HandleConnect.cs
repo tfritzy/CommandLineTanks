@@ -34,8 +34,12 @@ public static partial class Module
         var homeworldId = existingPlayer.Value.HomeworldId;
         if (homeworldId == null)
         {
-            Log.Error("Player has no homeworld ID");
-            return;
+            Log.Info("Player has no homeworld ID, creating one for migration");
+            homeworldId = GenerateWorldId(ctx);
+            var updatedPlayer = existingPlayer.Value;
+            updatedPlayer.HomeworldId = homeworldId;
+            ctx.Db.player.Id.Update(updatedPlayer);
+            CreateHomeworld(ctx, homeworldId);
         }
 
         var existingTank = ctx.Db.tank.WorldId.Filter(homeworldId)

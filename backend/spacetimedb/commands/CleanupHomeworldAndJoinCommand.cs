@@ -15,24 +15,25 @@ public static partial class Module
         var homeworldId = player.Value.HomeworldId;
         if (homeworldId == null)
         {
-            Log.Error("Player has no homeworld ID in CleanupHomeworldAndJoinCommand");
-            return;
+            Log.Info("Player has no homeworld ID during cleanup, skipping homeworld cleanup");
         }
-
-        var homeworldTanks = ctx.Db.tank.WorldId.Filter(homeworldId).Where(t => t.Owner == ctx.Sender);
-        foreach (var homeworldTank in homeworldTanks)
+        else
         {
-            var fireState = ctx.Db.tank_fire_state.TankId.Find(homeworldTank.Id);
-            if (fireState != null)
+            var homeworldTanks = ctx.Db.tank.WorldId.Filter(homeworldId).Where(t => t.Owner == ctx.Sender);
+            foreach (var homeworldTank in homeworldTanks)
             {
-                ctx.Db.tank_fire_state.TankId.Delete(homeworldTank.Id);
+                var fireState = ctx.Db.tank_fire_state.TankId.Find(homeworldTank.Id);
+                if (fireState != null)
+                {
+                    ctx.Db.tank_fire_state.TankId.Delete(homeworldTank.Id);
+                }
+                ctx.Db.tank.Id.Delete(homeworldTank.Id);
             }
-            ctx.Db.tank.Id.Delete(homeworldTank.Id);
-        }
 
-        if (!HasAnyTanksInWorld(ctx, homeworldId))
-        {
-            StopWorldTickers(ctx, homeworldId);
+            if (!HasAnyTanksInWorld(ctx, homeworldId))
+            {
+                StopWorldTickers(ctx, homeworldId);
+            }
         }
 
         var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, joinCode);
