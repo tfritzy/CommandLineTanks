@@ -94,6 +94,7 @@ export class TerrainManager {
     if (this.detailManager) {
       this.detailManager.destroy();
     }
+    this.pendingDetailDeletedCallbacks = [];
   }
 
   public update(deltaTime: number) {
