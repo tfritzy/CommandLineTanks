@@ -5,7 +5,6 @@ import Tank from '../../module_bindings/tank_type';
 import { ServerTimeSync } from '../utils/ServerTimeSync';
 
 const WORLD_RESET_DELAY_MICROS = 30_000_000;
-const COUNTDOWN_MICROS = 10_000_000;
 
 type TankType = Infer<typeof Tank>;
 
@@ -14,40 +13,15 @@ interface ResultsScreenProps {
 }
 
 export default function ResultsScreen({ worldId }: ResultsScreenProps) {
-    const [countdownRemaining, setCountdownRemaining] = useState(COUNTDOWN_MICROS);
     const [tanks, setTanks] = useState<TankType[]>([]);
     const [team0Kills, setTeam0Kills] = useState(0);
     const [team1Kills, setTeam1Kills] = useState(0);
     const [showResults, setShowResults] = useState(false);
-    const [showModal, setShowModal] = useState(false);
     const [gameEndTime, setGameEndTime] = useState<bigint | null>(null);
-    const [countdownEndTime, setCountdownEndTime] = useState<number | null>(null);
-
-    const calculateCountdownEndTime = (gameEndTimeMicros: bigint): number => {
-        const serverTimeSync = ServerTimeSync.getInstance();
-        const serverTimeMs = serverTimeSync.getServerTime();
-        const clientTimeMs = Date.now();
-        const gameEndTimeMs = Number(gameEndTimeMicros / 1000n);
-        const countdownDurationMs = COUNTDOWN_MICROS / 1000;
-        return clientTimeMs + (gameEndTimeMs - serverTimeMs) + countdownDurationMs;
-    };
 
     useEffect(() => {
         const connection = getConnection();
         if (!connection) return;
-        
-        const interval = setInterval(() => {
-            if (countdownEndTime !== null) {
-                const now = Date.now();
-                const timeUntilModal = countdownEndTime - now;
-                
-                setCountdownRemaining(Math.max(0, timeUntilModal * 1000));
-                
-                if (timeUntilModal <= 0 && !showModal) {
-                    setShowModal(true);
-                }
-            }
-        }, 100);
 
         const subscriptionHandle = connection
             .subscriptionBuilder()
@@ -78,13 +52,9 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 setShowResults(true);
                 const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
-                setCountdownEndTime(calculateCountdownEndTime(endTime));
-                setShowModal(false);
             } else {
                 setShowResults(false);
-                setShowModal(false);
                 setGameEndTime(null);
-                setCountdownEndTime(null);
             }
         };
 
@@ -122,15 +92,11 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                     setShowResults(true);
                     const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros);
                     setGameEndTime(endTime);
-                    setCountdownEndTime(calculateCountdownEndTime(endTime));
-                    setShowModal(false);
                     updateTanks();
                     updateScores();
                 } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
                     setShowResults(false);
-                    setShowModal(false);
                     setGameEndTime(null);
-                    setCountdownEndTime(null);
                 }
             }
         });
@@ -140,18 +106,15 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 setShowResults(true);
                 const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
-                setCountdownEndTime(calculateCountdownEndTime(endTime));
-                setShowModal(false);
                 updateTanks();
                 updateScores();
             }
         });
 
         return () => {
-            clearInterval(interval);
             subscriptionHandle.unsubscribe();
         };
-    }, [worldId, countdownEndTime]);
+    }, [worldId]);
 
     if (!showResults) {
         return null;
@@ -163,29 +126,6 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const winningTeam = team0Kills > team1Kills ? 0 : 1;
     const winnerText = winningTeam === 0 ? 'Red Victory' : 'Blue Victory';
     const winnerColor = winningTeam === 0 ? '#c06852' : '#5a78b2';
-
-    if (!showModal) {
-        const secondsRemaining = Math.ceil(countdownRemaining / 1_000_000);
-        return (
-            <div style={{
-                position: 'absolute',
-                top: '80px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: 2000,
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: '32px',
-                fontWeight: 500,
-                color: '#fcfbf3',
-                textAlign: 'center',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)'
-            }}>
-                Game ending in {secondsRemaining}
-            </div>
-        );
-    }
 
     const timeUntilReset = gameEndTime !== null 
         ? Math.ceil(Number(gameEndTime + BigInt(WORLD_RESET_DELAY_MICROS) - BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000))) / 1_000_000)
