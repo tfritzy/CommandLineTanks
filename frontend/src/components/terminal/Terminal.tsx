@@ -30,7 +30,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     }, [output]);
 
     useEffect(() => {
-        if (isCreatingGame && worldId !== previousWorldIdRef.current) {
+        if (isCreatingGame && worldId && worldId !== previousWorldIdRef.current) {
             const gameUrl = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
             setOutput(prev => [
                 ...prev,
