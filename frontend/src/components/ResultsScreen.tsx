@@ -5,7 +5,6 @@ import Tank from '../../module_bindings/tank_type';
 import { ServerTimeSync } from '../utils/ServerTimeSync';
 
 const WORLD_RESET_DELAY_MICROS = 30_000_000;
-const COUNTDOWN_MICROS = 10_000_000;
 
 type TankType = Infer<typeof Tank>;
 
@@ -51,7 +50,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             const world = connection.db.world.Id.find(worldId);
             if (world && world.gameState.tag === 'Results') {
                 setShowResults(true);
-                const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros) + BigInt(COUNTDOWN_MICROS);
+                const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
             } else {
                 setShowResults(false);
@@ -91,7 +90,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             if (newWorld.id === worldId) {
                 if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
                     setShowResults(true);
-                    const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros) + BigInt(COUNTDOWN_MICROS);
+                    const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros);
                     setGameEndTime(endTime);
                     updateTanks();
                     updateScores();
@@ -105,7 +104,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
         connection.db.world.onInsert((_ctx, world) => {
             if (world.id === worldId && world.gameState.tag === 'Results') {
                 setShowResults(true);
-                const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros) + BigInt(COUNTDOWN_MICROS);
+                const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
                 setGameEndTime(endTime);
                 updateTanks();
                 updateScores();
