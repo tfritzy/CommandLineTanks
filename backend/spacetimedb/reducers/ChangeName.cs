@@ -18,9 +18,9 @@ public static partial class Module
             return;
         }
 
-        if (newName.Length > 50)
+        if (newName.Length > 15)
         {
-            Log.Error("Invalid name: name cannot exceed 50 characters");
+            Log.Error("Invalid name: name cannot exceed 15 characters");
             return;
         }
 

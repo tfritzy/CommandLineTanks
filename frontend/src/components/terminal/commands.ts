@@ -91,7 +91,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
-      "  name                 Change your player name",
+      "  name                 View or change your player name",
       "  create               Create a new game world",
       "  join                 Join or create a game world",
       "  clear, c             Clear the terminal output",
@@ -291,18 +291,21 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 
     case "name":
       return [
-        "name - Change your player name",
+        "name - View or change your player name",
         "",
-        "Usage: name <new_name>",
+        "Usage: name",
+        "       name set <new_name>",
         "",
         "Arguments:",
-        "  <new_name>  Your new player name (max 50 characters)",
+        "  <new_name>  Your new player name (max 15 characters)",
         "",
-        "Changes your player name across all tanks and worlds.",
+        "With no arguments, displays your current name.",
+        "With 'set', changes your player name across all tanks and worlds.",
         "",
         "Examples:",
-        "  name Commander",
-        "  name TankMaster3000"
+        "  name",
+        "  name set Commander",
+        "  name set TankMaster"
       ];
 
     case "create":
@@ -960,34 +963,65 @@ export function join(connection: DbConnection, args: string[]): string[] {
 }
 
 export function changeName(connection: DbConnection, args: string[]): string[] {
-  if (args.length < 1) {
+  if (!connection.identity) {
+    return ["name: error: no connection"];
+  }
+
+  const player = Array.from(connection.db.player.iter())
+    .find(p => p.identity.isEqual(connection.identity!));
+
+  if (!player) {
+    return ["name: error: player not found"];
+  }
+
+  if (args.length === 0) {
     return [
-      "name: error: missing required argument '<new_name>'",
+      `Your current name: ${player.name}`,
       "",
-      "Usage: name <new_name>",
-      "       name Commander"
+      "To change your name, use: name set <new_name>"
     ];
   }
 
-  const newName = args.join(' ').trim();
+  if (args[0].toLowerCase() !== 'set') {
+    return [
+      "name: error: invalid subcommand",
+      "",
+      "Usage: name",
+      "       name set <new_name>",
+      "",
+      "Use 'name' to view your current name",
+      "Use 'name set <new_name>' to change your name"
+    ];
+  }
+
+  if (args.length < 2) {
+    return [
+      "name: error: missing required argument '<new_name>'",
+      "",
+      "Usage: name set <new_name>",
+      "       name set Commander"
+    ];
+  }
+
+  const newName = args.slice(1).join(' ').trim();
 
   if (newName.length === 0) {
     return [
       "name: error: name cannot be empty or whitespace",
       "",
-      "Usage: name <new_name>",
-      "       name Commander"
+      "Usage: name set <new_name>",
+      "       name set Commander"
     ];
   }
 
-  if (newName.length > 50) {
+  if (newName.length > 15) {
     return [
-      "name: error: name cannot exceed 50 characters",
+      "name: error: name cannot exceed 15 characters",
       "",
       `Your name has ${newName.length} characters`,
       "",
-      "Usage: name <new_name>",
-      "       name Commander"
+      "Usage: name set <new_name>",
+      "       name set Commander"
     ];
   }
 
