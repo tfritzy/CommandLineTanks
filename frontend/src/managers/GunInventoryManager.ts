@@ -172,16 +172,14 @@ export class GunInventoryManager {
     if (gun) {
       this.drawGunGraphic(ctx, gun, x, y, slotSize);
 
-      if (gun.ammo != null || gun.projectileType.tag === "Normal") {
-        ctx.fillStyle = "#fcfbf3";
-        ctx.font = "bold 10px monospace";
-        ctx.textAlign = "right";
-        ctx.textBaseline = "bottom";
-        if (gun.ammo != null) {
-          ctx.fillText(gun.ammo.toString(), x + slotSize - 4, y + slotSize - 3);
-        } else {
-          ctx.fillText("∞", x + slotSize - 4, y + slotSize - 3);
-        }
+      ctx.fillStyle = "#fcfbf3";
+      ctx.font = "bold 10px monospace";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "bottom";
+      if (gun.ammo != null) {
+        ctx.fillText(gun.ammo.toString(), x + slotSize - 4, y + slotSize - 3);
+      } else {
+        ctx.fillText("∞", x + slotSize - 4, y + slotSize - 3);
       }
     }
 
