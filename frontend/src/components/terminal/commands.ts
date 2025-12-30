@@ -969,9 +969,9 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
     ];
   }
 
-  const newName = args.join(' ');
+  const newName = args.join(' ').trim();
 
-  if (newName.trim().length === 0) {
+  if (newName.length === 0) {
     return [
       "name: error: name cannot be empty or whitespace",
       "",
