@@ -18,7 +18,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [showGameCreationFlow, setShowGameCreationFlow] = useState(false);
     const [isCreatingGame, setIsCreatingGame] = useState(false);
-    const [copied, setCopied] = useState(false);
+    const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const previousWorldIdRef = useRef<string>(worldId);
@@ -319,15 +319,15 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                                             onClick={() => {
                                                 navigator.clipboard.writeText(line.url)
                                                     .then(() => {
-                                                        setCopied(true);
-                                                        setTimeout(() => setCopied(false), 2000);
+                                                        setCopiedIndex(i);
+                                                        setTimeout(() => setCopiedIndex(null), 2000);
                                                     })
                                                     .catch((err) => {
                                                         console.error('Failed to copy:', err);
                                                     });
                                             }}
                                             style={{
-                                                background: copied ? '#4e9363' : '#405967',
+                                                background: copiedIndex === i ? '#4e9363' : '#405967',
                                                 color: '#fcfbf3',
                                                 border: '1px solid rgba(112, 123, 137, 0.3)',
                                                 padding: '8px 16px',
@@ -340,7 +340,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                                                 whiteSpace: 'nowrap'
                                             }}
                                         >
-                                            {copied ? '✓ COPIED' : 'COPY'}
+                                            {copiedIndex === i ? '✓ COPIED' : 'COPY'}
                                         </button>
                                     </div>
                                 );
