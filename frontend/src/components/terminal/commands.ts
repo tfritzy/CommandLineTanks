@@ -992,14 +992,6 @@ export function lobbies(connection: DbConnection, args: string[]): string[] {
     return str;
   }
 
-  function repeat(str: string, count: number): string {
-    let result = "";
-    for (let i = 0; i < count; i++) {
-      result += str;
-    }
-    return result;
-  }
-
   const codeWidth = 6;
   const nameWidth = 25;
   const playersWidth = 10;
@@ -1007,10 +999,8 @@ export function lobbies(connection: DbConnection, args: string[]): string[] {
   const durationWidth = 10;
 
   const headerRow = `${pad("Code", codeWidth)} ${pad("Name", nameWidth)} ${pad("Players", playersWidth)} ${pad("Bots", botsWidth)} ${pad("Duration", durationWidth)}`;
-  const separatorRow = `${repeat("-", codeWidth)} ${repeat("-", nameWidth)} ${repeat("-", playersWidth)} ${repeat("-", botsWidth)} ${repeat("-", durationWidth)}`;
   
   result.push(headerRow);
-  result.push(separatorRow);
 
   for (const world of publicWorlds) {
     const code = pad(world.id, codeWidth);
