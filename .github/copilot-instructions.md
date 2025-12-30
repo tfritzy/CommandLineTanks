@@ -7,6 +7,14 @@ NO COMMENTS. EVER. NOT EVEN XML DOCUMENTATION COMMENTS.
 DO NOT CREATE DOCUMENTATION FILES (like README.md, FEATURE.md, HOWTO.md, etc.) TO EXPLAIN YOUR CHANGES.
 Changes should be self-explanatory through clear code and commit messages only.
 
+## Pre-Release Checklist
+
+**CRITICAL: Before releasing any change for review, you MUST verify that both builds succeed:**
+
+1. Backend build: Run `dotnet build` in `backend/spacetimedb/` directory - must complete with no errors
+2. Frontend build: Run `npm run build` in `frontend/` directory - must complete with no errors
+3. Warnings are acceptable, but errors must be fixed before submitting changes
+
 Before starting on a request related to spacetimedb, read: https://spacetimedb.com/llms.txt
 
 ## SpacetimeDB Version Requirements
