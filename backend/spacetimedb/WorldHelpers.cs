@@ -2,6 +2,37 @@ using SpacetimeDB;
 
 public static partial class Module
 {
+    public static void AddTankToWorld(ReducerContext ctx, Tank tank)
+    {
+        ctx.Db.tank.Insert(tank);
+        
+        if (tank.IsBot)
+        {
+            IncrementBotCount(ctx, tank.WorldId);
+        }
+        else
+        {
+            IncrementPlayerCount(ctx, tank.WorldId);
+        }
+    }
+
+    public static void RemoveTankFromWorld(ReducerContext ctx, Tank tank)
+    {
+        var isBot = tank.IsBot;
+        var worldId = tank.WorldId;
+        
+        ctx.Db.tank.Id.Delete(tank.Id);
+        
+        if (isBot)
+        {
+            DecrementBotCount(ctx, worldId);
+        }
+        else
+        {
+            DecrementPlayerCount(ctx, worldId);
+        }
+    }
+
     public static void IncrementPlayerCount(ReducerContext ctx, string worldId)
     {
         var world = ctx.Db.world.Id.Find(worldId);

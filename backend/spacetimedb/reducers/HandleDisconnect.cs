@@ -22,18 +22,7 @@ public static partial class Module
 
             DeleteTankPathIfExists(ctx, tank.Id);
 
-            var isBot = tank.IsBot;
-            var worldId = tank.WorldId;
-            ctx.Db.tank.Id.Delete(tank.Id);
-            
-            if (isBot)
-            {
-                DecrementBotCount(ctx, worldId);
-            }
-            else
-            {
-                DecrementPlayerCount(ctx, worldId);
-            }
+            RemoveTankFromWorld(ctx, tank);
             
             Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} named {tank.Name ?? "Unknown"}");
         }

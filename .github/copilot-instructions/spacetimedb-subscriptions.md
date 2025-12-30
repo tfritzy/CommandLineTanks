@@ -28,11 +28,14 @@ Instead of trying to count entities on the frontend:
 
 ```typescript
 // ✅ CORRECT: Use pre-computed counts from the World table
+// (assuming the World table is already subscribed, which it typically is in this app)
 const worlds = Array.from(connection.db.world.iter());
 for (const world of worlds) {
   console.log(`Players: ${world.currentPlayerCount}, Bots: ${world.botCount}`);
 }
 ```
+
+**Note**: The code above works because the application has already subscribed to the World table. The key point is to avoid subscribing to large tables (like Tank) when you only need aggregate data.
 
 This approach:
 - Avoids the need for additional subscriptions

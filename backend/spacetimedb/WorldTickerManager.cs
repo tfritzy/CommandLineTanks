@@ -170,8 +170,7 @@ public static partial class Module
                 spawnX,
                 spawnY,
                 AIBehavior.None);
-            ctx.Db.tank.Insert(newTank);
-            IncrementPlayerCount(ctx, newWorldId);
+            AddTankToWorld(ctx, newTank);
         }
 
         Log.Info($"Created new world {newWorldId} from {args.WorldId}. Teams randomized, {totalTanks} tanks created.");
