@@ -21,4 +21,6 @@ export default {
   passcode: __t.string(),
   botCount: __t.i32(),
   gameDurationMicros: __t.i64(),
+  width: __t.i32(),
+  height: __t.i32(),
 };
