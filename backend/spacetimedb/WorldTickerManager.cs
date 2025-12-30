@@ -110,6 +110,23 @@ public static partial class Module
         var oldWorld = ctx.Db.world.Id.Find(args.WorldId);
         if (oldWorld == null) return;
 
+        var tanks = new List<Module.Tank>();
+        foreach (var tank in ctx.Db.tank.WorldId.Filter(args.WorldId))
+        {
+            if (!tank.IsBot)
+            {
+                tanks.Add(tank);
+            }
+        }
+
+        int totalTanks = tanks.Count;
+        
+        if (totalTanks == 0)
+        {
+            Log.Info($"No real players left in world {args.WorldId}, not creating new world");
+            return;
+        }
+
         Log.Info($"Resetting world {args.WorldId} by creating new world...");
 
         var width = TerrainGenerator.GetWorldWidth();
@@ -127,17 +144,6 @@ public static partial class Module
         var newWorld = CreateWorld(ctx, newWorldId, oldWorld.Value.Name, baseTerrain, terrainDetails.ToArray(), traversibilityMap, projectileCollisionMap, width, height);
 
         SpawnInitialBots(ctx, newWorldId, newWorld);
-
-        var tanks = new List<Module.Tank>();
-        foreach (var tank in ctx.Db.tank.WorldId.Filter(args.WorldId))
-        {
-            if (!tank.IsBot)
-            {
-                tanks.Add(tank);
-            }
-        }
-
-        int totalTanks = tanks.Count;
         var shuffledIndices = new int[totalTanks];
         for (int i = 0; i < totalTanks; i++)
         {
