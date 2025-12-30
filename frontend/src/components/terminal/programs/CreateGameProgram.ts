@@ -1,9 +1,6 @@
 import { Program } from './Program';
 import { getConnection, setPendingJoinCode } from '../../../spacetimedb-connection';
 import WorldVisibility from '../../../../module_bindings/world_visibility_type';
-import { type Infer } from 'spacetimedb';
-import { type EventContext } from '../../../../module_bindings';
-import WorldRow from '../../../../module_bindings/world_type';
 
 type CreationStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration' | 'width' | 'height' | 'waiting';
 
@@ -28,8 +25,13 @@ export class CreateGameProgram extends Program {
         width: 50,
         height: 50
     };
-    private worldCreationSubscription: boolean = false;
-    private creationTimestamp: number = 0;
+    private waitingForWorldCreation: boolean = false;
+    private previousWorldId: string = '';
+
+    constructor(context: any) {
+        super(context);
+        this.previousWorldId = context.worldId;
+    }
 
     onEnter(): void {
         this.addOutput(
@@ -184,25 +186,7 @@ export class CreateGameProgram extends Program {
         const visibility = this.state.visibility === 'private' ? WorldVisibility.Private : WorldVisibility.CustomPublic;
         
         this.step = 'waiting';
-        this.creationTimestamp = Date.now();
-
-        connection.db.world.onInsert((_ctx: EventContext, world: Infer<typeof WorldRow>) => {
-            if (!this.worldCreationSubscription && 
-                world.name === this.state.name &&
-                Number(world.createdAt) >= this.creationTimestamp * 1000) {
-                this.worldCreationSubscription = true;
-                const gameUrl = `${window.location.origin}/world/${encodeURIComponent(world.id)}`;
-                this.addOutput(
-                    "",
-                    "Game created successfully!",
-                    "",
-                    "Share this URL with friends to invite them:",
-                    gameUrl,
-                    ""
-                );
-                this.exit();
-            }
-        });
+        this.waitingForWorldCreation = true;
 
         connection.reducers.createWorld({ 
             joinCode,
@@ -224,7 +208,23 @@ export class CreateGameProgram extends Program {
         );
     }
 
+    onWorldIdChange(newWorldId: string): void {
+        if (this.waitingForWorldCreation && newWorldId !== this.previousWorldId) {
+            this.waitingForWorldCreation = false;
+            const gameUrl = `${window.location.origin}/world/${encodeURIComponent(newWorldId)}`;
+            this.addOutput(
+                "",
+                "Game created successfully!",
+                "",
+                "Share this URL with friends to invite them:",
+                gameUrl,
+                ""
+            );
+            this.exit();
+        }
+    }
+
     onExit(): void {
-        this.worldCreationSubscription = true;
+        this.waitingForWorldCreation = false;
     }
 }

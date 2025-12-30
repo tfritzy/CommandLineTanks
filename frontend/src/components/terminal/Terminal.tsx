@@ -28,12 +28,19 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     }, [output]);
 
     useEffect(() => {
+        if (currentProgram) {
+            currentProgram.onWorldIdChange(worldId);
+        }
+    }, [worldId, currentProgram]);
+
+    useEffect(() => {
         if (!currentProgram) {
             const context: ProgramContext = {
                 output,
                 setOutput,
                 setInput,
-                exitProgram: () => setCurrentProgram(null)
+                exitProgram: () => setCurrentProgram(null),
+                worldId
             };
             
             const connection = getConnection();
