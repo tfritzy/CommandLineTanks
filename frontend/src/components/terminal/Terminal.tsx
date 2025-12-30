@@ -313,18 +313,24 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                             } else if (line.type === 'url') {
                                 return (
                                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', marginTop: '4px' }}>
-                                        <div style={{
-                                            background: 'rgba(74, 75, 91, 0.5)',
-                                            padding: '8px 12px',
-                                            fontFamily: "'JetBrains Mono', monospace",
-                                            userSelect: 'all',
-                                            cursor: 'text',
-                                            wordBreak: 'break-all',
-                                            border: '1px solid rgba(112, 123, 137, 0.3)',
-                                            flex: 1,
-                                            color: '#7396d5',
-                                            fontSize: '12px'
-                                        }}>
+                                        <div 
+                                            tabIndex={0}
+                                            role="textbox"
+                                            aria-label="Shareable game URL"
+                                            aria-readonly="true"
+                                            style={{
+                                                background: 'rgba(74, 75, 91, 0.5)',
+                                                padding: '8px 12px',
+                                                fontFamily: "'JetBrains Mono', monospace",
+                                                userSelect: 'all',
+                                                cursor: 'text',
+                                                wordBreak: 'break-all',
+                                                border: '1px solid rgba(112, 123, 137, 0.3)',
+                                                flex: 1,
+                                                color: '#7396d5',
+                                                fontSize: '12px'
+                                            }}
+                                        >
                                             {line.url}
                                         </div>
                                         <button
