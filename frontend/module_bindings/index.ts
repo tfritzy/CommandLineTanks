@@ -83,8 +83,6 @@ import UpdateAi from "./update_ai_reducer";
 export { UpdateAi };
 import UpdateProjectiles from "./update_projectiles_reducer";
 export { UpdateProjectiles };
-import UpdateSpiderMines from "./update_spider_mines_reducer";
-export { UpdateSpiderMines };
 import UpdateTanks from "./update_tanks_reducer";
 export { UpdateTanks };
 
@@ -105,8 +103,6 @@ import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table"
 export { ScheduledProjectileUpdatesRow };
 import ScheduledSmokeCloudCleanupRow from "./scheduled_smoke_cloud_cleanup_table";
 export { ScheduledSmokeCloudCleanupRow };
-import ScheduledSpiderMineUpdatesRow from "./scheduled_spider_mine_updates_table";
-export { ScheduledSpiderMineUpdatesRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import ScheduledWorldResetRow from "./scheduled_world_reset_table";
@@ -123,8 +119,6 @@ import ScoreRow from "./score_table";
 export { ScoreRow };
 import SmokeCloudRow from "./smoke_cloud_table";
 export { SmokeCloudRow };
-import SpiderMineRow from "./spider_mine_table";
-export { SpiderMineRow };
 import TankRow from "./tank_table";
 export { TankRow };
 import TankFireStateRow from "./tank_fire_state_table";
@@ -185,8 +179,6 @@ import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
 import ScheduledSmokeCloudCleanup from "./scheduled_smoke_cloud_cleanup_type";
 export { ScheduledSmokeCloudCleanup };
-import ScheduledSpiderMineUpdates from "./scheduled_spider_mine_updates_type";
-export { ScheduledSpiderMineUpdates };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 export { ScheduledTankUpdates };
 import ScheduledWorldReset from "./scheduled_world_reset_type";
@@ -195,8 +187,6 @@ import Score from "./score_type";
 export { Score };
 import SmokeCloud from "./smoke_cloud_type";
 export { SmokeCloud };
-import SpiderMine from "./spider_mine_type";
-export { SpiderMine };
 import Tank from "./tank_type";
 export { Tank };
 import TankFireState from "./tank_fire_state_type";
@@ -319,20 +309,6 @@ const tablesSchema = __schema(
     ],
   }, ScheduledSmokeCloudCleanupRow),
   __table({
-    name: 'ScheduledSpiderMineUpdates',
-    indexes: [
-      { name: 'ScheduledId', algorithm: 'btree', columns: [
-        'scheduledId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
-      ] },
-    ],
-    constraints: [
-      { name: 'ScheduledSpiderMineUpdates_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
-    ],
-  }, ScheduledSpiderMineUpdatesRow),
-  __table({
     name: 'ScheduledTankUpdates',
     indexes: [
       { name: 'ScheduledId', algorithm: 'btree', columns: [
@@ -452,25 +428,6 @@ const tablesSchema = __schema(
       { name: 'smoke_cloud_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, SmokeCloudRow),
-  __table({
-    name: 'spider_mine',
-    indexes: [
-      { name: 'Id', algorithm: 'btree', columns: [
-        'id',
-      ] },
-      { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
-        'worldId',
-        'collisionRegionX',
-        'collisionRegionY',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
-      ] },
-    ],
-    constraints: [
-      { name: 'spider_mine_Id_key', constraint: 'unique', columns: ['id'] },
-    ],
-  }, SpiderMineRow),
   __table({
     name: 'tank',
     indexes: [
@@ -621,7 +578,6 @@ const reducersSchema = __reducers(
   __reducerSchema("targetTank", TargetTank),
   __reducerSchema("UpdateAI", UpdateAi),
   __reducerSchema("UpdateProjectiles", UpdateProjectiles),
-  __reducerSchema("UpdateSpiderMines", UpdateSpiderMines),
   __reducerSchema("UpdateTanks", UpdateTanks),
 );
 
