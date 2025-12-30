@@ -7,53 +7,46 @@ public static partial class Module
     {
         var existingPlayer = ctx.Db.player.Identity.Find(ctx.Sender);
 
-        if (existingPlayer == null)
+        if (existingPlayer != null)
+        {
+            Log.Info($"Player {existingPlayer.Value.Name} reconnected");
+        }
+        else
         {
             var playerId = GenerateId(ctx, "plr");
             var randomSuffix = ctx.Rng.Next(1000, 9999);
-            var newHomeworldId = GenerateWorldId(ctx);
             var player = new Player
             {
                 Id = playerId,
                 Identity = ctx.Sender,
                 Name = $"Guest{randomSuffix}",
-                CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-                HomeworldId = newHomeworldId
+                CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             };
 
             ctx.Db.player.Insert(player);
-            CreateHomeworld(ctx, newHomeworldId);
-            Log.Info($"New player connected with ID {playerId} and homeworld {newHomeworldId}");
-            existingPlayer = player;
-        }
-        else
-        {
-            Log.Info($"Player {existingPlayer.Value.Name} reconnected");
+            Log.Info($"New player connected with ID {playerId}");
         }
 
-        var homeworldId = existingPlayer.Value.HomeworldId;
-        if (homeworldId == null)
+        var identityString = ctx.Sender.ToString().ToLower();
+        var existingHomeworld = ctx.Db.world.Id.Find(identityString);
+        if (existingHomeworld == null)
         {
-            Log.Info("Player has no homeworld ID, creating one for migration");
-            homeworldId = GenerateWorldId(ctx);
-            var updatedPlayer = existingPlayer.Value;
-            updatedPlayer.HomeworldId = homeworldId;
-            ctx.Db.player.Id.Update(updatedPlayer);
-            CreateHomeworld(ctx, homeworldId);
+            CreateHomeworld(ctx, identityString);
         }
 
-        var existingTank = ctx.Db.tank.WorldId.Filter(homeworldId)
+        var existingTank = ctx.Db.tank.WorldId.Filter(identityString)
             .Where(t => t.Owner == ctx.Sender)
             .FirstOrDefault();
         if (existingTank.Id == null)
         {
-            var targetCode = AllocateTargetCode(ctx, homeworldId);
+            var targetCode = AllocateTargetCode(ctx, identityString);
             if (targetCode != null)
             {
-                var playerName = existingPlayer.Value.Name;
+                var player = ctx.Db.player.Identity.Find(ctx.Sender);
+                var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
                 var tank = BuildTank(
                     ctx,
-                    homeworldId,
+                    identityString,
                     ctx.Sender,
                     playerName,
                     targetCode,
@@ -63,9 +56,9 @@ public static partial class Module
                     HOMEWORLD_HEIGHT / 2 + .5f);
                 ctx.Db.tank.Insert(tank);
 
-                StartWorldTickers(ctx, homeworldId);
+                StartWorldTickers(ctx, identityString);
 
-                Log.Info($"Created homeworld tank {targetCode} for player in world {homeworldId}");
+                Log.Info($"Created homeworld tank {targetCode} for identity {identityString}");
             }
         }
     }

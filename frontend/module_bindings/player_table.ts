@@ -15,5 +15,4 @@ export default __t.row({
   identity: __t.identity(),
   name: __t.string(),
   createdAt: __t.u64(),
-  homeworldId: __t.option(__t.string()),
 });
