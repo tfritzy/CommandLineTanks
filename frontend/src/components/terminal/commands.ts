@@ -94,6 +94,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  name                 View or change your player name",
       "  create               Create a new game world",
       "  join                 Join or create a game world",
+      "  exit, e              Return to your homeworld",
       "  lobbies, l           List all available public games",
       "  clear, c             Clear the terminal output",
       "  help, h              Display help information",
@@ -343,6 +344,21 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  join",
         "  join abcd",
         "  join abcd mysecretpass"
+      ];
+
+    case "exit":
+    case "e":
+      return [
+        "exit, e - Return to your homeworld",
+        "",
+        "Usage: exit",
+        "",
+        "Removes your tank from the current game world and places it back",
+        "in your personal homeworld.",
+        "",
+        "Examples:",
+        "  exit",
+        "  e"
       ];
 
     case "lobbies":
@@ -1120,6 +1136,44 @@ export function lobbies(connection: DbConnection, args: string[]): string[] {
   result.push("Use 'join <code>' to join a game.");
   
   return result;
+}
+
+export function exitWorld(connection: DbConnection, args: string[]): string[] {
+  if (args.length > 0) {
+    return [
+      "exit: error: exit command takes no arguments",
+      "",
+      "Usage: exit",
+      "       e"
+    ];
+  }
+
+  if (!connection.identity) {
+    return ["exit: error: no connection"];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter());
+  const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+
+  if (!myTank) {
+    return ["exit: error: no tank found"];
+  }
+
+  const identityString = connection.identity.toString().toLowerCase();
+  
+  if (myTank.worldId === identityString) {
+    return [
+      "exit: error: already in homeworld",
+      "",
+      "You are already in your homeworld"
+    ];
+  }
+
+  connection.reducers.exitWorld({});
+
+  return [
+    "Returning to homeworld...",
+  ];
 }
 
 
