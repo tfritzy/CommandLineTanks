@@ -91,6 +91,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
+      "  name                 Change your player name",
       "  create               Create a new game world",
       "  join                 Join or create a game world",
       "  clear, c             Clear the terminal output",
@@ -286,6 +287,22 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  respawn"
+      ];
+
+    case "name":
+      return [
+        "name - Change your player name",
+        "",
+        "Usage: name <new_name>",
+        "",
+        "Arguments:",
+        "  <new_name>  Your new player name (max 50 characters)",
+        "",
+        "Changes your player name across all tanks and worlds.",
+        "",
+        "Examples:",
+        "  name Commander",
+        "  name TankMaster3000"
       ];
 
     case "create":
@@ -939,6 +956,45 @@ export function join(connection: DbConnection, args: string[]): string[] {
 
   return [
     `Joining world ${worldId}...`,
+  ];
+}
+
+export function changeName(connection: DbConnection, args: string[]): string[] {
+  if (args.length < 1) {
+    return [
+      "name: error: missing required argument '<new_name>'",
+      "",
+      "Usage: name <new_name>",
+      "       name Commander"
+    ];
+  }
+
+  const newName = args.join(' ');
+
+  if (newName.trim().length === 0) {
+    return [
+      "name: error: name cannot be empty or whitespace",
+      "",
+      "Usage: name <new_name>",
+      "       name Commander"
+    ];
+  }
+
+  if (newName.length > 50) {
+    return [
+      "name: error: name cannot exceed 50 characters",
+      "",
+      `Your name has ${newName.length} characters`,
+      "",
+      "Usage: name <new_name>",
+      "       name Commander"
+    ];
+  }
+
+  connection.reducers.changeName({ newName });
+
+  return [
+    `Name changed to: ${newName}`,
   ];
 }
 
