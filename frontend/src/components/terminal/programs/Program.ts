@@ -3,6 +3,7 @@ export interface ProgramContext {
     setOutput: (output: string[]) => void;
     setInput: (input: string) => void;
     exitProgram: () => void;
+    worldId: string;
 }
 
 export abstract class Program {
@@ -17,6 +18,9 @@ export abstract class Program {
     abstract handleInput(input: string): void;
     
     abstract handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): boolean;
+    
+    onWorldIdChange(_newWorldId: string): void {
+    }
     
     onExit(): void {
     }

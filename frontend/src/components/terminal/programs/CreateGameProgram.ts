@@ -1,8 +1,9 @@
 import { Program } from './Program';
 import { getConnection, setPendingJoinCode } from '../../../spacetimedb-connection';
 import WorldVisibility from '../../../../module_bindings/world_visibility_type';
+import { type ProgramContext } from './Program';
 
-type CreationStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration' | 'width' | 'height';
+type CreationStep = 'name' | 'visibility' | 'passcode' | 'bots' | 'duration' | 'width' | 'height' | 'waiting';
 
 interface CreationState {
     name: string;
@@ -25,6 +26,13 @@ export class CreateGameProgram extends Program {
         width: 50,
         height: 50
     };
+    private waitingForWorldCreation: boolean = false;
+    private previousWorldId: string = '';
+
+    constructor(context: ProgramContext) {
+        super(context);
+        this.previousWorldId = context.worldId;
+    }
 
     onEnter(): void {
         this.addOutput(
@@ -35,6 +43,10 @@ export class CreateGameProgram extends Program {
     }
 
     handleInput(input: string): void {
+        if (this.step === 'waiting') {
+            return;
+        }
+
         const trimmedInput = input.trim();
 
         switch (this.step) {
@@ -174,6 +186,9 @@ export class CreateGameProgram extends Program {
         const gameDurationMicros = BigInt(this.state.duration * 60 * 1000000);
         const visibility = this.state.visibility === 'private' ? WorldVisibility.Private : WorldVisibility.CustomPublic;
         
+        this.step = 'waiting';
+        this.waitingForWorldCreation = true;
+
         connection.reducers.createWorld({ 
             joinCode,
             worldName: this.state.name,
@@ -192,7 +207,25 @@ export class CreateGameProgram extends Program {
             `Bots: ${this.state.botCount}, Duration: ${this.state.duration} min, Size: ${this.state.width}x${this.state.height}`,
             ""
         );
-        
-        this.exit();
+    }
+
+    onWorldIdChange(newWorldId: string): void {
+        if (this.waitingForWorldCreation && newWorldId !== this.previousWorldId) {
+            this.waitingForWorldCreation = false;
+            const gameUrl = `${window.location.origin}/world/${encodeURIComponent(newWorldId)}`;
+            this.addOutput(
+                "",
+                "Game created successfully!",
+                "",
+                "Share this URL with friends to invite them:",
+                gameUrl,
+                ""
+            );
+            this.exit();
+        }
+    }
+
+    onExit(): void {
+        this.waitingForWorldCreation = false;
     }
 }
