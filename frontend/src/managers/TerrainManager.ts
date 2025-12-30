@@ -11,6 +11,7 @@ export class TerrainManager {
   private worldId: string;
   private handleWorldInsert: ((ctx: EventContext, world: Infer<typeof WorldRow>) => void) | null = null;
   private handleWorldUpdate: ((ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => void) | null = null;
+  private pendingDetailDeletedCallbacks: (() => void)[] = [];
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -32,6 +33,7 @@ export class TerrainManager {
           world.width,
           world.height
         );
+        this.registerPendingCallbacks();
       } else {
         this.detailManager.updateWorldDimensions(world.width, world.height);
       }
@@ -47,6 +49,7 @@ export class TerrainManager {
           newWorld.width,
           newWorld.height
         );
+        this.registerPendingCallbacks();
       } else {
         this.detailManager.updateWorldDimensions(
           newWorld.width,
@@ -68,7 +71,17 @@ export class TerrainManager {
           cachedWorld.width,
           cachedWorld.height
         );
+        this.registerPendingCallbacks();
       }
+    }
+  }
+
+  private registerPendingCallbacks() {
+    if (this.detailManager) {
+      for (const callback of this.pendingDetailDeletedCallbacks) {
+        this.detailManager.onDetailDeleted(callback);
+      }
+      this.pendingDetailDeletedCallbacks = [];
     }
   }
 
@@ -178,6 +191,8 @@ export class TerrainManager {
   public onTerrainDetailDeleted(callback: () => void): void {
     if (this.detailManager) {
       this.detailManager.onDetailDeleted(callback);
+    } else {
+      this.pendingDetailDeletedCallbacks.push(callback);
     }
   }
 }
