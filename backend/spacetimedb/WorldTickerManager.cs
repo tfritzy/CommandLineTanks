@@ -131,7 +131,7 @@ public static partial class Module
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
         var projectileCollisionMap = TerrainGenerator.CalculateProjectileCollisionMap(baseTerrain, terrainDetailArray);
 
-        var newWorldId = Module.GenerateId(ctx, "w");
+        var newWorldId = Module.GenerateWorldId(ctx);
         var newWorld = CreateWorld(ctx, newWorldId, oldWorld.Value.Name, baseTerrain, terrainDetails.ToArray(), traversibilityMap, projectileCollisionMap, width, height);
 
         SpawnInitialBots(ctx, newWorldId, newWorld);
