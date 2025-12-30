@@ -4,7 +4,7 @@ using System;
 public static partial class Module
 {
     [Reducer]
-    public static void smokescreen(ReducerContext ctx, string worldId)
+    public static void smoke(ReducerContext ctx, string worldId)
     {
         Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (maybeTank == null) return;
@@ -43,6 +43,12 @@ public static partial class Module
         };
         ctx.Db.tank.Id.Update(updatedSourceTank);
 
-        Log.Info($"Tank {tank.Name} deployed smokescreen at ({tank.PositionX}, {tank.PositionY})");
+        Log.Info($"Tank {tank.Name} deployed smoke at ({tank.PositionX}, {tank.PositionY})");
+    }
+
+    [Reducer]
+    public static void smokescreen(ReducerContext ctx, string worldId)
+    {
+        smoke(ctx, worldId);
     }
 }

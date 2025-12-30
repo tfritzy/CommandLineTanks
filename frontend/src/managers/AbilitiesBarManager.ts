@@ -89,7 +89,7 @@ export class AbilitiesBarManager {
 
     const abilities: Ability[] = [
       {
-        name: 'smokescreen',
+        name: 'smoke',
         drawIcon: drawSmokescreenIcon,
         remainingCooldownMicros: this.remainingSmokescreenCooldownMicros,
         cooldownDuration: this.SMOKESCREEN_COOLDOWN_SECONDS,

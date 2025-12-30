@@ -65,6 +65,8 @@ import ResetWorld from "./reset_world_reducer";
 export { ResetWorld };
 import Respawn from "./respawn_reducer";
 export { Respawn };
+import Smoke from "./smoke_reducer";
+export { Smoke };
 import Smokescreen from "./smokescreen_reducer";
 export { Smokescreen };
 import SpawnPickup from "./spawn_pickup_reducer";
@@ -608,6 +610,7 @@ const reducersSchema = __reducers(
   __reducerSchema("repair", Repair),
   __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
+  __reducerSchema("smoke", Smoke),
   __reducerSchema("smokescreen", Smokescreen),
   __reducerSchema("SpawnPickup", SpawnPickup),
   __reducerSchema("stop", Stop),

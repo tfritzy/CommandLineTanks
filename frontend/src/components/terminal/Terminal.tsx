@@ -133,6 +133,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         newOutput.push(...switchOutput);
                         break;
                     }
+                    case 'smoke':
                     case 'smokescreen':
                     case 'sm': {
                         const smokescreenOutput = smokescreen(connection, worldId, args);
