@@ -172,12 +172,14 @@ export class GunInventoryManager {
     if (gun) {
       this.drawGunGraphic(ctx, gun, x, y, slotSize);
 
+      ctx.fillStyle = "#fcfbf3";
+      ctx.font = "bold 10px monospace";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "bottom";
       if (gun.ammo != null) {
-        ctx.fillStyle = "#fcfbf3";
-        ctx.font = "bold 10px monospace";
-        ctx.textAlign = "right";
-        ctx.textBaseline = "bottom";
         ctx.fillText(gun.ammo.toString(), x + slotSize - 4, y + slotSize - 3);
+      } else if (gun.projectileType.tag === "Normal") {
+        ctx.fillText("∞", x + slotSize - 4, y + slotSize - 3);
       }
     }
 
