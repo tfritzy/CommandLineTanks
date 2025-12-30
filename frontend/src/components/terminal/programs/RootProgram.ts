@@ -1,6 +1,6 @@
 import { type ProgramContext, Program } from './Program';
 import { type DbConnection } from '../../../../module_bindings';
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair } from '../commands';
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies } from '../commands';
 
 export class RootProgram extends Program {
     private worldId: string;
@@ -75,6 +75,10 @@ export class RootProgram extends Program {
                 return;
             case 'join':
                 commandOutput = join(this.connection, args);
+                break;
+            case 'lobbies':
+            case 'l':
+                commandOutput = lobbies(this.connection, args);
                 break;
             case 'help':
             case 'h':

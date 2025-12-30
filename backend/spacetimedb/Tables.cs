@@ -35,6 +35,9 @@ public static partial class Module
         public long GameDurationMicros;
         public WorldVisibility Visibility;
         public bool HasPasscode;
+        public int MaxPlayers;
+        public int CurrentPlayerCount;
+        public int BotCount;
     }
 
     [Table(Name = "world_passcode", Public = false)]

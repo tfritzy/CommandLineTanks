@@ -25,7 +25,7 @@ public static partial class Module
         var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, joinCode);
         if (tank != null)
         {
-            ctx.Db.tank.Insert(tank.Value);
+            AddTankToWorld(ctx, tank.Value);
         }
     }
 }

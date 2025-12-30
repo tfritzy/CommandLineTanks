@@ -45,7 +45,7 @@ public static partial class Module
 
                 var (spawnX, spawnY) = FindSpawnPosition(ctx, world, alliance, ctx.Rng);
                 var botTank = BuildTank(ctx, worldId, ctx.Sender, "Bot", targetCode, "", alliance, spawnX, spawnY, AIBehavior.GameAI);
-                ctx.Db.tank.Insert(botTank);
+                AddTankToWorld(ctx, botTank);
             }
         }
 

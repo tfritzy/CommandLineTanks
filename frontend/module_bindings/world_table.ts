@@ -33,4 +33,7 @@ export default __t.row({
     return WorldVisibility;
   },
   hasPasscode: __t.bool(),
+  maxPlayers: __t.i32(),
+  currentPlayerCount: __t.i32(),
+  botCount: __t.i32(),
 });

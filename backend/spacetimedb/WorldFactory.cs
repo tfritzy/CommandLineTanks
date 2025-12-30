@@ -33,7 +33,10 @@ public static partial class Module
             GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             GameDurationMicros = duration,
             Visibility = visibility,
-            HasPasscode = hasPasscode
+            HasPasscode = hasPasscode,
+            MaxPlayers = 8,
+            CurrentPlayerCount = 0,
+            BotCount = 0
         };
 
         ctx.Db.world.Insert(world);
