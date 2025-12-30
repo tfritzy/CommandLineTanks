@@ -39,26 +39,11 @@ public static partial class Module
             .FirstOrDefault();
         if (existingTank.Id == null)
         {
-            var targetCode = AllocateTargetCode(ctx, identityString);
-            if (targetCode != null)
+            var tank = ReturnToHomeworld(ctx, ctx.Sender);
+            if (tank != null)
             {
-                var player = ctx.Db.player.Identity.Find(ctx.Sender);
-                var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
-                var tank = BuildTank(
-                    ctx,
-                    identityString,
-                    ctx.Sender,
-                    playerName,
-                    targetCode,
-                    "",
-                    0,
-                    HOMEWORLD_WIDTH / 2 + .5f,
-                    HOMEWORLD_HEIGHT / 2 + .5f);
-                ctx.Db.tank.Insert(tank);
-
-                StartWorldTickers(ctx, identityString);
-
-                Log.Info($"Created homeworld tank {targetCode} for identity {identityString}");
+                ctx.Db.tank.Insert(tank.Value);
+                Log.Info($"Created homeworld tank {tank.Value.TargetCode} for identity {identityString}");
             }
         }
     }

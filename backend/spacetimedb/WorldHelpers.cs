@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using static Types;
 
 public static partial class Module
 {
@@ -20,6 +21,12 @@ public static partial class Module
     {
         var isBot = tank.IsBot;
         var worldId = tank.WorldId;
+        
+        var fireState = ctx.Db.tank_fire_state.TankId.Find(tank.Id);
+        if (fireState != null)
+        {
+            ctx.Db.tank_fire_state.TankId.Delete(tank.Id);
+        }
         
         ctx.Db.tank.Id.Delete(tank.Id);
         
@@ -79,5 +86,42 @@ public static partial class Module
             BotCount = Math.Max(0, world.Value.BotCount - 1)
         };
         ctx.Db.world.Id.Update(updatedWorld);
+    }
+
+    public static Tank? ReturnToHomeworld(ReducerContext ctx, Identity owner)
+    {
+        var identityString = owner.ToString().ToLower();
+        var homeworld = ctx.Db.world.Id.Find(identityString);
+        if (homeworld == null)
+        {
+            Log.Error($"Homeworld not found for identity {identityString}");
+            return null;
+        }
+
+        var targetCode = AllocateTargetCode(ctx, identityString);
+        if (targetCode == null)
+        {
+            Log.Error($"No available target codes in homeworld");
+            return null;
+        }
+
+        var player = ctx.Db.player.Identity.Find(owner);
+        var playerName = player?.Name ?? $"Guest{new System.Random().Next(1000, 9999)}";
+
+        var tank = BuildTank(
+            ctx,
+            identityString,
+            owner,
+            playerName,
+            targetCode,
+            "",
+            0,
+            HOMEWORLD_WIDTH / 2 + .5f,
+            HOMEWORLD_HEIGHT / 2 + .5f,
+            AIBehavior.None);
+
+        StartWorldTickers(ctx, identityString);
+        
+        return tank;
     }
 }

@@ -1,6 +1,5 @@
 using SpacetimeDB;
 using System.Linq;
-using static Types;
 
 public static partial class Module
 {
@@ -15,13 +14,6 @@ public static partial class Module
         }
 
         var identityString = ctx.Sender.ToString().ToLower();
-        var homeworld = ctx.Db.world.Id.Find(identityString);
-        if (homeworld == null)
-        {
-            Log.Error($"Homeworld not found for identity {identityString}");
-            return;
-        }
-
         var currentTanks = ctx.Db.tank.Owner.Filter(ctx.Sender).ToList();
         
         if (currentTanks.Any(tank => tank.WorldId == identityString))
@@ -32,43 +24,14 @@ public static partial class Module
 
         foreach (var currentTank in currentTanks)
         {
-            var fireState = ctx.Db.tank_fire_state.TankId.Find(currentTank.Id);
-            if (fireState != null)
-            {
-                ctx.Db.tank_fire_state.TankId.Delete(currentTank.Id);
-            }
-            
             RemoveTankFromWorld(ctx, currentTank);
-
-            if (!HasAnyTanksInWorld(ctx, currentTank.WorldId))
-            {
-                StopWorldTickers(ctx, currentTank.WorldId);
-            }
         }
 
-        var targetCode = AllocateTargetCode(ctx, identityString);
-        if (targetCode == null)
+        var tank = ReturnToHomeworld(ctx, ctx.Sender);
+        if (tank != null)
         {
-            Log.Error($"No available target codes in homeworld");
-            return;
+            AddTankToWorld(ctx, tank.Value);
+            Log.Info($"Player {player.Value.Name} returned to homeworld");
         }
-
-        var newTank = BuildTank(
-            ctx,
-            identityString,
-            ctx.Sender,
-            player.Value.Name,
-            targetCode,
-            "",
-            0,
-            HOMEWORLD_WIDTH / 2 + .5f,
-            HOMEWORLD_HEIGHT / 2 + .5f,
-            AIBehavior.None);
-        
-        AddTankToWorld(ctx, newTank);
-
-        StartWorldTickers(ctx, identityString);
-
-        Log.Info($"Player {player.Value.Name} returned to homeworld");
     }
 }
