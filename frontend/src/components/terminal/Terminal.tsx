@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { getConnection } from '../../spacetimedb-connection';
-import { aim, drive, fire, help, respawn, stop, switchGun, target, findGame, smokescreen, overdrive, repair } from './commands';
+import { getConnection, setPendingJoinCode } from '../../spacetimedb-connection';
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create } from './commands';
+import GameCreationFlow from '../GameCreationFlow';
+import WorldVisibility from '../../module_bindings/world_visibility_type';
+import { type Infer } from "spacetimedb";
 
 interface TerminalComponentProps {
     worldId: string;
@@ -11,6 +14,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     const [input, setInput] = useState('');
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
+    const [showGameCreationFlow, setShowGameCreationFlow] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -152,9 +156,18 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                         newOutput.push(...respawnOutput);
                         break;
                     }
-                    case 'findgame': {
-                        const findGameOutput = findGame(connection, args);
-                        newOutput.push(...findGameOutput);
+                    case 'create': {
+                        const createOutput = create(connection, args);
+                        if (typeof createOutput === 'object' && 'type' in createOutput && createOutput.type === 'open_flow') {
+                            setShowGameCreationFlow(true);
+                        } else {
+                            newOutput.push(...createOutput);
+                        }
+                        break;
+                    }
+                    case 'join': {
+                        const joinOutput = join(connection, args);
+                        newOutput.push(...joinOutput);
                         break;
                     }
                     case 'help':
@@ -181,61 +194,109 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         setInput('');
     };
 
+    const handleGameCreationComplete = (worldName: string, visibility: Infer<typeof WorldVisibility>, passcode: string, botCount: number, gameDurationMinutes: number) => {
+        setShowGameCreationFlow(false);
+        
+        const connection = getConnection();
+        if (!connection) {
+            const newOutput = [...output, "Error: connection is currently not active", ""];
+            setOutput(newOutput);
+            return;
+        }
+
+        const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        setPendingJoinCode(joinCode);
+        
+        const gameDurationMicros = gameDurationMinutes * 60 * 1000000;
+        
+        connection.reducers.createWorld({ 
+            joinCode,
+            worldName,
+            visibility, 
+            passcode: passcode || '',
+            botCount,
+            gameDurationMicros
+        });
+
+        const visibilityLabel = visibility.tag === 'Private' ? 'private' : 'public';
+        const newOutput = [
+            ...output,
+            `Creating ${visibilityLabel} game "${worldName}"...`,
+            `Bots: ${botCount}, Duration: ${gameDurationMinutes} min`,
+            ""
+        ].filter(line => line !== '');
+        setOutput(newOutput);
+    };
+
+    const handleGameCreationCancel = () => {
+        setShowGameCreationFlow(false);
+        const newOutput = [...output, "Game creation cancelled.", ""];
+        setOutput(newOutput);
+    };
+
     return (
-        <div
-            style={{
-                width: '100%',
-                height: '500px',
-                maxHeight: '50vh',
-                background: '#2a152d',
-                borderTop: '1px solid #5a78b2',
-                display: 'flex',
-                justifyContent: 'center',
-            }}
-            onClick={() => inputRef.current?.focus()}
-        >
+        <>
+            {showGameCreationFlow && (
+                <GameCreationFlow 
+                    onComplete={handleGameCreationComplete}
+                    onCancel={handleGameCreationCancel}
+                />
+            )}
             <div
-                ref={containerRef}
                 style={{
                     width: '100%',
-                    maxWidth: '1200px',
-                    color: '#e6eeed',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: '12px',
-                    lineHeight: '1',
-                    padding: '16px',
+                    height: '500px',
+                    maxHeight: '50vh',
+                    background: '#2a152d',
+                    borderTop: '1px solid #5a78b2',
                     display: 'flex',
-                    flexDirection: 'column',
-                    overflowY: 'auto',
+                    justifyContent: 'center',
                 }}
+                onClick={() => inputRef.current?.focus()}
             >
-                <div>
-                    {output.map((line, i) => (
-                        <div key={i} style={{ minHeight: '1.5em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
-                    ))}
+                <div
+                    ref={containerRef}
+                    style={{
+                        width: '100%',
+                        maxWidth: '1200px',
+                        color: '#e6eeed',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: '12px',
+                        lineHeight: '1',
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflowY: 'auto',
+                    }}
+                >
+                    <div>
+                        {output.map((line, i) => (
+                            <div key={i} style={{ minHeight: '1.5em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
+                        ))}
+                    </div>
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
+                        <span style={{ marginRight: '8px', color: '#96dc7f', fontWeight: 'bold' }}>❯</span>
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            style={{
+                                flex: 1,
+                                background: 'transparent',
+                                border: 'none',
+                                outline: 'none',
+                                color: '#e6eeed',
+                                fontFamily: "'JetBrains Mono', monospace",
+                                fontSize: '12px',
+                                caretColor: '#96dc7f',
+                            }}
+                        />
+                    </form>
                 </div>
-                <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
-                    <span style={{ marginRight: '8px', color: '#96dc7f', fontWeight: 'bold' }}>❯</span>
-                    <input
-                        ref={inputRef}
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        style={{
-                            flex: 1,
-                            background: 'transparent',
-                            border: 'none',
-                            outline: 'none',
-                            color: '#e6eeed',
-                            fontFamily: "'JetBrains Mono', monospace",
-                            fontSize: '12px',
-                            caretColor: '#96dc7f',
-                        }}
-                    />
-                </form>
             </div>
-        </div>
+        </>
     );
 }
 

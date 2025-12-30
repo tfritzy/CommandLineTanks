@@ -10,8 +10,9 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  worldId: __t.option(__t.string()),
-  joinCode: __t.string(),
+export default __t.object("WorldPasscode", {
+  worldId: __t.string(),
   passcode: __t.string(),
-};
+});
+
+

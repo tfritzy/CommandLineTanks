@@ -10,8 +10,14 @@ public static partial class Module
         BaseTerrain[] baseTerrain,
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
         bool[] traversibilityMap,
-        bool[] projectileCollisionMap)
+        bool[] projectileCollisionMap,
+        WorldVisibility visibility = WorldVisibility.Public,
+        string passcode = "",
+        long? gameDurationMicros = null)
     {
+        var hasPasscode = !string.IsNullOrEmpty(passcode);
+        var duration = gameDurationMicros ?? GAME_DURATION_MICROS;
+        
         var world = new World
         {
             Id = worldId,
@@ -23,10 +29,21 @@ public static partial class Module
             GameState = GameState.Playing,
             IsHomeWorld = false,
             GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            GameDurationMicros = GAME_DURATION_MICROS
+            GameDurationMicros = duration,
+            Visibility = visibility,
+            HasPasscode = hasPasscode
         };
 
         ctx.Db.world.Insert(world);
+
+        if (hasPasscode)
+        {
+            ctx.Db.world_passcode.Insert(new WorldPasscode
+            {
+                WorldId = worldId,
+                Passcode = passcode
+            });
+        }
 
         foreach (var detail in terrainDetails)
         {

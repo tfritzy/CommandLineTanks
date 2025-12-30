@@ -91,7 +91,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
-      "  findgame             Join a game world",
+      "  create               Create a new game world",
+      "  join                 Join or create a game world",
       "  clear, c             Clear the terminal output",
       "  help, h              Display help information",
     ];
@@ -287,16 +288,39 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  respawn"
       ];
 
-    case "findgame":
+    case "create":
       return [
-        "findgame - Join a game world",
+        "create - Create a new game world",
         "",
-        "Usage: findgame",
+        "Usage: create",
         "",
-        "Finds and joins an available game world.",
+        "Opens an interactive flow to create a new game world.",
+        "You can customize world name, visibility (public/private),",
+        "passcode, bot count, and game duration.",
+        "After creation, you'll be automatically joined to the new game.",
         "",
         "Examples:",
-        "  findgame"
+        "  create"
+      ];
+
+    case "join":
+      return [
+        "join - Join or create a game world",
+        "",
+        "Usage: join [world_id] [passcode]",
+        "",
+        "Arguments:",
+        "  [world_id]  The 4-letter ID of the world to join (optional)",
+        "  [passcode]  The passcode for private worlds (optional)",
+        "",
+        "With no arguments, finds an available public game or creates one.",
+        "With a world ID, joins that specific world.",
+        "Private worlds require a passcode.",
+        "",
+        "Examples:",
+        "  join",
+        "  join abcd",
+        "  join abcd mysecretpass"
       ];
 
     case "help":
@@ -513,24 +537,6 @@ export function respawn(connection: DbConnection, worldId: string, args: string[
 
   return [
     "Respawning...",
-  ];
-}
-
-export function findGame(connection: DbConnection, args: string[]): string[] {
-  if (args.length > 0) {
-    return [
-      "findgame: error: findgame command takes no arguments",
-      "",
-      "Usage: findgame"
-    ];
-  }
-
-  const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-  setPendingJoinCode(joinCode);
-  connection.reducers.findWorld({ joinCode });
-
-  return [
-    "Searching for a game world...",
   ];
 }
 
@@ -897,6 +903,42 @@ export function repair(connection: DbConnection, worldId: string, args: string[]
 
   return [
     "Repairing... (interrupted by damage or movement)",
+  ];
+}
+
+export function create(_connection: DbConnection, args: string[]): string[] | { type: 'open_flow' } {
+  if (args.length > 0) {
+    return [
+      "create: error: create command takes no arguments",
+      "",
+      "Usage: create"
+    ];
+  }
+
+  return { type: 'open_flow' };
+}
+
+export function join(connection: DbConnection, args: string[]): string[] {
+  const worldId = args.length > 0 ? args[0] : null;
+  const passcode = args.length > 1 ? args.slice(1).join(' ') : '';
+
+  const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  setPendingJoinCode(joinCode);
+  
+  connection.reducers.joinWorld({ 
+    worldId, 
+    joinCode,
+    passcode 
+  });
+
+  if (!worldId) {
+    return [
+      "Finding or creating a game world...",
+    ];
+  }
+
+  return [
+    `Joining world ${worldId}...`,
   ];
 }
 

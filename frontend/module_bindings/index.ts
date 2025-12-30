@@ -39,6 +39,8 @@ import CleanupResultsGames from "./cleanup_results_games_reducer";
 export { CleanupResultsGames };
 import CleanupSmokeCloud from "./cleanup_smoke_cloud_reducer";
 export { CleanupSmokeCloud };
+import CreateWorld from "./create_world_reducer";
+export { CreateWorld };
 import DeleteKill from "./delete_kill_reducer";
 export { DeleteKill };
 import DriveTo from "./drive_to_reducer";
@@ -47,8 +49,6 @@ import DriveToTank from "./drive_to_tank_reducer";
 export { DriveToTank };
 import EndGame from "./end_game_reducer";
 export { EndGame };
-import FindWorld from "./find_world_reducer";
-export { FindWorld };
 import Fire from "./fire_reducer";
 export { Fire };
 import HandleConnect from "./handle_connect_reducer";
@@ -133,6 +133,8 @@ import TraversibilityMapRow from "./traversibility_map_table";
 export { TraversibilityMapRow };
 import WorldRow from "./world_table";
 export { WorldRow };
+import WorldPasscodeRow from "./world_passcode_table";
+export { WorldPasscodeRow };
 
 // Import and reexport all types
 import AiBehavior from "./ai_behavior_type";
@@ -207,6 +209,10 @@ import Vector2Float from "./vector_2_float_type";
 export { Vector2Float };
 import World from "./world_type";
 export { World };
+import WorldPasscode from "./world_passcode_type";
+export { WorldPasscode };
+import WorldVisibility from "./world_visibility_type";
+export { WorldVisibility };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
@@ -556,9 +562,10 @@ const tablesSchema = __schema(
   __table({
     name: 'world',
     indexes: [
-      { name: 'GameState_IsHomeWorld', algorithm: 'btree', columns: [
+      { name: 'GameState_IsHomeWorld_Visibility', algorithm: 'btree', columns: [
         'gameState',
         'isHomeWorld',
+        'visibility',
       ] },
       { name: 'GameState', algorithm: 'btree', columns: [
         'gameState',
@@ -571,6 +578,17 @@ const tablesSchema = __schema(
       { name: 'world_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, WorldRow),
+  __table({
+    name: 'world_passcode',
+    indexes: [
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'world_passcode_WorldId_key', constraint: 'unique', columns: ['worldId'] },
+    ],
+  }, WorldPasscodeRow),
 );
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
@@ -579,11 +597,11 @@ const reducersSchema = __reducers(
   __reducerSchema("CheckAndRespawnEnemyTanks", CheckAndRespawnEnemyTanks),
   __reducerSchema("CleanupResultsGames", CleanupResultsGames),
   __reducerSchema("CleanupSmokeCloud", CleanupSmokeCloud),
+  __reducerSchema("createWorld", CreateWorld),
   __reducerSchema("delete_kill", DeleteKill),
   __reducerSchema("driveTo", DriveTo),
   __reducerSchema("driveToTank", DriveToTank),
   __reducerSchema("EndGame", EndGame),
-  __reducerSchema("findWorld", FindWorld),
   __reducerSchema("fire", Fire),
   __reducerSchema("joinWorld", JoinWorld),
   __reducerSchema("overdrive", Overdrive),

@@ -9,6 +9,7 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import WorldVisibility from "./world_visibility_type";
 import BaseTerrain from "./base_terrain_type";
 import GameState from "./game_state_type";
 
@@ -28,4 +29,8 @@ export default __t.row({
   isHomeWorld: __t.bool(),
   gameStartedAt: __t.u64(),
   gameDurationMicros: __t.i64(),
+  get visibility() {
+    return WorldVisibility;
+  },
+  hasPasscode: __t.bool(),
 });

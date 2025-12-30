@@ -35,4 +35,29 @@ public static partial class Module
 
         return $"{prefix}_{new string(result)}";
     }
+
+    internal static string GenerateWorldId(ReducerContext ctx)
+    {
+        const string chars = "abcdefghijklmnopqrstuvwxyz";
+        const int maxAttempts = 100;
+        
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            var result = new char[4];
+            for (int i = 0; i < 4; i++)
+            {
+                result[i] = chars[ctx.Rng.Next(chars.Length)];
+            }
+            
+            var worldId = new string(result);
+            var existing = ctx.Db.world.Id.Find(worldId);
+            if (existing == null)
+            {
+                return worldId;
+            }
+        }
+        
+        Log.Error("Failed to generate unique world ID after 100 attempts");
+        return new string(chars[ctx.Rng.Next(chars.Length)], 4);
+    }
 }

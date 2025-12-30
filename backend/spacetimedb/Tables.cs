@@ -17,7 +17,7 @@ public static partial class Module
     }
 
     [Table(Name = "world", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameState), nameof(IsHomeWorld) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameState), nameof(IsHomeWorld), nameof(Visibility) })]
     public partial struct World
     {
         [PrimaryKey]
@@ -33,6 +33,17 @@ public static partial class Module
         public bool IsHomeWorld;
         public ulong GameStartedAt;
         public long GameDurationMicros;
+        public WorldVisibility Visibility;
+        public bool HasPasscode;
+    }
+
+    [Table(Name = "world_passcode", Public = false)]
+    public partial struct WorldPasscode
+    {
+        [PrimaryKey]
+        public string WorldId;
+
+        public string Passcode;
     }
 
     [Table(Name = "traversibility_map", Public = true)]

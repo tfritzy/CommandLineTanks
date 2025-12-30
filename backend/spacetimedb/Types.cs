@@ -84,6 +84,14 @@ public static partial class Types
     }
 
     [Type]
+    public enum WorldVisibility : byte
+    {
+        Public,
+        Private,
+        CustomPublic
+    }
+
+    [Type]
     public enum GunType : byte
     {
         Base,
