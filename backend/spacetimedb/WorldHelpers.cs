@@ -106,7 +106,7 @@ public static partial class Module
         }
 
         var player = ctx.Db.player.Identity.Find(owner);
-        var playerName = player?.Name ?? $"Guest{new System.Random().Next(1000, 9999)}";
+        var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
         var tank = BuildTank(
             ctx,
