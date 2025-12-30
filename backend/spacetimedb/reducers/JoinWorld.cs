@@ -21,6 +21,18 @@ public static partial class Module
             
             if (world == null)
             {
+                var totalActivePlayers = 0;
+                foreach (var w in ctx.Db.world.IsHomeWorld.Filter(false))
+                {
+                    totalActivePlayers += w.CurrentPlayerCount;
+                }
+
+                if (totalActivePlayers == 0)
+                {
+                    Log.Info("No active players in any game, not creating new world");
+                    return;
+                }
+
                 Log.Info("No public worlds available, creating new world");
                 var newWorldId = GenerateWorldId(ctx);
                 var width = TerrainGenerator.GetWorldWidth();
