@@ -9,23 +9,16 @@ interface TerminalComponentProps {
     worldId: string;
 }
 
-type OutputItem = string | { type: 'url', url: string };
-
-const COPY_FEEDBACK_DURATION_MS = 2000;
-
 function TerminalComponent({ worldId }: TerminalComponentProps) {
-    const [output, setOutput] = useState<OutputItem[]>([]);
+    const [output, setOutput] = useState<string[]>([]);
     const [input, setInput] = useState('');
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [showGameCreationFlow, setShowGameCreationFlow] = useState(false);
     const [isCreatingGame, setIsCreatingGame] = useState(false);
-    const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-    const [copyError, setCopyError] = useState<number | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const previousWorldIdRef = useRef<string>(worldId);
-    const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         inputRef.current?.focus();
@@ -38,14 +31,6 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     }, [output]);
 
     useEffect(() => {
-        return () => {
-            if (copyTimeoutRef.current) {
-                clearTimeout(copyTimeoutRef.current);
-            }
-        };
-    }, []);
-
-    useEffect(() => {
         if (isCreatingGame && worldId !== previousWorldIdRef.current) {
             const gameUrl = `${window.location.origin}/world/${encodeURIComponent(worldId)}`;
             setOutput(prev => [
@@ -53,7 +38,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                 "Game created successfully!",
                 "",
                 "Share this URL with friends to invite them:",
-                { type: 'url', url: gameUrl },
+                gameUrl,
                 ""
             ]);
             setIsCreatingGame(false);
@@ -305,77 +290,9 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                     }}
                 >
                     <div>
-                        {output.map((line, i) => {
-                            if (typeof line === 'string') {
-                                return (
-                                    <div key={i} style={{ minHeight: '1.5em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
-                                );
-                            } else if (line.type === 'url') {
-                                return (
-                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', marginTop: '4px' }}>
-                                        <div 
-                                            tabIndex={0}
-                                            role="textbox"
-                                            aria-label="Shareable game URL"
-                                            aria-readonly="true"
-                                            style={{
-                                                background: 'rgba(74, 75, 91, 0.5)',
-                                                padding: '8px 12px',
-                                                fontFamily: "'JetBrains Mono', monospace",
-                                                userSelect: 'all',
-                                                cursor: 'text',
-                                                wordBreak: 'break-all',
-                                                border: '1px solid rgba(112, 123, 137, 0.3)',
-                                                flex: 1,
-                                                color: '#7396d5',
-                                                fontSize: '12px'
-                                            }}
-                                        >
-                                            {line.url}
-                                        </div>
-                                        <button
-                                            onClick={() => {
-                                                if (copyTimeoutRef.current) {
-                                                    clearTimeout(copyTimeoutRef.current);
-                                                }
-                                                if (!navigator.clipboard) {
-                                                    setCopyError(i);
-                                                    copyTimeoutRef.current = setTimeout(() => setCopyError(null), COPY_FEEDBACK_DURATION_MS);
-                                                    return;
-                                                }
-                                                navigator.clipboard.writeText(line.url)
-                                                    .then(() => {
-                                                        setCopiedIndex(i);
-                                                        setCopyError(null);
-                                                        copyTimeoutRef.current = setTimeout(() => setCopiedIndex(null), COPY_FEEDBACK_DURATION_MS);
-                                                    })
-                                                    .catch(() => {
-                                                        setCopyError(i);
-                                                        setCopiedIndex(null);
-                                                        copyTimeoutRef.current = setTimeout(() => setCopyError(null), COPY_FEEDBACK_DURATION_MS);
-                                                    });
-                                            }}
-                                            style={{
-                                                background: copiedIndex === i ? '#4e9363' : (copyError === i ? '#c06852' : '#405967'),
-                                                color: '#fcfbf3',
-                                                border: '1px solid rgba(112, 123, 137, 0.3)',
-                                                padding: '8px 16px',
-                                                fontFamily: "'JetBrains Mono', monospace",
-                                                fontSize: '12px',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s ease',
-                                                fontWeight: 500,
-                                                letterSpacing: '0.05em',
-                                                whiteSpace: 'nowrap'
-                                            }}
-                                        >
-                                            {copiedIndex === i ? '✓ COPIED' : (copyError === i ? '✗ FAILED' : 'COPY')}
-                                        </button>
-                                    </div>
-                                );
-                            }
-                            return null;
-                        })}
+                        {output.map((line, i) => (
+                            <div key={i} style={{ minHeight: '1.5em', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{line}</div>
+                        ))}
                     </div>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
                         <span style={{ marginRight: '8px', color: '#96dc7f', fontWeight: 'bold' }}>❯</span>
