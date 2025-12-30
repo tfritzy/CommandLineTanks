@@ -94,68 +94,90 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
     const minutes = Math.floor(timeRemaining / 60);
     const seconds = timeRemaining % 60;
     const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    const showCountdownWarning = timeRemaining <= 10 && timeRemaining > 0;
 
     return (
-        <div style={{
-            position: 'absolute',
-            top: 0,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            alignItems: 'center',
-            zIndex: 1000,
-        } as React.CSSProperties}>
+        <>
             <div style={{
+                position: 'absolute',
+                top: 0,
+                left: '50%',
+                transform: 'translateX(-50%)',
                 display: 'flex',
-                alignItems: 'stretch',
-                height: '26px',
-                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))',
-            }}>
+                alignItems: 'center',
+                zIndex: 1000,
+            } as React.CSSProperties}>
                 <div style={{
-                    backgroundColor: "#813645",
-                    padding: '6px 14px',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fcfbf3',
-                    fontSize: '20px',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontWeight: '700',
-                    clipPath: 'polygon(0 0, 100% 0, 100% 100%, 8px 100%)',
-                    minWidth: '45px',
+                    alignItems: 'stretch',
+                    height: '26px',
+                    filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))',
                 }}>
-                    {team0Kills}
-                </div>
-                <div style={{
-                    backgroundColor: '#34404f',
-                    padding: '6px 16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#e6eeed',
-                    fontSize: '13px',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontWeight: '600',
-                    minWidth: '50px',
-                }}>
-                    {timeString}
-                </div>
-                <div style={{
-                    backgroundColor: "#3e4c7e",
-                    padding: '6px 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fcfbf3',
-                    fontSize: '20px',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontWeight: '700',
-                    clipPath: 'polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%)',
-                    minWidth: '45px',
-                }}>
-                    {team1Kills}
+                    <div style={{
+                        backgroundColor: "#813645",
+                        padding: '6px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fcfbf3',
+                        fontSize: '20px',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontWeight: '700',
+                        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 8px 100%)',
+                        minWidth: '45px',
+                    }}>
+                        {team0Kills}
+                    </div>
+                    <div style={{
+                        backgroundColor: '#34404f',
+                        padding: '6px 16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#e6eeed',
+                        fontSize: '13px',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontWeight: '600',
+                        minWidth: '50px',
+                    }}>
+                        {timeString}
+                    </div>
+                    <div style={{
+                        backgroundColor: "#3e4c7e",
+                        padding: '6px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fcfbf3',
+                        fontSize: '20px',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontWeight: '700',
+                        clipPath: 'polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%)',
+                        minWidth: '45px',
+                    }}>
+                        {team1Kills}
+                    </div>
                 </div>
             </div>
-        </div >
+            {showCountdownWarning && (
+                <div style={{
+                    position: 'absolute',
+                    top: '80px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 2000,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '32px',
+                    fontWeight: 500,
+                    color: '#fcfbf3',
+                    textAlign: 'center',
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)'
+                }}>
+                    Game ending in {timeRemaining}
+                </div>
+            )}
+        </>
     );
 }
