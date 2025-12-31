@@ -14,6 +14,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const CLEAR_DELAY_MS = 500;
+
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -151,11 +153,23 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         }
       };
 
+      const handleClear = (showMessage: boolean = false) => {
+        if (showMessage) {
+          newOutput.push("Clearing terminal...");
+          setOutput(newOutput);
+          setTimeout(() => {
+            setOutput([]);
+          }, CLEAR_DELAY_MS);
+        } else {
+          setOutput([]);
+        }
+        setInput("");
+      };
+
       let commandOutput = executeCommand(cmd, args);
 
       if (commandOutput === 'CLEAR') {
-        setOutput([]);
-        setInput("");
+        handleClear();
         return;
       }
 
@@ -166,12 +180,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           commandOutput = executeCommand(suggestion, args);
           
           if (commandOutput === 'CLEAR') {
-            newOutput.push("Clearing terminal...");
-            setOutput(newOutput);
-            setTimeout(() => {
-              setOutput([]);
-            }, 500);
-            setInput("");
+            handleClear(true);
             return;
           }
         }
