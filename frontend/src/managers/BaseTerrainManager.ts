@@ -1,9 +1,6 @@
 import { BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
-import { generateLakeTextureSheet } from "../utils/lake-texture-generator";
-import { getRenderTileCase } from "../utils/terrain-render-analyzer";
 import { TERRAIN_COLORS, UNIT_TO_PIXEL } from "../constants";
-import { getNormalizedDPR } from "../utils/dpr";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -11,10 +8,8 @@ export class BaseTerrainManager {
   private worldWidth: number = 0;
   private worldHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
-  private lakeTextureSheet: HTMLCanvasElement | null = null;
 
   constructor() {
-    this.lakeTextureSheet = generateLakeTextureSheet(UNIT_TO_PIXEL);
   }
 
   public updateWorld(
@@ -34,12 +29,7 @@ export class BaseTerrainManager {
     canvasWidth: number,
     canvasHeight: number
   ) {
-    if (this.baseTerrainLayer.length === 0 || !this.lakeTextureSheet) return;
-
-    const startRenderX = Math.floor(cameraX / UNIT_TO_PIXEL) - 1;
-    const endRenderX = Math.ceil((cameraX + canvasWidth) / UNIT_TO_PIXEL) + 1;
-    const startRenderY = Math.floor(cameraY / UNIT_TO_PIXEL) - 1;
-    const endRenderY = Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL) + 1;
+    if (this.baseTerrainLayer.length === 0) return;
 
     const startTileX = Math.floor(cameraX / UNIT_TO_PIXEL);
     const endTileX = Math.ceil((cameraX + canvasWidth) / UNIT_TO_PIXEL);
@@ -47,42 +37,6 @@ export class BaseTerrainManager {
     const endTileY = Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL);
 
     this.drawFarms(ctx, startTileX, endTileX, startTileY, endTileY);
-
-    const dpr = getNormalizedDPR();
-
-    for (let renderY = startRenderY; renderY <= endRenderY; renderY++) {
-      for (let renderX = startRenderX; renderX <= endRenderX; renderX++) {
-        const tileCase = getRenderTileCase(
-          this.baseTerrainLayer,
-          this.worldWidth,
-          this.worldHeight,
-          renderX,
-          renderY
-        );
-
-        if (tileCase === 0) continue;
-
-        const sheetCol = tileCase % 4;
-        const sheetRow = Math.floor(tileCase / 4);
-        const srcX = sheetCol * UNIT_TO_PIXEL * dpr;
-        const srcY = sheetRow * UNIT_TO_PIXEL * dpr;
-
-        const worldX = Math.floor((renderX + 0.5) * UNIT_TO_PIXEL);
-        const worldY = Math.floor((renderY + 0.5) * UNIT_TO_PIXEL);
-
-        ctx.drawImage(
-          this.lakeTextureSheet,
-          srcX,
-          srcY,
-          UNIT_TO_PIXEL * dpr,
-          UNIT_TO_PIXEL * dpr,
-          worldX,
-          worldY,
-          UNIT_TO_PIXEL,
-          UNIT_TO_PIXEL
-        );
-      }
-    }
 
     this.drawGrid(ctx, startTileX, endTileX, startTileY, endTileY);
   }
