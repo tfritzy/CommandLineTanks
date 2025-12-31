@@ -17,9 +17,8 @@ public static partial class Module
             height
         );
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
-        var projectileCollisionMap = TerrainGenerator.CalculateProjectileCollisionMap(baseTerrain, terrainDetailArray);
 
-        var world = CreateWorld(ctx, worldId, "Default World", baseTerrain, terrainDetails.ToArray(), traversibilityMap, projectileCollisionMap, width, height);
+        var world = CreateWorld(ctx, worldId, "Default World", baseTerrain, terrainDetails.ToArray(), traversibilityMap, width, height);
 
         SpawnInitialBots(ctx, worldId, world);
 

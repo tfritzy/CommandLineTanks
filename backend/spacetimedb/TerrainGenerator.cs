@@ -14,11 +14,6 @@ public static partial class TerrainGenerator
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
     private const int MIN_STRUCTURES = 3;
     private const int STRUCTURE_COUNT_RANGE = 4;
-    private const int MIN_LAKES = 1;
-    private const int MAX_ADDITIONAL_LAKES = 2;
-    private const float LAKE_NOISE_SCALE = 0.08f;
-    private const float LAKE_NOISE_THRESHOLD = 0.50f;
-    private const float LAKE_NOISE_OFFSET_RANGE = 1000f;
     private const int ROTATION_NORTH = 0;
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
@@ -45,8 +40,6 @@ public static partial class TerrainGenerator
         }
 
         GenerateRocks(terrainDetailArray, baseTerrain, random, width, height);
-
-        GenerateLakes(baseTerrain, terrainDetailArray, random, width, height);
 
         Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, random, width, height);
 
@@ -85,36 +78,6 @@ public static partial class TerrainGenerator
             if (baseTerrain[index] == BaseTerrain.Ground && terrainDetail[index] == TerrainDetailType.None)
             {
                 terrainDetail[index] = TerrainDetailType.Rock;
-            }
-        }
-    }
-
-    private static void GenerateLakes(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, Random random, int width, int height)
-    {
-        int numLakes = MIN_LAKES + random.Next(MAX_ADDITIONAL_LAKES + 1);
-
-        for (int lakeIdx = 0; lakeIdx < numLakes; lakeIdx++)
-        {
-            float offsetX = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
-            float offsetY = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
-
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    int index = y * width + x;
-
-                    if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
-                    {
-                        continue;
-                    }
-
-                    float noiseValue = Noise((x + offsetX) * LAKE_NOISE_SCALE, (y + offsetY) * LAKE_NOISE_SCALE);
-                    if (noiseValue > LAKE_NOISE_THRESHOLD)
-                    {
-                        baseTerrain[index] = BaseTerrain.Lake;
-                    }
-                }
             }
         }
     }
@@ -550,7 +513,6 @@ public static partial class TerrainGenerator
             {
                 BaseTerrain.Ground => true,
                 BaseTerrain.Farm => true,
-                BaseTerrain.Lake => false,
                 _ => true
             };
 
@@ -573,41 +535,6 @@ public static partial class TerrainGenerator
         }
 
         return traversibility;
-    }
-
-    public static bool[] CalculateProjectileCollisionMap(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail)
-    {
-        var projectileCollisionMap = new bool[baseTerrain.Length];
-
-        for (int i = 0; i < baseTerrain.Length; i++)
-        {
-            bool baseTraversible = baseTerrain[i] switch
-            {
-                BaseTerrain.Ground => true,
-                BaseTerrain.Farm => true,
-                BaseTerrain.Lake => true,
-                _ => true
-            };
-
-            bool detailTraversible = terrainDetail[i] switch
-            {
-                TerrainDetailType.None => true,
-                TerrainDetailType.Rock => false,
-                TerrainDetailType.Tree => false,
-                TerrainDetailType.HayBale => false,
-                TerrainDetailType.FoundationEdge => false,
-                TerrainDetailType.FoundationCorner => false,
-                TerrainDetailType.FenceEdge => true,
-                TerrainDetailType.FenceCorner => true,
-                TerrainDetailType.TargetDummy => false,
-                TerrainDetailType.DeadTree => true,
-                _ => true
-            };
-
-            projectileCollisionMap[i] = baseTraversible && detailTraversible;
-        }
-
-        return projectileCollisionMap;
     }
 
     private static void InitPerlin(Random random)
@@ -722,11 +649,7 @@ public static partial class TerrainGenerator
                 int index = y * width + x;
                 if (traversible[index] && !visited[index])
                 {
-                    if (baseTerrain[index] == BaseTerrain.Lake)
-                    {
-                        baseTerrain[index] = BaseTerrain.Ground;
-                    }
-                    else if (terrainDetail[index] != TerrainDetailType.None)
+                    if (terrainDetail[index] != TerrainDetailType.None)
                     {
                         terrainDetail[index] = TerrainDetailType.None;
                     }

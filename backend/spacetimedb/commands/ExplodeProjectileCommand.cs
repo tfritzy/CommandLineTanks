@@ -105,7 +105,6 @@ public static partial class ProjectileUpdater
                 ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
 
                 traversibilityMap.Map[tileIndex] = true;
-                traversibilityMap.ProjectileCollisionMap[tileIndex] = true;
                 return true;
             }
             else

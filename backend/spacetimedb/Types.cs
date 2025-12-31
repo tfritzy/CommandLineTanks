@@ -41,8 +41,7 @@ public static partial class Types
     public enum BaseTerrain : byte
     {
         Ground,
-        Farm,
-        Lake
+        Farm
     }
 
     [Type]
