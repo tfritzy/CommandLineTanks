@@ -100,133 +100,81 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         return;
       }
 
-      let commandOutput: string[] = [];
+      const executeCommand = (commandName: string, commandArgs: string[]): string[] | 'CLEAR' => {
+        switch (commandName.toLowerCase()) {
+          case 'aim':
+          case 'a':
+            return aim(connection, worldId, commandArgs);
+          case 'target':
+          case 't':
+            return target(connection, worldId, commandArgs);
+          case 'drive':
+          case 'd':
+            return drive(connection, worldId, commandArgs);
+          case 'stop':
+          case 's':
+            return stop(connection, worldId, commandArgs);
+          case 'fire':
+          case 'f':
+            return fire(connection, worldId, commandArgs);
+          case 'switch':
+          case 'w':
+            return switchGun(connection, worldId, commandArgs);
+          case 'smokescreen':
+          case 'sm':
+            return smokescreen(connection, worldId, commandArgs);
+          case 'overdrive':
+          case 'od':
+            return overdrive(connection, worldId, commandArgs);
+          case 'repair':
+          case 'rep':
+            return repair(connection, worldId, commandArgs);
+          case 'respawn':
+            return respawn(connection, worldId, commandArgs);
+          case 'create':
+            return create(connection, commandArgs);
+          case 'join':
+            return join(connection, commandArgs);
+          case 'lobbies':
+          case 'l':
+            return lobbies(connection, commandArgs);
+          case 'name':
+            return changeName(connection, commandArgs);
+          case 'help':
+          case 'h':
+            return help(connection, commandArgs);
+          case 'clear':
+          case 'c':
+            return 'CLEAR';
+          default:
+            return [`Command not found: ${commandName}`, "", "Use 'help' to see all available commands."];
+        }
+      };
 
-      switch (cmd.toLowerCase()) {
-        case 'aim':
-        case 'a':
-          commandOutput = aim(connection, worldId, args);
-          break;
-        case 'target':
-        case 't':
-          commandOutput = target(connection, worldId, args);
-          break;
-        case 'drive':
-        case 'd':
-          commandOutput = drive(connection, worldId, args);
-          break;
-        case 'stop':
-        case 's':
-          commandOutput = stop(connection, worldId, args);
-          break;
-        case 'fire':
-        case 'f':
-          commandOutput = fire(connection, worldId, args);
-          break;
-        case 'switch':
-        case 'w':
-          commandOutput = switchGun(connection, worldId, args);
-          break;
-        case 'smokescreen':
-        case 'sm':
-          commandOutput = smokescreen(connection, worldId, args);
-          break;
-        case 'overdrive':
-        case 'od':
-          commandOutput = overdrive(connection, worldId, args);
-          break;
-        case 'repair':
-        case 'rep':
-          commandOutput = repair(connection, worldId, args);
-          break;
-        case 'respawn':
-          commandOutput = respawn(connection, worldId, args);
-          break;
-        case 'create':
-          commandOutput = create(connection, args);
-          break;
-        case 'join':
-          commandOutput = join(connection, args);
-          break;
-        case 'lobbies':
-        case 'l':
-          commandOutput = lobbies(connection, args);
-          break;
-        case 'name':
-          commandOutput = changeName(connection, args);
-          break;
-        case 'help':
-        case 'h':
-          commandOutput = help(connection, args);
-          break;
-        case 'clear':
-        case 'c':
-          setOutput([]);
-          setInput("");
-          return;
-        default:
-          const suggestion = findCommandSuggestion(cmd);
-          if (suggestion) {
-            newOutput.push(`Assuming you meant '${suggestion}'`, "");
-            
-            switch (suggestion.toLowerCase()) {
-              case 'aim':
-                commandOutput = aim(connection, worldId, args);
-                break;
-              case 'target':
-                commandOutput = target(connection, worldId, args);
-                break;
-              case 'drive':
-                commandOutput = drive(connection, worldId, args);
-                break;
-              case 'stop':
-                commandOutput = stop(connection, worldId, args);
-                break;
-              case 'fire':
-                commandOutput = fire(connection, worldId, args);
-                break;
-              case 'switch':
-                commandOutput = switchGun(connection, worldId, args);
-                break;
-              case 'smokescreen':
-                commandOutput = smokescreen(connection, worldId, args);
-                break;
-              case 'overdrive':
-                commandOutput = overdrive(connection, worldId, args);
-                break;
-              case 'repair':
-                commandOutput = repair(connection, worldId, args);
-                break;
-              case 'respawn':
-                commandOutput = respawn(connection, worldId, args);
-                break;
-              case 'create':
-                commandOutput = create(connection, args);
-                break;
-              case 'join':
-                commandOutput = join(connection, args);
-                break;
-              case 'lobbies':
-                commandOutput = lobbies(connection, args);
-                break;
-              case 'name':
-                commandOutput = changeName(connection, args);
-                break;
-              case 'help':
-                commandOutput = help(connection, args);
-                break;
-              case 'clear':
-                setOutput([]);
-                setInput("");
-                return;
-              default:
-                commandOutput = [`Command not found: ${cmd}`, "", "Use 'help' to see all available commands."];
-                break;
-            }
-          } else {
-            commandOutput = [`Command not found: ${cmd}`, "", "Use 'help' to see all available commands."];
+      let commandOutput = executeCommand(cmd, args);
+
+      if (commandOutput === 'CLEAR') {
+        setOutput([]);
+        setInput("");
+        return;
+      }
+
+      if (commandOutput[0]?.startsWith('Command not found:')) {
+        const suggestion = findCommandSuggestion(cmd);
+        if (suggestion) {
+          newOutput.push(`Assuming you meant '${suggestion}'`, "");
+          commandOutput = executeCommand(suggestion, args);
+          
+          if (commandOutput === 'CLEAR') {
+            newOutput.push("Clearing terminal...");
+            setOutput(newOutput);
+            setTimeout(() => {
+              setOutput([]);
+            }, 500);
+            setInput("");
+            return;
           }
-          break;
+        }
       }
 
       newOutput.push(...commandOutput, "");
