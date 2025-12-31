@@ -13,10 +13,8 @@ interface PlayerScore {
 
 export class ScoreManager {
   private playerScores: Map<string, PlayerScore> = new Map();
-  private maxScore: number = 1;
   private sortedPlayers: PlayerScore[] = [];
   private worldId: string;
-  private isHomeworld: boolean;
   private handleTankInsert:
     | ((ctx: EventContext, tank: Infer<typeof TankRow>) => void)
     | null = null;
@@ -33,12 +31,6 @@ export class ScoreManager {
 
   constructor(worldId: string) {
     this.worldId = worldId;
-
-    const connection = getConnection();
-    this.isHomeworld = connection?.identity
-      ? connection.identity.toHexString().toLowerCase() === worldId
-      : false;
-
     this.subscribeToTanks(this.worldId);
   }
 
@@ -53,15 +45,6 @@ export class ScoreManager {
   }
 
   private updateLeaderboard() {
-    let maxAbsScore = 1;
-    for (const player of this.playerScores.values()) {
-      const absScore = Math.abs(player.score);
-      if (absScore > maxAbsScore) {
-        maxAbsScore = absScore;
-      }
-    }
-    this.maxScore = maxAbsScore;
-
     this.sortedPlayers.length = 0;
     for (const player of this.playerScores.values()) {
       this.sortedPlayers.push(player);
