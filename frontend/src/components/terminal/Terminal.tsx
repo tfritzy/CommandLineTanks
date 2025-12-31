@@ -167,13 +167,62 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         default:
           const suggestion = findCommandSuggestion(cmd);
           if (suggestion) {
-            commandOutput = [
-              `Command not found: ${cmd}`,
-              "",
-              `Did you mean '${suggestion}'?`,
-              "",
-              "Use 'help' to see all available commands."
-            ];
+            newOutput.push(`Assuming you meant '${suggestion}'`, "");
+            
+            switch (suggestion.toLowerCase()) {
+              case 'aim':
+                commandOutput = aim(connection, worldId, args);
+                break;
+              case 'target':
+                commandOutput = target(connection, worldId, args);
+                break;
+              case 'drive':
+                commandOutput = drive(connection, worldId, args);
+                break;
+              case 'stop':
+                commandOutput = stop(connection, worldId, args);
+                break;
+              case 'fire':
+                commandOutput = fire(connection, worldId, args);
+                break;
+              case 'switch':
+                commandOutput = switchGun(connection, worldId, args);
+                break;
+              case 'smokescreen':
+                commandOutput = smokescreen(connection, worldId, args);
+                break;
+              case 'overdrive':
+                commandOutput = overdrive(connection, worldId, args);
+                break;
+              case 'repair':
+                commandOutput = repair(connection, worldId, args);
+                break;
+              case 'respawn':
+                commandOutput = respawn(connection, worldId, args);
+                break;
+              case 'create':
+                commandOutput = create(connection, args);
+                break;
+              case 'join':
+                commandOutput = join(connection, args);
+                break;
+              case 'lobbies':
+                commandOutput = lobbies(connection, args);
+                break;
+              case 'name':
+                commandOutput = changeName(connection, args);
+                break;
+              case 'help':
+                commandOutput = help(connection, args);
+                break;
+              case 'clear':
+                setOutput([]);
+                setInput("");
+                return;
+              default:
+                commandOutput = [`Command not found: ${cmd}`, "", "Use 'help' to see all available commands."];
+                break;
+            }
           } else {
             commandOutput = [`Command not found: ${cmd}`, "", "Use 'help' to see all available commands."];
           }
