@@ -17,11 +17,7 @@ public static partial class Module
             RemoveTankFromWorld(ctx, currentTank);
         }
 
-        var tank = ReturnToHomeworld(ctx, joinCode);
-        if (tank != null)
-        {
-            AddTankToWorld(ctx, tank.Value);
-        }
+        ReturnToHomeworld(ctx, joinCode);
         
         Log.Info($"Returned to homeworld");
     }

@@ -88,14 +88,14 @@ public static partial class Module
         ctx.Db.world.Id.Update(updatedWorld);
     }
 
-    public static Tank? ReturnToHomeworld(ReducerContext ctx, string joinCode)
+    public static void ReturnToHomeworld(ReducerContext ctx, string joinCode)
     {
         var identityString = ctx.Sender.ToString().ToLower();
         var homeworld = ctx.Db.world.Id.Find(identityString);
         if (homeworld == null)
         {
             Log.Error($"Homeworld not found for identity {identityString}");
-            return null;
+            return;
         }
 
         var existingTank = ctx.Db.tank.WorldId.Filter(identityString)
@@ -108,7 +108,7 @@ public static partial class Module
             ctx.Db.tank.Id.Update(updatedTank);
             StartWorldTickers(ctx, identityString);
             Log.Info($"Updated existing homeworld tank with new join code");
-            return null;
+            return;
         }
 
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
@@ -126,8 +126,8 @@ public static partial class Module
             HOMEWORLD_HEIGHT / 2 + .5f,
             AIBehavior.None);
 
+        AddTankToWorld(ctx, tank);
         StartWorldTickers(ctx, identityString);
-        
-        return tank;
+        Log.Info($"Created homeworld tank for identity {identityString}");
     }
 }

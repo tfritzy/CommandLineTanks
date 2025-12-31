@@ -39,12 +39,7 @@ public static partial class Module
             .FirstOrDefault();
         if (existingTank.Id == null)
         {
-            var tank = ReturnToHomeworld(ctx, "");
-            if (tank != null)
-            {
-                ctx.Db.tank.Insert(tank.Value);
-                Log.Info($"Created homeworld tank {tank.Value.TargetCode} for identity {identityString}");
-            }
+            ReturnToHomeworld(ctx, "");
         }
     }
 }
