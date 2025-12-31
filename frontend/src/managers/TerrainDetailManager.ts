@@ -57,13 +57,6 @@ export class TerrainDetailManager {
     const connection = getConnection();
     if (!connection) return;
 
-    connection
-      .subscriptionBuilder()
-      .onError((e) => console.log("TerrainDetails subscription error", e))
-      .subscribe([
-        `SELECT * FROM terrain_detail WHERE WorldId = '${this.worldId}'`,
-      ]);
-
     this.handleDetailInsert = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       if (detail.worldId !== this.worldId) return;
       this.createDetailObject(detail);

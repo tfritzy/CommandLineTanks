@@ -1,7 +1,7 @@
 import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
-import { type EventContext, type SubscriptionHandle } from "../../module_bindings";
+import { type EventContext } from "../../module_bindings";
 import { drawPlayerScore } from "../drawing/ui/scoreboard";
 
 interface PlayerScore {
@@ -18,7 +18,6 @@ export class ScoreManager {
   private sortedPlayers: PlayerScore[] = [];
   private worldId: string;
   private isHomeworld: boolean;
-  private subscriptionHandle: SubscriptionHandle | null = null;
   private handleTankInsert: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
   private handleTankUpdate: ((ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => void) | null = null;
   private handleTankDelete: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
@@ -68,11 +67,6 @@ export class ScoreManager {
       return;
     }
 
-    this.subscriptionHandle = connection
-      .subscriptionBuilder()
-      .onError((e) => console.error("Tank subscription error", e))
-      .subscribe([`SELECT * FROM tank WHERE WorldId = '${worldId}'`]);
-
     this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
       if (tank.worldId !== worldId) return;
       this.playerScores.set(tank.id, ScoreManager.createPlayerScore(tank));
@@ -109,10 +103,6 @@ export class ScoreManager {
       if (this.handleTankInsert) connection.db.tank.removeOnInsert(this.handleTankInsert);
       if (this.handleTankUpdate) connection.db.tank.removeOnUpdate(this.handleTankUpdate);
       if (this.handleTankDelete) connection.db.tank.removeOnDelete(this.handleTankDelete);
-    }
-
-    if (this.subscriptionHandle) {
-      this.subscriptionHandle.unsubscribe();
     }
   }
 

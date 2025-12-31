@@ -22,11 +22,6 @@ export class SmokeCloudManager {
       return;
     }
 
-    connection
-      .subscriptionBuilder()
-      .onError((e) => console.error("Smoke cloud subscription error", e))
-      .subscribe([`SELECT * FROM smoke_cloud WHERE WorldId = '${this.worldId}'`]);
-
     this.handleCloudInsert = (_ctx: EventContext, cloud: Infer<typeof SmokeCloudRow>) => {
       if (cloud.worldId !== this.worldId) return;
       const particles = new SmokeCloudParticles(cloud.positionX, cloud.positionY, cloud.radius);

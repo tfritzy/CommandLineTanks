@@ -5,7 +5,7 @@ import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet
 import { UNIT_TO_PIXEL } from "../constants";
 import type { TankManager } from "./TankManager";
 import { ScreenShake } from "../utils/ScreenShake";
-import type { SubscriptionHandle, EventContext } from "../../module_bindings";
+import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import ProjectileRow from "../../module_bindings/projectile_type";
 
@@ -15,7 +15,6 @@ export class ProjectileManager {
   private particlesManager: ProjectileImpactParticlesManager;
   private tankManager: TankManager | null = null;
   private screenShake: ScreenShake;
-  private subscriptionHandle: SubscriptionHandle | null = null;
   private handleProjectileUpdate: ((ctx: EventContext, oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => void) | null = null;
   private handleProjectileDelete: ((ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => void) | null = null;
 
@@ -33,13 +32,6 @@ export class ProjectileManager {
   private subscribeToProjectiles() {
     const connection = getConnection();
     if (!connection) return;
-
-    this.subscriptionHandle = connection
-      .subscriptionBuilder()
-      .onError((e) => console.log("Projectile subscription error", e))
-      .subscribe([
-        `SELECT * FROM projectile WHERE WorldId = '${this.worldId}'`,
-      ]);
 
     this.handleProjectileUpdate = (_ctx: EventContext, _oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => {
       if (newProjectile.worldId !== this.worldId) return;
@@ -113,10 +105,6 @@ export class ProjectileManager {
     if (connection) {
       if (this.handleProjectileUpdate) connection.db.projectile.removeOnUpdate(this.handleProjectileUpdate);
       if (this.handleProjectileDelete) connection.db.projectile.removeOnDelete(this.handleProjectileDelete);
-    }
-
-    if (this.subscriptionHandle) {
-      this.subscriptionHandle.unsubscribe();
     }
   }
 
