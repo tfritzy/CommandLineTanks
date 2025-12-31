@@ -1016,6 +1016,8 @@ export function create(
   connection: DbConnection,
   args: string[]
 ): string[] {
+  const usage = "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]";
+  
   const defaults = {
     name: 'New World',
     visibility: 'private' as 'public' | 'private',
@@ -1037,7 +1039,7 @@ export function create(
         return [
           `create: error: ${arg} requires a value`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       state.name = args[i + 1];
@@ -1047,7 +1049,7 @@ export function create(
         return [
           `create: error: ${arg} requires a value`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       const vis = args[i + 1].toLowerCase();
@@ -1055,7 +1057,7 @@ export function create(
         return [
           `create: error: invalid visibility '${args[i + 1]}', must be 'public' or 'private'`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       state.visibility = vis as 'public' | 'private';
@@ -1065,7 +1067,7 @@ export function create(
         return [
           `create: error: ${arg} requires a value`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       state.passcode = args[i + 1];
@@ -1075,7 +1077,7 @@ export function create(
         return [
           `create: error: ${arg} requires a value`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       const bots = parseInt(args[i + 1]);
@@ -1083,7 +1085,7 @@ export function create(
         return [
           `create: error: invalid bot count '${args[i + 1]}', must be an even number between 0 and 10`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       state.bots = bots;
@@ -1093,7 +1095,7 @@ export function create(
         return [
           `create: error: ${arg} requires a value`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       const duration = parseInt(args[i + 1]);
@@ -1101,7 +1103,7 @@ export function create(
         return [
           `create: error: invalid duration '${args[i + 1]}', must be between 1 and 20 minutes`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       state.duration = duration;
@@ -1111,7 +1113,7 @@ export function create(
         return [
           `create: error: ${arg} requires a value`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       const width = parseInt(args[i + 1]);
@@ -1119,7 +1121,7 @@ export function create(
         return [
           `create: error: invalid width '${args[i + 1]}', must be between 1 and 200`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       state.width = width;
@@ -1129,7 +1131,7 @@ export function create(
         return [
           `create: error: ${arg} requires a value`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       const height = parseInt(args[i + 1]);
@@ -1137,7 +1139,7 @@ export function create(
         return [
           `create: error: invalid height '${args[i + 1]}', must be between 1 and 200`,
           "",
-          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+          usage
         ];
       }
       state.height = height;
@@ -1146,7 +1148,7 @@ export function create(
       return [
         `create: error: unknown flag '${arg}'`,
         "",
-        "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]",
+        usage,
         "",
         "Defaults: name='New World', visibility=private, passcode='', bots=0, duration=10, width=50, height=50"
       ];
