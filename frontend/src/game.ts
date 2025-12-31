@@ -10,6 +10,7 @@ import { SmokeCloudManager } from "./managers/SmokeCloudManager";
 import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
 import { UNIT_TO_PIXEL } from "./constants";
 import { ScreenShake } from "./utils/ScreenShake";
+import { FpsCounter } from "./utils/FpsCounter";
 
 const CAMERA_FOLLOW_SPEED = 15;
 
@@ -33,9 +34,7 @@ export class Game {
   private currentCameraY: number = 0;
   private screenShake: ScreenShake;
   private resizeHandler: () => void;
-  private fps: number = 0;
-  private fpsFrameCount: number = 0;
-  private fpsLastUpdate: number = 0;
+  private fpsCounter: FpsCounter;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -50,6 +49,7 @@ export class Game {
     window.addEventListener("resize", this.resizeHandler);
 
     this.screenShake = new ScreenShake();
+    this.fpsCounter = new FpsCounter();
     this.tankManager = new TankManager(worldId, this.screenShake);
     this.terrainManager = new TerrainManager(worldId);
     this.projectileManager = new ProjectileManager(worldId, this.screenShake);
@@ -151,12 +151,7 @@ export class Game {
     this.lastFrameTime = currentTime;
     this.time += deltaTime;
 
-    this.fpsFrameCount++;
-    if (currentTime - this.fpsLastUpdate >= 1000) {
-      this.fps = Math.round((this.fpsFrameCount * 1000) / (currentTime - this.fpsLastUpdate));
-      this.fpsFrameCount = 0;
-      this.fpsLastUpdate = currentTime;
-    }
+    this.fpsCounter.update(currentTime);
 
     this.tankManager.update(deltaTime);
     this.projectileManager.update(deltaTime);
@@ -292,16 +287,7 @@ export class Game {
     this.abilitiesBarManager.draw(this.ctx, displayWidth, displayHeight);
     this.killManager.draw(this.ctx, displayWidth);
 
-    if (this.fps > 0) {
-      this.ctx.save();
-      this.ctx.font = "14px monospace";
-      this.ctx.fillStyle = "#fcfbf3";
-      this.ctx.strokeStyle = "#2e2e43";
-      this.ctx.lineWidth = 3;
-      this.ctx.strokeText(`FPS: ${this.fps}`, 10, 20);
-      this.ctx.fillText(`FPS: ${this.fps}`, 10, 20);
-      this.ctx.restore();
-    }
+    this.fpsCounter.draw(this.ctx);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }
