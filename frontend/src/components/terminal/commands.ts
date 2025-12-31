@@ -320,23 +320,23 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "create - Create a new game world",
         "",
-        "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]",
+        "Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]",
         "",
         "Flags:",
         "  --name, -n          World name (default: 'New World')",
-        "  --visibility, -v    'public' or 'private' (default: private)",
         "  --passcode, -p      Passcode for private worlds (default: '')",
         "  --bots, -b          Number of AI bots, must be even, 0-10 (default: 0)",
         "  --duration, -d      Game duration in minutes, 1-20 (default: 10)",
         "  --width, -w         Map width, 1-200 (default: 50)",
         "  --height, -h        Map height, 1-200 (default: 50)",
         "",
+        "All worlds are created as private.",
         "After creation, you'll be automatically joined to the new game.",
         "",
         "Examples:",
         "  create",
-        "  create --name 'Battle Arena' --visibility public --bots 4",
-        "  create -n 'My Game' -v private -p secret123 -d 15",
+        "  create --name 'Battle Arena' --bots 4",
+        "  create -n 'My Game' -p secret123 -d 15",
         "  create --width 100 --height 100 --duration 20",
       ];
 
@@ -1016,11 +1016,10 @@ export function create(
   connection: DbConnection,
   args: string[]
 ): string[] {
-  const usage = "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]";
+  const usage = "Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]";
   
   const defaults = {
     name: 'New World',
-    visibility: 'private' as 'public' | 'private',
     passcode: '',
     bots: 0,
     duration: 10,
@@ -1051,24 +1050,6 @@ export function create(
         ];
       }
       state.name = name;
-      i += 2;
-    } else if (arg === '--visibility' || arg === '-v') {
-      if (i + 1 >= args.length) {
-        return [
-          `create: error: ${arg} requires a value`,
-          "",
-          usage
-        ];
-      }
-      const vis = args[i + 1].toLowerCase();
-      if (vis !== 'public' && vis !== 'private') {
-        return [
-          `create: error: invalid visibility '${args[i + 1]}', must be 'public' or 'private'`,
-          "",
-          usage
-        ];
-      }
-      state.visibility = vis as 'public' | 'private';
       i += 2;
     } else if (arg === '--passcode' || arg === '-p') {
       if (i + 1 >= args.length) {
@@ -1158,7 +1139,7 @@ export function create(
         "",
         usage,
         "",
-        "Defaults: name='New World', visibility=private, passcode='', bots=0, duration=10, width=50, height=50"
+        "Defaults: name='New World', passcode='', bots=0, duration=10, width=50, height=50"
       ];
     }
   }
@@ -1167,7 +1148,7 @@ export function create(
   setPendingJoinCode(joinCode);
   
   const gameDurationMicros = BigInt(state.duration * 60 * 1000000);
-  const visibility = state.visibility === 'private' ? WorldVisibility.Private : WorldVisibility.CustomPublic;
+  const visibility = WorldVisibility.Private;
 
   connection.reducers.createWorld({ 
     joinCode,
@@ -1180,9 +1161,8 @@ export function create(
     height: state.height
   });
 
-  const visibilityLabel = state.visibility === 'private' ? 'private' : 'public';
   return [
-    `Creating ${visibilityLabel} world "${state.name}"...`,
+    `Creating private world "${state.name}"...`,
     `Bots: ${state.bots}, Duration: ${state.duration} min, Size: ${state.width}x${state.height}`,
     "",
     "World creation initiated. You'll be automatically joined."
