@@ -10,11 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("TraversibilityMap", {
+export default {
   worldId: __t.string(),
-  map: __t.array(__t.bool()),
-  width: __t.i32(),
-  height: __t.i32(),
-});
-
-
+  joinCode: __t.string(),
+};

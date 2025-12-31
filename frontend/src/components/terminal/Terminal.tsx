@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { getConnection } from "../../spacetimedb-connection";
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies, create, changeName } from "./commands";
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies, create, changeName, exitWorld } from "./commands";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -147,6 +147,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           break;
         case 'join':
           commandOutput = join(connection, args);
+          break;
+        case 'exit':
+        case 'e':
+          commandOutput = exitWorld(connection, worldId, args);
           break;
         case 'lobbies':
         case 'l':
