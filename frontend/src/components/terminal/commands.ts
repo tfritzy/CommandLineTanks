@@ -1042,7 +1042,15 @@ export function create(
           usage
         ];
       }
-      state.name = args[i + 1];
+      const name = args[i + 1].trim();
+      if (!name) {
+        return [
+          `create: error: world name cannot be empty`,
+          "",
+          usage
+        ];
+      }
+      state.name = name;
       i += 2;
     } else if (arg === '--visibility' || arg === '-v') {
       if (i + 1 >= args.length) {
