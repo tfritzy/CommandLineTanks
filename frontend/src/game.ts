@@ -61,7 +61,7 @@ export class Game {
     this.pickupManager = new PickupManager(worldId);
     this.miniMapManager = new MiniMapManager(
       this.tankManager,
-      this.terrainManager
+      worldId
     );
     this.killManager = new KillManager(worldId);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
@@ -342,6 +342,7 @@ export class Game {
     this.scoreManager.destroy();
     this.gunInventoryManager.destroy();
     this.pickupManager.destroy();
+    this.miniMapManager.destroy();
     this.killManager.destroy();
     this.smokeCloudManager.destroy();
     this.abilitiesBarManager.destroy();
