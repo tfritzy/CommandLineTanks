@@ -88,46 +88,9 @@ public static partial class Module
         ctx.Db.world.Id.Update(updatedWorld);
     }
 
-    public static Tank? CreateHomeworldTank(ReducerContext ctx, Identity owner)
+    public static Tank? ReturnToHomeworld(ReducerContext ctx, string joinCode)
     {
-        var identityString = owner.ToString().ToLower();
-        var homeworld = ctx.Db.world.Id.Find(identityString);
-        if (homeworld == null)
-        {
-            Log.Error($"Homeworld not found for identity {identityString}");
-            return null;
-        }
-
-        var targetCode = AllocateTargetCode(ctx, identityString);
-        if (targetCode == null)
-        {
-            Log.Error($"No available target codes in homeworld");
-            return null;
-        }
-
-        var player = ctx.Db.player.Identity.Find(owner);
-        var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
-
-        var tank = BuildTank(
-            ctx,
-            identityString,
-            owner,
-            playerName,
-            targetCode,
-            "",
-            0,
-            HOMEWORLD_WIDTH / 2 + .5f,
-            HOMEWORLD_HEIGHT / 2 + .5f,
-            AIBehavior.None);
-
-        StartWorldTickers(ctx, identityString);
-        
-        return tank;
-    }
-
-    public static Tank? ReturnToHomeworld(ReducerContext ctx, Identity owner, string joinCode)
-    {
-        var identityString = owner.ToString().ToLower();
+        var identityString = ctx.Sender.ToString().ToLower();
         var homeworld = ctx.Db.world.Id.Find(identityString);
         if (homeworld == null)
         {
@@ -136,7 +99,7 @@ public static partial class Module
         }
 
         var existingTank = ctx.Db.tank.WorldId.Filter(identityString)
-            .Where(t => t.Owner == owner)
+            .Where(t => t.Owner == ctx.Sender)
             .FirstOrDefault();
         
         if (existingTank.Id != null)
@@ -148,22 +111,15 @@ public static partial class Module
             return null;
         }
 
-        var targetCode = AllocateTargetCode(ctx, identityString);
-        if (targetCode == null)
-        {
-            Log.Error($"No available target codes in homeworld");
-            return null;
-        }
-
-        var player = ctx.Db.player.Identity.Find(owner);
+        var player = ctx.Db.player.Identity.Find(ctx.Sender);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
         var tank = BuildTank(
             ctx,
             identityString,
-            owner,
+            ctx.Sender,
             playerName,
-            targetCode,
+            "",
             joinCode,
             0,
             HOMEWORLD_WIDTH / 2 + .5f,

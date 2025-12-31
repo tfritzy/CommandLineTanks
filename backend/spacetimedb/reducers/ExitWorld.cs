@@ -6,13 +6,6 @@ public static partial class Module
     [Reducer]
     public static void exitWorld(ReducerContext ctx, string worldId, string joinCode)
     {
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
-        if (player == null)
-        {
-            Log.Error("Player not found for identity");
-            return;
-        }
-
         var identityString = ctx.Sender.ToString().ToLower();
         
         var homeworldTank = ctx.Db.tank.WorldId.Filter(identityString)
@@ -23,7 +16,7 @@ public static partial class Module
         {
             var updatedTank = homeworldTank with { JoinCode = joinCode };
             ctx.Db.tank.Id.Update(updatedTank);
-            Log.Info($"Player {player.Value.Name} already in homeworld, updated join code");
+            Log.Info($"Already in homeworld, updated join code");
             return;
         }
 
@@ -36,12 +29,12 @@ public static partial class Module
             RemoveTankFromWorld(ctx, currentTank);
         }
 
-        var tank = ReturnToHomeworld(ctx, ctx.Sender, joinCode);
+        var tank = ReturnToHomeworld(ctx, joinCode);
         if (tank != null)
         {
             AddTankToWorld(ctx, tank.Value);
         }
         
-        Log.Info($"Player {player.Value.Name} returned to homeworld");
+        Log.Info($"Returned to homeworld");
     }
 }
