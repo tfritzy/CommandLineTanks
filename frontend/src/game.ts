@@ -44,8 +44,6 @@ export class Game {
       throw new Error("Failed to get 2D context");
     }
     this.ctx = ctx;
-    this.ctx.imageSmoothingEnabled = true;
-    this.ctx.imageSmoothingQuality = 'high';
 
     this.resizeHandler = () => this.resizeCanvas();
     this.resizeCanvas();
