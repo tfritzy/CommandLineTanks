@@ -1,5 +1,5 @@
 import { getConnection } from "../spacetimedb-connection";
-import { type PickupRow, type EventContext, type SubscriptionHandle } from "../../module_bindings";
+import { type PickupRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
 import { UNIT_TO_PIXEL } from "../constants";
@@ -16,7 +16,6 @@ interface PickupData {
 export class PickupManager {
   private pickups: Map<string, PickupData> = new Map();
   private worldId: string;
-  private subscriptionHandle: SubscriptionHandle | null = null;
   private handlePickupInsert: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
   private handlePickupDelete: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
 
@@ -28,11 +27,6 @@ export class PickupManager {
   private subscribeToPickups() {
     const connection = getConnection();
     if (!connection) return;
-
-    this.subscriptionHandle = connection
-      .subscriptionBuilder()
-      .onError((e) => console.log("Pickups subscription error", e))
-      .subscribe([`SELECT * FROM pickup WHERE WorldId = '${this.worldId}'`]);
 
     this.handlePickupInsert = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
       if (pickup.worldId !== this.worldId) return;
@@ -69,10 +63,6 @@ export class PickupManager {
     if (connection) {
       if (this.handlePickupInsert) connection.db.pickup.removeOnInsert(this.handlePickupInsert);
       if (this.handlePickupDelete) connection.db.pickup.removeOnDelete(this.handlePickupDelete);
-    }
-
-    if (this.subscriptionHandle) {
-      this.subscriptionHandle.unsubscribe();
     }
   }
 

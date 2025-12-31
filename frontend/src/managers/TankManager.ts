@@ -6,7 +6,7 @@ import { TargetingReticle } from "../objects/TargetingReticle";
 import { ScreenShake } from "../utils/ScreenShake";
 import { MuzzleFlashParticlesManager } from "./MuzzleFlashParticlesManager";
 import { GUN_BARREL_LENGTH } from "../constants";
-import type { SubscriptionHandle, EventContext } from "../../module_bindings";
+import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
@@ -22,7 +22,6 @@ export class TankManager {
   private indicatorManager: TankIndicatorManager;
   private screenShake: ScreenShake;
   private muzzleFlashManager: MuzzleFlashParticlesManager;
-  private subscriptionHandle: SubscriptionHandle | null = null;
   private handleTankInsert:
     | ((ctx: EventContext, tank: Infer<typeof TankRow>) => void)
     | null = null;
@@ -70,14 +69,6 @@ export class TankManager {
   private subscribeToTanks() {
     const connection = getConnection();
     if (!connection) return;
-
-    this.subscriptionHandle = connection
-      .subscriptionBuilder()
-      .onError((e) => console.log("Ah fuck", e))
-      .subscribe([
-        `SELECT * FROM tank WHERE WorldId = '${this.worldId}'`,
-        `SELECT * FROM tank_path WHERE WorldId = '${this.worldId}'`,
-      ]);
 
     this.setupTankHandlers(connection);
     this.setupTankPathHandlers(connection);
@@ -308,10 +299,6 @@ export class TankManager {
         connection.db.tankPath.removeOnUpdate(this.handleTankPathUpdate);
       if (this.handleTankPathDelete)
         connection.db.tankPath.removeOnDelete(this.handleTankPathDelete);
-    }
-
-    if (this.subscriptionHandle) {
-      this.subscriptionHandle.unsubscribe();
     }
   }
 

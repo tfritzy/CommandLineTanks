@@ -10,13 +10,14 @@ import { getConnection } from '../spacetimedb-connection';
 import { useWorldSwitcher } from '../hooks/useWorldSwitcher';
 import { type Infer } from 'spacetimedb';
 import TankRow from '../../module_bindings/tank_type';
-import { type EventContext } from '../../module_bindings';
+import { type EventContext, type SubscriptionHandle } from '../../module_bindings';
 
 export default function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
+  const subscriptionRef = useRef<SubscriptionHandle | null>(null);
   const [isDead, setIsDead] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
@@ -29,6 +30,33 @@ export default function GameView() {
   };
 
   useWorldSwitcher(handleWorldChange, worldId || null);
+
+  useEffect(() => {
+    if (!worldId) return;
+
+    const connection = getConnection();
+    if (!connection) return;
+
+    subscriptionRef.current?.unsubscribe();
+    subscriptionRef.current = connection
+      .subscriptionBuilder()
+      .onError((e) => console.error("Subscription error", e))
+      .subscribe([
+        `SELECT * FROM tank WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM tank_path WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM projectile WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM pickup WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM smoke_cloud WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM kills WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM terrain_detail WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM world WHERE Id = '${worldId}'`,
+      ]);
+
+    return () => {
+      subscriptionRef.current?.unsubscribe();
+      subscriptionRef.current = null;
+    };
+  }, [worldId]);
 
   useEffect(() => {
     if (!canvasRef.current || !worldId) return;

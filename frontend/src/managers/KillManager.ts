@@ -1,7 +1,7 @@
 import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import KillRow from "../../module_bindings/kills_table";
-import { type EventContext, type SubscriptionHandle } from "../../module_bindings";
+import { type EventContext } from "../../module_bindings";
 import { drawKillNotification } from "../drawing/ui/kill-feed";
 
 interface KillNotification {
@@ -16,7 +16,6 @@ export class KillManager {
   private worldId: string;
   private deletedKills: Set<string> = new Set();
   private sortedNotifications: KillNotification[] = [];
-  private subscriptionHandle: SubscriptionHandle | null = null;
   private handleKillInsert: ((ctx: EventContext, kill: Infer<typeof KillRow>) => void) | null = null;
   private handleKillDelete: ((ctx: EventContext, kill: Infer<typeof KillRow>) => void) | null = null;
 
@@ -31,11 +30,6 @@ export class KillManager {
       console.warn("Cannot subscribe to kills: connection not available");
       return;
     }
-
-    this.subscriptionHandle = connection
-      .subscriptionBuilder()
-      .onError((e) => console.error("Kills subscription error", e))
-      .subscribe([`SELECT * FROM kills WHERE WorldId = '${this.worldId}'`]);
 
     this.handleKillInsert = (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
       if (kill.worldId !== this.worldId) return;
@@ -77,10 +71,6 @@ export class KillManager {
     if (connection) {
       if (this.handleKillInsert) connection.db.kills.removeOnInsert(this.handleKillInsert);
       if (this.handleKillDelete) connection.db.kills.removeOnDelete(this.handleKillDelete);
-    }
-
-    if (this.subscriptionHandle) {
-      this.subscriptionHandle.unsubscribe();
     }
   }
 
