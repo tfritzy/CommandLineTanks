@@ -29,3 +29,4 @@ spacetimedb-cli
 spacetimedb-standalone
 frontend/node_modules/
 frontend/package-lock.json
+wget-log
