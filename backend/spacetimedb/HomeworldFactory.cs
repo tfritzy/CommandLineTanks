@@ -75,7 +75,7 @@ public static partial class Module
             int rx = random.Next(worldWidth);
             int ry = random.Next(worldHeight);
             int rIndex = ry * worldWidth + rx;
-            if (traversibilityMap[rIndex] && (Math.Abs(rx - worldWidth/2) > 5 || Math.Abs(ry - worldHeight/2) > 5))
+            if (traversibilityMap[rIndex] && (Math.Abs(rx - worldWidth / 2) > 5 || Math.Abs(ry - worldHeight / 2) > 5))
             {
                 traversibilityMap[rIndex] = false;
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
@@ -98,10 +98,9 @@ public static partial class Module
             int tx = random.Next(worldWidth);
             int ty = random.Next(worldHeight);
             int tIndex = ty * worldWidth + tx;
-            if (traversibilityMap[tIndex] && (Math.Abs(tx - worldWidth/2) > 5 || Math.Abs(ty - worldHeight/2) > 5))
+            if (traversibilityMap[tIndex] && (Math.Abs(tx - worldWidth / 2) > 5 || Math.Abs(ty - worldHeight / 2) > 5))
             {
                 traversibilityMap[tIndex] = false;
-                projectileCollisionMap[tIndex] = false;
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
                 {
                     Id = GenerateId(ctx, "td"),
@@ -175,7 +174,7 @@ public static partial class Module
 
         for (int i = 0; i < pickups.Length; i++)
         {
-            int px = worldWidth/2 - pickups.Length + (i * 2);
+            int px = worldWidth / 2 - pickups.Length + (i * 2);
             int py = worldHeight - 5;
 
             ctx.Db.pickup.Insert(new Pickup

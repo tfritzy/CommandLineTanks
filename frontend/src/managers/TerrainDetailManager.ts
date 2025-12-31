@@ -28,9 +28,19 @@ export class TerrainDetailManager {
   private terrainDebrisParticles: TerrainDebrisParticlesManager =
     new TerrainDebrisParticlesManager();
   private onDetailDeletedCallbacks: (() => void)[] = [];
-  private handleDetailInsert: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
-  private handleDetailUpdate: ((ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => void) | null = null;
-  private handleDetailDelete: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
+  private handleDetailInsert:
+    | ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void)
+    | null = null;
+  private handleDetailUpdate:
+    | ((
+        ctx: EventContext,
+        oldDetail: Infer<typeof TerrainDetailRow>,
+        newDetail: Infer<typeof TerrainDetailRow>
+      ) => void)
+    | null = null;
+  private handleDetailDelete:
+    | ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void)
+    | null = null;
 
   constructor(worldId: string, worldWidth: number, worldHeight: number) {
     this.worldId = worldId;
@@ -57,7 +67,10 @@ export class TerrainDetailManager {
     const connection = getConnection();
     if (!connection) return;
 
-    this.handleDetailInsert = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+    this.handleDetailInsert = (
+      _ctx: EventContext,
+      detail: Infer<typeof TerrainDetailRow>
+    ) => {
       if (detail.worldId !== this.worldId) return;
       this.createDetailObject(detail);
     };
@@ -76,7 +89,10 @@ export class TerrainDetailManager {
       }
     };
 
-    this.handleDetailDelete = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+    this.handleDetailDelete = (
+      _ctx: EventContext,
+      detail: Infer<typeof TerrainDetailRow>
+    ) => {
       if (detail.worldId !== this.worldId) return;
       const obj = this.detailObjects.get(detail.id);
       if (obj) {
@@ -97,7 +113,7 @@ export class TerrainDetailManager {
         }
       }
       this.detailObjects.delete(detail.id);
-      this.onDetailDeletedCallbacks.forEach(callback => callback());
+      this.onDetailDeletedCallbacks.forEach((callback) => callback());
     };
 
     connection.db.terrainDetail.onInsert(this.handleDetailInsert);
@@ -114,9 +130,12 @@ export class TerrainDetailManager {
   public destroy() {
     const connection = getConnection();
     if (connection) {
-      if (this.handleDetailInsert) connection.db.terrainDetail.removeOnInsert(this.handleDetailInsert);
-      if (this.handleDetailUpdate) connection.db.terrainDetail.removeOnUpdate(this.handleDetailUpdate);
-      if (this.handleDetailDelete) connection.db.terrainDetail.removeOnDelete(this.handleDetailDelete);
+      if (this.handleDetailInsert)
+        connection.db.terrainDetail.removeOnInsert(this.handleDetailInsert);
+      if (this.handleDetailUpdate)
+        connection.db.terrainDetail.removeOnUpdate(this.handleDetailUpdate);
+      if (this.handleDetailDelete)
+        connection.db.terrainDetail.removeOnDelete(this.handleDetailDelete);
     }
     this.detailObjects.clear();
     this.onDetailDeletedCallbacks = [];
@@ -255,19 +274,33 @@ export class TerrainDetailManager {
       const objY = obj.getY();
 
       if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
-        if (obj.getFlashTimer() > 0) {
-          obj.drawBody(ctx);
+        const texture = terrainDetailTextureSheet.getTexture(
+          this.getTextureKey(obj)
+        );
+
+        if (!texture) {
         } else {
-          const texture = terrainDetailTextureSheet.getTexture(
-            this.getTextureKey(obj)
+          const scale = obj.getSizeScale();
+          const scaledSize = renderSize * scale;
+          const offset = -UNIT_TO_PIXEL * scale;
+
+          ctx.drawImage(
+            bodyCanvas,
+            texture.x * dpr,
+            texture.y * dpr,
+            texture.width * dpr,
+            texture.height * dpr,
+            objX * UNIT_TO_PIXEL + offset,
+            objY * UNIT_TO_PIXEL + offset,
+            scaledSize,
+            scaledSize
           );
 
-          if (!texture) {
-          } else {
-            const scale = obj.getSizeScale();
-            const scaledSize = renderSize * scale;
-            const offset = -UNIT_TO_PIXEL * scale;
-
+          if (obj.getFlashTimer() > 0) {
+            const flashAlpha = obj.getFlashTimer() / 0.1;
+            ctx.save();
+            ctx.globalCompositeOperation = "lighter";
+            ctx.globalAlpha = flashAlpha;
             ctx.drawImage(
               bodyCanvas,
               texture.x * dpr,
@@ -279,9 +312,10 @@ export class TerrainDetailManager {
               scaledSize,
               scaledSize
             );
-
-            obj.drawLabel(ctx);
+            ctx.restore();
           }
+
+          obj.drawLabel(ctx);
         }
       }
     }
