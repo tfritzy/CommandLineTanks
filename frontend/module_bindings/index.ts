@@ -51,6 +51,8 @@ import DriveToTank from "./drive_to_tank_reducer";
 export { DriveToTank };
 import EndGame from "./end_game_reducer";
 export { EndGame };
+import ExitWorld from "./exit_world_reducer";
+export { ExitWorld };
 import Fire from "./fire_reducer";
 export { Fire };
 import HandleConnect from "./handle_connect_reducer";
@@ -564,6 +566,7 @@ const reducersSchema = __reducers(
   __reducerSchema("driveTo", DriveTo),
   __reducerSchema("driveToTank", DriveToTank),
   __reducerSchema("EndGame", EndGame),
+  __reducerSchema("exitWorld", ExitWorld),
   __reducerSchema("fire", Fire),
   __reducerSchema("joinWorld", JoinWorld),
   __reducerSchema("overdrive", Overdrive),

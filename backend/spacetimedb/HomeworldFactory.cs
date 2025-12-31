@@ -101,7 +101,6 @@ public static partial class Module
             if (traversibilityMap[tIndex] && (Math.Abs(tx - worldWidth/2) > 5 || Math.Abs(ty - worldHeight/2) > 5))
             {
                 traversibilityMap[tIndex] = false;
-                projectileCollisionMap[tIndex] = false;
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
                 {
                     Id = GenerateId(ctx, "td"),
