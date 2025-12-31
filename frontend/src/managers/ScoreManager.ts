@@ -2,7 +2,6 @@ import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
-import { drawPlayerScore } from "../drawing/ui/scoreboard";
 
 interface PlayerScore {
   name: string;
@@ -18,18 +17,28 @@ export class ScoreManager {
   private sortedPlayers: PlayerScore[] = [];
   private worldId: string;
   private isHomeworld: boolean;
-  private handleTankInsert: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
-  private handleTankUpdate: ((ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => void) | null = null;
-  private handleTankDelete: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
+  private handleTankInsert:
+    | ((ctx: EventContext, tank: Infer<typeof TankRow>) => void)
+    | null = null;
+  private handleTankUpdate:
+    | ((
+        ctx: EventContext,
+        oldTank: Infer<typeof TankRow>,
+        newTank: Infer<typeof TankRow>
+      ) => void)
+    | null = null;
+  private handleTankDelete:
+    | ((ctx: EventContext, tank: Infer<typeof TankRow>) => void)
+    | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
-    
+
     const connection = getConnection();
-    this.isHomeworld = connection?.identity 
+    this.isHomeworld = connection?.identity
       ? connection.identity.toHexString().toLowerCase() === worldId
       : false;
-    
+
     this.subscribeToTanks(this.worldId);
   }
 
@@ -39,7 +48,7 @@ export class ScoreManager {
       kills: tank.kills,
       deaths: tank.deaths,
       score: Math.max(0, tank.kills - tank.deaths),
-      alliance: tank.alliance
+      alliance: tank.alliance,
     };
   }
 
@@ -52,7 +61,7 @@ export class ScoreManager {
       }
     }
     this.maxScore = maxAbsScore;
-    
+
     this.sortedPlayers.length = 0;
     for (const player of this.playerScores.values()) {
       this.sortedPlayers.push(player);
@@ -67,19 +76,32 @@ export class ScoreManager {
       return;
     }
 
-    this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+    this.handleTankInsert = (
+      _ctx: EventContext,
+      tank: Infer<typeof TankRow>
+    ) => {
       if (tank.worldId !== worldId) return;
       this.playerScores.set(tank.id, ScoreManager.createPlayerScore(tank));
       this.updateLeaderboard();
     };
 
-    this.handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+    this.handleTankUpdate = (
+      _ctx: EventContext,
+      _oldTank: Infer<typeof TankRow>,
+      newTank: Infer<typeof TankRow>
+    ) => {
       if (newTank.worldId !== worldId) return;
-      this.playerScores.set(newTank.id, ScoreManager.createPlayerScore(newTank));
+      this.playerScores.set(
+        newTank.id,
+        ScoreManager.createPlayerScore(newTank)
+      );
       this.updateLeaderboard();
     };
 
-    this.handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+    this.handleTankDelete = (
+      _ctx: EventContext,
+      tank: Infer<typeof TankRow>
+    ) => {
       if (tank.worldId !== worldId) return;
       this.playerScores.delete(tank.id);
       this.updateLeaderboard();
@@ -100,42 +122,12 @@ export class ScoreManager {
   public destroy() {
     const connection = getConnection();
     if (connection) {
-      if (this.handleTankInsert) connection.db.tank.removeOnInsert(this.handleTankInsert);
-      if (this.handleTankUpdate) connection.db.tank.removeOnUpdate(this.handleTankUpdate);
-      if (this.handleTankDelete) connection.db.tank.removeOnDelete(this.handleTankDelete);
+      if (this.handleTankInsert)
+        connection.db.tank.removeOnInsert(this.handleTankInsert);
+      if (this.handleTankUpdate)
+        connection.db.tank.removeOnUpdate(this.handleTankUpdate);
+      if (this.handleTankDelete)
+        connection.db.tank.removeOnDelete(this.handleTankDelete);
     }
-  }
-
-  public draw(ctx: CanvasRenderingContext2D, canvasWidth: number) {
-    if (this.isHomeworld) {
-      return;
-    }
-    
-    ctx.save();
-    
-    const padding = 10;
-    const barWidth = 250;
-    const barHeight = 26;
-    const spacing = 5;
-    const x = canvasWidth - padding;
-    let y = padding;
-
-    for (const player of this.sortedPlayers) {
-      this.drawPlayerScore(ctx, player, x, y, barWidth, barHeight);
-      y += barHeight + spacing;
-    }
-    
-    ctx.restore();
-  }
-
-  private drawPlayerScore(
-    ctx: CanvasRenderingContext2D,
-    player: PlayerScore,
-    x: number,
-    y: number,
-    barWidth: number,
-    barHeight: number
-  ) {
-    drawPlayerScore(ctx, player.name, player.score, player.alliance, x, y, barWidth, barHeight, this.maxScore);
   }
 }

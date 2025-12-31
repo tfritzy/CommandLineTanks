@@ -18,6 +18,5 @@ export * from "./entities/health-pack";
 export * from "./ui/floating-label";
 export * from "./ui/targeting-reticle";
 export * from "./ui/gun-inventory";
-export * from "./ui/scoreboard";
 export * from "./ui/kill-feed";
 export * from "./ui/smokescreen-hud";

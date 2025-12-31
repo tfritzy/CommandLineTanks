@@ -4,6 +4,7 @@ import { Game } from "../game";
 import TerminalComponent from "./terminal/Terminal";
 import ResultsScreen from "./ResultsScreen";
 import GameHeader from "./GameHeader";
+import ScoreBoard from "./ScoreBoard";
 import JoinWorldModal from "./JoinWorldModal";
 import WorldNotFound from "./WorldNotFound";
 import { getConnection } from "../spacetimedb-connection";
@@ -24,7 +25,6 @@ export default function GameView() {
   const [isDead, setIsDead] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
-  console.log(worldId);
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -54,6 +54,7 @@ export default function GameView() {
         `SELECT * FROM kills WHERE WorldId = '${worldId}'`,
         `SELECT * FROM terrain_detail WHERE WorldId = '${worldId}'`,
         `SELECT * FROM world WHERE Id = '${worldId}'`,
+        `SELECT * FROM player WHERE Identity = '${connection.identity}'`,
       ]);
 
     return () => {
@@ -207,6 +208,7 @@ export default function GameView() {
     >
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
         <GameHeader worldId={worldId} />
+        <ScoreBoard worldId={worldId} />
         <canvas
           ref={canvasRef}
           style={{

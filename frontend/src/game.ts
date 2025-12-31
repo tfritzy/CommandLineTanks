@@ -1,7 +1,6 @@
 import { TankManager } from "./managers/TankManager";
 import { ProjectileManager } from "./managers/ProjectileManager";
 import { TerrainManager } from "./managers/TerrainManager";
-import { ScoreManager } from "./managers/ScoreManager";
 import { GunInventoryManager } from "./managers/GunInventoryManager";
 import { PickupManager } from "./managers/PickupManager";
 import { MiniMapManager } from "./managers/MiniMapManager";
@@ -23,7 +22,6 @@ export class Game {
   private tankManager: TankManager;
   private projectileManager: ProjectileManager;
   private terrainManager: TerrainManager;
-  private scoreManager: ScoreManager;
   private gunInventoryManager: GunInventoryManager;
   private pickupManager: PickupManager;
   private miniMapManager: MiniMapManager;
@@ -54,13 +52,9 @@ export class Game {
     this.terrainManager = new TerrainManager(worldId);
     this.projectileManager = new ProjectileManager(worldId, this.screenShake);
     this.projectileManager.setTankManager(this.tankManager);
-    this.scoreManager = new ScoreManager(worldId);
     this.gunInventoryManager = new GunInventoryManager(worldId);
     this.pickupManager = new PickupManager(worldId);
-    this.miniMapManager = new MiniMapManager(
-      this.tankManager,
-      worldId
-    );
+    this.miniMapManager = new MiniMapManager(this.tankManager, worldId);
     this.killManager = new KillManager(worldId);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
     this.abilitiesBarManager = new AbilitiesBarManager(worldId);
@@ -81,7 +75,7 @@ export class Game {
 
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.ctx.imageSmoothingEnabled = true;
-      this.ctx.imageSmoothingQuality = 'high';
+      this.ctx.imageSmoothingQuality = "high";
     }
   }
 
@@ -181,7 +175,7 @@ export class Game {
     const lerpFactor = Math.min(1, clampedDeltaTime * CAMERA_FOLLOW_SPEED);
     this.currentCameraX += (targetCameraX - this.currentCameraX) * lerpFactor;
     this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
-    
+
     this.currentCameraX = Math.round(this.currentCameraX);
     this.currentCameraY = Math.round(this.currentCameraY);
 
@@ -281,7 +275,6 @@ export class Game {
 
     this.ctx.restore();
 
-    this.scoreManager.draw(this.ctx, displayWidth);
     this.miniMapManager.draw(this.ctx, displayWidth, displayHeight);
     this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
     this.abilitiesBarManager.draw(this.ctx, displayWidth, displayHeight);
@@ -319,18 +312,17 @@ export class Game {
 
   public destroy() {
     this.stop();
-    
+
     this.tankManager.destroy();
     this.projectileManager.destroy();
     this.terrainManager.destroy();
-    this.scoreManager.destroy();
     this.gunInventoryManager.destroy();
     this.pickupManager.destroy();
     this.miniMapManager.destroy();
     this.killManager.destroy();
     this.smokeCloudManager.destroy();
     this.abilitiesBarManager.destroy();
-    
+
     window.removeEventListener("resize", this.resizeHandler);
   }
 }
