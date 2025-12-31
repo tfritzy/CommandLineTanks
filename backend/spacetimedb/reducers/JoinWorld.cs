@@ -19,7 +19,7 @@ public static partial class Module
         {
             world = ctx.Db.world.GameState_IsHomeWorld_Visibility.Filter((GameState.Playing, false, WorldVisibility.Public)).FirstOrDefault();
             
-            if (world == null)
+            if (world == null || string.IsNullOrEmpty(world.Value.Id))
             {
                 Log.Info("No public worlds available, creating new world");
                 var newWorldId = GenerateWorldId(ctx);

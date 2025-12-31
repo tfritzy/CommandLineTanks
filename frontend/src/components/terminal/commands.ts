@@ -5,12 +5,17 @@ function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
     return false;
   }
-  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
-  const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+  const allTanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.worldId === worldId
+  );
+  const myTank = allTanks.find((t) => t.owner.isEqual(connection.identity!));
   return myTank ? myTank.health <= 0 : false;
 }
 
-const directionAliases: Record<string, { x: number; y: number; name: string; symbol: string }> = {
+const directionAliases: Record<
+  string,
+  { x: number; y: number; name: string; symbol: string }
+> = {
   // North
   north: { x: 0, y: -1, name: "north", symbol: "↑" },
   up: { x: 0, y: -1, name: "north", symbol: "↑" },
@@ -138,7 +143,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  drive up 3 75",
         "  drive 10 5      (10 units right, 5 units down)",
         "  drive -10 0     (10 units left)",
-        "  drive 0 -15 75  (15 units up at 75% throttle)"
+        "  drive 0 -15 75  (15 units up at 75% throttle)",
       ];
 
     case "stop":
@@ -152,7 +157,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  stop",
-        "  s"
+        "  s",
       ];
 
     case "aim":
@@ -179,7 +184,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  aim 90",
         "  aim -45",
-        "  aim northeast"
+        "  aim northeast",
       ];
 
     case "target":
@@ -199,7 +204,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  target a4",
         "  target h8 3",
-        "  t z2 5"
+        "  t z2 5",
       ];
 
     case "fire":
@@ -213,7 +218,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  fire",
-        "  f"
+        "  f",
       ];
 
     case "switch":
@@ -229,7 +234,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  switch 1",
         "  switch 2",
-        "  w 3"
+        "  w 3",
       ];
 
     case "smoke":
@@ -245,7 +250,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  smoke",
-        "  sm"
+        "  sm",
       ];
 
     case "overdrive":
@@ -260,7 +265,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  overdrive",
-        "  od"
+        "  od",
       ];
 
     case "repair":
@@ -276,7 +281,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  repair",
-        "  rep"
+        "  rep",
       ];
 
     case "respawn":
@@ -288,7 +293,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Respawns at a new spawn point. Can only be used when dead.",
         "",
         "Examples:",
-        "  respawn"
+        "  respawn",
       ];
 
     case "name":
@@ -307,7 +312,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  name",
         "  name set Tank47",
-        "  name set Viper"
+        "  name set Viper",
       ];
 
     case "create":
@@ -322,7 +327,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "After creation, you'll be automatically joined to the new game.",
         "",
         "Examples:",
-        "  create"
+        "  create",
       ];
 
     case "join":
@@ -342,7 +347,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  join",
         "  join abcd",
-        "  join abcd mysecretpass"
+        "  join abcd mysecretpass",
       ];
 
     case "lobbies":
@@ -357,7 +362,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  lobbies",
-        "  l"
+        "  l",
       ];
 
     case "help":
@@ -373,24 +378,28 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  help",
         "  help drive",
-        "  h d"
+        "  h d",
       ];
 
     default:
       return [
         `help: error: unknown command '${command}'`,
         "",
-        "Use 'help' to see available commands."
+        "Use 'help' to see available commands.",
       ];
   }
 }
 
-export function aim(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function aim(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
       "aim: error: cannot aim while dead",
       "",
-      "Use 'respawn' to respawn"
+      "Use 'respawn' to respawn",
     ];
   }
 
@@ -400,7 +409,7 @@ export function aim(connection: DbConnection, worldId: string, args: string[]): 
       "",
       "Usage: aim <angle|direction>",
       "       aim 45",
-      "       aim northeast"
+      "       aim northeast",
     ];
   }
 
@@ -425,7 +434,7 @@ export function aim(connection: DbConnection, worldId: string, args: string[]): 
         "To target a tank by code, use: target <target_code>",
         "",
         "Usage: aim <angle|direction>",
-        "       aim 90"
+        "       aim 90",
       ];
     }
 
@@ -437,12 +446,16 @@ export function aim(connection: DbConnection, worldId: string, args: string[]): 
   }
 }
 
-export function target(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function target(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
       "target: error: cannot target while dead",
       "",
-      "Use 'respawn' to respawn"
+      "Use 'respawn' to respawn",
     ];
   }
 
@@ -452,7 +465,7 @@ export function target(connection: DbConnection, worldId: string, args: string[]
       "",
       "Usage: target <target_code> [lead]",
       "       target a4",
-      "       target h8 3"
+      "       target h8 3",
     ];
   }
 
@@ -470,14 +483,16 @@ export function target(connection: DbConnection, worldId: string, args: string[]
         `target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`,
         "",
         "Usage: target <target_code> [lead]",
-        "       target a4 3"
+        "       target a4 3",
       ];
     }
     lead = parsedLead;
   }
 
-  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
-  const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+  const allTanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.worldId === worldId
+  );
+  const myTank = allTanks.find((t) => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
     return ["target: error: no connection"];
@@ -489,26 +504,36 @@ export function target(connection: DbConnection, worldId: string, args: string[]
     return ["target: error: cannot target your own tank"];
   }
 
-  const targetTank = allTanks.find(t => t.targetCode === targetCodeLower);
+  const targetTank = allTanks.find((t) => t.targetCode === targetCodeLower);
   if (!targetTank) {
     return [`target: error: tank with code '${targetCode}' not found`];
   }
 
-  connection.reducers.targetTank({ worldId, targetCode: targetCodeLower, lead });
+  connection.reducers.targetTank({
+    worldId,
+    targetCode: targetCodeLower,
+    lead,
+  });
 
   if (lead > 0) {
-    return [`Targeting tank '${targetTank.targetCode}' (${targetTank.name}) with ${lead} unit${lead !== 1 ? 's' : ''} lead`];
+    return [
+      `Targeting tank '${targetTank.targetCode}' (${targetTank.name}) with ${lead} unit${lead !== 1 ? "s" : ""} lead`,
+    ];
   } else {
     return [`Targeting tank '${targetTank.targetCode}' (${targetTank.name})`];
   }
 }
 
-export function stop(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function stop(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
       "stop: error: cannot stop while dead",
       "",
-      "Use 'respawn' to respawn"
+      "Use 'respawn' to respawn",
     ];
   }
 
@@ -517,23 +542,25 @@ export function stop(connection: DbConnection, worldId: string, args: string[]):
       "stop: error: stop command takes no arguments",
       "",
       "Usage: stop",
-      "       s"
+      "       s",
     ];
   }
 
   connection.reducers.stop({ worldId });
 
-  return [
-    "Tank stopped",
-  ];
+  return ["Tank stopped"];
 }
 
-export function fire(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function fire(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
       "fire: error: cannot fire while dead",
       "",
-      "Use 'respawn' to respawn"
+      "Use 'respawn' to respawn",
     ];
   }
 
@@ -542,23 +569,25 @@ export function fire(connection: DbConnection, worldId: string, args: string[]):
       "fire: error: fire command takes no arguments",
       "",
       "Usage: fire",
-      "       f"
+      "       f",
     ];
   }
 
   connection.reducers.fire({ worldId });
 
-  return [
-    "Firing projectile",
-  ];
+  return ["Firing projectile"];
 }
 
-export function respawn(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function respawn(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (!isPlayerDead(connection, worldId)) {
     return [
       "respawn: error: cannot respawn while alive",
       "",
-      "You must be dead to respawn"
+      "You must be dead to respawn",
     ];
   }
 
@@ -566,23 +595,25 @@ export function respawn(connection: DbConnection, worldId: string, args: string[
     return [
       "respawn: error: respawn command takes no arguments",
       "",
-      "Usage: respawn"
+      "Usage: respawn",
     ];
   }
 
   connection.reducers.respawn({ worldId });
 
-  return [
-    "Respawning...",
-  ];
+  return ["Respawning..."];
 }
 
-export function switchGun(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function switchGun(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
       "switch: error: cannot switch guns while dead",
       "",
-      "Use 'respawn' to respawn"
+      "Use 'respawn' to respawn",
     ];
   }
 
@@ -593,7 +624,7 @@ export function switchGun(connection: DbConnection, worldId: string, args: strin
       "Usage: switch <gun_index>",
       "       switch 1",
       "       switch 2",
-      "       switch 3"
+      "       switch 3",
     ];
   }
 
@@ -603,7 +634,7 @@ export function switchGun(connection: DbConnection, worldId: string, args: strin
       `switch: error: invalid value '${args[0]}' for '<gun_index>': must be 1, 2, or 3`,
       "",
       "Usage: switch <gun_index>",
-      "       switch 1"
+      "       switch 1",
     ];
   }
 
@@ -614,8 +645,8 @@ export function switchGun(connection: DbConnection, worldId: string, args: strin
   }
 
   const myTank = Array.from(connection.db.tank.iter())
-    .filter(t => t.worldId === worldId)
-    .find(t => t.owner.isEqual(connection.identity!));
+    .filter((t) => t.worldId === worldId)
+    .find((t) => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
     return ["switch: error: tank not found"];
@@ -625,23 +656,25 @@ export function switchGun(connection: DbConnection, worldId: string, args: strin
     return [
       `switch: error: gun slot ${parsed} is empty`,
       "",
-      `You only have ${myTank.guns.length} gun${myTank.guns.length !== 1 ? 's' : ''}`
+      `You only have ${myTank.guns.length} gun${myTank.guns.length !== 1 ? "s" : ""}`,
     ];
   }
 
   connection.reducers.switchGun({ worldId, gunIndex });
 
-  return [
-    `Switched to gun ${parsed}`,
-  ];
+  return [`Switched to gun ${parsed}`];
 }
 
-export function drive(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function drive(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
       "drive: error: cannot drive while dead",
       "",
-      "Use 'respawn' to respawn"
+      "Use 'respawn' to respawn",
     ];
   }
 
@@ -665,15 +698,19 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
     return ["drive: error: no connection"];
   }
 
-  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
-  const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+  const allTanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.worldId === worldId
+  );
+  const myTank = allTanks.find((t) => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
     return ["drive: error: no connection"];
   }
 
   const firstArgLower = args[0].toLowerCase();
-  const targetTank = allTanks.find(t => t.targetCode.toLowerCase() === firstArgLower);
+  const targetTank = allTanks.find(
+    (t) => t.targetCode.toLowerCase() === firstArgLower
+  );
 
   if (targetTank && targetTank.id !== myTank.id) {
     let throttle = 1;
@@ -684,14 +721,18 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
           `drive: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`,
           "",
           "Usage: drive <target_code> [throttle]",
-          "       drive a4 75"
+          "       drive a4 75",
         ];
       } else {
         throttle = parsed / 100;
       }
     }
 
-    connection.reducers.driveToTank({ worldId, targetCode: targetTank.targetCode, throttle });
+    connection.reducers.driveToTank({
+      worldId,
+      targetCode: targetTank.targetCode,
+      throttle,
+    });
 
     return [
       `Driving to tank '${targetTank.targetCode}' (${targetTank.name}) at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
@@ -709,7 +750,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
           `drive: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`,
           "",
           "Usage: drive <direction> [distance] [throttle]",
-          "       drive northeast 5"
+          "       drive northeast 5",
         ];
       } else {
         distance = parsed;
@@ -724,7 +765,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
           `drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
           "",
           "Usage: drive <direction> [distance] [throttle]",
-          "       drive northeast 5 75"
+          "       drive northeast 5 75",
         ];
       } else {
         throttle = parsed / 100;
@@ -756,7 +797,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
       "Tank name not found. If you meant coordinates, provide both X and Y:",
       "  drive 10 5      (10 units right, 5 units down)",
       "  drive -10 0     (10 units left)",
-      "  drive 0 -15 75  (15 units up at 75% throttle)"
+      "  drive 0 -15 75  (15 units up at 75% throttle)",
     ];
   }
 
@@ -769,7 +810,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
       "Relative X coordinate must be an integer (can be negative)",
       "",
       "Usage: drive <relative_x> <relative_y> [throttle]",
-      "       drive 10 5"
+      "       drive 10 5",
     ];
   }
 
@@ -782,7 +823,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
       "Relative Y coordinate must be an integer (can be negative)",
       "",
       "Usage: drive <relative_x> <relative_y> [throttle]",
-      "       drive 10 5"
+      "       drive 10 5",
     ];
   }
 
@@ -797,7 +838,7 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
         `drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
         "",
         "Usage: drive <relative_x> <relative_y> [throttle]",
-        "       drive 10 5 75"
+        "       drive 10 5 75",
       ];
     } else {
       throttle = parsed / 100;
@@ -806,18 +847,22 @@ export function drive(connection: DbConnection, worldId: string, args: string[])
 
   connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
-  const relativeStr = `(${relativeX > 0 ? '+' : ''}${relativeX}, ${relativeY > 0 ? '+' : ''}${relativeY})`;
+  const relativeStr = `(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`;
   return [
     `Driving to ${relativeStr} -> ${targetX} ${targetY} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
   ];
 }
 
-export function smokescreen(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function smokescreen(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
       "smoke: error: cannot deploy smoke while dead",
       "",
-      "Use 'respawn' to respawn"
+      "Use 'respawn' to respawn",
     ];
   }
 
@@ -826,39 +871,45 @@ export function smokescreen(connection: DbConnection, worldId: string, args: str
       "smoke: error: smoke command takes no arguments",
       "",
       "Usage: smoke",
-      "       sm"
+      "       sm",
     ];
   }
 
-  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
-  const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
-  
+  const allTanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.worldId === worldId
+  );
+  const myTank = allTanks.find(
+    (t) => connection.identity && t.owner.isEqual(connection.identity)
+  );
+
   if (myTank) {
     const remainingMicros = myTank.remainingSmokescreenCooldownMicros;
-    
+
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
         `smoke: error: ability is on cooldown`,
         "",
-        `Time remaining: ${Math.ceil(remaining)} seconds`
+        `Time remaining: ${Math.ceil(remaining)} seconds`,
       ];
     }
   }
 
   connection.reducers.smoke({ worldId });
 
-  return [
-    "Deploying smoke...",
-  ];
+  return ["Deploying smoke..."];
 }
 
-export function overdrive(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function overdrive(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
       "overdrive: error: cannot activate overdrive while dead",
       "",
-      "Use 'respawn' to respawn"
+      "Use 'respawn' to respawn",
     ];
   }
 
@@ -867,39 +918,45 @@ export function overdrive(connection: DbConnection, worldId: string, args: strin
       "overdrive: error: overdrive command takes no arguments",
       "",
       "Usage: overdrive",
-      "       od"
+      "       od",
     ];
   }
 
-  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
-  const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
-  
+  const allTanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.worldId === worldId
+  );
+  const myTank = allTanks.find(
+    (t) => connection.identity && t.owner.isEqual(connection.identity)
+  );
+
   if (myTank) {
     const remainingMicros = myTank.remainingOverdriveCooldownMicros;
-    
+
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
         `overdrive: error: ability is on cooldown`,
         "",
-        `Time remaining: ${Math.ceil(remaining)} seconds`
+        `Time remaining: ${Math.ceil(remaining)} seconds`,
       ];
     }
   }
 
   connection.reducers.overdrive({ worldId });
 
-  return [
-    "Activating overdrive! +25% speed for 10 seconds",
-  ];
+  return ["Activating overdrive! +25% speed for 10 seconds"];
 }
 
-export function repair(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function repair(
+  connection: DbConnection,
+  worldId: string,
+  args: string[]
+): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
       "repair: error: cannot repair while dead",
       "",
-      "Use 'respawn' to respawn"
+      "Use 'respawn' to respawn",
     ];
   }
 
@@ -908,75 +965,76 @@ export function repair(connection: DbConnection, worldId: string, args: string[]
       "repair: error: repair command takes no arguments",
       "",
       "Usage: repair",
-      "       rep"
+      "       rep",
     ];
   }
 
-  const allTanks = Array.from(connection.db.tank.iter()).filter(t => t.worldId === worldId);
-  const myTank = allTanks.find(t => connection.identity && t.owner.isEqual(connection.identity));
-  
+  const allTanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.worldId === worldId
+  );
+  const myTank = allTanks.find(
+    (t) => connection.identity && t.owner.isEqual(connection.identity)
+  );
+
   if (myTank) {
     if (myTank.health >= myTank.maxHealth) {
       return [
         "repair: error: tank is already at full health",
         "",
-        `Health: ${myTank.health}/${myTank.maxHealth}`
+        `Health: ${myTank.health}/${myTank.maxHealth}`,
       ];
     }
 
     const remainingMicros = myTank.remainingRepairCooldownMicros;
-    
+
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
         `repair: error: ability is on cooldown`,
         "",
-        `Time remaining: ${Math.ceil(remaining)} seconds`
+        `Time remaining: ${Math.ceil(remaining)} seconds`,
       ];
     }
   }
 
   connection.reducers.repair({ worldId });
 
-  return [
-    "Repairing... (interrupted by damage or movement)",
-  ];
+  return ["Repairing... (interrupted by damage or movement)"];
 }
 
-export function create(_connection: DbConnection, args: string[]): string[] | { type: 'open_flow' } {
+export function create(
+  _connection: DbConnection,
+  args: string[]
+): string[] | { type: "open_flow" } {
   if (args.length > 0) {
     return [
       "create: error: create command takes no arguments",
       "",
-      "Usage: create"
+      "Usage: create",
     ];
   }
 
-  return { type: 'open_flow' };
+  return { type: "open_flow" };
 }
 
 export function join(connection: DbConnection, args: string[]): string[] {
   const worldId = args.length > 0 ? args[0] : undefined;
-  const passcode = args.length > 1 ? args.slice(1).join(' ') : '';
+  const passcode = args.length > 1 ? args.slice(1).join(" ") : "";
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
-  
-  connection.reducers.joinWorld({ 
-    worldId, 
+
+  connection.reducers.joinWorld({
+    worldId,
     joinCode,
-    passcode 
+    passcode,
   });
 
   if (!worldId) {
-    return [
-      "Finding or creating a game world...",
-    ];
+    return ["Finding or creating a game world..."];
   }
 
-  return [
-    `Joining world ${worldId}...`,
-  ];
+  return [`Joining world ${worldId}...`];
 }
 
 export function changeName(connection: DbConnection, args: string[]): string[] {
@@ -984,8 +1042,9 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
     return ["name: error: no connection"];
   }
 
-  const player = Array.from(connection.db.player.iter())
-    .find(p => p.identity.isEqual(connection.identity!));
+  const player = Array.from(connection.db.player.iter()).find((p) =>
+    p.identity.isEqual(connection.identity!)
+  );
 
   if (!player) {
     return ["name: error: player not found"];
@@ -995,11 +1054,11 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
     return [
       `Your current name: ${player.name}`,
       "",
-      "To change your name, use: name set <new_name>"
+      "To change your name, use: name set <new_name>",
     ];
   }
 
-  if (args[0].toLowerCase() !== 'set') {
+  if (args[0].toLowerCase() !== "set") {
     return [
       "name: error: invalid subcommand",
       "",
@@ -1007,7 +1066,7 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
       "       name set <new_name>",
       "",
       "Use 'name' to view your current name",
-      "Use 'name set <new_name>' to change your name"
+      "Use 'name set <new_name>' to change your name",
     ];
   }
 
@@ -1016,18 +1075,18 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
       "name: error: missing required argument '<new_name>'",
       "",
       "Usage: name set <new_name>",
-      "       name set Tank47"
+      "       name set Tank47",
     ];
   }
 
-  const newName = args.slice(1).join(' ').trim();
+  const newName = args.slice(1).join(" ").trim();
 
   if (newName.length === 0) {
     return [
       "name: error: name cannot be empty or whitespace",
       "",
       "Usage: name set <new_name>",
-      "       name set Tank47"
+      "       name set Tank47",
     ];
   }
 
@@ -1038,15 +1097,13 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
       `Your name has ${newName.length} characters`,
       "",
       "Usage: name set <new_name>",
-      "       name set Tank47"
+      "       name set Tank47",
     ];
   }
 
   connection.reducers.changeName({ newName });
 
-  return [
-    `Name changed to: ${newName}`,
-  ];
+  return [`Name changed to: ${newName}`];
 }
 
 export function lobbies(connection: DbConnection, args: string[]): string[] {
@@ -1055,26 +1112,26 @@ export function lobbies(connection: DbConnection, args: string[]): string[] {
       "lobbies: error: lobbies command takes no arguments",
       "",
       "Usage: lobbies",
-      "       l"
+      "       l",
     ];
   }
 
   const publicWorlds = Array.from(connection.db.world.iter()).filter(
-    w => !w.isHomeWorld && (w.visibility.tag === "Public" || w.visibility.tag === "CustomPublic") && w.gameState.tag === "Playing"
+    (w) =>
+      !w.isHomeWorld &&
+      (w.visibility.tag === "Public" || w.visibility.tag === "CustomPublic") &&
+      w.gameState.tag === "Playing"
   );
 
   if (publicWorlds.length === 0) {
     return [
       "No public games currently available.",
       "",
-      "Use 'create' to start a new game or 'join' to find/create one."
+      "Use 'create' to start a new game or 'join' to find/create one.",
     ];
   }
 
-  const result: string[] = [
-    "Available Public Games:",
-    ""
-  ];
+  const result: string[] = ["Available Public Games:", ""];
 
   function pad(str: string, length: number): string {
     while (str.length < length) {
@@ -1099,27 +1156,34 @@ export function lobbies(connection: DbConnection, args: string[]): string[] {
 
   const headerRow = `${pad("Code", codeWidth)} ${pad("Name", nameWidth)} ${pad("Players", playersWidth)} ${pad("Bots", botsWidth)} ${pad("Duration", durationWidth)}`;
   const separatorRow = `${repeat("-", codeWidth)} ${repeat("-", nameWidth)} ${repeat("-", playersWidth)} ${repeat("-", botsWidth)} ${repeat("-", durationWidth)}`;
-  
+
   result.push(headerRow);
   result.push(separatorRow);
 
   for (const world of publicWorlds) {
     const code = pad(world.id, codeWidth);
-    const name = world.name.length > nameWidth ? world.name.substring(0, nameWidth - 3) + "..." : pad(world.name, nameWidth);
-    const players = pad(`${world.currentPlayerCount}/${world.maxPlayers}`, playersWidth);
+    const name =
+      world.name.length > nameWidth
+        ? world.name.substring(0, nameWidth - 3) + "..."
+        : pad(world.name, nameWidth);
+    const players = pad(
+      `${world.currentPlayerCount}/${world.maxPlayers}`,
+      playersWidth
+    );
     const bots = pad(String(world.botCount), botsWidth);
-    
-    const durationMinutes = Math.floor(Number(world.gameDurationMicros) / 60_000_000);
-    const durationText = durationMinutes === 1 ? "1 min" : `${durationMinutes} mins`;
+
+    const durationMinutes = Math.floor(
+      Number(world.gameDurationMicros) / 60_000_000
+    );
+    const durationText =
+      durationMinutes === 1 ? "1 min" : `${durationMinutes} mins`;
     const duration = pad(durationText, durationWidth);
-    
+
     result.push(`${code} ${name} ${players} ${bots} ${duration}`);
   }
 
   result.push("");
   result.push("Use 'join <code>' to join a game.");
-  
+
   return result;
 }
-
-

@@ -1,6 +1,6 @@
 export interface ProgramContext {
     output: string[];
-    setOutput: (output: string[]) => void;
+    setOutput: (output: string[] | ((prev: string[]) => string[])) => void;
     setInput: (input: string) => void;
     exitProgram: () => void;
     worldId: string;
@@ -26,8 +26,7 @@ export abstract class Program {
     }
 
     protected addOutput(...lines: string[]): void {
-        const newOutput = [...this.context.output, ...lines];
-        this.context.setOutput(newOutput);
+        this.context.setOutput(prev => [...prev, ...lines]);
     }
 
     protected setOutput(lines: string[]): void {

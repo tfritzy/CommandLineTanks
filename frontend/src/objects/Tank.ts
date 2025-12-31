@@ -1,7 +1,12 @@
 import { type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
-import { TEAM_COLORS, INTERPOLATION_DELAY, BUFFER_DURATION, UNIT_TO_PIXEL } from "../constants";
+import {
+  TEAM_COLORS,
+  INTERPOLATION_DELAY,
+  BUFFER_DURATION,
+  UNIT_TO_PIXEL,
+} from "../constants";
 import {
   drawTankShadow,
   drawTankBody,
@@ -41,8 +46,11 @@ export class Tank {
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
   private message: string | null = null;
-  private positionBuffer: Array<{ x: number; y: number; serverTimestampMs: number }> =
-    [];
+  private positionBuffer: Array<{
+    x: number;
+    y: number;
+    serverTimestampMs: number;
+  }> = [];
   private cachedPosition: { x: number; y: number } = { x: 0, y: 0 };
 
   constructor(
@@ -147,7 +155,7 @@ export class Tank {
 
   public setPosition(x: number, y: number, serverTimestampMicros: bigint) {
     const serverTimestampMs = Number(serverTimestampMicros / 1000n);
-    
+
     ServerTimeSync.getInstance().recordServerTimestamp(serverTimestampMicros);
 
     this.positionBuffer.push({
@@ -214,6 +222,10 @@ export class Tank {
 
   public setRemainingImmunityMicros(remainingImmunityMicros: bigint) {
     this.remainingImmunityMicros = remainingImmunityMicros;
+  }
+
+  public setTargetCode(targetCode: string) {
+    this.targetCode = targetCode;
   }
 
   public setMessage(message: string | null) {

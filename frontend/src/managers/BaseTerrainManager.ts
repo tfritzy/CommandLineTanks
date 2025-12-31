@@ -17,7 +17,11 @@ export class BaseTerrainManager {
     this.lakeTextureSheet = generateLakeTextureSheet(UNIT_TO_PIXEL);
   }
 
-  public updateWorld(width: number, height: number, baseTerrainLayer: BaseTerrainType[]) {
+  public updateWorld(
+    width: number,
+    height: number,
+    baseTerrainLayer: BaseTerrainType[]
+  ) {
     this.worldWidth = width;
     this.worldHeight = height;
     this.baseTerrainLayer = baseTerrainLayer;

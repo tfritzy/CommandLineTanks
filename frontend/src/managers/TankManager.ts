@@ -126,7 +126,11 @@ export class TankManager {
 
         if (oldTank.message !== newTank.message && newTank.message) {
           const pos = tank.getPosition();
-          this.indicatorManager.spawnFloatingLabel(pos.x, pos.y - 0.5, newTank.message);
+          this.indicatorManager.spawnFloatingLabel(
+            pos.x,
+            pos.y - 0.5,
+            newTank.message
+          );
         }
 
         tank.setPosition(
@@ -143,6 +147,7 @@ export class TankManager {
         tank.setSelectedGunIndex(newTank.selectedGunIndex);
         tank.setHasShield(newTank.hasShield);
         tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
+        tank.setTargetCode(newTank.targetCode);
         tank.setMessage(newTank.message ?? null);
       } else {
         this.buildTank(newTank);
