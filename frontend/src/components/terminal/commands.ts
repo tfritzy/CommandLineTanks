@@ -143,8 +143,12 @@ export function findCommandSuggestion(input: string): string | null {
     const aliasDistance = cmd.alias ? levenshteinDistance(inputLower, cmd.alias) : Infinity;
     const distance = Math.min(nameDistance, aliasDistance);
     
-    if (distance <= 2 && (!bestMatch || distance < bestMatch.distance)) {
-      bestMatch = { command: cmd.name, distance };
+    if (distance <= 2) {
+      if (!bestMatch || distance < bestMatch.distance) {
+        bestMatch = { command: cmd.name, distance };
+      } else if (distance === bestMatch.distance && cmd.name.length < bestMatch.command.length) {
+        bestMatch = { command: cmd.name, distance };
+      }
     }
   }
 
@@ -160,8 +164,12 @@ export function findCommandSuggestion(input: string): string | null {
       const aliasDistance = cmd.alias ? levenshteinDistance(withoutF, cmd.alias) : Infinity;
       const distance = Math.min(nameDistance, aliasDistance);
       
-      if (distance <= 1 && (!bestMatch || distance < bestMatch.distance)) {
-        bestMatch = { command: cmd.name, distance };
+      if (distance <= 1) {
+        if (!bestMatch || distance < bestMatch.distance) {
+          bestMatch = { command: cmd.name, distance };
+        } else if (distance === bestMatch.distance && cmd.name.length < bestMatch.command.length) {
+          bestMatch = { command: cmd.name, distance };
+        }
       }
     }
   }
