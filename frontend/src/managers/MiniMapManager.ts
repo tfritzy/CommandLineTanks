@@ -1,10 +1,16 @@
 import { TankManager } from "./TankManager";
-import { TerrainManager } from "./TerrainManager";
 import { TERRAIN_COLORS, TERRAIN_DETAIL_COLORS, TEAM_COLORS } from "../constants";
+import { getConnection } from "../spacetimedb-connection";
+import { type EventContext, type TerrainDetailRow } from "../../module_bindings";
+import WorldRow from "../../module_bindings/world_type";
+import { type Infer } from "spacetimedb";
+import { BaseTerrain } from "../../module_bindings";
+
+type BaseTerrainType = Infer<typeof BaseTerrain>;
 
 export class MiniMapManager {
   private tankManager: TankManager;
-  private terrainManager: TerrainManager;
+  private worldId: string;
   private miniMapMaxSize: number = 150;
   private margin: number = 20;
   private tankIndicatorRadius: number = 5;
@@ -15,17 +21,112 @@ export class MiniMapManager {
   private lastWorldHeight: number = 0;
   private needsRedraw: boolean = true;
   private lastDpr: number = 0;
+  private worldWidth: number = 0;
+  private worldHeight: number = 0;
+  private baseTerrainLayer: BaseTerrainType[] = [];
+  private terrainDetailsByPosition: Map<string, Infer<typeof TerrainDetailRow>> = new Map();
+  private handleWorldInsert: ((ctx: EventContext, world: Infer<typeof WorldRow>) => void) | null = null;
+  private handleWorldUpdate: ((ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => void) | null = null;
+  private handleDetailInsert: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
+  private handleDetailUpdate: ((ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => void) | null = null;
+  private handleDetailDelete: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
 
-  constructor(tankManager: TankManager, terrainManager: TerrainManager) {
+  constructor(tankManager: TankManager, worldId: string) {
     this.tankManager = tankManager;
-    this.terrainManager = terrainManager;
-    this.subscribeToTerrainChanges();
+    this.worldId = worldId;
+    this.subscribeToWorld();
+    this.subscribeToTerrainDetails();
   }
 
-  private subscribeToTerrainChanges() {
-    this.terrainManager.onTerrainDetailDeleted(() => {
+  private getPositionKey(x: number, y: number): string {
+    return `${x},${y}`;
+  }
+
+  private subscribeToWorld() {
+    const connection = getConnection();
+    if (!connection) return;
+
+    this.handleWorldInsert = (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+      if (world.id !== this.worldId) return;
+      this.worldWidth = world.width;
+      this.worldHeight = world.height;
+      this.baseTerrainLayer = world.baseTerrainLayer;
       this.markForRedraw();
-    });
+    };
+
+    this.handleWorldUpdate = (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
+      if (newWorld.id !== this.worldId) return;
+      this.worldWidth = newWorld.width;
+      this.worldHeight = newWorld.height;
+      this.baseTerrainLayer = newWorld.baseTerrainLayer;
+      this.markForRedraw();
+    };
+
+    connection.db.world.onInsert(this.handleWorldInsert);
+    connection.db.world.onUpdate(this.handleWorldUpdate);
+
+    const cachedWorld = connection.db.world.Id.find(this.worldId);
+    if (cachedWorld) {
+      this.worldWidth = cachedWorld.width;
+      this.worldHeight = cachedWorld.height;
+      this.baseTerrainLayer = cachedWorld.baseTerrainLayer;
+    }
+  }
+
+  private subscribeToTerrainDetails() {
+    const connection = getConnection();
+    if (!connection) return;
+
+    this.handleDetailInsert = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+      if (detail.worldId !== this.worldId) return;
+      const key = this.getPositionKey(detail.positionX, detail.positionY);
+      this.terrainDetailsByPosition.set(key, detail);
+      this.markForRedraw();
+    };
+
+    this.handleDetailUpdate = (_ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
+      if (newDetail.worldId !== this.worldId) return;
+      
+      const oldKey = this.getPositionKey(oldDetail.positionX, oldDetail.positionY);
+      const newKey = this.getPositionKey(newDetail.positionX, newDetail.positionY);
+      
+      if (oldKey !== newKey) {
+        this.terrainDetailsByPosition.delete(oldKey);
+      }
+      
+      this.terrainDetailsByPosition.set(newKey, newDetail);
+      this.markForRedraw();
+    };
+
+    this.handleDetailDelete = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+      if (detail.worldId !== this.worldId) return;
+      const key = this.getPositionKey(detail.positionX, detail.positionY);
+      this.terrainDetailsByPosition.delete(key);
+      this.markForRedraw();
+    };
+
+    connection.db.terrainDetail.onInsert(this.handleDetailInsert);
+    connection.db.terrainDetail.onUpdate(this.handleDetailUpdate);
+    connection.db.terrainDetail.onDelete(this.handleDetailDelete);
+
+    for (const detail of connection.db.terrainDetail.iter()) {
+      if (detail.worldId === this.worldId) {
+        const key = this.getPositionKey(detail.positionX, detail.positionY);
+        this.terrainDetailsByPosition.set(key, detail);
+      }
+    }
+  }
+
+  public destroy() {
+    const connection = getConnection();
+    if (connection) {
+      if (this.handleWorldInsert) connection.db.world.removeOnInsert(this.handleWorldInsert);
+      if (this.handleWorldUpdate) connection.db.world.removeOnUpdate(this.handleWorldUpdate);
+      if (this.handleDetailInsert) connection.db.terrainDetail.removeOnInsert(this.handleDetailInsert);
+      if (this.handleDetailUpdate) connection.db.terrainDetail.removeOnUpdate(this.handleDetailUpdate);
+      if (this.handleDetailDelete) connection.db.terrainDetail.removeOnDelete(this.handleDetailDelete);
+    }
+    this.terrainDetailsByPosition.clear();
   }
 
   public markForRedraw() {
@@ -33,16 +134,13 @@ export class MiniMapManager {
   }
 
   public draw(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
-    const worldWidth = this.terrainManager.getWorldWidth();
-    const worldHeight = this.terrainManager.getWorldHeight();
-    
-    if (worldWidth === 0 || worldHeight === 0) return;
+    if (this.worldWidth === 0 || this.worldHeight === 0) return;
 
     const playerTank = this.tankManager.getPlayerTank();
     if (!playerTank) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const aspectRatio = worldWidth / worldHeight;
+    const aspectRatio = this.worldWidth / this.worldHeight;
     let miniMapWidth: number;
     let miniMapHeight: number;
     
@@ -57,12 +155,12 @@ export class MiniMapManager {
     const miniMapX = canvasWidth - miniMapWidth - this.margin;
     const miniMapY = canvasHeight - miniMapHeight - this.margin;
 
-    const worldChanged = worldWidth !== this.lastWorldWidth || worldHeight !== this.lastWorldHeight;
+    const worldChanged = this.worldWidth !== this.lastWorldWidth || this.worldHeight !== this.lastWorldHeight;
     const dprChanged = dpr !== this.lastDpr;
     if (worldChanged || dprChanged || this.needsRedraw || !this.baseLayerCanvas) {
-      this.createBaseLayer(miniMapWidth, miniMapHeight, worldWidth, worldHeight, dpr);
-      this.lastWorldWidth = worldWidth;
-      this.lastWorldHeight = worldHeight;
+      this.createBaseLayer(miniMapWidth, miniMapHeight, this.worldWidth, this.worldHeight, dpr);
+      this.lastWorldWidth = this.worldWidth;
+      this.lastWorldHeight = this.worldHeight;
       this.lastDpr = dpr;
       this.needsRedraw = false;
     }
@@ -79,10 +177,10 @@ export class MiniMapManager {
     ctx.strokeRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
 
     const playerPos = playerTank.getPosition();
-    const clampedX = Math.max(0, Math.min(playerPos.x, worldWidth));
-    const clampedY = Math.max(0, Math.min(playerPos.y, worldHeight));
-    const tankX = (clampedX / worldWidth) * miniMapWidth;
-    const tankY = (clampedY / worldHeight) * miniMapHeight;
+    const clampedX = Math.max(0, Math.min(playerPos.x, this.worldWidth));
+    const clampedY = Math.max(0, Math.min(playerPos.y, this.worldHeight));
+    const tankX = (clampedX / this.worldWidth) * miniMapWidth;
+    const tankY = (clampedY / this.worldHeight) * miniMapHeight;
 
     const tankColor = playerTank.getAllianceColor();
     ctx.fillStyle = tankColor;
@@ -136,10 +234,7 @@ export class MiniMapManager {
     worldWidth: number,
     worldHeight: number
   ) {
-    const baseTerrainLayer = this.terrainManager.getBaseTerrainLayer();
-    const terrainDetailsByPosition = this.terrainManager.getTerrainDetailsByPosition();
-
-    if (!baseTerrainLayer || baseTerrainLayer.length === 0) return;
+    if (!this.baseTerrainLayer || this.baseTerrainLayer.length === 0) return;
 
     const pixelWidth = miniMapWidth / worldWidth;
     const pixelHeight = miniMapHeight / worldHeight;
@@ -160,7 +255,7 @@ export class MiniMapManager {
     for (let tileY = 0; tileY < worldHeight; tileY++) {
       for (let tileX = 0; tileX < worldWidth; tileX++) {
         const index = tileY * worldWidth + tileX;
-        const terrain = baseTerrainLayer[index];
+        const terrain = this.baseTerrainLayer[index];
 
         let color: string;
         if (terrain.tag === "Lake") {
@@ -169,14 +264,13 @@ export class MiniMapManager {
           color = TERRAIN_COLORS.GROUND;
         }
 
-        if (terrainDetailsByPosition && tileY < terrainDetailsByPosition.length && tileX < terrainDetailsByPosition[tileY].length) {
-          const detail = terrainDetailsByPosition[tileY][tileX];
-          if (detail) {
-            const detailType = detail.getType();
-            const detailColor = detailColorMap[detailType];
-            if (detailColor) {
-              color = detailColor;
-            }
+        const key = this.getPositionKey(tileX, tileY);
+        const detail = this.terrainDetailsByPosition.get(key);
+        if (detail) {
+          const detailType = detail.type.tag;
+          const detailColor = detailColorMap[detailType];
+          if (detailColor) {
+            color = detailColor;
           }
         }
 
