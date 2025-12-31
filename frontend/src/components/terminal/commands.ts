@@ -83,6 +83,92 @@ function directionToAngle(direction: string): number {
   return mathAngle;
 }
 
+const allCommands = [
+  { name: 'drive', alias: 'd' },
+  { name: 'stop', alias: 's' },
+  { name: 'aim', alias: 'a' },
+  { name: 'target', alias: 't' },
+  { name: 'fire', alias: 'f' },
+  { name: 'switch', alias: 'w' },
+  { name: 'smoke', alias: 'sm' },
+  { name: 'overdrive', alias: 'od' },
+  { name: 'repair', alias: 'rep' },
+  { name: 'respawn', alias: null },
+  { name: 'name', alias: null },
+  { name: 'create', alias: null },
+  { name: 'join', alias: null },
+  { name: 'lobbies', alias: 'l' },
+  { name: 'clear', alias: 'c' },
+  { name: 'help', alias: 'h' }
+];
+
+function levenshteinDistance(str1: string, str2: string): number {
+  const len1 = str1.length;
+  const len2 = str2.length;
+  const matrix: number[][] = [];
+
+  for (let i = 0; i <= len1; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= len2; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= len1; i++) {
+    for (let j = 1; j <= len2; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+
+  return matrix[len1][len2];
+}
+
+export function findCommandSuggestion(input: string): string | null {
+  const inputLower = input.toLowerCase().trim();
+  
+  if (inputLower.length === 0) {
+    return null;
+  }
+
+  let bestMatch: { command: string; distance: number } | null = null;
+  
+  for (const cmd of allCommands) {
+    const nameDistance = levenshteinDistance(inputLower, cmd.name);
+    const aliasDistance = cmd.alias ? levenshteinDistance(inputLower, cmd.alias) : Infinity;
+    const distance = Math.min(nameDistance, aliasDistance);
+    
+    if (distance <= 2 && (!bestMatch || distance < bestMatch.distance)) {
+      bestMatch = { command: cmd.name, distance };
+    }
+  }
+
+  if (inputLower.startsWith('f') && inputLower.length > 1) {
+    const withoutF = inputLower.substring(1);
+    
+    for (const cmd of allCommands) {
+      if (cmd.name === 'fire' || cmd.alias === 'f') {
+        continue;
+      }
+      
+      const nameDistance = levenshteinDistance(withoutF, cmd.name);
+      const aliasDistance = cmd.alias ? levenshteinDistance(withoutF, cmd.alias) : Infinity;
+      const distance = Math.min(nameDistance, aliasDistance);
+      
+      if (distance <= 1 && (!bestMatch || distance < bestMatch.distance)) {
+        bestMatch = { command: cmd.name, distance };
+      }
+    }
+  }
+
+  return bestMatch ? bestMatch.command : null;
+}
+
 export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [

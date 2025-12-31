@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { getConnection } from "../../spacetimedb-connection";
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies, create, changeName } from "./commands";
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies, create, changeName, findCommandSuggestion } from "./commands";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -165,7 +165,18 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           setInput("");
           return;
         default:
-          commandOutput = [`Command not found: ${cmd}`];
+          const suggestion = findCommandSuggestion(cmd);
+          if (suggestion) {
+            commandOutput = [
+              `Command not found: ${cmd}`,
+              "",
+              `Did you mean '${suggestion}'?`,
+              "",
+              "Use 'help' to see all available commands."
+            ];
+          } else {
+            commandOutput = [`Command not found: ${cmd}`, "", "Use 'help' to see all available commands."];
+          }
           break;
       }
 
