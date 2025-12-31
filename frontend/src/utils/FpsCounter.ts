@@ -5,6 +5,12 @@ export class FpsCounter {
 
   public update(currentTime: number): void {
     this.frameCount++;
+    
+    if (this.lastUpdate === 0) {
+      this.lastUpdate = currentTime;
+      return;
+    }
+    
     if (currentTime - this.lastUpdate >= 1000) {
       this.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastUpdate));
       this.frameCount = 0;
