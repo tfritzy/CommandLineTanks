@@ -295,7 +295,7 @@ public static partial class TankUpdater
             if (tank.Target != null)
             {
                 var targetTank = updateContext.GetTankById(tank.Target);
-                if (targetTank != null)
+                if (targetTank != null && targetTank.Value.Health > 0)
                 {
                     var targetX = targetTank.Value.PositionX;
                     var targetY = targetTank.Value.PositionY;
@@ -371,6 +371,11 @@ public static partial class TankUpdater
                             }
                         }
                     }
+                }
+                else
+                {
+                    tank = tank with { Target = null };
+                    needsUpdate = true;
                 }
             }
 
