@@ -259,11 +259,11 @@ public static partial class TerrainGenerator
 
     private static void GenerateTrees(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random, int width, int height)
     {
-        float groveNoiseScale = 0.08f;
-        float groveThreshold = 0.2f;
+        float groveNoiseScale = 0.05f;
+        float groveThreshold = 0.1f;
         
-        float treeNoiseScale = 0.4f;
-        float treeThreshold = 0.3f;
+        float treeNoiseScale = 0.25f;
+        float treeThreshold = 0.4f;
         
         float groveOffsetX = (float)(random.NextDouble() * 1000f);
         float groveOffsetY = (float)(random.NextDouble() * 1000f);
