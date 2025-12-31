@@ -90,7 +90,7 @@ const allCommands = [
   { name: 'target', alias: 't' },
   { name: 'fire', alias: 'f' },
   { name: 'switch', alias: 'w' },
-  { name: 'smoke', alias: 'sm' },
+  { name: 'smokescreen', alias: 'sm' },
   { name: 'overdrive', alias: 'od' },
   { name: 'repair', alias: 'rep' },
   { name: 'respawn', alias: null },
