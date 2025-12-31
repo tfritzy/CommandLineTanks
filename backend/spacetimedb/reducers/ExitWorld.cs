@@ -4,7 +4,7 @@ using System.Linq;
 public static partial class Module
 {
     [Reducer]
-    public static void exitWorld(ReducerContext ctx, string joinCode)
+    public static void exitWorld(ReducerContext ctx, string worldId, string joinCode)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -14,9 +14,11 @@ public static partial class Module
         }
 
         var identityString = ctx.Sender.ToString().ToLower();
-        var playerTanks = ctx.Db.tank.Owner.Filter(ctx.Sender).ToList();
         
-        var homeworldTank = playerTanks.FirstOrDefault(t => t.WorldId == identityString);
+        var homeworldTank = ctx.Db.tank.WorldId.Filter(identityString)
+            .Where(t => t.Owner == ctx.Sender)
+            .FirstOrDefault();
+        
         if (homeworldTank.Id != null)
         {
             var updatedTank = homeworldTank with { JoinCode = joinCode };
@@ -25,11 +27,9 @@ public static partial class Module
             return;
         }
 
-        var currentTank = playerTanks.FirstOrDefault(t => t.JoinCode == joinCode);
-        if (currentTank.Id == null)
-        {
-            currentTank = playerTanks.OrderByDescending(t => t.UpdatedAt).FirstOrDefault();
-        }
+        var currentTank = ctx.Db.tank.WorldId.Filter(worldId)
+            .Where(t => t.Owner == ctx.Sender)
+            .FirstOrDefault();
 
         if (currentTank.Id != null)
         {
@@ -40,7 +40,8 @@ public static partial class Module
         if (tank != null)
         {
             AddTankToWorld(ctx, tank.Value);
-            Log.Info($"Player {player.Value.Name} returned to homeworld");
         }
+        
+        Log.Info($"Player {player.Value.Name} returned to homeworld");
     }
 }

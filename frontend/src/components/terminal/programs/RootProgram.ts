@@ -78,7 +78,7 @@ export class RootProgram extends Program {
                 break;
             case 'exit':
             case 'e':
-                commandOutput = exitWorld(this.connection, args);
+                commandOutput = exitWorld(this.connection, this.worldId, args);
                 break;
             case 'lobbies':
             case 'l':

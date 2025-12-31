@@ -1138,7 +1138,7 @@ export function lobbies(connection: DbConnection, args: string[]): string[] {
   return result;
 }
 
-export function exitWorld(connection: DbConnection, args: string[]): string[] {
+export function exitWorld(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (args.length > 0) {
     return [
       "exit: error: exit command takes no arguments",
@@ -1155,7 +1155,7 @@ export function exitWorld(connection: DbConnection, args: string[]): string[] {
   const joinCode = `exit_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
 
-  connection.reducers.exitWorld({ joinCode });
+  connection.reducers.exitWorld({ worldId, joinCode });
 
   return [
     "Returning to homeworld...",
