@@ -10,7 +10,6 @@ public static partial class Module
         BaseTerrain[] baseTerrain,
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
         bool[] traversibilityMap,
-        bool[] projectileCollisionMap,
         int width,
         int height,
         WorldVisibility visibility = WorldVisibility.Public,
@@ -82,7 +81,6 @@ public static partial class Module
         {
             WorldId = worldId,
             Map = traversibilityMap,
-            ProjectileCollisionMap = projectileCollisionMap,
             Width = width,
             Height = height
         });

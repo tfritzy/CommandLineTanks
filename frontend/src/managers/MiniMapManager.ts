@@ -254,15 +254,7 @@ export class MiniMapManager {
 
     for (let tileY = 0; tileY < worldHeight; tileY++) {
       for (let tileX = 0; tileX < worldWidth; tileX++) {
-        const index = tileY * worldWidth + tileX;
-        const terrain = this.baseTerrainLayer[index];
-
-        let color: string;
-        if (terrain.tag === "Lake") {
-          color = TERRAIN_COLORS.LAKE;
-        } else {
-          color = TERRAIN_COLORS.GROUND;
-        }
+        let color = TERRAIN_COLORS.GROUND;
 
         const key = this.getPositionKey(tileX, tileY);
         const detail = this.terrainDetailsByPosition.get(key);

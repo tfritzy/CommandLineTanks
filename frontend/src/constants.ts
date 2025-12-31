@@ -19,7 +19,6 @@ export const TEAM_COLORS = {
 export const TERRAIN_COLORS = {
   GROUND: "#2e2e43",
   FARM_GROOVE: "#313148",
-  LAKE: "#5a78b2",
   GRID: "#4a4b5b22",
   CHECKER: "#00000006",
 };
