@@ -82,7 +82,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    let newOutput = [...output];
+    const newOutput = [...output];
     newOutput.push(`❯ ${input}`);
 
     if (input.trim()) {
