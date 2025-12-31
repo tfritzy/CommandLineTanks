@@ -38,6 +38,10 @@ export class MiniMapManager {
     this.subscribeToTerrainDetails();
   }
 
+  private getPositionKey(x: number, y: number): string {
+    return `${x},${y}`;
+  }
+
   private subscribeToWorld() {
     const connection = getConnection();
     if (!connection) return;
@@ -75,21 +79,21 @@ export class MiniMapManager {
 
     this.handleDetailInsert = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       if (detail.worldId !== this.worldId) return;
-      const key = `${detail.positionX},${detail.positionY}`;
+      const key = this.getPositionKey(detail.positionX, detail.positionY);
       this.terrainDetailsByPosition.set(key, detail);
       this.markForRedraw();
     };
 
     this.handleDetailUpdate = (_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
       if (newDetail.worldId !== this.worldId) return;
-      const key = `${newDetail.positionX},${newDetail.positionY}`;
+      const key = this.getPositionKey(newDetail.positionX, newDetail.positionY);
       this.terrainDetailsByPosition.set(key, newDetail);
       this.markForRedraw();
     };
 
     this.handleDetailDelete = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       if (detail.worldId !== this.worldId) return;
-      const key = `${detail.positionX},${detail.positionY}`;
+      const key = this.getPositionKey(detail.positionX, detail.positionY);
       this.terrainDetailsByPosition.delete(key);
       this.markForRedraw();
     };
@@ -100,7 +104,7 @@ export class MiniMapManager {
 
     for (const detail of connection.db.terrainDetail.iter()) {
       if (detail.worldId === this.worldId) {
-        const key = `${detail.positionX},${detail.positionY}`;
+        const key = this.getPositionKey(detail.positionX, detail.positionY);
         this.terrainDetailsByPosition.set(key, detail);
       }
     }
@@ -253,7 +257,7 @@ export class MiniMapManager {
           color = TERRAIN_COLORS.GROUND;
         }
 
-        const key = `${tileX},${tileY}`;
+        const key = this.getPositionKey(tileX, tileY);
         const detail = this.terrainDetailsByPosition.get(key);
         if (detail) {
           const detailType = detail.type.tag;
