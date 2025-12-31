@@ -84,10 +84,17 @@ export class MiniMapManager {
       this.markForRedraw();
     };
 
-    this.handleDetailUpdate = (_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
+    this.handleDetailUpdate = (_ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
       if (newDetail.worldId !== this.worldId) return;
-      const key = this.getPositionKey(newDetail.positionX, newDetail.positionY);
-      this.terrainDetailsByPosition.set(key, newDetail);
+      
+      const oldKey = this.getPositionKey(oldDetail.positionX, oldDetail.positionY);
+      const newKey = this.getPositionKey(newDetail.positionX, newDetail.positionY);
+      
+      if (oldKey !== newKey) {
+        this.terrainDetailsByPosition.delete(oldKey);
+      }
+      
+      this.terrainDetailsByPosition.set(newKey, newDetail);
       this.markForRedraw();
     };
 
