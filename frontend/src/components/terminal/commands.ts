@@ -1152,24 +1152,10 @@ export function exitWorld(connection: DbConnection, args: string[]): string[] {
     return ["exit: error: no connection"];
   }
 
-  const allTanks = Array.from(connection.db.tank.iter());
-  const myTank = allTanks.find(t => t.owner.isEqual(connection.identity!));
+  const joinCode = `exit_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  setPendingJoinCode(joinCode);
 
-  if (!myTank) {
-    return ["exit: error: no tank found"];
-  }
-
-  const identityString = connection.identity.toString().toLowerCase();
-  
-  if (myTank.worldId === identityString) {
-    return [
-      "exit: error: already in homeworld",
-      "",
-      "You are already in your homeworld"
-    ];
-  }
-
-  connection.reducers.exitWorld({});
+  connection.reducers.exitWorld({ joinCode });
 
   return [
     "Returning to homeworld...",

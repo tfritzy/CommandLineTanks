@@ -88,7 +88,7 @@ public static partial class Module
         ctx.Db.world.Id.Update(updatedWorld);
     }
 
-    public static Tank? ReturnToHomeworld(ReducerContext ctx, Identity owner)
+    public static Tank? ReturnToHomeworld(ReducerContext ctx, Identity owner, string joinCode = "")
     {
         var identityString = owner.ToString().ToLower();
         var homeworld = ctx.Db.world.Id.Find(identityString);
@@ -114,7 +114,7 @@ public static partial class Module
             owner,
             playerName,
             targetCode,
-            "",
+            joinCode,
             0,
             HOMEWORLD_WIDTH / 2 + .5f,
             HOMEWORLD_HEIGHT / 2 + .5f,
