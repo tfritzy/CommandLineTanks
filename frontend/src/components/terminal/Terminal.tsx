@@ -1,8 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { getConnection } from "../../spacetimedb-connection";
-import { type ProgramContext, Program } from "./programs/Program";
-import { RootProgram } from "./programs/RootProgram";
-import { CreateGameProgram } from "./programs/CreateGameProgram";
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies, create, changeName } from "./commands";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -13,7 +11,6 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const [input, setInput] = useState("");
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [currentProgram, setCurrentProgram] = useState<Program | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -27,54 +24,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     }
   }, [output]);
 
-  useEffect(() => {
-    if (currentProgram) {
-      currentProgram.onWorldIdChange(worldId);
-    }
-  }, [worldId, currentProgram]);
-
-  const startProgram = useCallback((program: Program) => {
-    program.onEnter();
-    setCurrentProgram(program);
-  }, []);
-
-  useEffect(() => {
-    if (!currentProgram) {
-      const context: ProgramContext = {
-        output,
-        setOutput,
-        setInput,
-        exitProgram: () => setCurrentProgram(null),
-        worldId,
-      };
-
-      const connection = getConnection();
-      const rootProgram = new RootProgram(context, worldId, connection, () =>
-        startProgram(new CreateGameProgram(context))
-      );
-      setCurrentProgram(rootProgram);
-    }
-  }, [currentProgram, worldId, output]);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (currentProgram && currentProgram.handleKeyDown(e)) {
-      return;
-    }
-
-    if (
-      e.ctrlKey &&
-      e.key === "c" &&
-      currentProgram &&
-      !(currentProgram instanceof RootProgram)
-    ) {
-      e.preventDefault();
-      const newOutput = [...output, "", "^C", "Cancelled.", ""];
-      setOutput(newOutput);
-      setInput("");
-      setCurrentProgram(null);
-      return;
-    }
-
     if (e.key === "ArrowUp") {
       e.preventDefault();
       if (commandHistory.length === 0) return;
@@ -139,12 +89,88 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       setCommandHistory([...commandHistory, input.trim()]);
       setHistoryIndex(-1);
 
-      setOutput(newOutput);
-
-      if (currentProgram) {
-        currentProgram.handleInput(input.trim());
+      const trimmedInput = input.trim();
+      const [cmd, ...args] = trimmedInput.split(' ');
+      
+      const connection = getConnection();
+      if (!connection?.isActive) {
+        newOutput.push("Error: connection is currently not active", "");
+        setOutput(newOutput);
+        setInput("");
+        return;
       }
 
+      let commandOutput: string[] = [];
+
+      switch (cmd.toLowerCase()) {
+        case 'aim':
+        case 'a':
+          commandOutput = aim(connection, worldId, args);
+          break;
+        case 'target':
+        case 't':
+          commandOutput = target(connection, worldId, args);
+          break;
+        case 'drive':
+        case 'd':
+          commandOutput = drive(connection, worldId, args);
+          break;
+        case 'stop':
+        case 's':
+          commandOutput = stop(connection, worldId, args);
+          break;
+        case 'fire':
+        case 'f':
+          commandOutput = fire(connection, worldId, args);
+          break;
+        case 'switch':
+        case 'w':
+          commandOutput = switchGun(connection, worldId, args);
+          break;
+        case 'smokescreen':
+        case 'sm':
+          commandOutput = smokescreen(connection, worldId, args);
+          break;
+        case 'overdrive':
+        case 'od':
+          commandOutput = overdrive(connection, worldId, args);
+          break;
+        case 'repair':
+        case 'rep':
+          commandOutput = repair(connection, worldId, args);
+          break;
+        case 'respawn':
+          commandOutput = respawn(connection, worldId, args);
+          break;
+        case 'create':
+          commandOutput = create(connection, args);
+          break;
+        case 'join':
+          commandOutput = join(connection, args);
+          break;
+        case 'lobbies':
+        case 'l':
+          commandOutput = lobbies(connection, args);
+          break;
+        case 'name':
+          commandOutput = changeName(connection, args);
+          break;
+        case 'help':
+        case 'h':
+          commandOutput = help(connection, args);
+          break;
+        case 'clear':
+        case 'c':
+          setOutput([]);
+          setInput("");
+          return;
+        default:
+          commandOutput = [`Command not found: ${cmd}`];
+          break;
+      }
+
+      newOutput.push(...commandOutput, "");
+      setOutput(newOutput);
       setInput("");
     } else {
       if (newOutput.length > 0) newOutput.push("");

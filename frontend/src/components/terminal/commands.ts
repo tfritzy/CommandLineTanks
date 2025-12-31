@@ -1,4 +1,5 @@
 import { type DbConnection } from "../../../module_bindings";
+import WorldVisibility from "../../../module_bindings/world_visibility_type";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 
 function isPlayerDead(connection: DbConnection, worldId: string): boolean {
@@ -97,7 +98,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
       "  name                 View or change your player name",
-      "  create               Create a new game world",
+      "  create               Create a new game world with optional flags",
       "  join                 Join or create a game world",
       "  lobbies, l           List all available public games",
       "  clear, c             Clear the terminal output",
@@ -319,15 +320,24 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "create - Create a new game world",
         "",
-        "Usage: create",
+        "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]",
         "",
-        "Opens an interactive flow to create a new game world.",
-        "You can customize world name, visibility (public/private),",
-        "passcode, bot count, and game duration.",
+        "Flags:",
+        "  --name, -n          World name (default: 'New World')",
+        "  --visibility, -v    'public' or 'private' (default: private)",
+        "  --passcode, -p      Passcode for private worlds (default: '')",
+        "  --bots, -b          Number of AI bots, must be even, 0-10 (default: 0)",
+        "  --duration, -d      Game duration in minutes, 1-20 (default: 10)",
+        "  --width, -w         Map width, 1-200 (default: 50)",
+        "  --height, -h        Map height, 1-200 (default: 50)",
+        "",
         "After creation, you'll be automatically joined to the new game.",
         "",
         "Examples:",
         "  create",
+        "  create --name 'Battle Arena' --visibility public --bots 4",
+        "  create -n 'My Game' -v private -p secret123 -d 15",
+        "  create --width 100 --height 100 --duration 20",
       ];
 
     case "join":
@@ -1003,18 +1013,170 @@ export function repair(
 }
 
 export function create(
-  _connection: DbConnection,
+  connection: DbConnection,
   args: string[]
-): string[] | { type: "open_flow" } {
-  if (args.length > 0) {
-    return [
-      "create: error: create command takes no arguments",
-      "",
-      "Usage: create",
-    ];
+): string[] {
+  const defaults = {
+    name: 'New World',
+    visibility: 'private' as 'public' | 'private',
+    passcode: '',
+    bots: 0,
+    duration: 10,
+    width: 50,
+    height: 50
+  };
+
+  const state = { ...defaults };
+  let i = 0;
+
+  while (i < args.length) {
+    const arg = args[i];
+    
+    if (arg === '--name' || arg === '-n') {
+      if (i + 1 >= args.length) {
+        return [
+          `create: error: ${arg} requires a value`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      state.name = args[i + 1];
+      i += 2;
+    } else if (arg === '--visibility' || arg === '-v') {
+      if (i + 1 >= args.length) {
+        return [
+          `create: error: ${arg} requires a value`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      const vis = args[i + 1].toLowerCase();
+      if (vis !== 'public' && vis !== 'private') {
+        return [
+          `create: error: invalid visibility '${args[i + 1]}', must be 'public' or 'private'`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      state.visibility = vis as 'public' | 'private';
+      i += 2;
+    } else if (arg === '--passcode' || arg === '-p') {
+      if (i + 1 >= args.length) {
+        return [
+          `create: error: ${arg} requires a value`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      state.passcode = args[i + 1];
+      i += 2;
+    } else if (arg === '--bots' || arg === '-b') {
+      if (i + 1 >= args.length) {
+        return [
+          `create: error: ${arg} requires a value`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      const bots = parseInt(args[i + 1]);
+      if (isNaN(bots) || bots < 0 || bots > 10 || bots % 2 !== 0) {
+        return [
+          `create: error: invalid bot count '${args[i + 1]}', must be an even number between 0 and 10`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      state.bots = bots;
+      i += 2;
+    } else if (arg === '--duration' || arg === '-d') {
+      if (i + 1 >= args.length) {
+        return [
+          `create: error: ${arg} requires a value`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      const duration = parseInt(args[i + 1]);
+      if (isNaN(duration) || duration < 1 || duration > 20) {
+        return [
+          `create: error: invalid duration '${args[i + 1]}', must be between 1 and 20 minutes`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      state.duration = duration;
+      i += 2;
+    } else if (arg === '--width' || arg === '-w') {
+      if (i + 1 >= args.length) {
+        return [
+          `create: error: ${arg} requires a value`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      const width = parseInt(args[i + 1]);
+      if (isNaN(width) || width < 1 || width > 200) {
+        return [
+          `create: error: invalid width '${args[i + 1]}', must be between 1 and 200`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      state.width = width;
+      i += 2;
+    } else if (arg === '--height' || arg === '-h') {
+      if (i + 1 >= args.length) {
+        return [
+          `create: error: ${arg} requires a value`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      const height = parseInt(args[i + 1]);
+      if (isNaN(height) || height < 1 || height > 200) {
+        return [
+          `create: error: invalid height '${args[i + 1]}', must be between 1 and 200`,
+          "",
+          "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]"
+        ];
+      }
+      state.height = height;
+      i += 2;
+    } else {
+      return [
+        `create: error: unknown flag '${arg}'`,
+        "",
+        "Usage: create [--name <name>] [--visibility <public|private>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]",
+        "",
+        "Defaults: name='New World', visibility=private, passcode='', bots=0, duration=10, width=50, height=50"
+      ];
+    }
   }
 
-  return { type: "open_flow" };
+  const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  setPendingJoinCode(joinCode);
+  
+  const gameDurationMicros = BigInt(state.duration * 60 * 1000000);
+  const visibility = state.visibility === 'private' ? WorldVisibility.Private : WorldVisibility.CustomPublic;
+
+  connection.reducers.createWorld({ 
+    joinCode,
+    worldName: state.name,
+    visibility, 
+    passcode: state.passcode,
+    botCount: state.bots,
+    gameDurationMicros,
+    width: state.width,
+    height: state.height
+  });
+
+  const visibilityLabel = state.visibility === 'private' ? 'private' : 'public';
+  return [
+    `Creating ${visibilityLabel} world "${state.name}"...`,
+    `Bots: ${state.bots}, Duration: ${state.duration} min, Size: ${state.width}x${state.height}`,
+    "",
+    "World creation initiated. You'll be automatically joined."
+  ];
 }
 
 export function join(connection: DbConnection, args: string[]): string[] {
