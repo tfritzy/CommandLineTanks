@@ -85,9 +85,11 @@ function directionToAngle(direction: string): number {
 
 const allCommands = [
   { name: 'drive', alias: 'd' },
+  { name: 'stop', alias: 's' },
   { name: 'aim', alias: 'a' },
   { name: 'target', alias: 't' },
-  { name: 'fire', alias: 'f' }
+  { name: 'fire', alias: 'f' },
+  { name: 'repair', alias: 'rep' }
 ];
 
 function levenshteinDistance(str1: string, str2: string): number {
