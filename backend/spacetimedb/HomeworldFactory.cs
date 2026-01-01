@@ -272,7 +272,7 @@ public static partial class Module
             GridY = areaY - 2,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "target <code>, fire",
+            Label = "Targeting: Use 'target <code>' to lock onto an enemy, then 'fire' to shoot",
             Rotation = 0
         });
 
@@ -299,7 +299,7 @@ public static partial class Module
             GridY = areaY - 2,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "aim <direction>, fire",
+            Label = "Aiming: Use 'aim <direction>' to point your turret, then 'fire' to shoot",
             Rotation = 0
         });
 
@@ -326,7 +326,7 @@ public static partial class Module
             GridY = areaY - 2,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "drive <direction> <distance>",
+            Label = "Movement: Use 'drive <direction> <distance>' to move your tank",
             Rotation = 0
         });
 
