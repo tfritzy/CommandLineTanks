@@ -1289,16 +1289,12 @@ export function join(connection: DbConnection, args: string[]): string[] {
     passcode,
   });
 
-  if (args.length === 0) {
-    return [
-      colors.dim("join random"),
-      "",
-      "Finding or creating a game world..."
-    ];
-  }
-
   if (isRandom) {
-    return ["Finding or creating a game world..."];
+    const output = ["Finding or creating a game world..."];
+    if (args.length === 0) {
+      output.unshift("", colors.dim("join random"));
+    }
+    return output;
   }
 
   return [`Joining world ${worldId}...`];
