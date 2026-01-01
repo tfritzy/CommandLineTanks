@@ -152,13 +152,9 @@ public static partial class Module
             Rotation = 0
         });
 
-        SpawnTurretBot(ctx, identityString, 5, worldHeight / 2, 0);
-        SpawnRandomAimBot(ctx, identityString, worldWidth - 5, worldHeight / 2, 0);
-
-        SpawnTileboundBot(ctx, identityString, 3, worldHeight / 2 - 2, 1);
-        SpawnTileboundBot(ctx, identityString, 3, worldHeight / 2 + 2, 1);
-        SpawnTileboundBot(ctx, identityString, worldWidth - 3, worldHeight / 2 - 2, 1);
-        SpawnTileboundBot(ctx, identityString, worldWidth - 3, worldHeight / 2 + 2, 1);
+        CreateTargetingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
+        CreateAimingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
+        CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
 
         var pickups = new[]
         {
@@ -207,7 +203,7 @@ public static partial class Module
             ctx,
             worldId,
             Identity.From(new byte[32]),
-            "TargetBot",
+            "",
             targetCode,
             "",
             alliance,
@@ -226,7 +222,7 @@ public static partial class Module
             ctx,
             worldId,
             Identity.From(new byte[32]),
-            "AimBot",
+            "",
             targetCode,
             "",
             alliance,
@@ -245,7 +241,7 @@ public static partial class Module
             ctx,
             worldId,
             Identity.From(new byte[32]),
-            "TileBot",
+            "",
             targetCode,
             "",
             alliance,
@@ -255,5 +251,234 @@ public static partial class Module
         );
         tileboundBot.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(tileboundBot);
+    }
+
+    private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
+    {
+        int areaX = 0;
+        int areaY = 6;
+        int areaWidth = 6;
+        int areaHeight = 6;
+
+        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
+
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = GenerateId(ctx, "td"),
+            WorldId = worldId,
+            PositionX = areaX + areaWidth / 2.0f + 0.5f,
+            PositionY = areaY - 1.5f,
+            GridX = areaX + areaWidth / 2,
+            GridY = areaY - 2,
+            Type = TerrainDetailType.Label,
+            Health = 100,
+            Label = "Targeting: Use 'target <code>' to lock onto an enemy, then 'fire' to shoot",
+            Rotation = 0
+        });
+
+        SpawnTurretBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0);
+        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1);
+    }
+
+    private static void CreateAimingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
+    {
+        int areaX = 24;
+        int areaY = 6;
+        int areaWidth = 6;
+        int areaHeight = 6;
+
+        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
+
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = GenerateId(ctx, "td"),
+            WorldId = worldId,
+            PositionX = areaX + areaWidth / 2.0f + 0.5f,
+            PositionY = areaY - 1.5f,
+            GridX = areaX + areaWidth / 2,
+            GridY = areaY - 2,
+            Type = TerrainDetailType.Label,
+            Health = 100,
+            Label = "Aiming: Use 'aim <direction>' to point your turret, then 'fire' to shoot",
+            Rotation = 0
+        });
+
+        SpawnRandomAimBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0);
+        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1);
+    }
+
+    private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
+    {
+        int areaX = 6;
+        int areaY = 12;
+        int areaWidth = 6;
+        int areaHeight = 6;
+
+        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
+
+        ctx.Db.terrain_detail.Insert(new TerrainDetail
+        {
+            Id = GenerateId(ctx, "td"),
+            WorldId = worldId,
+            PositionX = areaX + areaWidth / 2.0f + 0.5f,
+            PositionY = areaY - 1.5f,
+            GridX = areaX + areaWidth / 2,
+            GridY = areaY - 2,
+            Type = TerrainDetailType.Label,
+            Health = 100,
+            Label = "Movement: Use 'drive <direction> <distance>' to move your tank",
+            Rotation = 0
+        });
+
+        SpawnTileboundBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0);
+    }
+
+    private static void CreateFencedArea(ReducerContext ctx, string worldId, int worldWidth, int startX, int startY, int width, int height)
+    {
+        for (int x = startX; x < startX + width; x++)
+        {
+            int topY = startY - 1;
+            if (topY >= 0)
+            {
+                ctx.Db.terrain_detail.Insert(new TerrainDetail
+                {
+                    Id = GenerateId(ctx, "td"),
+                    WorldId = worldId,
+                    PositionX = x + 0.5f,
+                    PositionY = topY + 0.5f,
+                    GridX = x,
+                    GridY = topY,
+                    Type = TerrainDetailType.FenceEdge,
+                    Health = 100,
+                    Rotation = 0
+                });
+            }
+
+            int bottomY = startY + height;
+            if (bottomY < worldHeight)
+            {
+                ctx.Db.terrain_detail.Insert(new TerrainDetail
+                {
+                    Id = GenerateId(ctx, "td"),
+                    WorldId = worldId,
+                    PositionX = x + 0.5f,
+                    PositionY = bottomY + 0.5f,
+                    GridX = x,
+                    GridY = bottomY,
+                    Type = TerrainDetailType.FenceEdge,
+                    Health = 100,
+                    Rotation = 2
+                });
+            }
+        }
+
+        for (int y = startY; y < startY + height; y++)
+        {
+            int leftX = startX - 1;
+            if (leftX >= 0)
+            {
+                ctx.Db.terrain_detail.Insert(new TerrainDetail
+                {
+                    Id = GenerateId(ctx, "td"),
+                    WorldId = worldId,
+                    PositionX = leftX + 0.5f,
+                    PositionY = y + 0.5f,
+                    GridX = leftX,
+                    GridY = y,
+                    Type = TerrainDetailType.FenceEdge,
+                    Health = 100,
+                    Rotation = 3
+                });
+            }
+
+            int rightX = startX + width;
+            if (rightX < worldWidth)
+            {
+                ctx.Db.terrain_detail.Insert(new TerrainDetail
+                {
+                    Id = GenerateId(ctx, "td"),
+                    WorldId = worldId,
+                    PositionX = rightX + 0.5f,
+                    PositionY = y + 0.5f,
+                    GridX = rightX,
+                    GridY = y,
+                    Type = TerrainDetailType.FenceEdge,
+                    Health = 100,
+                    Rotation = 1
+                });
+            }
+        }
+
+        int topLeftX = startX - 1;
+        int topLeftY = startY - 1;
+        if (topLeftX >= 0 && topLeftY >= 0)
+        {
+            ctx.Db.terrain_detail.Insert(new TerrainDetail
+            {
+                Id = GenerateId(ctx, "td"),
+                WorldId = worldId,
+                PositionX = topLeftX + 0.5f,
+                PositionY = topLeftY + 0.5f,
+                GridX = topLeftX,
+                GridY = topLeftY,
+                Type = TerrainDetailType.FenceCorner,
+                Health = 100,
+                Rotation = 0
+            });
+        }
+
+        int topRightX = startX + width;
+        int topRightY = startY - 1;
+        if (topRightX < worldWidth && topRightY >= 0)
+        {
+            ctx.Db.terrain_detail.Insert(new TerrainDetail
+            {
+                Id = GenerateId(ctx, "td"),
+                WorldId = worldId,
+                PositionX = topRightX + 0.5f,
+                PositionY = topRightY + 0.5f,
+                GridX = topRightX,
+                GridY = topRightY,
+                Type = TerrainDetailType.FenceCorner,
+                Health = 100,
+                Rotation = 1
+            });
+        }
+
+        int bottomLeftX = startX - 1;
+        int bottomLeftY = startY + height;
+        if (bottomLeftX >= 0 && bottomLeftY < worldHeight)
+        {
+            ctx.Db.terrain_detail.Insert(new TerrainDetail
+            {
+                Id = GenerateId(ctx, "td"),
+                WorldId = worldId,
+                PositionX = bottomLeftX + 0.5f,
+                PositionY = bottomLeftY + 0.5f,
+                GridX = bottomLeftX,
+                GridY = bottomLeftY,
+                Type = TerrainDetailType.FenceCorner,
+                Health = 100,
+                Rotation = 3
+            });
+        }
+
+        int bottomRightX = startX + width;
+        int bottomRightY = startY + height;
+        if (bottomRightX < worldWidth && bottomRightY < worldHeight)
+        {
+            ctx.Db.terrain_detail.Insert(new TerrainDetail
+            {
+                Id = GenerateId(ctx, "td"),
+                WorldId = worldId,
+                PositionX = bottomRightX + 0.5f,
+                PositionY = bottomRightY + 0.5f,
+                GridX = bottomRightX,
+                GridY = bottomRightY,
+                Type = TerrainDetailType.FenceCorner,
+                Health = 100,
+                Rotation = 2
+            });
+        }
     }
 }
