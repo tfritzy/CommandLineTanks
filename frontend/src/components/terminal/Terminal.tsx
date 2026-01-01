@@ -9,6 +9,13 @@ interface TerminalComponentProps {
   worldId: string;
 }
 
+const PROMPT = "\x1b[1;32m❯\x1b[0m ";
+const KEY_ENTER = 13;
+const KEY_BACKSPACE = 127;
+const KEY_ESCAPE = 27;
+const ARROW_UP = "\x1b[A";
+const ARROW_DOWN = "\x1b[B";
+
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
@@ -16,13 +23,6 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const commandHistoryRef = useRef<string[]>([]);
   const historyIndexRef = useRef<number>(-1);
   const currentInputRef = useRef<string>("");
-
-  const PROMPT = "\x1b[1;32m❯\x1b[0m ";
-  const KEY_ENTER = 13;
-  const KEY_BACKSPACE = 127;
-  const KEY_ESCAPE = 27;
-  const ARROW_UP = "\x1b[A";
-  const ARROW_DOWN = "\x1b[B";
 
   useEffect(() => {
     if (!terminalRef.current) return;
