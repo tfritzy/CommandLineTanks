@@ -21,6 +21,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const KEY_ENTER = 13;
   const KEY_BACKSPACE = 127;
   const KEY_ESCAPE = 27;
+  const ARROW_UP = "\x1b[A";
+  const ARROW_DOWN = "\x1b[B";
 
   useEffect(() => {
     if (!terminalRef.current) return;
@@ -185,7 +187,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           term.write("\b \b");
         }
       } else if (code === KEY_ESCAPE) {
-        if (data === "\x1b[A") {
+        if (data === ARROW_UP) {
           if (commandHistoryRef.current.length === 0) return;
 
           const startIndex = historyIndexRef.current === -1 
@@ -216,7 +218,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           
           currentInputRef.current = newCommand;
           term.write(newCommand);
-        } else if (data === "\x1b[B") {
+        } else if (data === ARROW_DOWN) {
           if (historyIndexRef.current === -1) return;
 
           const newIndex = historyIndexRef.current + 1;
