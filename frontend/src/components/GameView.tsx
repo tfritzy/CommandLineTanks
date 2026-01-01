@@ -275,7 +275,7 @@ export default function GameView() {
               style={{
                 fontSize: "16px",
                 color: "#e6eeed",
-                marginBottom: "0px",
+                marginBottom: "32px",
                 letterSpacing: "0.05em",
                 fontWeight: 300,
                 textAlign: "center",
@@ -294,6 +294,100 @@ export default function GameView() {
                 respawn
               </span>{" "}
               to rejoin the battle
+            </div>
+
+            <div
+              style={{
+                borderTop: "1px solid rgba(112, 123, 137, 0.2)",
+                paddingTop: "24px",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "14px",
+                  color: "#a9bcbf",
+                  marginBottom: "12px",
+                  letterSpacing: "0.05em",
+                  fontWeight: 300,
+                }}
+              >
+                Invite your friends to this world
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{
+                    background: "rgba(42, 21, 45, 0.6)",
+                    border: "1px solid rgba(112, 123, 137, 0.3)",
+                    borderRadius: "4px",
+                    padding: "8px 16px",
+                    fontSize: "13px",
+                    color: "#e6eeed",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    letterSpacing: "0.02em",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    maxWidth: "400px",
+                  }}
+                >
+                  {`${window.location.origin}/world/${worldId}`}
+                </div>
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}/world/${worldId}`;
+                    navigator.clipboard.writeText(url).then(() => {
+                      const button = document.activeElement as HTMLElement;
+                      if (button) {
+                        const originalText = button.textContent;
+                        button.textContent = "Copied!";
+                        button.style.background = "rgba(121, 150, 109, 0.4)";
+                        setTimeout(() => {
+                          button.textContent = originalText;
+                          button.style.background =
+                            "rgba(129, 54, 69, 0.6)";
+                        }, 1500);
+                      }
+                    });
+                  }}
+                  style={{
+                    background: "rgba(129, 54, 69, 0.6)",
+                    border: "1px solid rgba(192, 104, 82, 0.4)",
+                    borderRadius: "4px",
+                    padding: "8px 16px",
+                    fontSize: "13px",
+                    color: "#fcfbf3",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    cursor: "pointer",
+                    letterSpacing: "0.05em",
+                    fontWeight: 500,
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background =
+                      "rgba(129, 54, 69, 0.8)";
+                    e.currentTarget.style.borderColor =
+                      "rgba(192, 104, 82, 0.6)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (e.currentTarget.textContent !== "Copied!") {
+                      e.currentTarget.style.background =
+                        "rgba(129, 54, 69, 0.6)";
+                      e.currentTarget.style.borderColor =
+                        "rgba(192, 104, 82, 0.4)";
+                    }
+                  }}
+                >
+                  Copy
+                </button>
+              </div>
             </div>
           </div>
         )}
