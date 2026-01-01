@@ -355,7 +355,7 @@ public static partial class Module
             }
 
             int bottomY = startY + height;
-            if (bottomY < worldWidth)
+            if (bottomY < worldHeight)
             {
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
                 {
@@ -447,7 +447,7 @@ public static partial class Module
 
         int bottomLeftX = startX - 1;
         int bottomLeftY = startY + height;
-        if (bottomLeftX >= 0 && bottomLeftY < worldWidth)
+        if (bottomLeftX >= 0 && bottomLeftY < worldHeight)
         {
             ctx.Db.terrain_detail.Insert(new TerrainDetail
             {
@@ -465,7 +465,7 @@ public static partial class Module
 
         int bottomRightX = startX + width;
         int bottomRightY = startY + height;
-        if (bottomRightX < worldWidth && bottomRightY < worldWidth)
+        if (bottomRightX < worldWidth && bottomRightY < worldHeight)
         {
             ctx.Db.terrain_detail.Insert(new TerrainDetail
             {
