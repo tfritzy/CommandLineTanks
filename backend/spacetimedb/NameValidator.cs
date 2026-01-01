@@ -6,11 +6,11 @@ public static class NameValidator
 {
     private static readonly HashSet<string> InappropriateWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        "fuck", "shit", "ass", "bitch", "damn", "hell", "crap", "piss",
+        "fuck", "shit", "bitch", "damn", "crap", "piss",
         "dick", "cock", "pussy", "cunt", "fag", "slut", "whore", "bastard",
         "nigger", "nigga", "chink", "spic", "kike", "retard", "rape",
-        "nazi", "hitler", "kkk", "penis", "vagina", "sex", "porn",
-        "kill", "die", "death", "suicide", "murder", "terrorist"
+        "nazi", "hitler", "kkk", "penis", "vagina", "porn",
+        "kill", "suicide", "murder", "terrorist", "asshole"
     };
 
     public static bool ContainsInappropriateContent(string name)
@@ -21,12 +21,16 @@ public static class NameValidator
         }
 
         var normalizedName = name.ToLowerInvariant();
-        normalizedName = RemoveLeetSpeak(normalizedName);
-        normalizedName = RemoveSpecialCharacters(normalizedName);
+        var withLeetSpeak = RemoveLeetSpeak(normalizedName);
+        var withoutSpecialChars = RemoveSpecialCharacters(normalizedName);
+        var withBoth = RemoveLeetSpeak(withoutSpecialChars);
 
         foreach (var word in InappropriateWords)
         {
-            if (normalizedName.Contains(word))
+            if (normalizedName.Contains(word) || 
+                withLeetSpeak.Contains(word) || 
+                withoutSpecialChars.Contains(word) || 
+                withBoth.Contains(word))
             {
                 return true;
             }
