@@ -17,6 +17,11 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const historyIndexRef = useRef<number>(-1);
   const currentInputRef = useRef<string>("");
 
+  const PROMPT = "\x1b[1;32m❯\x1b[0m ";
+  const KEY_ENTER = 13;
+  const KEY_BACKSPACE = 127;
+  const KEY_ESCAPE = 27;
+
   useEffect(() => {
     if (!terminalRef.current) return;
 
@@ -60,7 +65,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     xtermRef.current = term;
     fitAddonRef.current = fitAddon;
 
-    term.write("\x1b[1;32m❯\x1b[0m ");
+    term.write(PROMPT);
 
     const handleResize = () => {
       fitAddon.fit();
@@ -71,7 +76,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     const handleData = (data: string) => {
       const code = data.charCodeAt(0);
 
-      if (code === 13) {
+      if (code === KEY_ENTER) {
         const input = currentInputRef.current.trim();
         
         for (let i = 0; i < currentInputRef.current.length; i++) {
@@ -79,7 +84,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         }
         
         if (currentInputRef.current.length > 0) {
-          term.write("\r\n\x1b[1;32m❯\x1b[0m " + currentInputRef.current + "\r\n");
+          term.write("\r\n" + PROMPT + currentInputRef.current + "\r\n");
         }
         
         if (input) {
@@ -159,7 +164,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
               case 'c':
                 term.clear();
                 currentInputRef.current = "";
-                term.write("\x1b[1;32m❯\x1b[0m ");
+                term.write(PROMPT);
                 return;
               default:
                 commandOutput = [`Command not found: ${cmd}`];
@@ -173,13 +178,13 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         }
         
         currentInputRef.current = "";
-        term.write("\r\n\x1b[1;32m❯\x1b[0m ");
-      } else if (code === 127) {
+        term.write("\r\n" + PROMPT);
+      } else if (code === KEY_BACKSPACE) {
         if (currentInputRef.current.length > 0) {
           currentInputRef.current = currentInputRef.current.slice(0, -1);
           term.write("\b \b");
         }
-      } else if (code === 27) {
+      } else if (code === KEY_ESCAPE) {
         if (data === "\x1b[A") {
           if (commandHistoryRef.current.length === 0) return;
 
