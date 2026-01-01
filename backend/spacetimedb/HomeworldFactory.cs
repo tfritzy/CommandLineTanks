@@ -152,9 +152,9 @@ public static partial class Module
             Rotation = 0
         });
 
-        CreateTargetingDemonstrationArea(ctx, identityString, traversibilityMap, worldWidth, worldHeight);
-        CreateAimingDemonstrationArea(ctx, identityString, traversibilityMap, worldWidth, worldHeight);
-        CreateMovementDemonstrationArea(ctx, identityString, traversibilityMap, worldWidth, worldHeight);
+        CreateTargetingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
+        CreateAimingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
+        CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
 
         var pickups = new[]
         {
@@ -253,14 +253,14 @@ public static partial class Module
         ctx.Db.tank.Insert(tileboundBot);
     }
 
-    private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, bool[] traversibilityMap, int worldWidth, int worldHeight)
+    private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
         int areaX = 0;
         int areaY = 6;
         int areaWidth = 6;
         int areaHeight = 6;
 
-        CreateFencedArea(ctx, worldId, traversibilityMap, worldWidth, areaX, areaY, areaWidth, areaHeight);
+        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
 
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
@@ -280,14 +280,14 @@ public static partial class Module
         SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1);
     }
 
-    private static void CreateAimingDemonstrationArea(ReducerContext ctx, string worldId, bool[] traversibilityMap, int worldWidth, int worldHeight)
+    private static void CreateAimingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
         int areaX = 24;
         int areaY = 6;
         int areaWidth = 6;
         int areaHeight = 6;
 
-        CreateFencedArea(ctx, worldId, traversibilityMap, worldWidth, areaX, areaY, areaWidth, areaHeight);
+        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
 
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
@@ -307,14 +307,14 @@ public static partial class Module
         SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1);
     }
 
-    private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, bool[] traversibilityMap, int worldWidth, int worldHeight)
+    private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
         int areaX = 6;
         int areaY = 12;
         int areaWidth = 6;
         int areaHeight = 6;
 
-        CreateFencedArea(ctx, worldId, traversibilityMap, worldWidth, areaX, areaY, areaWidth, areaHeight);
+        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
 
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
@@ -333,7 +333,7 @@ public static partial class Module
         SpawnTileboundBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0);
     }
 
-    private static void CreateFencedArea(ReducerContext ctx, string worldId, bool[] traversibilityMap, int worldWidth, int startX, int startY, int width, int height)
+    private static void CreateFencedArea(ReducerContext ctx, string worldId, int worldWidth, int startX, int startY, int width, int height)
     {
         for (int x = startX; x < startX + width; x++)
         {
