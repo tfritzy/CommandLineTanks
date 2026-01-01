@@ -544,7 +544,7 @@ export function target(
 
   const tankCodeColored = colors.colorize(targetTank.targetCode, 'TANK_CODE');
   const tankName = targetTank.name;
-  
+
   if (lead > 0) {
     return [
       colors.success(`Targeting tank ${tankCodeColored} (${tankName}) with ${colors.value(lead.toString())} unit${lead !== 1 ? "s" : ""} lead`),
