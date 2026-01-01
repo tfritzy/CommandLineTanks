@@ -184,7 +184,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  respawn              Respawn after death",
       "  name                 View or change your player name",
       "  create               Create a new game world with optional flags",
-      "  join                 Join or create a game world",
+      "  join                 Join or create a game world (default: random)",
       "  exit, e              Return to your homeworld",
       "  lobbies, l           List all available public games",
       "  clear, c             Clear the terminal output",
@@ -430,18 +430,19 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "join - Join or create a game world",
         "",
-        "Usage: join [world_id] [passcode]",
+        "Usage: join [world_id|random] [passcode]",
         "",
         "Arguments:",
-        "  [world_id]  The 4-letter ID of the world to join (optional)",
-        "  [passcode]  The passcode for private worlds (optional)",
+        "  [world_id|random]  The 4-letter ID of the world to join, or 'random' (default: random)",
+        "  [passcode]         The passcode for private worlds (optional)",
         "",
-        "With no arguments, finds an available public game or creates one.",
+        "With no arguments or 'random', finds an available public game or creates one.",
         "With a world ID, joins that specific world.",
         "Private worlds require a passcode.",
         "",
         "Examples:",
-        "  join",
+        "  join              (same as 'join random')",
+        "  join random",
         "  join abcd",
         "  join abcd mysecretpass",
       ];
@@ -1274,7 +1275,9 @@ export function create(
 }
 
 export function join(connection: DbConnection, args: string[]): string[] {
-  const worldId = args.length > 0 ? args[0] : undefined;
+  const firstArg = args.length > 0 ? args[0] : "random";
+  const isRandom = firstArg.toLowerCase() === "random";
+  const worldId = isRandom ? undefined : firstArg;
   const passcode = args.length > 1 ? args.slice(1).join(" ") : "";
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -1286,8 +1289,12 @@ export function join(connection: DbConnection, args: string[]): string[] {
     passcode,
   });
 
-  if (!worldId) {
-    return ["Finding or creating a game world..."];
+  if (isRandom) {
+    const output = ["Finding or creating a game world..."];
+    if (args.length === 0) {
+      output.unshift("", colors.dim("join random"));
+    }
+    return output;
   }
 
   return [`Joining world ${worldId}...`];
