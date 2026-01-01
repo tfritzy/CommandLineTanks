@@ -1,6 +1,7 @@
 import { type DbConnection } from "../../../module_bindings";
 import WorldVisibility from "../../../module_bindings/world_visibility_type";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
+import * as colors from "./colors";
 
 function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
@@ -507,19 +508,19 @@ export function aim(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "aim: error: cannot aim while dead",
+      colors.error("aim: error: cannot aim while dead"),
       "",
-      "Use 'respawn' to respawn",
+      colors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length < 1) {
     return [
-      "aim: error: missing required argument '<angle|direction>'",
+      colors.error("aim: error: missing required argument '<angle|direction>'"),
       "",
-      "Usage: aim <angle|direction>",
-      "       aim 45",
-      "       aim northeast",
+      colors.dim("Usage: aim <angle|direction>"),
+      colors.dim("       aim 45"),
+      colors.dim("       aim northeast"),
     ];
   }
 
@@ -529,22 +530,22 @@ export function aim(
   if (validDirections.includes(inputLower)) {
     const angleRadians = directionToAngle(inputLower);
     const dirInfo = directionAliases[inputLower];
-    const description = `${dirInfo.symbol} ${dirInfo.name}`;
+    const description = `${colors.colorize(dirInfo.symbol, 'DIRECTION_SYMBOL')} ${dirInfo.name}`;
 
     connection.reducers.aim({ worldId, angleRadians });
-    return [`Aiming turret to ${description}`];
+    return [colors.success(`Aiming turret to ${description}`)];
   } else {
     const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
       return [
-        `aim: error: invalid value '${args[0]}' for '<angle|direction>'`,
-        "Must be a number (degrees) or valid direction",
-        "Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu",
+        colors.error(`aim: error: invalid value '${args[0]}' for '<angle|direction>'`),
+        colors.dim("Must be a number (degrees) or valid direction"),
+        colors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
         "",
-        "To target a tank by code, use: target <target_code>",
+        colors.dim("To target a tank by code, use: target <target_code>"),
         "",
-        "Usage: aim <angle|direction>",
-        "       aim 90",
+        colors.dim("Usage: aim <angle|direction>"),
+        colors.dim("       aim 90"),
       ];
     }
 
@@ -552,7 +553,7 @@ export function aim(
     const description = `${degrees}°`;
 
     connection.reducers.aim({ worldId, angleRadians });
-    return [`Aiming turret to ${description}`];
+    return [colors.success(`Aiming turret to ${description}`)];
   }
 }
 
@@ -563,24 +564,24 @@ export function target(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "target: error: cannot target while dead",
+      colors.error("target: error: cannot target while dead"),
       "",
-      "Use 'respawn' to respawn",
+      colors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length < 1) {
     return [
-      "target: error: missing required argument '<target_code>'",
+      colors.error("target: error: missing required argument '<target_code>'"),
       "",
-      "Usage: target <target_code> [lead]",
-      "       target a4",
-      "       target h8 3",
+      colors.dim("Usage: target <target_code> [lead]"),
+      colors.dim("       target a4"),
+      colors.dim("       target h8 3"),
     ];
   }
 
   if (!connection.identity) {
-    return ["target: error: no connection"];
+    return [colors.error("target: error: no connection")];
   }
 
   const targetCode = args[0];
@@ -590,10 +591,10 @@ export function target(
     const parsedLead = Number.parseFloat(args[1]);
     if (Number.isNaN(parsedLead)) {
       return [
-        `target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`,
+        colors.error(`target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`),
         "",
-        "Usage: target <target_code> [lead]",
-        "       target a4 3",
+        colors.dim("Usage: target <target_code> [lead]"),
+        colors.dim("       target a4 3"),
       ];
     }
     lead = parsedLead;
@@ -605,18 +606,18 @@ export function target(
   const myTank = allTanks.find((t) => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
-    return ["target: error: no connection"];
+    return [colors.error("target: error: no connection")];
   }
 
   const targetCodeLower = targetCode.toLowerCase();
 
   if (targetCodeLower === myTank.targetCode) {
-    return ["target: error: cannot target your own tank"];
+    return [colors.error("target: error: cannot target your own tank")];
   }
 
   const targetTank = allTanks.find((t) => t.targetCode === targetCodeLower);
   if (!targetTank) {
-    return [`target: error: tank with code '${targetCode}' not found`];
+    return [colors.error(`target: error: tank with code '${targetCode}' not found`)];
   }
 
   connection.reducers.targetTank({
@@ -625,12 +626,15 @@ export function target(
     lead,
   });
 
+  const tankCodeColored = colors.colorize(targetTank.targetCode, 'TANK_CODE');
+  const tankName = targetTank.name;
+
   if (lead > 0) {
     return [
-      `Targeting tank '${targetTank.targetCode}' (${targetTank.name}) with ${lead} unit${lead !== 1 ? "s" : ""} lead`,
+      colors.success(`Targeting tank ${tankCodeColored} (${tankName}) with ${colors.value(lead.toString())} unit${lead !== 1 ? "s" : ""} lead`),
     ];
   } else {
-    return [`Targeting tank '${targetTank.targetCode}' (${targetTank.name})`];
+    return [colors.success(`Targeting tank ${tankCodeColored} (${tankName})`)];
   }
 }
 
@@ -668,24 +672,24 @@ export function fire(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "fire: error: cannot fire while dead",
+      colors.error("fire: error: cannot fire while dead"),
       "",
-      "Use 'respawn' to respawn",
+      colors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      "fire: error: fire command takes no arguments",
+      colors.error("fire: error: fire command takes no arguments"),
       "",
-      "Usage: fire",
-      "       f",
+      colors.dim("Usage: fire"),
+      colors.dim("       f"),
     ];
   }
 
   connection.reducers.fire({ worldId });
 
-  return ["Firing projectile"];
+  return [colors.success("Firing projectile")];
 }
 
 export function respawn(
@@ -970,18 +974,18 @@ export function smokescreen(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "smoke: error: cannot deploy smoke while dead",
+      colors.error("smoke: error: cannot deploy smoke while dead"),
       "",
-      "Use 'respawn' to respawn",
+      colors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      "smoke: error: smoke command takes no arguments",
+      colors.error("smoke: error: smoke command takes no arguments"),
       "",
-      "Usage: smoke",
-      "       sm",
+      colors.dim("Usage: smoke"),
+      colors.dim("       sm"),
     ];
   }
 
@@ -998,16 +1002,16 @@ export function smokescreen(
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
-        `smoke: error: ability is on cooldown`,
+        colors.error("smoke: error: ability is on cooldown"),
         "",
-        `Time remaining: ${Math.ceil(remaining)} seconds`,
+        `Time remaining: ${colors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
       ];
     }
   }
 
   connection.reducers.smoke({ worldId });
 
-  return ["Deploying smoke..."];
+  return [colors.success("Deploying smoke...")];
 }
 
 export function overdrive(
@@ -1064,18 +1068,18 @@ export function repair(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "repair: error: cannot repair while dead",
+      colors.error("repair: error: cannot repair while dead"),
       "",
-      "Use 'respawn' to respawn",
+      colors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      "repair: error: repair command takes no arguments",
+      colors.error("repair: error: repair command takes no arguments"),
       "",
-      "Usage: repair",
-      "       rep",
+      colors.dim("Usage: repair"),
+      colors.dim("       rep"),
     ];
   }
 
@@ -1089,9 +1093,9 @@ export function repair(
   if (myTank) {
     if (myTank.health >= myTank.maxHealth) {
       return [
-        "repair: error: tank is already at full health",
+        colors.error("repair: error: tank is already at full health"),
         "",
-        `Health: ${myTank.health}/${myTank.maxHealth}`,
+        `Health: ${colors.colorize(myTank.health.toString(), 'HEALTH')}/${myTank.maxHealth}`,
       ];
     }
 
@@ -1100,16 +1104,16 @@ export function repair(
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
-        `repair: error: ability is on cooldown`,
+        colors.error("repair: error: ability is on cooldown"),
         "",
-        `Time remaining: ${Math.ceil(remaining)} seconds`,
+        `Time remaining: ${colors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
       ];
     }
   }
 
   connection.reducers.repair({ worldId });
 
-  return ["Repairing... (interrupted by damage or movement)"];
+  return [colors.success("Repairing... (interrupted by damage or movement)")];
 }
 
 export function create(
