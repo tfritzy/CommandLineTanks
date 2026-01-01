@@ -155,6 +155,24 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         }
       };
 
+      const extractOutputAndNormalized = (cmdOutput: string[] | CommandResult | 'CLEAR'): { outputLines: string[]; normalizedCmd: string | undefined } | 'CLEAR' => {
+        if (cmdOutput === 'CLEAR') {
+          return 'CLEAR';
+        }
+        
+        if (Array.isArray(cmdOutput)) {
+          return {
+            outputLines: cmdOutput,
+            normalizedCmd: undefined
+          };
+        }
+        
+        return {
+          outputLines: cmdOutput.output,
+          normalizedCmd: cmdOutput.normalizedCommand
+        };
+      };
+
       let commandOutput = executeCommand(cmd, args);
 
       if (commandOutput === 'CLEAR') {
@@ -163,15 +181,15 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         return;
       }
 
-      let outputLines: string[];
-      let normalizedCmd: string | undefined;
+      let result = extractOutputAndNormalized(commandOutput);
       
-      if (Array.isArray(commandOutput)) {
-        outputLines = commandOutput;
-      } else {
-        outputLines = commandOutput.output;
-        normalizedCmd = commandOutput.normalizedCommand;
+      if (result === 'CLEAR') {
+        setOutput([]);
+        setInput("");
+        return;
       }
+
+      let { outputLines, normalizedCmd } = result;
 
       if (outputLines[0]?.startsWith('Command not found:')) {
         const suggestion = findCommandSuggestion(cmd);
@@ -185,13 +203,15 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             return;
           }
           
-          if (Array.isArray(commandOutput)) {
-            outputLines = commandOutput;
-            normalizedCmd = undefined;
-          } else {
-            outputLines = commandOutput.output;
-            normalizedCmd = commandOutput.normalizedCommand;
+          result = extractOutputAndNormalized(commandOutput);
+          
+          if (result === 'CLEAR') {
+            setOutput([]);
+            setInput("");
+            return;
           }
+          
+          ({ outputLines, normalizedCmd } = result);
         }
       }
 
