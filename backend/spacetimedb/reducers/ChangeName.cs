@@ -24,6 +24,12 @@ public static partial class Module
             return;
         }
 
+        if (NameValidator.ContainsInappropriateContent(newName))
+        {
+            Log.Error("Invalid name: name contains inappropriate content");
+            return;
+        }
+
         var updatedPlayer = player.Value;
         updatedPlayer.Name = newName;
         ctx.Db.player.Id.Update(updatedPlayer);
