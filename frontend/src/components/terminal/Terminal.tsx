@@ -24,6 +24,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       cursorBlink: true,
       fontSize: 12,
       fontFamily: "'JetBrains Mono', monospace",
+      lineHeight: 1.5,
       theme: {
         background: "#2a152d",
         foreground: "#e6eeed",
@@ -72,7 +73,14 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
       if (code === 13) {
         const input = currentInputRef.current.trim();
-        term.write("\r\n");
+        
+        for (let i = 0; i < currentInputRef.current.length; i++) {
+          term.write("\b \b");
+        }
+        
+        if (currentInputRef.current.length > 0) {
+          term.write("\r\n\x1b[1;32m❯\x1b[0m " + currentInputRef.current + "\r\n");
+        }
         
         if (input) {
           commandHistoryRef.current.push(input);
