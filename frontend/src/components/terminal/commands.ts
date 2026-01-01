@@ -2,6 +2,11 @@ import { type DbConnection } from "../../../module_bindings";
 import WorldVisibility from "../../../module_bindings/world_visibility_type";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 
+export type CommandResult = {
+  output: string[];
+  normalizedCommand?: string;
+};
+
 function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
     return false;
@@ -429,18 +434,20 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "join - Join or create a game world",
         "",
-        "Usage: join [world_id] [passcode]",
+        "Usage: join [world_id|random] [passcode]",
         "",
         "Arguments:",
-        "  [world_id]  The 4-letter ID of the world to join (optional)",
-        "  [passcode]  The passcode for private worlds (optional)",
+        "  [world_id|random]  'random' finds an available public game or creates one (default)",
+        "                     Or provide a 4-letter world ID to join a specific world",
+        "  [passcode]         The passcode for private worlds (optional)",
         "",
-        "With no arguments, finds an available public game or creates one.",
+        "With no arguments or 'random', finds an available public game or creates one.",
         "With a world ID, joins that specific world.",
         "Private worlds require a passcode.",
         "",
         "Examples:",
         "  join",
+        "  join random",
         "  join abcd",
         "  join abcd mysecretpass",
       ];
@@ -560,7 +567,7 @@ export function target(
   connection: DbConnection,
   worldId: string,
   args: string[]
-): string[] {
+): string[] | CommandResult {
   if (isPlayerDead(connection, worldId)) {
     return [
       "target: error: cannot target while dead",
@@ -625,12 +632,20 @@ export function target(
     lead,
   });
 
+  const normalizedCommand = lead !== 0 ? `target ${targetCodeLower} ${lead}` : `target ${targetCodeLower} 0`;
+
   if (lead > 0) {
-    return [
-      `Targeting tank '${targetTank.targetCode}' (${targetTank.name}) with ${lead} unit${lead !== 1 ? "s" : ""} lead`,
-    ];
+    return {
+      output: [
+        `Targeting tank '${targetTank.targetCode}' (${targetTank.name}) with ${lead} unit${lead !== 1 ? "s" : ""} lead`,
+      ],
+      normalizedCommand
+    };
   } else {
-    return [`Targeting tank '${targetTank.targetCode}' (${targetTank.name})`];
+    return {
+      output: [`Targeting tank '${targetTank.targetCode}' (${targetTank.name})`],
+      normalizedCommand
+    };
   }
 }
 
@@ -779,7 +794,7 @@ export function drive(
   connection: DbConnection,
   worldId: string,
   args: string[]
-): string[] {
+): string[] | CommandResult {
   if (isPlayerDead(connection, worldId)) {
     return [
       "drive: error: cannot drive while dead",
@@ -844,9 +859,15 @@ export function drive(
       throttle,
     });
 
-    return [
-      `Driving to tank '${targetTank.targetCode}' (${targetTank.name}) at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
-    ];
+    const throttlePercent = Math.round(throttle * 100);
+    const normalizedCommand = `drive ${targetTank.targetCode} ${throttlePercent}`;
+
+    return {
+      output: [
+        `Driving to tank '${targetTank.targetCode}' (${targetTank.name}) at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+      ],
+      normalizedCommand
+    };
   }
 
   if (validDirections.includes(firstArgLower)) {
@@ -890,10 +911,16 @@ export function drive(
 
     connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
+    const throttlePercent = Math.round(throttle * 100);
+    const normalizedCommand = `drive ${directionInfo.name} ${distance} ${throttlePercent}`;
+
     const explanation = `${distance} ${distance !== 1 ? "units" : "unit"} ${directionInfo.symbol} ${directionInfo.name}`;
-    return [
-      `Driving ${explanation} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
-    ];
+    return {
+      output: [
+        `Driving ${explanation} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+      ],
+      normalizedCommand
+    };
   }
 
   if (args.length < 2) {
@@ -957,10 +984,16 @@ export function drive(
 
   connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
+  const throttlePercent = Math.round(throttle * 100);
+  const normalizedCommand = `drive ${relativeX} ${relativeY} ${throttlePercent}`;
+
   const relativeStr = `(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`;
-  return [
-    `Driving to ${relativeStr} -> ${targetX} ${targetY} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
-  ];
+  return {
+    output: [
+      `Driving to ${relativeStr} -> ${targetX} ${targetY} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+    ],
+    normalizedCommand
+  };
 }
 
 export function smokescreen(
@@ -1115,7 +1148,7 @@ export function repair(
 export function create(
   connection: DbConnection,
   args: string[]
-): string[] {
+): string[] | CommandResult {
   const usage = "Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]";
   
   const defaults = {
@@ -1261,17 +1294,42 @@ export function create(
     height: state.height
   });
 
-  return [
-    `Creating private world "${state.name}"...`,
-    `Bots: ${state.bots}, Duration: ${state.duration} min, Size: ${state.width}x${state.height}`,
-    "",
-    "World creation initiated. You'll be automatically joined."
-  ];
+  let normalizedCommand = 'create';
+  if (state.name !== defaults.name) normalizedCommand += ` --name "${state.name}"`;
+  if (state.passcode !== defaults.passcode) normalizedCommand += ` --passcode "${state.passcode}"`;
+  if (state.bots !== defaults.bots) normalizedCommand += ` --bots ${state.bots}`;
+  if (state.duration !== defaults.duration) normalizedCommand += ` --duration ${state.duration}`;
+  if (state.width !== defaults.width) normalizedCommand += ` --width ${state.width}`;
+  if (state.height !== defaults.height) normalizedCommand += ` --height ${state.height}`;
+
+  return {
+    output: [
+      `Creating private world "${state.name}"...`,
+      `Bots: ${state.bots}, Duration: ${state.duration} min, Size: ${state.width}x${state.height}`,
+      "",
+      "World creation initiated. You'll be automatically joined."
+    ],
+    normalizedCommand
+  };
 }
 
-export function join(connection: DbConnection, args: string[]): string[] {
-  const worldId = args.length > 0 ? args[0] : undefined;
-  const passcode = args.length > 1 ? args.slice(1).join(" ") : "";
+export function join(connection: DbConnection, args: string[]): CommandResult {
+  let worldId: string | undefined;
+  let passcode = "";
+  
+  if (args.length === 0) {
+    worldId = undefined;
+  } else if (args[0].toLowerCase() === "random") {
+    worldId = undefined;
+    if (args.length > 1) {
+      passcode = args.slice(1).join(" ");
+    }
+  } else {
+    worldId = args[0];
+    if (args.length > 1) {
+      passcode = args.slice(1).join(" ");
+    }
+  }
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
@@ -1283,10 +1341,16 @@ export function join(connection: DbConnection, args: string[]): string[] {
   });
 
   if (!worldId) {
-    return ["Finding or creating a game world..."];
+    return {
+      output: ["Finding or creating a game world..."],
+      normalizedCommand: "join random"
+    };
   }
 
-  return [`Joining world ${worldId}...`];
+  return {
+    output: [`Joining world ${worldId}...`],
+    normalizedCommand: passcode ? `join ${worldId} ${passcode}` : `join ${worldId}`
+  };
 }
 
 export function changeName(connection: DbConnection, args: string[]): string[] {

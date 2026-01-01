@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { getConnection } from "../../spacetimedb-connection";
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies, create, changeName, exitWorld, findCommandSuggestion } from "./commands";
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies, create, changeName, exitWorld, findCommandSuggestion, type CommandResult } from "./commands";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -100,7 +100,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         return;
       }
 
-      const executeCommand = (commandName: string, commandArgs: string[]): string[] | 'CLEAR' => {
+      const executeCommand = (commandName: string, commandArgs: string[]): string[] | CommandResult | 'CLEAR' => {
         switch (commandName.toLowerCase()) {
           case 'aim':
           case 'a':
@@ -162,7 +162,17 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         return;
       }
 
-      if (commandOutput[0]?.startsWith('Command not found:')) {
+      let outputLines: string[];
+      let normalizedCmd: string | undefined;
+      
+      if (Array.isArray(commandOutput)) {
+        outputLines = commandOutput;
+      } else {
+        outputLines = commandOutput.output;
+        normalizedCmd = commandOutput.normalizedCommand;
+      }
+
+      if (outputLines[0]?.startsWith('Command not found:')) {
         const suggestion = findCommandSuggestion(cmd);
         if (suggestion) {
           newOutput.push(`Assuming you meant '${suggestion}'`, "");
@@ -173,10 +183,22 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             setInput("");
             return;
           }
+          
+          if (Array.isArray(commandOutput)) {
+            outputLines = commandOutput;
+            normalizedCmd = undefined;
+          } else {
+            outputLines = commandOutput.output;
+            normalizedCmd = commandOutput.normalizedCommand;
+          }
         }
       }
 
-      newOutput.push(...commandOutput, "");
+      if (normalizedCmd && normalizedCmd !== trimmedInput) {
+        newOutput[newOutput.length - 1] = `❯ ${normalizedCmd}`;
+      }
+
+      newOutput.push(...outputLines, "");
       setOutput(newOutput);
       setInput("");
     } else {
