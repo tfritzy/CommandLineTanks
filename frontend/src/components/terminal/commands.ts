@@ -1294,13 +1294,14 @@ export function create(
     height: state.height
   });
 
-  let normalizedCommand = 'create';
-  if (state.name !== defaults.name) normalizedCommand += ` --name "${state.name}"`;
-  if (state.passcode !== defaults.passcode) normalizedCommand += ` --passcode "${state.passcode}"`;
-  if (state.bots !== defaults.bots) normalizedCommand += ` --bots ${state.bots}`;
-  if (state.duration !== defaults.duration) normalizedCommand += ` --duration ${state.duration}`;
-  if (state.width !== defaults.width) normalizedCommand += ` --width ${state.width}`;
-  if (state.height !== defaults.height) normalizedCommand += ` --height ${state.height}`;
+  const normalizedParts = ['create'];
+  if (state.name !== defaults.name) normalizedParts.push(`--name "${state.name}"`);
+  if (state.passcode !== defaults.passcode) normalizedParts.push(`--passcode "${state.passcode}"`);
+  if (state.bots !== defaults.bots) normalizedParts.push(`--bots ${state.bots}`);
+  if (state.duration !== defaults.duration) normalizedParts.push(`--duration ${state.duration}`);
+  if (state.width !== defaults.width) normalizedParts.push(`--width ${state.width}`);
+  if (state.height !== defaults.height) normalizedParts.push(`--height ${state.height}`);
+  const normalizedCommand = normalizedParts.join(' ');
 
   return {
     output: [
