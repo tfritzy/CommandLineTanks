@@ -226,7 +226,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
                 }}
               >
                 {segments.map((segment, j) => (
-                  <span key={j} style={{ color: segment.color }}>
+                  <span key={`${i}-${j}`} style={{ color: segment.color }}>
                     {segment.text}
                   </span>
                 ))}
