@@ -309,7 +309,7 @@ public static partial class Module
 
     private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, bool[] traversibilityMap, int worldWidth, int worldHeight)
     {
-        int areaX = 12;
+        int areaX = 6;
         int areaY = 12;
         int areaWidth = 6;
         int areaHeight = 6;
