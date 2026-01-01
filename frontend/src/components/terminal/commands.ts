@@ -18,6 +18,10 @@ function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   return myTank ? myTank.health <= 0 : false;
 }
 
+function throttleToPercent(throttle: number): number {
+  return Math.round(throttle * 100);
+}
+
 const directionAliases: Record<
   string,
   { x: number; y: number; name: string; symbol: string }
@@ -437,9 +441,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Usage: join [world_id|random] [passcode]",
         "",
         "Arguments:",
-        "  [world_id|random]  'random' finds an available public game or creates one (default)",
-        "                     Or provide a 4-letter world ID to join a specific world",
-        "  [passcode]         The passcode for private worlds (optional)",
+        "  [world_id|random]  'random' finds available public game or creates one (default)",
+        "                     4-letter world ID to join specific world",
+        "  [passcode]         Passcode for private worlds (optional)",
         "",
         "With no arguments or 'random', finds an available public game or creates one.",
         "With a world ID, joins that specific world.",
@@ -859,7 +863,7 @@ export function drive(
       throttle,
     });
 
-    const throttlePercent = Math.round(throttle * 100);
+    const throttlePercent = throttleToPercent(throttle);
     const normalizedCommand = `drive ${targetTank.targetCode} ${throttlePercent}`;
 
     return {
@@ -911,7 +915,7 @@ export function drive(
 
     connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
-    const throttlePercent = Math.round(throttle * 100);
+    const throttlePercent = throttleToPercent(throttle);
     const normalizedCommand = `drive ${directionInfo.name} ${distance} ${throttlePercent}`;
 
     const explanation = `${distance} ${distance !== 1 ? "units" : "unit"} ${directionInfo.symbol} ${directionInfo.name}`;
@@ -984,7 +988,7 @@ export function drive(
 
   connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
-  const throttlePercent = Math.round(throttle * 100);
+  const throttlePercent = throttleToPercent(throttle);
   const normalizedCommand = `drive ${relativeX} ${relativeY} ${throttlePercent}`;
 
   const relativeStr = `(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`;
