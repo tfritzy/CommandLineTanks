@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { getConnection } from "../../spacetimedb-connection";
 import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies, create, changeName, exitWorld } from "./commands";
+import { parseColoredText, TERMINAL_COLORS } from "./colors";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -189,8 +190,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         width: "100%",
         height: "500px",
         maxHeight: "50vh",
-        background: "#2a152d",
-        borderTop: "1px solid #5a78b2",
+        background: TERMINAL_COLORS.BACKGROUND,
+        borderTop: `1px solid ${TERMINAL_COLORS.BORDER}`,
         display: "flex",
         justifyContent: "center",
       }}
@@ -201,7 +202,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         style={{
           width: "100%",
           maxWidth: "1200px",
-          color: "#e6eeed",
+          color: TERMINAL_COLORS.TEXT_DEFAULT,
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: "12px",
           lineHeight: "1",
@@ -212,26 +213,33 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         }}
       >
         <div>
-          {output.map((line, i) => (
-            <div
-              key={i}
-              style={{
-                minHeight: "1.5em",
-                whiteSpace: "pre-wrap",
-                wordWrap: "break-word",
-                overflowWrap: "break-word",
-              }}
-            >
-              {line}
-            </div>
-          ))}
+          {output.map((line, i) => {
+            const segments = parseColoredText(line);
+            return (
+              <div
+                key={i}
+                style={{
+                  minHeight: "1.5em",
+                  whiteSpace: "pre-wrap",
+                  wordWrap: "break-word",
+                  overflowWrap: "break-word",
+                }}
+              >
+                {segments.map((segment, j) => (
+                  <span key={j} style={{ color: segment.color }}>
+                    {segment.text}
+                  </span>
+                ))}
+              </div>
+            );
+          })}
         </div>
         <form
           onSubmit={handleSubmit}
           style={{ display: "flex", alignItems: "center" }}
         >
           <span
-            style={{ marginRight: "8px", color: "#96dc7f", fontWeight: "bold" }}
+            style={{ marginRight: "8px", color: TERMINAL_COLORS.PROMPT, fontWeight: "bold" }}
           >
             ❯
           </span>
@@ -246,10 +254,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
               background: "transparent",
               border: "none",
               outline: "none",
-              color: "#e6eeed",
+              color: TERMINAL_COLORS.TEXT_DEFAULT,
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: "12px",
-              caretColor: "#96dc7f",
+              caretColor: TERMINAL_COLORS.PROMPT,
             }}
           />
         </form>
