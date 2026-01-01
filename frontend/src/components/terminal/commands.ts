@@ -539,7 +539,7 @@ export function aim(
     if (Number.isNaN(degrees)) {
       return [
         colors.error(`aim: error: invalid value '${args[0]}' for '<angle|direction>'`),
-        "Must be a number (degrees) or valid direction",
+        colors.dim("Must be a number (degrees) or valid direction"),
         colors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
         "",
         colors.dim("To target a tank by code, use: target <target_code>"),
