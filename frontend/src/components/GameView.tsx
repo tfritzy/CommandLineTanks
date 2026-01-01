@@ -173,7 +173,7 @@ export default function GameView() {
 
     const checkWorldExists = () => {
       const world = connection.db.world.Id.find(worldId);
-      return world !== undefined;
+      return world != null;
     };
 
     const worldCheckTimeout = setTimeout(() => {
