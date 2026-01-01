@@ -632,7 +632,7 @@ export function target(
     lead,
   });
 
-  const normalizedCommand = lead !== 0 ? `target ${targetCodeLower} ${lead}` : `target ${targetCodeLower} 0`;
+  const normalizedCommand = `target ${targetCodeLower} ${lead}`;
 
   if (lead > 0) {
     return {

@@ -83,6 +83,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     e.preventDefault();
 
     const newOutput = [...output];
+    const commandLineIndex = newOutput.length;
     newOutput.push(`❯ ${input}`);
 
     if (input.trim()) {
@@ -195,7 +196,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       }
 
       if (normalizedCmd && normalizedCmd !== trimmedInput) {
-        newOutput[newOutput.length - 1] = `❯ ${normalizedCmd}`;
+        newOutput[commandLineIndex] = `❯ ${normalizedCmd}`;
       }
 
       newOutput.push(...outputLines, "");
