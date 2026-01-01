@@ -45,16 +45,20 @@ export function colorize(text: string, colorName: TerminalColorName): string {
 export function parseColoredText(text: string): ColorSegment[] {
   const segments: ColorSegment[] = [];
   let currentColor: string = TERMINAL_COLORS.TEXT_DEFAULT;
-  let currentText = "";
+  const chars: string[] = [];
   let i = 0;
+
+  const flushText = () => {
+    if (chars.length > 0) {
+      segments.push({ text: chars.join(''), color: currentColor });
+      chars.length = 0;
+    }
+  };
 
   while (i < text.length) {
     if (text[i] === COLOR_MARKER) {
-      if (text.substring(i, i + 2) === COLOR_END) {
-        if (currentText) {
-          segments.push({ text: currentText, color: currentColor });
-          currentText = "";
-        }
+      if (i + 1 < text.length && text.substring(i, i + 2) === COLOR_END) {
+        flushText();
         currentColor = TERMINAL_COLORS.TEXT_DEFAULT;
         i += 2;
         continue;
@@ -62,23 +66,18 @@ export function parseColoredText(text: string): ColorSegment[] {
       
       const colorMatch = text.substring(i + 1).match(/^(#[0-9a-fA-F]{6})/);
       if (colorMatch) {
-        if (currentText) {
-          segments.push({ text: currentText, color: currentColor });
-          currentText = "";
-        }
+        flushText();
         currentColor = colorMatch[1];
         i += 1 + colorMatch[1].length;
         continue;
       }
     }
     
-    currentText += text[i];
+    chars.push(text[i]);
     i++;
   }
 
-  if (currentText) {
-    segments.push({ text: currentText, color: currentColor });
-  }
+  flushText();
 
   return segments;
 }
