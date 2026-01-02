@@ -200,59 +200,19 @@ export class TerrainDetailManager {
     }
   }
 
-  public drawShadows(
+  private renderShadowPass(
     ctx: CanvasRenderingContext2D,
-    cameraX: number,
-    cameraY: number,
-    canvasWidth: number,
-    canvasHeight: number
+    startX: number,
+    endX: number,
+    startY: number,
+    endY: number,
+    renderSize: number,
+    dpr: number,
+    shadowCanvas: HTMLCanvasElement,
+    isTree: boolean
   ) {
-    const padding = 2;
-    const startX = cameraX / UNIT_TO_PIXEL - padding;
-    const endX = (cameraX + canvasWidth) / UNIT_TO_PIXEL + padding;
-    const startY = cameraY / UNIT_TO_PIXEL - padding;
-    const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
-
-    const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
-    const renderSize = UNIT_TO_PIXEL * 2;
-    const dpr = getNormalizedDPR();
-
-    ctx.imageSmoothingEnabled = false;
-
     for (const obj of this.detailObjects.values()) {
-      if (obj instanceof Tree) continue;
-
-      const objX = obj.getX();
-      const objY = obj.getY();
-
-      if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
-        const texture = terrainDetailTextureSheet.getShadowTexture(
-          this.getTextureKey(obj)
-        );
-
-        if (!texture) {
-        } else {
-          const scale = obj.getSizeScale();
-          const scaledSize = renderSize * scale;
-          const offset = -UNIT_TO_PIXEL * scale;
-
-          ctx.drawImage(
-            shadowCanvas,
-            texture.x * dpr,
-            texture.y * dpr,
-            texture.width * dpr,
-            texture.height * dpr,
-            objX * UNIT_TO_PIXEL + offset,
-            objY * UNIT_TO_PIXEL + offset,
-            scaledSize,
-            scaledSize
-          );
-        }
-      }
-    }
-
-    for (const obj of this.detailObjects.values()) {
-      if (!(obj instanceof Tree)) continue;
+      if ((obj instanceof Tree) !== isTree) continue;
 
       const objX = obj.getX();
       const objY = obj.getY();
@@ -284,6 +244,93 @@ export class TerrainDetailManager {
     }
   }
 
+  public drawShadows(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    canvasWidth: number,
+    canvasHeight: number
+  ) {
+    const padding = 2;
+    const startX = cameraX / UNIT_TO_PIXEL - padding;
+    const endX = (cameraX + canvasWidth) / UNIT_TO_PIXEL + padding;
+    const startY = cameraY / UNIT_TO_PIXEL - padding;
+    const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
+
+    const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
+    const renderSize = UNIT_TO_PIXEL * 2;
+    const dpr = getNormalizedDPR();
+
+    ctx.imageSmoothingEnabled = false;
+
+    this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, false);
+    this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, true);
+  }
+
+  private renderBodyPass(
+    ctx: CanvasRenderingContext2D,
+    startX: number,
+    endX: number,
+    startY: number,
+    endY: number,
+    renderSize: number,
+    dpr: number,
+    bodyCanvas: HTMLCanvasElement,
+    isTree: boolean
+  ) {
+    for (const obj of this.detailObjects.values()) {
+      if ((obj instanceof Tree) !== isTree) continue;
+
+      const objX = obj.getX();
+      const objY = obj.getY();
+
+      if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
+        const texture = terrainDetailTextureSheet.getTexture(
+          this.getTextureKey(obj)
+        );
+
+        if (texture) {
+          const scale = obj.getSizeScale();
+          const scaledSize = renderSize * scale;
+          const offset = -UNIT_TO_PIXEL * scale;
+
+          ctx.drawImage(
+            bodyCanvas,
+            texture.x * dpr,
+            texture.y * dpr,
+            texture.width * dpr,
+            texture.height * dpr,
+            objX * UNIT_TO_PIXEL + offset,
+            objY * UNIT_TO_PIXEL + offset,
+            scaledSize,
+            scaledSize
+          );
+
+          if (obj.getFlashTimer() > 0) {
+            const flashAlpha = obj.getFlashTimer() / 0.1;
+            ctx.save();
+            ctx.globalCompositeOperation = "lighter";
+            ctx.globalAlpha = flashAlpha;
+            ctx.drawImage(
+              bodyCanvas,
+              texture.x * dpr,
+              texture.y * dpr,
+              texture.width * dpr,
+              texture.height * dpr,
+              objX * UNIT_TO_PIXEL + offset,
+              objY * UNIT_TO_PIXEL + offset,
+              scaledSize,
+              scaledSize
+            );
+            ctx.restore();
+          }
+        }
+
+        obj.drawLabel(ctx);
+      }
+    }
+  }
+
   public drawBodies(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
@@ -303,109 +350,8 @@ export class TerrainDetailManager {
 
     ctx.imageSmoothingEnabled = false;
 
-    for (const obj of this.detailObjects.values()) {
-      if (obj instanceof Tree) continue;
-
-      const objX = obj.getX();
-      const objY = obj.getY();
-
-      if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
-        const texture = terrainDetailTextureSheet.getTexture(
-          this.getTextureKey(obj)
-        );
-
-        if (texture) {
-          const scale = obj.getSizeScale();
-          const scaledSize = renderSize * scale;
-          const offset = -UNIT_TO_PIXEL * scale;
-
-          ctx.drawImage(
-            bodyCanvas,
-            texture.x * dpr,
-            texture.y * dpr,
-            texture.width * dpr,
-            texture.height * dpr,
-            objX * UNIT_TO_PIXEL + offset,
-            objY * UNIT_TO_PIXEL + offset,
-            scaledSize,
-            scaledSize
-          );
-
-          if (obj.getFlashTimer() > 0) {
-            const flashAlpha = obj.getFlashTimer() / 0.1;
-            ctx.save();
-            ctx.globalCompositeOperation = "lighter";
-            ctx.globalAlpha = flashAlpha;
-            ctx.drawImage(
-              bodyCanvas,
-              texture.x * dpr,
-              texture.y * dpr,
-              texture.width * dpr,
-              texture.height * dpr,
-              objX * UNIT_TO_PIXEL + offset,
-              objY * UNIT_TO_PIXEL + offset,
-              scaledSize,
-              scaledSize
-            );
-            ctx.restore();
-          }
-        }
-
-        obj.drawLabel(ctx);
-      }
-    }
-
-    for (const obj of this.detailObjects.values()) {
-      if (!(obj instanceof Tree)) continue;
-
-      const objX = obj.getX();
-      const objY = obj.getY();
-
-      if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
-        const texture = terrainDetailTextureSheet.getTexture(
-          this.getTextureKey(obj)
-        );
-
-        if (texture) {
-          const scale = obj.getSizeScale();
-          const scaledSize = renderSize * scale;
-          const offset = -UNIT_TO_PIXEL * scale;
-
-          ctx.drawImage(
-            bodyCanvas,
-            texture.x * dpr,
-            texture.y * dpr,
-            texture.width * dpr,
-            texture.height * dpr,
-            objX * UNIT_TO_PIXEL + offset,
-            objY * UNIT_TO_PIXEL + offset,
-            scaledSize,
-            scaledSize
-          );
-
-          if (obj.getFlashTimer() > 0) {
-            const flashAlpha = obj.getFlashTimer() / 0.1;
-            ctx.save();
-            ctx.globalCompositeOperation = "lighter";
-            ctx.globalAlpha = flashAlpha;
-            ctx.drawImage(
-              bodyCanvas,
-              texture.x * dpr,
-              texture.y * dpr,
-              texture.width * dpr,
-              texture.height * dpr,
-              objX * UNIT_TO_PIXEL + offset,
-              objY * UNIT_TO_PIXEL + offset,
-              scaledSize,
-              scaledSize
-            );
-            ctx.restore();
-          }
-        }
-
-        obj.drawLabel(ctx);
-      }
-    }
+    this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, false);
+    this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, true);
   }
 
   private getTextureKey(obj: TerrainDetailObject): string {
