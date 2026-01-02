@@ -44,9 +44,9 @@ public static partial class TerrainGenerator
 
         Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, random, width, height);
 
-        GenerateTrees(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random, width, height);
+        GenerateTrees(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random, width, height, out float groveOffsetX, out float groveOffsetY, out float groveNoiseScale, out float groveThreshold);
 
-        GenerateMushrooms(decorations, terrainDetailArray, baseTerrain, random, width, height);
+        GenerateMushrooms(decorations, terrainDetailArray, baseTerrain, random, width, height, groveOffsetX, groveOffsetY, groveNoiseScale, groveThreshold);
 
         GenerateStructures(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random, width, height);
 
@@ -260,16 +260,16 @@ public static partial class TerrainGenerator
         return result;
     }
 
-    private static void GenerateTrees(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random, int width, int height)
+    private static void GenerateTrees(int[] rotationArray, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Vector2[] fieldTiles, Random random, int width, int height, out float groveOffsetX, out float groveOffsetY, out float groveNoiseScale, out float groveThreshold)
     {
-        float groveNoiseScale = 0.05f;
-        float groveThreshold = 0.1f;
+        groveNoiseScale = 0.05f;
+        groveThreshold = 0.1f;
         
         float treeNoiseScale = 0.25f;
         float treeThreshold = 0.4f;
         
-        float groveOffsetX = (float)(random.NextDouble() * 1000f);
-        float groveOffsetY = (float)(random.NextDouble() * 1000f);
+        groveOffsetX = (float)(random.NextDouble() * 1000f);
+        groveOffsetY = (float)(random.NextDouble() * 1000f);
         float treeOffsetX = (float)(random.NextDouble() * 1000f);
         float treeOffsetY = (float)(random.NextDouble() * 1000f);
 
@@ -312,16 +312,11 @@ public static partial class TerrainGenerator
         }
     }
 
-    private static void GenerateMushrooms(List<(float x, float y, DecorationType type)> decorations, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random, int width, int height)
+    private static void GenerateMushrooms(List<(float x, float y, DecorationType type)> decorations, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random, int width, int height, float groveOffsetX, float groveOffsetY, float groveNoiseScale, float groveThreshold)
     {
-        float groveNoiseScale = 0.05f;
-        float groveThreshold = 0.1f;
-        
         float mushroomNoiseScale = 0.3f;
         float mushroomThreshold = 0.5f;
         
-        float groveOffsetX = (float)(random.NextDouble() * 1000f);
-        float groveOffsetY = (float)(random.NextDouble() * 1000f);
         float mushroomOffsetX = (float)(random.NextDouble() * 1000f);
         float mushroomOffsetY = (float)(random.NextDouble() * 1000f);
 
@@ -344,10 +339,15 @@ public static partial class TerrainGenerator
                     
                     if (mushroomNoise > mushroomThreshold)
                     {
-                        float offsetX = (float)(random.NextDouble() * 0.8 - 0.4);
-                        float offsetY = (float)(random.NextDouble() * 0.8 - 0.4);
+                        int mushroomCount = 1 + random.Next(3);
                         
-                        decorations.Add((x + 0.5f + offsetX, y + 0.5f + offsetY, DecorationType.Mushroom));
+                        for (int i = 0; i < mushroomCount; i++)
+                        {
+                            float offsetX = (float)(random.NextDouble() * 0.8 - 0.4);
+                            float offsetY = (float)(random.NextDouble() * 0.8 - 0.4);
+                            
+                            decorations.Add((x + 0.5f + offsetX, y + 0.5f + offsetY, DecorationType.Mushroom));
+                        }
                     }
                 }
             }

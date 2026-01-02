@@ -75,6 +75,9 @@ export class DecorationManager {
     const startY = cameraY / UNIT_TO_PIXEL - padding;
     const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
+    ctx.fillStyle = "#c06852";
+    ctx.beginPath();
+
     for (const decoration of this.decorations.values()) {
       const x = decoration.positionX;
       const y = decoration.positionY;
@@ -85,12 +88,12 @@ export class DecorationManager {
           const screenY = y * UNIT_TO_PIXEL;
           const radius = UNIT_TO_PIXEL * 0.15;
 
-          ctx.fillStyle = "#c06852";
-          ctx.beginPath();
+          ctx.moveTo(screenX + radius, screenY);
           ctx.arc(screenX, screenY, radius, 0, Math.PI * 2);
-          ctx.fill();
         }
       }
     }
+
+    ctx.fill();
   }
 }
