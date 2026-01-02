@@ -9,6 +9,7 @@ public static partial class Module
         string worldName,
         BaseTerrain[] baseTerrain,
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
+        (float x, float y, DecorationType type)[] decorations,
         bool[] traversibilityMap,
         int width,
         int height,
@@ -74,6 +75,22 @@ public static partial class Module
                 Health = 100,
                 Label = null,
                 Rotation = detail.rotation
+            });
+        }
+
+        foreach (var decoration in decorations)
+        {
+            var decorationId = GenerateId(ctx, "dec");
+            
+            ctx.Db.decoration.Insert(new Decoration
+            {
+                Id = decorationId,
+                WorldId = worldId,
+                PositionX = decoration.x,
+                PositionY = decoration.y,
+                GridX = (int)decoration.x,
+                GridY = (int)decoration.y,
+                Type = decoration.type
             });
         }
 

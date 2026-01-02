@@ -57,6 +57,7 @@ export default function GameView() {
         `SELECT * FROM smoke_cloud WHERE WorldId = '${worldId}'`,
         `SELECT * FROM kills WHERE WorldId = '${worldId}'`,
         `SELECT * FROM terrain_detail WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM decoration WHERE WorldId = '${worldId}'`,
         `SELECT * FROM world WHERE Id = '${worldId}'`,
         `SELECT * FROM player WHERE Identity = '${connection.identity}'`,
       ]);

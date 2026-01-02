@@ -109,6 +109,8 @@ import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import ScheduledWorldResetRow from "./scheduled_world_reset_table";
 export { ScheduledWorldResetRow };
+import DecorationRow from "./decoration_table";
+export { DecorationRow };
 import KillsRow from "./kills_table";
 export { KillsRow };
 import PickupRow from "./pickup_table";
@@ -147,6 +149,10 @@ import DamagedTank from "./damaged_tank_type";
 export { DamagedTank };
 import DamagedTile from "./damaged_tile_type";
 export { DamagedTile };
+import Decoration from "./decoration_type";
+export { Decoration };
+import DecorationType from "./decoration_type_type";
+export { DecorationType };
 import ExplosionTrigger from "./explosion_trigger_type";
 export { ExplosionTrigger };
 import GameState from "./game_state_type";
@@ -340,6 +346,25 @@ const tablesSchema = __schema(
       { name: 'ScheduledWorldReset_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledWorldResetRow),
+  __table({
+    name: 'decoration',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'WorldId_GridX_GridY', algorithm: 'btree', columns: [
+        'worldId',
+        'gridX',
+        'gridY',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'decoration_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, DecorationRow),
   __table({
     name: 'kills',
     indexes: [

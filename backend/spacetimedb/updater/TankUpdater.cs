@@ -98,6 +98,29 @@ public static partial class TankUpdater
 
             return _terrainDetailsByTile[key];
         }
+
+        private Dictionary<(int, int), List<Module.Decoration>>? _decorationsByTile;
+
+        public List<Module.Decoration> GetDecorationsByTile(int tileX, int tileY)
+        {
+            if (_decorationsByTile == null)
+            {
+                _decorationsByTile = new Dictionary<(int, int), List<Module.Decoration>>();
+            }
+
+            var key = (tileX, tileY);
+            if (!_decorationsByTile.ContainsKey(key))
+            {
+                var decorations = new List<Module.Decoration>();
+                foreach (var decoration in _ctx.Db.decoration.WorldId_GridX_GridY.Filter((_worldId, tileX, tileY)))
+                {
+                    decorations.Add(decoration);
+                }
+                _decorationsByTile[key] = decorations;
+            }
+
+            return _decorationsByTile[key];
+        }
     }
 
     [Table(Scheduled = nameof(UpdateTanks))]
@@ -430,6 +453,18 @@ public static partial class TankUpdater
                 if (terrainDetail.Type == TerrainDetailType.FenceEdge || terrainDetail.Type == TerrainDetailType.FenceCorner)
                 {
                     ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                }
+            }
+
+            foreach (var decoration in updateContext.GetDecorationsByTile(tankTileX, tankTileY))
+            {
+                float dx = decoration.PositionX - tank.PositionX;
+                float dy = decoration.PositionY - tank.PositionY;
+                float distanceSquared = dx * dx + dy * dy;
+                
+                if (distanceSquared < 0.5f * 0.5f)
+                {
+                    ctx.Db.decoration.Id.Delete(decoration.Id);
                 }
             }
 
