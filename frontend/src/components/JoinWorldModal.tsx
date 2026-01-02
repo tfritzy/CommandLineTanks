@@ -19,7 +19,8 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
   }, [playerName]);
 
   const commands = useMemo(() => {
-    return `name set ${sanitizedName}\njoin ${worldId}`;
+    const nameToUse = sanitizedName || generateDefaultName();
+    return `name set ${nameToUse}\njoin ${worldId}`;
   }, [sanitizedName, worldId]);
 
   useEffect(() => {
