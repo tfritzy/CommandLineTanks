@@ -217,6 +217,25 @@ public static partial class Module
         public int Rotation;
     }
 
+    [Table(Name = "decoration", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(GridX), nameof(GridY) })]
+    public partial struct Decoration
+    {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public float PositionX;
+        public float PositionY;
+
+        public int GridX;
+        public int GridY;
+
+        public DecorationType Type;
+    }
+
     [Table(Name = "pickup", Public = true)]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(GridX), nameof(GridY) })]
     public partial struct Pickup

@@ -260,7 +260,7 @@ public static partial class Module
         int areaWidth = 6;
         int areaHeight = 6;
 
-        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
+        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
@@ -287,7 +287,7 @@ public static partial class Module
         int areaWidth = 6;
         int areaHeight = 6;
 
-        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
+        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
@@ -314,7 +314,7 @@ public static partial class Module
         int areaWidth = 6;
         int areaHeight = 6;
 
-        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
+        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
@@ -333,7 +333,7 @@ public static partial class Module
         SpawnTileboundBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0);
     }
 
-    private static void CreateFencedArea(ReducerContext ctx, string worldId, int worldWidth, int startX, int startY, int width, int height)
+    private static void CreateFencedArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, int startX, int startY, int width, int height)
     {
         for (int x = startX; x < startX + width; x++)
         {

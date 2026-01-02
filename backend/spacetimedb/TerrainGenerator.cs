@@ -21,7 +21,7 @@ public static partial class TerrainGenerator
 
     private static readonly int[] p = new int[512];
 
-    public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random, int width = DEFAULT_WORLD_WIDTH, int height = DEFAULT_WORLD_HEIGHT)
+    public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>, List<(float x, float y, DecorationType type)>) GenerateTerrain(Random random, int width = DEFAULT_WORLD_WIDTH, int height = DEFAULT_WORLD_HEIGHT)
     {
         width = Math.Clamp(width, 1, MAX_WORLD_WIDTH);
         height = Math.Clamp(height, 1, MAX_WORLD_HEIGHT);
@@ -29,6 +29,7 @@ public static partial class TerrainGenerator
         InitPerlin(random);
         var baseTerrain = new BaseTerrain[width * height];
         var terrainDetails = new List<(int x, int y, TerrainDetailType type, int rotation)>();
+        var decorations = new List<(float x, float y, DecorationType type)>();
         var terrainDetailArray = new TerrainDetailType[width * height];
         var rotationArray = new int[width * height];
 
@@ -44,6 +45,8 @@ public static partial class TerrainGenerator
         Vector2[] fieldTiles = GenerateFields(rotationArray, terrainDetailArray, baseTerrain, random, width, height);
 
         GenerateTrees(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random, width, height);
+
+        GenerateMushrooms(decorations, terrainDetailArray, baseTerrain, random, width, height);
 
         GenerateStructures(rotationArray, terrainDetailArray, baseTerrain, fieldTiles, random, width, height);
 
@@ -62,7 +65,7 @@ public static partial class TerrainGenerator
             }
         }
 
-        return (baseTerrain, terrainDetails);
+        return (baseTerrain, terrainDetails, decorations);
     }
 
     private static void GenerateRocks(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random, int width, int height)
@@ -303,6 +306,48 @@ public static partial class TerrainGenerator
                     {
                         terrainDetail[index] = TerrainDetailType.Tree;
                         rotationArray[index] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void GenerateMushrooms(List<(float x, float y, DecorationType type)> decorations, TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random, int width, int height)
+    {
+        float groveNoiseScale = 0.05f;
+        float groveThreshold = 0.1f;
+        
+        float mushroomNoiseScale = 0.3f;
+        float mushroomThreshold = 0.5f;
+        
+        float groveOffsetX = (float)(random.NextDouble() * 1000f);
+        float groveOffsetY = (float)(random.NextDouble() * 1000f);
+        float mushroomOffsetX = (float)(random.NextDouble() * 1000f);
+        float mushroomOffsetY = (float)(random.NextDouble() * 1000f);
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                int index = y * width + x;
+
+                if (baseTerrain[index] != BaseTerrain.Ground || terrainDetail[index] != TerrainDetailType.None)
+                {
+                    continue;
+                }
+
+                float groveNoise = Noise((x + groveOffsetX) * groveNoiseScale, (y + groveOffsetY) * groveNoiseScale);
+                
+                if (groveNoise > groveThreshold)
+                {
+                    float mushroomNoise = Noise((x + mushroomOffsetX) * mushroomNoiseScale, (y + mushroomOffsetY) * mushroomNoiseScale);
+                    
+                    if (mushroomNoise > mushroomThreshold)
+                    {
+                        float offsetX = (float)(random.NextDouble() * 0.8 - 0.4);
+                        float offsetY = (float)(random.NextDouble() * 0.8 - 0.4);
+                        
+                        decorations.Add((x + 0.5f + offsetX, y + 0.5f + offsetY, DecorationType.Mushroom));
                     }
                 }
             }

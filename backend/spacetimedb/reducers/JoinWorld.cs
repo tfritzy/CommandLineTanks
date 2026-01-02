@@ -25,7 +25,7 @@ public static partial class Module
                 var newWorldId = GenerateWorldId(ctx);
                 var width = TerrainGenerator.GetWorldWidth();
                 var height = TerrainGenerator.GetWorldHeight();
-                var (baseTerrain, terrainDetails, traversibilityMap) = GenerateTerrainCommand(ctx, width, height);
+                var (baseTerrain, terrainDetails, decorations, traversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
                 world = CreateWorld(
                     ctx,
@@ -33,6 +33,7 @@ public static partial class Module
                     "Public Game",
                     baseTerrain,
                     terrainDetails,
+                    decorations,
                     traversibilityMap,
                     width,
                     height,

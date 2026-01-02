@@ -3,9 +3,9 @@ using static Types;
 
 public static partial class Module
 {
-    public static (BaseTerrain[], (int x, int y, TerrainDetailType type, int rotation)[], bool[]) GenerateTerrainCommand(ReducerContext ctx, int width, int height)
+    public static (BaseTerrain[], (int x, int y, TerrainDetailType type, int rotation)[], (float x, float y, DecorationType type)[], bool[]) GenerateTerrainCommand(ReducerContext ctx, int width, int height)
     {
-        var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng, width, height);
+        var (baseTerrain, terrainDetails, decorations) = TerrainGenerator.GenerateTerrain(ctx.Rng, width, height);
         var terrainDetailArray = TerrainGenerator.ConvertToArray(
             terrainDetails,
             width,
@@ -13,6 +13,6 @@ public static partial class Module
         );
         var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
         
-        return (baseTerrain, terrainDetails.ToArray(), traversibilityMap);
+        return (baseTerrain, terrainDetails.ToArray(), decorations.ToArray(), traversibilityMap);
     }
 }

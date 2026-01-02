@@ -63,6 +63,11 @@ public static partial class Module
             ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
         }
 
+        foreach (var decoration in ctx.Db.decoration.WorldId.Filter(worldId))
+        {
+            ctx.Db.decoration.Id.Delete(decoration.Id);
+        }
+
         foreach (var pickup in ctx.Db.pickup.WorldId.Filter(worldId))
         {
             ctx.Db.pickup.Id.Delete(pickup.Id);

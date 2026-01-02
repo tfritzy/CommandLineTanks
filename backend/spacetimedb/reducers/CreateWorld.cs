@@ -17,7 +17,7 @@ public static partial class Module
 
         var worldId = GenerateWorldId(ctx);
 
-        var (baseTerrain, terrainDetails, traversibilityMap) = GenerateTerrainCommand(ctx, width, height);
+        var (baseTerrain, terrainDetails, decorations, traversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
         var world = CreateWorld(
             ctx,
@@ -25,6 +25,7 @@ public static partial class Module
             worldName,
             baseTerrain,
             terrainDetails,
+            decorations,
             traversibilityMap,
             width,
             height,

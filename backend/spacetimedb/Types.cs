@@ -61,6 +61,12 @@ public static partial class Types
     }
 
     [Type]
+    public enum DecorationType : byte
+    {
+        Mushroom
+    }
+
+    [Type]
     public enum PickupType : byte
     {
         TripleShooter,
