@@ -80,7 +80,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           textAlign: 'center',
         }}
       >
-        Join World
+        Join Game
       </div>
 
       <div
@@ -92,7 +92,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           textAlign: 'center',
         }}
       >
-        You don't have a tank in this world yet.
+        You don't have a tank in this game yet.
       </div>
 
       <div
@@ -143,9 +143,9 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
         <div
           style={{
             fontSize: '14px',
-            color: '#a9bcbf',
-            marginBottom: '12px',
-            textAlign: 'center',
+            color: '#e6eeed',
+            marginBottom: '8px',
+            fontWeight: 500,
           }}
         >
           Run this command in the terminal below to join:
