@@ -12,7 +12,6 @@ export function drawMushrooms(
   ctx.beginPath();
 
   for (const mushroom of mushrooms) {
-    ctx.moveTo(mushroom.x + mushroom.size, mushroom.y);
     ctx.arc(mushroom.x, mushroom.y, mushroom.size, 0, Math.PI * 2);
   }
 

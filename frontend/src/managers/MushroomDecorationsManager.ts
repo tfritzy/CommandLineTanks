@@ -22,7 +22,7 @@ export class MushroomDecorationsManager {
     }
 
     const pseudoRandom2 = Math.abs(Math.sin(seed * 98765.4321) * 10000) % 1;
-    const mushroomCount = MIN_MUSHROOMS_PER_TREE + Math.floor(pseudoRandom2 * MAX_MUSHROOMS_PER_TREE);
+    const mushroomCount = MIN_MUSHROOMS_PER_TREE + Math.floor(pseudoRandom2 * (MAX_MUSHROOMS_PER_TREE - MIN_MUSHROOMS_PER_TREE + 1));
 
     for (let i = 0; i < mushroomCount; i++) {
       const angleSeed = seed + i * 7.77;
