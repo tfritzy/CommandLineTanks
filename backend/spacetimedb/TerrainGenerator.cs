@@ -655,10 +655,11 @@ public static partial class TerrainGenerator
         int[] dx = { -1, 1, 0, 0, -1, -1, 1, 1 };
         int[] dy = { 0, 0, -1, 1, -1, 1, -1, 1 };
 
-        bool HasTreeNeighbor(int index)
+        int CountTreeNeighbors(int index)
         {
             int x = index % width;
             int y = index / width;
+            int count = 0;
             for (int i = 0; i < 8; i++)
             {
                 int nx = x + dx[i];
@@ -666,30 +667,45 @@ public static partial class TerrainGenerator
                 if (nx >= 0 && nx < width && ny >= 0 && ny < height)
                 {
                     if (terrainDetail[ny * width + nx] == TerrainDetailType.Tree)
-                        return true;
+                        count++;
                 }
             }
-            return false;
+            return count;
         }
 
-        var treesWithNeighbors = new HashSet<int>();
+        var treeNeighborCounts = new Dictionary<int, int>();
 
         for (int i = 0; i < terrainDetail.Length; i++)
         {
-            if (terrainDetail[i] == TerrainDetailType.Tree && HasTreeNeighbor(i))
+            if (terrainDetail[i] == TerrainDetailType.Tree)
             {
-                treesWithNeighbors.Add(i);
+                int neighborCount = CountTreeNeighbors(i);
+                if (neighborCount > 0)
+                {
+                    treeNeighborCounts[i] = neighborCount;
+                }
             }
         }
 
-        while (treesWithNeighbors.Count > 0)
+        while (treeNeighborCounts.Count > 0)
         {
-            int treeToRemove = treesWithNeighbors.ElementAt(random.Next(treesWithNeighbors.Count));
+            int maxNeighborCount = 0;
+            int treeToRemove = -1;
+
+            foreach (var kvp in treeNeighborCounts)
+            {
+                if (kvp.Value > maxNeighborCount)
+                {
+                    maxNeighborCount = kvp.Value;
+                    treeToRemove = kvp.Key;
+                }
+            }
+
             int rx = treeToRemove % width;
             int ry = treeToRemove / width;
 
             terrainDetail[treeToRemove] = TerrainDetailType.None;
-            treesWithNeighbors.Remove(treeToRemove);
+            treeNeighborCounts.Remove(treeToRemove);
 
             for (int i = 0; i < 8; i++)
             {
@@ -698,9 +714,13 @@ public static partial class TerrainGenerator
                 if (nx >= 0 && nx < width && ny >= 0 && ny < height)
                 {
                     int neighborIndex = ny * width + nx;
-                    if (terrainDetail[neighborIndex] == TerrainDetailType.Tree && !HasTreeNeighbor(neighborIndex))
+                    if (terrainDetail[neighborIndex] == TerrainDetailType.Tree && treeNeighborCounts.ContainsKey(neighborIndex))
                     {
-                        treesWithNeighbors.Remove(neighborIndex);
+                        treeNeighborCounts[neighborIndex]--;
+                        if (treeNeighborCounts[neighborIndex] == 0)
+                        {
+                            treeNeighborCounts.Remove(neighborIndex);
+                        }
                     }
                 }
             }
