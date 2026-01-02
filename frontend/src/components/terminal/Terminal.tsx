@@ -141,15 +141,15 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
       if (code === KEY_ENTER) {
         const input = currentInputRef.current.trim();
-        
+
         term.write("\r\n");
-        
+
         if (input) {
           commandHistoryRef.current.push(input);
           historyIndexRef.current = -1;
 
           const [cmd, ...args] = input.split(' ');
-          
+
           let commandOutput = executeCommand(cmd, args);
 
           if (commandOutput === 'CLEAR') {
@@ -164,7 +164,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             if (suggestion) {
               term.write(`Assuming you meant '${suggestion}'\r\n\r\n`);
               commandOutput = executeCommand(suggestion, args);
-              
+
               if (commandOutput === 'CLEAR') {
                 term.clear();
                 currentInputRef.current = "";
@@ -179,7 +179,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           }
           term.write("\r\n");
         }
-        
+
         currentInputRef.current = "";
         term.write(PROMPT);
       } else if (code === KEY_BACKSPACE) {
@@ -191,14 +191,14 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         if (data === ARROW_UP) {
           if (commandHistoryRef.current.length === 0) return;
 
-          const startIndex = historyIndexRef.current === -1 
-            ? commandHistoryRef.current.length - 1 
+          const startIndex = historyIndexRef.current === -1
+            ? commandHistoryRef.current.length - 1
             : historyIndexRef.current - 1;
 
           if (startIndex < 0) return;
 
-          const currentCommand = historyIndexRef.current === -1 
-            ? currentInputRef.current 
+          const currentCommand = historyIndexRef.current === -1
+            ? currentInputRef.current
             : commandHistoryRef.current[historyIndexRef.current];
           let newIndex = startIndex;
 
@@ -212,11 +212,11 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
           historyIndexRef.current = newIndex;
           const newCommand = commandHistoryRef.current[newIndex];
-          
+
           for (let i = 0; i < currentInputRef.current.length; i++) {
             term.write("\b \b");
           }
-          
+
           currentInputRef.current = newCommand;
           term.write(newCommand);
         } else if (data === ARROW_DOWN) {
@@ -226,7 +226,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
           if (newIndex >= commandHistoryRef.current.length) {
             historyIndexRef.current = -1;
-            
+
             for (let i = 0; i < currentInputRef.current.length; i++) {
               term.write("\b \b");
             }
@@ -244,7 +244,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
             if (nextIndex >= commandHistoryRef.current.length) {
               historyIndexRef.current = -1;
-              
+
               for (let i = 0; i < currentInputRef.current.length; i++) {
                 term.write("\b \b");
               }
@@ -252,11 +252,11 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             } else {
               historyIndexRef.current = nextIndex;
               const newCommand = commandHistoryRef.current[nextIndex];
-              
+
               for (let i = 0; i < currentInputRef.current.length; i++) {
                 term.write("\b \b");
               }
-              
+
               currentInputRef.current = newCommand;
               term.write(newCommand);
             }

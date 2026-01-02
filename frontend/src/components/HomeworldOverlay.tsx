@@ -5,7 +5,7 @@ const HomeworldOverlay: React.FC = () => {
         <div
             style={{
                 position: "absolute",
-                top: "12px",
+                top: "0px",
                 left: "50%",
                 transform: "translateX(-50%)",
                 pointerEvents: "none",
@@ -23,7 +23,10 @@ const HomeworldOverlay: React.FC = () => {
                     backdropFilter: "blur(8px)",
                     padding: "8px 20px",
                     borderRadius: "6px",
-                    border: "1px solid rgba(252, 235, 168, 0.3)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    borderTop: "none",
+                    borderTopLeftRadius: 0,
+                    borderTopRightRadius: 0,
                     boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
                     animation: "fadeInDown 0.6s ease-out",
                 }}
