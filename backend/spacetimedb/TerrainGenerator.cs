@@ -303,61 +303,60 @@ public static partial class TerrainGenerator
 
     private static void RemoveNeighboringTrees(TerrainDetailType[] terrainDetail, Random random, int width, int height)
     {
-        var treesWithNeighbors = new List<int>();
-        bool hasNeighboringTrees = true;
+        var treePositions = new List<int>();
+        for (int i = 0; i < terrainDetail.Length; i++)
+        {
+            if (terrainDetail[i] == TerrainDetailType.Tree)
+            {
+                treePositions.Add(i);
+            }
+        }
 
-        while (hasNeighboringTrees)
+        int[] dx = { -1, 1, 0, 0 };
+        int[] dy = { 0, 0, -1, 1 };
+        var treesWithNeighbors = new List<int>();
+
+        while (true)
         {
             treesWithNeighbors.Clear();
 
-            for (int y = 0; y < height; y++)
+            foreach (int index in treePositions)
             {
-                for (int x = 0; x < width; x++)
+                int x = index % width;
+                int y = index / width;
+                bool hasNeighbor = false;
+
+                for (int i = 0; i < 4; i++)
                 {
-                    int index = y * width + x;
-                    
-                    if (terrainDetail[index] != TerrainDetailType.Tree)
+                    int nx = x + dx[i];
+                    int ny = y + dy[i];
+
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height)
                     {
-                        continue;
-                    }
-
-                    bool hasNeighbor = false;
-                    int[] dx = { -1, 1, 0, 0 };
-                    int[] dy = { 0, 0, -1, 1 };
-
-                    for (int i = 0; i < 4; i++)
-                    {
-                        int nx = x + dx[i];
-                        int ny = y + dy[i];
-
-                        if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                        int nindex = ny * width + nx;
+                        if (terrainDetail[nindex] == TerrainDetailType.Tree)
                         {
-                            int nindex = ny * width + nx;
-                            if (terrainDetail[nindex] == TerrainDetailType.Tree)
-                            {
-                                hasNeighbor = true;
-                                break;
-                            }
+                            hasNeighbor = true;
+                            break;
                         }
                     }
+                }
 
-                    if (hasNeighbor)
-                    {
-                        treesWithNeighbors.Add(index);
-                    }
+                if (hasNeighbor)
+                {
+                    treesWithNeighbors.Add(index);
                 }
             }
 
             if (treesWithNeighbors.Count == 0)
             {
-                hasNeighboringTrees = false;
+                break;
             }
-            else
-            {
-                int randomIndex = random.Next(treesWithNeighbors.Count);
-                int treeToRemove = treesWithNeighbors[randomIndex];
-                terrainDetail[treeToRemove] = TerrainDetailType.None;
-            }
+
+            int randomIndex = random.Next(treesWithNeighbors.Count);
+            int treeToRemove = treesWithNeighbors[randomIndex];
+            terrainDetail[treeToRemove] = TerrainDetailType.None;
+            treePositions.Remove(treeToRemove);
         }
     }
 
