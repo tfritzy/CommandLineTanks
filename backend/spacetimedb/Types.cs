@@ -133,6 +133,15 @@ public static partial class Types
     }
 
     [Type]
+    public partial struct AiConfig
+    {
+        public int PenMinX;
+        public int PenMaxX;
+        public int PenMinY;
+        public int PenMaxY;
+    }
+
+    [Type]
     public partial struct Gun
     {
         public GunType GunType;

@@ -278,8 +278,7 @@ export class TerrainDetailManager {
           this.getTextureKey(obj)
         );
 
-        if (!texture) {
-        } else {
+        if (texture) {
           const scale = obj.getSizeScale();
           const scaledSize = renderSize * scale;
           const offset = -UNIT_TO_PIXEL * scale;
@@ -314,9 +313,9 @@ export class TerrainDetailManager {
             );
             ctx.restore();
           }
-
-          obj.drawLabel(ctx);
         }
+
+        obj.drawLabel(ctx);
       }
     }
   }

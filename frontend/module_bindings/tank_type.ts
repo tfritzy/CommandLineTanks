@@ -11,6 +11,7 @@ import {
 } from "spacetimedb";
 import Vector2Float from "./vector_2_float_type";
 import AiBehavior from "./ai_behavior_type";
+import AiConfig from "./ai_config_type";
 import Gun from "./gun_type";
 
 
@@ -24,6 +25,9 @@ export default __t.object("Tank", {
   isBot: __t.bool(),
   get aiBehavior() {
     return AiBehavior;
+  },
+  get aiConfig() {
+    return __t.option(AiConfig);
   },
   alliance: __t.i32(),
   health: __t.i32(),

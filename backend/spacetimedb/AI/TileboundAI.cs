@@ -6,7 +6,7 @@ using static Module;
 public static partial class TileboundAI
 {
     private const int MAX_POSITION_SEARCH_ATTEMPTS = 50;
-    private const int TILE_SIZE = 6;
+    private const int TILE_SIZE = 5;
 
     public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
     {
@@ -28,17 +28,30 @@ public static partial class TileboundAI
 
     private static (int x, int y) FindRandomPositionInTile(Tank tank, Module.TraversibilityMap traversibilityMap, Random rng)
     {
-        int currentX = (int)tank.PositionX;
-        int currentY = (int)tank.PositionY;
+        int tileMinX, tileMaxX, tileMinY, tileMaxY;
 
-        int tileMinX = (currentX / TILE_SIZE) * TILE_SIZE;
-        int tileMinY = (currentY / TILE_SIZE) * TILE_SIZE;
-        int tileMaxX = Math.Min(tileMinX + TILE_SIZE - 1, traversibilityMap.Width - 1);
-        int tileMaxY = Math.Min(tileMinY + TILE_SIZE - 1, traversibilityMap.Height - 1);
+        if (tank.AiConfig.HasValue)
+        {
+            var config = tank.AiConfig.Value;
+            tileMinX = config.PenMinX;
+            tileMaxX = config.PenMaxX;
+            tileMinY = config.PenMinY;
+            tileMaxY = config.PenMaxY;
+        }
+        else
+        {
+            int currentX = (int)tank.PositionX;
+            int currentY = (int)tank.PositionY;
+
+            tileMinX = (currentX / TILE_SIZE) * TILE_SIZE;
+            tileMinY = (currentY / TILE_SIZE) * TILE_SIZE;
+            tileMaxX = Math.Min(tileMinX + TILE_SIZE - 1, traversibilityMap.Width - 1);
+            tileMaxY = Math.Min(tileMinY + TILE_SIZE - 1, traversibilityMap.Height - 1);
+        }
 
         if (tileMinX > tileMaxX || tileMinY > tileMaxY)
         {
-            return (currentX, currentY);
+            return ((int)tank.PositionX, (int)tank.PositionY);
         }
 
         for (int attempt = 0; attempt < MAX_POSITION_SEARCH_ATTEMPTS; attempt++)
@@ -53,7 +66,7 @@ public static partial class TileboundAI
             }
         }
 
-        return (currentX, currentY);
+        return ((int)tank.PositionX, (int)tank.PositionY);
     }
 
     private static void DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
@@ -118,7 +131,7 @@ public static partial class TileboundAI
         else
         {
             int distance = Math.Max(absX, absY);
-            
+
             if (offsetX > 0 && offsetY < 0)
                 return ("northeast", distance);
             else if (offsetX > 0 && offsetY > 0)

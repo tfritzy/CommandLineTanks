@@ -86,6 +86,8 @@ public static partial class Module
 
         public AIBehavior AIBehavior;
 
+        public AiConfig? AiConfig;
+
         public int Alliance;
 
         public int Health;

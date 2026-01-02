@@ -51,7 +51,7 @@ public static partial class Module
         return respawnedTank;
     }
 
-    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string targetCode, string joinCode, int alliance, float positionX, float positionY, AIBehavior aiBehavior = AIBehavior.None)
+    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string targetCode, string joinCode, int alliance, float positionX, float positionY, AIBehavior aiBehavior = AIBehavior.None, AiConfig? aiConfig = null)
     {
         var tankId = GenerateId(ctx, "tnk");
         return new Tank
@@ -64,6 +64,7 @@ public static partial class Module
             JoinCode = joinCode,
             IsBot = aiBehavior != AIBehavior.None,
             AIBehavior = aiBehavior,
+            AiConfig = aiConfig,
             Alliance = alliance,
             Health = TANK_HEALTH,
             MaxHealth = TANK_HEALTH,

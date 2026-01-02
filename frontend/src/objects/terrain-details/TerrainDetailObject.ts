@@ -53,21 +53,91 @@ export abstract class TerrainDetailObject {
 
   public abstract drawBody(ctx: CanvasRenderingContext2D): void;
 
+  private parseLabel(label: string): { text: string; color?: string; isCode: boolean }[] {
+    const segments: { text: string; color?: string; isCode: boolean }[] = [];
+    const regex = /(\[color=#[0-9a-fA-F]{6}\]|\[\/color\]|`)/g;
+    const parts = label.split(regex);
+
+    let currentColor: string | undefined = undefined;
+    let inCode = false;
+
+    for (const part of parts) {
+      if (!part) continue;
+
+      if (part.startsWith("[color=")) {
+        currentColor = part.substring(7, 14);
+      } else if (part === "[/color]") {
+        currentColor = undefined;
+      } else if (part === "`") {
+        inCode = !inCode;
+      } else {
+        segments.push({ text: part, color: currentColor, isCode: inCode });
+      }
+    }
+    return segments;
+  }
+
   public drawLabel(ctx: CanvasRenderingContext2D): void {
     if (!this.label) return;
+
+    const segments = this.parseLabel(this.label);
 
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const centerX = x;
-    const labelY = y - UNIT_TO_PIXEL * 0.6;
+    const labelY = y - 12;
 
-    ctx.font = `${UNIT_TO_PIXEL * .5}px sans-serif`;
-    ctx.fillStyle = "#e6eeed";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
+    const fontSize = UNIT_TO_PIXEL * 0.25;
+    const normalFont = `${fontSize}px sans-serif`;
+    const codeFont = `bold ${fontSize}px monospace`;
 
-    ctx.fillText(this.label, centerX, labelY);
+    // Calculate total width
+    let totalWidth = 0;
+    const segmentSpacing = 3;
+    const codePadding = 8;
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      ctx.font = segment.isCode ? codeFont : normalFont;
+      totalWidth += ctx.measureText(segment.text).width;
+      if (segment.isCode) totalWidth += codePadding;
+      if (i < segments.length - 1) totalWidth += segmentSpacing;
+    }
+
+    let currentX = x - totalWidth / 2;
+    ctx.textBaseline = "alphabetic";
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      ctx.font = segment.isCode ? codeFont : normalFont;
+      const textWidth = ctx.measureText(segment.text).width;
+
+      if (segment.isCode) {
+        currentX += codePadding / 2;
+        ctx.save();
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        const paddingH = 12;
+        const paddingV = 6;
+        const bgW = textWidth + paddingH;
+        const bgH = fontSize + paddingV;
+        const bgX = currentX - paddingH / 2;
+        // Center the background vertically around the text's visual center (approx -0.35em from baseline)
+        const bgY = labelY - (fontSize * 0.35) - (bgH / 2);
+        
+        ctx.beginPath();
+        ctx.roundRect(bgX, bgY, bgW, bgH, 4);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.fillStyle = segment.color || "#fcfbf3";
+      ctx.strokeText(segment.text, currentX, labelY);
+      ctx.fillText(segment.text, currentX, labelY);
+      
+      currentX += textWidth + (segment.isCode ? codePadding / 2 : 0) + segmentSpacing;
+    }
 
     ctx.restore();
   }

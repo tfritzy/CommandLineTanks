@@ -148,13 +148,14 @@ public static partial class Module
             GridY = 6,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "When you're ready to find a game, call the findgame command",
+            Label = "When you're ready to find a game, call the [color=#fceba8]`findgame`[/color] command",
             Rotation = 0
         });
 
         CreateTargetingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
         CreateAimingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
         CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
+        CreateEmptyDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
 
         var pickups = new[]
         {
@@ -196,7 +197,7 @@ public static partial class Module
         Log.Info($"Created homeworld for identity {identityString}");
     }
 
-    private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance)
+    private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "Turret";
         var turretBot = BuildTank(
@@ -209,13 +210,14 @@ public static partial class Module
             alliance,
             x + 0.5f,
             y + 0.5f,
-            AIBehavior.Turret
+            AIBehavior.Turret,
+            aiConfig
         );
         turretBot.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(turretBot);
     }
 
-    private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y, int alliance)
+    private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "AimBot";
         var aimBot = BuildTank(
@@ -228,13 +230,14 @@ public static partial class Module
             alliance,
             x + 0.5f,
             y + 0.5f,
-            AIBehavior.RandomAim
+            AIBehavior.RandomAim,
+            aiConfig
         );
         aimBot.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(aimBot);
     }
 
-    private static void SpawnTileboundBot(ReducerContext ctx, string worldId, int x, int y, int alliance)
+    private static void SpawnTileboundBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "TileBot";
         var tileboundBot = BuildTank(
@@ -247,7 +250,8 @@ public static partial class Module
             alliance,
             x + 0.5f,
             y + 0.5f,
-            AIBehavior.Tilebound
+            AIBehavior.Tilebound,
+            aiConfig
         );
         tileboundBot.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(tileboundBot);
@@ -255,85 +259,119 @@ public static partial class Module
 
     private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
-        int areaX = 0;
-        int areaY = 6;
-        int areaWidth = 6;
-        int areaHeight = 6;
+        int areaX = 20;
+        int areaY = 5;
+        int areaWidth = 5;
+        int areaHeight = 5;
 
-        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
+        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
             Id = GenerateId(ctx, "td"),
             WorldId = worldId,
             PositionX = areaX + areaWidth / 2.0f + 0.5f,
-            PositionY = areaY - 1.5f,
+            PositionY = areaY - 0.8f,
             GridX = areaX + areaWidth / 2,
-            GridY = areaY - 2,
+            GridY = areaY - 1,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "Targeting: Use 'target <code>' to lock onto an enemy, then 'fire' to shoot",
+            Label = "Use [color=#fceba8]`target <code>`[/color] to lock onto an enemy, then [color=#fceba8]`fire`[/color] to shoot",
             Rotation = 0
         });
 
-        SpawnTurretBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0);
-        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1);
+        var pen = new AiConfig
+        {
+            PenMinX = areaX,
+            PenMaxX = areaX + areaWidth - 1,
+            PenMinY = areaY,
+            PenMaxY = areaY + areaHeight - 1
+        };
+
+        SpawnTurretBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
+        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1, pen);
     }
 
     private static void CreateAimingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
-        int areaX = 24;
-        int areaY = 6;
-        int areaWidth = 6;
-        int areaHeight = 6;
+        int areaX = 5;
+        int areaY = 13;
+        int areaWidth = 5;
+        int areaHeight = 5;
 
-        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
+        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
             Id = GenerateId(ctx, "td"),
             WorldId = worldId,
             PositionX = areaX + areaWidth / 2.0f + 0.5f,
-            PositionY = areaY - 1.5f,
+            PositionY = areaY - 0.8f,
             GridX = areaX + areaWidth / 2,
-            GridY = areaY - 2,
+            GridY = areaY - 1,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "Aiming: Use 'aim <direction>' to point your turret, then 'fire' to shoot",
+            Label = "Use [color=#fceba8]`aim <direction>`[/color] to point your turret, then [color=#fceba8]`fire`[/color] to shoot",
             Rotation = 0
         });
 
-        SpawnRandomAimBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0);
-        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1);
+        var pen = new AiConfig
+        {
+            PenMinX = areaX,
+            PenMaxX = areaX + areaWidth - 1,
+            PenMinY = areaY,
+            PenMaxY = areaY + areaHeight - 1
+        };
+
+        SpawnRandomAimBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
+        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1, pen);
     }
 
     private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
-        int areaX = 6;
-        int areaY = 12;
-        int areaWidth = 6;
-        int areaHeight = 6;
+        int areaX = 5;
+        int areaY = 5;
+        int areaWidth = 5;
+        int areaHeight = 5;
 
-        CreateFencedArea(ctx, worldId, worldWidth, areaX, areaY, areaWidth, areaHeight);
+        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
         ctx.Db.terrain_detail.Insert(new TerrainDetail
         {
             Id = GenerateId(ctx, "td"),
             WorldId = worldId,
             PositionX = areaX + areaWidth / 2.0f + 0.5f,
-            PositionY = areaY - 1.5f,
+            PositionY = areaY - 0.8f,
             GridX = areaX + areaWidth / 2,
-            GridY = areaY - 2,
+            GridY = areaY - 1,
             Type = TerrainDetailType.Label,
             Health = 100,
-            Label = "Movement: Use 'drive <direction> <distance>' to move your tank",
+            Label = "Use [color=#fceba8]`drive <direction> <distance>`[/color] to move your tank",
             Rotation = 0
         });
 
-        SpawnTileboundBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0);
+        var pen = new AiConfig
+        {
+            PenMinX = areaX,
+            PenMaxX = areaX + areaWidth - 1,
+            PenMinY = areaY,
+            PenMaxY = areaY + areaHeight - 1
+        };
+
+        SpawnTileboundBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
     }
 
-    private static void CreateFencedArea(ReducerContext ctx, string worldId, int worldWidth, int startX, int startY, int width, int height)
+    private static void CreateEmptyDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
+    {
+        int areaX = 20;
+        int areaY = 13;
+        int areaWidth = 5;
+        int areaHeight = 5;
+
+        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
+    }
+
+    private static void CreateFencedArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, int startX, int startY, int width, int height)
     {
         for (int x = startX; x < startX + width; x++)
         {

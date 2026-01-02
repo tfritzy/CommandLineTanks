@@ -1,5 +1,6 @@
 import { UNIT_TO_PIXEL, TERRAIN_DETAIL_COLORS } from "../../constants";
-import { getFlashColor } from "../../utils/colors";
+import { getFlashColor, lerpColor } from "../../utils/colors";
+import { drawSquarePost, drawSquarePostShadow } from "./fence-utils";
 
 export function drawFenceEdgeShadow(
   ctx: CanvasRenderingContext2D,
@@ -9,34 +10,43 @@ export function drawFenceEdgeShadow(
   centerY: number,
   rotation: number
 ) {
-  ctx.save();
-
-  const shadowOffset = UNIT_TO_PIXEL * 0.06;
+  const shadowOffset = UNIT_TO_PIXEL * 0.10;
   const angle = (rotation * 90 * Math.PI) / 180;
-  const lsX = shadowOffset * (Math.sin(angle) - Math.cos(angle));
-  const lsY = shadowOffset * (Math.sin(angle) + Math.cos(angle));
 
+  // Post shadow
+  const size = UNIT_TO_PIXEL * 0.22;
+  drawSquarePostShadow(ctx, centerX, centerY, size, shadowOffset);
+
+  // Rail and slats shadow
+  ctx.save();
+  ctx.translate(-shadowOffset, shadowOffset);
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
   ctx.translate(-centerX, -centerY);
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+  const railWidth = UNIT_TO_PIXEL * 0.05;
+  const slatWidth = UNIT_TO_PIXEL * 0.22;
+  const slatHeight = UNIT_TO_PIXEL * 0.035;
+  const totalHeight = railWidth + slatHeight;
+  const slatY = y - totalHeight / 2;
+  const railY = slatY + slatHeight;
 
-  ctx.beginPath();
-  ctx.roundRect(x - UNIT_TO_PIXEL * 0.5 + lsX, y - UNIT_TO_PIXEL * 0.03 + lsY, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.06, 2);
-  ctx.fill();
-  ctx.restore();
+  ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, railY, UNIT_TO_PIXEL, railWidth);
 
-  ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
-  for (let i = 0; i < 2; i++) {
-    const localX = 0.25 + i * 0.5 - 0.5;
-    const worldX = centerX + UNIT_TO_PIXEL * (localX * Math.cos(angle));
-    const worldY = centerY + UNIT_TO_PIXEL * (localX * Math.sin(angle));
+  const postSize = UNIT_TO_PIXEL * 0.22;
+  const snugOffset = (postSize / 2 + slatWidth / 2) / UNIT_TO_PIXEL;
 
-    ctx.beginPath();
-    ctx.arc(worldX - shadowOffset, worldY + shadowOffset, UNIT_TO_PIXEL * 0.11, 0, Math.PI * 2);
-    ctx.fill();
+  // Boundary slats (half-width to stay within tile)
+  // Left boundary
+  ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, slatY, slatWidth / 2, slatHeight);
+  // Right boundary
+  ctx.fillRect(x + UNIT_TO_PIXEL * 0.5 - slatWidth / 2, slatY, slatWidth / 2, slatHeight);
+
+  // Inner slats (full width)
+  const innerOffsets = [-snugOffset, snugOffset];
+  for (const off of innerOffsets) {
+    ctx.fillRect(x + off * UNIT_TO_PIXEL - slatWidth / 2, slatY, slatWidth, slatHeight);
   }
   ctx.restore();
 }
@@ -50,25 +60,46 @@ export function drawFenceEdgeBody(
   rotation: number,
   flashTimer: number
 ) {
-  ctx.save();
-
-  ctx.translate(centerX, centerY);
-  ctx.rotate((rotation * 90 * Math.PI) / 180);
-  ctx.translate(-centerX, -centerY);
-
-  const railColor = getFlashColor(TERRAIN_DETAIL_COLORS.FENCE.RAIL, flashTimer);
+  const angle = (rotation * 90 * Math.PI) / 180;
   const postColor = getFlashColor(TERRAIN_DETAIL_COLORS.FENCE.POST, flashTimer);
 
-  ctx.fillStyle = railColor;
-  ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, y - UNIT_TO_PIXEL * 0.03, UNIT_TO_PIXEL, UNIT_TO_PIXEL * 0.06);
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(angle);
+  ctx.translate(-centerX, -centerY);
+
+  const railWidth = UNIT_TO_PIXEL * 0.05;
+  const slatWidth = UNIT_TO_PIXEL * 0.22;
+  const slatHeight = UNIT_TO_PIXEL * 0.035;
+  const totalHeight = railWidth + slatHeight;
+  const slatY = y - totalHeight / 2;
+  const railY = slatY + slatHeight;
 
   ctx.fillStyle = postColor;
-  for (let i = 0; i < 2; i++) {
-    const px = x - UNIT_TO_PIXEL * 0.5 + UNIT_TO_PIXEL * (0.25 + i * 0.5);
-    ctx.beginPath();
-    ctx.arc(px, y, UNIT_TO_PIXEL * 0.09, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, railY, UNIT_TO_PIXEL, railWidth);
 
+  const postSize = UNIT_TO_PIXEL * 0.22;
+  const snugOffset = (postSize / 2 + slatWidth / 2) / UNIT_TO_PIXEL;
+  const slatColor = getFlashColor(
+    lerpColor(TERRAIN_DETAIL_COLORS.FENCE.POST, "#ffffff", 0.15),
+    flashTimer
+  );
+  ctx.fillStyle = slatColor;
+
+  // Boundary slats (half-width to stay within tile)
+  // Left boundary
+  ctx.fillRect(x - UNIT_TO_PIXEL * 0.5, slatY, slatWidth / 2, slatHeight);
+  // Right boundary
+  ctx.fillRect(x + UNIT_TO_PIXEL * 0.5 - slatWidth / 2, slatY, slatWidth / 2, slatHeight);
+
+  // Inner slats (full width)
+  const innerOffsets = [-snugOffset, snugOffset];
+  for (const off of innerOffsets) {
+    ctx.fillRect(x + off * UNIT_TO_PIXEL - slatWidth / 2, slatY, slatWidth, slatHeight);
+  }
   ctx.restore();
+
+  // Big post in center (unrotated for consistent shading)
+  const size = UNIT_TO_PIXEL * 0.22;
+  drawSquarePost(ctx, centerX, centerY, size, TERRAIN_DETAIL_COLORS.FENCE.POST, flashTimer);
 }
