@@ -262,13 +262,8 @@ public static partial class TerrainGenerator
         float groveNoiseScale = 0.05f;
         float groveThreshold = 0.1f;
         
-        float treeNoiseScale = 0.25f;
-        float treeThreshold = 0.4f;
-        
         float groveOffsetX = (float)(random.NextDouble() * 1000f);
         float groveOffsetY = (float)(random.NextDouble() * 1000f);
-        float treeOffsetX = (float)(random.NextDouble() * 1000f);
-        float treeOffsetY = (float)(random.NextDouble() * 1000f);
 
         for (int y = 0; y < height; y++)
         {
@@ -297,14 +292,71 @@ public static partial class TerrainGenerator
                 
                 if (groveNoise > groveThreshold)
                 {
-                    float treeNoise = Noise((x + treeOffsetX) * treeNoiseScale, (y + treeOffsetY) * treeNoiseScale);
+                    terrainDetail[index] = TerrainDetailType.Tree;
+                    rotationArray[index] = 0;
+                }
+            }
+        }
+
+        RemoveNeighboringTrees(terrainDetail, random, width, height);
+    }
+
+    private static void RemoveNeighboringTrees(TerrainDetailType[] terrainDetail, Random random, int width, int height)
+    {
+        var treesWithNeighbors = new List<int>();
+        bool hasNeighboringTrees = true;
+
+        while (hasNeighboringTrees)
+        {
+            treesWithNeighbors.Clear();
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = y * width + x;
                     
-                    if (treeNoise > treeThreshold)
+                    if (terrainDetail[index] != TerrainDetailType.Tree)
                     {
-                        terrainDetail[index] = TerrainDetailType.Tree;
-                        rotationArray[index] = 0;
+                        continue;
+                    }
+
+                    bool hasNeighbor = false;
+                    int[] dx = { -1, 1, 0, 0 };
+                    int[] dy = { 0, 0, -1, 1 };
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        int nx = x + dx[i];
+                        int ny = y + dy[i];
+
+                        if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                        {
+                            int nindex = ny * width + nx;
+                            if (terrainDetail[nindex] == TerrainDetailType.Tree)
+                            {
+                                hasNeighbor = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (hasNeighbor)
+                    {
+                        treesWithNeighbors.Add(index);
                     }
                 }
+            }
+
+            if (treesWithNeighbors.Count == 0)
+            {
+                hasNeighboringTrees = false;
+            }
+            else
+            {
+                int randomIndex = random.Next(treesWithNeighbors.Count);
+                int treeToRemove = treesWithNeighbors[randomIndex];
+                terrainDetail[treeToRemove] = TerrainDetailType.None;
             }
         }
     }
