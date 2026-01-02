@@ -7,6 +7,7 @@ import { MiniMapManager } from "./managers/MiniMapManager";
 import { KillManager } from "./managers/KillManager";
 import { SmokeCloudManager } from "./managers/SmokeCloudManager";
 import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
+import { DecorationManager } from "./managers/DecorationManager";
 import { UNIT_TO_PIXEL } from "./constants";
 import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
@@ -28,6 +29,7 @@ export class Game {
   private killManager: KillManager;
   private smokeCloudManager: SmokeCloudManager;
   private abilitiesBarManager: AbilitiesBarManager;
+  private decorationManager: DecorationManager;
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
   private screenShake: ScreenShake;
@@ -58,6 +60,7 @@ export class Game {
     this.killManager = new KillManager(worldId);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
     this.abilitiesBarManager = new AbilitiesBarManager(worldId);
+    this.decorationManager = new DecorationManager(worldId);
   }
 
   private resizeCanvas() {
@@ -230,6 +233,15 @@ export class Game {
       displayWidth,
       displayHeight
     );
+
+    this.decorationManager.draw(
+      this.ctx,
+      this.currentCameraX,
+      this.currentCameraY,
+      displayWidth,
+      displayHeight
+    );
+
     this.tankManager.drawNameLabels(this.ctx);
     this.tankManager.drawHealthBars(this.ctx);
     this.tankManager.drawTankIndicators(this.ctx);
@@ -322,6 +334,7 @@ export class Game {
     this.killManager.destroy();
     this.smokeCloudManager.destroy();
     this.abilitiesBarManager.destroy();
+    this.decorationManager.destroy();
 
     window.removeEventListener("resize", this.resizeHandler);
   }
