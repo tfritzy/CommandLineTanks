@@ -200,26 +200,20 @@ export class TerrainDetailManager {
     }
   }
 
-  public drawShadows(
+  private renderShadowPass(
     ctx: CanvasRenderingContext2D,
-    cameraX: number,
-    cameraY: number,
-    canvasWidth: number,
-    canvasHeight: number
+    startX: number,
+    endX: number,
+    startY: number,
+    endY: number,
+    renderSize: number,
+    dpr: number,
+    shadowCanvas: HTMLCanvasElement,
+    isTree: boolean
   ) {
-    const padding = 2;
-    const startX = cameraX / UNIT_TO_PIXEL - padding;
-    const endX = (cameraX + canvasWidth) / UNIT_TO_PIXEL + padding;
-    const startY = cameraY / UNIT_TO_PIXEL - padding;
-    const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
-
-    const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
-    const renderSize = UNIT_TO_PIXEL * 2;
-    const dpr = getNormalizedDPR();
-
-    ctx.imageSmoothingEnabled = false;
-
     for (const obj of this.detailObjects.values()) {
+      if ((obj instanceof Tree) !== isTree) continue;
+
       const objX = obj.getX();
       const objY = obj.getY();
 
@@ -250,7 +244,7 @@ export class TerrainDetailManager {
     }
   }
 
-  public drawBodies(
+  public drawShadows(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
     cameraY: number,
@@ -263,13 +257,29 @@ export class TerrainDetailManager {
     const startY = cameraY / UNIT_TO_PIXEL - padding;
     const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
-    const bodyCanvas = terrainDetailTextureSheet.getCanvas();
+    const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
     const renderSize = UNIT_TO_PIXEL * 2;
     const dpr = getNormalizedDPR();
 
     ctx.imageSmoothingEnabled = false;
 
+    this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, false);
+  }
+
+  private renderBodyPass(
+    ctx: CanvasRenderingContext2D,
+    startX: number,
+    endX: number,
+    startY: number,
+    endY: number,
+    renderSize: number,
+    dpr: number,
+    bodyCanvas: HTMLCanvasElement,
+    isTree: boolean
+  ) {
     for (const obj of this.detailObjects.values()) {
+      if ((obj instanceof Tree) !== isTree) continue;
+
       const objX = obj.getX();
       const objY = obj.getY();
 
@@ -318,6 +328,31 @@ export class TerrainDetailManager {
         obj.drawLabel(ctx);
       }
     }
+  }
+
+  public drawBodies(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    canvasWidth: number,
+    canvasHeight: number
+  ) {
+    const padding = 2;
+    const startX = cameraX / UNIT_TO_PIXEL - padding;
+    const endX = (cameraX + canvasWidth) / UNIT_TO_PIXEL + padding;
+    const startY = cameraY / UNIT_TO_PIXEL - padding;
+    const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
+
+    const bodyCanvas = terrainDetailTextureSheet.getCanvas();
+    const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
+    const renderSize = UNIT_TO_PIXEL * 2;
+    const dpr = getNormalizedDPR();
+
+    ctx.imageSmoothingEnabled = false;
+
+    this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, false);
+    this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, true);
+    this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, true);
   }
 
   private getTextureKey(obj: TerrainDetailObject): string {
