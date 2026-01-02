@@ -16,6 +16,7 @@ import { FenceEdge } from "../objects/terrain-details/FenceEdge";
 import { FenceCorner } from "../objects/terrain-details/FenceCorner";
 import { TargetDummy } from "../objects/terrain-details/TargetDummy";
 import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
+import { MushroomDecorationsManager } from "./MushroomDecorationsManager";
 import { terrainDetailTextureSheet } from "../texture-sheets/TerrainDetailTextureSheet";
 import { getNormalizedDPR } from "../utils/dpr";
 
@@ -27,7 +28,10 @@ export class TerrainDetailManager {
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
   private terrainDebrisParticles: TerrainDebrisParticlesManager =
     new TerrainDebrisParticlesManager();
+  private mushroomDecorations: MushroomDecorationsManager =
+    new MushroomDecorationsManager();
   private onDetailDeletedCallbacks: (() => void)[] = [];
+  private mushroomsGenerated: boolean = false;
   private handleDetailInsert:
     | ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void)
     | null = null;
@@ -125,6 +129,22 @@ export class TerrainDetailManager {
         this.createDetailObject(detail);
       }
     }
+
+    this.generateMushrooms();
+  }
+
+  private generateMushrooms() {
+    if (this.mushroomsGenerated) return;
+    
+    const trees: TerrainDetailObject[] = [];
+    for (const obj of this.detailObjects.values()) {
+      if (obj.getType() === "Tree") {
+        trees.push(obj);
+      }
+    }
+    
+    this.mushroomDecorations.generateMushroomsAroundTrees(trees);
+    this.mushroomsGenerated = true;
   }
 
   public destroy() {
@@ -344,6 +364,16 @@ export class TerrainDetailManager {
       viewportWidth,
       viewportHeight
     );
+  }
+
+  public drawDecorations(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    canvasWidth: number,
+    canvasHeight: number
+  ) {
+    this.mushroomDecorations.draw(ctx, cameraX, cameraY, canvasWidth, canvasHeight);
   }
 
   public getDetailObjectsByPosition(): (TerrainDetailObject | null)[][] {
