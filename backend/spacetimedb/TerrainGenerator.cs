@@ -716,12 +716,8 @@ public static partial class TerrainGenerator
                     int neighborIndex = ny * width + nx;
                     if (terrainDetail[neighborIndex] == TerrainDetailType.Tree && treeNeighborCounts.ContainsKey(neighborIndex))
                     {
-                        int newCount = CountTreeNeighbors(neighborIndex);
-                        if (newCount > 0)
-                        {
-                            treeNeighborCounts[neighborIndex] = newCount;
-                        }
-                        else
+                        treeNeighborCounts[neighborIndex]--;
+                        if (treeNeighborCounts[neighborIndex] == 0)
                         {
                             treeNeighborCounts.Remove(neighborIndex);
                         }
