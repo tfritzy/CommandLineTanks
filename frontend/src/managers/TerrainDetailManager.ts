@@ -264,7 +264,6 @@ export class TerrainDetailManager {
     ctx.imageSmoothingEnabled = false;
 
     this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, false);
-    this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, true);
   }
 
   private renderBodyPass(
@@ -345,12 +344,14 @@ export class TerrainDetailManager {
     const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
     const bodyCanvas = terrainDetailTextureSheet.getCanvas();
+    const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
     const renderSize = UNIT_TO_PIXEL * 2;
     const dpr = getNormalizedDPR();
 
     ctx.imageSmoothingEnabled = false;
 
     this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, false);
+    this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, true);
     this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, true);
   }
 
