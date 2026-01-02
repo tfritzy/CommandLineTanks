@@ -617,7 +617,7 @@ export function target(
   }
 
   const targetTank = allTanks.find((t) => t.targetCode === targetCodeLower);
-  if (!targetTank) {
+  if (!targetTank || targetTank.alliance === myTank.alliance) {
     return [colors.error(`target: error: tank with code '${targetCode}' not found`)];
   }
 

@@ -360,9 +360,14 @@ export class TankManager {
   }
 
   public drawNameLabels(ctx: CanvasRenderingContext2D) {
+    const playerTank = this.playerTankId ? this.tanks.get(this.playerTankId) : null;
+    const playerAlliance = playerTank ? playerTank.getAlliance() : null;
+
     for (const tank of this.tanks.values()) {
       const isPlayerTank = tank.id === this.playerTankId;
-      if (isPlayerTank) {
+      const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
+
+      if (isPlayerTank || isFriendly) {
         tank.drawNameLabelWithoutTargetCode(ctx);
       } else {
         tank.drawNameLabel(ctx);

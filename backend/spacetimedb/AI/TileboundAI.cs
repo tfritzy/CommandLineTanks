@@ -7,9 +7,15 @@ public static partial class TileboundAI
 {
     private const int MAX_POSITION_SEARCH_ATTEMPTS = 50;
     private const int TILE_SIZE = 5;
+    private const int MOVEMENT_TICK_INTERVAL = 2;
 
-    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
+    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext, int tickCount)
     {
+        if (tickCount % MOVEMENT_TICK_INTERVAL != 0)
+        {
+            return tank;
+        }
+
         var pathState = aiContext.GetTankPath(tank.Id);
         bool isCurrentlyMoving = pathState != null && pathState.Value.Path.Length > 0;
 
@@ -19,7 +25,7 @@ public static partial class TileboundAI
             if (traversibilityMap != null)
             {
                 var (targetX, targetY) = FindRandomPositionInTile(tank, traversibilityMap.Value, aiContext.GetRandom());
-                DriveTowards(ctx, tank, targetX, targetY);
+                tank = DriveTowards(ctx, tank, targetX, targetY);
             }
         }
 
@@ -69,14 +75,14 @@ public static partial class TileboundAI
         return ((int)tank.PositionX, (int)tank.PositionY);
     }
 
-    private static void DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
+    private static Tank DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
     {
         int currentX = (int)tank.PositionX;
         int currentY = (int)tank.PositionY;
 
         if (targetX == currentX && targetY == currentY)
         {
-            return;
+            return tank;
         }
 
         Vector2 currentPos = new Vector2(currentX, currentY);
@@ -102,12 +108,16 @@ public static partial class TileboundAI
 
         UpsertTankPath(ctx, newPathState);
 
-        var (direction, distance) = OffsetToDirectionAndDistance(offset.X, offset.Y);
-        var updatedTank = tank with
+        if (tank.Alliance == 0)
         {
-            Message = $"drive {direction} {distance}"
-        };
-        ctx.Db.tank.Id.Update(updatedTank);
+            var (direction, distance) = OffsetToDirectionAndDistance(offset.X, offset.Y);
+            return tank with
+            {
+                Message = $"drive {direction} {distance}"
+            };
+        }
+
+        return tank;
     }
 
     private static (string direction, int distance) OffsetToDirectionAndDistance(int offsetX, int offsetY)

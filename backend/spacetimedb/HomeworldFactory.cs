@@ -75,7 +75,7 @@ public static partial class Module
             int rx = random.Next(worldWidth);
             int ry = random.Next(worldHeight);
             int rIndex = ry * worldWidth + rx;
-            if (traversibilityMap[rIndex] && (Math.Abs(rx - worldWidth / 2) > 5 || Math.Abs(ry - worldHeight / 2) > 5))
+            if (traversibilityMap[rIndex] && (Math.Abs(rx - worldWidth / 2) > 5 || Math.Abs(ry - worldHeight / 2) > 5) && !IsInsideAnyPen(rx, ry))
             {
                 traversibilityMap[rIndex] = false;
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
@@ -98,7 +98,7 @@ public static partial class Module
             int tx = random.Next(worldWidth);
             int ty = random.Next(worldHeight);
             int tIndex = ty * worldWidth + tx;
-            if (traversibilityMap[tIndex] && (Math.Abs(tx - worldWidth / 2) > 5 || Math.Abs(ty - worldHeight / 2) > 5))
+            if (traversibilityMap[tIndex] && (Math.Abs(tx - worldWidth / 2) > 5 || Math.Abs(ty - worldHeight / 2) > 5) && !IsInsideAnyPen(tx, ty))
             {
                 traversibilityMap[tIndex] = false;
                 ctx.Db.terrain_detail.Insert(new TerrainDetail
@@ -324,7 +324,6 @@ public static partial class Module
         };
 
         SpawnRandomAimBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
-        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1, pen);
     }
 
     private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
@@ -518,5 +517,26 @@ public static partial class Module
                 Rotation = 2
             });
         }
+    }
+
+    private static bool IsInsideAnyPen(int x, int y)
+    {
+        // Targeting Area: areaX = 20, areaY = 5, areaWidth = 5, areaHeight = 5
+        // Fences are at x=19, x=25, y=4, y=10
+        if (x >= 19 && x <= 25 && y >= 4 && y <= 10) return true;
+
+        // Aiming Area: areaX = 5, areaY = 13, areaWidth = 5, areaHeight = 5
+        // Fences are at x=4, x=10, y=12, y=18
+        if (x >= 4 && x <= 10 && y >= 12 && y <= 18) return true;
+
+        // Movement Area: areaX = 5, areaY = 5, areaWidth = 5, areaHeight = 5
+        // Fences are at x=4, x=10, y=4, y=10
+        if (x >= 4 && x <= 10 && y >= 4 && y <= 10) return true;
+
+        // Empty Area: areaX = 20, areaY = 13, areaWidth = 5, areaHeight = 5
+        // Fences are at x=19, x=25, y=12, y=18
+        if (x >= 19 && x <= 25 && y >= 12 && y <= 18) return true;
+
+        return false;
     }
 }
