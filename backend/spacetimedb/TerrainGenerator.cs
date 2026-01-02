@@ -303,7 +303,7 @@ public static partial class TerrainGenerator
 
     private static void RemoveNeighboringTrees(TerrainDetailType[] terrainDetail, Random random, int width, int height)
     {
-        var treePositions = new List<int>();
+        var treePositions = new HashSet<int>();
         for (int i = 0; i < terrainDetail.Length; i++)
         {
             if (terrainDetail[i] == TerrainDetailType.Tree)
