@@ -1,64 +1,171 @@
-import { getConnection } from '../spacetimedb-connection';
+import { useState } from 'react';
 
 interface JoinWorldModalProps {
   worldId: string;
   onJoin: () => void;
 }
 
-export default function JoinWorldModal({ worldId, onJoin }: JoinWorldModalProps) {
-  const handleJoinWorld = () => {
-    const connection = getConnection();
-    if (!connection) return;
+export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
+  const [playerName, setPlayerName] = useState('');
+  const [copied, setCopied] = useState(false);
 
-    const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    connection.reducers.joinWorld({ 
-      worldId, 
-      joinCode,
-      passcode: '' 
-    });
-    onJoin();
+  const commands = `name set ${playerName || '<your_name>'}\njoin ${worldId}`;
+
+  const handleCopyCommands = async () => {
+    try {
+      await navigator.clipboard.writeText(commands);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      background: '#2a152d',
-      padding: '40px 60px',
-      textAlign: 'center',
-      color: '#e6eeed',
-      fontFamily: "'JetBrains Mono', monospace",
-      fontSize: '18px',
-      border: '4px solid #5a78b2',
-      zIndex: 1000
-    }}>
-      <div style={{ fontSize: '32px', marginBottom: '20px', color: '#7396d5', fontWeight: 'bold' }}>
-        Join World
-      </div>
-      <div style={{ fontSize: '16px', color: '#a9bcbf', marginBottom: '30px' }}>
-        You don't have a tank in this world yet.
-      </div>
-      <button
-        onClick={handleJoinWorld}
+    <div
+      style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        background: 'rgba(46, 46, 67, 0.95)',
+        backdropFilter: 'blur(4px)',
+        borderRadius: '8px',
+        border: '2px solid rgba(112, 123, 137, 0.3)',
+        padding: '40px 60px',
+        fontFamily: "'JetBrains Mono', monospace",
+        zIndex: 1000,
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+        minWidth: '500px',
+      }}
+    >
+      <div
         style={{
-          padding: '14px 28px',
-          fontSize: '16px',
-          fontFamily: "'JetBrains Mono', monospace",
-          fontWeight: 'bold',
-          color: '#fcfbf3',
-          background: '#5a78b2',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          transition: 'background 0.2s',
+          fontSize: '32px',
+          fontWeight: 700,
+          color: '#7396d5',
+          letterSpacing: '0.05em',
+          marginBottom: '16px',
+          textAlign: 'center',
         }}
-        onMouseEnter={(e) => e.currentTarget.style.background = '#7396d5'}
-        onMouseLeave={(e) => e.currentTarget.style.background = '#5a78b2'}
       >
         Join World
-      </button>
+      </div>
+
+      <div
+        style={{
+          fontSize: '15px',
+          color: '#a9bcbf',
+          marginBottom: '32px',
+          lineHeight: 1.6,
+          textAlign: 'center',
+        }}
+      >
+        You don't have a tank in this world yet.
+      </div>
+
+      <div
+        style={{
+          marginBottom: '24px',
+        }}
+      >
+        <label
+          style={{
+            display: 'block',
+            fontSize: '14px',
+            color: '#e6eeed',
+            marginBottom: '8px',
+            fontWeight: 500,
+          }}
+        >
+          Your Name
+        </label>
+        <input
+          type="text"
+          value={playerName}
+          onChange={(e) => setPlayerName(e.target.value)}
+          placeholder="Enter your name"
+          maxLength={15}
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            fontSize: '14px',
+            fontFamily: "'JetBrains Mono', monospace",
+            background: 'rgba(42, 21, 45, 0.6)',
+            border: '1px solid rgba(112, 123, 137, 0.3)',
+            borderRadius: '4px',
+            color: '#e6eeed',
+            outline: 'none',
+            boxSizing: 'border-box',
+            transition: 'border-color 0.2s',
+          }}
+          onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.6)'}
+          onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(112, 123, 137, 0.3)'}
+        />
+      </div>
+
+      <div
+        style={{
+          marginBottom: '16px',
+        }}
+      >
+        <div
+          style={{
+            fontSize: '14px',
+            color: '#a9bcbf',
+            marginBottom: '12px',
+            textAlign: 'center',
+          }}
+        >
+          Run this command in the terminal below to join:
+        </div>
+
+        <div
+          onClick={handleCopyCommands}
+          style={{
+            position: 'relative',
+            background: 'rgba(42, 21, 45, 0.8)',
+            border: copied ? '1px solid rgba(150, 220, 127, 0.5)' : '1px solid rgba(112, 123, 137, 0.3)',
+            borderRadius: '4px',
+            padding: '16px',
+            fontSize: '13px',
+            color: '#e6eeed',
+            fontFamily: "'JetBrains Mono', monospace",
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            whiteSpace: 'pre',
+            lineHeight: 1.6,
+          }}
+          onMouseEnter={(e) => {
+            if (!copied) {
+              e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.6)';
+              e.currentTarget.style.background = 'rgba(42, 21, 45, 0.9)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!copied) {
+              e.currentTarget.style.borderColor = 'rgba(112, 123, 137, 0.3)';
+              e.currentTarget.style.background = 'rgba(42, 21, 45, 0.8)';
+            }
+          }}
+        >
+          {commands}
+          <div
+            style={{
+              position: 'absolute',
+              top: '8px',
+              right: '12px',
+              fontSize: '11px',
+              color: copied ? '#96dc7f' : '#707b89',
+              fontWeight: 500,
+              letterSpacing: '0.05em',
+              transition: 'color 0.2s',
+            }}
+          >
+            {copied ? '✓ COPIED' : 'CLICK TO COPY'}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
