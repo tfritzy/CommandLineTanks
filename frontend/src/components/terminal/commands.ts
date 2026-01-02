@@ -186,7 +186,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  create               Create a new game world with optional flags",
       "  join                 Join or create a game world (default: random)",
       "  exit, e              Return to your homeworld",
-      "  lobbies, l           List all available public games",
       "  clear, c             Clear the terminal output",
       "  help, h              Display help information",
     ];
@@ -460,21 +459,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  exit",
         "  e"
-      ];
-
-    case "lobbies":
-    case "l":
-      return [
-        "lobbies, l - List all available public games",
-        "",
-        "Usage: lobbies",
-        "",
-        "Shows all public games currently available to join.",
-        "Displays game name, join code, player count, bot count, and duration.",
-        "",
-        "Examples:",
-        "  lobbies",
-        "  l",
       ];
 
     case "help":
@@ -1367,88 +1351,6 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
   connection.reducers.changeName({ newName });
 
   return [`Name changed to: ${newName}`];
-}
-
-export function lobbies(connection: DbConnection, args: string[]): string[] {
-  if (args.length > 0) {
-    return [
-      "lobbies: error: lobbies command takes no arguments",
-      "",
-      "Usage: lobbies",
-      "       l",
-    ];
-  }
-
-  const publicWorlds = Array.from(connection.db.world.iter()).filter(
-    (w) =>
-      !w.isHomeWorld &&
-      (w.visibility.tag === "Public" || w.visibility.tag === "CustomPublic") &&
-      w.gameState.tag === "Playing"
-  );
-
-  if (publicWorlds.length === 0) {
-    return [
-      "No public games currently available.",
-      "",
-      "Use 'create' to start a new game or 'join' to find/create one.",
-    ];
-  }
-
-  const result: string[] = ["Available Public Games:", ""];
-
-  function pad(str: string, length: number): string {
-    while (str.length < length) {
-      str += " ";
-    }
-    return str;
-  }
-
-  function repeat(str: string, count: number): string {
-    let result = "";
-    for (let i = 0; i < count; i++) {
-      result += str;
-    }
-    return result;
-  }
-
-  const codeWidth = 6;
-  const nameWidth = 25;
-  const playersWidth = 10;
-  const botsWidth = 6;
-  const durationWidth = 10;
-
-  const headerRow = `${pad("Code", codeWidth)} ${pad("Name", nameWidth)} ${pad("Players", playersWidth)} ${pad("Bots", botsWidth)} ${pad("Duration", durationWidth)}`;
-  const separatorRow = `${repeat("-", codeWidth)} ${repeat("-", nameWidth)} ${repeat("-", playersWidth)} ${repeat("-", botsWidth)} ${repeat("-", durationWidth)}`;
-
-  result.push(headerRow);
-  result.push(separatorRow);
-
-  for (const world of publicWorlds) {
-    const code = pad(world.id, codeWidth);
-    const name =
-      world.name.length > nameWidth
-        ? world.name.substring(0, nameWidth - 3) + "..."
-        : pad(world.name, nameWidth);
-    const players = pad(
-      `${world.currentPlayerCount}/${world.maxPlayers}`,
-      playersWidth
-    );
-    const bots = pad(String(world.botCount), botsWidth);
-
-    const durationMinutes = Math.floor(
-      Number(world.gameDurationMicros) / 60_000_000
-    );
-    const durationText =
-      durationMinutes === 1 ? "1 min" : `${durationMinutes} mins`;
-    const duration = pad(durationText, durationWidth);
-
-    result.push(`${code} ${name} ${players} ${bots} ${duration}`);
-  }
-
-  result.push("");
-  result.push("Use 'join <code>' to join a game.");
-
-  return result;
 }
 
 export function exitWorld(connection: DbConnection, worldId: string, args: string[]): string[] {
