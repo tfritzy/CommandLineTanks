@@ -32,7 +32,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       cursorStyle: "bar",
       fontSize: 12,
       fontFamily: "'JetBrains Mono', monospace",
-      lineHeight: 1.5,
+      lineHeight: 1.1,
       theme: {
         background: "#2a152d",
         foreground: "#e6eeed",
@@ -177,6 +177,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           for (const line of commandOutput) {
             term.write(line + "\r\n");
           }
+          term.write("\r\n");
         }
         
         currentInputRef.current = "";

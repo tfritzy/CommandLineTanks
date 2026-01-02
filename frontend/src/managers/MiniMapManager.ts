@@ -239,6 +239,25 @@ export class MiniMapManager {
     const pixelWidth = miniMapWidth / worldWidth;
     const pixelHeight = miniMapHeight / worldHeight;
 
+    // Fill background
+    ctx.fillStyle = TERRAIN_COLORS.GROUND;
+    ctx.fillRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
+
+    // Draw Farms
+    ctx.fillStyle = TERRAIN_COLORS.FARM_GROOVE;
+    for (let i = 0; i < this.baseTerrainLayer.length; i++) {
+      if (this.baseTerrainLayer[i].tag === "Farm") {
+        const tileX = i % worldWidth;
+        const tileY = Math.floor(i / worldWidth);
+        ctx.fillRect(
+          miniMapX + tileX * pixelWidth,
+          miniMapY + tileY * pixelHeight,
+          Math.ceil(pixelWidth),
+          Math.ceil(pixelHeight)
+        );
+      }
+    }
+
     const detailColorMap: Record<string, string> = {
       Tree: TERRAIN_DETAIL_COLORS.TREE.BASE,
       Rock: TERRAIN_DETAIL_COLORS.ROCK.BODY,
@@ -252,24 +271,14 @@ export class MiniMapManager {
       None: TERRAIN_COLORS.GROUND
     };
 
-    for (let tileY = 0; tileY < worldHeight; tileY++) {
-      for (let tileX = 0; tileX < worldWidth; tileX++) {
-        let color = TERRAIN_COLORS.GROUND;
-
-        const key = this.getPositionKey(tileX, tileY);
-        const detail = this.terrainDetailsByPosition.get(key);
-        if (detail) {
-          const detailType = detail.type.tag;
-          const detailColor = detailColorMap[detailType];
-          if (detailColor) {
-            color = detailColor;
-          }
-        }
-
+    for (const detail of this.terrainDetailsByPosition.values()) {
+      const detailType = detail.type.tag;
+      const color = detailColorMap[detailType];
+      if (color && color !== TERRAIN_COLORS.GROUND) {
         ctx.fillStyle = color;
         ctx.fillRect(
-          miniMapX + tileX * pixelWidth,
-          miniMapY + tileY * pixelHeight,
+          miniMapX + detail.positionX * pixelWidth,
+          miniMapY + detail.positionY * pixelHeight,
           Math.ceil(pixelWidth),
           Math.ceil(pixelHeight)
         );
