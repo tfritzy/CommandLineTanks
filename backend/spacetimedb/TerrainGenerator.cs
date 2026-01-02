@@ -324,11 +324,6 @@ public static partial class TerrainGenerator
 
             foreach (int index in currentDirty)
             {
-                if (!treePositions.Contains(index))
-                {
-                    continue;
-                }
-
                 int x = index % width;
                 int y = index / width;
                 bool hasNeighbor = false;
@@ -364,9 +359,7 @@ public static partial class TerrainGenerator
                 break;
             }
 
-            var treesWithNeighborsList = new List<int>(treesWithNeighbors);
-            int randomIndex = random.Next(treesWithNeighborsList.Count);
-            int treeToRemove = treesWithNeighborsList[randomIndex];
+            int treeToRemove = treesWithNeighbors.ElementAt(random.Next(treesWithNeighbors.Count));
             
             terrainDetail[treeToRemove] = TerrainDetailType.None;
             treePositions.Remove(treeToRemove);
