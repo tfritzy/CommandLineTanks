@@ -4,15 +4,11 @@ export class Mushroom {
   private x: number;
   private y: number;
   private size: number;
-  private rotation: number;
-  private seed: number;
 
-  constructor(x: number, y: number, size: number, rotation: number) {
+  constructor(x: number, y: number, size: number) {
     this.x = x;
     this.y = y;
     this.size = size;
-    this.rotation = rotation;
-    this.seed = x * 7.77 + y * 3.33;
   }
 
   public getX(): number {
@@ -25,14 +21,6 @@ export class Mushroom {
 
   public getSize(): number {
     return this.size;
-  }
-
-  public getRotation(): number {
-    return this.rotation;
-  }
-
-  public getSeed(): number {
-    return this.seed;
   }
 
   public getWorldX(): number {

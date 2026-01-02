@@ -31,7 +31,6 @@ export class TerrainDetailManager {
   private mushroomDecorations: MushroomDecorationsManager =
     new MushroomDecorationsManager();
   private onDetailDeletedCallbacks: (() => void)[] = [];
-  private mushroomsGenerated: boolean = false;
   private handleDetailInsert:
     | ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void)
     | null = null;
@@ -129,22 +128,6 @@ export class TerrainDetailManager {
         this.createDetailObject(detail);
       }
     }
-
-    this.generateMushrooms();
-  }
-
-  private generateMushrooms() {
-    if (this.mushroomsGenerated) return;
-    
-    const trees: TerrainDetailObject[] = [];
-    for (const obj of this.detailObjects.values()) {
-      if (obj.getType() === "Tree") {
-        trees.push(obj);
-      }
-    }
-    
-    this.mushroomDecorations.generateMushroomsAroundTrees(trees);
-    this.mushroomsGenerated = true;
   }
 
   public destroy() {
@@ -186,6 +169,7 @@ export class TerrainDetailManager {
         break;
       case "Tree":
         obj = new Tree(x, y, label, health, rotation);
+        this.mushroomDecorations.generateMushroomsAroundTree(x, y);
         break;
       case "HayBale":
         obj = new HayBale(x, y, label, health, rotation);

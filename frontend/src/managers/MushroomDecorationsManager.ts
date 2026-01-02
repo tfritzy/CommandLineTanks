@@ -1,54 +1,44 @@
 import { Mushroom } from "../objects/decorations/Mushroom";
-import { drawMushroom } from "../drawing/decorations/mushroom";
+import { drawMushrooms } from "../drawing/decorations/mushroom";
 import { UNIT_TO_PIXEL } from "../constants";
-import { TerrainDetailObject } from "../objects/terrain-details/TerrainDetailObject";
 
-const MUSHROOM_SPAWN_CHANCE = 0.6;
+const MUSHROOM_SPAWN_CHANCE = 0.2;
 const MIN_MUSHROOMS_PER_TREE = 1;
-const MAX_MUSHROOMS_PER_TREE = 4;
+const MAX_MUSHROOMS_PER_TREE = 2;
 const MIN_DISTANCE_FROM_TREE = 0.5;
-const MAX_DISTANCE_FROM_TREE = 2.0;
-const MIN_MUSHROOM_SIZE = 0.1;
-const MAX_MUSHROOM_SIZE = 0.25;
+const MAX_DISTANCE_FROM_TREE = 1.5;
+const MIN_MUSHROOM_SIZE = 0.08;
+const MAX_MUSHROOM_SIZE = 0.15;
 
 export class MushroomDecorationsManager {
   private mushrooms: Mushroom[] = [];
 
-  public generateMushroomsAroundTrees(trees: TerrainDetailObject[]): void {
-    this.mushrooms = [];
+  public generateMushroomsAroundTree(treeX: number, treeY: number): void {
+    const seed = treeX * 13.37 + treeY * 42.42;
+    const pseudoRandom1 = Math.abs(Math.sin(seed * 12345.6789) * 10000) % 1;
+    
+    if (pseudoRandom1 > MUSHROOM_SPAWN_CHANCE) {
+      return;
+    }
 
-    for (const tree of trees) {
-      const treeX = tree.getX();
-      const treeY = tree.getY();
+    const pseudoRandom2 = Math.abs(Math.sin(seed * 98765.4321) * 10000) % 1;
+    const mushroomCount = MIN_MUSHROOMS_PER_TREE + Math.floor(pseudoRandom2 * MAX_MUSHROOMS_PER_TREE);
 
-      const seed = treeX * 13.37 + treeY * 42.42;
-      const pseudoRandom1 = Math.abs(Math.sin(seed * 12345.6789) * 10000) % 1;
+    for (let i = 0; i < mushroomCount; i++) {
+      const angleSeed = seed + i * 7.77;
+      const distSeed = seed + i * 3.33;
+      const sizeSeed = seed + i * 9.99;
       
-      if (pseudoRandom1 > MUSHROOM_SPAWN_CHANCE) {
-        continue;
-      }
+      const angle = (Math.abs(Math.sin(angleSeed * 11111.1111) * 10000) % 1) * Math.PI * 2;
+      const distance = MIN_DISTANCE_FROM_TREE + (Math.abs(Math.sin(distSeed * 22222.2222) * 10000) % 1) * (MAX_DISTANCE_FROM_TREE - MIN_DISTANCE_FROM_TREE);
+      
+      const x = treeX + Math.cos(angle) * distance;
+      const y = treeY + Math.sin(angle) * distance;
 
-      const pseudoRandom2 = Math.abs(Math.sin(seed * 98765.4321) * 10000) % 1;
-      const mushroomCount = MIN_MUSHROOMS_PER_TREE + Math.floor(pseudoRandom2 * MAX_MUSHROOMS_PER_TREE);
+      const size = MIN_MUSHROOM_SIZE + (Math.abs(Math.sin(sizeSeed * 33333.3333) * 10000) % 1) * (MAX_MUSHROOM_SIZE - MIN_MUSHROOM_SIZE);
 
-      for (let i = 0; i < mushroomCount; i++) {
-        const angleSeed = seed + i * 7.77;
-        const distSeed = seed + i * 3.33;
-        const sizeSeed = seed + i * 9.99;
-        const rotSeed = seed + i * 5.55;
-        
-        const angle = (Math.abs(Math.sin(angleSeed * 11111.1111) * 10000) % 1) * Math.PI * 2;
-        const distance = MIN_DISTANCE_FROM_TREE + (Math.abs(Math.sin(distSeed * 22222.2222) * 10000) % 1) * (MAX_DISTANCE_FROM_TREE - MIN_DISTANCE_FROM_TREE);
-        
-        const x = treeX + Math.cos(angle) * distance;
-        const y = treeY + Math.sin(angle) * distance;
-
-        const size = MIN_MUSHROOM_SIZE + (Math.abs(Math.sin(sizeSeed * 33333.3333) * 10000) % 1) * (MAX_MUSHROOM_SIZE - MIN_MUSHROOM_SIZE);
-        const rotation = (Math.abs(Math.sin(rotSeed * 44444.4444) * 10000) % 1) * Math.PI * 2;
-
-        const mushroom = new Mushroom(x, y, size, rotation);
-        this.mushrooms.push(mushroom);
-      }
+      const mushroom = new Mushroom(x, y, size);
+      this.mushrooms.push(mushroom);
     }
   }
 
@@ -65,19 +55,21 @@ export class MushroomDecorationsManager {
     const startY = cameraY / UNIT_TO_PIXEL - padding;
     const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
+    const visibleMushrooms: Array<{ x: number; y: number; size: number }> = [];
+
     for (const mushroom of this.mushrooms) {
       const x = mushroom.getX();
       const y = mushroom.getY();
 
       if (x >= startX && x <= endX && y >= startY && y <= endY) {
-        const worldX = mushroom.getWorldX();
-        const worldY = mushroom.getWorldY();
-        const size = mushroom.getSize() * UNIT_TO_PIXEL;
-        const rotation = mushroom.getRotation();
-        const seed = mushroom.getSeed();
-
-        drawMushroom(ctx, worldX, worldY, size, rotation, seed);
+        visibleMushrooms.push({
+          x: mushroom.getWorldX(),
+          y: mushroom.getWorldY(),
+          size: mushroom.getSize() * UNIT_TO_PIXEL,
+        });
       }
     }
+
+    drawMushrooms(ctx, visibleMushrooms);
   }
 }
