@@ -4,8 +4,13 @@ interface JoinWorldModalProps {
   worldId: string;
 }
 
+const generateDefaultName = () => {
+  const randomNumbers = Math.floor(1000 + Math.random() * 9000);
+  return `guest${randomNumbers}`;
+};
+
 export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
-  const [playerName, setPlayerName] = useState('');
+  const [playerName, setPlayerName] = useState(() => generateDefaultName());
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -14,8 +19,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
   }, [playerName]);
 
   const commands = useMemo(() => {
-    const nameToUse = sanitizedName || 'YourName';
-    return `name set ${nameToUse}\njoin ${worldId}`;
+    return `name set ${sanitizedName}\njoin ${worldId}`;
   }, [sanitizedName, worldId]);
 
   useEffect(() => {
@@ -64,11 +68,14 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
     >
       <div
         style={{
-          fontSize: '32px',
-          fontWeight: 700,
+          fontSize: '48px',
+          fontWeight: 900,
           color: '#7396d5',
-          letterSpacing: '0.05em',
-          marginBottom: '16px',
+          letterSpacing: '0.15em',
+          textTransform: 'uppercase',
+          marginBottom: '24px',
+          textShadow: '0 2px 12px rgba(115, 150, 213, 0.5)',
+          lineHeight: 1,
           textAlign: 'center',
         }}
       >
