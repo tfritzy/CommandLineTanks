@@ -220,6 +220,40 @@ export class TerrainDetailManager {
     ctx.imageSmoothingEnabled = false;
 
     for (const obj of this.detailObjects.values()) {
+      if (obj instanceof Tree) continue;
+
+      const objX = obj.getX();
+      const objY = obj.getY();
+
+      if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
+        const texture = terrainDetailTextureSheet.getShadowTexture(
+          this.getTextureKey(obj)
+        );
+
+        if (!texture) {
+        } else {
+          const scale = obj.getSizeScale();
+          const scaledSize = renderSize * scale;
+          const offset = -UNIT_TO_PIXEL * scale;
+
+          ctx.drawImage(
+            shadowCanvas,
+            texture.x * dpr,
+            texture.y * dpr,
+            texture.width * dpr,
+            texture.height * dpr,
+            objX * UNIT_TO_PIXEL + offset,
+            objY * UNIT_TO_PIXEL + offset,
+            scaledSize,
+            scaledSize
+          );
+        }
+      }
+    }
+
+    for (const obj of this.detailObjects.values()) {
+      if (!(obj instanceof Tree)) continue;
+
       const objX = obj.getX();
       const objY = obj.getY();
 
@@ -270,6 +304,60 @@ export class TerrainDetailManager {
     ctx.imageSmoothingEnabled = false;
 
     for (const obj of this.detailObjects.values()) {
+      if (obj instanceof Tree) continue;
+
+      const objX = obj.getX();
+      const objY = obj.getY();
+
+      if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
+        const texture = terrainDetailTextureSheet.getTexture(
+          this.getTextureKey(obj)
+        );
+
+        if (texture) {
+          const scale = obj.getSizeScale();
+          const scaledSize = renderSize * scale;
+          const offset = -UNIT_TO_PIXEL * scale;
+
+          ctx.drawImage(
+            bodyCanvas,
+            texture.x * dpr,
+            texture.y * dpr,
+            texture.width * dpr,
+            texture.height * dpr,
+            objX * UNIT_TO_PIXEL + offset,
+            objY * UNIT_TO_PIXEL + offset,
+            scaledSize,
+            scaledSize
+          );
+
+          if (obj.getFlashTimer() > 0) {
+            const flashAlpha = obj.getFlashTimer() / 0.1;
+            ctx.save();
+            ctx.globalCompositeOperation = "lighter";
+            ctx.globalAlpha = flashAlpha;
+            ctx.drawImage(
+              bodyCanvas,
+              texture.x * dpr,
+              texture.y * dpr,
+              texture.width * dpr,
+              texture.height * dpr,
+              objX * UNIT_TO_PIXEL + offset,
+              objY * UNIT_TO_PIXEL + offset,
+              scaledSize,
+              scaledSize
+            );
+            ctx.restore();
+          }
+        }
+
+        obj.drawLabel(ctx);
+      }
+    }
+
+    for (const obj of this.detailObjects.values()) {
+      if (!(obj instanceof Tree)) continue;
+
       const objX = obj.getX();
       const objY = obj.getY();
 
