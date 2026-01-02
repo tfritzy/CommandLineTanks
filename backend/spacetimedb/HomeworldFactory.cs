@@ -122,36 +122,6 @@ public static partial class Module
             Kills = new int[] { 0, 0 }
         });
 
-        var welcomeSignId = GenerateId(ctx, "td");
-        ctx.Db.terrain_detail.Insert(new TerrainDetail
-        {
-            Id = welcomeSignId,
-            WorldId = identityString,
-            PositionX = worldWidth / 2.0f + 0.5f,
-            PositionY = 5.5f,
-            GridX = worldWidth / 2,
-            GridY = 5,
-            Type = TerrainDetailType.Label,
-            Health = 100,
-            Label = "Welcome to Command Line Tanks",
-            Rotation = 0
-        });
-
-        var instructionSignId = GenerateId(ctx, "td");
-        ctx.Db.terrain_detail.Insert(new TerrainDetail
-        {
-            Id = instructionSignId,
-            WorldId = identityString,
-            PositionX = worldWidth / 2.0f + 0.5f,
-            PositionY = 6.5f,
-            GridX = worldWidth / 2,
-            GridY = 6,
-            Type = TerrainDetailType.Label,
-            Health = 100,
-            Label = "When you're ready to find a game, call the [color=#fceba8]`findgame`[/color] command",
-            Rotation = 0
-        });
-
         CreateTargetingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
         CreateAimingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
         CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight);

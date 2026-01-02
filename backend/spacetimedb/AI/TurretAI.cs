@@ -8,40 +8,34 @@ public static partial class TurretAI
 {
     private const int TILE_SIZE = 6;
     private const float AIM_TOLERANCE = 0.05f;
-    private const int TARGET_SWITCH_TICK_INTERVAL = 5;
 
     public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext, int tickCount)
     {
-        bool isEvenTick = tickCount % 2 == 0;
-        bool shouldSwitch = tickCount > 0 && (tickCount % TARGET_SWITCH_TICK_INTERVAL) == 0;
-
-        if (isEvenTick)
+        bool targetJustSelected = false;
+        if (tank.Target == null)
         {
-            if (shouldSwitch || tank.Target == null)
-            {
-                tank = SelectNewTarget(ctx, tank, aiContext);
-            }
-            else if (tank.Target != null)
-            {
-                var targetTank = ctx.Db.tank.Id.Find(tank.Target);
-                if (targetTank == null || targetTank.Value.Health <= 0 || !IsInSameTile(tank, targetTank.Value))
-                {
-                    tank = SelectNewTarget(ctx, tank, aiContext);
-                }
-            }
+            tank = SelectNewTarget(ctx, tank, aiContext);
+            if (tank.Target != null) targetJustSelected = true;
         }
         else
         {
-            if (tank.Target != null)
+            var targetTank = ctx.Db.tank.Id.Find(tank.Target);
+            if (targetTank == null || targetTank.Value.Health <= 0)
             {
-                float angleDiff = Math.Abs(GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation));
-                if (angleDiff < AIM_TOLERANCE)
+                tank = SelectNewTarget(ctx, tank, aiContext);
+                if (tank.Target != null) targetJustSelected = true;
+            }
+        }
+
+        if (tank.Target != null && !targetJustSelected)
+        {
+            float angleDiff = Math.Abs(GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation));
+            if (angleDiff < AIM_TOLERANCE)
+            {
+                tank = FireTankWeapon(ctx, tank) with
                 {
-                    tank = FireTankWeapon(ctx, tank) with
-                    {
-                        Message = "fire"
-                    };
-                }
+                    Message = "fire"
+                };
             }
         }
 
@@ -55,7 +49,7 @@ public static partial class TurretAI
 
         var allTanks = aiContext.GetAllTanks();
         var tanksInTile = allTanks
-            .Where(t => t.Id != tank.Id && t.Health > 0 && t.IsBot)
+            .Where(t => t.Id != tank.Id && t.Health > 0 && t.Alliance != tank.Alliance)
             .Where(t => {
                 int tankTileX = (int)t.PositionX / TILE_SIZE;
                 int tankTileY = (int)t.PositionY / TILE_SIZE;

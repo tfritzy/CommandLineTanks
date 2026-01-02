@@ -25,7 +25,7 @@ public static partial class TerrainGenerator
     {
         width = Math.Clamp(width, 1, MAX_WORLD_WIDTH);
         height = Math.Clamp(height, 1, MAX_WORLD_HEIGHT);
-        
+
         InitPerlin(random);
         var baseTerrain = new BaseTerrain[width * height];
         var terrainDetails = new List<(int x, int y, TerrainDetailType type, int rotation)>();
@@ -261,14 +261,9 @@ public static partial class TerrainGenerator
     {
         float groveNoiseScale = 0.05f;
         float groveThreshold = 0.1f;
-        
-        float treeNoiseScale = 0.25f;
-        float treeThreshold = 0.4f;
-        
+
         float groveOffsetX = (float)(random.NextDouble() * 1000f);
         float groveOffsetY = (float)(random.NextDouble() * 1000f);
-        float treeOffsetX = (float)(random.NextDouble() * 1000f);
-        float treeOffsetY = (float)(random.NextDouble() * 1000f);
 
         for (int y = 0; y < height; y++)
         {
@@ -294,19 +289,16 @@ public static partial class TerrainGenerator
                 if (nearField) continue;
 
                 float groveNoise = Noise((x + groveOffsetX) * groveNoiseScale, (y + groveOffsetY) * groveNoiseScale);
-                
+
                 if (groveNoise > groveThreshold)
                 {
-                    float treeNoise = Noise((x + treeOffsetX) * treeNoiseScale, (y + treeOffsetY) * treeNoiseScale);
-                    
-                    if (treeNoise > treeThreshold)
-                    {
-                        terrainDetail[index] = TerrainDetailType.Tree;
-                        rotationArray[index] = 0;
-                    }
+                    terrainDetail[index] = TerrainDetailType.Tree;
+                    rotationArray[index] = 0;
                 }
             }
         }
+
+        RemoveNeighboringTrees(terrainDetail, random, width, height);
     }
 
     public static int GetWorldWidth()
@@ -357,7 +349,7 @@ public static partial class TerrainGenerator
                         }
 
                         int index = y * width + x;
-                        
+
                         if (baseTerrain[index] != BaseTerrain.Ground)
                         {
                             validLocation = false;
@@ -576,9 +568,9 @@ public static partial class TerrainGenerator
     private static void EnsureSpawnZonesConnected(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, Random random, int width, int height)
     {
         const int SPAWN_ZONE_WIDTH = 5;
-        
+
         EnsureZoneConnected(baseTerrain, terrainDetail, 0, SPAWN_ZONE_WIDTH, 0, height, random, width, height);
-        
+
         EnsureZoneConnected(baseTerrain, terrainDetail, width - SPAWN_ZONE_WIDTH, width, 0, height, random, width, height);
     }
 
@@ -588,8 +580,8 @@ public static partial class TerrainGenerator
         for (int i = 0; i < traversible.Length; i++)
         {
             bool baseTraversible = baseTerrain[i] == BaseTerrain.Ground || baseTerrain[i] == BaseTerrain.Farm;
-            bool detailTraversible = terrainDetail[i] == TerrainDetailType.None || 
-                                     terrainDetail[i] == TerrainDetailType.FenceEdge || 
+            bool detailTraversible = terrainDetail[i] == TerrainDetailType.None ||
+                                     terrainDetail[i] == TerrainDetailType.FenceEdge ||
                                      terrainDetail[i] == TerrainDetailType.FenceCorner ||
                                      terrainDetail[i] == TerrainDetailType.DeadTree;
             traversible[i] = baseTraversible && detailTraversible;
@@ -621,15 +613,15 @@ public static partial class TerrainGenerator
         while (queue.Count > 0)
         {
             var (x, y) = queue.Dequeue();
-            
+
             int[] dx = { -1, 1, 0, 0 };
             int[] dy = { 0, 0, -1, 1 };
-            
+
             for (int i = 0; i < 4; i++)
             {
                 int nx = x + dx[i];
                 int ny = y + dy[i];
-                
+
                 if (nx >= minX && nx < maxX && ny >= minY && ny < maxY)
                 {
                     int nindex = ny * width + nx;
@@ -652,6 +644,63 @@ public static partial class TerrainGenerator
                     if (terrainDetail[index] != TerrainDetailType.None)
                     {
                         terrainDetail[index] = TerrainDetailType.None;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void RemoveNeighboringTrees(TerrainDetailType[] terrainDetail, Random random, int width, int height)
+    {
+        int[] dx = { -1, 1, 0, 0, -1, -1, 1, 1 };
+        int[] dy = { 0, 0, -1, 1, -1, 1, -1, 1 };
+
+        bool HasTreeNeighbor(int index)
+        {
+            int x = index % width;
+            int y = index / width;
+            for (int i = 0; i < 8; i++)
+            {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                {
+                    if (terrainDetail[ny * width + nx] == TerrainDetailType.Tree)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        var treesWithNeighbors = new HashSet<int>();
+
+        for (int i = 0; i < terrainDetail.Length; i++)
+        {
+            if (terrainDetail[i] == TerrainDetailType.Tree && HasTreeNeighbor(i))
+            {
+                treesWithNeighbors.Add(i);
+            }
+        }
+
+        while (treesWithNeighbors.Count > 0)
+        {
+            int treeToRemove = treesWithNeighbors.ElementAt(random.Next(treesWithNeighbors.Count));
+            int rx = treeToRemove % width;
+            int ry = treeToRemove / width;
+
+            terrainDetail[treeToRemove] = TerrainDetailType.None;
+            treesWithNeighbors.Remove(treeToRemove);
+
+            for (int i = 0; i < 8; i++)
+            {
+                int nx = rx + dx[i];
+                int ny = ry + dy[i];
+                if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                {
+                    int neighborIndex = ny * width + nx;
+                    if (terrainDetail[neighborIndex] == TerrainDetailType.Tree && !HasTreeNeighbor(neighborIndex))
+                    {
+                        treesWithNeighbors.Remove(neighborIndex);
                     }
                 }
             }

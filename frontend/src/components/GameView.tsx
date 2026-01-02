@@ -7,6 +7,7 @@ import GameHeader from "./GameHeader";
 import ScoreBoard from "./ScoreBoard";
 import JoinWorldModal from "./JoinWorldModal";
 import WorldNotFound from "./WorldNotFound";
+import HomeworldOverlay from "./HomeworldOverlay";
 import { getConnection } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
 import { type Infer } from "spacetimedb";
@@ -25,6 +26,9 @@ export default function GameView() {
   const [isDead, setIsDead] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
+
+  const connection = getConnection();
+  const isHomeworld = connection?.identity && worldId === connection.identity.toHexString();
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -209,6 +213,7 @@ export default function GameView() {
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
         <GameHeader worldId={worldId} />
         <ScoreBoard worldId={worldId} />
+        {isHomeworld && <HomeworldOverlay />}
         <canvas
           ref={canvasRef}
           style={{

@@ -134,16 +134,16 @@ export function drawTankNameLabel(
     ctx.font = "bold 16px monospace";
     ctx.fillStyle = "#fceba8";
     ctx.textAlign = "center";
-    ctx.fillText(targetCode, 0, -38);
+    ctx.fillText(targetCode, 0, -34);
     
     ctx.font = "12px monospace";
     ctx.fillStyle = "#a9bcbf";
-    ctx.fillText(name, 0, -24);
+    ctx.fillText(name, 0, -20);
   } else {
     ctx.font = "12px monospace";
     ctx.fillStyle = "#a9bcbf";
     ctx.textAlign = "center";
-    ctx.fillText(name, 0, -31);
+    ctx.fillText(name, 0, -27);
   }
   
   ctx.restore();
@@ -160,7 +160,7 @@ export function drawTankTextLabel(
   ctx.font = "14px monospace";
   ctx.fillStyle = "#f5c47c";
   ctx.textAlign = "center";
-  ctx.fillText(text, 0, -30);
+  ctx.fillText(text, 0, -26);
   ctx.restore();
 }
 

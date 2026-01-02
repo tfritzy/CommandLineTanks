@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class EnemyTankRespawner
 {
-    private const long ENEMY_TANK_RESPAWN_CHECK_INTERVAL_MICROS = 10_000_000;
+    private const long ENEMY_TANK_RESPAWN_CHECK_INTERVAL_MICROS = 5_000_000;
 
     [Table(Scheduled = nameof(CheckAndRespawnEnemyTanks))]
     public partial struct ScheduledEnemyTankRespawnCheck
