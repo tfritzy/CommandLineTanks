@@ -1,23 +1,46 @@
-import { useState } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 
 interface JoinWorldModalProps {
   worldId: string;
-  onJoin: () => void;
 }
 
 export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
   const [playerName, setPlayerName] = useState('');
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const commands = `name set ${playerName || '<your_name>'}\njoin ${worldId}`;
+  const sanitizedName = useMemo(() => {
+    return playerName.replace(/[^\w\s-]/g, '').trim();
+  }, [playerName]);
+
+  const commands = useMemo(() => {
+    const nameToUse = sanitizedName || 'YourName';
+    return `name set ${nameToUse}\njoin ${worldId}`;
+  }, [sanitizedName, worldId]);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCopyCommands = async () => {
+    if (copyTimeoutRef.current !== null) {
+      clearTimeout(copyTimeoutRef.current);
+    }
+
     try {
       await navigator.clipboard.writeText(commands);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopied(false);
+        copyTimeoutRef.current = null;
+      }, 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+      setCopied(false);
     }
   };
 

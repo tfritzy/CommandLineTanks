@@ -228,7 +228,6 @@ export default function GameView() {
         {showJoinModal && (
           <JoinWorldModal
             worldId={worldId}
-            onJoin={() => setShowJoinModal(false)}
           />
         )}
         {!showJoinModal && isDead && (
