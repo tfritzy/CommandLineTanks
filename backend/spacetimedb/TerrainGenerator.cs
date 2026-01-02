@@ -314,14 +314,21 @@ public static partial class TerrainGenerator
 
         int[] dx = { -1, 1, 0, 0 };
         int[] dy = { 0, 0, -1, 1 };
-        var treesWithNeighbors = new List<int>();
+        var treesWithNeighbors = new HashSet<int>();
+        var dirtyTrees = new HashSet<int>(treePositions);
 
-        while (true)
+        while (dirtyTrees.Count > 0)
         {
-            treesWithNeighbors.Clear();
+            var currentDirty = new HashSet<int>(dirtyTrees);
+            dirtyTrees.Clear();
 
-            foreach (int index in treePositions)
+            foreach (int index in currentDirty)
             {
+                if (!treePositions.Contains(index))
+                {
+                    continue;
+                }
+
                 int x = index % width;
                 int y = index / width;
                 bool hasNeighbor = false;
@@ -346,6 +353,10 @@ public static partial class TerrainGenerator
                 {
                     treesWithNeighbors.Add(index);
                 }
+                else
+                {
+                    treesWithNeighbors.Remove(index);
+                }
             }
 
             if (treesWithNeighbors.Count == 0)
@@ -353,10 +364,30 @@ public static partial class TerrainGenerator
                 break;
             }
 
-            int randomIndex = random.Next(treesWithNeighbors.Count);
-            int treeToRemove = treesWithNeighbors[randomIndex];
+            var treesWithNeighborsList = new List<int>(treesWithNeighbors);
+            int randomIndex = random.Next(treesWithNeighborsList.Count);
+            int treeToRemove = treesWithNeighborsList[randomIndex];
+            
             terrainDetail[treeToRemove] = TerrainDetailType.None;
             treePositions.Remove(treeToRemove);
+            treesWithNeighbors.Remove(treeToRemove);
+
+            int rx = treeToRemove % width;
+            int ry = treeToRemove / width;
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = rx + dx[i];
+                int ny = ry + dy[i];
+
+                if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                {
+                    int nindex = ny * width + nx;
+                    if (terrainDetail[nindex] == TerrainDetailType.Tree)
+                    {
+                        dirtyTrees.Add(nindex);
+                    }
+                }
+            }
         }
     }
 
