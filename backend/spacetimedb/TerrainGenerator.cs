@@ -317,40 +317,43 @@ public static partial class TerrainGenerator
         var treesWithNeighbors = new HashSet<int>();
         var dirtyTrees = new HashSet<int>(treePositions);
 
-        while (dirtyTrees.Count > 0)
+        while (true)
         {
-            var currentDirty = new HashSet<int>(dirtyTrees);
-            dirtyTrees.Clear();
-
-            foreach (int index in currentDirty)
+            while (dirtyTrees.Count > 0)
             {
-                int x = index % width;
-                int y = index / width;
-                bool hasNeighbor = false;
+                var currentDirty = new HashSet<int>(dirtyTrees);
+                dirtyTrees.Clear();
 
-                for (int i = 0; i < 4; i++)
+                foreach (int index in currentDirty)
                 {
-                    int nx = x + dx[i];
-                    int ny = y + dy[i];
+                    int x = index % width;
+                    int y = index / width;
+                    bool hasNeighbor = false;
 
-                    if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                    for (int i = 0; i < 4; i++)
                     {
-                        int nindex = ny * width + nx;
-                        if (terrainDetail[nindex] == TerrainDetailType.Tree)
+                        int nx = x + dx[i];
+                        int ny = y + dy[i];
+
+                        if (nx >= 0 && nx < width && ny >= 0 && ny < height)
                         {
-                            hasNeighbor = true;
-                            break;
+                            int nindex = ny * width + nx;
+                            if (terrainDetail[nindex] == TerrainDetailType.Tree)
+                            {
+                                hasNeighbor = true;
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (hasNeighbor)
-                {
-                    treesWithNeighbors.Add(index);
-                }
-                else
-                {
-                    treesWithNeighbors.Remove(index);
+                    if (hasNeighbor)
+                    {
+                        treesWithNeighbors.Add(index);
+                    }
+                    else
+                    {
+                        treesWithNeighbors.Remove(index);
+                    }
                 }
             }
 
