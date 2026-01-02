@@ -3,6 +3,14 @@ import { drawMushroom } from "../drawing/decorations/mushroom";
 import { UNIT_TO_PIXEL } from "../constants";
 import { TerrainDetailObject } from "../objects/terrain-details/TerrainDetailObject";
 
+const MUSHROOM_SPAWN_CHANCE = 0.6;
+const MIN_MUSHROOMS_PER_TREE = 1;
+const MAX_MUSHROOMS_PER_TREE = 4;
+const MIN_DISTANCE_FROM_TREE = 0.5;
+const MAX_DISTANCE_FROM_TREE = 2.0;
+const MIN_MUSHROOM_SIZE = 0.1;
+const MAX_MUSHROOM_SIZE = 0.25;
+
 export class MushroomDecorationsManager {
   private mushrooms: Mushroom[] = [];
 
@@ -16,13 +24,12 @@ export class MushroomDecorationsManager {
       const seed = treeX * 13.37 + treeY * 42.42;
       const pseudoRandom1 = Math.abs(Math.sin(seed * 12345.6789) * 10000) % 1;
       
-      const spawnChance = 0.6;
-      if (pseudoRandom1 > spawnChance) {
+      if (pseudoRandom1 > MUSHROOM_SPAWN_CHANCE) {
         continue;
       }
 
       const pseudoRandom2 = Math.abs(Math.sin(seed * 98765.4321) * 10000) % 1;
-      const mushroomCount = 1 + Math.floor(pseudoRandom2 * 4);
+      const mushroomCount = MIN_MUSHROOMS_PER_TREE + Math.floor(pseudoRandom2 * MAX_MUSHROOMS_PER_TREE);
 
       for (let i = 0; i < mushroomCount; i++) {
         const angleSeed = seed + i * 7.77;
@@ -31,12 +38,12 @@ export class MushroomDecorationsManager {
         const rotSeed = seed + i * 5.55;
         
         const angle = (Math.abs(Math.sin(angleSeed * 11111.1111) * 10000) % 1) * Math.PI * 2;
-        const distance = 0.5 + (Math.abs(Math.sin(distSeed * 22222.2222) * 10000) % 1) * 1.5;
+        const distance = MIN_DISTANCE_FROM_TREE + (Math.abs(Math.sin(distSeed * 22222.2222) * 10000) % 1) * (MAX_DISTANCE_FROM_TREE - MIN_DISTANCE_FROM_TREE);
         
         const x = treeX + Math.cos(angle) * distance;
         const y = treeY + Math.sin(angle) * distance;
 
-        const size = 0.1 + (Math.abs(Math.sin(sizeSeed * 33333.3333) * 10000) % 1) * 0.15;
+        const size = MIN_MUSHROOM_SIZE + (Math.abs(Math.sin(sizeSeed * 33333.3333) * 10000) % 1) * (MAX_MUSHROOM_SIZE - MIN_MUSHROOM_SIZE);
         const rotation = (Math.abs(Math.sin(rotSeed * 44444.4444) * 10000) % 1) * Math.PI * 2;
 
         const mushroom = new Mushroom(x, y, size, rotation);
