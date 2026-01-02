@@ -3,7 +3,7 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, lobbies, create, changeName, exitWorld, findCommandSuggestion } from "./commands";
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create, changeName, exitWorld, findCommandSuggestion } from "./commands";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -120,9 +120,6 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         case 'exit':
         case 'e':
           return exitWorld(connection, worldId, commandArgs);
-        case 'lobbies':
-        case 'l':
-          return lobbies(connection, commandArgs);
         case 'name':
           return changeName(connection, commandArgs);
         case 'help':
