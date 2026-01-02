@@ -12,6 +12,7 @@ const MAX_MUSHROOM_SIZE = 0.15;
 
 export class MushroomDecorationsManager {
   private mushrooms: Mushroom[] = [];
+  private visibleMushroomsBuffer: Array<{ x: number; y: number; size: number }> = [];
 
   public generateMushroomsAroundTree(treeX: number, treeY: number): void {
     const seed = treeX * 13.37 + treeY * 42.42;
@@ -55,14 +56,14 @@ export class MushroomDecorationsManager {
     const startY = cameraY / UNIT_TO_PIXEL - padding;
     const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
-    const visibleMushrooms: Array<{ x: number; y: number; size: number }> = [];
+    this.visibleMushroomsBuffer.length = 0;
 
     for (const mushroom of this.mushrooms) {
       const x = mushroom.getX();
       const y = mushroom.getY();
 
       if (x >= startX && x <= endX && y >= startY && y <= endY) {
-        visibleMushrooms.push({
+        this.visibleMushroomsBuffer.push({
           x: mushroom.getWorldX(),
           y: mushroom.getWorldY(),
           size: mushroom.getSize() * UNIT_TO_PIXEL,
@@ -70,6 +71,6 @@ export class MushroomDecorationsManager {
       }
     }
 
-    drawMushrooms(ctx, visibleMushrooms);
+    drawMushrooms(ctx, this.visibleMushroomsBuffer);
   }
 }
