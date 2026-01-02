@@ -29,6 +29,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     const term = new Terminal({
       cursorBlink: true,
+      cursorStyle: "bar",
       fontSize: 12,
       fontFamily: "'JetBrains Mono', monospace",
       lineHeight: 1.5,
@@ -68,6 +69,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     fitAddonRef.current = fitAddon;
 
     term.write(PROMPT);
+    term.focus();
 
     const handleResize = () => {
       fitAddon.fit();
@@ -140,13 +142,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       if (code === KEY_ENTER) {
         const input = currentInputRef.current.trim();
         
-        for (let i = 0; i < currentInputRef.current.length; i++) {
-          term.write("\b \b");
-        }
-        
-        if (currentInputRef.current.length > 0) {
-          term.write("\r\n" + PROMPT + currentInputRef.current + "\r\n");
-        }
+        term.write("\r\n");
         
         if (input) {
           commandHistoryRef.current.push(input);
@@ -184,7 +180,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         }
         
         currentInputRef.current = "";
-        term.write("\r\n" + PROMPT);
+        term.write(PROMPT);
       } else if (code === KEY_BACKSPACE) {
         if (currentInputRef.current.length > 0) {
           currentInputRef.current = currentInputRef.current.slice(0, -1);
