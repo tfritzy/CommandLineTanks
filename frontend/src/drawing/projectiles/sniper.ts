@@ -1,4 +1,4 @@
-import { TERRAIN_COLORS } from "../../constants";
+import { PROJECTILE_COLORS } from "../../constants";
 
 export function drawSniperProjectileShadow(
   ctx: CanvasRenderingContext2D,
@@ -64,7 +64,7 @@ export function drawSniperProjectileBody(
   ctx.closePath();
   ctx.fill();
   
-  ctx.strokeStyle = TERRAIN_COLORS.GROUND;
+  ctx.strokeStyle = PROJECTILE_COLORS.OUTLINE_DARK;
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -86,7 +86,7 @@ export function drawSniperProjectileBody(
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = TERRAIN_COLORS.GROUND;
+  ctx.strokeStyle = PROJECTILE_COLORS.OUTLINE_DARK;
   ctx.lineWidth = 1;
   ctx.stroke();
 

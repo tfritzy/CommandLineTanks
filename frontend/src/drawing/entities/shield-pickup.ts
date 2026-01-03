@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL, UI_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL, UI_COLORS, PICKUP_COLORS } from "../../constants";
 import { TERMINAL_COLORS } from "../../components/terminal/colors";
 
 export function drawShieldPickupShadow(
@@ -46,7 +46,7 @@ export function drawShieldPickupBody(
   const shieldRight = shieldSize * 0.4;
 
   ctx.fillStyle = UI_COLORS.TEXT_BRIGHT;
-  ctx.strokeStyle = UI_COLORS.SHIELD_STROKE;
+  ctx.strokeStyle = PICKUP_COLORS.SHIELD_STROKE;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, shieldTop);

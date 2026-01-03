@@ -1,4 +1,4 @@
-import { TERRAIN_COLORS } from "../../constants";
+import { PROJECTILE_COLORS } from "../../constants";
 
 export function drawBoomerangShadow(
   ctx: CanvasRenderingContext2D,
@@ -44,7 +44,7 @@ export function drawBoomerangBody(
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.fillStyle = color;
-  ctx.strokeStyle = TERRAIN_COLORS.GROUND;
+  ctx.strokeStyle = PROJECTILE_COLORS.OUTLINE_DARK;
   ctx.lineWidth = 2;
   ctx.lineJoin = "round";
 

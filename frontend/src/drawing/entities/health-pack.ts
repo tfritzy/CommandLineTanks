@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL, UI_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL, UI_COLORS, PICKUP_COLORS } from "../../constants";
 import { TERMINAL_COLORS } from "../../components/terminal/colors";
 
 export function drawHealthPackShadow(
@@ -32,7 +32,7 @@ export function drawHealthPackBody(
   ctx.translate(worldX, worldY);
 
   ctx.fillStyle = TERMINAL_COLORS.SUCCESS;
-  ctx.strokeStyle = UI_COLORS.HEALTH_PACK_SECONDARY;
+  ctx.strokeStyle = PICKUP_COLORS.HEALTH_PACK_SECONDARY;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);

@@ -1,4 +1,4 @@
-import { TERRAIN_DETAIL_COLORS } from "../../constants";
+import { EFFECT_COLORS } from "../../constants";
 
 export function drawRocketShadow(
   ctx: CanvasRenderingContext2D,
@@ -37,7 +37,7 @@ export function drawRocketBody(
   ctx.rotate(angle);
   
   const flameLength = radius * 2;
-  ctx.fillStyle = TERRAIN_DETAIL_COLORS.HAY_BALE.BODY;
+  ctx.fillStyle = EFFECT_COLORS.FIRE_YELLOW;
   ctx.beginPath();
   ctx.moveTo(0, -radius * 0.4);
   ctx.lineTo(-flameLength, 0);
