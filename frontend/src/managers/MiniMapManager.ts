@@ -1,7 +1,7 @@
 import { TankManager } from "./TankManager";
 import { TERRAIN_COLORS, TERRAIN_DETAIL_COLORS, TEAM_COLORS } from "../constants";
 import { getConnection } from "../spacetimedb-connection";
-import { type EventContext, type TerrainDetailRow } from "../../module_bindings";
+import { type EventContext, type TerrainDetailRow, type PickupRow } from "../../module_bindings";
 import WorldRow from "../../module_bindings/world_type";
 import { type Infer } from "spacetimedb";
 import { BaseTerrain } from "../../module_bindings";
@@ -25,16 +25,20 @@ export class MiniMapManager {
   private worldHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
   private terrainDetailsByPosition: Map<string, Infer<typeof TerrainDetailRow>> = new Map();
+  private pickupsByPosition: Map<string, Infer<typeof PickupRow>> = new Map();
   private handleWorldInsert: ((ctx: EventContext, world: Infer<typeof WorldRow>) => void) | null = null;
   private handleWorldUpdate: ((ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => void) | null = null;
   private handleDetailInsert: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
   private handleDetailDelete: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
+  private handlePickupInsert: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
+  private handlePickupDelete: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
 
   constructor(tankManager: TankManager, worldId: string) {
     this.tankManager = tankManager;
     this.worldId = worldId;
     this.subscribeToWorld();
     this.subscribeToTerrainDetails();
+    this.subscribeToPickups();
   }
 
   private getPositionKey(x: number, y: number): string {
@@ -101,6 +105,35 @@ export class MiniMapManager {
     }
   }
 
+  private subscribeToPickups() {
+    const connection = getConnection();
+    if (!connection) return;
+
+    this.handlePickupInsert = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+      if (pickup.worldId !== this.worldId) return;
+      const key = this.getPositionKey(pickup.gridX, pickup.gridY);
+      this.pickupsByPosition.set(key, pickup);
+      this.markForRedraw();
+    };
+
+    this.handlePickupDelete = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+      if (pickup.worldId !== this.worldId) return;
+      const key = this.getPositionKey(pickup.gridX, pickup.gridY);
+      this.pickupsByPosition.delete(key);
+      this.markForRedraw();
+    };
+
+    connection.db.pickup.onInsert(this.handlePickupInsert);
+    connection.db.pickup.onDelete(this.handlePickupDelete);
+
+    for (const pickup of connection.db.pickup.iter()) {
+      if (pickup.worldId === this.worldId) {
+        const key = this.getPositionKey(pickup.gridX, pickup.gridY);
+        this.pickupsByPosition.set(key, pickup);
+      }
+    }
+  }
+
   public destroy() {
     const connection = getConnection();
     if (connection) {
@@ -108,8 +141,11 @@ export class MiniMapManager {
       if (this.handleWorldUpdate) connection.db.world.removeOnUpdate(this.handleWorldUpdate);
       if (this.handleDetailInsert) connection.db.terrainDetail.removeOnInsert(this.handleDetailInsert);
       if (this.handleDetailDelete) connection.db.terrainDetail.removeOnDelete(this.handleDetailDelete);
+      if (this.handlePickupInsert) connection.db.pickup.removeOnInsert(this.handlePickupInsert);
+      if (this.handlePickupDelete) connection.db.pickup.removeOnDelete(this.handlePickupDelete);
     }
     this.terrainDetailsByPosition.clear();
+    this.pickupsByPosition.clear();
   }
 
   public markForRedraw() {
@@ -206,6 +242,7 @@ export class MiniMapManager {
 
     this.drawTerrain(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
     this.drawSpawnZones(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
+    this.drawPickups(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
   }
 
   private drawTerrain(
@@ -269,7 +306,8 @@ export class MiniMapManager {
           detailType === "FenceEdge" ||
           detailType === "FenceCorner" ||
           detailType === "FoundationEdge" ||
-          detailType === "FoundationCorner"
+          detailType === "FoundationCorner" ||
+          detailType === "HayBale"
         ) {
           const newW = Math.max(1, w * 0.25);
           const newH = Math.max(1, h * 0.25);
@@ -309,5 +347,29 @@ export class MiniMapManager {
     const blueSpawnWidth = this.spawnZoneWidth * pixelWidth;
     const blueSpawnHeight = worldHeight * pixelHeight;
     ctx.fillRect(blueSpawnX, blueSpawnY, blueSpawnWidth, blueSpawnHeight);
+  }
+
+  private drawPickups(
+    ctx: CanvasRenderingContext2D,
+    miniMapX: number,
+    miniMapY: number,
+    miniMapWidth: number,
+    miniMapHeight: number,
+    worldWidth: number,
+    worldHeight: number
+  ) {
+    const pixelWidth = miniMapWidth / worldWidth;
+    const pixelHeight = miniMapHeight / worldHeight;
+
+    ctx.fillStyle = "#fceba8";
+
+    for (const pickup of this.pickupsByPosition.values()) {
+      const x = miniMapX + pickup.gridX * pixelWidth;
+      const y = miniMapY + pickup.gridY * pixelHeight;
+      const w = Math.ceil(pixelWidth);
+      const h = Math.ceil(pixelHeight);
+
+      ctx.fillRect(x, y, w, h);
+    }
   }
 }
