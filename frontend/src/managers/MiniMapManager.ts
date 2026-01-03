@@ -28,7 +28,6 @@ export class MiniMapManager {
   private handleWorldInsert: ((ctx: EventContext, world: Infer<typeof WorldRow>) => void) | null = null;
   private handleWorldUpdate: ((ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => void) | null = null;
   private handleDetailInsert: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
-  private handleDetailUpdate: ((ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => void) | null = null;
   private handleDetailDelete: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
 
   constructor(tankManager: TankManager, worldId: string) {
@@ -84,20 +83,6 @@ export class MiniMapManager {
       this.markForRedraw();
     };
 
-    this.handleDetailUpdate = (_ctx: EventContext, oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
-      if (newDetail.worldId !== this.worldId) return;
-      
-      const oldKey = this.getPositionKey(oldDetail.positionX, oldDetail.positionY);
-      const newKey = this.getPositionKey(newDetail.positionX, newDetail.positionY);
-      
-      if (oldKey !== newKey) {
-        this.terrainDetailsByPosition.delete(oldKey);
-      }
-      
-      this.terrainDetailsByPosition.set(newKey, newDetail);
-      this.markForRedraw();
-    };
-
     this.handleDetailDelete = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
       if (detail.worldId !== this.worldId) return;
       const key = this.getPositionKey(detail.positionX, detail.positionY);
@@ -106,7 +91,6 @@ export class MiniMapManager {
     };
 
     connection.db.terrainDetail.onInsert(this.handleDetailInsert);
-    connection.db.terrainDetail.onUpdate(this.handleDetailUpdate);
     connection.db.terrainDetail.onDelete(this.handleDetailDelete);
 
     for (const detail of connection.db.terrainDetail.iter()) {
@@ -123,7 +107,6 @@ export class MiniMapManager {
       if (this.handleWorldInsert) connection.db.world.removeOnInsert(this.handleWorldInsert);
       if (this.handleWorldUpdate) connection.db.world.removeOnUpdate(this.handleWorldUpdate);
       if (this.handleDetailInsert) connection.db.terrainDetail.removeOnInsert(this.handleDetailInsert);
-      if (this.handleDetailUpdate) connection.db.terrainDetail.removeOnUpdate(this.handleDetailUpdate);
       if (this.handleDetailDelete) connection.db.terrainDetail.removeOnDelete(this.handleDetailDelete);
     }
     this.terrainDetailsByPosition.clear();
