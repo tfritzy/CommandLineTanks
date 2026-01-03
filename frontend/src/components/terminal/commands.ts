@@ -1446,7 +1446,9 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
     
     const position = `(${tank.positionX.toFixed(1)}, ${tank.positionY.toFixed(1)})`;
     
-    const selectedGun = tank.guns[tank.selectedGunIndex];
+    const selectedGun = tank.selectedGunIndex >= 0 && tank.selectedGunIndex < tank.guns.length 
+      ? tank.guns[tank.selectedGunIndex] 
+      : null;
     const gunName = selectedGun ? selectedGun.gunType.toString() : "None";
     
     const row = 
