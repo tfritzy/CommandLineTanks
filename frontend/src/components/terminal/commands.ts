@@ -1463,8 +1463,10 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
     const selectedGun = tank.guns.at(tank.selectedGunIndex) ?? null;
     const gunName = selectedGun?.gunType.toString() ?? "None";
     
+    const teamName = tank.alliance === 0 ? "Red" : "Blue";
+    
     const row = 
-      tank.alliance.toString().padEnd(teamWidth) + " | " +
+      teamName.padEnd(teamWidth) + " | " +
       tank.name.padEnd(nameWidth) + " | " +
       tank.kills.toString().padEnd(killsWidth) + " | " +
       tank.deaths.toString().padEnd(deathsWidth) + " | " +
