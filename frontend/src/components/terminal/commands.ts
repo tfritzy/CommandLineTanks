@@ -753,9 +753,9 @@ export function switchGun(
 
   if (gunIndex >= myTank.guns.length) {
     return [
-      colors.error(`switch: error: gun slot ${parsed} is empty`),
+      colors.error(`switch: error: gun slot ${colors.value(parsed.toString())} is empty`),
       "",
-      colors.dim(`You only have ${myTank.guns.length} gun${myTank.guns.length !== 1 ? "s" : ""}`),
+      colors.dim(`You only have ${colors.value(myTank.guns.length.toString())} gun${myTank.guns.length !== 1 ? "s" : ""}`),
     ];
   }
 
@@ -834,7 +834,7 @@ export function drive(
     });
 
     const tankCode = colors.colorize(targetTank.targetCode, 'TANK_CODE');
-    const throttleDisplay = throttle === 1 ? "full" : colors.value((throttle * 100).toString()) + "%";
+    const throttleDisplay = throttle === 1 ? "full" : colors.value(`${throttle * 100}%`);
     return [
       colors.success(`Driving to tank ${tankCode} (${targetTank.name}) at ${throttleDisplay} throttle`),
     ];
@@ -883,7 +883,7 @@ export function drive(
 
     const distanceText = colors.value(distance.toString());
     const dirSymbol = colors.colorize(directionInfo.symbol, 'DIRECTION_SYMBOL');
-    const throttleDisplay = throttle === 1 ? "full" : colors.value((throttle * 100).toString()) + "%";
+    const throttleDisplay = throttle === 1 ? "full" : colors.value(`${throttle * 100}%`);
     const explanation = `${distanceText} ${distance !== 1 ? "units" : "unit"} ${dirSymbol} ${directionInfo.name}`;
     return [
       colors.success(`Driving ${explanation} at ${throttleDisplay} throttle`),
@@ -953,7 +953,7 @@ export function drive(
 
   const relativeStr = colors.value(`(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`);
   const targetStr = colors.value(`${targetX} ${targetY}`);
-  const throttleDisplay = throttle === 1 ? "full" : colors.value((throttle * 100).toString()) + "%";
+  const throttleDisplay = throttle === 1 ? "full" : colors.value(`${throttle * 100}%`);
   return [
     colors.success(`Driving to ${relativeStr} -> ${targetStr} at ${throttleDisplay} throttle`),
   ];
@@ -1050,7 +1050,7 @@ export function overdrive(
 
   connection.reducers.overdrive({ worldId });
 
-  return [colors.success("Activating overdrive! +25% speed for 10 seconds")];
+  return [colors.success(`Activating overdrive! ${colors.value("+25%")} speed for ${colors.value("10")} seconds`)];
 }
 
 export function repair(
@@ -1087,7 +1087,7 @@ export function repair(
       return [
         colors.error("repair: error: tank is already at full health"),
         "",
-        `Health: ${colors.colorize(myTank.health.toString(), 'HEALTH')}/${myTank.maxHealth}`,
+        `Health: ${colors.colorize(myTank.health.toString(), 'HEALTH')}/${colors.colorize(myTank.maxHealth.toString(), 'HEALTH')}`,
       ];
     }
 
@@ -1259,7 +1259,7 @@ export function create(
 
   return [
     colors.success(`Creating private world "${state.name}"...`),
-    colors.dim(`Bots: ${state.bots}, Duration: ${state.duration} min, Size: ${state.width}x${state.height}`),
+    colors.dim(`Bots: ${colors.value(state.bots.toString())}, Duration: ${colors.value(state.duration.toString())} min, Size: ${colors.value(`${state.width}x${state.height}`)}`),
     "",
     colors.dim("World creation initiated. You'll be automatically joined.")
   ];
@@ -1348,7 +1348,7 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
     return [
       colors.error("name: error: name cannot exceed 15 characters"),
       "",
-      colors.dim(`Your name has ${newName.length} characters`),
+      colors.dim(`Your name has ${colors.value(newName.length.toString())} characters`),
       "",
       colors.dim("Usage: name set <new_name>"),
       colors.dim("       name set Tank47"),
