@@ -486,12 +486,15 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Usage: tanks",
         "",
         "Shows a table with the following information for each tank:",
+        "  - Team: Alliance/team number",
         "  - Name: Tank name",
         "  - Kills: Number of tanks destroyed",
         "  - Deaths: Number of times destroyed",
         "  - K/D: Kill/death ratio",
         "  - Position: Current (x, y) coordinates",
         "  - Gun: Currently selected gun type",
+        "",
+        "Tanks are sorted by team first, then by net kills (kills - deaths).",
         "",
         "Examples:",
         "  tanks",
@@ -1418,8 +1421,18 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
     return ["No tanks found in this world"];
   }
 
+  allTanks.sort((a, b) => {
+    if (a.alliance !== b.alliance) {
+      return a.alliance - b.alliance;
+    }
+    const netKillsA = a.kills - a.deaths;
+    const netKillsB = b.kills - b.deaths;
+    return netKillsB - netKillsA;
+  });
+
   const rows: string[] = [];
   
+  const teamWidth = 4;
   const nameWidth = Math.max(4, ...allTanks.map(t => t.name.length));
   const killsWidth = 5;
   const deathsWidth = 6;
@@ -1427,6 +1440,7 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
   const positionWidth = 18;
 
   const header = 
+    "Team".padEnd(teamWidth) + " | " +
     "Name".padEnd(nameWidth) + " | " +
     "Kills".padEnd(killsWidth) + " | " +
     "Deaths".padEnd(deathsWidth) + " | " +
@@ -1450,6 +1464,7 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
     const gunName = selectedGun?.gunType.toString() ?? "None";
     
     const row = 
+      tank.alliance.toString().padEnd(teamWidth) + " | " +
       tank.name.padEnd(nameWidth) + " | " +
       tank.kills.toString().padEnd(killsWidth) + " | " +
       tank.deaths.toString().padEnd(deathsWidth) + " | " +
