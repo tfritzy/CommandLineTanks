@@ -14,6 +14,7 @@ export class MiniMapManager {
   private miniMapMaxSize: number = 150;
   private margin: number = 20;
   private tankIndicatorSize: number = 5;
+  private playerTankIndicatorSize: number = 8;
   private spawnZoneWidth: number = 5;
   private baseLayerCanvas: HTMLCanvasElement | null = null;
   private baseLayerContext: CanvasRenderingContext2D | null = null;
@@ -168,13 +169,16 @@ export class MiniMapManager {
       const tankX = (clampedX / this.worldWidth) * miniMapWidth;
       const tankY = (clampedY / this.worldHeight) * miniMapHeight;
 
+      const isPlayerTank = tank.id === playerTank.id;
+      const size = isPlayerTank ? this.playerTankIndicatorSize : this.tankIndicatorSize;
+
       const tankColor = tank.getAllianceColor();
       ctx.fillStyle = tankColor;
       ctx.fillRect(
-        miniMapX + tankX - this.tankIndicatorSize / 2,
-        miniMapY + tankY - this.tankIndicatorSize / 2,
-        this.tankIndicatorSize,
-        this.tankIndicatorSize
+        miniMapX + tankX - size / 2,
+        miniMapY + tankY - size / 2,
+        size,
+        size
       );
     }
 
