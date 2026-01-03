@@ -143,7 +143,7 @@ export function findCommandSuggestion(input: string): string | null {
     }
   }
 
-  if (inputLower.startsWith('f') && inputLower.length > 1) {
+  if (inputLower.startsWith('f') && inputLower.length > 1 && (!bestMatch || bestMatch.distance > 1)) {
     const withoutF = inputLower.substring(1);
     
     for (const cmd of allCommands) {
