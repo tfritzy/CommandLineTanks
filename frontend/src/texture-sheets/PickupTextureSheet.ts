@@ -11,14 +11,33 @@ import {
   drawUnknownPickupShadow,
   drawUnknownPickupBody,
 } from "../drawing/entities/unknown-pickup";
-import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
-import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
-import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
-import { BoomerangProjectile } from "../objects/projectiles/BoomerangProjectile";
-import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
-import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
-import { SniperProjectile } from "../objects/projectiles/SniperProjectile";
-import { projectileTextureSheet } from "./ProjectileTextureSheet";
+import {
+  drawNormalProjectileShadow,
+  drawNormalProjectileBody,
+} from "../drawing/projectiles/normal";
+import {
+  drawMissileShadow,
+  drawMissileBody,
+} from "../drawing/projectiles/missile";
+import {
+  drawRocketShadow,
+  drawRocketBody,
+} from "../drawing/projectiles/rocket";
+import {
+  drawGrenadeShadow,
+  drawGrenadeBody,
+} from "../drawing/projectiles/grenade";
+import {
+  drawBoomerangShadow,
+  drawBoomerangBody,
+} from "../drawing/projectiles/boomerang";
+import {
+  drawMoagShadow,
+} from "../drawing/projectiles/moag";
+import {
+  drawSniperProjectileShadow,
+  drawSniperProjectileBody,
+} from "../drawing/projectiles/sniper";
 import { getNormalizedDPR } from "../utils/dpr";
 
 export interface PickupTexture {
@@ -37,6 +56,8 @@ const PROJECTILE_PICKUP_TYPES = [
   "moag",
   "sniper"
 ] as const;
+
+const PICKUP_COLOR = "#f5c47c";
 
 export class PickupTextureSheet {
   private canvas: HTMLCanvasElement;
@@ -90,17 +111,7 @@ export class PickupTextureSheet {
     currentX += cellSize + PickupTextureSheet.PADDING;
 
     for (const pickupType of PROJECTILE_PICKUP_TYPES) {
-      this.addProjectilePickup(`${pickupType}-0`, currentX, currentY, cellSize, 0);
-      currentX += cellSize + PickupTextureSheet.PADDING;
-
-      if (currentX + cellSize > PickupTextureSheet.CANVAS_SIZE) {
-        currentX = 0;
-        currentY += cellSize + PickupTextureSheet.PADDING;
-      }
-    }
-
-    for (const pickupType of PROJECTILE_PICKUP_TYPES) {
-      this.addProjectilePickup(`${pickupType}-1`, currentX, currentY, cellSize, 1);
+      this.addProjectilePickup(pickupType, currentX, currentY, cellSize);
       currentX += cellSize + PickupTextureSheet.PADDING;
 
       if (currentX + cellSize > PickupTextureSheet.CANVAS_SIZE) {
@@ -154,20 +165,17 @@ export class PickupTextureSheet {
     this.textures.set(key, textureData);
   }
 
-  private addProjectilePickup(key: string, x: number, y: number, size: number, alliance: number) {
+  private addProjectilePickup(key: string, x: number, y: number, size: number) {
     const centerX = x + size / 2;
     const centerY = y + size / 2;
     const angle = -Math.PI / 4;
-    const velocityX = Math.cos(angle);
-    const velocityY = Math.sin(angle);
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
 
-    const baseKey = key.replace(/-[01]$/, '');
-    switch (baseKey) {
+    switch (key) {
       case "triple-shooter": {
-        const triangleSpacing = 0.15;
+        const triangleSpacing = 0.15 * UNIT_TO_PIXEL;
         const cos30 = Math.sqrt(3) / 2;
         const sin30 = 0.5;
         const trianglePositions = [
@@ -175,107 +183,78 @@ export class PickupTextureSheet {
           { x: -triangleSpacing * cos30, y: -triangleSpacing * sin30 },
           { x: triangleSpacing * cos30, y: -triangleSpacing * sin30 },
         ];
+        const radius = 0.1 * UNIT_TO_PIXEL;
 
         for (let i = 0; i < 3; i++) {
-          const projectile = new NormalProjectile(
-            trianglePositions[i].x,
-            trianglePositions[i].y,
-            velocityX,
-            velocityY,
-            0.1,
-            alliance
+          drawNormalProjectileShadow(
+            this.ctx,
+            trianglePositions[i].x - 4,
+            trianglePositions[i].y + 4,
+            radius
           );
-          projectile.drawShadow(this.ctx, projectileTextureSheet);
         }
         for (let i = 0; i < 3; i++) {
-          const projectile = new NormalProjectile(
+          drawNormalProjectileBody(
+            this.ctx,
             trianglePositions[i].x,
             trianglePositions[i].y,
-            velocityX,
-            velocityY,
-            0.1,
-            alliance
+            radius,
+            PICKUP_COLOR
           );
-          projectile.drawBody(this.ctx, projectileTextureSheet);
         }
         break;
       }
       case "missile-launcher": {
-        const projectile = new MissileProjectile(
-          0,
-          0,
-          velocityX,
-          velocityY,
-          0.25,
-          alliance
-        );
-        projectile.drawShadow(this.ctx, projectileTextureSheet);
-        projectile.drawBody(this.ctx, projectileTextureSheet);
+        const radius = 0.25 * UNIT_TO_PIXEL;
+        drawMissileShadow(this.ctx, -4, 4, radius, angle);
+        drawMissileBody(this.ctx, 0, 0, radius, angle, PICKUP_COLOR);
         break;
       }
       case "rocket": {
-        const projectile = new RocketProjectile(
-          0,
-          0,
-          velocityX,
-          velocityY,
-          0.2,
-          alliance
-        );
-        projectile.drawShadow(this.ctx, projectileTextureSheet);
-        projectile.drawBody(this.ctx, projectileTextureSheet);
+        const radius = 0.2 * UNIT_TO_PIXEL;
+        drawRocketShadow(this.ctx, -4, 4, radius, angle);
+        drawRocketBody(this.ctx, 0, 0, radius, angle, PICKUP_COLOR);
         break;
       }
       case "grenade": {
-        const projectile = new GrenadeProjectile(
-          0,
-          0,
-          velocityX,
-          velocityY,
-          0.4,
-          alliance
-        );
-        projectile.drawShadow(this.ctx, projectileTextureSheet);
-        projectile.drawBody(this.ctx, projectileTextureSheet);
+        const radius = 0.4 * UNIT_TO_PIXEL;
+        const shadowColor = "#e39764";
+        const highlightColor = "#fceba8";
+        drawGrenadeShadow(this.ctx, -4, 4, radius);
+        drawGrenadeBody(this.ctx, 0, 0, radius, PICKUP_COLOR, shadowColor, highlightColor);
         break;
       }
       case "boomerang": {
-        const projectile = new BoomerangProjectile(
-          0,
-          0,
-          velocityX,
-          velocityY,
-          0.3,
-          alliance
-        );
-        projectile.drawShadow(this.ctx, projectileTextureSheet);
-        projectile.drawBody(this.ctx, projectileTextureSheet);
+        const radius = 0.3 * UNIT_TO_PIXEL;
+        const armWidth = radius * 0.8;
+        const armLength = radius * 2.2;
+        drawBoomerangShadow(this.ctx, -4, 4, armLength, armWidth);
+        drawBoomerangBody(this.ctx, 0, 0, armLength, armWidth, PICKUP_COLOR);
         break;
       }
       case "moag": {
-        const projectile = new MoagProjectile(
-          0,
-          0,
-          velocityX,
-          velocityY,
-          0.25,
-          alliance
-        );
-        projectile.drawShadow(this.ctx, projectileTextureSheet);
-        projectile.drawBody(this.ctx, projectileTextureSheet);
+        const scale = 0.25;
+        const radius = scale * UNIT_TO_PIXEL;
+        drawMoagShadow(this.ctx, -4, 4, scale);
+        
+        this.ctx.fillStyle = PICKUP_COLOR;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.strokeStyle = "#000000";
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        this.ctx.stroke();
         break;
       }
       case "sniper": {
-        const sniperProjectile = new SniperProjectile(
-          0,
-          0,
-          velocityX,
-          velocityY,
-          0.15,
-          alliance
-        );
-        sniperProjectile.drawShadow(this.ctx, projectileTextureSheet);
-        sniperProjectile.drawBody(this.ctx, projectileTextureSheet);
+        const bulletLength = 0.15 * UNIT_TO_PIXEL;
+        const bulletWidth = bulletLength * 0.3;
+        const bulletBackRatio = 0.4;
+        drawSniperProjectileShadow(this.ctx, -4, 4, bulletLength, bulletWidth, bulletBackRatio, angle);
+        drawSniperProjectileBody(this.ctx, 0, 0, bulletLength, bulletWidth, bulletBackRatio, angle, PICKUP_COLOR);
         break;
       }
     }
@@ -300,15 +279,9 @@ export class PickupTextureSheet {
     ctx: CanvasRenderingContext2D,
     key: string,
     x: number,
-    y: number,
-    alliance?: number
+    y: number
   ) {
-    let textureKey = key;
-    if (alliance !== undefined && (PROJECTILE_PICKUP_TYPES as readonly string[]).includes(key)) {
-      textureKey = `${key}-${alliance}`;
-    }
-    
-    const texture = this.textures.get(textureKey);
+    const texture = this.textures.get(key);
     if (!texture) return;
 
     const dpr = getNormalizedDPR();
