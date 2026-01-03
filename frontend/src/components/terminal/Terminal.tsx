@@ -12,6 +12,8 @@ interface TerminalComponentProps {
 const PROMPT = "\x1b[1;32m❯\x1b[0m ";
 const KEY_ENTER = 13;
 const KEY_BACKSPACE = 127;
+const KEY_CTRL_BACKSPACE = 23;
+const KEY_CTRL_H = 8;
 const KEY_ESCAPE = 27;
 const ARROW_UP = "\x1b[A";
 const ARROW_DOWN = "\x1b[B";
@@ -183,6 +185,22 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         if (currentInputRef.current.length > 0) {
           currentInputRef.current = currentInputRef.current.slice(0, -1);
           term.write("\b \b");
+        }
+      } else if (code === KEY_CTRL_BACKSPACE || code === KEY_CTRL_H) {
+        if (currentInputRef.current.length > 0) {
+          const trimmedEnd = currentInputRef.current.trimEnd();
+          const lastSpaceIndex = trimmedEnd.lastIndexOf(' ');
+          const charsToDelete = lastSpaceIndex === -1 
+            ? currentInputRef.current.length 
+            : currentInputRef.current.length - lastSpaceIndex - 1;
+          
+          for (let i = 0; i < charsToDelete; i++) {
+            term.write("\b \b");
+          }
+          
+          currentInputRef.current = lastSpaceIndex === -1 
+            ? "" 
+            : currentInputRef.current.substring(0, lastSpaceIndex + 1);
         }
       } else if (code === KEY_ESCAPE) {
         if (data === ARROW_UP) {
