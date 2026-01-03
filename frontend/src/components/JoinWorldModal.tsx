@@ -85,18 +85,6 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
 
       <div
         style={{
-          fontSize: '15px',
-          color: '#a9bcbf',
-          marginBottom: '32px',
-          lineHeight: 1.6,
-          textAlign: 'center',
-        }}
-      >
-        You don't have a tank in this game yet.
-      </div>
-
-      <div
-        style={{
           marginBottom: '24px',
         }}
       >
