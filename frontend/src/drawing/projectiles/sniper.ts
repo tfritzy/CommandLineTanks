@@ -1,4 +1,4 @@
-import { TERRAIN_COLORS, UI_COLORS } from "../../constants";
+import { TERRAIN_COLORS } from "../../constants";
 
 export function drawSniperProjectileShadow(
   ctx: CanvasRenderingContext2D,

@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL, TERRAIN_DETAIL_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
 import { TEAM_COLORS } from "../../constants";
 import { TERMINAL_COLORS } from "../../components/terminal/colors";

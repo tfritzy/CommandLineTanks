@@ -1,4 +1,4 @@
-import { UI_COLORS, TERRAIN_COLORS } from "../../constants";
+import { UI_COLORS } from "../../constants";
 import { TERMINAL_COLORS } from "../../components/terminal/colors";
 
 const ABILITY_SLOT_BACKGROUND = UI_COLORS.BACKGROUND_DARK;

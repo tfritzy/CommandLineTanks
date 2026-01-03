@@ -1,4 +1,5 @@
-import { TERRAIN_COLORS, TERMINAL_COLORS } from "../../constants";
+import { TERRAIN_COLORS } from "../../constants";
+import { TERMINAL_COLORS } from "../../components/terminal/colors";
 
 export function drawGrenadeShadow(
   ctx: CanvasRenderingContext2D,

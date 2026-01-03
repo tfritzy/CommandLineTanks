@@ -4,7 +4,7 @@ import { type Infer } from "spacetimedb";
 import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
 import { type EventContext } from "../../module_bindings";
-import { UI_COLORS, TERRAIN_COLORS, TERRAIN_DETAIL_COLORS } from "../constants";
+import { UI_COLORS, TERRAIN_DETAIL_COLORS } from "../constants";
 import { TERMINAL_COLORS } from "./terminal/colors";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
