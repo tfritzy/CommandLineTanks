@@ -2,13 +2,13 @@ import { Mushroom } from "../objects/decorations/Mushroom";
 import { drawMushrooms } from "../drawing/decorations/mushroom";
 import { UNIT_TO_PIXEL } from "../constants";
 
-const MUSHROOM_SPAWN_CHANCE = 0.2;
-const MIN_MUSHROOMS_PER_TREE = 1;
-const MAX_MUSHROOMS_PER_TREE = 2;
+const MUSHROOM_SPAWN_CHANCE = 0.27;
+const MIN_MUSHROOMS_PER_TREE = 2;
+const MAX_MUSHROOMS_PER_TREE = 5;
 const MIN_DISTANCE_FROM_TREE = 0.5;
-const MAX_DISTANCE_FROM_TREE = 1.5;
-const MIN_MUSHROOM_SIZE = 0.08;
-const MAX_MUSHROOM_SIZE = 0.15;
+const MAX_DISTANCE_FROM_TREE = 2.5;
+const MIN_MUSHROOM_SIZE = 0.085;
+const MAX_MUSHROOM_SIZE = 0.125;
 
 export class MushroomDecorationsManager {
   private mushrooms: Mushroom[] = [];

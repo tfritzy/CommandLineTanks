@@ -367,12 +367,12 @@ export class ProjectileTextureSheet {
     y: number,
     radius: number
   ) {
-    const padding = 2;
-    const bulletLength = radius * 4;
-    const bulletWidth = radius * 0.4;
-    const bulletBackRatio = 0.1;
-    const centerX = x + bulletLength + padding;
-    const centerY = y + bulletWidth + padding;
+    const padding = 4;
+    const bulletLength = radius * 2.5;
+    const bulletWidth = radius * 0.8;
+    const bulletBackRatio = 0.5;
+    const centerX = x + bulletLength * bulletBackRatio + padding;
+    const centerY = y + bulletWidth * 1.2 + padding;
 
     drawSniperProjectileShadow(
       this.shadowCtx,
@@ -398,7 +398,7 @@ export class ProjectileTextureSheet {
       x: x,
       y: y,
       width: bulletLength + bulletLength * bulletBackRatio + padding * 2,
-      height: bulletWidth * 2 + padding * 2,
+      height: bulletWidth * 2.4 + padding * 2,
     };
 
     this.textures.set(key, textureData);

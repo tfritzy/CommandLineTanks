@@ -259,12 +259,27 @@ export class MiniMapManager {
       const color = detailColorMap[detailType];
       if (color && color !== TERRAIN_COLORS.GROUND) {
         ctx.fillStyle = color;
-        ctx.fillRect(
-          miniMapX + detail.positionX * pixelWidth,
-          miniMapY + detail.positionY * pixelHeight,
-          Math.ceil(pixelWidth),
-          Math.ceil(pixelHeight)
-        );
+
+        let x = miniMapX + detail.positionX * pixelWidth;
+        let y = miniMapY + detail.positionY * pixelHeight;
+        let w = Math.ceil(pixelWidth);
+        let h = Math.ceil(pixelHeight);
+
+        if (
+          detailType === "FenceEdge" ||
+          detailType === "FenceCorner" ||
+          detailType === "FoundationEdge" ||
+          detailType === "FoundationCorner"
+        ) {
+          const newW = Math.max(1, w * 0.25);
+          const newH = Math.max(1, h * 0.25);
+          x += (w - newW) / 2;
+          y += (h - newH) / 2;
+          w = newW;
+          h = newH;
+        }
+
+        ctx.fillRect(x, y, w, h);
       }
     }
   }

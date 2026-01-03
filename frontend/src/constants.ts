@@ -7,7 +7,7 @@ export const BUFFER_DURATION = 200;
 
 export const TERRAIN_DETAIL_RADIUS = {
   ROCK: 0.38,
-  TREE: 0.675,
+  TREE: 0.648,
   HAY_BALE: 0.35,
 };
 
@@ -58,6 +58,7 @@ export const TERRAIN_DETAIL_COLORS = {
 
 export const DECORATION_COLORS = {
   MUSHROOM: {
-    CAP: "#c06852",
+    CAP: "#542240",
+    SHADOW: "#00000044",
   },
 };

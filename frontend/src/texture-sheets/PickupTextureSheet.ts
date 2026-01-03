@@ -201,7 +201,7 @@ export class PickupTextureSheet {
           0,
           velocityX,
           velocityY,
-          0.3,
+          0.25,
           0
         );
         projectile.drawShadow(this.ctx, projectileTextureSheet);

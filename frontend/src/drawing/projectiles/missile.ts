@@ -34,12 +34,12 @@ export function drawMissileBody(
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
   
-  const flameLength = radius * (1 + Math.random() * 1.5);
+  const flameLength = radius * 1 + .5;
   ctx.fillStyle = "#f5c47c";
   ctx.beginPath();
-  ctx.moveTo(0, -radius * 0.4);
+  ctx.moveTo(0, -radius * 0.3);
   ctx.lineTo(-flameLength, 0);
-  ctx.lineTo(0, radius * 0.4);
+  ctx.lineTo(0, radius * 0.3);
   ctx.fill();
 
   ctx.fillStyle = color;

@@ -34,7 +34,7 @@ export function drawRocketBody(
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
   
-  const flameLength = radius * (2 + Math.random() * 2);
+  const flameLength = radius * 2;
   ctx.fillStyle = "#f5c47c";
   ctx.beginPath();
   ctx.moveTo(0, -radius * 0.4);
