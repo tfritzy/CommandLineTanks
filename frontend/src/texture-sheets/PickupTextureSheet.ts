@@ -341,7 +341,7 @@ export class PickupTextureSheet {
     alliance?: number
   ) {
     let textureKey = key;
-    if (alliance === 1 && PROJECTILE_PICKUP_TYPES.includes(key as any)) {
+    if (alliance === 1 && (PROJECTILE_PICKUP_TYPES as readonly string[]).includes(key)) {
       textureKey = `${key}-blue`;
     }
     
