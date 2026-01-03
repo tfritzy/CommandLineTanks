@@ -70,9 +70,6 @@ export class PickupManager {
     const connection = getConnection();
     if (!connection || !connection.identity) return undefined;
 
-    const world = connection.db.world.id.find(this.worldId);
-    if (!world || !world.isHomeWorld) return undefined;
-
     for (const tank of connection.db.tank.iter()) {
       if (tank.worldId === this.worldId && tank.owner.toHexString() === connection.identity.toHexString()) {
         return tank.alliance;
