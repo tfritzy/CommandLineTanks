@@ -13,7 +13,7 @@ export class MiniMapManager {
   private worldId: string;
   private miniMapMaxSize: number = 150;
   private margin: number = 20;
-  private tankIndicatorRadius: number = 5;
+  private tankIndicatorSize: number = 5;
   private spawnZoneWidth: number = 5;
   private baseLayerCanvas: HTMLCanvasElement | null = null;
   private baseLayerContext: CanvasRenderingContext2D | null = null;
@@ -159,23 +159,24 @@ export class MiniMapManager {
     ctx.lineWidth = 1;
     ctx.strokeRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
 
-    const playerPos = playerTank.getPosition();
-    const clampedX = Math.max(0, Math.min(playerPos.x, this.worldWidth));
-    const clampedY = Math.max(0, Math.min(playerPos.y, this.worldHeight));
-    const tankX = (clampedX / this.worldWidth) * miniMapWidth;
-    const tankY = (clampedY / this.worldHeight) * miniMapHeight;
+    for (const tank of this.tankManager.getAllTanks()) {
+      if (tank.getHealth() <= 0) continue;
 
-    const tankColor = playerTank.getAllianceColor();
-    ctx.fillStyle = tankColor;
-    ctx.beginPath();
-    ctx.arc(
-      miniMapX + tankX,
-      miniMapY + tankY,
-      this.tankIndicatorRadius,
-      0,
-      Math.PI * 2
-    );
-    ctx.fill();
+      const tankPos = tank.getPosition();
+      const clampedX = Math.max(0, Math.min(tankPos.x, this.worldWidth));
+      const clampedY = Math.max(0, Math.min(tankPos.y, this.worldHeight));
+      const tankX = (clampedX / this.worldWidth) * miniMapWidth;
+      const tankY = (clampedY / this.worldHeight) * miniMapHeight;
+
+      const tankColor = tank.getAllianceColor();
+      ctx.fillStyle = tankColor;
+      ctx.fillRect(
+        miniMapX + tankX - this.tankIndicatorSize / 2,
+        miniMapY + tankY - this.tankIndicatorSize / 2,
+        this.tankIndicatorSize,
+        this.tankIndicatorSize
+      );
+    }
 
     ctx.restore();
   }
