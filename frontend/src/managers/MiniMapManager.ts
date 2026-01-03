@@ -13,8 +13,8 @@ export class MiniMapManager {
   private worldId: string;
   private miniMapMaxSize: number = 150;
   private margin: number = 20;
-  private tankIndicatorSize: number = 5;
-  private playerTankIndicatorSize: number = 8;
+  private tankIndicatorSize: number = 3;
+  private playerTankIndicatorSize: number = 5;
   private spawnZoneWidth: number = 5;
   private baseLayerCanvas: HTMLCanvasElement | null = null;
   private baseLayerContext: CanvasRenderingContext2D | null = null;
