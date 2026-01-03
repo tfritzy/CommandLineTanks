@@ -114,6 +114,9 @@ export default function GameView() {
 
       if (!firstTankDataReceived) {
         firstTankDataReceived = true;
+        if (joinModalTimeout) {
+          clearTimeout(joinModalTimeout);
+        }
         joinModalTimeout = setTimeout(() => {
           if (!hasReceivedPlayerTankData) {
             if (!checkForTank()) {
@@ -170,6 +173,9 @@ export default function GameView() {
     );
     if (existingTanks.length > 0) {
       firstTankDataReceived = true;
+      if (joinModalTimeout) {
+        clearTimeout(joinModalTimeout);
+      }
       joinModalTimeout = setTimeout(() => {
         if (!hasReceivedPlayerTankData) {
           if (!checkForTank()) {
