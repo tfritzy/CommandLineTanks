@@ -136,7 +136,7 @@ export class PickupManager {
         break;
       case "Moag":
         drawMoagShadow(ctx, worldX - 4, worldY + 4, 0.3);
-        drawMoagBody(ctx, worldX, worldY, 0.3, alliance !== undefined ? alliance : 0);
+        drawMoagBody(ctx, worldX, worldY, 0.3, alliance ?? 0);
         break;
       case "Sniper":
         pickupTextureSheet.draw(ctx, "sniper", worldX, worldY, alliance);

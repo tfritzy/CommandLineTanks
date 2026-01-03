@@ -28,6 +28,16 @@ export interface PickupTexture {
   height: number;
 }
 
+const PROJECTILE_PICKUP_TYPES = [
+  "triple-shooter",
+  "missile-launcher",
+  "boomerang",
+  "grenade",
+  "rocket",
+  "moag",
+  "sniper"
+] as const;
+
 export class PickupTextureSheet {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -191,7 +201,7 @@ export class PickupTextureSheet {
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
 
-    const baseKey = key.replace('-blue', '');
+    const baseKey = key.endsWith('-blue') ? key.slice(0, -5) : key;
     switch (baseKey) {
       case "triple-shooter": {
         const triangleSpacing = 0.15;
@@ -331,9 +341,7 @@ export class PickupTextureSheet {
     alliance?: number
   ) {
     let textureKey = key;
-    if (alliance === 1 && (key === "triple-shooter" || key === "missile-launcher" || 
-                          key === "boomerang" || key === "grenade" || 
-                          key === "rocket" || key === "moag" || key === "sniper")) {
+    if (alliance === 1 && PROJECTILE_PICKUP_TYPES.includes(key as any)) {
       textureKey = `${key}-blue`;
     }
     
