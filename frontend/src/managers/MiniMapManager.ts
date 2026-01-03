@@ -30,6 +30,8 @@ export class MiniMapManager {
   private handleWorldUpdate: ((ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => void) | null = null;
   private handleDetailInsert: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
   private handleDetailDelete: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
+  private redTanksBuffer: Array<{ x: number; y: number; size: number }> = [];
+  private blueTanksBuffer: Array<{ x: number; y: number; size: number }> = [];
 
   constructor(tankManager: TankManager, worldId: string) {
     this.tankManager = tankManager;
@@ -160,8 +162,8 @@ export class MiniMapManager {
     ctx.lineWidth = 1;
     ctx.strokeRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
 
-    const redTanks: Array<{ x: number; y: number; size: number }> = [];
-    const blueTanks: Array<{ x: number; y: number; size: number }> = [];
+    this.redTanksBuffer.length = 0;
+    this.blueTanksBuffer.length = 0;
 
     for (const tank of this.tankManager.getAllTanks()) {
       if (tank.getHealth() <= 0) continue;
@@ -182,19 +184,19 @@ export class MiniMapManager {
       };
 
       if (tank.getAlliance() === 0) {
-        redTanks.push(tankInfo);
+        this.redTanksBuffer.push(tankInfo);
       } else {
-        blueTanks.push(tankInfo);
+        this.blueTanksBuffer.push(tankInfo);
       }
     }
 
     ctx.fillStyle = TEAM_COLORS.RED;
-    for (const tank of redTanks) {
+    for (const tank of this.redTanksBuffer) {
       ctx.fillRect(tank.x, tank.y, tank.size, tank.size);
     }
 
     ctx.fillStyle = TEAM_COLORS.BLUE;
-    for (const tank of blueTanks) {
+    for (const tank of this.blueTanksBuffer) {
       ctx.fillRect(tank.x, tank.y, tank.size, tank.size);
     }
 
