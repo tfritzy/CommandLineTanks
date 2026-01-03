@@ -15,6 +15,7 @@ export class ProjectileManager {
   private particlesManager: ProjectileImpactParticlesManager;
   private tankManager: TankManager | null = null;
   private screenShake: ScreenShake;
+  private handleProjectileInsert: ((ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => void) | null = null;
   private handleProjectileUpdate: ((ctx: EventContext, oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => void) | null = null;
   private handleProjectileDelete: ((ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => void) | null = null;
 
@@ -33,29 +34,32 @@ export class ProjectileManager {
     const connection = getConnection();
     if (!connection) return;
 
+    this.handleProjectileInsert = (_ctx: EventContext, newProjectile: Infer<typeof ProjectileRow>) => {
+      if (newProjectile.worldId !== this.worldId) return;
+
+      const projectile = ProjectileFactory.create(
+        newProjectile.projectileType.tag,
+        newProjectile.positionX,
+        newProjectile.positionY,
+        newProjectile.velocity.x,
+        newProjectile.velocity.y,
+        newProjectile.size,
+        newProjectile.alliance,
+        newProjectile.explosionRadius,
+        newProjectile.trackingStrength,
+        newProjectile.trackingRadius
+      );
+      this.projectiles.set(newProjectile.id, projectile);
+
+      const playerTank = this.tankManager?.getPlayerTank();
+      if (playerTank && newProjectile.shooterTankId === playerTank.id && newProjectile.projectileType.tag === "Moag") {
+        this.screenShake.shake(15, 0.3);
+      }
+    };
+
     this.handleProjectileUpdate = (_ctx: EventContext, _oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => {
       if (newProjectile.worldId !== this.worldId) return;
-      let projectile = this.projectiles.get(newProjectile.id);
-      if (!projectile) {
-        projectile = ProjectileFactory.create(
-          newProjectile.projectileType.tag,
-          newProjectile.positionX,
-          newProjectile.positionY,
-          newProjectile.velocity.x,
-          newProjectile.velocity.y,
-          newProjectile.size,
-          newProjectile.alliance,
-          newProjectile.explosionRadius,
-          newProjectile.trackingStrength,
-          newProjectile.trackingRadius
-        );
-        this.projectiles.set(newProjectile.id, projectile);
-
-        const playerTank = this.tankManager?.getPlayerTank();
-        if (playerTank && newProjectile.shooterTankId === playerTank.id && newProjectile.projectileType.tag === "Moag") {
-          this.screenShake.shake(15, 0.3);
-        }
-      }
+      const projectile = this.projectiles.get(newProjectile.id);
 
       if (projectile) {
         projectile.setPosition(
@@ -78,6 +82,7 @@ export class ProjectileManager {
       this.projectiles.delete(projectile.id);
     };
 
+    connection.db.projectile.onInsert(this.handleProjectileInsert);
     connection.db.projectile.onUpdate(this.handleProjectileUpdate);
     connection.db.projectile.onDelete(this.handleProjectileDelete);
 
@@ -103,6 +108,7 @@ export class ProjectileManager {
   public destroy() {
     const connection = getConnection();
     if (connection) {
+      if (this.handleProjectileInsert) connection.db.projectile.removeOnInsert(this.handleProjectileInsert);
       if (this.handleProjectileUpdate) connection.db.projectile.removeOnUpdate(this.handleProjectileUpdate);
       if (this.handleProjectileDelete) connection.db.projectile.removeOnDelete(this.handleProjectileDelete);
     }
