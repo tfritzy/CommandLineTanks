@@ -28,7 +28,8 @@ public static partial class Module
         {
             RemainingRepairCooldownMicros = REPAIR_COOLDOWN_MICROS,
             IsRepairing = true,
-            RepairStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+            RepairStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+            Message = "Repairing..."
         };
         ctx.Db.tank.Id.Update(updatedTank);
 
