@@ -89,7 +89,7 @@ export class Tank {
   }
 
   public getAllianceColor(): string {
-    return this.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+    return this.alliance === 0 ? TEAM_COLORS.RED.MAIN : TEAM_COLORS.BLUE.MAIN;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -147,9 +147,9 @@ export class Tank {
 
   public drawPath(ctx: CanvasRenderingContext2D) {
     const lineColor =
-      this.alliance === 0 ? TEAM_COLORS.RED + "66" : TEAM_COLORS.BLUE + "66";
+      this.alliance === 0 ? TEAM_COLORS.RED.MAIN + "66" : TEAM_COLORS.BLUE.MAIN + "66";
     const dotColor =
-      this.alliance === 0 ? TEAM_COLORS.RED + "ff" : TEAM_COLORS.BLUE + "ff";
+      this.alliance === 0 ? TEAM_COLORS.RED.MAIN + "ff" : TEAM_COLORS.BLUE.MAIN + "ff";
     drawTankPath(ctx, this.x, this.y, this.path, lineColor, dotColor);
   }
 

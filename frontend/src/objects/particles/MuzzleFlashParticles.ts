@@ -21,7 +21,7 @@ export class MuzzleFlashParticles {
   private isDead = false;
 
   constructor(x: number, y: number, angle: number, alliance: number) {
-    const color = alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+    const color = alliance === 0 ? TEAM_COLORS.RED.MAIN : TEAM_COLORS.BLUE.MAIN;
     
     const particleCount = 8 + Math.floor(Math.random() * 5);
     for (let i = 0; i < particleCount; i++) {

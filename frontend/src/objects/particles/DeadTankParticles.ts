@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../constants";
+import { UNIT_TO_PIXEL, TEAM_COLORS } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
 
 interface DebrisParticle {
@@ -61,8 +61,8 @@ export class DeadTankParticles {
   private isDead = false;
 
   constructor(x: number, y: number, alliance: number) {
-    const teamColor = alliance === 0 ? "#9d4343" : "#495f94";
-    const darkTeamColor = alliance === 0 ? "#813645" : "#3e4c7e";
+    const teamColor = alliance === 0 ? TEAM_COLORS.RED.DEBRIS_LIGHT : TEAM_COLORS.BLUE.DEBRIS_LIGHT;
+    const darkTeamColor = alliance === 0 ? TEAM_COLORS.RED.DEBRIS_DARK : TEAM_COLORS.BLUE.DEBRIS_DARK;
 
     // 1. Debris (Tank parts) - Reduced count
     const debrisCount = 6 + Math.floor(Math.random() * 4);

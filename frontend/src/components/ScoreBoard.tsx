@@ -3,6 +3,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
+import { TEAM_COLORS } from "../constants";
 
 interface PlayerScore {
   id: string;
@@ -215,9 +216,9 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
   }
 
   const getTeamColor = (alliance: number) => {
-    return alliance === 0
-      ? "rgba(157, 67, 67, 0.8)"
-      : "rgba(90, 120, 178, 0.8)";
+    const mainColor = alliance === 0 ? TEAM_COLORS.RED.MAIN : TEAM_COLORS.BLUE.MAIN;
+    const [r, g, b] = mainColor.match(/\w\w/g)!.map(x => parseInt(x, 16));
+    return `rgba(${r}, ${g}, ${b}, 0.8)`;
   };
 
   return (

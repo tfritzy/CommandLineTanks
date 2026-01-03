@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL, TEAM_COLORS } from "../constants";
+import { UNIT_TO_PIXEL, TEAM_COLORS, TEAM_SHIELD_COLORS } from "../constants";
 import { getNormalizedDPR } from "../utils/dpr";
 import {
   drawNormalProjectileShadow,
@@ -74,7 +74,7 @@ export class ProjectileTextureSheet {
 
     this.addNormalProjectile(
       "normal-red",
-      TEAM_COLORS.RED,
+      TEAM_COLORS.RED.MAIN,
       currentX,
       currentY,
       radius
@@ -83,7 +83,7 @@ export class ProjectileTextureSheet {
 
     this.addNormalProjectile(
       "normal-blue",
-      TEAM_COLORS.BLUE,
+      TEAM_COLORS.BLUE.MAIN,
       currentX,
       currentY,
       radius
@@ -92,7 +92,7 @@ export class ProjectileTextureSheet {
 
     this.addBoomerangProjectile(
       "boomerang-red",
-      TEAM_COLORS.RED,
+      TEAM_COLORS.RED.MAIN,
       currentX,
       currentY,
       radius
@@ -101,7 +101,7 @@ export class ProjectileTextureSheet {
 
     this.addBoomerangProjectile(
       "boomerang-blue",
-      TEAM_COLORS.BLUE,
+      TEAM_COLORS.BLUE.MAIN,
       currentX,
       currentY,
       radius
@@ -111,7 +111,7 @@ export class ProjectileTextureSheet {
 
     this.addGrenadeProjectile(
       "grenade-red",
-      TEAM_COLORS.RED,
+      TEAM_COLORS.RED.MAIN,
       currentX,
       currentY,
       radius
@@ -120,7 +120,7 @@ export class ProjectileTextureSheet {
 
     this.addGrenadeProjectile(
       "grenade-blue",
-      TEAM_COLORS.BLUE,
+      TEAM_COLORS.BLUE.MAIN,
       currentX,
       currentY,
       radius
@@ -129,7 +129,7 @@ export class ProjectileTextureSheet {
 
     this.addMoagProjectile(
       "moag-red",
-      TEAM_COLORS.RED,
+      TEAM_COLORS.RED.MAIN,
       currentX,
       currentY,
       radius
@@ -138,7 +138,7 @@ export class ProjectileTextureSheet {
 
     this.addMoagProjectile(
       "moag-blue",
-      TEAM_COLORS.BLUE,
+      TEAM_COLORS.BLUE.MAIN,
       currentX,
       currentY,
       radius
@@ -148,7 +148,7 @@ export class ProjectileTextureSheet {
 
     this.addRocketProjectile(
       "rocket-red",
-      TEAM_COLORS.RED,
+      TEAM_COLORS.RED.MAIN,
       currentX,
       currentY,
       radius
@@ -157,7 +157,7 @@ export class ProjectileTextureSheet {
 
     this.addRocketProjectile(
       "rocket-blue",
-      TEAM_COLORS.BLUE,
+      TEAM_COLORS.BLUE.MAIN,
       currentX,
       currentY,
       radius
@@ -167,7 +167,7 @@ export class ProjectileTextureSheet {
 
     this.addMissileProjectile(
       "missile-red",
-      TEAM_COLORS.RED,
+      TEAM_COLORS.RED.MAIN,
       currentX,
       currentY,
       radius * 1.5
@@ -176,7 +176,7 @@ export class ProjectileTextureSheet {
 
     this.addMissileProjectile(
       "missile-blue",
-      TEAM_COLORS.BLUE,
+      TEAM_COLORS.BLUE.MAIN,
       currentX,
       currentY,
       radius * 1.5
@@ -186,7 +186,7 @@ export class ProjectileTextureSheet {
 
     this.addSniperProjectile(
       "sniper-red",
-      TEAM_COLORS.RED,
+      TEAM_COLORS.RED.MAIN,
       currentX,
       currentY,
       radius
@@ -195,7 +195,7 @@ export class ProjectileTextureSheet {
 
     this.addSniperProjectile(
       "sniper-blue",
-      TEAM_COLORS.BLUE,
+      TEAM_COLORS.BLUE.MAIN,
       currentX,
       currentY,
       radius
@@ -265,8 +265,8 @@ export class ProjectileTextureSheet {
     const centerX = x + radius + padding;
     const centerY = y + radius * 1.6 + padding;
 
-    const shadowColor = color === TEAM_COLORS.RED ? "#813645" : "#3e4c7e";
-    const highlightColor = color === TEAM_COLORS.RED ? "#e39764" : "#7396d5";
+    const shadowColor = color === TEAM_COLORS.RED.MAIN ? TEAM_COLORS.RED.DEBRIS_DARK : TEAM_COLORS.BLUE.DEBRIS_DARK;
+    const highlightColor = color === TEAM_COLORS.RED.MAIN ? "#e39764" : TEAM_SHIELD_COLORS.MAIN;
 
     drawGrenadeShadow(this.shadowCtx, centerX, centerY, radius);
     drawGrenadeBody(this.ctx, centerX, centerY, radius, color, shadowColor, highlightColor);
@@ -294,7 +294,7 @@ export class ProjectileTextureSheet {
     const centerY = y + radius + padding;
 
     drawMoagShadow(this.shadowCtx, centerX, centerY, 0.5);
-    drawMoagBody(this.ctx, centerX, centerY, 0.5, color === TEAM_COLORS.RED ? 0 : 1);
+    drawMoagBody(this.ctx, centerX, centerY, 0.5, color === TEAM_COLORS.RED.MAIN ? 0 : 1);
 
     const textureData = {
       x: x,

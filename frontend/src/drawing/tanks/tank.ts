@@ -49,9 +49,9 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     ctx.globalAlpha = opacity;
   }
 
-  const allianceColor = params.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+  const allianceColor = params.alliance === 0 ? TEAM_COLORS.RED.MAIN : TEAM_COLORS.BLUE.MAIN;
   const bodyColor = getFlashColor(allianceColor, params.flashTimer);
-  const borderColor = getFlashColor(params.alliance === 0 ? "#330000" : "#000033", params.flashTimer);
+  const borderColor = getFlashColor(params.alliance === 0 ? TEAM_COLORS.RED.BORDER : TEAM_COLORS.BLUE.BORDER, params.flashTimer);
   const selfShadowColor = "rgba(0, 0, 0, 0.35)";
 
   ctx.fillStyle = bodyColor;
@@ -104,11 +104,11 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
 
     const shieldRadius = 22;
     const gradient = ctx.createRadialGradient(0, 0, shieldRadius - 4, 0, 0, shieldRadius);
-    gradient.addColorStop(0, "rgba(115, 150, 213, 0)");
-    gradient.addColorStop(0.7, "rgba(115, 150, 213, 0.3)");
-    gradient.addColorStop(1, "rgba(90, 120, 178, 0.6)");
+    gradient.addColorStop(0, "rgba(0, 215, 240, 0)");
+    gradient.addColorStop(0.7, "rgba(0, 215, 240, 0.3)");
+    gradient.addColorStop(1, "rgba(0, 165, 255, 0.6)");
 
-    ctx.strokeStyle = "#7396d5";
+    ctx.strokeStyle = "#00d7f0";
     ctx.lineWidth = 2;
     ctx.fillStyle = gradient;
     ctx.beginPath();

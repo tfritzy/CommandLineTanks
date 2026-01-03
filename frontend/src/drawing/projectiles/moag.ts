@@ -25,7 +25,7 @@ export function drawMoagBody(
   alliance: number
 ) {
   const radius = size * UNIT_TO_PIXEL;
-  const color = alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+  const color = alliance === 0 ? TEAM_COLORS.RED.MAIN : TEAM_COLORS.BLUE.MAIN;
 
   ctx.save();
   ctx.fillStyle = color;

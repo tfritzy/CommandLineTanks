@@ -3,6 +3,7 @@ import { getConnection } from '../spacetimedb-connection';
 import type { Infer } from 'spacetimedb';
 import Tank from '../../module_bindings/tank_type';
 import { ServerTimeSync } from '../utils/ServerTimeSync';
+import { TEAM_UI_COLORS } from '../constants';
 
 const WORLD_RESET_DELAY_MICROS = 30_000_000;
 
@@ -125,7 +126,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
 
     const winningTeam = team0Kills > team1Kills ? 0 : 1;
     const winnerText = winningTeam === 0 ? 'Red Victory' : 'Blue Victory';
-    const winnerColor = winningTeam === 0 ? '#c06852' : '#5a78b2';
+    const winnerColor = winningTeam === 0 ? TEAM_UI_COLORS.RED : TEAM_UI_COLORS.BLUE;
 
     const timeUntilReset = gameEndTime !== null 
         ? Math.ceil(Number(gameEndTime + BigInt(WORLD_RESET_DELAY_MICROS) - BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000))) / 1_000_000)
@@ -255,7 +256,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                     <div>
                         <div style={{
                             fontSize: '14px',
-                            color: '#5a78b2',
+                            color: TEAM_UI_COLORS.BLUE,
                             marginBottom: '24px',
                             letterSpacing: '0.1em',
                             textTransform: 'uppercase',
@@ -289,7 +290,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                     }}>{tank.name}</span>
                                     <span style={{
                                         marginLeft: '16px',
-                                        color: index === 0 ? '#5a78b2' : '#707b89',
+                                        color: index === 0 ? TEAM_UI_COLORS.BLUE : '#707b89',
                                         fontSize: '14px'
                                     }}>{tank.kills} / {tank.deaths}</span>
                                 </div>

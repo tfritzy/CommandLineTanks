@@ -1,6 +1,8 @@
+import { TEAM_UI_COLORS, TEAM_SHIELD_COLORS } from '../../constants';
+
 export const TERMINAL_COLORS = {
   BACKGROUND: "#2a152d",
-  BORDER: "#5a78b2",
+  BORDER: TEAM_UI_COLORS.BLUE,
   
   TEXT_DEFAULT: "#e6eeed",
   TEXT_MUTED: "#a9bcbf",
@@ -9,7 +11,7 @@ export const TERMINAL_COLORS = {
   PROMPT: "#96dc7f",
   
   SUCCESS: "#96dc7f",
-  INFO: "#7396d5",
+  INFO: TEAM_SHIELD_COLORS.MAIN,
   WARNING: "#fceba8",
   ERROR: "#c06852",
   
@@ -17,7 +19,7 @@ export const TERMINAL_COLORS = {
   ARGUMENT: "#d5f893",
   VALUE: "#fceba8",
   
-  DIRECTION_SYMBOL: "#7396d5",
+  DIRECTION_SYMBOL: TEAM_SHIELD_COLORS.MAIN,
   TANK_CODE: "#aaeeea",
   
   COOLDOWN: "#e39764",

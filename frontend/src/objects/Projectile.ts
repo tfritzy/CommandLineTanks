@@ -56,7 +56,7 @@ export class Projectile {
     const centerY = this.y * UNIT_TO_PIXEL;
     const radius = this.size * UNIT_TO_PIXEL;
     
-    ctx.fillStyle = this.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+    ctx.fillStyle = this.alliance === 0 ? TEAM_COLORS.RED.MAIN : TEAM_COLORS.BLUE.MAIN;
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     ctx.fill();

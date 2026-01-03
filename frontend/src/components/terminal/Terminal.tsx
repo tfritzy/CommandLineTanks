@@ -4,6 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create, changeName, exitWorld, findCommandSuggestion } from "./commands";
+import { TEAM_UI_COLORS } from "../../constants";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -45,7 +46,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         red: "#c06852",
         green: "#96dc7f",
         yellow: "#fceba8",
-        blue: "#5a78b2",
+        blue: TEAM_UI_COLORS.BLUE,
         magenta: "#794e6d",
         cyan: "#7fbbdc",
         white: "#e6eeed",
@@ -304,7 +305,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         height: "500px",
         maxHeight: "50vh",
         background: "#2a152d",
-        borderTop: "1px solid #5a78b2",
+        borderTop: `1px solid ${TEAM_UI_COLORS.BLUE}`,
         display: "flex",
         justifyContent: "center",
         padding: "16px",

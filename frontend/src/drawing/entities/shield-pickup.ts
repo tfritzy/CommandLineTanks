@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../constants";
+import { UNIT_TO_PIXEL, TEAM_SHIELD_COLORS } from "../../constants";
 
 export function drawShieldPickupShadow(
   ctx: CanvasRenderingContext2D,
@@ -30,8 +30,8 @@ export function drawShieldPickupBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = "#7396d5";
-  ctx.strokeStyle = "#5a78b2";
+  ctx.fillStyle = TEAM_SHIELD_COLORS.MAIN;
+  ctx.strokeStyle = TEAM_SHIELD_COLORS.LIGHT;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
@@ -45,7 +45,7 @@ export function drawShieldPickupBody(
   const shieldRight = shieldSize * 0.4;
 
   ctx.fillStyle = "#fcfbf3";
-  ctx.strokeStyle = "#495f94";
+  ctx.strokeStyle = TEAM_SHIELD_COLORS.LIGHT;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, shieldTop);

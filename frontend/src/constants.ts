@@ -12,8 +12,28 @@ export const TERRAIN_DETAIL_RADIUS = {
 };
 
 export const TEAM_COLORS = {
-  RED: "#ff5555",
-  BLUE: "#0194ff",
+  RED: {
+    MAIN: "#ff5555",
+    BORDER: "#330000",
+    DEBRIS_LIGHT: "#9d4343",
+    DEBRIS_DARK: "#813645",
+  },
+  BLUE: {
+    MAIN: "#0194ff",
+    BORDER: "#000043",
+    DEBRIS_LIGHT: "#0082f5",
+    DEBRIS_DARK: "#005bfa",
+  },
+};
+
+export const TEAM_SHIELD_COLORS = {
+  MAIN: "#00d7f0",
+  LIGHT: "#00a5ff",
+};
+
+export const TEAM_UI_COLORS = {
+  RED: "#c06852",
+  BLUE: "#00a5ff",
 };
 
 export const TERRAIN_COLORS = {

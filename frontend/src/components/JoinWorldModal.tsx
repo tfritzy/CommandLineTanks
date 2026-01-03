@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { getConnection } from '../spacetimedb-connection';
+import { TEAM_UI_COLORS } from '../constants';
 
 interface JoinWorldModalProps {
   worldId: string;
@@ -13,6 +14,11 @@ const generateDefaultName = () => {
 const isDefaultGuestName = (name: string): boolean => {
   return /^guest\d{4}$/.test(name);
 };
+
+const BLUE_BORDER_FOCUS = (() => {
+  const [r, g, b] = TEAM_UI_COLORS.BLUE.match(/\w\w/g)!.map(x => parseInt(x, 16));
+  return `rgba(${r}, ${g}, ${b}, 0.6)`;
+})();
 
 export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
   const [playerName, setPlayerName] = useState(() => generateDefaultName());
@@ -146,7 +152,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
               boxSizing: 'border-box',
               transition: 'border-color 0.2s',
             }}
-            onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.6)'}
+            onFocus={(e) => e.currentTarget.style.borderColor = BLUE_BORDER_FOCUS}
             onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(112, 123, 137, 0.3)'}
           />
         </div>
@@ -186,7 +192,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           }}
           onMouseEnter={(e) => {
             if (!copied) {
-              e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.6)';
+              e.currentTarget.style.borderColor = BLUE_BORDER_FOCUS;
               e.currentTarget.style.background = 'rgba(42, 21, 45, 0.9)';
             }
           }}

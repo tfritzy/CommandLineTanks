@@ -4,6 +4,7 @@ import { type Infer } from "spacetimedb";
 import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
 import { type EventContext } from "../../module_bindings";
+import { TEAM_COLORS } from "../constants";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
 
@@ -174,7 +175,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
           </div>
           <div
             style={{
-              backgroundColor: "#3e4c7e",
+              backgroundColor: TEAM_COLORS.BLUE.DEBRIS_DARK,
               padding: "6px 14px",
               display: "flex",
               alignItems: "center",

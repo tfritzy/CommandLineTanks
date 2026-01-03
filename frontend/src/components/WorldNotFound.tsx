@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { getConnection } from '../spacetimedb-connection';
+import { TEAM_UI_COLORS, TEAM_SHIELD_COLORS } from '../constants';
 
 interface WorldNotFoundProps {
   worldId: string;
@@ -73,14 +74,14 @@ export default function WorldNotFound({ worldId }: WorldNotFoundProps) {
           fontFamily: "'JetBrains Mono', monospace",
           fontWeight: 600,
           color: '#fcfbf3',
-          background: '#5a78b2',
+          background: TEAM_UI_COLORS.BLUE,
           border: 'none',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           letterSpacing: '0.05em',
         }}
-        onMouseEnter={(e) => e.currentTarget.style.background = '#7396d5'}
-        onMouseLeave={(e) => e.currentTarget.style.background = '#5a78b2'}
+        onMouseEnter={(e) => e.currentTarget.style.background = TEAM_SHIELD_COLORS.MAIN}
+        onMouseLeave={(e) => e.currentTarget.style.background = TEAM_UI_COLORS.BLUE}
       >
         GO TO HOME WORLD
       </button>

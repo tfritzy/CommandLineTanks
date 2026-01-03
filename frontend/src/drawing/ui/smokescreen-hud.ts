@@ -1,3 +1,5 @@
+import { TEAM_SHIELD_COLORS } from '../../constants';
+
 export function drawSmokescreenHud(
   ctx: CanvasRenderingContext2D,
   progress: number,
@@ -35,7 +37,8 @@ export function drawSmokescreenHud(
   ctx.stroke();
 
   const progressBarWidth = width * progress;
-  ctx.fillStyle = isReady ? 'rgba(90, 120, 178, 0.3)' : 'rgba(112, 123, 137, 0.3)';
+  const [r, g, b] = TEAM_SHIELD_COLORS.LIGHT.match(/\w\w/g)!.map(x => parseInt(x, 16));
+  ctx.fillStyle = isReady ? `rgba(${r}, ${g}, ${b}, 0.3)` : 'rgba(112, 123, 137, 0.3)';
   ctx.fillRect(x, y, progressBarWidth, height);
 
   ctx.fillStyle = isReady ? '#aaeeea' : '#a9bcbf';

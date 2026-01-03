@@ -17,7 +17,7 @@ export class NormalProjectile extends Projectile {
   }
 
   public spawnDeathParticles(particlesManager: ProjectileImpactParticlesManager): void {
-    const color = this.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+    const color = this.alliance === 0 ? TEAM_COLORS.RED.MAIN : TEAM_COLORS.BLUE.MAIN;
     particlesManager.spawnParticles(
       this.x,
       this.y,
