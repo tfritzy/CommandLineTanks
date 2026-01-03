@@ -62,3 +62,11 @@ export const DECORATION_COLORS = {
     SHADOW: "#00000044",
   },
 };
+
+export const UI_COLORS = {
+  TEXT_BRIGHT: "#fcfbf3",
+  BACKGROUND_DARK: "#34404f",
+  WHITE: "#ffffff",
+  BLACK: "#000000",
+  HEALTH_PACK_SECONDARY: "#6ec077",
+};

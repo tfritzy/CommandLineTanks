@@ -1,3 +1,6 @@
+import { UI_COLORS } from "../../constants";
+import { TERMINAL_COLORS } from "../../components/terminal/colors";
+
 export function drawGunSlot(
   ctx: CanvasRenderingContext2D,
   slotIndex: number,
@@ -9,7 +12,7 @@ export function drawGunSlot(
 ) {
   ctx.save();
 
-  ctx.fillStyle = hasGun ? "#4a4b5b" : "#2a152d";
+  ctx.fillStyle = hasGun ? TERMINAL_COLORS.SEPARATOR : TERMINAL_COLORS.BACKGROUND;
   ctx.globalAlpha = hasGun ? 0.8 : 0.3;
 
   const radius = 4;
@@ -31,12 +34,12 @@ export function drawGunSlot(
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = isSelected ? "#fceba8" : "#4a4b5b";
+  ctx.strokeStyle = isSelected ? TERMINAL_COLORS.WARNING : TERMINAL_COLORS.SEPARATOR;
   ctx.lineWidth = 1;
   ctx.globalAlpha = 1;
   ctx.stroke();
 
-  ctx.fillStyle = isSelected ? "#fceba8" : "#a9bcbf";
+  ctx.fillStyle = isSelected ? TERMINAL_COLORS.WARNING : TERMINAL_COLORS.TEXT_MUTED;
   ctx.font = "bold 10px monospace";
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
@@ -53,7 +56,7 @@ export function drawGunAmmo(
   slotSize: number
 ) {
   ctx.save();
-  ctx.fillStyle = "#fcfbf3";
+  ctx.fillStyle = UI_COLORS.TEXT_BRIGHT;
   ctx.font = "bold 10px monospace";
   ctx.textAlign = "right";
   ctx.textBaseline = "bottom";

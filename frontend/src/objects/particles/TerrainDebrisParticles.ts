@@ -1,6 +1,7 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
 import type { Particle } from "./ParticleTypes";
+import { TERMINAL_COLORS } from "../../components/terminal/colors";
 
 export class TerrainDebrisParticles {
   private particles: Particle[] = [];
@@ -13,7 +14,7 @@ export class TerrainDebrisParticles {
     this.x = x;
     this.y = y;
     this.cachedPosition = { x, y };
-    const fenceColors = ["#a9bcbf", "#707b89", "#4a4b5b"];
+    const fenceColors = [TERMINAL_COLORS.TEXT_MUTED, TERMINAL_COLORS.TEXT_DIM, TERMINAL_COLORS.SEPARATOR];
     
     const particleCount = 8 + Math.floor(Math.random() * 8);
     for (let i = 0; i < particleCount; i++) {
