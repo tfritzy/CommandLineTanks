@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mushroom Drawing Benchmark</title>
+    <style>
+      body {
+        font-family: monospace;
+        background: #1a1a1a;
+        color: #e0e0e0;
+        padding: 20px;
+        margin: 0;
+      }
+      
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      
+      h1 {
+        color: #4a9eff;
+        margin-bottom: 10px;
+      }
+      
+      .description {
+        color: #a0a0a0;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+      
+      .controls {
+        background: #252525;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      
+      .control-group {
+        margin-bottom: 15px;
+      }
+      
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #b0b0b0;
+      }
+      
+      input[type="text"], input[type="number"] {
+        width: 300px;
+        padding: 8px;
+        background: #1a1a1a;
+        border: 1px solid #404040;
+        color: #e0e0e0;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+      
+      button {
+        background: #4a9eff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      
+      button:hover {
+        background: #3a8eef;
+      }
+      
+      button:disabled {
+        background: #555;
+        cursor: not-allowed;
+      }
+      
+      .output {
+        background: #252525;
+        padding: 20px;
+        border-radius: 8px;
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+      
+      .loading {
+        color: #ffa500;
+        font-weight: bold;
+      }
+      
+      .summary {
+        background: #2a3f2a;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 20px;
+        border-left: 4px solid #4caf50;
+      }
+      
+      .summary h3 {
+        margin-top: 0;
+        color: #6fbf73;
+      }
+      
+      .comparison {
+        background: #3a3a5a;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        border-left: 4px solid #7c7cff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🍄 Mushroom Drawing Performance Benchmark</h1>
+      
+      <div class="description">
+        This benchmark compares two methods of drawing mushrooms:
+        <ul>
+          <li><strong>Direct Drawing:</strong> Uses canvas arc operations to draw each mushroom's shadow and cap individually</li>
+          <li><strong>Texture Sheet:</strong> Pre-renders mushrooms to a texture atlas and uses drawImage to copy them</li>
+        </ul>
+        The benchmark measures average, median, min, and max rendering times across multiple iterations.
+      </div>
+      
+      <div class="controls">
+        <div class="control-group">
+          <label for="mushroomCounts">Mushroom Counts (comma-separated):</label>
+          <input 
+            type="text" 
+            id="mushroomCounts" 
+            value="10, 50, 100, 250, 500, 1000"
+            placeholder="e.g., 10, 50, 100, 250, 500"
+          />
+        </div>
+        
+        <div class="control-group">
+          <label for="iterations">Iterations per test:</label>
+          <input 
+            type="number" 
+            id="iterations" 
+            value="100"
+            min="10"
+            max="1000"
+          />
+        </div>
+        
+        <button id="runBenchmark">Run Benchmark</button>
+      </div>
+      
+      <div class="output" id="output">
+        Click "Run Benchmark" to start...
+      </div>
+    </div>
+    
+    <script type="module">
+      import { MushroomBenchmark } from './src/utils/MushroomBenchmark.ts';
+      
+      const outputDiv = document.getElementById('output');
+      const runButton = document.getElementById('runBenchmark');
+      const mushroomCountsInput = document.getElementById('mushroomCounts');
+      const iterationsInput = document.getElementById('iterations');
+      
+      const originalConsoleLog = console.log;
+      const logBuffer = [];
+      
+      function captureConsoleLog() {
+        console.log = function(...args) {
+          const message = args.map(arg => 
+            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+          ).join(' ');
+          logBuffer.push(message);
+          outputDiv.textContent = logBuffer.join('\n');
+          originalConsoleLog.apply(console, args);
+        };
+      }
+      
+      function restoreConsoleLog() {
+        console.log = originalConsoleLog;
+      }
+      
+      runButton.addEventListener('click', async () => {
+        const mushroomCountsStr = mushroomCountsInput.value;
+        const iterations = parseInt(iterationsInput.value);
+        
+        const mushroomCounts = mushroomCountsStr
+          .split(',')
+          .map(s => parseInt(s.trim()))
+          .filter(n => !isNaN(n) && n > 0);
+        
+        if (mushroomCounts.length === 0) {
+          outputDiv.textContent = 'Error: Please enter valid mushroom counts';
+          return;
+        }
+        
+        if (isNaN(iterations) || iterations < 1) {
+          outputDiv.textContent = 'Error: Please enter a valid iteration count';
+          return;
+        }
+        
+        logBuffer.length = 0;
+        outputDiv.textContent = 'Running benchmark...\n';
+        runButton.disabled = true;
+        
+        captureConsoleLog();
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          const benchmark = new MushroomBenchmark();
+          const results = benchmark.runComparison(mushroomCounts, iterations);
+          const formattedResults = benchmark.formatResults(results);
+          
+          logBuffer.push('\n' + formattedResults);
+          outputDiv.textContent = logBuffer.join('\n');
+          
+        } catch (error) {
+          outputDiv.textContent = `Error running benchmark: ${error.message}\n${error.stack}`;
+        } finally {
+          restoreConsoleLog();
+          runButton.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
