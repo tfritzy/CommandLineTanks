@@ -23,9 +23,13 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
   useEffect(() => {
     const connection = getConnection();
     if (connection?.identity) {
-      const player = Array.from(connection.db.player.iter()).find((p) =>
-        p.identity.isEqual(connection.identity!)
-      );
+      let player = null;
+      for (const p of connection.db.player.iter()) {
+        if (p.identity.isEqual(connection.identity)) {
+          player = p;
+          break;
+        }
+      }
       
       if (player && !isDefaultGuestName(player.name)) {
         setHasCustomName(true);
