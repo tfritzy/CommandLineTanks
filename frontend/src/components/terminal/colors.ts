@@ -25,6 +25,14 @@ export const TERMINAL_COLORS = {
   
   HEADER_TEXT: "#e6eeed",
   SEPARATOR: "#4a4b5b",
+  
+  HEADER: "#7396d5",
+  DIM: "#707b89",
+  TEAM_RED: "#c06852",
+  TEAM_BLUE: "#5a78b2",
+  KILLS: "#96dc7f",
+  DEATHS: "#e39764",
+  KD: "#fceba8",
 } as const;
 
 export type TerminalColorName = keyof typeof TERMINAL_COLORS;

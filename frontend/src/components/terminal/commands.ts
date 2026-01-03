@@ -2,6 +2,7 @@ import { type DbConnection } from "../../../module_bindings";
 import WorldVisibility from "../../../module_bindings/world_visibility_type";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 import * as colors from "./colors";
+import { type TerminalColorName } from "./colors";
 
 function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
@@ -90,7 +91,8 @@ const allCommands = [
   { name: 'aim', alias: 'a' },
   { name: 'target', alias: 't' },
   { name: 'fire', alias: 'f' },
-  { name: 'repair', alias: 'rep' }
+  { name: 'repair', alias: 'rep' },
+  { name: 'score', alias: 'sc' }
 ];
 
 function levenshteinDistance(str1: string, str2: string): number {
@@ -182,6 +184,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
+      "  score, sc            Display team scores and player records",
       "  name                 View or change your player name",
       "  create               Create a new game world with optional flags",
       "  join                 Join or create a game world (default: random)",
@@ -380,6 +383,23 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  respawn",
+      ];
+
+    case "score":
+    case "sc":
+      return [
+        "score, sc - Display team scores and player records",
+        "",
+        "Usage: score",
+        "",
+        "Shows a table with:",
+        "  - Team scores (total kills per team)",
+        "  - Individual player records (kills, deaths, K/D ratio)",
+        "  - Players organized by team",
+        "",
+        "Examples:",
+        "  score",
+        "  sc",
       ];
 
     case "name":
@@ -1351,6 +1371,88 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
   connection.reducers.changeName({ newName });
 
   return [`Name changed to: ${newName}`];
+}
+
+export function score(connection: DbConnection, worldId: string, args: string[]): string[] {
+  if (args.length > 0) {
+    return [
+      colors.error("score: error: score command takes no arguments"),
+      "",
+      colors.dim("Usage: score"),
+      colors.dim("       sc"),
+    ];
+  }
+
+  const scoreRecord = connection.db.score.WorldId.find(worldId);
+  const tanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.worldId === worldId
+  );
+
+  if (tanks.length === 0) {
+    return [
+      colors.error("score: error: no players in this world"),
+    ];
+  }
+
+  const team0Kills = scoreRecord?.kills[0] || 0;
+  const team1Kills = scoreRecord?.kills[1] || 0;
+
+  const team0Tanks = tanks.filter((t) => t.alliance === 0);
+  const team1Tanks = tanks.filter((t) => t.alliance === 1);
+
+  team0Tanks.sort((a, b) => b.kills - a.kills);
+  team1Tanks.sort((a, b) => b.kills - a.kills);
+
+  const output: string[] = [];
+
+  output.push("");
+  output.push(colors.colorize("═══════════════════════════════════════════", "HEADER"));
+  output.push(colors.colorize("                TEAM SCORES                ", "HEADER"));
+  output.push(colors.colorize("═══════════════════════════════════════════", "HEADER"));
+  output.push("");
+
+  const team0Color = "TEAM_RED";
+  const team1Color = "TEAM_BLUE";
+
+  output.push(`  ${colors.colorize("Team Red", team0Color)}:  ${colors.colorize(team0Kills.toString(), "KILLS")} kills`);
+  output.push(`  ${colors.colorize("Team Blue", team1Color)}: ${colors.colorize(team1Kills.toString(), "KILLS")} kills`);
+  output.push("");
+
+  output.push(colors.colorize("─────────────────────────────────────────────", "DIM"));
+  output.push(colors.colorize("              PLAYER RECORDS                ", "HEADER"));
+  output.push(colors.colorize("─────────────────────────────────────────────", "DIM"));
+  output.push("");
+
+  const formatPlayerRow = (tank: typeof tanks[0], teamColor: TerminalColorName) => {
+    const kd = tank.deaths > 0 ? (tank.kills / tank.deaths).toFixed(2) : tank.kills.toFixed(2);
+    const name = tank.name.padEnd(15).substring(0, 15);
+    const kills = tank.kills.toString().padStart(3);
+    const deaths = tank.deaths.toString().padStart(3);
+    const kdStr = kd.padStart(5);
+    
+    return `  ${colors.colorize(name, teamColor)}  ${colors.colorize(kills, "KILLS")} / ${colors.colorize(deaths, "DEATHS")}  (${colors.colorize(kdStr, "KD")})`;
+  };
+
+  if (team0Tanks.length > 0) {
+    output.push(colors.colorize("  Team Red:", team0Color));
+    for (const tank of team0Tanks) {
+      output.push(formatPlayerRow(tank, team0Color));
+    }
+    output.push("");
+  }
+
+  if (team1Tanks.length > 0) {
+    output.push(colors.colorize("  Team Blue:", team1Color));
+    for (const tank of team1Tanks) {
+      output.push(formatPlayerRow(tank, team1Color));
+    }
+    output.push("");
+  }
+
+  output.push(colors.colorize("═══════════════════════════════════════════", "HEADER"));
+  output.push("");
+
+  return output;
 }
 
 export function exitWorld(connection: DbConnection, worldId: string, args: string[]): string[] {
