@@ -12,8 +12,8 @@ public static partial class TerrainGenerator
     private const int FIELD_MIN_SIZE = 3;
     private const int FIELD_MAX_SIZE = 6;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
-    private const int MIN_STRUCTURES = 3;
-    private const int STRUCTURE_COUNT_RANGE = 4;
+    private const int MIN_STRUCTURES = 5;
+    private const int STRUCTURE_COUNT_RANGE = 6;
     private const int ROTATION_NORTH = 0;
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
