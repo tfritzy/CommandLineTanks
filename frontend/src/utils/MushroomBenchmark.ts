@@ -2,6 +2,11 @@ import { drawMushrooms } from "../drawing/decorations/mushroom";
 import { drawMushroomsTextureSheet } from "../drawing/decorations/mushroom-texture-sheet";
 import { UNIT_TO_PIXEL } from "../constants";
 
+const DEFAULT_MUSHROOM_COUNTS = [10, 50, 100, 250, 500, 1000];
+const DEFAULT_ITERATIONS = 100;
+const MIN_MUSHROOM_SIZE = 0.085;
+const MAX_MUSHROOM_SIZE = 0.125;
+
 interface BenchmarkResult {
   method: string;
   mushroomCount: number;
@@ -32,8 +37,8 @@ export class MushroomBenchmark {
 
   private generateTestMushrooms(count: number): Array<{ x: number; y: number; size: number }> {
     const mushrooms: Array<{ x: number; y: number; size: number }> = [];
-    const minSize = 0.085 * UNIT_TO_PIXEL;
-    const maxSize = 0.125 * UNIT_TO_PIXEL;
+    const minSize = MIN_MUSHROOM_SIZE * UNIT_TO_PIXEL;
+    const maxSize = MAX_MUSHROOM_SIZE * UNIT_TO_PIXEL;
 
     for (let i = 0; i < count; i++) {
       const seed = i * 123.456;
@@ -86,7 +91,7 @@ export class MushroomBenchmark {
     };
   }
 
-  public runComparison(mushroomCounts: number[], iterations: number = 100): BenchmarkResult[] {
+  public runComparison(mushroomCounts: number[] = DEFAULT_MUSHROOM_COUNTS, iterations: number = DEFAULT_ITERATIONS): BenchmarkResult[] {
     const results: BenchmarkResult[] = [];
 
     console.log("Starting mushroom drawing benchmark...");
@@ -181,10 +186,7 @@ export class MushroomBenchmark {
 export function runMushroomBenchmark() {
   const benchmark = new MushroomBenchmark();
   
-  const mushroomCounts = [10, 50, 100, 250, 500, 1000];
-  const iterations = 100;
-  
-  const results = benchmark.runComparison(mushroomCounts, iterations);
+  const results = benchmark.runComparison(DEFAULT_MUSHROOM_COUNTS, DEFAULT_ITERATIONS);
   
   const formattedResults = benchmark.formatResults(results);
   console.log(formattedResults);

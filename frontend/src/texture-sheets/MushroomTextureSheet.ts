@@ -16,6 +16,8 @@ export class MushroomTextureSheet {
   private static readonly CANVAS_SIZE = 512;
   private static readonly SIZE_VARIANTS = 5;
   private static readonly PADDING = 4;
+  private static readonly MIN_MUSHROOM_SIZE = 0.085;
+  private static readonly MAX_MUSHROOM_SIZE = 0.125;
 
   constructor() {
     const dpr = getNormalizedDPR();
@@ -35,8 +37,8 @@ export class MushroomTextureSheet {
   }
 
   private initializeTextures() {
-    const minSize = 0.085 * UNIT_TO_PIXEL;
-    const maxSize = 0.125 * UNIT_TO_PIXEL;
+    const minSize = MushroomTextureSheet.MIN_MUSHROOM_SIZE * UNIT_TO_PIXEL;
+    const maxSize = MushroomTextureSheet.MAX_MUSHROOM_SIZE * UNIT_TO_PIXEL;
     const sizeStep = (maxSize - minSize) / (MushroomTextureSheet.SIZE_VARIANTS - 1);
 
     let currentX = 0;
@@ -92,8 +94,8 @@ export class MushroomTextureSheet {
   }
 
   public getSizeVariantKey(size: number): string {
-    const minSize = 0.085 * UNIT_TO_PIXEL;
-    const maxSize = 0.125 * UNIT_TO_PIXEL;
+    const minSize = MushroomTextureSheet.MIN_MUSHROOM_SIZE * UNIT_TO_PIXEL;
+    const maxSize = MushroomTextureSheet.MAX_MUSHROOM_SIZE * UNIT_TO_PIXEL;
     const normalizedSize = Math.max(0, Math.min(1, (size - minSize) / (maxSize - minSize)));
     const index = Math.round(normalizedSize * (MushroomTextureSheet.SIZE_VARIANTS - 1));
     return `mushroom-${index}`;
