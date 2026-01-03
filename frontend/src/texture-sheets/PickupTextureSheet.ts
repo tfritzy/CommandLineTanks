@@ -28,26 +28,18 @@ export interface PickupTexture {
   height: number;
 }
 
-const PROJECTILE_PICKUP_TYPES = [
-  "triple-shooter",
-  "missile-launcher",
-  "boomerang",
-  "grenade",
-  "rocket",
-  "moag",
-  "sniper"
-] as const;
-
 export class PickupTextureSheet {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private textures: Map<string, PickupTexture> = new Map();
+  private alliance: number;
 
   private static readonly CANVAS_SIZE = 1024;
   private static readonly CELL_SIZE_MULTIPLIER = 1.2;
   private static readonly PADDING = 10;
 
-  constructor() {
+  constructor(alliance: number = 0) {
+    this.alliance = alliance;
     const dpr = getNormalizedDPR();
     this.canvas = document.createElement("canvas");
     this.canvas.width = PickupTextureSheet.CANVAS_SIZE * dpr;
@@ -89,30 +81,13 @@ export class PickupTextureSheet {
     );
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addProjectilePickup("triple-shooter", currentX, currentY, cellSize, 0);
+    this.addProjectilePickup("triple-shooter", currentX, currentY, cellSize, this.alliance);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addProjectilePickup("missile-launcher", currentX, currentY, cellSize, 0);
+    this.addProjectilePickup("missile-launcher", currentX, currentY, cellSize, this.alliance);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addProjectilePickup("boomerang", currentX, currentY, cellSize, 0);
-    currentX += cellSize + PickupTextureSheet.PADDING;
-
-    if (currentX + cellSize > PickupTextureSheet.CANVAS_SIZE) {
-      currentX = 0;
-      currentY += cellSize + PickupTextureSheet.PADDING;
-    }
-
-    this.addProjectilePickup("grenade", currentX, currentY, cellSize, 0);
-    currentX += cellSize + PickupTextureSheet.PADDING;
-
-    this.addProjectilePickup("rocket", currentX, currentY, cellSize, 0);
-    currentX += cellSize + PickupTextureSheet.PADDING;
-
-    this.addProjectilePickup("moag", currentX, currentY, cellSize, 0);
-    currentX += cellSize + PickupTextureSheet.PADDING;
-
-    this.addProjectilePickup("sniper", currentX, currentY, cellSize, 0);
+    this.addProjectilePickup("boomerang", currentX, currentY, cellSize, this.alliance);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
     if (currentX + cellSize > PickupTextureSheet.CANVAS_SIZE) {
@@ -120,30 +95,16 @@ export class PickupTextureSheet {
       currentY += cellSize + PickupTextureSheet.PADDING;
     }
 
-    this.addProjectilePickup("triple-shooter-blue", currentX, currentY, cellSize, 1);
+    this.addProjectilePickup("grenade", currentX, currentY, cellSize, this.alliance);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addProjectilePickup("missile-launcher-blue", currentX, currentY, cellSize, 1);
+    this.addProjectilePickup("rocket", currentX, currentY, cellSize, this.alliance);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    this.addProjectilePickup("boomerang-blue", currentX, currentY, cellSize, 1);
+    this.addProjectilePickup("moag", currentX, currentY, cellSize, this.alliance);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
-    if (currentX + cellSize > PickupTextureSheet.CANVAS_SIZE) {
-      currentX = 0;
-      currentY += cellSize + PickupTextureSheet.PADDING;
-    }
-
-    this.addProjectilePickup("grenade-blue", currentX, currentY, cellSize, 1);
-    currentX += cellSize + PickupTextureSheet.PADDING;
-
-    this.addProjectilePickup("rocket-blue", currentX, currentY, cellSize, 1);
-    currentX += cellSize + PickupTextureSheet.PADDING;
-
-    this.addProjectilePickup("moag-blue", currentX, currentY, cellSize, 1);
-    currentX += cellSize + PickupTextureSheet.PADDING;
-
-    this.addProjectilePickup("sniper-blue", currentX, currentY, cellSize, 1);
+    this.addProjectilePickup("sniper", currentX, currentY, cellSize, this.alliance);
     currentX += cellSize + PickupTextureSheet.PADDING;
 
     this.addPickup(
@@ -201,8 +162,7 @@ export class PickupTextureSheet {
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
 
-    const baseKey = key.endsWith('-blue') ? key.slice(0, -5) : key;
-    switch (baseKey) {
+    switch (key) {
       case "triple-shooter": {
         const triangleSpacing = 0.15;
         const cos30 = Math.sqrt(3) / 2;
@@ -337,15 +297,9 @@ export class PickupTextureSheet {
     ctx: CanvasRenderingContext2D,
     key: string,
     x: number,
-    y: number,
-    alliance?: number
+    y: number
   ) {
-    let textureKey = key;
-    if (alliance === 1 && (PROJECTILE_PICKUP_TYPES as readonly string[]).includes(key)) {
-      textureKey = `${key}-blue`;
-    }
-    
-    const texture = this.textures.get(textureKey);
+    const texture = this.textures.get(key);
     if (!texture) return;
 
     const dpr = getNormalizedDPR();

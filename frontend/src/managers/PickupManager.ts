@@ -3,7 +3,7 @@ import { type PickupRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
 import { UNIT_TO_PIXEL } from "../constants";
-import { pickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
+import { PickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
 import { drawMoagBody, drawMoagShadow } from "../drawing";
 
 interface PickupData {
@@ -16,11 +16,15 @@ interface PickupData {
 export class PickupManager {
   private pickups: Map<string, PickupData> = new Map();
   private worldId: string;
+  private pickupTextureSheet: PickupTextureSheet;
+  private playerAlliance: number;
   private handlePickupInsert: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
   private handlePickupDelete: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
+    this.playerAlliance = this.getPlayerAlliance() ?? 0;
+    this.pickupTextureSheet = new PickupTextureSheet(this.playerAlliance);
     this.subscribeToPickups();
   }
 
@@ -91,8 +95,6 @@ export class PickupManager {
     const startTileY = Math.floor(cameraY / UNIT_TO_PIXEL);
     const endTileY = Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL);
 
-    const playerAlliance = this.getPlayerAlliance();
-
     for (const pickup of this.pickups.values()) {
       if (
         pickup.positionX >= startTileX &&
@@ -100,46 +102,46 @@ export class PickupManager {
         pickup.positionY >= startTileY &&
         pickup.positionY <= endTileY
       ) {
-        this.drawPickup(ctx, pickup, playerAlliance);
+        this.drawPickup(ctx, pickup);
       }
     }
   }
 
-  private drawPickup(ctx: CanvasRenderingContext2D, pickup: PickupData, alliance?: number) {
+  private drawPickup(ctx: CanvasRenderingContext2D, pickup: PickupData) {
     const worldX = pickup.positionX * UNIT_TO_PIXEL;
     const worldY = pickup.positionY * UNIT_TO_PIXEL;
     
     switch (pickup.type.tag) {
       case "Health":
-        pickupTextureSheet.draw(ctx, "health", worldX, worldY, alliance);
+        this.pickupTextureSheet.draw(ctx, "health", worldX, worldY);
         break;
       case "Shield":
-        pickupTextureSheet.draw(ctx, "shield", worldX, worldY, alliance);
+        this.pickupTextureSheet.draw(ctx, "shield", worldX, worldY);
         break;
       case "TripleShooter":
-        pickupTextureSheet.draw(ctx, "triple-shooter", worldX, worldY, alliance);
+        this.pickupTextureSheet.draw(ctx, "triple-shooter", worldX, worldY);
         break;
       case "MissileLauncher":
-        pickupTextureSheet.draw(ctx, "missile-launcher", worldX, worldY, alliance);
+        this.pickupTextureSheet.draw(ctx, "missile-launcher", worldX, worldY);
         break;
       case "Boomerang":
-        pickupTextureSheet.draw(ctx, "boomerang", worldX, worldY, alliance);
+        this.pickupTextureSheet.draw(ctx, "boomerang", worldX, worldY);
         break;
       case "Grenade":
-        pickupTextureSheet.draw(ctx, "grenade", worldX, worldY, alliance);
+        this.pickupTextureSheet.draw(ctx, "grenade", worldX, worldY);
         break;
       case "Rocket":
-        pickupTextureSheet.draw(ctx, "rocket", worldX, worldY, alliance);
+        this.pickupTextureSheet.draw(ctx, "rocket", worldX, worldY);
         break;
       case "Moag":
         drawMoagShadow(ctx, worldX - 4, worldY + 4, 0.3);
-        drawMoagBody(ctx, worldX, worldY, 0.3, alliance ?? 0);
+        drawMoagBody(ctx, worldX, worldY, 0.3, this.playerAlliance);
         break;
       case "Sniper":
-        pickupTextureSheet.draw(ctx, "sniper", worldX, worldY, alliance);
+        this.pickupTextureSheet.draw(ctx, "sniper", worldX, worldY);
         break;
       default:
-        pickupTextureSheet.draw(ctx, "unknown", worldX, worldY, alliance);
+        this.pickupTextureSheet.draw(ctx, "unknown", worldX, worldY);
         break;
     }
   }
