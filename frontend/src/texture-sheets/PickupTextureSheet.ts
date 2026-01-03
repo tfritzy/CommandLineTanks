@@ -317,5 +317,3 @@ export class PickupTextureSheet {
     );
   }
 }
-
-export const pickupTextureSheet = new PickupTextureSheet();
