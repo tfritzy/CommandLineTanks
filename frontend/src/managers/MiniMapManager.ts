@@ -178,7 +178,7 @@ export class MiniMapManager {
       const tankInfo = {
         x: miniMapX + tankX - size / 2,
         y: miniMapY + tankY - size / 2,
-        size: size
+        size
       };
 
       if (tank.getAlliance() === 0) {
