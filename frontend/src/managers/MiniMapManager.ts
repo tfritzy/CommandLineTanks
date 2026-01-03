@@ -13,7 +13,8 @@ export class MiniMapManager {
   private worldId: string;
   private miniMapMaxSize: number = 150;
   private margin: number = 20;
-  private tankIndicatorRadius: number = 5;
+  private tankIndicatorSize: number = 3;
+  private playerTankIndicatorSize: number = 5;
   private spawnZoneWidth: number = 5;
   private baseLayerCanvas: HTMLCanvasElement | null = null;
   private baseLayerContext: CanvasRenderingContext2D | null = null;
@@ -32,6 +33,8 @@ export class MiniMapManager {
   private handleDetailDelete: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
   private handlePickupInsert: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
   private handlePickupDelete: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
+  private redTanksBuffer: Array<{ x: number; y: number; size: number }> = [];
+  private blueTanksBuffer: Array<{ x: number; y: number; size: number }> = [];
 
   constructor(tankManager: TankManager, worldId: string) {
     this.tankManager = tankManager;
@@ -195,23 +198,43 @@ export class MiniMapManager {
     ctx.lineWidth = 1;
     ctx.strokeRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
 
-    const playerPos = playerTank.getPosition();
-    const clampedX = Math.max(0, Math.min(playerPos.x, this.worldWidth));
-    const clampedY = Math.max(0, Math.min(playerPos.y, this.worldHeight));
-    const tankX = (clampedX / this.worldWidth) * miniMapWidth;
-    const tankY = (clampedY / this.worldHeight) * miniMapHeight;
+    this.redTanksBuffer.length = 0;
+    this.blueTanksBuffer.length = 0;
 
-    const tankColor = playerTank.getAllianceColor();
-    ctx.fillStyle = tankColor;
-    ctx.beginPath();
-    ctx.arc(
-      miniMapX + tankX,
-      miniMapY + tankY,
-      this.tankIndicatorRadius,
-      0,
-      Math.PI * 2
-    );
-    ctx.fill();
+    for (const tank of this.tankManager.getAllTanks()) {
+      if (tank.getHealth() <= 0) continue;
+
+      const tankPos = tank.getPosition();
+      const clampedX = Math.max(0, Math.min(tankPos.x, this.worldWidth));
+      const clampedY = Math.max(0, Math.min(tankPos.y, this.worldHeight));
+      const tankX = (clampedX / this.worldWidth) * miniMapWidth;
+      const tankY = (clampedY / this.worldHeight) * miniMapHeight;
+
+      const isPlayerTank = tank.id === playerTank.id;
+      const size = isPlayerTank ? this.playerTankIndicatorSize : this.tankIndicatorSize;
+
+      const tankInfo = {
+        x: miniMapX + tankX - size / 2,
+        y: miniMapY + tankY - size / 2,
+        size
+      };
+
+      if (tank.getAlliance() === 0) {
+        this.redTanksBuffer.push(tankInfo);
+      } else {
+        this.blueTanksBuffer.push(tankInfo);
+      }
+    }
+
+    ctx.fillStyle = TEAM_COLORS.RED;
+    for (const tank of this.redTanksBuffer) {
+      ctx.fillRect(tank.x, tank.y, tank.size, tank.size);
+    }
+
+    ctx.fillStyle = TEAM_COLORS.BLUE;
+    for (const tank of this.blueTanksBuffer) {
+      ctx.fillRect(tank.x, tank.y, tank.size, tank.size);
+    }
 
     ctx.restore();
   }
