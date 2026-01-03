@@ -16,6 +16,7 @@ import { FenceEdge } from "../objects/terrain-details/FenceEdge";
 import { FenceCorner } from "../objects/terrain-details/FenceCorner";
 import { TargetDummy } from "../objects/terrain-details/TargetDummy";
 import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
+import { MushroomDecorationsManager } from "./MushroomDecorationsManager";
 import { terrainDetailTextureSheet } from "../texture-sheets/TerrainDetailTextureSheet";
 import { getNormalizedDPR } from "../utils/dpr";
 
@@ -27,6 +28,8 @@ export class TerrainDetailManager {
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
   private terrainDebrisParticles: TerrainDebrisParticlesManager =
     new TerrainDebrisParticlesManager();
+  private mushroomDecorations: MushroomDecorationsManager =
+    new MushroomDecorationsManager();
   private onDetailDeletedCallbacks: (() => void)[] = [];
   private handleDetailInsert:
     | ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void)
@@ -166,6 +169,7 @@ export class TerrainDetailManager {
         break;
       case "Tree":
         obj = new Tree(x, y, label, health, rotation);
+        this.mushroomDecorations.generateMushroomsAroundTree(x, y);
         break;
       case "HayBale":
         obj = new HayBale(x, y, label, health, rotation);
@@ -379,6 +383,16 @@ export class TerrainDetailManager {
       viewportWidth,
       viewportHeight
     );
+  }
+
+  public drawDecorations(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    canvasWidth: number,
+    canvasHeight: number
+  ) {
+    this.mushroomDecorations.draw(ctx, cameraX, cameraY, canvasWidth, canvasHeight);
   }
 
   public getDetailObjectsByPosition(): (TerrainDetailObject | null)[][] {

@@ -55,3 +55,9 @@ export const TERRAIN_DETAIL_COLORS = {
     CENTER: "#f5c47c",
   },
 };
+
+export const DECORATION_COLORS = {
+  MUSHROOM: {
+    CAP: "#c06852",
+  },
+};

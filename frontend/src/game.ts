@@ -193,6 +193,14 @@ export class Game {
       displayHeight
     );
 
+    this.terrainManager.drawDecorations(
+      this.ctx,
+      this.currentCameraX,
+      this.currentCameraY,
+      displayWidth,
+      displayHeight
+    );
+
     this.pickupManager.draw(
       this.ctx,
       this.currentCameraX,

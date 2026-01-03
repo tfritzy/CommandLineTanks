@@ -244,6 +244,24 @@ export class TerrainManager {
     }
   }
 
+  public drawDecorations(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    canvasWidth: number,
+    canvasHeight: number
+  ) {
+    if (this.detailManager) {
+      this.detailManager.drawDecorations(
+        ctx,
+        cameraX,
+        cameraY,
+        canvasWidth,
+        canvasHeight
+      );
+    }
+  }
+
   public getWorldWidth(): number {
     return this.worldWidth;
   }
