@@ -630,24 +630,24 @@ export function stop(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "stop: error: cannot stop while dead",
+      colors.error("stop: error: cannot stop while dead"),
       "",
-      "Use 'respawn' to respawn",
+      colors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      "stop: error: stop command takes no arguments",
+      colors.error("stop: error: stop command takes no arguments"),
       "",
-      "Usage: stop",
-      "       s",
+      colors.dim("Usage: stop"),
+      colors.dim("       s"),
     ];
   }
 
   connection.reducers.stop({ worldId });
 
-  return ["Tank stopped"];
+  return [colors.success("Tank stopped")];
 }
 
 export function fire(
@@ -684,23 +684,23 @@ export function respawn(
 ): string[] {
   if (!isPlayerDead(connection, worldId)) {
     return [
-      "respawn: error: cannot respawn while alive",
+      colors.error("respawn: error: cannot respawn while alive"),
       "",
-      "You must be dead to respawn",
+      colors.dim("You must be dead to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      "respawn: error: respawn command takes no arguments",
+      colors.error("respawn: error: respawn command takes no arguments"),
       "",
-      "Usage: respawn",
+      colors.dim("Usage: respawn"),
     ];
   }
 
   connection.reducers.respawn({ worldId });
 
-  return ["Respawning..."];
+  return [colors.success("Respawning...")];
 }
 
 export function switchGun(
@@ -710,37 +710,37 @@ export function switchGun(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "switch: error: cannot switch guns while dead",
+      colors.error("switch: error: cannot switch guns while dead"),
       "",
-      "Use 'respawn' to respawn",
+      colors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length < 1) {
     return [
-      "switch: error: missing required argument '<gun_index>'",
+      colors.error("switch: error: missing required argument '<gun_index>'"),
       "",
-      "Usage: switch <gun_index>",
-      "       switch 1",
-      "       switch 2",
-      "       switch 3",
+      colors.dim("Usage: switch <gun_index>"),
+      colors.dim("       switch 1"),
+      colors.dim("       switch 2"),
+      colors.dim("       switch 3"),
     ];
   }
 
   const parsed = Number.parseInt(args[0]);
   if (Number.isNaN(parsed) || parsed < 1 || parsed > 3) {
     return [
-      `switch: error: invalid value '${args[0]}' for '<gun_index>': must be 1, 2, or 3`,
+      colors.error(`switch: error: invalid value '${args[0]}' for '<gun_index>': must be 1, 2, or 3`),
       "",
-      "Usage: switch <gun_index>",
-      "       switch 1",
+      colors.dim("Usage: switch <gun_index>"),
+      colors.dim("       switch 1"),
     ];
   }
 
   const gunIndex = parsed - 1;
 
   if (!connection.identity) {
-    return ["switch: error: no connection"];
+    return [colors.error("switch: error: no connection")];
   }
 
   const myTank = Array.from(connection.db.tank.iter())
@@ -748,20 +748,20 @@ export function switchGun(
     .find((t) => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
-    return ["switch: error: tank not found"];
+    return [colors.error("switch: error: tank not found")];
   }
 
   if (gunIndex >= myTank.guns.length) {
     return [
-      `switch: error: gun slot ${parsed} is empty`,
+      colors.error(`switch: error: gun slot ${parsed} is empty`),
       "",
-      `You only have ${myTank.guns.length} gun${myTank.guns.length !== 1 ? "s" : ""}`,
+      colors.dim(`You only have ${myTank.guns.length} gun${myTank.guns.length !== 1 ? "s" : ""}`),
     ];
   }
 
   connection.reducers.switchGun({ worldId, gunIndex });
 
-  return [`Switched to gun ${parsed}`];
+  return [colors.success(`Switched to gun ${colors.value(parsed.toString())}`)];
 }
 
 export function drive(
@@ -771,30 +771,30 @@ export function drive(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "drive: error: cannot drive while dead",
+      colors.error("drive: error: cannot drive while dead"),
       "",
-      "Use 'respawn' to respawn",
+      colors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length < 1) {
     return [
-      "drive: error: missing required arguments",
+      colors.error("drive: error: missing required arguments"),
       "",
-      "Usage: drive <target_code> [throttle]",
-      "       drive <direction> [distance] [throttle]",
-      "       drive <relative_x> <relative_y> [throttle]",
+      colors.dim("Usage: drive <target_code> [throttle]"),
+      colors.dim("       drive <direction> [distance] [throttle]"),
+      colors.dim("       drive <relative_x> <relative_y> [throttle]"),
       "",
-      "Examples:",
-      "  drive northeast 5",
-      "  drive up 3 75",
-      "  drive a4",
-      "  drive 10 5      (10 units right, 5 units down)",
+      colors.dim("Examples:"),
+      colors.dim("  drive northeast 5"),
+      colors.dim("  drive up 3 75"),
+      colors.dim("  drive a4"),
+      colors.dim("  drive 10 5      (10 units right, 5 units down)"),
     ];
   }
 
   if (!connection.identity) {
-    return ["drive: error: no connection"];
+    return [colors.error("drive: error: no connection")];
   }
 
   const allTanks = Array.from(connection.db.tank.iter()).filter(
@@ -803,7 +803,7 @@ export function drive(
   const myTank = allTanks.find((t) => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
-    return ["drive: error: no connection"];
+    return [colors.error("drive: error: no connection")];
   }
 
   const firstArgLower = args[0].toLowerCase();
@@ -817,10 +817,10 @@ export function drive(
       const parsed = Number.parseInt(args[1]);
       if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
         return [
-          `drive: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`,
+          colors.error(`drive: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`),
           "",
-          "Usage: drive <target_code> [throttle]",
-          "       drive a4 75",
+          colors.dim("Usage: drive <target_code> [throttle]"),
+          colors.dim("       drive a4 75"),
         ];
       } else {
         throttle = parsed / 100;
@@ -833,8 +833,10 @@ export function drive(
       throttle,
     });
 
+    const tankCode = colors.colorize(targetTank.targetCode, 'TANK_CODE');
+    const throttleDisplay = throttle === 1 ? "full" : colors.value((throttle * 100).toString()) + "%";
     return [
-      `Driving to tank '${targetTank.targetCode}' (${targetTank.name}) at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+      colors.success(`Driving to tank ${tankCode} (${targetTank.name}) at ${throttleDisplay} throttle`),
     ];
   }
 
@@ -846,10 +848,10 @@ export function drive(
       const parsed = Number.parseInt(args[1]);
       if (Number.isNaN(parsed) || parsed <= 0) {
         return [
-          `drive: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`,
+          colors.error(`drive: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`),
           "",
-          "Usage: drive <direction> [distance] [throttle]",
-          "       drive northeast 5",
+          colors.dim("Usage: drive <direction> [distance] [throttle]"),
+          colors.dim("       drive northeast 5"),
         ];
       } else {
         distance = parsed;
@@ -861,10 +863,10 @@ export function drive(
       const parsed = Number.parseInt(args[2]);
       if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
         return [
-          `drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
+          colors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
           "",
-          "Usage: drive <direction> [distance] [throttle]",
-          "       drive northeast 5 75",
+          colors.dim("Usage: drive <direction> [distance] [throttle]"),
+          colors.dim("       drive northeast 5 75"),
         ];
       } else {
         throttle = parsed / 100;
@@ -879,24 +881,27 @@ export function drive(
 
     connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
-    const explanation = `${distance} ${distance !== 1 ? "units" : "unit"} ${directionInfo.symbol} ${directionInfo.name}`;
+    const distanceText = colors.value(distance.toString());
+    const dirSymbol = colors.colorize(directionInfo.symbol, 'DIRECTION_SYMBOL');
+    const throttleDisplay = throttle === 1 ? "full" : colors.value((throttle * 100).toString()) + "%";
+    const explanation = `${distanceText} ${distance !== 1 ? "units" : "unit"} ${dirSymbol} ${directionInfo.name}`;
     return [
-      `Driving ${explanation} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+      colors.success(`Driving ${explanation} at ${throttleDisplay} throttle`),
     ];
   }
 
   if (args.length < 2) {
     return [
-      "drive: error: missing required arguments",
+      colors.error("drive: error: missing required arguments"),
       "",
-      "Usage: drive <tank_name> [throttle]",
-      "       drive <direction> [distance] [throttle]",
-      "       drive <relative_x> <relative_y> [throttle]",
+      colors.dim("Usage: drive <tank_name> [throttle]"),
+      colors.dim("       drive <direction> [distance] [throttle]"),
+      colors.dim("       drive <relative_x> <relative_y> [throttle]"),
       "",
-      "Tank name not found. If you meant coordinates, provide both X and Y:",
-      "  drive 10 5      (10 units right, 5 units down)",
-      "  drive -10 0     (10 units left)",
-      "  drive 0 -15 75  (15 units up at 75% throttle)",
+      colors.dim("Tank name not found. If you meant coordinates, provide both X and Y:"),
+      colors.dim("  drive 10 5      (10 units right, 5 units down)"),
+      colors.dim("  drive -10 0     (10 units left)"),
+      colors.dim("  drive 0 -15 75  (15 units up at 75% throttle)"),
     ];
   }
 
@@ -904,12 +909,12 @@ export function drive(
 
   if (Number.isNaN(relativeX)) {
     return [
-      `drive: error: invalid relative x coordinate '${args[0]}'`,
+      colors.error(`drive: error: invalid relative x coordinate '${args[0]}'`),
       "",
-      "Relative X coordinate must be an integer (can be negative)",
+      colors.dim("Relative X coordinate must be an integer (can be negative)"),
       "",
-      "Usage: drive <relative_x> <relative_y> [throttle]",
-      "       drive 10 5",
+      colors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
+      colors.dim("       drive 10 5"),
     ];
   }
 
@@ -917,12 +922,12 @@ export function drive(
 
   if (Number.isNaN(relativeY)) {
     return [
-      `drive: error: invalid relative y coordinate '${args[1]}'`,
+      colors.error(`drive: error: invalid relative y coordinate '${args[1]}'`),
       "",
-      "Relative Y coordinate must be an integer (can be negative)",
+      colors.dim("Relative Y coordinate must be an integer (can be negative)"),
       "",
-      "Usage: drive <relative_x> <relative_y> [throttle]",
-      "       drive 10 5",
+      colors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
+      colors.dim("       drive 10 5"),
     ];
   }
 
@@ -934,10 +939,10 @@ export function drive(
     const parsed = Number.parseInt(args[2]);
     if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
       return [
-        `drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`,
+        colors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
         "",
-        "Usage: drive <relative_x> <relative_y> [throttle]",
-        "       drive 10 5 75",
+        colors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
+        colors.dim("       drive 10 5 75"),
       ];
     } else {
       throttle = parsed / 100;
@@ -946,9 +951,11 @@ export function drive(
 
   connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
-  const relativeStr = `(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`;
+  const relativeStr = colors.value(`(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`);
+  const targetStr = colors.value(`${targetX} ${targetY}`);
+  const throttleDisplay = throttle === 1 ? "full" : colors.value((throttle * 100).toString()) + "%";
   return [
-    `Driving to ${relativeStr} -> ${targetX} ${targetY} at ${throttle === 1 ? "full" : throttle * 100 + "%"} throttle`,
+    colors.success(`Driving to ${relativeStr} -> ${targetStr} at ${throttleDisplay} throttle`),
   ];
 }
 
@@ -1006,18 +1013,18 @@ export function overdrive(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      "overdrive: error: cannot activate overdrive while dead",
+      colors.error("overdrive: error: cannot activate overdrive while dead"),
       "",
-      "Use 'respawn' to respawn",
+      colors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      "overdrive: error: overdrive command takes no arguments",
+      colors.error("overdrive: error: overdrive command takes no arguments"),
       "",
-      "Usage: overdrive",
-      "       od",
+      colors.dim("Usage: overdrive"),
+      colors.dim("       od"),
     ];
   }
 
@@ -1034,16 +1041,16 @@ export function overdrive(
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
-        `overdrive: error: ability is on cooldown`,
+        colors.error("overdrive: error: ability is on cooldown"),
         "",
-        `Time remaining: ${Math.ceil(remaining)} seconds`,
+        `Time remaining: ${colors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
       ];
     }
   }
 
   connection.reducers.overdrive({ worldId });
 
-  return ["Activating overdrive! +25% speed for 10 seconds"];
+  return [colors.success("Activating overdrive! +25% speed for 10 seconds")];
 }
 
 export function repair(
@@ -1105,7 +1112,7 @@ export function create(
   connection: DbConnection,
   args: string[]
 ): string[] {
-  const usage = "Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]";
+  const usage = colors.dim("Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]");
   
   const defaults = {
     name: 'New World',
@@ -1125,7 +1132,7 @@ export function create(
     if (arg === '--name' || arg === '-n') {
       if (i + 1 >= args.length) {
         return [
-          `create: error: ${arg} requires a value`,
+          colors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1133,7 +1140,7 @@ export function create(
       const name = args[i + 1].trim();
       if (!name) {
         return [
-          `create: error: world name cannot be empty`,
+          colors.error("create: error: world name cannot be empty"),
           "",
           usage
         ];
@@ -1143,7 +1150,7 @@ export function create(
     } else if (arg === '--passcode' || arg === '-p') {
       if (i + 1 >= args.length) {
         return [
-          `create: error: ${arg} requires a value`,
+          colors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1153,7 +1160,7 @@ export function create(
     } else if (arg === '--bots' || arg === '-b') {
       if (i + 1 >= args.length) {
         return [
-          `create: error: ${arg} requires a value`,
+          colors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1161,7 +1168,7 @@ export function create(
       const bots = parseInt(args[i + 1]);
       if (isNaN(bots) || bots < 0 || bots > 10 || bots % 2 !== 0) {
         return [
-          `create: error: invalid bot count '${args[i + 1]}', must be an even number between 0 and 10`,
+          colors.error(`create: error: invalid bot count '${args[i + 1]}', must be an even number between 0 and 10`),
           "",
           usage
         ];
@@ -1171,7 +1178,7 @@ export function create(
     } else if (arg === '--duration' || arg === '-d') {
       if (i + 1 >= args.length) {
         return [
-          `create: error: ${arg} requires a value`,
+          colors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1179,7 +1186,7 @@ export function create(
       const duration = parseInt(args[i + 1]);
       if (isNaN(duration) || duration < 1 || duration > 20) {
         return [
-          `create: error: invalid duration '${args[i + 1]}', must be between 1 and 20 minutes`,
+          colors.error(`create: error: invalid duration '${args[i + 1]}', must be between 1 and 20 minutes`),
           "",
           usage
         ];
@@ -1189,7 +1196,7 @@ export function create(
     } else if (arg === '--width' || arg === '-w') {
       if (i + 1 >= args.length) {
         return [
-          `create: error: ${arg} requires a value`,
+          colors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1197,7 +1204,7 @@ export function create(
       const width = parseInt(args[i + 1]);
       if (isNaN(width) || width < 1 || width > 200) {
         return [
-          `create: error: invalid width '${args[i + 1]}', must be between 1 and 200`,
+          colors.error(`create: error: invalid width '${args[i + 1]}', must be between 1 and 200`),
           "",
           usage
         ];
@@ -1207,7 +1214,7 @@ export function create(
     } else if (arg === '--height' || arg === '-h') {
       if (i + 1 >= args.length) {
         return [
-          `create: error: ${arg} requires a value`,
+          colors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1215,7 +1222,7 @@ export function create(
       const height = parseInt(args[i + 1]);
       if (isNaN(height) || height < 1 || height > 200) {
         return [
-          `create: error: invalid height '${args[i + 1]}', must be between 1 and 200`,
+          colors.error(`create: error: invalid height '${args[i + 1]}', must be between 1 and 200`),
           "",
           usage
         ];
@@ -1224,11 +1231,11 @@ export function create(
       i += 2;
     } else {
       return [
-        `create: error: unknown flag '${arg}'`,
+        colors.error(`create: error: unknown flag '${arg}'`),
         "",
         usage,
         "",
-        "Defaults: name='New World', passcode='', bots=0, duration=10, width=50, height=50"
+        colors.dim("Defaults: name='New World', passcode='', bots=0, duration=10, width=50, height=50")
       ];
     }
   }
@@ -1251,10 +1258,10 @@ export function create(
   });
 
   return [
-    `Creating private world "${state.name}"...`,
-    `Bots: ${state.bots}, Duration: ${state.duration} min, Size: ${state.width}x${state.height}`,
+    colors.success(`Creating private world "${state.name}"...`),
+    colors.dim(`Bots: ${state.bots}, Duration: ${state.duration} min, Size: ${state.width}x${state.height}`),
     "",
-    "World creation initiated. You'll be automatically joined."
+    colors.dim("World creation initiated. You'll be automatically joined.")
   ];
 }
 
@@ -1274,19 +1281,19 @@ export function join(connection: DbConnection, args: string[]): string[] {
   });
 
   if (isRandom) {
-    const output = ["Finding or creating a game world..."];
+    const output = [colors.success("Finding or creating a game world...")];
     if (args.length === 0) {
       output.unshift("", colors.dim("join random"));
     }
     return output;
   }
 
-  return [`Joining world ${worldId}...`];
+  return [colors.success(`Joining world ${colors.value(worldId!)}...`)];
 }
 
 export function changeName(connection: DbConnection, args: string[]): string[] {
   if (!connection.identity) {
-    return ["name: error: no connection"];
+    return [colors.error("name: error: no connection")];
   }
 
   const player = Array.from(connection.db.player.iter()).find((p) =>
@@ -1294,35 +1301,35 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
   );
 
   if (!player) {
-    return ["name: error: player not found"];
+    return [colors.error("name: error: player not found")];
   }
 
   if (args.length === 0) {
     return [
-      `Your current name: ${player.name}`,
+      `Your current name: ${colors.value(player.name)}`,
       "",
-      "To change your name, use: name set <new_name>",
+      colors.dim("To change your name, use: name set <new_name>"),
     ];
   }
 
   if (args[0].toLowerCase() !== "set") {
     return [
-      "name: error: invalid subcommand",
+      colors.error("name: error: invalid subcommand"),
       "",
-      "Usage: name",
-      "       name set <new_name>",
+      colors.dim("Usage: name"),
+      colors.dim("       name set <new_name>"),
       "",
-      "Use 'name' to view your current name",
-      "Use 'name set <new_name>' to change your name",
+      colors.dim("Use 'name' to view your current name"),
+      colors.dim("Use 'name set <new_name>' to change your name"),
     ];
   }
 
   if (args.length < 2) {
     return [
-      "name: error: missing required argument '<new_name>'",
+      colors.error("name: error: missing required argument '<new_name>'"),
       "",
-      "Usage: name set <new_name>",
-      "       name set Tank47",
+      colors.dim("Usage: name set <new_name>"),
+      colors.dim("       name set Tank47"),
     ];
   }
 
@@ -1330,41 +1337,41 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
 
   if (newName.length === 0) {
     return [
-      "name: error: name cannot be empty or whitespace",
+      colors.error("name: error: name cannot be empty or whitespace"),
       "",
-      "Usage: name set <new_name>",
-      "       name set Tank47",
+      colors.dim("Usage: name set <new_name>"),
+      colors.dim("       name set Tank47"),
     ];
   }
 
   if (newName.length > 15) {
     return [
-      "name: error: name cannot exceed 15 characters",
+      colors.error("name: error: name cannot exceed 15 characters"),
       "",
-      `Your name has ${newName.length} characters`,
+      colors.dim(`Your name has ${newName.length} characters`),
       "",
-      "Usage: name set <new_name>",
-      "       name set Tank47",
+      colors.dim("Usage: name set <new_name>"),
+      colors.dim("       name set Tank47"),
     ];
   }
 
   connection.reducers.changeName({ newName });
 
-  return [`Name changed to: ${newName}`];
+  return [colors.success(`Name changed to: ${colors.value(newName)}`)];
 }
 
 export function exitWorld(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (args.length > 0) {
     return [
-      "exit: error: exit command takes no arguments",
+      colors.error("exit: error: exit command takes no arguments"),
       "",
-      "Usage: exit",
-      "       e"
+      colors.dim("Usage: exit"),
+      colors.dim("       e")
     ];
   }
 
   if (!connection.identity) {
-    return ["exit: error: no connection"];
+    return [colors.error("exit: error: no connection")];
   }
 
   const joinCode = `exit_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -1373,7 +1380,7 @@ export function exitWorld(connection: DbConnection, worldId: string, args: strin
   connection.reducers.exitWorld({ worldId, joinCode });
 
   return [
-    "Returning to homeworld...",
+    colors.success("Returning to homeworld..."),
   ];
 }
 
