@@ -86,7 +86,9 @@ export default function GameView() {
     const connection = getConnection();
     if (!connection) return;
 
-    let hasReceivedTankData = false;
+    let hasReceivedPlayerTankData = false;
+    let firstTankDataReceived = false;
+    let joinModalTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const checkForTank = () => {
       for (const tank of connection.db.tank.iter()) {
@@ -95,7 +97,7 @@ export default function GameView() {
           tank.owner.isEqual(connection.identity) &&
           tank.worldId === worldId
         ) {
-          hasReceivedTankData = true;
+          hasReceivedPlayerTankData = true;
           setShowJoinModal(false);
           setIsDead(tank.health <= 0);
           return true;
@@ -108,12 +110,27 @@ export default function GameView() {
       _ctx: EventContext,
       tank: Infer<typeof TankRow>
     ) => {
+      if (tank.worldId !== worldId) return;
+
+      if (!firstTankDataReceived) {
+        firstTankDataReceived = true;
+        if (joinModalTimeout) {
+          clearTimeout(joinModalTimeout);
+        }
+        joinModalTimeout = setTimeout(() => {
+          if (!hasReceivedPlayerTankData) {
+            if (!checkForTank()) {
+              setShowJoinModal(true);
+            }
+          }
+        }, 500);
+      }
+
       if (
         connection.identity &&
-        tank.owner.isEqual(connection.identity) &&
-        tank.worldId === worldId
+        tank.owner.isEqual(connection.identity)
       ) {
-        hasReceivedTankData = true;
+        hasReceivedPlayerTankData = true;
         setShowJoinModal(false);
         setIsDead(tank.health <= 0);
       }
@@ -151,18 +168,29 @@ export default function GameView() {
     connection.db.tank.onUpdate(handleTankUpdate);
     connection.db.tank.onDelete(handleTankDelete);
 
+    const existingTanks = Array.from(connection.db.tank.iter()).filter(
+      t => t.worldId === worldId
+    );
+    if (existingTanks.length > 0) {
+      firstTankDataReceived = true;
+      if (joinModalTimeout) {
+        clearTimeout(joinModalTimeout);
+      }
+      joinModalTimeout = setTimeout(() => {
+        if (!hasReceivedPlayerTankData) {
+          if (!checkForTank()) {
+            setShowJoinModal(true);
+          }
+        }
+      }, 500);
+    }
+
     checkForTank();
 
-    const checkTimeout = setTimeout(() => {
-      if (!hasReceivedTankData) {
-        if (!checkForTank()) {
-          setShowJoinModal(true);
-        }
-      }
-    }, 500);
-
     return () => {
-      clearTimeout(checkTimeout);
+      if (joinModalTimeout) {
+        clearTimeout(joinModalTimeout);
+      }
       connection.db.tank.removeOnInsert(handleTankInsert);
       connection.db.tank.removeOnUpdate(handleTankUpdate);
       connection.db.tank.removeOnDelete(handleTankDelete);
