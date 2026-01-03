@@ -160,6 +160,9 @@ export class MiniMapManager {
     ctx.lineWidth = 1;
     ctx.strokeRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
 
+    const redTanks: Array<{ x: number; y: number; size: number }> = [];
+    const blueTanks: Array<{ x: number; y: number; size: number }> = [];
+
     for (const tank of this.tankManager.getAllTanks()) {
       if (tank.getHealth() <= 0) continue;
 
@@ -172,14 +175,27 @@ export class MiniMapManager {
       const isPlayerTank = tank.id === playerTank.id;
       const size = isPlayerTank ? this.playerTankIndicatorSize : this.tankIndicatorSize;
 
-      const tankColor = tank.getAllianceColor();
-      ctx.fillStyle = tankColor;
-      ctx.fillRect(
-        miniMapX + tankX - size / 2,
-        miniMapY + tankY - size / 2,
-        size,
-        size
-      );
+      const tankInfo = {
+        x: miniMapX + tankX - size / 2,
+        y: miniMapY + tankY - size / 2,
+        size: size
+      };
+
+      if (tank.getAlliance() === 0) {
+        redTanks.push(tankInfo);
+      } else {
+        blueTanks.push(tankInfo);
+      }
+    }
+
+    ctx.fillStyle = TEAM_COLORS.RED;
+    for (const tank of redTanks) {
+      ctx.fillRect(tank.x, tank.y, tank.size, tank.size);
+    }
+
+    ctx.fillStyle = TEAM_COLORS.BLUE;
+    for (const tank of blueTanks) {
+      ctx.fillRect(tank.x, tank.y, tank.size, tank.size);
     }
 
     ctx.restore();
