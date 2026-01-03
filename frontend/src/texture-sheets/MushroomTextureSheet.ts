@@ -18,6 +18,8 @@ export class MushroomTextureSheet {
   private static readonly PADDING = 4;
   private static readonly MIN_MUSHROOM_SIZE = 0.085;
   private static readonly MAX_MUSHROOM_SIZE = 0.125;
+  private static readonly CELL_SIZE_MULTIPLIER = 2.5;
+  private static readonly SHADOW_OFFSET_RATIO = 0.3;
 
   constructor() {
     const dpr = getNormalizedDPR();
@@ -46,7 +48,7 @@ export class MushroomTextureSheet {
     
     for (let i = 0; i < MushroomTextureSheet.SIZE_VARIANTS; i++) {
       const size = minSize + sizeStep * i;
-      const cellSize = Math.ceil(size * 2.5);
+      const cellSize = Math.ceil(size * MushroomTextureSheet.CELL_SIZE_MULTIPLIER);
       
       if (currentX + cellSize > MushroomTextureSheet.CANVAS_SIZE) {
         currentX = 0;
@@ -67,7 +69,7 @@ export class MushroomTextureSheet {
   ) {
     const centerX = atlasX + cellSize / 2;
     const centerY = atlasY + cellSize / 2;
-    const shadowOffset = size * 0.3;
+    const shadowOffset = size * MushroomTextureSheet.SHADOW_OFFSET_RATIO;
 
     this.ctx.fillStyle = DECORATION_COLORS.MUSHROOM.SHADOW;
     this.ctx.beginPath();
