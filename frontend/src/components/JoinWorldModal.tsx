@@ -101,7 +101,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           color: '#7396d5',
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
-          marginBottom: '24px',
+          marginBottom: '40px',
           textShadow: '0 2px 12px rgba(115, 150, 213, 0.5)',
           lineHeight: 1,
           textAlign: 'center',
