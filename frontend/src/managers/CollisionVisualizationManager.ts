@@ -2,6 +2,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { type TraversibilityMapRow, type TankRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import { UNIT_TO_PIXEL } from "../constants";
+import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 
 const COLLISION_REGION_SIZE = 4;
 
@@ -11,19 +12,14 @@ export class CollisionVisualizationManager {
   private mapWidth: number = 0;
   private mapHeight: number = 0;
   private tanks: Map<string, Infer<typeof TankRow>> = new Map();
-  private handleMapInsert: ((ctx: EventContext, map: Infer<typeof TraversibilityMapRow>) => void) | null = null;
-  private handleMapUpdate: ((ctx: EventContext, oldMap: Infer<typeof TraversibilityMapRow>, newMap: Infer<typeof TraversibilityMapRow>) => void) | null = null;
-  private handleTankInsert: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
-  private handleTankUpdate: ((ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => void) | null = null;
-  private handleTankDelete: ((ctx: EventContext, tank: Infer<typeof TankRow>) => void) | null = null;
+  private subscription: MultiTableSubscription | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
-    this.subscribeToTraversibilityMap();
-    this.subscribeToTanks();
+    this.subscribeToTables();
   }
 
-  private subscribeToTraversibilityMap() {
+  private subscribeToTables() {
     const connection = getConnection();
     if (!connection) return;
 
@@ -32,63 +28,59 @@ export class CollisionVisualizationManager {
       .onError((e) => console.log("CollisionVisualizationManager traversibility subscription error", e))
       .subscribe([`SELECT * FROM traversibility_map WHERE WorldId = '${this.worldId}'`]);
 
-    this.handleMapInsert = (_ctx: EventContext, map: Infer<typeof TraversibilityMapRow>) => {
+    connection
+      .subscriptionBuilder()
+      .onError((e) => console.log("CollisionVisualizationManager tank subscription error", e))
+      .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
+
+    const handleMapChange = (map: Infer<typeof TraversibilityMapRow>) => {
       if (map.worldId !== this.worldId) return;
       this.traversibilityMap = map.map;
       this.mapWidth = map.width;
       this.mapHeight = map.height;
     };
 
-    this.handleMapUpdate = (_ctx: EventContext, _oldMap: Infer<typeof TraversibilityMapRow>, newMap: Infer<typeof TraversibilityMapRow>) => {
-      if (newMap.worldId !== this.worldId) return;
-      this.traversibilityMap = newMap.map;
-      this.mapWidth = newMap.width;
-      this.mapHeight = newMap.height;
-    };
-
-    connection.db.traversibilityMap.onInsert(this.handleMapInsert);
-    connection.db.traversibilityMap.onUpdate(this.handleMapUpdate);
+    this.subscription = createMultiTableSubscription()
+      .add<typeof TraversibilityMapRow>({
+        table: connection.db.traversibilityMap,
+        handlers: {
+          onInsert: (_ctx: EventContext, map: Infer<typeof TraversibilityMapRow>) => {
+            handleMapChange(map);
+          },
+          onUpdate: (_ctx: EventContext, _oldMap: Infer<typeof TraversibilityMapRow>, newMap: Infer<typeof TraversibilityMapRow>) => {
+            handleMapChange(newMap);
+          }
+        },
+        loadInitialData: false
+      })
+      .add<typeof TankRow>({
+        table: connection.db.tank,
+        handlers: {
+          onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+            if (tank.worldId !== this.worldId) return;
+            this.tanks.set(tank.id, tank);
+          },
+          onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+            if (newTank.worldId !== this.worldId) return;
+            this.tanks.set(newTank.id, newTank);
+          },
+          onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+            if (tank.worldId !== this.worldId) return;
+            this.tanks.delete(tank.id);
+          }
+        }
+      });
 
     const cachedMap = connection.db.traversibilityMap.WorldId.find(this.worldId);
     if (cachedMap) {
-      this.traversibilityMap = cachedMap.map;
-      this.mapWidth = cachedMap.width;
-      this.mapHeight = cachedMap.height;
+      handleMapChange(cachedMap);
     }
   }
 
-  private subscribeToTanks() {
-    const connection = getConnection();
-    if (!connection) return;
-
-    connection
-      .subscriptionBuilder()
-      .onError((e) => console.log("CollisionVisualizationManager tank subscription error", e))
-      .subscribe([`SELECT * FROM tank WHERE WorldId = '${this.worldId}'`]);
-
-    this.handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-      if (tank.worldId !== this.worldId) return;
-      this.tanks.set(tank.id, tank);
-    };
-
-    this.handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-      if (newTank.worldId !== this.worldId) return;
-      this.tanks.set(newTank.id, newTank);
-    };
-
-    this.handleTankDelete = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-      if (tank.worldId !== this.worldId) return;
-      this.tanks.delete(tank.id);
-    };
-
-    connection.db.tank.onInsert(this.handleTankInsert);
-    connection.db.tank.onUpdate(this.handleTankUpdate);
-    connection.db.tank.onDelete(this.handleTankDelete);
-
-    for (const tank of connection.db.tank.iter()) {
-      if (tank.worldId === this.worldId) {
-        this.tanks.set(tank.id, tank);
-      }
+  public destroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
     }
   }
 
@@ -177,16 +169,5 @@ export class CollisionVisualizationManager {
     }
 
     ctx.restore();
-  }
-
-  public destroy() {
-    const connection = getConnection();
-    if (connection) {
-      if (this.handleMapInsert) connection.db.traversibilityMap.removeOnInsert(this.handleMapInsert);
-      if (this.handleMapUpdate) connection.db.traversibilityMap.removeOnUpdate(this.handleMapUpdate);
-      if (this.handleTankInsert) connection.db.tank.removeOnInsert(this.handleTankInsert);
-      if (this.handleTankUpdate) connection.db.tank.removeOnUpdate(this.handleTankUpdate);
-      if (this.handleTankDelete) connection.db.tank.removeOnDelete(this.handleTankDelete);
-    }
   }
 }
