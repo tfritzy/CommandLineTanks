@@ -13,7 +13,7 @@ export const TERRAIN_DETAIL_RADIUS = {
 
 export const TEAM_COLORS = {
   RED: "#ff5555",
-  BLUE: "#5555ff",
+  BLUE: "#0194ff",
 };
 
 export const TERRAIN_COLORS = {
