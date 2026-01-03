@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { getConnection } from '../spacetimedb-connection';
 
 interface JoinWorldModalProps {
   worldId: string;
@@ -9,19 +10,41 @@ const generateDefaultName = () => {
   return `guest${randomNumbers}`;
 };
 
+const isDefaultGuestName = (name: string): boolean => {
+  return /^guest\d{4}$/.test(name);
+};
+
 export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
   const [playerName, setPlayerName] = useState(() => generateDefaultName());
   const [copied, setCopied] = useState(false);
+  const [hasCustomName, setHasCustomName] = useState(false);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const connection = getConnection();
+    if (connection?.identity) {
+      const player = Array.from(connection.db.player.iter()).find((p) =>
+        p.identity.isEqual(connection.identity!)
+      );
+      
+      if (player && !isDefaultGuestName(player.name)) {
+        setHasCustomName(true);
+        setPlayerName(player.name);
+      }
+    }
+  }, []);
 
   const sanitizedName = useMemo(() => {
     return playerName.replace(/[^\w\s-]/g, '').trim();
   }, [playerName]);
 
   const commands = useMemo(() => {
+    if (hasCustomName) {
+      return `join ${worldId}`;
+    }
     const nameToUse = sanitizedName || generateDefaultName();
     return `name set ${nameToUse}\njoin ${worldId}`;
-  }, [sanitizedName, worldId]);
+  }, [sanitizedName, worldId, hasCustomName]);
 
   useEffect(() => {
     return () => {
@@ -83,45 +106,47 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
         Join Game
       </div>
 
-      <div
-        style={{
-          marginBottom: '24px',
-        }}
-      >
-        <label
+      {!hasCustomName && (
+        <div
           style={{
-            display: 'block',
-            fontSize: '14px',
-            color: '#e6eeed',
-            marginBottom: '8px',
-            fontWeight: 500,
+            marginBottom: '24px',
           }}
         >
-          Your Name
-        </label>
-        <input
-          type="text"
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-          placeholder="Enter your name"
-          maxLength={15}
-          style={{
-            width: '100%',
-            padding: '12px 16px',
-            fontSize: '14px',
-            fontFamily: "'JetBrains Mono', monospace",
-            background: 'rgba(42, 21, 45, 0.6)',
-            border: '1px solid rgba(112, 123, 137, 0.3)',
-            borderRadius: '4px',
-            color: '#e6eeed',
-            outline: 'none',
-            boxSizing: 'border-box',
-            transition: 'border-color 0.2s',
-          }}
-          onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.6)'}
-          onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(112, 123, 137, 0.3)'}
-        />
-      </div>
+          <label
+            style={{
+              display: 'block',
+              fontSize: '14px',
+              color: '#e6eeed',
+              marginBottom: '8px',
+              fontWeight: 500,
+            }}
+          >
+            Your Name
+          </label>
+          <input
+            type="text"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            placeholder="Enter your name"
+            maxLength={15}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              fontSize: '14px',
+              fontFamily: "'JetBrains Mono', monospace",
+              background: 'rgba(42, 21, 45, 0.6)',
+              border: '1px solid rgba(112, 123, 137, 0.3)',
+              borderRadius: '4px',
+              color: '#e6eeed',
+              outline: 'none',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s',
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.6)'}
+            onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(112, 123, 137, 0.3)'}
+          />
+        </div>
+      )}
 
       <div
         style={{
