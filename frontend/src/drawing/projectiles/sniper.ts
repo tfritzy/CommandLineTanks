@@ -1,3 +1,5 @@
+import { TERRAIN_COLORS, UI_COLORS } from "../../constants";
+
 export function drawSniperProjectileShadow(
   ctx: CanvasRenderingContext2D,
   centerX: number,
@@ -62,7 +64,7 @@ export function drawSniperProjectileBody(
   ctx.closePath();
   ctx.fill();
   
-  ctx.strokeStyle = "#2e2e43";
+  ctx.strokeStyle = TERRAIN_COLORS.GROUND;
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -84,7 +86,7 @@ export function drawSniperProjectileBody(
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = "#2e2e43";
+  ctx.strokeStyle = TERRAIN_COLORS.GROUND;
   ctx.lineWidth = 1;
   ctx.stroke();
 

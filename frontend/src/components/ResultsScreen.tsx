@@ -3,6 +3,8 @@ import { getConnection } from '../spacetimedb-connection';
 import type { Infer } from 'spacetimedb';
 import Tank from '../../module_bindings/tank_type';
 import { ServerTimeSync } from '../utils/ServerTimeSync';
+import { UI_COLORS } from '../constants';
+import { TERMINAL_COLORS } from './terminal/colors';
 
 const WORLD_RESET_DELAY_MICROS = 30_000_000;
 
@@ -183,7 +185,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 <div style={{
                     fontSize: '18px',
                     marginBottom: '80px',
-                    color: '#a9bcbf',
+                    color: TERMINAL_COLORS.TEXT_MUTED,
                     fontWeight: 300,
                     letterSpacing: '0.02em'
                 }}>
@@ -220,7 +222,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                     fontSize: '16px',
-                                    color: index === 0 ? '#fcfbf3' : '#a9bcbf',
+                                    color: index === 0 ? UI_COLORS.TEXT_BRIGHT : TERMINAL_COLORS.TEXT_MUTED,
                                     paddingBottom: '12px',
                                     borderBottom: '1px solid rgba(169, 188, 191, 0.1)',
                                     fontWeight: index === 0 ? 500 : 300
@@ -275,7 +277,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                     fontSize: '16px',
-                                    color: index === 0 ? '#fcfbf3' : '#a9bcbf',
+                                    color: index === 0 ? UI_COLORS.TEXT_BRIGHT : TERMINAL_COLORS.TEXT_MUTED,
                                     paddingBottom: '12px',
                                     borderBottom: '1px solid rgba(169, 188, 191, 0.1)',
                                     fontWeight: index === 0 ? 500 : 300

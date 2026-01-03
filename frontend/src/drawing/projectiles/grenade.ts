@@ -1,3 +1,5 @@
+import { TERRAIN_COLORS, TERMINAL_COLORS } from "../../constants";
+
 export function drawGrenadeShadow(
   ctx: CanvasRenderingContext2D,
   centerX: number,
@@ -67,7 +69,7 @@ export function drawGrenadeBody(
   ctx.restore();
   
   ctx.save();
-  ctx.strokeStyle = "#2e2e43";
+  ctx.strokeStyle = TERRAIN_COLORS.GROUND;
   ctx.lineWidth = Math.max(1, radius * 0.15);
   ctx.beginPath();
   ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
@@ -82,16 +84,16 @@ export function drawGrenadeBody(
   const pinHeight = radius * 0.4;
   const pinY = centerY - radius * 1.1;
   
-  ctx.fillStyle = "#2e2e43";
+  ctx.fillStyle = TERRAIN_COLORS.GROUND;
   ctx.fillRect(centerX - pinWidth / 2, pinY - pinHeight, pinWidth, pinHeight);
   
-  ctx.fillStyle = "#707b89";
+  ctx.fillStyle = TERMINAL_COLORS.TEXT_DIM;
   const ringRadius = radius * 0.25;
   ctx.beginPath();
   ctx.arc(centerX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, Math.PI * 2);
   ctx.fill();
   
-  ctx.strokeStyle = "#2e2e43";
+  ctx.strokeStyle = TERRAIN_COLORS.GROUND;
   ctx.lineWidth = Math.max(0.5, radius * 0.1);
   ctx.beginPath();
   ctx.arc(centerX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, Math.PI * 2);
