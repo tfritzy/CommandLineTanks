@@ -69,4 +69,16 @@ export const UI_COLORS = {
   WHITE: "#ffffff",
   BLACK: "#000000",
   HEALTH_PACK_SECONDARY: "#6ec077",
+  TEAM_RED_DARK: "#813645",
+  TEAM_BLUE_DARK: "#3e4c7e",
+  TEAM_RED_MEDIUM: "#9d4343",
+  TEAM_BLUE_MEDIUM: "#495f94",
+  SHIELD_STROKE: "#495f94",
+};
+
+export const EFFECT_COLORS = {
+  FIRE_RED: "#c06852",
+  FIRE_ORANGE: "#e39764",
+  FIRE_YELLOW: "#f5c47c",
+  FIRE_BRIGHT: "#fceba8",
 };

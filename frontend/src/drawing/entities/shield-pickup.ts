@@ -46,7 +46,7 @@ export function drawShieldPickupBody(
   const shieldRight = shieldSize * 0.4;
 
   ctx.fillStyle = UI_COLORS.TEXT_BRIGHT;
-  ctx.strokeStyle = TERMINAL_COLORS.DIRECTION_SYMBOL;
+  ctx.strokeStyle = UI_COLORS.SHIELD_STROKE;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, shieldTop);

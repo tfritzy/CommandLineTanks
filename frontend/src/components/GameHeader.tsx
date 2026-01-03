@@ -4,7 +4,7 @@ import { type Infer } from "spacetimedb";
 import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
 import { type EventContext } from "../../module_bindings";
-import { UI_COLORS, TERRAIN_DETAIL_COLORS } from "../constants";
+import { UI_COLORS } from "../constants";
 import { TERMINAL_COLORS } from "./terminal/colors";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
@@ -143,7 +143,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         >
           <div
             style={{
-              backgroundColor: TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY,
+              backgroundColor: UI_COLORS.TEAM_RED_DARK,
               padding: "6px 14px",
               display: "flex",
               alignItems: "center",
@@ -176,7 +176,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
           </div>
           <div
             style={{
-              backgroundColor: TERRAIN_DETAIL_COLORS.TREE.BASE,
+              backgroundColor: UI_COLORS.TEAM_BLUE_DARK,
               padding: "6px 14px",
               display: "flex",
               alignItems: "center",

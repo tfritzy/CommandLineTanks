@@ -1,7 +1,6 @@
-import { UNIT_TO_PIXEL, TERRAIN_DETAIL_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL, EFFECT_COLORS } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
 import { drawExplosionParticles } from "../../drawing";
-import { TERMINAL_COLORS } from "../../components/terminal/colors";
 
 interface Particle {
   x: number;
@@ -20,7 +19,7 @@ export class ExplosionParticles {
   private isDead = false;
 
   constructor(x: number, y: number, explosionRadius: number) {
-    const colors = [TERMINAL_COLORS.WARNING, TERRAIN_DETAIL_COLORS.HAY_BALE.BODY, TERMINAL_COLORS.COOLDOWN];
+    const colors = [EFFECT_COLORS.FIRE_BRIGHT, EFFECT_COLORS.FIRE_YELLOW, EFFECT_COLORS.FIRE_ORANGE];
     
     const count = 20;
     for (let i = 0; i < count; i++) {

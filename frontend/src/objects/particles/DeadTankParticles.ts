@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL, TERRAIN_COLORS, TERRAIN_DETAIL_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL, TERRAIN_COLORS, UI_COLORS, EFFECT_COLORS } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
 import { TERMINAL_COLORS } from "../../components/terminal/colors";
 
@@ -62,8 +62,8 @@ export class DeadTankParticles {
   private isDead = false;
 
   constructor(x: number, y: number, alliance: number) {
-    const teamColor = alliance === 0 ? TERMINAL_COLORS.HEALTH : TERRAIN_DETAIL_COLORS.TREE.FOLIAGE;
-    const darkTeamColor = alliance === 0 ? TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY : TERRAIN_DETAIL_COLORS.TREE.BASE;
+    const teamColor = alliance === 0 ? UI_COLORS.TEAM_RED_MEDIUM : UI_COLORS.TEAM_BLUE_MEDIUM;
+    const darkTeamColor = alliance === 0 ? UI_COLORS.TEAM_RED_DARK : UI_COLORS.TEAM_BLUE_DARK;
 
     // 1. Debris (Tank parts) - Reduced count
     const debrisCount = 6 + Math.floor(Math.random() * 4);
@@ -97,7 +97,7 @@ export class DeadTankParticles {
       const angle = Math.random() * Math.PI * 2;
       const speed = 3 + Math.random() * 5;
       const size = 5 + Math.random() * 8;
-      const colors = [TERMINAL_COLORS.ERROR, TERMINAL_COLORS.COOLDOWN, TERRAIN_DETAIL_COLORS.HAY_BALE.BODY, TERMINAL_COLORS.WARNING];
+      const colors = [EFFECT_COLORS.FIRE_RED, EFFECT_COLORS.FIRE_ORANGE, EFFECT_COLORS.FIRE_YELLOW, EFFECT_COLORS.FIRE_BRIGHT];
       this.fireParticles.push({
         x, y,
         velocityX: Math.cos(angle) * speed,
