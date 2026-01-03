@@ -90,7 +90,8 @@ const allCommands = [
   { name: 'aim', alias: 'a' },
   { name: 'target', alias: 't' },
   { name: 'fire', alias: 'f' },
-  { name: 'repair', alias: 'rep' }
+  { name: 'repair', alias: 'rep' },
+  { name: 'tanks', alias: undefined }
 ];
 
 function levenshteinDistance(str1: string, str2: string): number {
@@ -182,6 +183,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
       "  repair, rep          Begin repairing your tank to restore health",
       "  respawn              Respawn after death",
+      "  tanks                Display all tanks in the world with statistics",
       "  name                 View or change your player name",
       "  create               Create a new game world with optional flags",
       "  join                 Join or create a game world (default: random)",
@@ -475,6 +477,24 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  help",
         "  help drive",
         "  h d",
+      ];
+
+    case "tanks":
+      return [
+        "tanks - Display all tanks in the world with statistics",
+        "",
+        "Usage: tanks",
+        "",
+        "Shows a table with the following information for each tank:",
+        "  - Name: Tank name",
+        "  - Kills: Number of tanks destroyed",
+        "  - Deaths: Number of times destroyed",
+        "  - K/D: Kill/death ratio",
+        "  - Position: Current (x, y) coordinates",
+        "  - Gun: Currently selected gun type",
+        "",
+        "Examples:",
+        "  tanks",
       ];
 
     default:
@@ -1375,5 +1395,71 @@ export function exitWorld(connection: DbConnection, worldId: string, args: strin
   return [
     "Returning to homeworld...",
   ];
+}
+
+export function tanks(connection: DbConnection, worldId: string, args: string[]): string[] {
+  if (args.length > 0) {
+    return [
+      "tanks: error: tanks command takes no arguments",
+      "",
+      "Usage: tanks"
+    ];
+  }
+
+  if (!connection.identity) {
+    return ["tanks: error: no connection"];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.worldId === worldId
+  );
+
+  if (allTanks.length === 0) {
+    return ["No tanks found in this world"];
+  }
+
+  const rows: string[] = [];
+  
+  const nameWidth = Math.max(4, ...allTanks.map(t => t.name.length));
+  const killsWidth = 5;
+  const deathsWidth = 6;
+  const kdWidth = 6;
+  const positionWidth = 18;
+
+  const header = 
+    "Name".padEnd(nameWidth) + " | " +
+    "Kills".padEnd(killsWidth) + " | " +
+    "Deaths".padEnd(deathsWidth) + " | " +
+    "K/D".padEnd(kdWidth) + " | " +
+    "Position".padEnd(positionWidth) + " | " +
+    "Gun";
+  
+  const separator = "-".repeat(header.length);
+  
+  rows.push(header);
+  rows.push(separator);
+
+  for (const tank of allTanks) {
+    const kd = tank.deaths === 0 
+      ? tank.kills.toFixed(2) 
+      : (tank.kills / tank.deaths).toFixed(2);
+    
+    const position = `(${tank.positionX.toFixed(1)}, ${tank.positionY.toFixed(1)})`;
+    
+    const selectedGun = tank.guns[tank.selectedGunIndex];
+    const gunName = selectedGun ? selectedGun.gunType.toString() : "None";
+    
+    const row = 
+      tank.name.padEnd(nameWidth) + " | " +
+      tank.kills.toString().padEnd(killsWidth) + " | " +
+      tank.deaths.toString().padEnd(deathsWidth) + " | " +
+      kd.padEnd(kdWidth) + " | " +
+      position.padEnd(positionWidth) + " | " +
+      gunName;
+    
+    rows.push(row);
+  }
+
+  return rows;
 }
 
