@@ -1,5 +1,5 @@
 import { getConnection } from "../spacetimedb-connection";
-import { type PickupRow, type EventContext, type WorldRow, type TankRow } from "../../module_bindings";
+import { type PickupRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
 import { UNIT_TO_PIXEL } from "../constants";
@@ -68,7 +68,7 @@ export class PickupManager {
 
   private getPlayerAlliance(): number | undefined {
     const connection = getConnection();
-    if (!connection) return undefined;
+    if (!connection || !connection.identity) return undefined;
 
     const world = connection.db.world.id.find(this.worldId);
     if (!world || !world.isHomeWorld) return undefined;
