@@ -3,6 +3,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
+import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 interface PlayerScore {
   id: string;
@@ -30,6 +31,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
   const connection = getConnection();
   const animatingScoresRef = useRef<Map<string, AnimatingScore>>(new Map());
   const animationFrameRef = useRef<number | null>(null);
+  const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
 
   const isHomeworld = connection?.identity
     ? connection.identity.toHexString().toLowerCase() === worldId
@@ -81,34 +83,24 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
       setPlayers(sorted);
     };
 
-    const handleTankInsert = (
-      _ctx: EventContext,
-      tank: Infer<typeof TankRow>
-    ) => {
-      if (tank.worldId === worldId) updatePlayerScores();
-    };
-
-    const handleTankUpdate = (
-      _ctx: EventContext,
-      _oldTank: Infer<typeof TankRow>,
-      newTank: Infer<typeof TankRow>
-    ) => {
-      if (newTank.worldId === worldId) updatePlayerScores();
-    };
-
-    const handleTankDelete = (
-      _ctx: EventContext,
-      tank: Infer<typeof TankRow>
-    ) => {
-      if (tank.worldId === worldId) {
-        animatingScoresRef.current.delete(tank.id);
-        updatePlayerScores();
-      }
-    };
-
-    connection.db.tank.onInsert(handleTankInsert);
-    connection.db.tank.onUpdate(handleTankUpdate);
-    connection.db.tank.onDelete(handleTankDelete);
+    subscriptionRef.current = subscribeToTable({
+      table: connection.db.tank,
+      handlers: {
+        onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+          if (tank.worldId === worldId) updatePlayerScores();
+        },
+        onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+          if (newTank.worldId === worldId) updatePlayerScores();
+        },
+        onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+          if (tank.worldId === worldId) {
+            animatingScoresRef.current.delete(tank.id);
+            updatePlayerScores();
+          }
+        }
+      },
+      loadInitialData: false
+    });
 
     updatePlayerScores();
 
@@ -154,9 +146,10 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
     }
 
     return () => {
-      connection.db.tank.removeOnInsert(handleTankInsert);
-      connection.db.tank.removeOnUpdate(handleTankUpdate);
-      connection.db.tank.removeOnDelete(handleTankDelete);
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
 
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);

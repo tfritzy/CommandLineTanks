@@ -16,6 +16,7 @@ import {
   type EventContext,
   type SubscriptionHandle,
 } from "../../module_bindings";
+import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export default function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
@@ -23,6 +24,7 @@ export default function GameView() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
+  const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
   const [isDead, setIsDead] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
@@ -106,67 +108,57 @@ export default function GameView() {
       return false;
     };
 
-    const handleTankInsert = (
-      _ctx: EventContext,
-      tank: Infer<typeof TankRow>
-    ) => {
-      if (tank.worldId !== worldId) return;
+    tankSubscriptionRef.current = subscribeToTable({
+      table: connection.db.tank,
+      handlers: {
+        onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+          if (tank.worldId !== worldId) return;
 
-      if (!firstTankDataReceived) {
-        firstTankDataReceived = true;
-        if (joinModalTimeout) {
-          clearTimeout(joinModalTimeout);
-        }
-        joinModalTimeout = setTimeout(() => {
-          if (!hasReceivedPlayerTankData) {
-            if (!checkForTank()) {
-              setShowJoinModal(true);
+          if (!firstTankDataReceived) {
+            firstTankDataReceived = true;
+            if (joinModalTimeout) {
+              clearTimeout(joinModalTimeout);
             }
+            joinModalTimeout = setTimeout(() => {
+              if (!hasReceivedPlayerTankData) {
+                if (!checkForTank()) {
+                  setShowJoinModal(true);
+                }
+              }
+            }, 500);
           }
-        }, 500);
-      }
 
-      if (
-        connection.identity &&
-        tank.owner.isEqual(connection.identity)
-      ) {
-        hasReceivedPlayerTankData = true;
-        setShowJoinModal(false);
-        setIsDead(tank.health <= 0);
-      }
-    };
-
-    const handleTankUpdate = (
-      _ctx: EventContext,
-      _oldTank: Infer<typeof TankRow>,
-      newTank: Infer<typeof TankRow>
-    ) => {
-      if (
-        connection.identity &&
-        newTank.owner.isEqual(connection.identity) &&
-        newTank.worldId === worldId
-      ) {
-        setIsDead(newTank.health <= 0);
-      }
-    };
-
-    const handleTankDelete = (
-      _ctx: EventContext,
-      tank: Infer<typeof TankRow>
-    ) => {
-      if (
-        connection.identity &&
-        tank.owner.isEqual(connection.identity) &&
-        tank.worldId === worldId
-      ) {
-        setIsDead(false);
-        setShowJoinModal(true);
-      }
-    };
-
-    connection.db.tank.onInsert(handleTankInsert);
-    connection.db.tank.onUpdate(handleTankUpdate);
-    connection.db.tank.onDelete(handleTankDelete);
+          if (
+            connection.identity &&
+            tank.owner.isEqual(connection.identity)
+          ) {
+            hasReceivedPlayerTankData = true;
+            setShowJoinModal(false);
+            setIsDead(tank.health <= 0);
+          }
+        },
+        onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+          if (
+            connection.identity &&
+            newTank.owner.isEqual(connection.identity) &&
+            newTank.worldId === worldId
+          ) {
+            setIsDead(newTank.health <= 0);
+          }
+        },
+        onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+          if (
+            connection.identity &&
+            tank.owner.isEqual(connection.identity) &&
+            tank.worldId === worldId
+          ) {
+            setIsDead(false);
+            setShowJoinModal(true);
+          }
+        }
+      },
+      loadInitialData: false
+    });
 
     const existingTanks = Array.from(connection.db.tank.iter()).filter(
       t => t.worldId === worldId
@@ -191,9 +183,10 @@ export default function GameView() {
       if (joinModalTimeout) {
         clearTimeout(joinModalTimeout);
       }
-      connection.db.tank.removeOnInsert(handleTankInsert);
-      connection.db.tank.removeOnUpdate(handleTankUpdate);
-      connection.db.tank.removeOnDelete(handleTankDelete);
+      if (tankSubscriptionRef.current) {
+        tankSubscriptionRef.current.unsubscribe();
+        tankSubscriptionRef.current = null;
+      }
     };
   }, [worldId]);
 
