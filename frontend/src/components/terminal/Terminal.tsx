@@ -79,61 +79,83 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     window.addEventListener("resize", handleResize);
 
-    const executeCommand = (commandName: string, commandArgs: string[]): { found: boolean; output: string[] | 'CLEAR' } => {
+    const resolveCommand = (cmd: string): string => {
+      const cmdLower = cmd.toLowerCase();
+      
+      const validCommands = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'fire', 'f', 
+                            'switch', 'w', 'smokescreen', 'sm', 'overdrive', 'od', 'repair', 'rep',
+                            'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
+      
+      if (validCommands.includes(cmdLower)) {
+        return cmdLower;
+      }
+      
+      if (cmdLower.startsWith('f') && cmdLower.length > 1) {
+        const withoutF = cmdLower.substring(1);
+        if (validCommands.includes(withoutF)) {
+          return withoutF;
+        }
+      }
+      
+      const suggestion = findCommandSuggestion(cmd);
+      return suggestion || cmdLower;
+    };
+
+    const executeCommand = (commandName: string, commandArgs: string[]): string[] | 'CLEAR' => {
       const connection = getConnection();
       if (!connection?.isActive) {
-        return { found: true, output: ["Error: connection is currently not active"] };
+        return ["Error: connection is currently not active"];
       }
 
       switch (commandName.toLowerCase()) {
         case 'aim':
         case 'a':
-          return { found: true, output: aim(connection, worldId, commandArgs) };
+          return aim(connection, worldId, commandArgs);
         case 'target':
         case 't':
-          return { found: true, output: target(connection, worldId, commandArgs) };
+          return target(connection, worldId, commandArgs);
         case 'drive':
         case 'd':
-          return { found: true, output: drive(connection, worldId, commandArgs) };
+          return drive(connection, worldId, commandArgs);
         case 'stop':
         case 's':
-          return { found: true, output: stop(connection, worldId, commandArgs) };
+          return stop(connection, worldId, commandArgs);
         case 'fire':
         case 'f':
-          return { found: true, output: fire(connection, worldId, commandArgs) };
+          return fire(connection, worldId, commandArgs);
         case 'switch':
         case 'w':
-          return { found: true, output: switchGun(connection, worldId, commandArgs) };
+          return switchGun(connection, worldId, commandArgs);
         case 'smokescreen':
         case 'sm':
-          return { found: true, output: smokescreen(connection, worldId, commandArgs) };
+          return smokescreen(connection, worldId, commandArgs);
         case 'overdrive':
         case 'od':
-          return { found: true, output: overdrive(connection, worldId, commandArgs) };
+          return overdrive(connection, worldId, commandArgs);
         case 'repair':
         case 'rep':
-          return { found: true, output: repair(connection, worldId, commandArgs) };
+          return repair(connection, worldId, commandArgs);
         case 'respawn':
-          return { found: true, output: respawn(connection, worldId, commandArgs) };
+          return respawn(connection, worldId, commandArgs);
         case 'tanks':
-          return { found: true, output: tanks(connection, worldId, commandArgs) };
+          return tanks(connection, worldId, commandArgs);
         case 'create':
-          return { found: true, output: create(connection, commandArgs) };
+          return create(connection, commandArgs);
         case 'join':
-          return { found: true, output: join(connection, commandArgs) };
+          return join(connection, commandArgs);
         case 'exit':
         case 'e':
-          return { found: true, output: exitWorld(connection, worldId, commandArgs) };
+          return exitWorld(connection, worldId, commandArgs);
         case 'name':
-          return { found: true, output: changeName(connection, commandArgs) };
+          return changeName(connection, commandArgs);
         case 'help':
         case 'h':
-          return { found: true, output: help(connection, commandArgs) };
+          return help(connection, commandArgs);
         case 'clear':
         case 'c':
-          return { found: true, output: 'CLEAR' };
+          return 'CLEAR';
         default:
-          return { found: false, output: [`Command not found: ${commandName}`, "", "Use 'help' to see all available commands."] };
+          return [`Command not found: ${commandName}`, "", "Use 'help' to see all available commands."];
       }
     };
 
@@ -150,47 +172,23 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           historyIndexRef.current = -1;
 
           const [cmd, ...args] = input.split(' ');
+          const resolvedCmd = resolveCommand(cmd);
+          
+          if (resolvedCmd !== cmd.toLowerCase()) {
+            term.write(`Assuming you meant '${resolvedCmd}'\r\n\r\n`);
+          }
 
-          let commandResult = executeCommand(cmd, args);
+          const commandOutput = executeCommand(resolvedCmd, args);
 
-          if (commandResult.output === 'CLEAR') {
+          if (commandOutput === 'CLEAR') {
             term.clear();
             currentInputRef.current = "";
             term.write(PROMPT);
             return;
           }
 
-          if (!commandResult.found) {
-            const cmdLower = cmd.toLowerCase();
-            if (cmdLower.startsWith('f') && cmdLower.length > 1) {
-              const withoutF = cmdLower.substring(1);
-              const retryResult = executeCommand(withoutF, args);
-              
-              if (retryResult.found) {
-                commandResult = retryResult;
-              }
-            }
-            
-            if (!commandResult.found) {
-              const suggestion = findCommandSuggestion(cmd);
-              if (suggestion) {
-                term.write(`Assuming you meant '${suggestion}'\r\n\r\n`);
-                commandResult = executeCommand(suggestion, args);
-
-                if (commandResult.output === 'CLEAR') {
-                  term.clear();
-                  currentInputRef.current = "";
-                  term.write(PROMPT);
-                  return;
-                }
-              }
-            }
-          }
-
-          if (commandResult.output !== 'CLEAR') {
-            for (const line of commandResult.output) {
-              term.write(line + "\r\n");
-            }
+          for (const line of commandOutput) {
+            term.write(line + "\r\n");
           }
           term.write("\r\n");
         }
