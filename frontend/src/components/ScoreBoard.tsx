@@ -11,9 +11,10 @@ interface PlayerScore {
   name: string;
   kills: number;
   deaths: number;
-  score: number;
+  killStreak: number;
   alliance: number;
   displayScore: number;
+  owner: string;
 }
 
 interface ScoreBoardProps {
@@ -47,7 +48,6 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
       for (const tank of connection.db.tank.iter()) {
         if (tank.worldId !== worldId) continue;
 
-        const score = Math.max(0, tank.kills - tank.deaths);
         const existing = playerMap.get(tank.id);
 
         playerMap.set(tank.id, {
@@ -55,27 +55,28 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
           name: tank.name,
           kills: tank.kills,
           deaths: tank.deaths,
-          score: score,
+          killStreak: tank.killStreak,
           alliance: tank.alliance,
-          displayScore: existing?.displayScore ?? score,
+          displayScore: existing?.displayScore ?? tank.killStreak,
+          owner: tank.owner.toString(),
         });
 
-        if (!existing || existing.score !== score) {
+        if (!existing || existing.killStreak !== tank.killStreak) {
           animatingScoresRef.current.set(tank.id, {
-            targetScore: score,
-            startScore: existing?.displayScore ?? score,
+            targetScore: tank.killStreak,
+            startScore: existing?.displayScore ?? tank.killStreak,
             startTime: performance.now(),
           });
         }
       }
 
       const sorted = Array.from(playerMap.values()).sort(
-        (a, b) => b.score - a.score
+        (a, b) => b.killStreak - a.killStreak
       );
 
       let maxAbsScore = 1;
       for (const player of sorted) {
-        const absScore = Math.abs(player.score);
+        const absScore = Math.abs(player.killStreak);
         if (absScore > maxAbsScore) {
           maxAbsScore = absScore;
         }
@@ -214,6 +215,16 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
       : "rgba(90, 120, 178, 0.8)";
   };
 
+  const getBarColor = (player: PlayerScore) => {
+    const currentPlayerIdentity = connection?.identity?.toString();
+    const isOwnTank = currentPlayerIdentity && player.owner === currentPlayerIdentity;
+    
+    if (isOwnTank) {
+      return getTeamColor(player.alliance);
+    }
+    return "rgba(112, 123, 137, 0.8)";
+  };
+
   return (
     <div
       style={{
@@ -262,7 +273,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
                 top: "1.5px",
                 height: "calc(100% - 3px)",
                 width: `calc(${barWidthPercent}% - 3px)`,
-                backgroundColor: getTeamColor(player.alliance),
+                backgroundColor: getBarColor(player),
                 borderRadius: "calc(" + radius + " - 1.5px)",
                 transition: "width 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
               }}

@@ -38,6 +38,7 @@ public static partial class Module
             {
                 Health = newHealth,
                 Deaths = tank.Deaths + 1,
+                KillStreak = 0,
                 DeathTimestamp = tank.IsBot ? (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch : 0
             };
             ctx.Db.tank.Id.Update(killedTank);
@@ -47,7 +48,8 @@ public static partial class Module
             {
                 var updatedShooterTank = shooterTank.Value with
                 {
-                    Kills = shooterTank.Value.Kills + 1
+                    Kills = shooterTank.Value.Kills + 1,
+                    KillStreak = shooterTank.Value.KillStreak + 1
                 };
                 ctx.Db.tank.Id.Update(updatedShooterTank);
 

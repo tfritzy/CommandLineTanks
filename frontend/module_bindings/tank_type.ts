@@ -34,6 +34,7 @@ export default __t.object("Tank", {
   maxHealth: __t.i32(),
   kills: __t.i32(),
   deaths: __t.i32(),
+  killStreak: __t.i32(),
   collisionRegionX: __t.i32(),
   collisionRegionY: __t.i32(),
   target: __t.option(__t.string()),
