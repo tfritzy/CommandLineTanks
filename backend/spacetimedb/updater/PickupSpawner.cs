@@ -219,8 +219,12 @@ public static partial class PickupSpawner
             return (-1, -1);
         }
 
-        int gridX = 20 - HOMEWORLD_PICKUP_TYPES.Length + (index * 2);
-        int gridY = 25;
+        int halfCount = HOMEWORLD_PICKUP_TYPES.Length / 2;
+        int column = index < halfCount ? 0 : 1;
+        int rowInColumn = index < halfCount ? index : index - halfCount;
+        
+        int gridX = column == 0 ? 12 : 17;
+        int gridY = 11 + (rowInColumn * 2);
         return (gridX, gridY);
     }
 

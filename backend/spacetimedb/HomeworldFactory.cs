@@ -125,34 +125,6 @@ public static partial class Module
         CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
         CreateEmptyDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
 
-        var pickups = new[]
-        {
-            PickupType.TripleShooter,
-            PickupType.MissileLauncher,
-            PickupType.Health,
-            PickupType.Boomerang,
-            PickupType.Grenade,
-            PickupType.Rocket,
-            PickupType.Moag,
-            PickupType.Sniper
-        };
-
-        for (int i = 0; i < pickups.Length; i++)
-        {
-            int px = worldWidth / 2 - pickups.Length + (i * 2);
-            int py = worldHeight - 5;
-
-            ctx.Db.pickup.Insert(Pickup.Build(
-                ctx: ctx,
-                worldId: identityString,
-                positionX: px + 0.5f,
-                positionY: py + 0.5f,
-                gridX: px,
-                gridY: py,
-                type: pickups[i]
-            ));
-        }
-
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
             WorldId = identityString,
