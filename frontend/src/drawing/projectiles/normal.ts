@@ -1,4 +1,4 @@
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 
 export function drawNormalProjectileShadow(
@@ -8,7 +8,7 @@ export function drawNormalProjectileShadow(
   radius: number
 ) {
   ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = PALETTE.BLACK_PURE_30;
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();

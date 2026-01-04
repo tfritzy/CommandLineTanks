@@ -1,7 +1,7 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor, lerpColor } from "../../utils/colors";
 import { drawSquarePost, drawSquarePostShadow } from "./fence-utils";
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 export function drawFenceCornerShadow(
   ctx: CanvasRenderingContext2D,
@@ -25,7 +25,7 @@ export function drawFenceCornerShadow(
   ctx.rotate(angle);
   ctx.translate(-centerX, -centerY);
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+  ctx.fillStyle = PALETTE.BLACK_PURE_25;
   const railWidth = UNIT_TO_PIXEL * 0.05;
   const slatWidth = UNIT_TO_PIXEL * 0.22;
   const slatHeight = UNIT_TO_PIXEL * 0.035;

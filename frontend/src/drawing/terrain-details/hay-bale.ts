@@ -1,6 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 export function drawHayBaleShadow(
   ctx: CanvasRenderingContext2D,
@@ -8,7 +8,7 @@ export function drawHayBaleShadow(
   centerY: number,
   radius: number
 ) {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = PALETTE.BLACK_PURE_30;
   ctx.beginPath();
   ctx.arc(centerX - UNIT_TO_PIXEL * 0.15, centerY + UNIT_TO_PIXEL * 0.15, radius, 0, Math.PI * 2);
   ctx.fill();

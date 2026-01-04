@@ -8,7 +8,7 @@ import ScoreBoard from "./ScoreBoard";
 import JoinWorldModal from "./JoinWorldModal";
 import WorldNotFound from "./WorldNotFound";
 import HomeworldOverlay from "./HomeworldOverlay";
-import { COLORS } from "../theme/colors";
+import { COLORS, PALETTE } from "../theme/colors";
 import { getConnection } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
 import { type Infer } from "spacetimedb";
@@ -259,14 +259,14 @@ export default function GameView() {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: "rgba(46, 46, 67, 0.95)",
+              background: "PALETTE.GROUND_DARK_95",
               backdropFilter: "blur(4px)",
               borderRadius: "8px",
-              border: "2px solid rgba(112, 123, 137, 0.3)",
+              border: "2px solid PALETTE.SLATE_LIGHT_30",
               padding: "40px 60px",
               fontFamily: "'JetBrains Mono', monospace",
               zIndex: 1000,
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+              boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE_50}`,
               animation: "fadeIn 0.15s ease-out 1s both",
             }}
           >
@@ -289,7 +289,7 @@ export default function GameView() {
                 letterSpacing: "0.15em",
                 textTransform: "uppercase",
                 marginBottom: "24px",
-                textShadow: "0 2px 12px rgba(192, 104, 82, 0.5)",
+                textShadow: "0 2px 12px PALETTE.RED_MUTED_50",
                 lineHeight: 1,
                 textAlign: "center",
               }}
@@ -313,7 +313,7 @@ export default function GameView() {
                   color: COLORS.TERMINAL.WARNING,
                   fontWeight: 500,
                   padding: "2px 8px",
-                  background: "rgba(252, 235, 168, 0.1)",
+                  background: "PALETTE.YELLOW_BRIGHT_10",
                   borderRadius: "2px",
                 }}
               >
@@ -324,7 +324,7 @@ export default function GameView() {
 
             <div
               style={{
-                borderTop: "1px solid rgba(112, 123, 137, 0.2)",
+                borderTop: "1px solid PALETTE.SLATE_LIGHT_20",
                 paddingTop: "24px",
                 textAlign: "center",
               }}
@@ -350,8 +350,8 @@ export default function GameView() {
               >
                 <div
                   style={{
-                    background: "rgba(42, 21, 45, 0.6)",
-                    border: "1px solid rgba(112, 123, 137, 0.3)",
+                    background: "PALETTE.SLATE_DARKEST_60",
+                    border: "1px solid PALETTE.SLATE_LIGHT_30",
                     borderRadius: "4px",
                     padding: "8px 16px",
                     fontSize: "13px",
@@ -378,14 +378,14 @@ export default function GameView() {
                         setTimeout(() => {
                           button.textContent = originalText;
                           button.style.background =
-                            "rgba(129, 54, 69, 0.6)";
+                            "PALETTE.RED_DARK_60";
                         }, 1500);
                       }
                     });
                   }}
                   style={{
-                    background: "rgba(129, 54, 69, 0.6)",
-                    border: "1px solid rgba(192, 104, 82, 0.4)",
+                    background: "PALETTE.RED_DARK_60",
+                    border: "1px solid PALETTE.RED_MUTED_40",
                     borderRadius: "4px",
                     padding: "8px 16px",
                     fontSize: "13px",
@@ -398,16 +398,16 @@ export default function GameView() {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background =
-                      "rgba(129, 54, 69, 0.8)";
+                      "PALETTE.RED_DARK_80";
                     e.currentTarget.style.borderColor =
-                      "rgba(192, 104, 82, 0.6)";
+                      "PALETTE.RED_MUTED_60";
                   }}
                   onMouseLeave={(e) => {
                     if (e.currentTarget.textContent !== "Copied!") {
                       e.currentTarget.style.background =
-                        "rgba(129, 54, 69, 0.6)";
+                        "PALETTE.RED_DARK_60";
                       e.currentTarget.style.borderColor =
-                        "rgba(192, 104, 82, 0.4)";
+                        "PALETTE.RED_MUTED_40";
                     }
                   }}
                 >

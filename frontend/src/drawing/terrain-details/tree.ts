@@ -1,5 +1,5 @@
 import { getFlashColor } from "../../utils/colors";
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 
 export function drawTreeShadow(
@@ -10,7 +10,7 @@ export function drawTreeShadow(
 ) {
   const shadowOffsetX = -radius * 0.4;
   const shadowOffsetY = radius * 0.4;
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = PALETTE.BLACK_PURE_30;
   ctx.beginPath();
   ctx.arc(centerX + shadowOffsetX, centerY + shadowOffsetY, radius, 0, Math.PI * 2);
   ctx.fill();

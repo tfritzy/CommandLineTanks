@@ -2,6 +2,7 @@ import { UNIT_TO_PIXEL } from "../../constants";
 import { FLASH_DURATION } from "../../utils/colors";
 import { type TerrainDetailRow } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
+import { PALETTE } from "../../theme/colors";
 
 export abstract class TerrainDetailObject {
   public arrayIndex: number = -1;
@@ -105,7 +106,7 @@ export abstract class TerrainDetailObject {
 
     let currentX = x - totalWidth / 2;
     ctx.textBaseline = "alphabetic";
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.strokeStyle = PALETTE.BLACK_PURE_80;
     ctx.lineWidth = 2;
     ctx.lineJoin = "round";
 
@@ -117,7 +118,7 @@ export abstract class TerrainDetailObject {
       if (segment.isCode) {
         currentX += codePadding / 2;
         ctx.save();
-        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.fillStyle = PALETTE.BLACK_PURE_60;
         const paddingH = 12;
         const paddingV = 6;
         const bgW = textWidth + paddingH;

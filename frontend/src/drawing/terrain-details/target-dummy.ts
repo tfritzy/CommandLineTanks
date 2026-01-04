@@ -1,6 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 export function drawTargetDummyShadow(
   ctx: CanvasRenderingContext2D,
@@ -8,7 +8,7 @@ export function drawTargetDummyShadow(
   centerY: number
 ) {
   const shadowOffset = UNIT_TO_PIXEL * 0.1;
-  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+  ctx.fillStyle = PALETTE.BLACK_PURE_35;
   ctx.beginPath();
   ctx.arc(centerX - shadowOffset, centerY + shadowOffset, UNIT_TO_PIXEL * 0.4, 0, Math.PI * 2);
   ctx.fill();

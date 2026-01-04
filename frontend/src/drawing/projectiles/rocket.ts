@@ -1,4 +1,4 @@
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 
 export function drawRocketShadow(
@@ -13,7 +13,7 @@ export function drawRocketShadow(
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
   
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = PALETTE.BLACK_PURE_30;
   ctx.beginPath();
   ctx.ellipse(0, 0, radius * 3, radius * 1.2, 0, -Math.PI / 2, Math.PI / 2);
   ctx.lineTo(0, radius * 1.2);

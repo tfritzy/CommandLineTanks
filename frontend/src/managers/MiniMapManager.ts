@@ -6,7 +6,7 @@ import WorldRow from "../../module_bindings/world_type";
 import { type Infer } from "spacetimedb";
 import { BaseTerrain } from "../../module_bindings";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
-import { COLORS } from "../theme/colors";
+import { COLORS, PALETTE } from "../theme/colors";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -161,7 +161,7 @@ export class MiniMapManager {
       ctx.drawImage(this.baseLayerCanvas, miniMapX, miniMapY, miniMapWidth, miniMapHeight);
     }
 
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    ctx.strokeStyle = PALETTE.WHITE_PURE_20;
     ctx.lineWidth = 1;
     ctx.strokeRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
 

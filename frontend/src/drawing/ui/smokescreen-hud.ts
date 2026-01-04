@@ -1,5 +1,5 @@
 
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 export function drawSmokescreenHud(
   ctx: CanvasRenderingContext2D,
@@ -38,7 +38,7 @@ export function drawSmokescreenHud(
   ctx.stroke();
 
   const progressBarWidth = width * progress;
-  ctx.fillStyle = isReady ? 'rgba(90, 120, 178, 0.3)' : 'rgba(112, 123, 137, 0.3)';
+  ctx.fillStyle = isReady ? PALETTE.BLUE_LIGHT_30 : PALETTE.SLATE_LIGHT_30;
   ctx.fillRect(x, y, progressBarWidth, height);
 
   ctx.fillStyle = isReady ? COLORS.TERMINAL.TANK_CODE : COLORS.TERMINAL.TEXT_MUTED;

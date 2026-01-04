@@ -43,6 +43,57 @@ const PALETTE = {
   TRANSPARENT_DARK: "#00000006",
   TRANSPARENT_GRID: "#4a4b5b22",
   TRANSPARENT_SHADOW: "#00000044",
+  
+  BLACK_PURE_25: "#00000040",
+  BLACK_PURE_30: "#0000004d",
+  BLACK_PURE_35: "#00000059",
+  BLACK_PURE_40: "#00000066",
+  BLACK_PURE_50: "#00000080",
+  BLACK_PURE_60: "#00000099",
+  BLACK_PURE_80: "#000000cc",
+  
+  WHITE_PURE_10: "#ffffff1a",
+  WHITE_PURE_20: "#ffffff33",
+  WHITE_PURE_30: "#ffffff4d",
+  
+  SLATE_DARKEST_60: "#2a152d99",
+  SLATE_DARKEST_80: "#2a152dcc",
+  SLATE_DARKEST_90: "#2a152de6",
+  
+  SLATE_MEDIUM_30: "#4a4b5b4d",
+  
+  SLATE_LIGHT_20: "#707b8933",
+  SLATE_LIGHT_30: "#707b894d",
+  SLATE_LIGHT_40: "#707b8966",
+  SLATE_LIGHT_80: "#707b89cc",
+  
+  SLATE_LIGHTER_10: "#a9bcbf1a",
+  
+  RED_DARK_60: "#81364599",
+  RED_DARK_80: "#813645cc",
+  
+  RED_MEDIUM_80: "#9d4343cc",
+  
+  RED_MUTED_40: "#c0685266",
+  RED_MUTED_50: "#c0685280",
+  RED_MUTED_60: "#c0685299",
+  
+  BLUE_LIGHT_30: "#5a78b24d",
+  BLUE_LIGHT_60: "#5a78b299",
+  BLUE_LIGHT_80: "#5a78b2cc",
+  
+  BLUE_INFO_25: "#7396d540",
+  BLUE_INFO_50: "#7396d580",
+  
+  GREEN_SUCCESS_30: "#96dc7f4d",
+  GREEN_SUCCESS_50: "#96dc7f80",
+  
+  YELLOW_BRIGHT_10: "#fceba81a",
+  YELLOW_BRIGHT_15: "#fceba826",
+  
+  GROUND_DARK_80: "#2e2e43cc",
+  GROUND_DARK_85: "#2e2e43d9",
+  GROUND_DARK_95: "#2e2e43f2",
 } as const;
 
 export const COLORS = {
@@ -221,3 +272,5 @@ export function muted(text: string): string {
 export function dim(text: string): string {
   return colorize(text, 'TEXT_DIM');
 }
+
+export { PALETTE };

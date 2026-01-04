@@ -3,7 +3,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
-import { COLORS } from "../theme/colors";
+import { COLORS, PALETTE } from "../theme/colors";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 interface PlayerScore {
@@ -211,8 +211,8 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
 
   const getTeamColor = (alliance: number) => {
     return alliance === 0
-      ? "rgba(157, 67, 67, 0.8)"
-      : "rgba(90, 120, 178, 0.8)";
+      ? "PALETTE.RED_MEDIUM_80"
+      : "PALETTE.BLUE_LIGHT_80";
   };
 
   const getBarColor = (player: PlayerScore) => {
@@ -222,7 +222,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
     if (isOwnTank) {
       return getTeamColor(player.alliance);
     }
-    return "rgba(112, 123, 137, 0.8)";
+    return "PALETTE.SLATE_LIGHT_80";
   };
 
   return (
@@ -262,7 +262,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
                 left: 0,
                 height: "100%",
                 width: "100%",
-                backgroundColor: "rgba(0, 0, 0, 0.4)",
+                backgroundColor: PALETTE.BLACK_PURE_40,
                 borderRadius: radius,
               }}
             />

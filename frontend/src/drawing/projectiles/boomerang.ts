@@ -1,4 +1,4 @@
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 
 export function drawBoomerangShadow(
@@ -10,7 +10,7 @@ export function drawBoomerangShadow(
 ) {
   ctx.save();
   ctx.translate(centerX, centerY);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = PALETTE.BLACK_PURE_30;
 
   for (let i = 0; i < 3; i++) {
     ctx.save();

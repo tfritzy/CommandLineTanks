@@ -1,6 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 interface DebrisParticle {
   x: number;
@@ -250,7 +250,7 @@ export class DeadTankParticles {
         particle.width,
         particle.height
       );
-      ctx.strokeStyle = "rgba(0,0,0,0.5)";
+      ctx.strokeStyle = PALETTE.BLACK_PURE_50;
       ctx.lineWidth = 1;
       ctx.strokeRect(
         -particle.width / 2,

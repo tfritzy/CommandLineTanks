@@ -1,6 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 const HEALTH_BAR_WIDTH = 32;
 const HEALTH_BAR_HEIGHT = 4;
@@ -26,7 +26,7 @@ export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: numb
   ctx.save();
   ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
 
-  const shadowColor = "rgba(0, 0, 0, 0.5)";
+  const shadowColor = PALETTE.BLACK_PURE_50;
   ctx.fillStyle = shadowColor;
 
   ctx.save();
@@ -52,7 +52,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   const allianceColor = params.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
   const bodyColor = getFlashColor(allianceColor, params.flashTimer);
   const borderColor = getFlashColor(params.alliance === 0 ? "#330000" : "#000033", params.flashTimer);
-  const selfShadowColor = "rgba(0, 0, 0, 0.35)";
+  const selfShadowColor = PALETTE.BLACK_PURE_35;
 
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
@@ -107,7 +107,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
 
     ctx.strokeStyle = COLORS.TERMINAL.INFO;
     ctx.lineWidth = 2;
-    ctx.fillStyle = "rgba(115, 150, 213, 0.25)";
+    ctx.fillStyle = "PALETTE.BLUE_INFO_25";
     ctx.beginPath();
     ctx.roundRect(-shieldHalfSize, -shieldHalfSize, shieldSize, shieldSize, 5);
     ctx.fill();
@@ -174,7 +174,7 @@ export function drawTankHealthBar(
   ctx.save();
   ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  ctx.fillStyle = PALETTE.BLACK_PURE_50;
   ctx.beginPath();
   ctx.roundRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT, HEALTH_BAR_BORDER_RADIUS);
   ctx.fill();

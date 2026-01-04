@@ -1,5 +1,5 @@
 import React from "react";
-import { COLORS } from "../theme/colors";
+import { COLORS, PALETTE } from "../theme/colors";
 
 const HomeworldOverlay: React.FC = () => {
     return (
@@ -20,15 +20,15 @@ const HomeworldOverlay: React.FC = () => {
         >
             <div
                 style={{
-                    background: "rgba(46, 46, 67, 0.85)",
+                    background: PALETTE.GROUND_DARK_85,
                     backdropFilter: "blur(8px)",
                     padding: "8px 20px",
                     borderRadius: "6px",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    border: `1px solid ${PALETTE.WHITE_PURE_10}`,
                     borderTop: "none",
                     borderTopLeftRadius: 0,
                     borderTopRightRadius: 0,
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+                    boxShadow: `0 4px 20px ${PALETTE.BLACK_PURE_40}`,
                     animation: "fadeInDown 0.6s ease-out",
                 }}
             >
@@ -40,14 +40,14 @@ const HomeworldOverlay: React.FC = () => {
                         fontFamily: "'JetBrains Mono', monospace",
                         letterSpacing: "0.03em",
                         textAlign: "center",
-                        textShadow: "0 1px 2px rgba(0,0,0,0.5)",
+                        textShadow: `0 1px 2px ${PALETTE.BLACK_PURE_50}`,
                     }}
                 >
                     When ready, call the{" "}
                     <code
                         style={{
                             color: COLORS.TERMINAL.WARNING,
-                            background: "rgba(252, 235, 168, 0.15)",
+                            background: PALETTE.YELLOW_BRIGHT_15,
                             padding: "2px 6px",
                             borderRadius: "4px",
                             fontWeight: 600,

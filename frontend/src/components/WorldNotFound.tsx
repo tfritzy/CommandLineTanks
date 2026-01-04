@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { getConnection } from '../spacetimedb-connection';
-import { COLORS } from '../theme/colors';
+import { COLORS, PALETTE } from '../theme/colors';
 
 interface WorldNotFoundProps {
   worldId: string;
@@ -60,8 +60,8 @@ export default function WorldNotFound({ worldId }: WorldNotFoundProps) {
         marginBottom: '32px',
         fontFamily: "'JetBrains Mono', monospace",
         padding: '8px 16px',
-        background: 'rgba(74, 75, 91, 0.3)',
-        border: '1px solid rgba(112, 123, 137, 0.2)',
+        background: PALETTE.SLATE_MEDIUM_30,
+        border: `1px solid ${PALETTE.SLATE_LIGHT_20}`,
       }}>
         {worldId}
       </div>

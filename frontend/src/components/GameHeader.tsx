@@ -4,7 +4,7 @@ import { type Infer } from "spacetimedb";
 import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
 import { type EventContext } from "../../module_bindings";
-import { COLORS } from "../theme/colors";
+import { COLORS, PALETTE } from "../theme/colors";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
 
@@ -137,7 +137,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             display: "flex",
             alignItems: "stretch",
             height: "26px",
-            filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))",
+            filter: `drop-shadow(0 2px 4px ${PALETTE.BLACK_PURE_50})`,
           }}
         >
           <div
@@ -207,7 +207,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             textAlign: "center",
             letterSpacing: "0.05em",
             textTransform: "uppercase",
-            textShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
+            textShadow: `0 2px 8px ${PALETTE.BLACK_PURE_50}`,
           }}
         >
           Game ending in {timeRemaining}
