@@ -342,7 +342,7 @@ public static partial class Module
             gridY: areaY - 1,
             type: TerrainDetailType.Label,
             health: 100,
-            label: "Use shorthands: [color=#fceba8]`f`[/color] for fire, [color=#fceba8]`t <code>`[/color] for target",
+            label: "Use shorthands, for example: [color=#fceba8]`f`[/color] for fire, [color=#fceba8]`t <code>`[/color] for target",
             rotation: 0
         ));
 
