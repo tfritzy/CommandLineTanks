@@ -163,7 +163,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           if (commandOutput[0]?.startsWith('Command not found:')) {
             const cmdLower = cmd.toLowerCase();
             if (cmdLower.startsWith('f') && cmdLower.length > 1 && cmdLower !== 'fire' && cmdLower !== 'f') {
-              const withoutF = cmd.substring(1);
+              const withoutF = cmdLower.substring(1);
               const retryOutput = executeCommand(withoutF, args);
               
               if (!retryOutput[0]?.startsWith('Command not found:')) {
