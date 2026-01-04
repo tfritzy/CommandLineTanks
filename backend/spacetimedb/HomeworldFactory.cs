@@ -332,6 +332,31 @@ public static partial class Module
         int areaHeight = 5;
 
         CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            worldId: worldId,
+            positionX: areaX + areaWidth / 2.0f + 0.5f,
+            positionY: areaY - 0.8f,
+            gridX: areaX + areaWidth / 2,
+            gridY: areaY - 1,
+            type: TerrainDetailType.Label,
+            health: 100,
+            label: "Use shorthands: [color=#fceba8]`f`[/color] for fire, [color=#fceba8]`t <code>`[/color] for target",
+            rotation: 0
+        ));
+
+        var pen = new AiConfig
+        {
+            PenMinX = areaX,
+            PenMaxX = areaX + areaWidth - 1,
+            PenMinY = areaY,
+            PenMaxY = areaY + areaHeight - 1
+        };
+
+        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1, pen);
+        SpawnTileboundBot(ctx, worldId, areaX + 2, areaY + 2, 1, pen);
+        SpawnTileboundBot(ctx, worldId, areaX + 3, areaY + 3, 1, pen);
     }
 
     private static void CreateFencedArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, int startX, int startY, int width, int height)
