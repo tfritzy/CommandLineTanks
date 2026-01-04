@@ -79,65 +79,7 @@ export class Game {
     }
   }
 
-  private drawRelativeDistanceLabels(cameraX: number, cameraY: number) {
-    const playerTank = this.tankManager.getPlayerTank();
-    if (!playerTank) return;
 
-    const worldWidth = this.terrainManager.getWorldWidth();
-    const worldHeight = this.terrainManager.getWorldHeight();
-    if (worldWidth === 0 || worldHeight === 0) return;
-
-    const displayWidth = this.canvas.width;
-    const displayHeight = this.canvas.height;
-
-    const playerPos = playerTank.getPosition();
-    const playerGridX = Math.floor(playerPos.x);
-    const playerGridY = Math.floor(playerPos.y);
-    const LABEL_INTERVAL = 5;
-
-    const startX = Math.floor(cameraX / UNIT_TO_PIXEL);
-    const endX = Math.ceil((cameraX + displayWidth) / UNIT_TO_PIXEL);
-    const startY = Math.floor(cameraY / UNIT_TO_PIXEL);
-    const endY = Math.ceil((cameraY + displayHeight) / UNIT_TO_PIXEL);
-
-    this.ctx.save();
-    this.ctx.fillStyle = "#6a6b7b";
-    this.ctx.font = "10px 'JetBrains Mono', monospace";
-    this.ctx.textAlign = "center";
-    this.ctx.textBaseline = "middle";
-
-    for (
-      let x = Math.max(0, startX);
-      x <= Math.min(worldWidth - 1, endX);
-      x++
-    ) {
-      const relativeX = x - playerGridX;
-
-      if (relativeX % LABEL_INTERVAL === 0 && relativeX !== 0) {
-        const worldX = x * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
-        const worldY = playerGridY * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
-        const label = relativeX > 0 ? `+${relativeX}` : relativeX.toString();
-        this.ctx.fillText(label, worldX, worldY);
-      }
-    }
-
-    for (
-      let y = Math.max(0, startY);
-      y <= Math.min(worldHeight - 1, endY);
-      y++
-    ) {
-      const relativeY = playerGridY - y;
-
-      if (relativeY % LABEL_INTERVAL === 0 && relativeY !== 0) {
-        const worldX = playerGridX * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
-        const worldY = y * UNIT_TO_PIXEL + UNIT_TO_PIXEL / 2;
-        const label = relativeY > 0 ? `+${relativeY}` : relativeY.toString();
-        this.ctx.fillText(label, worldX, worldY);
-      }
-    }
-
-    this.ctx.restore();
-  }
 
   private update(currentTime: number = 0) {
     const deltaTime =
@@ -211,8 +153,6 @@ export class Game {
 
     this.tankManager.drawPaths(this.ctx);
     this.tankManager.drawShadows(this.ctx);
-
-    this.drawRelativeDistanceLabels(this.currentCameraX, this.currentCameraY);
 
     this.tankManager.drawBodies(this.ctx);
     this.tankManager.drawParticles(
