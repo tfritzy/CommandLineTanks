@@ -666,12 +666,12 @@ public static partial class TerrainGenerator
 
         int treesToRemove = (int)(treeIndices.Count * 0.33);
         
-        for (int i = 0; i < treesToRemove; i++)
+        for (int i = treeIndices.Count - 1; i >= treeIndices.Count - treesToRemove; i--)
         {
-            int randomIndex = random.Next(treeIndices.Count);
-            int treeIndex = treeIndices[randomIndex];
+            int swapIndex = random.Next(i + 1);
+            int treeIndex = treeIndices[swapIndex];
             terrainDetail[treeIndex] = TerrainDetailType.None;
-            treeIndices.RemoveAt(randomIndex);
+            treeIndices[swapIndex] = treeIndices[i];
         }
     }
 
