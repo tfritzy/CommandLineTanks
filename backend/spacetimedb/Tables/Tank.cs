@@ -1,10 +1,93 @@
 using SpacetimeDB;
 using static Types;
+using System;
 
 public static partial class Module
 {
+    [Table(Name = "tank", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(TargetCode) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Owner) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(IsBot) })]
     public partial struct Tank
     {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        [SpacetimeDB.Index.BTree]
+        public Identity Owner;
+
+        public string Name;
+
+        public string TargetCode;
+
+        public string? JoinCode;
+
+        public bool IsBot;
+
+        public AIBehavior AIBehavior;
+
+        public AiConfig? AiConfig;
+
+        public int Alliance;
+
+        public int Health;
+
+        public int MaxHealth;
+
+        public int Kills;
+
+        public int Deaths;
+
+        public int KillStreak;
+
+        public int CollisionRegionX;
+
+        public int CollisionRegionY;
+
+        public string? Target;
+        public float TargetLead;
+
+        public string? Message;
+
+        public float TopSpeed;
+        public float TurretRotationSpeed;
+
+        public float PositionX;
+        public float PositionY;
+
+        public Vector2Float Velocity;
+        public float TurretAngularVelocity;
+
+        public float TurretRotation;
+        public float TargetTurretRotation;
+
+        public Gun[] Guns;
+        public int SelectedGunIndex;
+
+        public long RemainingSmokescreenCooldownMicros;
+
+        public bool HasShield;
+
+        public long RemainingOverdriveCooldownMicros;
+
+        public long RemainingOverdriveDurationMicros;
+
+        public long RemainingImmunityMicros;
+
+        public long RemainingRepairCooldownMicros;
+
+        public bool IsRepairing;
+
+        public ulong RepairStartedAt;
+
+        public ulong DeathTimestamp;
+
+        public ulong UpdatedAt;
+
         public static Tank Build(
             ReducerContext ctx,
             string? id = null,

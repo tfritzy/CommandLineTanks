@@ -3,8 +3,30 @@ using static Types;
 
 public static partial class Module
 {
+    [Table(Name = "terrain_detail", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(GridX), nameof(GridY) })]
     public partial struct TerrainDetail
     {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public float PositionX;
+        public float PositionY;
+
+        public int GridX;
+        public int GridY;
+
+        public TerrainDetailType Type;
+
+        public int? Health;
+
+        public string? Label;
+
+        public int Rotation;
+
         public static TerrainDetail Build(
             ReducerContext ctx,
             string? id = null,

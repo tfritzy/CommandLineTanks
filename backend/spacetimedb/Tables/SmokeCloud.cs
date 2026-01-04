@@ -3,8 +3,25 @@ using static Types;
 
 public static partial class Module
 {
+    [Table(Name = "smoke_cloud", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
     public partial struct SmokeCloud
     {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public float PositionX;
+        public float PositionY;
+
+        public int CollisionRegionX;
+        public int CollisionRegionY;
+
+        public ulong SpawnedAt;
+        public float Radius;
+
         public static SmokeCloud Build(
             ReducerContext ctx,
             string? id = null,

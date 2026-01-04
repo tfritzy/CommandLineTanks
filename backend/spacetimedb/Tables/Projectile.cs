@@ -4,8 +4,47 @@ using System;
 
 public static partial class Module
 {
+    [Table(Name = "projectile", Public = true)]
     public partial struct Projectile
     {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public string ShooterTankId;
+
+        public int Alliance;
+
+        public float PositionX;
+        public float PositionY;
+
+        public float Speed;
+        public float Size;
+
+        public Vector2Float Velocity;
+
+        public int Damage;
+        public float TrackingStrength;
+        public float TrackingRadius;
+        public ProjectileType ProjectileType;
+        public ulong SpawnedAt;
+        public float LifetimeSeconds;
+        public bool ReturnsToShooter;
+        public bool IsReturning;
+        public int MaxCollisions;
+        public int CollisionCount;
+        public bool PassThroughTerrain;
+        public float CollisionRadius;
+        public float? ExplosionRadius;
+        public ExplosionTrigger ExplosionTrigger;
+        public float? Damping;
+        public bool Bounce;
+        public DamagedTile[] RecentlyDamagedTiles;
+        public DamagedTank[] RecentlyHitTanks;
+        public ulong UpdatedAt;
+
         public static Projectile Build(
             ReducerContext ctx,
             string? id = null,

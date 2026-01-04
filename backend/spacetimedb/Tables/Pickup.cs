@@ -3,8 +3,24 @@ using static Types;
 
 public static partial class Module
 {
+    [Table(Name = "pickup", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(GridX), nameof(GridY) })]
     public partial struct Pickup
     {
+        [PrimaryKey]
+        public string Id;
+
+        [SpacetimeDB.Index.BTree]
+        public string WorldId;
+
+        public float PositionX;
+        public float PositionY;
+
+        public int GridX;
+        public int GridY;
+
+        public PickupType Type;
+
         public static Pickup Build(
             ReducerContext ctx,
             string? id = null,
