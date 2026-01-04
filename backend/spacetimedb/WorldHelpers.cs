@@ -114,7 +114,7 @@ public static partial class Module
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
-        var tank = BuildTank(
+        var tank = Tank.Build(
             ctx: ctx,
             worldId: identityString,
             owner: ctx.Sender,

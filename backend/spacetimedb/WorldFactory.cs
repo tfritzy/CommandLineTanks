@@ -62,7 +62,7 @@ public static partial class Module
                 posY += (float)(ctx.Rng.NextDouble() * 0.5 - 0.25);
             }
 
-            ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 id: terrainDetailId,
                 worldId: worldId,

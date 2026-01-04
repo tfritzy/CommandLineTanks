@@ -21,7 +21,7 @@ public static partial class Module
         int collisionRegionY = (int)(tank.PositionY / COLLISION_REGION_SIZE);
 
         var smokeCloudId = Module.GenerateId(ctx, "smoke");
-        var smokeCloud = BuildSmokeCloud(
+        var smokeCloud = SmokeCloud.Build(
             ctx: ctx,
             id: smokeCloudId,
             worldId: worldId,

@@ -116,7 +116,7 @@ public static partial class PickupSpawner
             }
 
             var pickupId = Module.GenerateId(ctx, "pickup");
-            ctx.Db.pickup.Insert(Module.BuildPickup(
+            ctx.Db.pickup.Insert(Module.Pickup.Build(
                 ctx: ctx,
                 id: pickupId,
                 worldId: worldId,
@@ -197,7 +197,7 @@ public static partial class PickupSpawner
         }
 
         var pickupId = Module.GenerateId(ctx, "pickup");
-        ctx.Db.pickup.Insert(Module.BuildPickup(
+        ctx.Db.pickup.Insert(Module.Pickup.Build(
             ctx: ctx,
             id: pickupId,
             worldId: worldId,

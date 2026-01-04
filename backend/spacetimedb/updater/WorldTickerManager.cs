@@ -151,7 +151,7 @@ public static partial class Module
 
             var (spawnX, spawnY) = FindSpawnPosition(ctx, newWorld, newAlliance, ctx.Rng);
 
-            var newTank = BuildTank(
+            var newTank = Tank.Build(
                 ctx: ctx,
                 worldId: newWorldId,
                 owner: tank.Owner,

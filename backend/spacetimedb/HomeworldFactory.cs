@@ -78,7 +78,7 @@ public static partial class Module
             if (traversibilityMap[rIndex] && (Math.Abs(rx - worldWidth / 2) > 5 || Math.Abs(ry - worldHeight / 2) > 5) && !IsInsideAnyPen(rx, ry))
             {
                 traversibilityMap[rIndex] = false;
-                ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     worldId: identityString,
                     positionX: rx + 0.5f,
@@ -100,7 +100,7 @@ public static partial class Module
             if (traversibilityMap[tIndex] && (Math.Abs(tx - worldWidth / 2) > 5 || Math.Abs(ty - worldHeight / 2) > 5) && !IsInsideAnyPen(tx, ty))
             {
                 traversibilityMap[tIndex] = false;
-                ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     worldId: identityString,
                     positionX: tx + 0.5f,
@@ -142,7 +142,7 @@ public static partial class Module
             int px = worldWidth / 2 - pickups.Length + (i * 2);
             int py = worldHeight - 5;
 
-            ctx.Db.pickup.Insert(BuildPickup(
+            ctx.Db.pickup.Insert(Pickup.Build(
                 ctx: ctx,
                 worldId: identityString,
                 positionX: px + 0.5f,
@@ -167,7 +167,7 @@ public static partial class Module
     private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "Turret";
-        var turretBot = BuildTank(
+        var turretBot = Tank.Build(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
             worldId: worldId,
@@ -187,7 +187,7 @@ public static partial class Module
     private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "AimBot";
-        var aimBot = BuildTank(
+        var aimBot = Tank.Build(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
             worldId: worldId,
@@ -207,7 +207,7 @@ public static partial class Module
     private static void SpawnTileboundBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "TileBot";
-        var tileboundBot = BuildTank(
+        var tileboundBot = Tank.Build(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
             worldId: worldId,
@@ -233,7 +233,7 @@ public static partial class Module
 
         CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
-        ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             worldId: worldId,
             positionX: areaX + areaWidth / 2.0f + 0.5f,
@@ -267,7 +267,7 @@ public static partial class Module
 
         CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
-        ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             worldId: worldId,
             positionX: areaX + areaWidth / 2.0f + 0.5f,
@@ -300,7 +300,7 @@ public static partial class Module
 
         CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
-        ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             worldId: worldId,
             positionX: areaX + areaWidth / 2.0f + 0.5f,
@@ -341,7 +341,7 @@ public static partial class Module
             int topY = startY - 1;
             if (topY >= 0)
             {
-                ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     worldId: worldId,
                     positionX: x + 0.5f,
@@ -357,7 +357,7 @@ public static partial class Module
             int bottomY = startY + height;
             if (bottomY < worldHeight)
             {
-                ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     worldId: worldId,
                     positionX: x + 0.5f,
@@ -376,7 +376,7 @@ public static partial class Module
             int leftX = startX - 1;
             if (leftX >= 0)
             {
-                ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     worldId: worldId,
                     positionX: leftX + 0.5f,
@@ -392,7 +392,7 @@ public static partial class Module
             int rightX = startX + width;
             if (rightX < worldWidth)
             {
-                ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     worldId: worldId,
                     positionX: rightX + 0.5f,
@@ -410,7 +410,7 @@ public static partial class Module
         int topLeftY = startY - 1;
         if (topLeftX >= 0 && topLeftY >= 0)
         {
-            ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 worldId: worldId,
                 positionX: topLeftX + 0.5f,
@@ -427,7 +427,7 @@ public static partial class Module
         int topRightY = startY - 1;
         if (topRightX < worldWidth && topRightY >= 0)
         {
-            ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 worldId: worldId,
                 positionX: topRightX + 0.5f,
@@ -444,7 +444,7 @@ public static partial class Module
         int bottomLeftY = startY + height;
         if (bottomLeftX >= 0 && bottomLeftY < worldHeight)
         {
-            ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 worldId: worldId,
                 positionX: bottomLeftX + 0.5f,
@@ -461,7 +461,7 @@ public static partial class Module
         int bottomRightY = startY + height;
         if (bottomRightX < worldWidth && bottomRightY < worldHeight)
         {
-            ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 worldId: worldId,
                 positionX: bottomRightX + 0.5f,
