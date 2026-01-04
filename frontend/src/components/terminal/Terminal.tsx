@@ -18,36 +18,6 @@ const KEY_ESCAPE = 27;
 const ARROW_UP = "\x1b[A";
 const ARROW_DOWN = "\x1b[B";
 
-const F_PREFIX_COMMAND_MAP: Record<string, string> = {
-  'd': 'drive',
-  'drive': 'drive',
-  's': 'stop',
-  'stop': 'stop',
-  'a': 'aim',
-  'aim': 'aim',
-  't': 'target',
-  'target': 'target',
-  'w': 'switch',
-  'switch': 'switch',
-  'sm': 'smokescreen',
-  'smokescreen': 'smokescreen',
-  'od': 'overdrive',
-  'overdrive': 'overdrive',
-  'rep': 'repair',
-  'repair': 'repair',
-  'respawn': 'respawn',
-  'tanks': 'tanks',
-  'name': 'name',
-  'create': 'create',
-  'join': 'join',
-  'e': 'exit',
-  'exit': 'exit',
-  'h': 'help',
-  'help': 'help',
-  'c': 'clear',
-  'clear': 'clear',
-};
-
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
@@ -115,16 +85,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         return ["Error: connection is currently not active"];
       }
 
-      let resolvedCommandName = commandName.toLowerCase();
-      
-      if (resolvedCommandName.startsWith('f') && resolvedCommandName.length > 1 && resolvedCommandName !== 'fire' && resolvedCommandName !== 'f') {
-        const withoutF = resolvedCommandName.substring(1);
-        if (F_PREFIX_COMMAND_MAP[withoutF]) {
-          resolvedCommandName = F_PREFIX_COMMAND_MAP[withoutF];
-        }
-      }
-
-      switch (resolvedCommandName) {
+      switch (commandName.toLowerCase()) {
         case 'aim':
         case 'a':
           return aim(connection, worldId, commandArgs);
@@ -200,16 +161,28 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           }
 
           if (commandOutput[0]?.startsWith('Command not found:')) {
-            const suggestion = findCommandSuggestion(cmd);
-            if (suggestion) {
-              term.write(`Assuming you meant '${suggestion}'\r\n\r\n`);
-              commandOutput = executeCommand(suggestion, args);
+            const cmdLower = cmd.toLowerCase();
+            if (cmdLower.startsWith('f') && cmdLower.length > 1 && cmdLower !== 'fire' && cmdLower !== 'f') {
+              const withoutF = cmd.substring(1);
+              const retryOutput = executeCommand(withoutF, args);
+              
+              if (!retryOutput[0]?.startsWith('Command not found:')) {
+                commandOutput = retryOutput;
+              }
+            }
+            
+            if (commandOutput[0]?.startsWith('Command not found:')) {
+              const suggestion = findCommandSuggestion(cmd);
+              if (suggestion) {
+                term.write(`Assuming you meant '${suggestion}'\r\n\r\n`);
+                commandOutput = executeCommand(suggestion, args);
 
-              if (commandOutput === 'CLEAR') {
-                term.clear();
-                currentInputRef.current = "";
-                term.write(PROMPT);
-                return;
+                if (commandOutput === 'CLEAR') {
+                  term.clear();
+                  currentInputRef.current = "";
+                  term.write(PROMPT);
+                  return;
+                }
               }
             }
           }
