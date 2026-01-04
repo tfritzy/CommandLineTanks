@@ -85,7 +85,43 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         return ["Error: connection is currently not active"];
       }
 
-      switch (commandName.toLowerCase()) {
+      let resolvedCommandName = commandName.toLowerCase();
+      
+      if (resolvedCommandName.startsWith('f') && resolvedCommandName.length > 1 && resolvedCommandName !== 'fire' && resolvedCommandName !== 'f') {
+        const withoutF = resolvedCommandName.substring(1);
+        const commandMap: Record<string, string> = {
+          'd': 'drive',
+          's': 'stop',
+          'a': 'aim',
+          't': 'target',
+          'w': 'switch',
+          'sm': 'smokescreen',
+          'o': 'overdrive',
+          'od': 'overdrive',
+          'r': 'repair',
+          'rep': 'repair',
+          're': 'respawn',
+          'respawn': 'respawn',
+          'tanks': 'tanks',
+          'n': 'name',
+          'name': 'name',
+          'c': 'create',
+          'create': 'create',
+          'j': 'join',
+          'join': 'join',
+          'e': 'exit',
+          'exit': 'exit',
+          'h': 'help',
+          'help': 'help',
+          'clear': 'clear',
+        };
+        
+        if (commandMap[withoutF]) {
+          resolvedCommandName = commandMap[withoutF];
+        }
+      }
+
+      switch (resolvedCommandName) {
         case 'aim':
         case 'a':
           return aim(connection, worldId, commandArgs);
