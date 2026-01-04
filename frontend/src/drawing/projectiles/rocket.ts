@@ -13,7 +13,7 @@ export function drawRocketShadow(
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
   
-  ctx.fillStyle = PALETTE.BLACK_PURE_30;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "4d";
   ctx.beginPath();
   ctx.ellipse(0, 0, radius * 3, radius * 1.2, 0, -Math.PI / 2, Math.PI / 2);
   ctx.lineTo(0, radius * 1.2);

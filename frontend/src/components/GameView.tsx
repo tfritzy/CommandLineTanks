@@ -259,14 +259,14 @@ export default function GameView() {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: "PALETTE.GROUND_DARK_95",
+              background: PALETTE.GROUND_DARK + "f2",
               backdropFilter: "blur(4px)",
               borderRadius: "8px",
-              border: "2px solid PALETTE.SLATE_LIGHT_30",
+              border: `2px solid ${PALETTE.SLATE_LIGHT + "4d"}`,
               padding: "40px 60px",
               fontFamily: "'JetBrains Mono', monospace",
               zIndex: 1000,
-              boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE_50}`,
+              boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE + "80"}`,
               animation: "fadeIn 0.15s ease-out 1s both",
             }}
           >
@@ -289,7 +289,7 @@ export default function GameView() {
                 letterSpacing: "0.15em",
                 textTransform: "uppercase",
                 marginBottom: "24px",
-                textShadow: "0 2px 12px PALETTE.RED_MUTED_50",
+                textShadow: `0 2px 12px ${PALETTE.RED_MUTED + "80"}`,
                 lineHeight: 1,
                 textAlign: "center",
               }}
@@ -313,7 +313,7 @@ export default function GameView() {
                   color: COLORS.TERMINAL.WARNING,
                   fontWeight: 500,
                   padding: "2px 8px",
-                  background: "PALETTE.YELLOW_BRIGHT_10",
+                  background: PALETTE.YELLOW_BRIGHT + "1a",
                   borderRadius: "2px",
                 }}
               >
@@ -324,7 +324,7 @@ export default function GameView() {
 
             <div
               style={{
-                borderTop: "1px solid PALETTE.SLATE_LIGHT_20",
+                borderTop: `1px solid ${PALETTE.SLATE_LIGHT + "33"}`,
                 paddingTop: "24px",
                 textAlign: "center",
               }}
@@ -350,8 +350,8 @@ export default function GameView() {
               >
                 <div
                   style={{
-                    background: "PALETTE.SLATE_DARKEST_60",
-                    border: "1px solid PALETTE.SLATE_LIGHT_30",
+                    background: PALETTE.SLATE_DARKEST + "99",
+                    border: `1px solid ${PALETTE.SLATE_LIGHT + "4d"}`,
                     borderRadius: "4px",
                     padding: "8px 16px",
                     fontSize: "13px",
@@ -378,14 +378,14 @@ export default function GameView() {
                         setTimeout(() => {
                           button.textContent = originalText;
                           button.style.background =
-                            "PALETTE.RED_DARK_60";
+                            PALETTE.RED_DARK + "99";
                         }, 1500);
                       }
                     });
                   }}
                   style={{
-                    background: "PALETTE.RED_DARK_60",
-                    border: "1px solid PALETTE.RED_MUTED_40",
+                    background: PALETTE.RED_DARK + "99",
+                    border: `1px solid ${PALETTE.RED_MUTED + "66"}`,
                     borderRadius: "4px",
                     padding: "8px 16px",
                     fontSize: "13px",
@@ -398,16 +398,16 @@ export default function GameView() {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background =
-                      "PALETTE.RED_DARK_80";
+                      PALETTE.RED_DARK + "cc";
                     e.currentTarget.style.borderColor =
-                      "PALETTE.RED_MUTED_60";
+                      PALETTE.RED_MUTED + "99";
                   }}
                   onMouseLeave={(e) => {
                     if (e.currentTarget.textContent !== "Copied!") {
                       e.currentTarget.style.background =
-                        "PALETTE.RED_DARK_60";
+                        PALETTE.RED_DARK + "99";
                       e.currentTarget.style.borderColor =
-                        "PALETTE.RED_MUTED_40";
+                        PALETTE.RED_MUTED + "66";
                     }
                   }}
                 >

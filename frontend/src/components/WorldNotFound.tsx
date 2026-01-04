@@ -60,8 +60,8 @@ export default function WorldNotFound({ worldId }: WorldNotFoundProps) {
         marginBottom: '32px',
         fontFamily: "'JetBrains Mono', monospace",
         padding: '8px 16px',
-        background: PALETTE.SLATE_MEDIUM_30,
-        border: `1px solid ${PALETTE.SLATE_LIGHT_20}`,
+        background: PALETTE.SLATE_MEDIUM + "4d",
+        border: `1px solid ${PALETTE.SLATE_LIGHT + "33"}`,
       }}>
         {worldId}
       </div>

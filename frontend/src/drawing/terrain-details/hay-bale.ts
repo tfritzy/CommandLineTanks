@@ -8,7 +8,7 @@ export function drawHayBaleShadow(
   centerY: number,
   radius: number
 ) {
-  ctx.fillStyle = PALETTE.BLACK_PURE_30;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "4d";
   ctx.beginPath();
   ctx.arc(centerX - UNIT_TO_PIXEL * 0.15, centerY + UNIT_TO_PIXEL * 0.15, radius, 0, Math.PI * 2);
   ctx.fill();

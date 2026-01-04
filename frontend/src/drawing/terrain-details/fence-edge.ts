@@ -25,7 +25,7 @@ export function drawFenceEdgeShadow(
   ctx.rotate(angle);
   ctx.translate(-centerX, -centerY);
 
-  ctx.fillStyle = PALETTE.BLACK_PURE_25;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "40";
   const railWidth = UNIT_TO_PIXEL * 0.05;
   const slatWidth = UNIT_TO_PIXEL * 0.22;
   const slatHeight = UNIT_TO_PIXEL * 0.035;

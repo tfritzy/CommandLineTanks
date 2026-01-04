@@ -41,7 +41,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         foreground: "#e6eeed",
         cursor: "#96dc7f",
         cursorAccent: "#2a152d",
-        selectionBackground: PALETTE.GREEN_SUCCESS_30,
+        selectionBackground: PALETTE.GREEN_SUCCESS + "4d",
         black: "#2e2e43",
         red: "#c06852",
         green: "#96dc7f",

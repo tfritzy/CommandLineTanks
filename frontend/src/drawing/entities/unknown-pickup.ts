@@ -12,7 +12,7 @@ export function drawUnknownPickupShadow(
 
   ctx.save();
   ctx.translate(worldX - 4, worldY + 4);
-  ctx.fillStyle = PALETTE.BLACK_PURE_30;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "4d";
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
   ctx.fill();

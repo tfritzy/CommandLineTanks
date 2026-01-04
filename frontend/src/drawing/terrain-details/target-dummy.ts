@@ -8,7 +8,7 @@ export function drawTargetDummyShadow(
   centerY: number
 ) {
   const shadowOffset = UNIT_TO_PIXEL * 0.1;
-  ctx.fillStyle = PALETTE.BLACK_PURE_35;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "59";
   ctx.beginPath();
   ctx.arc(centerX - shadowOffset, centerY + shadowOffset, UNIT_TO_PIXEL * 0.4, 0, Math.PI * 2);
   ctx.fill();

@@ -66,7 +66,7 @@ export function drawSquarePostShadow(
   size: number,
   shadowOffset: number
 ) {
-  ctx.fillStyle = PALETTE.BLACK_PURE_25;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "40";
   ctx.fillRect(centerX - size / 2 - shadowOffset, centerY - size / 2 + shadowOffset, size, size);
 }
 

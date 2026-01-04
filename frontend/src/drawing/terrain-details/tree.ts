@@ -10,7 +10,7 @@ export function drawTreeShadow(
 ) {
   const shadowOffsetX = -radius * 0.4;
   const shadowOffsetY = radius * 0.4;
-  ctx.fillStyle = PALETTE.BLACK_PURE_30;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "4d";
   ctx.beginPath();
   ctx.arc(centerX + shadowOffsetX, centerY + shadowOffsetY, radius, 0, Math.PI * 2);
   ctx.fill();

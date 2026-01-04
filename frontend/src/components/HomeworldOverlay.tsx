@@ -20,15 +20,15 @@ const HomeworldOverlay: React.FC = () => {
         >
             <div
                 style={{
-                    background: PALETTE.GROUND_DARK_85,
+                    background: PALETTE.GROUND_DARK + "d9",
                     backdropFilter: "blur(8px)",
                     padding: "8px 20px",
                     borderRadius: "6px",
-                    border: `1px solid ${PALETTE.WHITE_PURE_10}`,
+                    border: `1px solid ${PALETTE.WHITE_PURE + "1a"}`,
                     borderTop: "none",
                     borderTopLeftRadius: 0,
                     borderTopRightRadius: 0,
-                    boxShadow: `0 4px 20px ${PALETTE.BLACK_PURE_40}`,
+                    boxShadow: `0 4px 20px ${PALETTE.BLACK_PURE + "66"}`,
                     animation: "fadeInDown 0.6s ease-out",
                 }}
             >
@@ -40,14 +40,14 @@ const HomeworldOverlay: React.FC = () => {
                         fontFamily: "'JetBrains Mono', monospace",
                         letterSpacing: "0.03em",
                         textAlign: "center",
-                        textShadow: `0 1px 2px ${PALETTE.BLACK_PURE_50}`,
+                        textShadow: `0 1px 2px ${PALETTE.BLACK_PURE + "80"}`,
                     }}
                 >
                     When ready, call the{" "}
                     <code
                         style={{
                             color: COLORS.TERMINAL.WARNING,
-                            background: PALETTE.YELLOW_BRIGHT_15,
+                            background: PALETTE.YELLOW_BRIGHT + "26",
                             padding: "2px 6px",
                             borderRadius: "4px",
                             fontWeight: 600,

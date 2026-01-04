@@ -10,7 +10,7 @@ export function drawBoomerangShadow(
 ) {
   ctx.save();
   ctx.translate(centerX, centerY);
-  ctx.fillStyle = PALETTE.BLACK_PURE_30;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "4d";
 
   for (let i = 0; i < 3; i++) {
     ctx.save();

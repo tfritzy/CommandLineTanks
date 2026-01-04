@@ -13,7 +13,7 @@ export function drawSniperProjectileShadow(
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
-  ctx.fillStyle = PALETTE.BLACK_PURE_30;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "4d";
   ctx.beginPath();
   // Bullet tip (ogive shape)
   ctx.moveTo(bulletLength, 0);
@@ -92,7 +92,7 @@ export function drawSniperProjectileBody(
   ctx.stroke();
 
   // Add a highlight
-  ctx.strokeStyle = "PALETTE.WHITE_PURE_30";
+  ctx.strokeStyle = PALETTE.WHITE_PURE + "4d";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(bulletLength * 0.8, -bulletWidth * 0.3);

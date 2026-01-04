@@ -250,7 +250,7 @@ export class DeadTankParticles {
         particle.width,
         particle.height
       );
-      ctx.strokeStyle = PALETTE.BLACK_PURE_50;
+      ctx.strokeStyle = PALETTE.BLACK_PURE + "80";
       ctx.lineWidth = 1;
       ctx.strokeRect(
         -particle.width / 2,

@@ -84,14 +84,14 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        background: 'PALETTE.GROUND_DARK_95',
+        background: 'PALETTE.GROUND_DARK + "f2"',
         backdropFilter: 'blur(4px)',
         borderRadius: '8px',
-        border: '2px solid PALETTE.SLATE_LIGHT_30',
+        border: '2px solid PALETTE.SLATE_LIGHT + "4d"',
         padding: '40px 60px',
         fontFamily: "'JetBrains Mono', monospace",
         zIndex: 1000,
-        boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE_50}`,
+        boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE + "80"}`,
         minWidth: '500px',
       }}
     >
@@ -103,7 +103,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
           marginBottom: '40px',
-          textShadow: '0 2px 12px PALETTE.BLUE_INFO_50',
+          textShadow: '0 2px 12px PALETTE.BLUE_INFO + "80"',
           lineHeight: 1,
           textAlign: 'center',
         }}
@@ -139,16 +139,16 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
               padding: '12px 16px',
               fontSize: '14px',
               fontFamily: "'JetBrains Mono', monospace",
-              background: 'PALETTE.SLATE_DARKEST_60',
-              border: '1px solid PALETTE.SLATE_LIGHT_30',
+              background: 'PALETTE.SLATE_DARKEST + "99"',
+              border: '1px solid PALETTE.SLATE_LIGHT + "4d"',
               borderRadius: '4px',
               color: COLORS.TERMINAL.TEXT_DEFAULT,
               outline: 'none',
               boxSizing: 'border-box',
               transition: 'border-color 0.2s',
             }}
-            onFocus={(e) => e.currentTarget.style.borderColor = 'PALETTE.BLUE_LIGHT_60'}
-            onBlur={(e) => e.currentTarget.style.borderColor = 'PALETTE.SLATE_LIGHT_30'}
+            onFocus={(e) => e.currentTarget.style.borderColor = 'PALETTE.BLUE_LIGHT + "99"'}
+            onBlur={(e) => e.currentTarget.style.borderColor = 'PALETTE.SLATE_LIGHT + "4d"'}
           />
         </div>
       )}
@@ -173,8 +173,8 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           onClick={handleCopyCommands}
           style={{
             position: 'relative',
-            background: 'PALETTE.SLATE_DARKEST_80',
-            border: copied ? '1px solid PALETTE.GREEN_SUCCESS_50' : '1px solid PALETTE.SLATE_LIGHT_30',
+            background: 'PALETTE.SLATE_DARKEST + "cc"',
+            border: copied ? '1px solid PALETTE.GREEN_SUCCESS + "80"' : '1px solid PALETTE.SLATE_LIGHT + "4d"',
             borderRadius: '4px',
             padding: '16px',
             fontSize: '13px',
@@ -187,14 +187,14 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           }}
           onMouseEnter={(e) => {
             if (!copied) {
-              e.currentTarget.style.borderColor = 'PALETTE.BLUE_LIGHT_60';
-              e.currentTarget.style.background = 'PALETTE.SLATE_DARKEST_90';
+              e.currentTarget.style.borderColor = 'PALETTE.BLUE_LIGHT + "99"';
+              e.currentTarget.style.background = 'PALETTE.SLATE_DARKEST + "e6"';
             }
           }}
           onMouseLeave={(e) => {
             if (!copied) {
-              e.currentTarget.style.borderColor = 'PALETTE.SLATE_LIGHT_30';
-              e.currentTarget.style.background = 'PALETTE.SLATE_DARKEST_80';
+              e.currentTarget.style.borderColor = 'PALETTE.SLATE_LIGHT + "4d"';
+              e.currentTarget.style.background = 'PALETTE.SLATE_DARKEST + "cc"';
             }
           }}
         >

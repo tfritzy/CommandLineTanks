@@ -9,7 +9,7 @@ export function drawRockShadow(
   radius: number
 ) {
   const shadowOffset = radius * 0.2;
-  ctx.fillStyle = PALETTE.BLACK_PURE_30;
+  ctx.fillStyle = PALETTE.BLACK_PURE + "4d";
 
   ctx.beginPath();
   ctx.arc(centerX - shadowOffset, centerY + shadowOffset, radius, 0, Math.PI * 2);
