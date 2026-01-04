@@ -1,5 +1,6 @@
-import { UNIT_TO_PIXEL, UI_COLORS } from "../../constants";
-import { TEAM_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
+import { COLORS } from "../../theme/colors";
+
 
 export function drawMoagShadow(
   ctx: CanvasRenderingContext2D,
@@ -25,7 +26,7 @@ export function drawMoagBody(
   alliance: number
 ) {
   const radius = size * UNIT_TO_PIXEL;
-  const color = alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+  const color = alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
 
   ctx.save();
   ctx.fillStyle = color;
@@ -33,7 +34,7 @@ export function drawMoagBody(
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = UI_COLORS.BLACK;
+  ctx.strokeStyle = COLORS.UI.BLACK;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);

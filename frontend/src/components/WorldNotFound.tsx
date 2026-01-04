@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { getConnection } from '../spacetimedb-connection';
-import { UI_COLORS } from '../constants';
-import { TERMINAL_COLORS } from './terminal/colors';
+import { COLORS } from '../theme/colors';
 
 interface WorldNotFoundProps {
   worldId: string;
@@ -74,15 +73,15 @@ export default function WorldNotFound({ worldId }: WorldNotFoundProps) {
           fontSize: '16px',
           fontFamily: "'JetBrains Mono', monospace",
           fontWeight: 600,
-          color: UI_COLORS.TEXT_BRIGHT,
-          background: TERMINAL_COLORS.BORDER,
+          color: COLORS.UI.TEXT_PRIMARY,
+          background: COLORS.TERMINAL.BORDER,
           border: 'none',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           letterSpacing: '0.05em',
         }}
-        onMouseEnter={(e) => e.currentTarget.style.background = TERMINAL_COLORS.INFO}
-        onMouseLeave={(e) => e.currentTarget.style.background = TERMINAL_COLORS.BORDER}
+        onMouseEnter={(e) => e.currentTarget.style.background = COLORS.TERMINAL.INFO}
+        onMouseLeave={(e) => e.currentTarget.style.background = COLORS.TERMINAL.BORDER}
       >
         GO TO HOME WORLD
       </button>

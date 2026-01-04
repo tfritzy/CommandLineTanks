@@ -1,5 +1,5 @@
-import { UNIT_TO_PIXEL, UI_COLORS, PICKUP_COLORS } from "../../constants";
-import { TERMINAL_COLORS } from "../../components/terminal/colors";
+import { UNIT_TO_PIXEL } from "../../constants";
+import { COLORS } from "../../theme/colors";
 
 export function drawHealthPackShadow(
   ctx: CanvasRenderingContext2D,
@@ -31,15 +31,15 @@ export function drawHealthPackBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = TERMINAL_COLORS.SUCCESS;
-  ctx.strokeStyle = PICKUP_COLORS.HEALTH_PACK_SECONDARY;
+  ctx.fillStyle = COLORS.TERMINAL.SUCCESS;
+  ctx.strokeStyle = COLORS.GAME.HEALTH_PACK_SECONDARY;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  ctx.strokeStyle = UI_COLORS.TEXT_BRIGHT;
+  ctx.strokeStyle = COLORS.UI.TEXT_PRIMARY;
   ctx.lineWidth = 4;
   ctx.lineCap = "round";
   const crossSize = size * 0.4;

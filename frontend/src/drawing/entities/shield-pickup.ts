@@ -1,5 +1,5 @@
-import { UNIT_TO_PIXEL, UI_COLORS, PICKUP_COLORS } from "../../constants";
-import { TERMINAL_COLORS } from "../../components/terminal/colors";
+import { UNIT_TO_PIXEL } from "../../constants";
+import { COLORS } from "../../theme/colors";
 
 export function drawShieldPickupShadow(
   ctx: CanvasRenderingContext2D,
@@ -31,8 +31,8 @@ export function drawShieldPickupBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = TERMINAL_COLORS.INFO;
-  ctx.strokeStyle = TERMINAL_COLORS.BORDER;
+  ctx.fillStyle = COLORS.TERMINAL.INFO;
+  ctx.strokeStyle = COLORS.TERMINAL.BORDER;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
@@ -45,8 +45,8 @@ export function drawShieldPickupBody(
   const shieldLeft = -shieldSize * 0.4;
   const shieldRight = shieldSize * 0.4;
 
-  ctx.fillStyle = UI_COLORS.TEXT_BRIGHT;
-  ctx.strokeStyle = PICKUP_COLORS.SHIELD_STROKE;
+  ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
+  ctx.strokeStyle = COLORS.GAME.SHIELD_STROKE;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, shieldTop);

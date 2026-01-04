@@ -1,6 +1,7 @@
-import { UNIT_TO_PIXEL, TEAM_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
 import { drawMuzzleFlashParticles } from "../../drawing";
+import { COLORS } from "../../theme/colors";
 
 const ANGLE_SPREAD_RADIANS = 0.8;
 const FRICTION_FACTOR = 0.92;
@@ -21,7 +22,7 @@ export class MuzzleFlashParticles {
   private isDead = false;
 
   constructor(x: number, y: number, angle: number, alliance: number) {
-    const color = alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+    const color = alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
     
     const particleCount = 8 + Math.floor(Math.random() * 5);
     for (let i = 0; i < particleCount; i++) {

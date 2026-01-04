@@ -1,7 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
-import { TEAM_COLORS } from "../../constants";
-import { TERMINAL_COLORS } from "../../components/terminal/colors";
+import { COLORS } from "../../theme/colors";
 
 const HEALTH_BAR_WIDTH = 32;
 const HEALTH_BAR_HEIGHT = 4;
@@ -50,7 +49,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     ctx.globalAlpha = opacity;
   }
 
-  const allianceColor = params.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+  const allianceColor = params.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
   const bodyColor = getFlashColor(allianceColor, params.flashTimer);
   const borderColor = getFlashColor(params.alliance === 0 ? "#330000" : "#000033", params.flashTimer);
   const selfShadowColor = "rgba(0, 0, 0, 0.35)";
@@ -109,7 +108,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     gradient.addColorStop(0.7, "rgba(115, 150, 213, 0.3)");
     gradient.addColorStop(1, "rgba(90, 120, 178, 0.6)");
 
-    ctx.strokeStyle = TERMINAL_COLORS.INFO;
+    ctx.strokeStyle = COLORS.TERMINAL.INFO;
     ctx.lineWidth = 2;
     ctx.fillStyle = gradient;
     ctx.beginPath();
@@ -133,16 +132,16 @@ export function drawTankNameLabel(
   
   if (targetCode) {
     ctx.font = "bold 16px monospace";
-    ctx.fillStyle = TERMINAL_COLORS.WARNING;
+    ctx.fillStyle = COLORS.TERMINAL.WARNING;
     ctx.textAlign = "center";
     ctx.fillText(targetCode, 0, -34);
     
     ctx.font = "12px monospace";
-    ctx.fillStyle = TERMINAL_COLORS.TEXT_MUTED;
+    ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
     ctx.fillText(name, 0, -20);
   } else {
     ctx.font = "12px monospace";
-    ctx.fillStyle = TERMINAL_COLORS.TEXT_MUTED;
+    ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
     ctx.textAlign = "center";
     ctx.fillText(name, 0, -27);
   }

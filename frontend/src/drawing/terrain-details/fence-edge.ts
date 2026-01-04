@@ -1,6 +1,7 @@
-import { UNIT_TO_PIXEL, TERRAIN_DETAIL_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor, lerpColor } from "../../utils/colors";
 import { drawSquarePost, drawSquarePostShadow } from "./fence-utils";
+import { COLORS } from "../../theme/colors";
 
 export function drawFenceEdgeShadow(
   ctx: CanvasRenderingContext2D,
@@ -61,7 +62,7 @@ export function drawFenceEdgeBody(
   flashTimer: number
 ) {
   const angle = (rotation * 90 * Math.PI) / 180;
-  const postColor = getFlashColor(TERRAIN_DETAIL_COLORS.FENCE.POST, flashTimer);
+  const postColor = getFlashColor(COLORS.TERRAIN.FENCE_POST, flashTimer);
 
   ctx.save();
   ctx.translate(centerX, centerY);
@@ -81,7 +82,7 @@ export function drawFenceEdgeBody(
   const postSize = UNIT_TO_PIXEL * 0.22;
   const snugOffset = (postSize / 2 + slatWidth / 2) / UNIT_TO_PIXEL;
   const slatColor = getFlashColor(
-    lerpColor(TERRAIN_DETAIL_COLORS.FENCE.POST, "#ffffff", 0.15),
+    lerpColor(COLORS.TERRAIN.FENCE_POST, "#ffffff", 0.15),
     flashTimer
   );
   ctx.fillStyle = slatColor;
@@ -101,5 +102,5 @@ export function drawFenceEdgeBody(
 
   // Big post in center (unrotated for consistent shading)
   const size = UNIT_TO_PIXEL * 0.22;
-  drawSquarePost(ctx, centerX, centerY, size, TERRAIN_DETAIL_COLORS.FENCE.POST, flashTimer);
+  drawSquarePost(ctx, centerX, centerY, size, COLORS.TERRAIN.FENCE_POST, flashTimer);
 }

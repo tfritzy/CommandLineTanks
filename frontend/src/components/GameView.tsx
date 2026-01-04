@@ -8,8 +8,7 @@ import ScoreBoard from "./ScoreBoard";
 import JoinWorldModal from "./JoinWorldModal";
 import WorldNotFound from "./WorldNotFound";
 import HomeworldOverlay from "./HomeworldOverlay";
-import { UI_COLORS } from "../constants";
-import { TERMINAL_COLORS } from "./terminal/colors";
+import { COLORS } from "../theme/colors";
 import { getConnection } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
 import { type Infer } from "spacetimedb";
@@ -301,7 +300,7 @@ export default function GameView() {
             <div
               style={{
                 fontSize: "16px",
-                color: TERMINAL_COLORS.TEXT_DEFAULT,
+                color: COLORS.TERMINAL.TEXT_DEFAULT,
                 marginBottom: "32px",
                 letterSpacing: "0.05em",
                 fontWeight: 300,
@@ -311,7 +310,7 @@ export default function GameView() {
               Type{" "}
               <span
                 style={{
-                  color: TERMINAL_COLORS.WARNING,
+                  color: COLORS.TERMINAL.WARNING,
                   fontWeight: 500,
                   padding: "2px 8px",
                   background: "rgba(252, 235, 168, 0.1)",
@@ -356,7 +355,7 @@ export default function GameView() {
                     borderRadius: "4px",
                     padding: "8px 16px",
                     fontSize: "13px",
-                    color: TERMINAL_COLORS.TEXT_DEFAULT,
+                    color: COLORS.TERMINAL.TEXT_DEFAULT,
                     fontFamily: "'JetBrains Mono', monospace",
                     letterSpacing: "0.02em",
                     overflow: "hidden",
@@ -390,7 +389,7 @@ export default function GameView() {
                     borderRadius: "4px",
                     padding: "8px 16px",
                     fontSize: "13px",
-                    color: UI_COLORS.TEXT_BRIGHT,
+                    color: COLORS.UI.TEXT_PRIMARY,
                     fontFamily: "'JetBrains Mono', monospace",
                     cursor: "pointer",
                     letterSpacing: "0.05em",

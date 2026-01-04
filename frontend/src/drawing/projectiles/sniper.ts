@@ -1,4 +1,5 @@
-import { PROJECTILE_COLORS } from "../../constants";
+import { COLORS } from "../../theme/colors";
+
 
 export function drawSniperProjectileShadow(
   ctx: CanvasRenderingContext2D,
@@ -64,7 +65,7 @@ export function drawSniperProjectileBody(
   ctx.closePath();
   ctx.fill();
   
-  ctx.strokeStyle = PROJECTILE_COLORS.OUTLINE_DARK;
+  ctx.strokeStyle = COLORS.GAME.PROJECTILE_OUTLINE;
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -86,7 +87,7 @@ export function drawSniperProjectileBody(
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = PROJECTILE_COLORS.OUTLINE_DARK;
+  ctx.strokeStyle = COLORS.GAME.PROJECTILE_OUTLINE;
   ctx.lineWidth = 1;
   ctx.stroke();
 

@@ -1,5 +1,6 @@
-import { UNIT_TO_PIXEL, TERRAIN_DETAIL_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
+import { COLORS } from "../../theme/colors";
 
 export function drawFoundationCornerShadow(
   ctx: CanvasRenderingContext2D,
@@ -45,7 +46,7 @@ export function drawFoundationCornerBody(
   ctx.rotate((rotation * 90 * Math.PI) / 180);
   ctx.translate(-centerX, -centerY);
 
-  const baseColor = getFlashColor(TERRAIN_DETAIL_COLORS.FOUNDATION.BASE, flashTimer);
+  const baseColor = getFlashColor(COLORS.TERRAIN.FOUNDATION_BASE, flashTimer);
 
   ctx.fillStyle = baseColor;
   ctx.beginPath();

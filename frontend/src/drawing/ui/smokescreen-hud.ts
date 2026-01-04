@@ -1,5 +1,5 @@
-import { UI_COLORS } from "../../constants";
-import { TERMINAL_COLORS } from "../../components/terminal/colors";
+
+import { COLORS } from "../../theme/colors";
 
 export function drawSmokescreenHud(
   ctx: CanvasRenderingContext2D,
@@ -19,7 +19,7 @@ export function drawSmokescreenHud(
   const y = canvasHeight - height - 20;
   const radius = 8;
 
-  ctx.fillStyle = UI_COLORS.BACKGROUND_DARK;
+  ctx.fillStyle = COLORS.UI.BACKGROUND_DARK;
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
   ctx.lineTo(x + width - radius, y);
@@ -33,7 +33,7 @@ export function drawSmokescreenHud(
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = TERMINAL_COLORS.SEPARATOR;
+  ctx.strokeStyle = COLORS.TERMINAL.SEPARATOR;
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -41,12 +41,12 @@ export function drawSmokescreenHud(
   ctx.fillStyle = isReady ? 'rgba(90, 120, 178, 0.3)' : 'rgba(112, 123, 137, 0.3)';
   ctx.fillRect(x, y, progressBarWidth, height);
 
-  ctx.fillStyle = isReady ? TERMINAL_COLORS.TANK_CODE : TERMINAL_COLORS.TEXT_MUTED;
+  ctx.fillStyle = isReady ? COLORS.TERMINAL.TANK_CODE : COLORS.TERMINAL.TEXT_MUTED;
   ctx.font = 'bold 14px Poppins, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   
-  ctx.strokeStyle = UI_COLORS.BLACK;
+  ctx.strokeStyle = COLORS.UI.BLACK;
   ctx.lineWidth = 2;
   ctx.strokeText(`🌫️ ${cooldownText}`, x + width / 2, y + height / 2);
   ctx.fillText(`🌫️ ${cooldownText}`, x + width / 2, y + height / 2);

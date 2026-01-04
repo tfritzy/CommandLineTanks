@@ -1,7 +1,7 @@
 import { type DbConnection } from "../../../module_bindings";
 import WorldVisibility from "../../../module_bindings/world_visibility_type";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
-import * as colors from "./colors";
+import * as themeColors from "../../theme/colors";
 
 function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
@@ -516,19 +516,19 @@ export function aim(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      colors.error("aim: error: cannot aim while dead"),
+      themeColors.error("aim: error: cannot aim while dead"),
       "",
-      colors.dim("Use 'respawn' to respawn"),
+      themeColors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length < 1) {
     return [
-      colors.error("aim: error: missing required argument '<angle|direction>'"),
+      themeColors.error("aim: error: missing required argument '<angle|direction>'"),
       "",
-      colors.dim("Usage: aim <angle|direction>"),
-      colors.dim("       aim 45"),
-      colors.dim("       aim northeast"),
+      themeColors.dim("Usage: aim <angle|direction>"),
+      themeColors.dim("       aim 45"),
+      themeColors.dim("       aim northeast"),
     ];
   }
 
@@ -538,22 +538,22 @@ export function aim(
   if (validDirections.includes(inputLower)) {
     const angleRadians = directionToAngle(inputLower);
     const dirInfo = directionAliases[inputLower];
-    const description = `${colors.colorize(dirInfo.symbol, 'DIRECTION_SYMBOL')} ${dirInfo.name}`;
+    const description = `${themeColors.colorize(dirInfo.symbol, 'DIRECTION_SYMBOL')} ${dirInfo.name}`;
 
     connection.reducers.aim({ worldId, angleRadians });
-    return [colors.success(`Aiming turret to ${description}`)];
+    return [themeColors.success(`Aiming turret to ${description}`)];
   } else {
     const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
       return [
-        colors.error(`aim: error: invalid value '${args[0]}' for '<angle|direction>'`),
-        colors.dim("Must be a number (degrees) or valid direction"),
-        colors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
+        themeColors.error(`aim: error: invalid value '${args[0]}' for '<angle|direction>'`),
+        themeColors.dim("Must be a number (degrees) or valid direction"),
+        themeColors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
         "",
-        colors.dim("To target a tank by code, use: target <target_code>"),
+        themeColors.dim("To target a tank by code, use: target <target_code>"),
         "",
-        colors.dim("Usage: aim <angle|direction>"),
-        colors.dim("       aim 90"),
+        themeColors.dim("Usage: aim <angle|direction>"),
+        themeColors.dim("       aim 90"),
       ];
     }
 
@@ -561,7 +561,7 @@ export function aim(
     const description = `${degrees}°`;
 
     connection.reducers.aim({ worldId, angleRadians });
-    return [colors.success(`Aiming turret to ${description}`)];
+    return [themeColors.success(`Aiming turret to ${description}`)];
   }
 }
 
@@ -572,24 +572,24 @@ export function target(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      colors.error("target: error: cannot target while dead"),
+      themeColors.error("target: error: cannot target while dead"),
       "",
-      colors.dim("Use 'respawn' to respawn"),
+      themeColors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length < 1) {
     return [
-      colors.error("target: error: missing required argument '<target_code>'"),
+      themeColors.error("target: error: missing required argument '<target_code>'"),
       "",
-      colors.dim("Usage: target <target_code> [lead]"),
-      colors.dim("       target a4"),
-      colors.dim("       target h8 3"),
+      themeColors.dim("Usage: target <target_code> [lead]"),
+      themeColors.dim("       target a4"),
+      themeColors.dim("       target h8 3"),
     ];
   }
 
   if (!connection.identity) {
-    return [colors.error("target: error: no connection")];
+    return [themeColors.error("target: error: no connection")];
   }
 
   const targetCode = args[0];
@@ -599,10 +599,10 @@ export function target(
     const parsedLead = Number.parseFloat(args[1]);
     if (Number.isNaN(parsedLead)) {
       return [
-        colors.error(`target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`),
+        themeColors.error(`target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`),
         "",
-        colors.dim("Usage: target <target_code> [lead]"),
-        colors.dim("       target a4 3"),
+        themeColors.dim("Usage: target <target_code> [lead]"),
+        themeColors.dim("       target a4 3"),
       ];
     }
     lead = parsedLead;
@@ -614,18 +614,18 @@ export function target(
   const myTank = allTanks.find((t) => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
-    return [colors.error("target: error: no connection")];
+    return [themeColors.error("target: error: no connection")];
   }
 
   const targetCodeLower = targetCode.toLowerCase();
 
   if (targetCodeLower === myTank.targetCode) {
-    return [colors.error("target: error: cannot target your own tank")];
+    return [themeColors.error("target: error: cannot target your own tank")];
   }
 
   const targetTank = allTanks.find((t) => t.targetCode === targetCodeLower);
   if (!targetTank || targetTank.alliance === myTank.alliance) {
-    return [colors.error(`target: error: tank with code '${targetCode}' not found`)];
+    return [themeColors.error(`target: error: tank with code '${targetCode}' not found`)];
   }
 
   connection.reducers.targetTank({
@@ -634,15 +634,15 @@ export function target(
     lead,
   });
 
-  const tankCodeColored = colors.colorize(targetTank.targetCode, 'TANK_CODE');
+  const tankCodeColored = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
   const tankName = targetTank.name;
 
   if (lead > 0) {
     return [
-      colors.success(`Targeting tank ${tankCodeColored} (${tankName}) with ${colors.value(lead.toString())} unit${lead !== 1 ? "s" : ""} lead`),
+      themeColors.success(`Targeting tank ${tankCodeColored} (${tankName}) with ${themeColors.value(lead.toString())} unit${lead !== 1 ? "s" : ""} lead`),
     ];
   } else {
-    return [colors.success(`Targeting tank ${tankCodeColored} (${tankName})`)];
+    return [themeColors.success(`Targeting tank ${tankCodeColored} (${tankName})`)];
   }
 }
 
@@ -653,24 +653,24 @@ export function stop(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      colors.error("stop: error: cannot stop while dead"),
+      themeColors.error("stop: error: cannot stop while dead"),
       "",
-      colors.dim("Use 'respawn' to respawn"),
+      themeColors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      colors.error("stop: error: stop command takes no arguments"),
+      themeColors.error("stop: error: stop command takes no arguments"),
       "",
-      colors.dim("Usage: stop"),
-      colors.dim("       s"),
+      themeColors.dim("Usage: stop"),
+      themeColors.dim("       s"),
     ];
   }
 
   connection.reducers.stop({ worldId });
 
-  return [colors.success("Tank stopped")];
+  return [themeColors.success("Tank stopped")];
 }
 
 export function fire(
@@ -680,24 +680,24 @@ export function fire(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      colors.error("fire: error: cannot fire while dead"),
+      themeColors.error("fire: error: cannot fire while dead"),
       "",
-      colors.dim("Use 'respawn' to respawn"),
+      themeColors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      colors.error("fire: error: fire command takes no arguments"),
+      themeColors.error("fire: error: fire command takes no arguments"),
       "",
-      colors.dim("Usage: fire"),
-      colors.dim("       f"),
+      themeColors.dim("Usage: fire"),
+      themeColors.dim("       f"),
     ];
   }
 
   connection.reducers.fire({ worldId });
 
-  return [colors.success("Firing projectile")];
+  return [themeColors.success("Firing projectile")];
 }
 
 export function respawn(
@@ -707,23 +707,23 @@ export function respawn(
 ): string[] {
   if (!isPlayerDead(connection, worldId)) {
     return [
-      colors.error("respawn: error: cannot respawn while alive"),
+      themeColors.error("respawn: error: cannot respawn while alive"),
       "",
-      colors.dim("You must be dead to respawn"),
+      themeColors.dim("You must be dead to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      colors.error("respawn: error: respawn command takes no arguments"),
+      themeColors.error("respawn: error: respawn command takes no arguments"),
       "",
-      colors.dim("Usage: respawn"),
+      themeColors.dim("Usage: respawn"),
     ];
   }
 
   connection.reducers.respawn({ worldId });
 
-  return [colors.success("Respawning...")];
+  return [themeColors.success("Respawning...")];
 }
 
 export function switchGun(
@@ -733,37 +733,37 @@ export function switchGun(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      colors.error("switch: error: cannot switch guns while dead"),
+      themeColors.error("switch: error: cannot switch guns while dead"),
       "",
-      colors.dim("Use 'respawn' to respawn"),
+      themeColors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length < 1) {
     return [
-      colors.error("switch: error: missing required argument '<gun_index>'"),
+      themeColors.error("switch: error: missing required argument '<gun_index>'"),
       "",
-      colors.dim("Usage: switch <gun_index>"),
-      colors.dim("       switch 1"),
-      colors.dim("       switch 2"),
-      colors.dim("       switch 3"),
+      themeColors.dim("Usage: switch <gun_index>"),
+      themeColors.dim("       switch 1"),
+      themeColors.dim("       switch 2"),
+      themeColors.dim("       switch 3"),
     ];
   }
 
   const parsed = Number.parseInt(args[0]);
   if (Number.isNaN(parsed) || parsed < 1 || parsed > 3) {
     return [
-      colors.error(`switch: error: invalid value '${args[0]}' for '<gun_index>': must be 1, 2, or 3`),
+      themeColors.error(`switch: error: invalid value '${args[0]}' for '<gun_index>': must be 1, 2, or 3`),
       "",
-      colors.dim("Usage: switch <gun_index>"),
-      colors.dim("       switch 1"),
+      themeColors.dim("Usage: switch <gun_index>"),
+      themeColors.dim("       switch 1"),
     ];
   }
 
   const gunIndex = parsed - 1;
 
   if (!connection.identity) {
-    return [colors.error("switch: error: no connection")];
+    return [themeColors.error("switch: error: no connection")];
   }
 
   const myTank = Array.from(connection.db.tank.iter())
@@ -771,20 +771,20 @@ export function switchGun(
     .find((t) => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
-    return [colors.error("switch: error: tank not found")];
+    return [themeColors.error("switch: error: tank not found")];
   }
 
   if (gunIndex >= myTank.guns.length) {
     return [
-      colors.error(`switch: error: gun slot ${colors.value(parsed.toString())} is empty`),
+      themeColors.error(`switch: error: gun slot ${themeColors.value(parsed.toString())} is empty`),
       "",
-      colors.dim(`You only have ${colors.value(myTank.guns.length.toString())} gun${myTank.guns.length !== 1 ? "s" : ""}`),
+      themeColors.dim(`You only have ${themeColors.value(myTank.guns.length.toString())} gun${myTank.guns.length !== 1 ? "s" : ""}`),
     ];
   }
 
   connection.reducers.switchGun({ worldId, gunIndex });
 
-  return [colors.success(`Switched to gun ${colors.value(parsed.toString())}`)];
+  return [themeColors.success(`Switched to gun ${themeColors.value(parsed.toString())}`)];
 }
 
 export function drive(
@@ -794,30 +794,30 @@ export function drive(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      colors.error("drive: error: cannot drive while dead"),
+      themeColors.error("drive: error: cannot drive while dead"),
       "",
-      colors.dim("Use 'respawn' to respawn"),
+      themeColors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length < 1) {
     return [
-      colors.error("drive: error: missing required arguments"),
+      themeColors.error("drive: error: missing required arguments"),
       "",
-      colors.dim("Usage: drive <target_code> [throttle]"),
-      colors.dim("       drive <direction> [distance] [throttle]"),
-      colors.dim("       drive <relative_x> <relative_y> [throttle]"),
+      themeColors.dim("Usage: drive <target_code> [throttle]"),
+      themeColors.dim("       drive <direction> [distance] [throttle]"),
+      themeColors.dim("       drive <relative_x> <relative_y> [throttle]"),
       "",
-      colors.dim("Examples:"),
-      colors.dim("  drive northeast 5"),
-      colors.dim("  drive up 3 75"),
-      colors.dim("  drive a4"),
-      colors.dim("  drive 10 5      (10 units right, 5 units down)"),
+      themeColors.dim("Examples:"),
+      themeColors.dim("  drive northeast 5"),
+      themeColors.dim("  drive up 3 75"),
+      themeColors.dim("  drive a4"),
+      themeColors.dim("  drive 10 5      (10 units right, 5 units down)"),
     ];
   }
 
   if (!connection.identity) {
-    return [colors.error("drive: error: no connection")];
+    return [themeColors.error("drive: error: no connection")];
   }
 
   const allTanks = Array.from(connection.db.tank.iter()).filter(
@@ -826,7 +826,7 @@ export function drive(
   const myTank = allTanks.find((t) => t.owner.isEqual(connection.identity!));
 
   if (!myTank) {
-    return [colors.error("drive: error: no connection")];
+    return [themeColors.error("drive: error: no connection")];
   }
 
   const firstArgLower = args[0].toLowerCase();
@@ -840,10 +840,10 @@ export function drive(
       const parsed = Number.parseInt(args[1]);
       if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
         return [
-          colors.error(`drive: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`),
+          themeColors.error(`drive: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`),
           "",
-          colors.dim("Usage: drive <target_code> [throttle]"),
-          colors.dim("       drive a4 75"),
+          themeColors.dim("Usage: drive <target_code> [throttle]"),
+          themeColors.dim("       drive a4 75"),
         ];
       } else {
         throttle = parsed / 100;
@@ -856,10 +856,10 @@ export function drive(
       throttle,
     });
 
-    const tankCode = colors.colorize(targetTank.targetCode, 'TANK_CODE');
-    const throttleDisplay = throttle === 1 ? "full" : colors.value(`${throttle * 100}%`);
+    const tankCode = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
+    const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
     return [
-      colors.success(`Driving to tank ${tankCode} (${targetTank.name}) at ${throttleDisplay} throttle`),
+      themeColors.success(`Driving to tank ${tankCode} (${targetTank.name}) at ${throttleDisplay} throttle`),
     ];
   }
 
@@ -871,10 +871,10 @@ export function drive(
       const parsed = Number.parseInt(args[1]);
       if (Number.isNaN(parsed) || parsed <= 0) {
         return [
-          colors.error(`drive: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`),
+          themeColors.error(`drive: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`),
           "",
-          colors.dim("Usage: drive <direction> [distance] [throttle]"),
-          colors.dim("       drive northeast 5"),
+          themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
+          themeColors.dim("       drive northeast 5"),
         ];
       } else {
         distance = parsed;
@@ -886,10 +886,10 @@ export function drive(
       const parsed = Number.parseInt(args[2]);
       if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
         return [
-          colors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
+          themeColors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
           "",
-          colors.dim("Usage: drive <direction> [distance] [throttle]"),
-          colors.dim("       drive northeast 5 75"),
+          themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
+          themeColors.dim("       drive northeast 5 75"),
         ];
       } else {
         throttle = parsed / 100;
@@ -904,27 +904,27 @@ export function drive(
 
     connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
-    const distanceText = colors.value(distance.toString());
-    const dirSymbol = colors.colorize(directionInfo.symbol, 'DIRECTION_SYMBOL');
-    const throttleDisplay = throttle === 1 ? "full" : colors.value(`${throttle * 100}%`);
+    const distanceText = themeColors.value(distance.toString());
+    const dirSymbol = themeColors.colorize(directionInfo.symbol, 'DIRECTION_SYMBOL');
+    const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
     const explanation = `${distanceText} ${distance !== 1 ? "units" : "unit"} ${dirSymbol} ${directionInfo.name}`;
     return [
-      colors.success(`Driving ${explanation} at ${throttleDisplay} throttle`),
+      themeColors.success(`Driving ${explanation} at ${throttleDisplay} throttle`),
     ];
   }
 
   if (args.length < 2) {
     return [
-      colors.error("drive: error: missing required arguments"),
+      themeColors.error("drive: error: missing required arguments"),
       "",
-      colors.dim("Usage: drive <tank_name> [throttle]"),
-      colors.dim("       drive <direction> [distance] [throttle]"),
-      colors.dim("       drive <relative_x> <relative_y> [throttle]"),
+      themeColors.dim("Usage: drive <tank_name> [throttle]"),
+      themeColors.dim("       drive <direction> [distance] [throttle]"),
+      themeColors.dim("       drive <relative_x> <relative_y> [throttle]"),
       "",
-      colors.dim("Tank name not found. If you meant coordinates, provide both X and Y:"),
-      colors.dim("  drive 10 5      (10 units right, 5 units down)"),
-      colors.dim("  drive -10 0     (10 units left)"),
-      colors.dim("  drive 0 -15 75  (15 units up at 75% throttle)"),
+      themeColors.dim("Tank name not found. If you meant coordinates, provide both X and Y:"),
+      themeColors.dim("  drive 10 5      (10 units right, 5 units down)"),
+      themeColors.dim("  drive -10 0     (10 units left)"),
+      themeColors.dim("  drive 0 -15 75  (15 units up at 75% throttle)"),
     ];
   }
 
@@ -932,12 +932,12 @@ export function drive(
 
   if (Number.isNaN(relativeX)) {
     return [
-      colors.error(`drive: error: invalid relative x coordinate '${args[0]}'`),
+      themeColors.error(`drive: error: invalid relative x coordinate '${args[0]}'`),
       "",
-      colors.dim("Relative X coordinate must be an integer (can be negative)"),
+      themeColors.dim("Relative X coordinate must be an integer (can be negative)"),
       "",
-      colors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
-      colors.dim("       drive 10 5"),
+      themeColors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
+      themeColors.dim("       drive 10 5"),
     ];
   }
 
@@ -945,12 +945,12 @@ export function drive(
 
   if (Number.isNaN(relativeY)) {
     return [
-      colors.error(`drive: error: invalid relative y coordinate '${args[1]}'`),
+      themeColors.error(`drive: error: invalid relative y coordinate '${args[1]}'`),
       "",
-      colors.dim("Relative Y coordinate must be an integer (can be negative)"),
+      themeColors.dim("Relative Y coordinate must be an integer (can be negative)"),
       "",
-      colors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
-      colors.dim("       drive 10 5"),
+      themeColors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
+      themeColors.dim("       drive 10 5"),
     ];
   }
 
@@ -962,10 +962,10 @@ export function drive(
     const parsed = Number.parseInt(args[2]);
     if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
       return [
-        colors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
+        themeColors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
         "",
-        colors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
-        colors.dim("       drive 10 5 75"),
+        themeColors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
+        themeColors.dim("       drive 10 5 75"),
       ];
     } else {
       throttle = parsed / 100;
@@ -974,11 +974,11 @@ export function drive(
 
   connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
 
-  const relativeStr = colors.value(`(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`);
-  const targetStr = colors.value(`${targetX} ${targetY}`);
-  const throttleDisplay = throttle === 1 ? "full" : colors.value(`${throttle * 100}%`);
+  const relativeStr = themeColors.value(`(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`);
+  const targetStr = themeColors.value(`${targetX} ${targetY}`);
+  const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
   return [
-    colors.success(`Driving to ${relativeStr} -> ${targetStr} at ${throttleDisplay} throttle`),
+    themeColors.success(`Driving to ${relativeStr} -> ${targetStr} at ${throttleDisplay} throttle`),
   ];
 }
 
@@ -989,18 +989,18 @@ export function smokescreen(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      colors.error("smoke: error: cannot deploy smoke while dead"),
+      themeColors.error("smoke: error: cannot deploy smoke while dead"),
       "",
-      colors.dim("Use 'respawn' to respawn"),
+      themeColors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      colors.error("smoke: error: smoke command takes no arguments"),
+      themeColors.error("smoke: error: smoke command takes no arguments"),
       "",
-      colors.dim("Usage: smoke"),
-      colors.dim("       sm"),
+      themeColors.dim("Usage: smoke"),
+      themeColors.dim("       sm"),
     ];
   }
 
@@ -1017,16 +1017,16 @@ export function smokescreen(
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
-        colors.error("smoke: error: ability is on cooldown"),
+        themeColors.error("smoke: error: ability is on cooldown"),
         "",
-        `Time remaining: ${colors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
+        `Time remaining: ${themeColors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
       ];
     }
   }
 
   connection.reducers.smoke({ worldId });
 
-  return [colors.success("Deploying smoke...")];
+  return [themeColors.success("Deploying smoke...")];
 }
 
 export function overdrive(
@@ -1036,18 +1036,18 @@ export function overdrive(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      colors.error("overdrive: error: cannot activate overdrive while dead"),
+      themeColors.error("overdrive: error: cannot activate overdrive while dead"),
       "",
-      colors.dim("Use 'respawn' to respawn"),
+      themeColors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      colors.error("overdrive: error: overdrive command takes no arguments"),
+      themeColors.error("overdrive: error: overdrive command takes no arguments"),
       "",
-      colors.dim("Usage: overdrive"),
-      colors.dim("       od"),
+      themeColors.dim("Usage: overdrive"),
+      themeColors.dim("       od"),
     ];
   }
 
@@ -1064,16 +1064,16 @@ export function overdrive(
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
-        colors.error("overdrive: error: ability is on cooldown"),
+        themeColors.error("overdrive: error: ability is on cooldown"),
         "",
-        `Time remaining: ${colors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
+        `Time remaining: ${themeColors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
       ];
     }
   }
 
   connection.reducers.overdrive({ worldId });
 
-  return [colors.success(`Activating overdrive! ${colors.value("+25%")} speed for ${colors.value("10")} seconds`)];
+  return [themeColors.success(`Activating overdrive! ${themeColors.value("+25%")} speed for ${themeColors.value("10")} seconds`)];
 }
 
 export function repair(
@@ -1083,18 +1083,18 @@ export function repair(
 ): string[] {
   if (isPlayerDead(connection, worldId)) {
     return [
-      colors.error("repair: error: cannot repair while dead"),
+      themeColors.error("repair: error: cannot repair while dead"),
       "",
-      colors.dim("Use 'respawn' to respawn"),
+      themeColors.dim("Use 'respawn' to respawn"),
     ];
   }
 
   if (args.length > 0) {
     return [
-      colors.error("repair: error: repair command takes no arguments"),
+      themeColors.error("repair: error: repair command takes no arguments"),
       "",
-      colors.dim("Usage: repair"),
-      colors.dim("       rep"),
+      themeColors.dim("Usage: repair"),
+      themeColors.dim("       rep"),
     ];
   }
 
@@ -1108,9 +1108,9 @@ export function repair(
   if (myTank) {
     if (myTank.health >= myTank.maxHealth) {
       return [
-        colors.error("repair: error: tank is already at full health"),
+        themeColors.error("repair: error: tank is already at full health"),
         "",
-        `Health: ${colors.colorize(myTank.health.toString(), 'HEALTH')}/${colors.colorize(myTank.maxHealth.toString(), 'HEALTH')}`,
+        `Health: ${themeColors.colorize(myTank.health.toString(), 'HEALTH')}/${themeColors.colorize(myTank.maxHealth.toString(), 'HEALTH')}`,
       ];
     }
 
@@ -1119,23 +1119,23 @@ export function repair(
     if (remainingMicros > 0n) {
       const remaining = Number(remainingMicros) / 1_000_000;
       return [
-        colors.error("repair: error: ability is on cooldown"),
+        themeColors.error("repair: error: ability is on cooldown"),
         "",
-        `Time remaining: ${colors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
+        `Time remaining: ${themeColors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
       ];
     }
   }
 
   connection.reducers.repair({ worldId });
 
-  return [colors.success("Repairing... (interrupted by damage or movement)")];
+  return [themeColors.success("Repairing... (interrupted by damage or movement)")];
 }
 
 export function create(
   connection: DbConnection,
   args: string[]
 ): string[] {
-  const usage = colors.dim("Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]");
+  const usage = themeColors.dim("Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]");
   
   const defaults = {
     name: 'New World',
@@ -1155,7 +1155,7 @@ export function create(
     if (arg === '--name' || arg === '-n') {
       if (i + 1 >= args.length) {
         return [
-          colors.error(`create: error: ${arg} requires a value`),
+          themeColors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1163,7 +1163,7 @@ export function create(
       const name = args[i + 1].trim();
       if (!name) {
         return [
-          colors.error("create: error: world name cannot be empty"),
+          themeColors.error("create: error: world name cannot be empty"),
           "",
           usage
         ];
@@ -1173,7 +1173,7 @@ export function create(
     } else if (arg === '--passcode' || arg === '-p') {
       if (i + 1 >= args.length) {
         return [
-          colors.error(`create: error: ${arg} requires a value`),
+          themeColors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1183,7 +1183,7 @@ export function create(
     } else if (arg === '--bots' || arg === '-b') {
       if (i + 1 >= args.length) {
         return [
-          colors.error(`create: error: ${arg} requires a value`),
+          themeColors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1191,7 +1191,7 @@ export function create(
       const bots = parseInt(args[i + 1]);
       if (isNaN(bots) || bots < 0 || bots > 10 || bots % 2 !== 0) {
         return [
-          colors.error(`create: error: invalid bot count '${args[i + 1]}', must be an even number between 0 and 10`),
+          themeColors.error(`create: error: invalid bot count '${args[i + 1]}', must be an even number between 0 and 10`),
           "",
           usage
         ];
@@ -1201,7 +1201,7 @@ export function create(
     } else if (arg === '--duration' || arg === '-d') {
       if (i + 1 >= args.length) {
         return [
-          colors.error(`create: error: ${arg} requires a value`),
+          themeColors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1209,7 +1209,7 @@ export function create(
       const duration = parseInt(args[i + 1]);
       if (isNaN(duration) || duration < 1 || duration > 20) {
         return [
-          colors.error(`create: error: invalid duration '${args[i + 1]}', must be between 1 and 20 minutes`),
+          themeColors.error(`create: error: invalid duration '${args[i + 1]}', must be between 1 and 20 minutes`),
           "",
           usage
         ];
@@ -1219,7 +1219,7 @@ export function create(
     } else if (arg === '--width' || arg === '-w') {
       if (i + 1 >= args.length) {
         return [
-          colors.error(`create: error: ${arg} requires a value`),
+          themeColors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1227,7 +1227,7 @@ export function create(
       const width = parseInt(args[i + 1]);
       if (isNaN(width) || width < 1 || width > 200) {
         return [
-          colors.error(`create: error: invalid width '${args[i + 1]}', must be between 1 and 200`),
+          themeColors.error(`create: error: invalid width '${args[i + 1]}', must be between 1 and 200`),
           "",
           usage
         ];
@@ -1237,7 +1237,7 @@ export function create(
     } else if (arg === '--height' || arg === '-h') {
       if (i + 1 >= args.length) {
         return [
-          colors.error(`create: error: ${arg} requires a value`),
+          themeColors.error(`create: error: ${arg} requires a value`),
           "",
           usage
         ];
@@ -1245,7 +1245,7 @@ export function create(
       const height = parseInt(args[i + 1]);
       if (isNaN(height) || height < 1 || height > 200) {
         return [
-          colors.error(`create: error: invalid height '${args[i + 1]}', must be between 1 and 200`),
+          themeColors.error(`create: error: invalid height '${args[i + 1]}', must be between 1 and 200`),
           "",
           usage
         ];
@@ -1254,11 +1254,11 @@ export function create(
       i += 2;
     } else {
       return [
-        colors.error(`create: error: unknown flag '${arg}'`),
+        themeColors.error(`create: error: unknown flag '${arg}'`),
         "",
         usage,
         "",
-        colors.dim("Defaults: name='New World', passcode='', bots=0, duration=10, width=50, height=50")
+        themeColors.dim("Defaults: name='New World', passcode='', bots=0, duration=10, width=50, height=50")
       ];
     }
   }
@@ -1281,10 +1281,10 @@ export function create(
   });
 
   return [
-    colors.success(`Creating private world "${state.name}"...`),
-    colors.dim(`Bots: ${colors.value(state.bots.toString())}, Duration: ${colors.value(state.duration.toString())} min, Size: ${colors.value(`${state.width}x${state.height}`)}`),
+    themeColors.success(`Creating private world "${state.name}"...`),
+    themeColors.dim(`Bots: ${themeColors.value(state.bots.toString())}, Duration: ${themeColors.value(state.duration.toString())} min, Size: ${themeColors.value(`${state.width}x${state.height}`)}`),
     "",
-    colors.dim("World creation initiated. You'll be automatically joined.")
+    themeColors.dim("World creation initiated. You'll be automatically joined.")
   ];
 }
 
@@ -1304,19 +1304,19 @@ export function join(connection: DbConnection, args: string[]): string[] {
   });
 
   if (isRandom) {
-    const output = [colors.success("Finding or creating a game world...")];
+    const output = [themeColors.success("Finding or creating a game world...")];
     if (args.length === 0) {
-      output.unshift("", colors.dim("join random"));
+      output.unshift("", themeColors.dim("join random"));
     }
     return output;
   }
 
-  return [colors.success(`Joining world ${colors.value(worldId!)}...`)];
+  return [themeColors.success(`Joining world ${themeColors.value(worldId!)}...`)];
 }
 
 export function changeName(connection: DbConnection, args: string[]): string[] {
   if (!connection.identity) {
-    return [colors.error("name: error: no connection")];
+    return [themeColors.error("name: error: no connection")];
   }
 
   const player = Array.from(connection.db.player.iter()).find((p) =>
@@ -1324,35 +1324,35 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
   );
 
   if (!player) {
-    return [colors.error("name: error: player not found")];
+    return [themeColors.error("name: error: player not found")];
   }
 
   if (args.length === 0) {
     return [
-      `Your current name: ${colors.value(player.name)}`,
+      `Your current name: ${themeColors.value(player.name)}`,
       "",
-      colors.dim("To change your name, use: name set <new_name>"),
+      themeColors.dim("To change your name, use: name set <new_name>"),
     ];
   }
 
   if (args[0].toLowerCase() !== "set") {
     return [
-      colors.error("name: error: invalid subcommand"),
+      themeColors.error("name: error: invalid subcommand"),
       "",
-      colors.dim("Usage: name"),
-      colors.dim("       name set <new_name>"),
+      themeColors.dim("Usage: name"),
+      themeColors.dim("       name set <new_name>"),
       "",
-      colors.dim("Use 'name' to view your current name"),
-      colors.dim("Use 'name set <new_name>' to change your name"),
+      themeColors.dim("Use 'name' to view your current name"),
+      themeColors.dim("Use 'name set <new_name>' to change your name"),
     ];
   }
 
   if (args.length < 2) {
     return [
-      colors.error("name: error: missing required argument '<new_name>'"),
+      themeColors.error("name: error: missing required argument '<new_name>'"),
       "",
-      colors.dim("Usage: name set <new_name>"),
-      colors.dim("       name set Tank47"),
+      themeColors.dim("Usage: name set <new_name>"),
+      themeColors.dim("       name set Tank47"),
     ];
   }
 
@@ -1360,41 +1360,41 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
 
   if (newName.length === 0) {
     return [
-      colors.error("name: error: name cannot be empty or whitespace"),
+      themeColors.error("name: error: name cannot be empty or whitespace"),
       "",
-      colors.dim("Usage: name set <new_name>"),
-      colors.dim("       name set Tank47"),
+      themeColors.dim("Usage: name set <new_name>"),
+      themeColors.dim("       name set Tank47"),
     ];
   }
 
   if (newName.length > 15) {
     return [
-      colors.error("name: error: name cannot exceed 15 characters"),
+      themeColors.error("name: error: name cannot exceed 15 characters"),
       "",
-      colors.dim(`Your name has ${colors.value(newName.length.toString())} characters`),
+      themeColors.dim(`Your name has ${themeColors.value(newName.length.toString())} characters`),
       "",
-      colors.dim("Usage: name set <new_name>"),
-      colors.dim("       name set Tank47"),
+      themeColors.dim("Usage: name set <new_name>"),
+      themeColors.dim("       name set Tank47"),
     ];
   }
 
   connection.reducers.changeName({ newName });
 
-  return [colors.success(`Name changed to: ${colors.value(newName)}`)];
+  return [themeColors.success(`Name changed to: ${themeColors.value(newName)}`)];
 }
 
 export function exitWorld(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (args.length > 0) {
     return [
-      colors.error("exit: error: exit command takes no arguments"),
+      themeColors.error("exit: error: exit command takes no arguments"),
       "",
-      colors.dim("Usage: exit"),
-      colors.dim("       e")
+      themeColors.dim("Usage: exit"),
+      themeColors.dim("       e")
     ];
   }
 
   if (!connection.identity) {
-    return [colors.error("exit: error: no connection")];
+    return [themeColors.error("exit: error: no connection")];
   }
 
   const joinCode = `exit_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -1403,7 +1403,7 @@ export function exitWorld(connection: DbConnection, worldId: string, args: strin
   connection.reducers.exitWorld({ worldId, joinCode });
 
   return [
-    colors.success("Returning to homeworld..."),
+    themeColors.success("Returning to homeworld..."),
   ];
 }
 

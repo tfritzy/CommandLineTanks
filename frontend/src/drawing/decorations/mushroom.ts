@@ -1,4 +1,5 @@
-import { DECORATION_COLORS } from "../../constants";
+import { COLORS } from "../../theme/colors";
+
 
 export function drawMushrooms(
   ctx: CanvasRenderingContext2D,
@@ -7,7 +8,7 @@ export function drawMushrooms(
   if (mushrooms.length === 0) return;
 
   // Draw shadows
-  ctx.fillStyle = DECORATION_COLORS.MUSHROOM.SHADOW;
+  ctx.fillStyle = COLORS.TERRAIN.MUSHROOM_SHADOW;
   ctx.beginPath();
   for (const mushroom of mushrooms) {
     const shadowOffset = mushroom.size * 0.3;
@@ -21,7 +22,7 @@ export function drawMushrooms(
   ctx.fill();
 
   // Draw caps
-  ctx.fillStyle = DECORATION_COLORS.MUSHROOM.CAP;
+  ctx.fillStyle = COLORS.TERRAIN.MUSHROOM_CAP;
   ctx.beginPath();
   for (const mushroom of mushrooms) {
     const x = Math.round(mushroom.x);

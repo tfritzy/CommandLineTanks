@@ -4,8 +4,7 @@ import { type Infer } from "spacetimedb";
 import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
 import { type EventContext } from "../../module_bindings";
-import { UI_COLORS } from "../constants";
-import { TERMINAL_COLORS } from "./terminal/colors";
+import { COLORS } from "../theme/colors";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
 
@@ -143,12 +142,12 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         >
           <div
             style={{
-              backgroundColor: UI_COLORS.TEAM_RED_DARK,
+              backgroundColor: COLORS.UI.TEAM_RED_DARK,
               padding: "6px 14px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: UI_COLORS.TEXT_BRIGHT,
+              color: COLORS.UI.TEXT_PRIMARY,
               fontSize: "20px",
               fontFamily: "'JetBrains Mono', monospace",
               fontWeight: "700",
@@ -160,12 +159,12 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
           </div>
           <div
             style={{
-              backgroundColor: UI_COLORS.BACKGROUND_DARK,
+              backgroundColor: COLORS.UI.BACKGROUND_DARK,
               padding: "6px 16px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: TERMINAL_COLORS.TEXT_DEFAULT,
+              color: COLORS.TERMINAL.TEXT_DEFAULT,
               fontSize: "13px",
               fontFamily: "'JetBrains Mono', monospace",
               fontWeight: "600",
@@ -176,12 +175,12 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
           </div>
           <div
             style={{
-              backgroundColor: UI_COLORS.TEAM_BLUE_DARK,
+              backgroundColor: COLORS.UI.TEAM_BLUE_DARK,
               padding: "6px 14px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: UI_COLORS.TEXT_BRIGHT,
+              color: COLORS.UI.TEXT_PRIMARY,
               fontSize: "20px",
               fontFamily: "'JetBrains Mono', monospace",
               fontWeight: "700",
@@ -204,7 +203,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: "32px",
             fontWeight: 500,
-            color: UI_COLORS.TEXT_BRIGHT,
+            color: COLORS.UI.TEXT_PRIMARY,
             textAlign: "center",
             letterSpacing: "0.05em",
             textTransform: "uppercase",
