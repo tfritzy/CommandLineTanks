@@ -6,8 +6,6 @@ using System.Linq;
 
 public static partial class PickupSpawner
 {
-    public const int HEALTH_PICKUP_HEAL_AMOUNT = 50;
-
     public static readonly PickupType[] PICKUP_TYPES = new PickupType[]
     {
         PickupType.TripleShooter,
@@ -260,10 +258,9 @@ public static partial class PickupSpawner
 
     private static bool TryCollectHealthPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup)
     {
-        int newHealth = Math.Min(tank.Health + HEALTH_PICKUP_HEAL_AMOUNT, tank.MaxHealth);
-        if (newHealth > tank.Health)
+        if (tank.Health < tank.MaxHealth)
         {
-            tank = tank with { Health = newHealth };
+            tank = tank with { Health = tank.MaxHealth };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
             return true;
