@@ -102,17 +102,14 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     ctx.save();
     ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
 
-    const shieldRadius = 22;
-    const gradient = ctx.createRadialGradient(0, 0, shieldRadius - 4, 0, 0, shieldRadius);
-    gradient.addColorStop(0, "rgba(115, 150, 213, 0)");
-    gradient.addColorStop(0.7, "rgba(115, 150, 213, 0.3)");
-    gradient.addColorStop(1, "rgba(90, 120, 178, 0.6)");
+    const shieldSize = 40;
+    const shieldHalfSize = shieldSize / 2;
 
     ctx.strokeStyle = "#7396d5";
     ctx.lineWidth = 2;
-    ctx.fillStyle = gradient;
+    ctx.fillStyle = "rgba(115, 150, 213, 0.25)";
     ctx.beginPath();
-    ctx.arc(0, 0, shieldRadius, 0, Math.PI * 2);
+    ctx.rect(-shieldHalfSize, -shieldHalfSize, shieldSize, shieldSize);
     ctx.fill();
     ctx.stroke();
 
