@@ -73,7 +73,7 @@ export class DeadTankParticles {
       const width = 6 + Math.random() * 10;
       const height = 4 + Math.random() * 8;
       
-      let color = teamColor;
+      let color: string = teamColor;
       const rand = Math.random();
       if (rand > 0.8) color = TERRAIN_COLORS.GROUND;
       else if (rand > 0.5) color = darkTeamColor;
