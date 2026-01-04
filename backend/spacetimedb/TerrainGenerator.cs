@@ -298,6 +298,8 @@ public static partial class TerrainGenerator
             }
         }
 
+        RandomlyRemoveTreesPrePass(terrainDetail, random, width, height);
+
         RemoveNeighboringTrees(terrainDetail, random, width, height);
     }
 
@@ -647,6 +649,29 @@ public static partial class TerrainGenerator
                     }
                 }
             }
+        }
+    }
+
+    private static void RandomlyRemoveTreesPrePass(TerrainDetailType[] terrainDetail, Random random, int width, int height)
+    {
+        var treeIndices = new List<int>();
+        
+        for (int i = 0; i < terrainDetail.Length; i++)
+        {
+            if (terrainDetail[i] == TerrainDetailType.Tree)
+            {
+                treeIndices.Add(i);
+            }
+        }
+
+        int treesToRemove = (int)(treeIndices.Count * 0.33);
+        
+        for (int i = treeIndices.Count - 1; i >= treeIndices.Count - treesToRemove; i--)
+        {
+            int swapIndex = random.Next(i + 1);
+            int treeIndex = treeIndices[swapIndex];
+            terrainDetail[treeIndex] = TerrainDetailType.None;
+            treeIndices[swapIndex] = treeIndices[i];
         }
     }
 
