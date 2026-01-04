@@ -78,18 +78,17 @@ public static partial class Module
             if (traversibilityMap[rIndex] && (Math.Abs(rx - worldWidth / 2) > 5 || Math.Abs(ry - worldHeight / 2) > 5) && !IsInsideAnyPen(rx, ry))
             {
                 traversibilityMap[rIndex] = false;
-                ctx.Db.terrain_detail.Insert(new TerrainDetail
-                {
-                    Id = GenerateId(ctx, "td"),
-                    WorldId = identityString,
-                    PositionX = rx + 0.5f,
-                    PositionY = ry + 0.5f,
-                    GridX = rx,
-                    GridY = ry,
-                    Type = TerrainDetailType.Rock,
-                    Health = 100,
-                    Rotation = random.Next(4)
-                });
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                    ctx: ctx,
+                    worldId: identityString,
+                    positionX: rx + 0.5f,
+                    positionY: ry + 0.5f,
+                    gridX: rx,
+                    gridY: ry,
+                    type: TerrainDetailType.Rock,
+                    health: 100,
+                    rotation: random.Next(4)
+                ));
             }
         }
 
@@ -101,18 +100,17 @@ public static partial class Module
             if (traversibilityMap[tIndex] && (Math.Abs(tx - worldWidth / 2) > 5 || Math.Abs(ty - worldHeight / 2) > 5) && !IsInsideAnyPen(tx, ty))
             {
                 traversibilityMap[tIndex] = false;
-                ctx.Db.terrain_detail.Insert(new TerrainDetail
-                {
-                    Id = GenerateId(ctx, "td"),
-                    WorldId = identityString,
-                    PositionX = tx + 0.5f,
-                    PositionY = ty + 0.5f,
-                    GridX = tx,
-                    GridY = ty,
-                    Type = TerrainDetailType.Tree,
-                    Health = 100,
-                    Rotation = random.Next(4)
-                });
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                    ctx: ctx,
+                    worldId: identityString,
+                    positionX: tx + 0.5f,
+                    positionY: ty + 0.5f,
+                    gridX: tx,
+                    gridY: ty,
+                    type: TerrainDetailType.Tree,
+                    health: 100,
+                    rotation: random.Next(4)
+                ));
             }
         }
 
@@ -144,16 +142,15 @@ public static partial class Module
             int px = worldWidth / 2 - pickups.Length + (i * 2);
             int py = worldHeight - 5;
 
-            ctx.Db.pickup.Insert(new Pickup
-            {
-                Id = GenerateId(ctx, "p"),
-                WorldId = identityString,
-                PositionX = px + 0.5f,
-                PositionY = py + 0.5f,
-                GridX = px,
-                GridY = py,
-                Type = pickups[i]
-            });
+            ctx.Db.pickup.Insert(Pickup.Build(
+                ctx: ctx,
+                worldId: identityString,
+                positionX: px + 0.5f,
+                positionY: py + 0.5f,
+                gridX: px,
+                gridY: py,
+                type: pickups[i]
+            ));
         }
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
@@ -170,60 +167,60 @@ public static partial class Module
     private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "Turret";
-        var turretBot = BuildTank(
-            ctx,
-            worldId,
-            Identity.From(new byte[32]),
-            "",
-            targetCode,
-            "",
-            alliance,
-            x + 0.5f,
-            y + 0.5f,
-            AIBehavior.Turret,
-            aiConfig
+        var turretBot = Tank.Build(
+            ctx: ctx,
+            id: GenerateId(ctx, "enmy"),
+            worldId: worldId,
+            owner: Identity.From(new byte[32]),
+            name: "",
+            targetCode: targetCode,
+            joinCode: "",
+            alliance: alliance,
+            positionX: x + 0.5f,
+            positionY: y + 0.5f,
+            aiBehavior: AIBehavior.Turret,
+            aiConfig: aiConfig
         );
-        turretBot.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(turretBot);
     }
 
     private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "AimBot";
-        var aimBot = BuildTank(
-            ctx,
-            worldId,
-            Identity.From(new byte[32]),
-            "",
-            targetCode,
-            "",
-            alliance,
-            x + 0.5f,
-            y + 0.5f,
-            AIBehavior.RandomAim,
-            aiConfig
+        var aimBot = Tank.Build(
+            ctx: ctx,
+            id: GenerateId(ctx, "enmy"),
+            worldId: worldId,
+            owner: Identity.From(new byte[32]),
+            name: "",
+            targetCode: targetCode,
+            joinCode: "",
+            alliance: alliance,
+            positionX: x + 0.5f,
+            positionY: y + 0.5f,
+            aiBehavior: AIBehavior.RandomAim,
+            aiConfig: aiConfig
         );
-        aimBot.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(aimBot);
     }
 
     private static void SpawnTileboundBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "TileBot";
-        var tileboundBot = BuildTank(
-            ctx,
-            worldId,
-            Identity.From(new byte[32]),
-            "",
-            targetCode,
-            "",
-            alliance,
-            x + 0.5f,
-            y + 0.5f,
-            AIBehavior.Tilebound,
-            aiConfig
+        var tileboundBot = Tank.Build(
+            ctx: ctx,
+            id: GenerateId(ctx, "enmy"),
+            worldId: worldId,
+            owner: Identity.From(new byte[32]),
+            name: "",
+            targetCode: targetCode,
+            joinCode: "",
+            alliance: alliance,
+            positionX: x + 0.5f,
+            positionY: y + 0.5f,
+            aiBehavior: AIBehavior.Tilebound,
+            aiConfig: aiConfig
         );
-        tileboundBot.Id = GenerateId(ctx, "enmy");
         ctx.Db.tank.Insert(tileboundBot);
     }
 
@@ -236,19 +233,18 @@ public static partial class Module
 
         CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
-        ctx.Db.terrain_detail.Insert(new TerrainDetail
-        {
-            Id = GenerateId(ctx, "td"),
-            WorldId = worldId,
-            PositionX = areaX + areaWidth / 2.0f + 0.5f,
-            PositionY = areaY - 0.8f,
-            GridX = areaX + areaWidth / 2,
-            GridY = areaY - 1,
-            Type = TerrainDetailType.Label,
-            Health = 100,
-            Label = "Use [color=#fceba8]`target <code>`[/color] to lock onto an enemy, then [color=#fceba8]`fire`[/color] to shoot",
-            Rotation = 0
-        });
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            worldId: worldId,
+            positionX: areaX + areaWidth / 2.0f + 0.5f,
+            positionY: areaY - 0.8f,
+            gridX: areaX + areaWidth / 2,
+            gridY: areaY - 1,
+            type: TerrainDetailType.Label,
+            health: 100,
+            label: "Use [color=#fceba8]`target <code>`[/color] to lock onto an enemy, then [color=#fceba8]`fire`[/color] to shoot",
+            rotation: 0
+        ));
 
         var pen = new AiConfig
         {
@@ -271,19 +267,18 @@ public static partial class Module
 
         CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
-        ctx.Db.terrain_detail.Insert(new TerrainDetail
-        {
-            Id = GenerateId(ctx, "td"),
-            WorldId = worldId,
-            PositionX = areaX + areaWidth / 2.0f + 0.5f,
-            PositionY = areaY - 0.8f,
-            GridX = areaX + areaWidth / 2,
-            GridY = areaY - 1,
-            Type = TerrainDetailType.Label,
-            Health = 100,
-            Label = "Use [color=#fceba8]`aim <direction>`[/color] to point your turret, then [color=#fceba8]`fire`[/color] to shoot",
-            Rotation = 0
-        });
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            worldId: worldId,
+            positionX: areaX + areaWidth / 2.0f + 0.5f,
+            positionY: areaY - 0.8f,
+            gridX: areaX + areaWidth / 2,
+            gridY: areaY - 1,
+            type: TerrainDetailType.Label,
+            health: 100,
+            label: "Use [color=#fceba8]`aim <direction>`[/color] to point your turret, then [color=#fceba8]`fire`[/color] to shoot",
+            rotation: 0
+        ));
 
         var pen = new AiConfig
         {
@@ -305,19 +300,18 @@ public static partial class Module
 
         CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
 
-        ctx.Db.terrain_detail.Insert(new TerrainDetail
-        {
-            Id = GenerateId(ctx, "td"),
-            WorldId = worldId,
-            PositionX = areaX + areaWidth / 2.0f + 0.5f,
-            PositionY = areaY - 0.8f,
-            GridX = areaX + areaWidth / 2,
-            GridY = areaY - 1,
-            Type = TerrainDetailType.Label,
-            Health = 100,
-            Label = "Use [color=#fceba8]`drive <direction> <distance>`[/color] to move your tank",
-            Rotation = 0
-        });
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            worldId: worldId,
+            positionX: areaX + areaWidth / 2.0f + 0.5f,
+            positionY: areaY - 0.8f,
+            gridX: areaX + areaWidth / 2,
+            gridY: areaY - 1,
+            type: TerrainDetailType.Label,
+            health: 100,
+            label: "Use [color=#fceba8]`drive <direction> <distance>`[/color] to move your tank",
+            rotation: 0
+        ));
 
         var pen = new AiConfig
         {
@@ -347,35 +341,33 @@ public static partial class Module
             int topY = startY - 1;
             if (topY >= 0)
             {
-                ctx.Db.terrain_detail.Insert(new TerrainDetail
-                {
-                    Id = GenerateId(ctx, "td"),
-                    WorldId = worldId,
-                    PositionX = x + 0.5f,
-                    PositionY = topY + 0.5f,
-                    GridX = x,
-                    GridY = topY,
-                    Type = TerrainDetailType.FenceEdge,
-                    Health = 100,
-                    Rotation = 0
-                });
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                    ctx: ctx,
+                    worldId: worldId,
+                    positionX: x + 0.5f,
+                    positionY: topY + 0.5f,
+                    gridX: x,
+                    gridY: topY,
+                    type: TerrainDetailType.FenceEdge,
+                    health: 100,
+                    rotation: 0
+                ));
             }
 
             int bottomY = startY + height;
             if (bottomY < worldHeight)
             {
-                ctx.Db.terrain_detail.Insert(new TerrainDetail
-                {
-                    Id = GenerateId(ctx, "td"),
-                    WorldId = worldId,
-                    PositionX = x + 0.5f,
-                    PositionY = bottomY + 0.5f,
-                    GridX = x,
-                    GridY = bottomY,
-                    Type = TerrainDetailType.FenceEdge,
-                    Health = 100,
-                    Rotation = 2
-                });
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                    ctx: ctx,
+                    worldId: worldId,
+                    positionX: x + 0.5f,
+                    positionY: bottomY + 0.5f,
+                    gridX: x,
+                    gridY: bottomY,
+                    type: TerrainDetailType.FenceEdge,
+                    health: 100,
+                    rotation: 2
+                ));
             }
         }
 
@@ -384,35 +376,33 @@ public static partial class Module
             int leftX = startX - 1;
             if (leftX >= 0)
             {
-                ctx.Db.terrain_detail.Insert(new TerrainDetail
-                {
-                    Id = GenerateId(ctx, "td"),
-                    WorldId = worldId,
-                    PositionX = leftX + 0.5f,
-                    PositionY = y + 0.5f,
-                    GridX = leftX,
-                    GridY = y,
-                    Type = TerrainDetailType.FenceEdge,
-                    Health = 100,
-                    Rotation = 3
-                });
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                    ctx: ctx,
+                    worldId: worldId,
+                    positionX: leftX + 0.5f,
+                    positionY: y + 0.5f,
+                    gridX: leftX,
+                    gridY: y,
+                    type: TerrainDetailType.FenceEdge,
+                    health: 100,
+                    rotation: 3
+                ));
             }
 
             int rightX = startX + width;
             if (rightX < worldWidth)
             {
-                ctx.Db.terrain_detail.Insert(new TerrainDetail
-                {
-                    Id = GenerateId(ctx, "td"),
-                    WorldId = worldId,
-                    PositionX = rightX + 0.5f,
-                    PositionY = y + 0.5f,
-                    GridX = rightX,
-                    GridY = y,
-                    Type = TerrainDetailType.FenceEdge,
-                    Health = 100,
-                    Rotation = 1
-                });
+                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                    ctx: ctx,
+                    worldId: worldId,
+                    positionX: rightX + 0.5f,
+                    positionY: y + 0.5f,
+                    gridX: rightX,
+                    gridY: y,
+                    type: TerrainDetailType.FenceEdge,
+                    health: 100,
+                    rotation: 1
+                ));
             }
         }
 
@@ -420,72 +410,68 @@ public static partial class Module
         int topLeftY = startY - 1;
         if (topLeftX >= 0 && topLeftY >= 0)
         {
-            ctx.Db.terrain_detail.Insert(new TerrainDetail
-            {
-                Id = GenerateId(ctx, "td"),
-                WorldId = worldId,
-                PositionX = topLeftX + 0.5f,
-                PositionY = topLeftY + 0.5f,
-                GridX = topLeftX,
-                GridY = topLeftY,
-                Type = TerrainDetailType.FenceCorner,
-                Health = 100,
-                Rotation = 0
-            });
+            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                ctx: ctx,
+                worldId: worldId,
+                positionX: topLeftX + 0.5f,
+                positionY: topLeftY + 0.5f,
+                gridX: topLeftX,
+                gridY: topLeftY,
+                type: TerrainDetailType.FenceCorner,
+                health: 100,
+                rotation: 0
+            ));
         }
 
         int topRightX = startX + width;
         int topRightY = startY - 1;
         if (topRightX < worldWidth && topRightY >= 0)
         {
-            ctx.Db.terrain_detail.Insert(new TerrainDetail
-            {
-                Id = GenerateId(ctx, "td"),
-                WorldId = worldId,
-                PositionX = topRightX + 0.5f,
-                PositionY = topRightY + 0.5f,
-                GridX = topRightX,
-                GridY = topRightY,
-                Type = TerrainDetailType.FenceCorner,
-                Health = 100,
-                Rotation = 1
-            });
+            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                ctx: ctx,
+                worldId: worldId,
+                positionX: topRightX + 0.5f,
+                positionY: topRightY + 0.5f,
+                gridX: topRightX,
+                gridY: topRightY,
+                type: TerrainDetailType.FenceCorner,
+                health: 100,
+                rotation: 1
+            ));
         }
 
         int bottomLeftX = startX - 1;
         int bottomLeftY = startY + height;
         if (bottomLeftX >= 0 && bottomLeftY < worldHeight)
         {
-            ctx.Db.terrain_detail.Insert(new TerrainDetail
-            {
-                Id = GenerateId(ctx, "td"),
-                WorldId = worldId,
-                PositionX = bottomLeftX + 0.5f,
-                PositionY = bottomLeftY + 0.5f,
-                GridX = bottomLeftX,
-                GridY = bottomLeftY,
-                Type = TerrainDetailType.FenceCorner,
-                Health = 100,
-                Rotation = 3
-            });
+            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                ctx: ctx,
+                worldId: worldId,
+                positionX: bottomLeftX + 0.5f,
+                positionY: bottomLeftY + 0.5f,
+                gridX: bottomLeftX,
+                gridY: bottomLeftY,
+                type: TerrainDetailType.FenceCorner,
+                health: 100,
+                rotation: 3
+            ));
         }
 
         int bottomRightX = startX + width;
         int bottomRightY = startY + height;
         if (bottomRightX < worldWidth && bottomRightY < worldHeight)
         {
-            ctx.Db.terrain_detail.Insert(new TerrainDetail
-            {
-                Id = GenerateId(ctx, "td"),
-                WorldId = worldId,
-                PositionX = bottomRightX + 0.5f,
-                PositionY = bottomRightY + 0.5f,
-                GridX = bottomRightX,
-                GridY = bottomRightY,
-                Type = TerrainDetailType.FenceCorner,
-                Health = 100,
-                Rotation = 2
-            });
+            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                ctx: ctx,
+                worldId: worldId,
+                positionX: bottomRightX + 0.5f,
+                positionY: bottomRightY + 0.5f,
+                gridX: bottomRightX,
+                gridY: bottomRightY,
+                type: TerrainDetailType.FenceCorner,
+                health: 100,
+                rotation: 2
+            ));
         }
     }
 

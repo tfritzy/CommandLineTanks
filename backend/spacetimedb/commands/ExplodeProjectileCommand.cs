@@ -103,7 +103,7 @@ public static partial class ProjectileUpdater
             float velocityX = (float)Math.Cos(angle) * speed;
             float velocityY = (float)Math.Sin(angle) * speed;
 
-            var subProjectile = Module.BuildProjectile(
+            var subProjectile = Module.Projectile.Build(
                 ctx: ctx,
                 worldId: grenade.WorldId,
                 shooterTankId: grenade.ShooterTankId,

@@ -151,17 +151,17 @@ public static partial class Module
 
             var (spawnX, spawnY) = FindSpawnPosition(ctx, newWorld, newAlliance, ctx.Rng);
 
-            var newTank = BuildTank(
-                ctx,
-                newWorldId,
-                tank.Owner,
-                tank.Name,
-                tank.TargetCode,
-                args.WorldId,
-                newAlliance,
-                spawnX,
-                spawnY,
-                AIBehavior.None);
+            var newTank = Tank.Build(
+                ctx: ctx,
+                worldId: newWorldId,
+                owner: tank.Owner,
+                name: tank.Name,
+                targetCode: tank.TargetCode,
+                joinCode: args.WorldId,
+                alliance: newAlliance,
+                positionX: spawnX,
+                positionY: spawnY,
+                aiBehavior: AIBehavior.None);
             AddTankToWorld(ctx, newTank);
         }
 
