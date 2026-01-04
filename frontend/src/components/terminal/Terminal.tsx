@@ -18,6 +18,10 @@ const KEY_ESCAPE = 27;
 const ARROW_UP = "\x1b[A";
 const ARROW_DOWN = "\x1b[B";
 
+const VALID_COMMANDS = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'fire', 'f', 
+                        'switch', 'w', 'smokescreen', 'sm', 'overdrive', 'od', 'repair', 'rep',
+                        'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
+
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
@@ -78,6 +82,28 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     };
 
     window.addEventListener("resize", handleResize);
+
+    const resolveCommand = (cmd: string): string => {
+      const cmdLower = cmd.toLowerCase();
+      
+      if (VALID_COMMANDS.includes(cmdLower)) {
+        return cmdLower;
+      }
+      
+      if (cmdLower.startsWith('f') && cmdLower.length > 1) {
+        const withoutF = cmdLower.substring(1);
+        if (VALID_COMMANDS.includes(withoutF)) {
+          return withoutF;
+        }
+      }
+      
+      const suggestion = findCommandSuggestion(cmd);
+      if (suggestion && VALID_COMMANDS.includes(suggestion.toLowerCase())) {
+        return suggestion.toLowerCase();
+      }
+      
+      return cmdLower;
+    };
 
     const executeCommand = (commandName: string, commandArgs: string[]): string[] | 'CLEAR' => {
       const connection = getConnection();
@@ -150,29 +176,19 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           historyIndexRef.current = -1;
 
           const [cmd, ...args] = input.split(' ');
+          const resolvedCmd = resolveCommand(cmd);
+          
+          if (resolvedCmd !== cmd.toLowerCase()) {
+            term.write(`Assuming you meant '${resolvedCmd}'\r\n\r\n`);
+          }
 
-          let commandOutput = executeCommand(cmd, args);
+          const commandOutput = executeCommand(resolvedCmd, args);
 
           if (commandOutput === 'CLEAR') {
             term.clear();
             currentInputRef.current = "";
             term.write(PROMPT);
             return;
-          }
-
-          if (commandOutput[0]?.startsWith('Command not found:')) {
-            const suggestion = findCommandSuggestion(cmd);
-            if (suggestion) {
-              term.write(`Assuming you meant '${suggestion}'\r\n\r\n`);
-              commandOutput = executeCommand(suggestion, args);
-
-              if (commandOutput === 'CLEAR') {
-                term.clear();
-                currentInputRef.current = "";
-                term.write(PROMPT);
-                return;
-              }
-            }
           }
 
           for (const line of commandOutput) {
