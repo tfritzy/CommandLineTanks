@@ -9,7 +9,7 @@ interface TerminalComponentProps {
   worldId: string;
 }
 
-const PROMPT = "\x1b[1;32m❯\x1b[0m ";
+const PROMPT = "❯ ";
 const KEY_ENTER = 13;
 const KEY_BACKSPACE = 127;
 const KEY_CTRL_BACKSPACE = 23;
