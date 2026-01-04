@@ -91,17 +91,5 @@ export function drawSniperProjectileBody(
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Add a highlight
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(bulletLength * 0.8, -bulletWidth * 0.3);
-  ctx.bezierCurveTo(
-    bulletLength * 0.6, -bulletWidth * 0.5,
-    bulletLength * 0.2, -bulletWidth * 0.7,
-    -bulletLength * bulletBackRatio * 0.5, -bulletWidth * 0.7
-  );
-  ctx.stroke();
-
   ctx.restore();
 }

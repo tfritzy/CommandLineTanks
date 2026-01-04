@@ -9,53 +9,19 @@ export function drawSquarePost(
   flashTimer: number
 ) {
   const postColor = getFlashColor(baseColor, flashTimer);
-  const darkColor = getFlashColor(lerpColor(baseColor, "#000000", 0.15), flashTimer);
-  const lightColor = getFlashColor(lerpColor(baseColor, "#ffffff", 0.15), flashTimer);
-  const topColor = getFlashColor(lerpColor(baseColor, "#ffffff", 0.3), flashTimer);
+  const topColor = getFlashColor(lerpColor(baseColor, "#ffffff", 0.2), flashTimer);
 
   const halfSize = size / 2;
-  const innerSize = size * 0.4;
-  const halfInnerSize = innerSize / 2;
+  const topSize = size * 0.7;
+  const halfTopSize = topSize / 2;
 
-  // Base square
+  // Base
   ctx.fillStyle = postColor;
   ctx.fillRect(centerX - halfSize, centerY - halfSize, size, size);
 
-  // Top face (highlighted)
-  ctx.fillStyle = lightColor;
-  ctx.beginPath();
-  ctx.moveTo(centerX - halfSize, centerY - halfSize);
-  ctx.lineTo(centerX + halfSize, centerY - halfSize);
-  ctx.lineTo(centerX + halfInnerSize, centerY - halfInnerSize);
-  ctx.lineTo(centerX - halfInnerSize, centerY - halfInnerSize);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(centerX - halfSize, centerY - halfSize);
-  ctx.lineTo(centerX - halfInnerSize, centerY - halfInnerSize);
-  ctx.lineTo(centerX - halfInnerSize, centerY + halfInnerSize);
-  ctx.lineTo(centerX - halfSize, centerY + halfSize);
-  ctx.fill();
-
-  // Bottom/Right faces (shaded)
-  ctx.fillStyle = darkColor;
-  ctx.beginPath();
-  ctx.moveTo(centerX + halfSize, centerY - halfSize);
-  ctx.lineTo(centerX + halfSize, centerY + halfSize);
-  ctx.lineTo(centerX + halfInnerSize, centerY + halfInnerSize);
-  ctx.lineTo(centerX + halfInnerSize, centerY - halfInnerSize);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(centerX - halfSize, centerY + halfSize);
-  ctx.lineTo(centerX + halfSize, centerY + halfSize);
-  ctx.lineTo(centerX + halfInnerSize, centerY + halfInnerSize);
-  ctx.lineTo(centerX - halfInnerSize, centerY + halfInnerSize);
-  ctx.fill();
-
-  // Center top square
+  // Top cap
   ctx.fillStyle = topColor;
-  ctx.fillRect(centerX - halfInnerSize, centerY - halfInnerSize, innerSize, innerSize);
+  ctx.fillRect(centerX - halfTopSize, centerY - halfTopSize, topSize, topSize);
 }
 
 export function drawSquarePostShadow(

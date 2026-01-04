@@ -266,11 +266,8 @@ export class ProjectileTextureSheet {
     const centerX = x + radius + padding;
     const centerY = y + radius * 1.6 + padding;
 
-    const shadowColor = color === COLORS.GAME.TEAM_RED_BRIGHT ? "#813645" : "#3e4c7e";
-    const highlightColor = color === COLORS.GAME.TEAM_RED_BRIGHT ? "#e39764" : "#7396d5";
-
     drawGrenadeShadow(this.shadowCtx, centerX, centerY, radius);
-    drawGrenadeBody(this.ctx, centerX, centerY, radius, color, shadowColor, highlightColor);
+    drawGrenadeBody(this.ctx, centerX, centerY, radius, color);
 
     const textureData = {
       x: x,

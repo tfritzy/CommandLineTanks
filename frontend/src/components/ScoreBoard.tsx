@@ -5,6 +5,7 @@ import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
 import { COLORS } from "../theme/colors";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PlayerScore {
   id: string;
@@ -217,12 +218,91 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
 
   const getBarColor = (player: PlayerScore) => {
     const currentPlayerIdentity = connection?.identity?.toString();
-    const isOwnTank = currentPlayerIdentity && player.owner === currentPlayerIdentity;
-    
+    const isOwnTank =
+      currentPlayerIdentity && player.owner === currentPlayerIdentity;
+
     if (isOwnTank) {
       return getTeamColor(player.alliance);
     }
     return "rgba(112, 123, 137, 0.8)";
+  };
+
+  const currentPlayerIdentity = connection?.identity?.toString();
+  const top3 = players.slice(0, 3);
+  const currentPlayer = players.find((p) => p.owner === currentPlayerIdentity);
+  const isPlayerInTop3 = top3.some((p) => p.owner === currentPlayerIdentity);
+
+  const renderPlayerRow = (player: PlayerScore) => {
+    const barWidthPercent = (Math.abs(player.displayScore) / maxScore) * 100;
+    const isAnimating = animatingScoresRef.current.has(player.id);
+    const radius = "11px";
+
+    return (
+      <motion.div
+        key={player.id}
+        layout
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 20 }}
+        transition={{
+          layout: { type: "spring", stiffness: 300, damping: 30 },
+          opacity: { duration: 0.2 },
+        }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          height: "22px",
+          width: "220px",
+          position: "relative",
+          transform: isAnimating ? "scale(1.02)" : "scale(1)",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            height: "100%",
+            width: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            borderRadius: radius,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: "1.5px",
+            top: "1.5px",
+            height: "calc(100% - 3px)",
+            width: `calc(${barWidthPercent}% - 3px)`,
+            backgroundColor: getBarColor(player),
+            borderRadius: "calc(" + radius + " - 1.5px)",
+            transition: "width 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        />
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <span
+            style={{
+              color: COLORS.UI.TEXT_PRIMARY,
+              fontSize: "12px",
+              fontFamily: "Poppins, sans-serif",
+              fontWeight: "800",
+              textShadow: "0 0 3px #000000, 0 0 3px #000000, 0 0 3px #000000",
+            }}
+          >
+            {player.name} — {player.displayScore}
+          </span>
+        </div>
+      </motion.div>
+    );
   };
 
   return (
@@ -235,75 +315,51 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
         display: "flex",
         flexDirection: "column",
         gap: "5px",
+        alignItems: "flex-start",
       }}
     >
-      {players.map((player) => {
-        const barWidthPercent =
-          (Math.abs(player.displayScore) / maxScore) * 100;
-        const isAnimating = animatingScoresRef.current.has(player.id);
-        const radius = "13px";
-
-        return (
-          <div
-            key={player.id}
+      <div
+        style={{
+          color: COLORS.UI.TEXT_PRIMARY,
+          fontSize: "12px",
+          fontFamily: "Poppins, sans-serif",
+          fontWeight: "900",
+          letterSpacing: "0.1em",
+          textShadow: "0 0 4px rgba(0,0,0,0.5)",
+          marginBottom: "2px",
+          marginLeft: "10px",
+        }}
+      >
+        KILL STREAK
+      </div>
+      <AnimatePresence mode="popLayout">
+        {top3.map(renderPlayerRow)}
+        {currentPlayer && !isPlayerInTop3 && (
+          <motion.div
+            key="player-divider-group"
+            layout
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             style={{
               display: "flex",
-              alignItems: "center",
-              height: "26px",
-              width: "250px",
-              position: "relative",
-              transform: isAnimating ? "scale(1.02)" : "scale(1)",
-              transition: "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              flexDirection: "column",
+              gap: "5px",
+              width: "100%",
             }}
           >
             <div
               style={{
-                position: "absolute",
-                left: 0,
-                height: "100%",
+                height: "1px",
                 width: "100%",
-                backgroundColor: "rgba(0, 0, 0, 0.4)",
-                borderRadius: radius,
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                margin: "5px 0",
               }}
             />
-            <div
-              style={{
-                position: "absolute",
-                left: "1.5px",
-                top: "1.5px",
-                height: "calc(100% - 3px)",
-                width: `calc(${barWidthPercent}% - 3px)`,
-                backgroundColor: getBarColor(player),
-                borderRadius: "calc(" + radius + " - 1.5px)",
-                transition: "width 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
-              }}
-            />
-            <div
-              style={{
-                position: "relative",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              <span
-                style={{
-                  color: COLORS.UI.TEXT_PRIMARY,
-                  fontSize: "14px",
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "800",
-                  textShadow:
-                    "0 0 3px #000000, 0 0 3px #000000, 0 0 3px #000000",
-                }}
-              >
-                {player.name} — {player.displayScore}
-              </span>
-            </div>
-          </div>
-        );
-      })}
+            {renderPlayerRow(currentPlayer)}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -44,9 +44,7 @@ export function drawGrenadeBody(
   centerX: number,
   centerY: number,
   radius: number,
-  color: string,
-  shadowColor: string,
-  highlightColor: string
+  color: string
 ) {
   ctx.save();
   
@@ -54,17 +52,20 @@ export function drawGrenadeBody(
   ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
   ctx.clip();
   
+  // Base color (Primary Color)
   ctx.fillStyle = color;
   ctx.fill();
   
-  ctx.fillStyle = shadowColor;
+  // Shadow overlay
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
   ctx.beginPath();
-  ctx.arc(centerX - radius * 0.2, centerY + radius * 0.2, radius * 1.2, 0, Math.PI * 2);
+  ctx.arc(centerX - radius * 0.4, centerY + radius * 0.4, radius * 1.2, 0, Math.PI * 2);
   ctx.fill();
   
-  ctx.fillStyle = highlightColor;
+  // Highlight overlay
+  ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
   ctx.beginPath();
-  ctx.arc(centerX + radius * 0.2, centerY - radius * 0.2, radius * 1.2, 0, Math.PI * 2);
+  ctx.arc(centerX + radius * 0.4, centerY - radius * 0.4, radius * 1.2, 0, Math.PI * 2);
   ctx.fill();
   
   ctx.restore();

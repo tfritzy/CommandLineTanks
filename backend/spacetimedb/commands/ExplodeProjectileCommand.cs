@@ -14,7 +14,6 @@ public static partial class ProjectileUpdater
         if (projectile.ProjectileType == ProjectileType.Grenade)
         {
             SpawnGrenadeSubProjectiles(ctx, projectile);
-            Log.Info($"Grenade exploded at ({projectile.PositionX}, {projectile.PositionY}), spawning sub-projectiles");
             return false;
         }
 
@@ -93,16 +92,16 @@ public static partial class ProjectileUpdater
 
     private static void SpawnGrenadeSubProjectiles(ReducerContext ctx, Module.Projectile grenade)
     {
-        const int subProjectileCount = 16;
+        const int subProjectileCount = 24;
         const float subProjectileSpeed = Module.PROJECTILE_SPEED * 1.5f;
-        const float subProjectileLifetime = 1.5f;
-        const float subProjectileDamping = 0.15f;
+        const float subProjectileLifetime = 5f;
 
         for (int i = 0; i < subProjectileCount; i++)
         {
+            float speed = i % 2 == 0 ? subProjectileSpeed : subProjectileSpeed * .75f;
             float angle = (float)(2 * Math.PI * i / subProjectileCount);
-            float velocityX = (float)Math.Cos(angle) * subProjectileSpeed;
-            float velocityY = (float)Math.Sin(angle) * subProjectileSpeed;
+            float velocityX = (float)Math.Cos(angle) * speed;
+            float velocityY = (float)Math.Sin(angle) * speed;
 
             var subProjectile = Module.BuildProjectile(
                 ctx: ctx,
@@ -111,10 +110,9 @@ public static partial class ProjectileUpdater
                 alliance: grenade.Alliance,
                 positionX: grenade.PositionX,
                 positionY: grenade.PositionY,
-                speed: subProjectileSpeed,
+                speed: speed,
                 velocity: new Vector2Float(velocityX, velocityY),
-                lifetimeSeconds: subProjectileLifetime,
-                damping: subProjectileDamping
+                lifetimeSeconds: subProjectileLifetime
             );
 
             ctx.Db.projectile.Insert(subProjectile);
