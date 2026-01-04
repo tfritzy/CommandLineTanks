@@ -355,8 +355,8 @@ public static partial class Module
         };
 
         SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1, pen);
-        SpawnTileboundBot(ctx, worldId, areaX + 2, areaY + 2, 1, pen);
-        SpawnTileboundBot(ctx, worldId, areaX + 3, areaY + 3, 1, pen);
+        SpawnTileboundBot(ctx, worldId, areaX + 3, areaY + 1, 1, pen);
+        SpawnTileboundBot(ctx, worldId, areaX + 2, areaY + 3, 1, pen);
     }
 
     private static void CreateFencedArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, int startX, int startY, int width, int height)
