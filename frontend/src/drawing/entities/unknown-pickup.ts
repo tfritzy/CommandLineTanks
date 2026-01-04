@@ -22,7 +22,8 @@ export function drawUnknownPickupShadow(
 export function drawUnknownPickupBody(
   ctx: CanvasRenderingContext2D,
   positionX: number,
-  positionY: number
+  positionY: number,
+  primaryColor?: string
 ) {
   const worldX = positionX * UNIT_TO_PIXEL;
   const worldY = positionY * UNIT_TO_PIXEL;
@@ -31,7 +32,7 @@ export function drawUnknownPickupBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
+  ctx.fillStyle = primaryColor || COLORS.TERMINAL.TEXT_MUTED;
   ctx.strokeStyle = COLORS.TERMINAL.TEXT_DIM;
   ctx.lineWidth = 3;
   ctx.beginPath();

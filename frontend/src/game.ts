@@ -111,6 +111,9 @@ export class Game {
       const playerPos = playerTank.getPosition();
       targetCameraX = playerPos.x * UNIT_TO_PIXEL - displayWidth / 2;
       targetCameraY = playerPos.y * UNIT_TO_PIXEL - displayHeight / 2;
+      this.pickupManager.setPlayerAlliance(playerTank.getAlliance());
+    } else {
+      this.pickupManager.setPlayerAlliance(null);
     }
 
     const clampedDeltaTime = Math.min(deltaTime, 1 / 30);

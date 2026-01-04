@@ -22,7 +22,8 @@ export function drawShieldPickupShadow(
 export function drawShieldPickupBody(
   ctx: CanvasRenderingContext2D,
   positionX: number,
-  positionY: number
+  positionY: number,
+  primaryColor?: string
 ) {
   const worldX = positionX * UNIT_TO_PIXEL;
   const worldY = positionY * UNIT_TO_PIXEL;
@@ -31,7 +32,7 @@ export function drawShieldPickupBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = COLORS.TERMINAL.INFO;
+  ctx.fillStyle = primaryColor || COLORS.TERMINAL.INFO;
   ctx.strokeStyle = COLORS.TERMINAL.BORDER;
   ctx.lineWidth = 3;
   ctx.beginPath();

@@ -57,18 +57,18 @@ const PROJECTILE_PICKUP_TYPES = [
   "sniper"
 ] as const;
 
-const PICKUP_COLOR = COLORS.GAME.WEAPON_PICKUP_PRIMARY;
-
 export class PickupTextureSheet {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private textures: Map<string, PickupTexture> = new Map();
+  private pickupColor: string;
 
   private static readonly CANVAS_SIZE = 1024;
   private static readonly CELL_SIZE_MULTIPLIER = 1.2;
   private static readonly PADDING = 10;
 
-  constructor() {
+  constructor(pickupColor: string) {
+    this.pickupColor = pickupColor;
     const dpr = getNormalizedDPR();
     this.canvas = document.createElement("canvas");
     this.canvas.width = PickupTextureSheet.CANVAS_SIZE * dpr;
@@ -143,7 +143,8 @@ export class PickupTextureSheet {
     drawBody: (
       ctx: CanvasRenderingContext2D,
       positionX: number,
-      positionY: number
+      positionY: number,
+      primaryColor?: string
     ) => void
   ) {
     const centerX = x + size / 2;
@@ -152,7 +153,7 @@ export class PickupTextureSheet {
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
     drawShadow(this.ctx, 0, 0);
-    drawBody(this.ctx, 0, 0);
+    drawBody(this.ctx, 0, 0, this.pickupColor);
     this.ctx.restore();
 
     const textureData = {
@@ -199,7 +200,7 @@ export class PickupTextureSheet {
             trianglePositions[i].x,
             trianglePositions[i].y,
             radius,
-            PICKUP_COLOR
+            this.pickupColor
           );
         }
         break;
@@ -207,19 +208,19 @@ export class PickupTextureSheet {
       case "missile-launcher": {
         const radius = 0.2 * UNIT_TO_PIXEL;
         drawMissileShadow(this.ctx, -4, 4, radius, angle);
-        drawMissileBody(this.ctx, 0, 0, radius, angle, PICKUP_COLOR);
+        drawMissileBody(this.ctx, 0, 0, radius, angle, this.pickupColor);
         break;
       }
       case "rocket": {
         const radius = 0.1 * UNIT_TO_PIXEL;
         drawRocketShadow(this.ctx, -4, 4, radius, angle);
-        drawRocketBody(this.ctx, 0, 0, radius, angle, PICKUP_COLOR);
+        drawRocketBody(this.ctx, 0, 0, radius, angle, this.pickupColor);
         break;
       }
       case "grenade": {
         const radius = 0.2 * UNIT_TO_PIXEL;
         drawGrenadeShadow(this.ctx, -4, 4, radius);
-        drawGrenadeBody(this.ctx, 0, 0, radius, PICKUP_COLOR);
+        drawGrenadeBody(this.ctx, 0, 0, radius, this.pickupColor);
         break;
       }
       case "boomerang": {
@@ -227,7 +228,7 @@ export class PickupTextureSheet {
         const armWidth = radius * 0.8;
         const armLength = radius * 2.2;
         drawBoomerangShadow(this.ctx, -4, 4, armLength, armWidth);
-        drawBoomerangBody(this.ctx, 0, 0, armLength, armWidth, PICKUP_COLOR);
+        drawBoomerangBody(this.ctx, 0, 0, armLength, armWidth, this.pickupColor);
         break;
       }
       case "moag": {
@@ -235,7 +236,7 @@ export class PickupTextureSheet {
         const radius = scale * UNIT_TO_PIXEL;
         drawMoagShadow(this.ctx, -4, 4, scale);
         
-        this.ctx.fillStyle = PICKUP_COLOR;
+        this.ctx.fillStyle = this.pickupColor;
         this.ctx.beginPath();
         this.ctx.arc(0, 0, radius, 0, Math.PI * 2);
         this.ctx.fill();
@@ -252,7 +253,7 @@ export class PickupTextureSheet {
         const bulletWidth = bulletLength * 0.3;
         const bulletBackRatio = 0.4;
         drawSniperProjectileShadow(this.ctx, -4, 4, bulletLength, bulletWidth, bulletBackRatio, angle);
-        drawSniperProjectileBody(this.ctx, 0, 0, bulletLength, bulletWidth, bulletBackRatio, angle, PICKUP_COLOR);
+        drawSniperProjectileBody(this.ctx, 0, 0, bulletLength, bulletWidth, bulletBackRatio, angle, this.pickupColor);
         break;
       }
     }
@@ -298,4 +299,5 @@ export class PickupTextureSheet {
   }
 }
 
-export const pickupTextureSheet = new PickupTextureSheet();
+export const redTeamPickupTextureSheet = new PickupTextureSheet(COLORS.GAME.TEAM_RED_BRIGHT);
+export const blueTeamPickupTextureSheet = new PickupTextureSheet(COLORS.GAME.TEAM_BLUE_BRIGHT);
