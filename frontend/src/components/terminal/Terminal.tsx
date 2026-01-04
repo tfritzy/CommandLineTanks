@@ -162,7 +162,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
           if (!commandResult.found) {
             const cmdLower = cmd.toLowerCase();
-            if (cmdLower.startsWith('f') && cmdLower.length > 1 && cmdLower !== 'fire' && cmdLower !== 'f') {
+            if (cmdLower.startsWith('f') && cmdLower.length > 1) {
               const withoutF = cmdLower.substring(1);
               const retryResult = executeCommand(withoutF, args);
               
@@ -187,9 +187,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
             }
           }
 
-          const outputLines = commandResult.output as string[];
-          for (const line of outputLines) {
-            term.write(line + "\r\n");
+          if (commandResult.output !== 'CLEAR') {
+            for (const line of commandResult.output) {
+              term.write(line + "\r\n");
+            }
           }
           term.write("\r\n");
         }
