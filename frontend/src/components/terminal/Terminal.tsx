@@ -18,6 +18,10 @@ const KEY_ESCAPE = 27;
 const ARROW_UP = "\x1b[A";
 const ARROW_DOWN = "\x1b[B";
 
+const VALID_COMMANDS = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'fire', 'f', 
+                        'switch', 'w', 'smokescreen', 'sm', 'overdrive', 'od', 'repair', 'rep',
+                        'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
+
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
@@ -82,23 +86,23 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     const resolveCommand = (cmd: string): string => {
       const cmdLower = cmd.toLowerCase();
       
-      const validCommands = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'fire', 'f', 
-                            'switch', 'w', 'smokescreen', 'sm', 'overdrive', 'od', 'repair', 'rep',
-                            'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
-      
-      if (validCommands.includes(cmdLower)) {
+      if (VALID_COMMANDS.includes(cmdLower)) {
         return cmdLower;
       }
       
       if (cmdLower.startsWith('f') && cmdLower.length > 1) {
         const withoutF = cmdLower.substring(1);
-        if (validCommands.includes(withoutF)) {
+        if (VALID_COMMANDS.includes(withoutF)) {
           return withoutF;
         }
       }
       
       const suggestion = findCommandSuggestion(cmd);
-      return suggestion || cmdLower;
+      if (suggestion && VALID_COMMANDS.includes(suggestion.toLowerCase())) {
+        return suggestion.toLowerCase();
+      }
+      
+      return cmdLower;
     };
 
     const executeCommand = (commandName: string, commandArgs: string[]): string[] | 'CLEAR' => {
