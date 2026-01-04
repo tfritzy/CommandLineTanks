@@ -1,3 +1,5 @@
+import { PROJECTILE_COLORS } from "../../constants";
+
 export function drawBoomerangShadow(
   ctx: CanvasRenderingContext2D,
   centerX: number,
@@ -42,7 +44,7 @@ export function drawBoomerangBody(
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.fillStyle = color;
-  ctx.strokeStyle = "#2e2e43";
+  ctx.strokeStyle = PROJECTILE_COLORS.OUTLINE_DARK;
   ctx.lineWidth = 2;
   ctx.lineJoin = "round";
 

@@ -3,6 +3,7 @@ import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
+import { UI_COLORS } from "../constants";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 interface PlayerScore {
@@ -278,7 +279,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
             >
               <span
                 style={{
-                  color: "#fcfbf3",
+                  color: UI_COLORS.TEXT_BRIGHT,
                   fontSize: "14px",
                   fontFamily: "Poppins, sans-serif",
                   fontWeight: "800",

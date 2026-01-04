@@ -1,9 +1,10 @@
 import { UNIT_TO_PIXEL } from "../../constants";
+import { TERMINAL_COLORS } from "../../components/terminal/colors";
 
 const RETICLE_SIZE = 20;
 const RETICLE_GAP = 6;
 const RETICLE_CORNER_LENGTH = 8;
-const RETICLE_COLOR = "#fceba8";
+const RETICLE_COLOR = TERMINAL_COLORS.WARNING;
 const RETICLE_LINE_WIDTH = 2;
 
 export function drawTargetingReticle(

@@ -1,3 +1,6 @@
+import { UI_COLORS } from "../../constants";
+import { TERMINAL_COLORS } from "../../components/terminal/colors";
+
 export function drawKillNotification(
   ctx: CanvasRenderingContext2D,
   killeeName: string,
@@ -27,7 +30,7 @@ export function drawKillNotification(
   ctx.translate(x, y);
   ctx.scale(scale, scale);
 
-  ctx.fillStyle = '#2a152daa';
+  ctx.fillStyle = TERMINAL_COLORS.BACKGROUND + 'aa';
   
   const radius = 4;
   ctx.beginPath();
@@ -55,10 +58,10 @@ export function drawKillNotification(
   
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#c06852';
+  ctx.fillStyle = TERMINAL_COLORS.ERROR;
   ctx.fillText(label, startX, 1);
   
-  ctx.fillStyle = '#fcfbf3';
+  ctx.fillStyle = UI_COLORS.TEXT_BRIGHT;
   ctx.fillText(name, startX + labelWidth, 1);
 
   ctx.restore();

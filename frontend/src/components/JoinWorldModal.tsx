@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { getConnection } from '../spacetimedb-connection';
+import { TERMINAL_COLORS } from './terminal/colors';
 
 interface JoinWorldModalProps {
   worldId: string;
@@ -98,7 +99,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
         style={{
           fontSize: '48px',
           fontWeight: 900,
-          color: '#7396d5',
+          color: TERMINAL_COLORS.INFO,
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
           marginBottom: '40px',
@@ -120,7 +121,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
             style={{
               display: 'block',
               fontSize: '14px',
-              color: '#e6eeed',
+              color: TERMINAL_COLORS.TEXT_DEFAULT,
               marginBottom: '8px',
               fontWeight: 500,
             }}
@@ -141,7 +142,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
               background: 'rgba(42, 21, 45, 0.6)',
               border: '1px solid rgba(112, 123, 137, 0.3)',
               borderRadius: '4px',
-              color: '#e6eeed',
+              color: TERMINAL_COLORS.TEXT_DEFAULT,
               outline: 'none',
               boxSizing: 'border-box',
               transition: 'border-color 0.2s',
@@ -160,7 +161,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
         <div
           style={{
             fontSize: '14px',
-            color: '#e6eeed',
+            color: TERMINAL_COLORS.TEXT_DEFAULT,
             marginBottom: '8px',
             fontWeight: 500,
           }}
@@ -177,7 +178,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
             borderRadius: '4px',
             padding: '16px',
             fontSize: '13px',
-            color: '#e6eeed',
+            color: TERMINAL_COLORS.TEXT_DEFAULT,
             fontFamily: "'JetBrains Mono', monospace",
             cursor: 'pointer',
             transition: 'all 0.2s ease',
@@ -204,7 +205,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
               top: '8px',
               right: '12px',
               fontSize: '11px',
-              color: copied ? '#96dc7f' : '#707b89',
+              color: copied ? TERMINAL_COLORS.SUCCESS : TERMINAL_COLORS.TEXT_DIM,
               fontWeight: 500,
               letterSpacing: '0.05em',
               transition: 'color 0.2s',
