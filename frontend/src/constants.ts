@@ -72,6 +72,12 @@ export const UI_COLORS = {
   TEAM_BLUE_DARK: "#3e4c7e",
   TEAM_RED_MEDIUM: "#9d4343",
   TEAM_BLUE_MEDIUM: "#495f94",
+  LABEL_YELLOW: "#f5c47c",
+};
+
+export const ABILITY_COLORS = {
+  OVERDRIVE_READY: "#f5c47c",
+  COOLDOWN_GRAY: "#707b89",
 };
 
 export const PICKUP_COLORS = {

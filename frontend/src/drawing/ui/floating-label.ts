@@ -1,6 +1,6 @@
-import { UNIT_TO_PIXEL, TERRAIN_DETAIL_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL, UI_COLORS } from "../../constants";
 
-const LABEL_COLOR = TERRAIN_DETAIL_COLORS.HAY_BALE.BODY;
+const LABEL_COLOR = UI_COLORS.LABEL_YELLOW;
 
 export function drawFloatingLabel(
   ctx: CanvasRenderingContext2D,
