@@ -19,6 +19,7 @@ import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
 import { MushroomDecorationsManager } from "./MushroomDecorationsManager";
 import { terrainDetailTextureSheet } from "../texture-sheets/TerrainDetailTextureSheet";
 import { getNormalizedDPR } from "../utils/dpr";
+import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export class TerrainDetailManager {
   private worldWidth: number = 0;
@@ -31,19 +32,7 @@ export class TerrainDetailManager {
   private mushroomDecorations: MushroomDecorationsManager =
     new MushroomDecorationsManager();
   private onDetailDeletedCallbacks: (() => void)[] = [];
-  private handleDetailInsert:
-    | ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void)
-    | null = null;
-  private handleDetailUpdate:
-    | ((
-        ctx: EventContext,
-        oldDetail: Infer<typeof TerrainDetailRow>,
-        newDetail: Infer<typeof TerrainDetailRow>
-      ) => void)
-    | null = null;
-  private handleDetailDelete:
-    | ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void)
-    | null = null;
+  private subscription: TableSubscription<typeof TerrainDetailRow> | null = null;
 
   constructor(worldId: string, worldWidth: number, worldHeight: number) {
     this.worldId = worldId;
@@ -70,75 +59,53 @@ export class TerrainDetailManager {
     const connection = getConnection();
     if (!connection) return;
 
-    this.handleDetailInsert = (
-      _ctx: EventContext,
-      detail: Infer<typeof TerrainDetailRow>
-    ) => {
-      if (detail.worldId !== this.worldId) return;
-      this.createDetailObject(detail);
-    };
+    this.subscription = subscribeToTable({
+      table: connection.db.terrainDetail,
+      handlers: {
+        onInsert: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+          if (detail.worldId !== this.worldId) return;
+          this.createDetailObject(detail);
+        },
+        onUpdate: (_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
+          if (newDetail.worldId !== this.worldId) return;
+          const existingObj = this.detailObjects.get(newDetail.id);
+          if (existingObj) {
+            existingObj.setData(newDetail);
+          } else {
+            this.createDetailObject(newDetail);
+          }
+        },
+        onDelete: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+          if (detail.worldId !== this.worldId) return;
+          const obj = this.detailObjects.get(detail.id);
+          if (obj) {
+            const x = Math.floor(obj.getX());
+            const y = Math.floor(obj.getY());
+            if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
+              this.detailObjectsByPosition[y][x] = null;
+            }
 
-    this.handleDetailUpdate = (
-      _ctx: EventContext,
-      _oldDetail: Infer<typeof TerrainDetailRow>,
-      newDetail: Infer<typeof TerrainDetailRow>
-    ) => {
-      if (newDetail.worldId !== this.worldId) return;
-      const existingObj = this.detailObjects.get(newDetail.id);
-      if (existingObj) {
-        existingObj.setData(newDetail);
-      } else {
-        this.createDetailObject(newDetail);
-      }
-    };
-
-    this.handleDetailDelete = (
-      _ctx: EventContext,
-      detail: Infer<typeof TerrainDetailRow>
-    ) => {
-      if (detail.worldId !== this.worldId) return;
-      const obj = this.detailObjects.get(detail.id);
-      if (obj) {
-        const x = Math.floor(obj.getX());
-        const y = Math.floor(obj.getY());
-        if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
-          this.detailObjectsByPosition[y][x] = null;
-        }
-
-        if (
-          detail.type.tag === "FenceEdge" ||
-          detail.type.tag === "FenceCorner"
-        ) {
-          this.terrainDebrisParticles.spawnParticles(
-            detail.positionX,
-            detail.positionY
-          );
+            if (
+              detail.type.tag === "FenceEdge" ||
+              detail.type.tag === "FenceCorner"
+            ) {
+              this.terrainDebrisParticles.spawnParticles(
+                detail.positionX,
+                detail.positionY
+              );
+            }
+          }
+          this.detailObjects.delete(detail.id);
+          this.onDetailDeletedCallbacks.forEach((callback) => callback());
         }
       }
-      this.detailObjects.delete(detail.id);
-      this.onDetailDeletedCallbacks.forEach((callback) => callback());
-    };
-
-    connection.db.terrainDetail.onInsert(this.handleDetailInsert);
-    connection.db.terrainDetail.onUpdate(this.handleDetailUpdate);
-    connection.db.terrainDetail.onDelete(this.handleDetailDelete);
-
-    for (const detail of connection.db.terrainDetail.iter()) {
-      if (detail.worldId === this.worldId) {
-        this.createDetailObject(detail);
-      }
-    }
+    });
   }
 
   public destroy() {
-    const connection = getConnection();
-    if (connection) {
-      if (this.handleDetailInsert)
-        connection.db.terrainDetail.removeOnInsert(this.handleDetailInsert);
-      if (this.handleDetailUpdate)
-        connection.db.terrainDetail.removeOnUpdate(this.handleDetailUpdate);
-      if (this.handleDetailDelete)
-        connection.db.terrainDetail.removeOnDelete(this.handleDetailDelete);
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
     }
     this.detailObjects.clear();
     this.onDetailDeletedCallbacks = [];
