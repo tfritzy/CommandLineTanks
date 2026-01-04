@@ -3,7 +3,7 @@ import { type PickupRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
 import { UNIT_TO_PIXEL } from "../constants";
-import { pickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
+import { redTeamPickupTextureSheet, blueTeamPickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 interface PickupData {
@@ -17,10 +17,15 @@ export class PickupManager {
   private pickups: Map<string, PickupData> = new Map();
   private worldId: string;
   private subscription: TableSubscription<typeof PickupRow> | null = null;
+  private playerAlliance: number | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
     this.subscribeToPickups();
+  }
+
+  public setPlayerAlliance(alliance: number | null) {
+    this.playerAlliance = alliance;
   }
 
   private subscribeToPickups() {
@@ -82,36 +87,38 @@ export class PickupManager {
     const worldX = pickup.positionX * UNIT_TO_PIXEL;
     const worldY = pickup.positionY * UNIT_TO_PIXEL;
     
+    const textureSheet = this.playerAlliance === 0 ? redTeamPickupTextureSheet : blueTeamPickupTextureSheet;
+    
     switch (pickup.type.tag) {
       case "Health":
-        pickupTextureSheet.draw(ctx, "health", worldX, worldY);
+        textureSheet.draw(ctx, "health", worldX, worldY);
         break;
       case "Shield":
-        pickupTextureSheet.draw(ctx, "shield", worldX, worldY);
+        textureSheet.draw(ctx, "shield", worldX, worldY);
         break;
       case "TripleShooter":
-        pickupTextureSheet.draw(ctx, "triple-shooter", worldX, worldY);
+        textureSheet.draw(ctx, "triple-shooter", worldX, worldY);
         break;
       case "MissileLauncher":
-        pickupTextureSheet.draw(ctx, "missile-launcher", worldX, worldY);
+        textureSheet.draw(ctx, "missile-launcher", worldX, worldY);
         break;
       case "Boomerang":
-        pickupTextureSheet.draw(ctx, "boomerang", worldX, worldY);
+        textureSheet.draw(ctx, "boomerang", worldX, worldY);
         break;
       case "Grenade":
-        pickupTextureSheet.draw(ctx, "grenade", worldX, worldY);
+        textureSheet.draw(ctx, "grenade", worldX, worldY);
         break;
       case "Rocket":
-        pickupTextureSheet.draw(ctx, "rocket", worldX, worldY);
+        textureSheet.draw(ctx, "rocket", worldX, worldY);
         break;
       case "Moag":
-        pickupTextureSheet.draw(ctx, "moag", worldX, worldY);
+        textureSheet.draw(ctx, "moag", worldX, worldY);
         break;
       case "Sniper":
-        pickupTextureSheet.draw(ctx, "sniper", worldX, worldY);
+        textureSheet.draw(ctx, "sniper", worldX, worldY);
         break;
       default:
-        pickupTextureSheet.draw(ctx, "unknown", worldX, worldY);
+        textureSheet.draw(ctx, "unknown", worldX, worldY);
         break;
     }
   }
