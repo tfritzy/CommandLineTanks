@@ -22,8 +22,7 @@ export function drawHealthPackShadow(
 export function drawHealthPackBody(
   ctx: CanvasRenderingContext2D,
   positionX: number,
-  positionY: number,
-  primaryColor?: string
+  positionY: number
 ) {
   const worldX = positionX * UNIT_TO_PIXEL;
   const worldY = positionY * UNIT_TO_PIXEL;
@@ -32,7 +31,7 @@ export function drawHealthPackBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = primaryColor || COLORS.TERMINAL.SUCCESS;
+  ctx.fillStyle = COLORS.TERMINAL.SUCCESS;
   ctx.strokeStyle = COLORS.GAME.HEALTH_PACK_SECONDARY;
   ctx.lineWidth = 3;
   ctx.beginPath();

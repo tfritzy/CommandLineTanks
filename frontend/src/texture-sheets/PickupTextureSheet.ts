@@ -143,8 +143,7 @@ export class PickupTextureSheet {
     drawBody: (
       ctx: CanvasRenderingContext2D,
       positionX: number,
-      positionY: number,
-      primaryColor?: string
+      positionY: number
     ) => void
   ) {
     const centerX = x + size / 2;
@@ -153,7 +152,7 @@ export class PickupTextureSheet {
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
     drawShadow(this.ctx, 0, 0);
-    drawBody(this.ctx, 0, 0, this.pickupColor);
+    drawBody(this.ctx, 0, 0);
     this.ctx.restore();
 
     const textureData = {
