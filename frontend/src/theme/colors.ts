@@ -1,0 +1,223 @@
+const PALETTE = {
+  WHITE_BRIGHT: "#fcfbf3",
+  WHITE_PURE: "#ffffff",
+  BLACK_PURE: "#000000",
+  
+  SLATE_DARKEST: "#2a152d",
+  SLATE_DARK: "#34404f",
+  SLATE_MEDIUM: "#4a4b5b",
+  SLATE_LIGHT: "#707b89",
+  SLATE_LIGHTER: "#a9bcbf",
+  SLATE_LIGHTEST: "#e6eeed",
+  
+  RED_BRIGHT: "#ff5555",
+  RED_DARK: "#813645",
+  RED_MEDIUM: "#9d4343",
+  RED_MUTED: "#c06852",
+  
+  BLUE_BRIGHT: "#5555ff",
+  BLUE_DARK: "#3e4c7e",
+  BLUE_MEDIUM: "#495f94",
+  BLUE_LIGHT: "#5a78b2",
+  BLUE_INFO: "#7396d5",
+  BLUE_CYAN: "#7fbbdc",
+  BLUE_CYAN_LIGHT: "#aaeeea",
+  
+  GREEN_SUCCESS: "#96dc7f",
+  GREEN_HEALTH: "#6ec077",
+  GREEN_LIME: "#d5f893",
+  
+  YELLOW_BRIGHT: "#fceba8",
+  YELLOW_MEDIUM: "#f5c47c",
+  
+  ORANGE_MEDIUM: "#e39764",
+  
+  PURPLE_DARK: "#542240",
+  PURPLE_MEDIUM: "#794e6d",
+  
+  GROUND_DARK: "#2e2e43",
+  GROUND_MEDIUM: "#313148",
+  GROUND_SHADOW: "#3e3f4d",
+  GROUND_HIGHLIGHT: "#565769",
+  
+  TRANSPARENT_DARK: "#00000006",
+  TRANSPARENT_GRID: "#4a4b5b22",
+  TRANSPARENT_SHADOW: "#00000044",
+} as const;
+
+export const COLORS = {
+  UI: {
+    TEXT_PRIMARY: PALETTE.WHITE_BRIGHT,
+    TEXT_SECONDARY: PALETTE.SLATE_LIGHTEST,
+    TEXT_MUTED: PALETTE.SLATE_LIGHTER,
+    TEXT_DIM: PALETTE.SLATE_LIGHT,
+    
+    BACKGROUND_DARK: PALETTE.SLATE_DARK,
+    BACKGROUND_DARKEST: PALETTE.SLATE_DARKEST,
+    
+    WHITE: PALETTE.WHITE_PURE,
+    BLACK: PALETTE.BLACK_PURE,
+    
+    TEAM_RED_DARK: PALETTE.RED_DARK,
+    TEAM_RED_MEDIUM: PALETTE.RED_MEDIUM,
+    TEAM_BLUE_DARK: PALETTE.BLUE_DARK,
+    TEAM_BLUE_MEDIUM: PALETTE.BLUE_MEDIUM,
+    
+    LABEL_YELLOW: PALETTE.YELLOW_MEDIUM,
+    
+    SEPARATOR: PALETTE.SLATE_MEDIUM,
+  },
+  
+  GAME: {
+    TEAM_RED_BRIGHT: PALETTE.RED_BRIGHT,
+    TEAM_BLUE_BRIGHT: PALETTE.BLUE_BRIGHT,
+    
+    HEALTH_PACK_PRIMARY: PALETTE.GREEN_SUCCESS,
+    HEALTH_PACK_SECONDARY: PALETTE.GREEN_HEALTH,
+    
+    SHIELD_PRIMARY: PALETTE.BLUE_INFO,
+    SHIELD_SECONDARY: PALETTE.BLUE_LIGHT,
+    SHIELD_STROKE: PALETTE.BLUE_MEDIUM,
+    
+    PROJECTILE_OUTLINE: PALETTE.GROUND_DARK,
+    PROJECTILE_METAL: PALETTE.SLATE_LIGHT,
+  },
+  
+  ABILITY: {
+    OVERDRIVE_READY: PALETTE.YELLOW_MEDIUM,
+    REPAIR_READY: PALETTE.GREEN_SUCCESS,
+    SMOKESCREEN_READY: PALETTE.BLUE_CYAN_LIGHT,
+    COOLDOWN: PALETTE.SLATE_LIGHT,
+  },
+  
+  TERRAIN: {
+    GROUND: PALETTE.GROUND_DARK,
+    FARM_GROOVE: PALETTE.GROUND_MEDIUM,
+    GRID: PALETTE.TRANSPARENT_GRID,
+    CHECKER: PALETTE.TRANSPARENT_DARK,
+    
+    TREE_BASE: PALETTE.BLUE_DARK,
+    TREE_FOLIAGE: PALETTE.BLUE_MEDIUM,
+    
+    DEAD_TREE_BASE: PALETTE.PURPLE_DARK,
+    DEAD_TREE_FOLIAGE: PALETTE.PURPLE_MEDIUM,
+    
+    ROCK_BODY: PALETTE.SLATE_MEDIUM,
+    ROCK_SHADOW: PALETTE.GROUND_SHADOW,
+    ROCK_HIGHLIGHT: PALETTE.GROUND_HIGHLIGHT,
+    ROCK_OUTLINE: PALETTE.GROUND_DARK,
+    
+    HAY_BALE_BODY: PALETTE.YELLOW_MEDIUM,
+    HAY_BALE_RING: PALETTE.ORANGE_MEDIUM,
+    
+    FOUNDATION_BASE: PALETTE.SLATE_LIGHT,
+    
+    FENCE_RAIL: PALETTE.ORANGE_MEDIUM,
+    FENCE_POST: PALETTE.RED_MUTED,
+    
+    TARGET_DUMMY_BODY: PALETTE.RED_DARK,
+    TARGET_DUMMY_RIM: PALETTE.RED_MUTED,
+    TARGET_DUMMY_CENTER: PALETTE.YELLOW_MEDIUM,
+    
+    MUSHROOM_CAP: PALETTE.PURPLE_DARK,
+    MUSHROOM_SHADOW: PALETTE.TRANSPARENT_SHADOW,
+  },
+  
+  TERMINAL: {
+    BACKGROUND: PALETTE.SLATE_DARKEST,
+    BORDER: PALETTE.BLUE_LIGHT,
+    
+    TEXT_DEFAULT: PALETTE.SLATE_LIGHTEST,
+    TEXT_MUTED: PALETTE.SLATE_LIGHTER,
+    TEXT_DIM: PALETTE.SLATE_LIGHT,
+    
+    PROMPT: PALETTE.GREEN_SUCCESS,
+    
+    SUCCESS: PALETTE.GREEN_SUCCESS,
+    INFO: PALETTE.BLUE_INFO,
+    WARNING: PALETTE.YELLOW_BRIGHT,
+    ERROR: PALETTE.RED_MUTED,
+    
+    COMMAND: PALETTE.BLUE_CYAN,
+    ARGUMENT: PALETTE.GREEN_LIME,
+    VALUE: PALETTE.YELLOW_BRIGHT,
+    
+    DIRECTION_SYMBOL: PALETTE.BLUE_INFO,
+    TANK_CODE: PALETTE.BLUE_CYAN_LIGHT,
+    
+    COOLDOWN: PALETTE.ORANGE_MEDIUM,
+    HEALTH: PALETTE.RED_MEDIUM,
+    
+    HEADER_TEXT: PALETTE.SLATE_LIGHTEST,
+    SEPARATOR: PALETTE.SLATE_MEDIUM,
+  },
+  
+  EFFECTS: {
+    FIRE_RED: PALETTE.RED_MUTED,
+    FIRE_ORANGE: PALETTE.ORANGE_MEDIUM,
+    FIRE_YELLOW: PALETTE.YELLOW_MEDIUM,
+    FIRE_BRIGHT: PALETTE.YELLOW_BRIGHT,
+  },
+} as const;
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : { r: 255, g: 255, b: 255 };
+}
+
+function colorToAnsi(hex: string): string {
+  const rgb = hexToRgb(hex);
+  return `\x1b[38;2;${rgb.r};${rgb.g};${rgb.b}m`;
+}
+
+const ANSI_RESET = "\x1b[0m";
+
+export type TerminalColorKey = keyof typeof COLORS.TERMINAL;
+
+export function colorize(text: string, colorKey: TerminalColorKey): string {
+  const color = COLORS.TERMINAL[colorKey];
+  const ansiColor = colorToAnsi(color);
+  return `${ansiColor}${text}${ANSI_RESET}`;
+}
+
+export function success(text: string): string {
+  return colorize(text, 'SUCCESS');
+}
+
+export function info(text: string): string {
+  return colorize(text, 'INFO');
+}
+
+export function warning(text: string): string {
+  return colorize(text, 'WARNING');
+}
+
+export function error(text: string): string {
+  return colorize(text, 'ERROR');
+}
+
+export function command(text: string): string {
+  return colorize(text, 'COMMAND');
+}
+
+export function argument(text: string): string {
+  return colorize(text, 'ARGUMENT');
+}
+
+export function value(text: string): string {
+  return colorize(text, 'VALUE');
+}
+
+export function muted(text: string): string {
+  return colorize(text, 'TEXT_MUTED');
+}
+
+export function dim(text: string): string {
+  return colorize(text, 'TEXT_DIM');
+}

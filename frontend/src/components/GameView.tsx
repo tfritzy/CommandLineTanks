@@ -8,6 +8,8 @@ import ScoreBoard from "./ScoreBoard";
 import JoinWorldModal from "./JoinWorldModal";
 import WorldNotFound from "./WorldNotFound";
 import HomeworldOverlay from "./HomeworldOverlay";
+import { UI_COLORS } from "../constants";
+import { TERMINAL_COLORS } from "./terminal/colors";
 import { getConnection } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
 import { type Infer } from "spacetimedb";
