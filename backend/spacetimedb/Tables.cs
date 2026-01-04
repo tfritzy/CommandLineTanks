@@ -98,6 +98,8 @@ public static partial class Module
 
         public int Deaths;
 
+        public int KillStreak;
+
         public int CollisionRegionX;
 
         public int CollisionRegionY;
