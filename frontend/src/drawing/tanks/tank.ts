@@ -109,7 +109,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     ctx.lineWidth = 2;
     ctx.fillStyle = "rgba(115, 150, 213, 0.25)";
     ctx.beginPath();
-    ctx.rect(-shieldHalfSize, -shieldHalfSize, shieldSize, shieldSize);
+    ctx.roundRect(-shieldHalfSize, -shieldHalfSize, shieldSize, shieldSize, 5);
     ctx.fill();
     ctx.stroke();
 
