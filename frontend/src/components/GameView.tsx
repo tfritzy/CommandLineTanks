@@ -197,6 +197,22 @@ export default function GameView() {
     const connection = getConnection();
     if (!connection) return;
 
+    setWorldNotFound(false);
+
+    const isIdentityFormat = (id: string): boolean => {
+      return /^[0-9a-f]{64}$/i.test(id);
+    };
+
+    const isOtherPlayersHomeworld = 
+      isIdentityFormat(worldId) && 
+      connection.identity && 
+      worldId.toLowerCase() !== connection.identity.toHexString().toLowerCase();
+
+    if (isOtherPlayersHomeworld) {
+      setWorldNotFound(true);
+      return;
+    }
+
     const checkWorldExists = () => {
       const world = connection.db.world.Id.find(worldId);
       return world !== undefined;
