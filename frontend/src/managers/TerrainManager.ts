@@ -4,6 +4,7 @@ import { type EventContext, BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import WorldRow from "../../module_bindings/world_type";
 import { TERRAIN_COLORS, UNIT_TO_PIXEL } from "../constants";
+import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -13,8 +14,7 @@ export class TerrainManager {
   private worldWidth: number = 0;
   private worldHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
-  private handleWorldInsert: ((ctx: EventContext, world: Infer<typeof WorldRow>) => void) | null = null;
-  private handleWorldUpdate: ((ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => void) | null = null;
+  private subscription: TableSubscription<typeof WorldRow> | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -25,7 +25,7 @@ export class TerrainManager {
     const connection = getConnection();
     if (!connection) return;
 
-    this.handleWorldInsert = (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+    const handleWorldChange = (world: Infer<typeof WorldRow>) => {
       if (world.id !== this.worldId) return;
       this.worldWidth = world.width;
       this.worldHeight = world.height;
@@ -42,50 +42,29 @@ export class TerrainManager {
       }
     };
 
-    this.handleWorldUpdate = (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
-      if (newWorld.id !== this.worldId) return;
-      this.worldWidth = newWorld.width;
-      this.worldHeight = newWorld.height;
-      this.baseTerrainLayer = newWorld.baseTerrainLayer;
-      
-      if (!this.detailManager) {
-        this.detailManager = new TerrainDetailManager(
-          this.worldId,
-          newWorld.width,
-          newWorld.height
-        );
-      } else {
-        this.detailManager.updateWorldDimensions(
-          newWorld.width,
-          newWorld.height
-        );
-      }
-    };
-
-    connection.db.world.onInsert(this.handleWorldInsert);
-    connection.db.world.onUpdate(this.handleWorldUpdate);
+    this.subscription = subscribeToTable({
+      table: connection.db.world,
+      handlers: {
+        onInsert: (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+          handleWorldChange(world);
+        },
+        onUpdate: (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
+          handleWorldChange(newWorld);
+        }
+      },
+      loadInitialData: false
+    });
 
     const cachedWorld = connection.db.world.Id.find(this.worldId);
     if (cachedWorld) {
-      this.worldWidth = cachedWorld.width;
-      this.worldHeight = cachedWorld.height;
-      this.baseTerrainLayer = cachedWorld.baseTerrainLayer;
-      
-      if (!this.detailManager) {
-        this.detailManager = new TerrainDetailManager(
-          this.worldId,
-          cachedWorld.width,
-          cachedWorld.height
-        );
-      }
+      handleWorldChange(cachedWorld);
     }
   }
 
   public destroy() {
-    const connection = getConnection();
-    if (connection) {
-      if (this.handleWorldInsert) connection.db.world.removeOnInsert(this.handleWorldInsert);
-      if (this.handleWorldUpdate) connection.db.world.removeOnUpdate(this.handleWorldUpdate);
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
     }
     if (this.detailManager) {
       this.detailManager.destroy();

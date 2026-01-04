@@ -3,6 +3,7 @@ import { type Infer } from "spacetimedb";
 import KillRow from "../../module_bindings/kills_table";
 import { type EventContext } from "../../module_bindings";
 import { drawKillNotification } from "../drawing/ui/kill-feed";
+import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 interface KillNotification {
   id: string;
@@ -16,8 +17,7 @@ export class KillManager {
   private worldId: string;
   private deletedKills: Set<string> = new Set();
   private sortedNotifications: KillNotification[] = [];
-  private handleKillInsert: ((ctx: EventContext, kill: Infer<typeof KillRow>) => void) | null = null;
-  private handleKillDelete: ((ctx: EventContext, kill: Infer<typeof KillRow>) => void) | null = null;
+  private subscription: TableSubscription<typeof KillRow> | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -31,46 +31,34 @@ export class KillManager {
       return;
     }
 
-    this.handleKillInsert = (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
-      if (kill.worldId !== this.worldId) return;
-      if (connection.identity && kill.killer.isEqual(connection.identity)) {
-        const notification: KillNotification = {
-          id: kill.id,
-          killeeName: kill.killeeName,
-          timestamp: Date.now(),
-          displayTime: 0
-        };
-        this.kills.set(kill.id, notification);
+    this.subscription = subscribeToTable({
+      table: connection.db.kills,
+      handlers: {
+        onInsert: (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
+          if (kill.worldId !== this.worldId) return;
+          if (connection.identity && kill.killer.isEqual(connection.identity)) {
+            const notification: KillNotification = {
+              id: kill.id,
+              killeeName: kill.killeeName,
+              timestamp: Date.now(),
+              displayTime: 0
+            };
+            this.kills.set(kill.id, notification);
+          }
+        },
+        onDelete: (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
+          if (kill.worldId !== this.worldId) return;
+          this.kills.delete(kill.id);
+          this.deletedKills.delete(kill.id);
+        }
       }
-    };
-
-    this.handleKillDelete = (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
-      if (kill.worldId !== this.worldId) return;
-      this.kills.delete(kill.id);
-      this.deletedKills.delete(kill.id);
-    };
-
-    connection.db.kills.onInsert(this.handleKillInsert);
-    connection.db.kills.onDelete(this.handleKillDelete);
-
-    for (const kill of connection.db.kills.iter()) {
-      if (kill.worldId === this.worldId && connection.identity && kill.killer.isEqual(connection.identity)) {
-        const notification: KillNotification = {
-          id: kill.id,
-          killeeName: kill.killeeName,
-          timestamp: Date.now(),
-          displayTime: 0
-        };
-        this.kills.set(kill.id, notification);
-      }
-    }
+    });
   }
 
   public destroy() {
-    const connection = getConnection();
-    if (connection) {
-      if (this.handleKillInsert) connection.db.kills.removeOnInsert(this.handleKillInsert);
-      if (this.handleKillDelete) connection.db.kills.removeOnDelete(this.handleKillDelete);
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
     }
   }
 

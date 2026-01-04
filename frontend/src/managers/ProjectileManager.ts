@@ -8,6 +8,7 @@ import { ScreenShake } from "../utils/ScreenShake";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import ProjectileRow from "../../module_bindings/projectile_type";
+import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export class ProjectileManager {
   private projectiles: Map<string, Projectile> = new Map();
@@ -15,9 +16,7 @@ export class ProjectileManager {
   private particlesManager: ProjectileImpactParticlesManager;
   private tankManager: TankManager | null = null;
   private screenShake: ScreenShake;
-  private handleProjectileInsert: ((ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => void) | null = null;
-  private handleProjectileUpdate: ((ctx: EventContext, oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => void) | null = null;
-  private handleProjectileDelete: ((ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => void) | null = null;
+  private subscription: TableSubscription<typeof ProjectileRow> | null = null;
 
   constructor(worldId: string, screenShake: ScreenShake) {
     this.worldId = worldId;
@@ -34,83 +33,62 @@ export class ProjectileManager {
     const connection = getConnection();
     if (!connection) return;
 
-    this.handleProjectileInsert = (_ctx: EventContext, newProjectile: Infer<typeof ProjectileRow>) => {
-      if (newProjectile.worldId !== this.worldId) return;
+    this.subscription = subscribeToTable({
+      table: connection.db.projectile,
+      handlers: {
+        onInsert: (_ctx: EventContext, newProjectile: Infer<typeof ProjectileRow>) => {
+          if (newProjectile.worldId !== this.worldId) return;
 
-      const projectile = ProjectileFactory.create(
-        newProjectile.projectileType.tag,
-        newProjectile.positionX,
-        newProjectile.positionY,
-        newProjectile.velocity.x,
-        newProjectile.velocity.y,
-        newProjectile.size,
-        newProjectile.alliance,
-        newProjectile.explosionRadius,
-        newProjectile.trackingStrength,
-        newProjectile.trackingRadius
-      );
-      this.projectiles.set(newProjectile.id, projectile);
+          const projectile = ProjectileFactory.create(
+            newProjectile.projectileType.tag,
+            newProjectile.positionX,
+            newProjectile.positionY,
+            newProjectile.velocity.x,
+            newProjectile.velocity.y,
+            newProjectile.size,
+            newProjectile.alliance,
+            newProjectile.explosionRadius,
+            newProjectile.trackingStrength,
+            newProjectile.trackingRadius
+          );
+          this.projectiles.set(newProjectile.id, projectile);
 
-      const playerTank = this.tankManager?.getPlayerTank();
-      if (playerTank && newProjectile.shooterTankId === playerTank.id && newProjectile.projectileType.tag === "Moag") {
-        this.screenShake.shake(15, 0.3);
+          const playerTank = this.tankManager?.getPlayerTank();
+          if (playerTank && newProjectile.shooterTankId === playerTank.id && newProjectile.projectileType.tag === "Moag") {
+            this.screenShake.shake(15, 0.3);
+          }
+        },
+        onUpdate: (_ctx: EventContext, _oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => {
+          if (newProjectile.worldId !== this.worldId) return;
+          const projectile = this.projectiles.get(newProjectile.id);
+
+          if (projectile) {
+            projectile.setPosition(
+              newProjectile.positionX,
+              newProjectile.positionY
+            );
+            projectile.setVelocity(
+              newProjectile.velocity.x,
+              newProjectile.velocity.y
+            );
+          }
+        },
+        onDelete: (_ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => {
+          if (projectile.worldId !== this.worldId) return;
+          const localProjectile = this.projectiles.get(projectile.id);
+          if (localProjectile) {
+            localProjectile.spawnDeathParticles(this.particlesManager);
+          }
+          this.projectiles.delete(projectile.id);
+        }
       }
-    };
-
-    this.handleProjectileUpdate = (_ctx: EventContext, _oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => {
-      if (newProjectile.worldId !== this.worldId) return;
-      const projectile = this.projectiles.get(newProjectile.id);
-
-      if (projectile) {
-        projectile.setPosition(
-          newProjectile.positionX,
-          newProjectile.positionY
-        );
-        projectile.setVelocity(
-          newProjectile.velocity.x,
-          newProjectile.velocity.y
-        );
-      }
-    };
-
-    this.handleProjectileDelete = (_ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => {
-      if (projectile.worldId !== this.worldId) return;
-      const localProjectile = this.projectiles.get(projectile.id);
-      if (localProjectile) {
-        localProjectile.spawnDeathParticles(this.particlesManager);
-      }
-      this.projectiles.delete(projectile.id);
-    };
-
-    connection.db.projectile.onInsert(this.handleProjectileInsert);
-    connection.db.projectile.onUpdate(this.handleProjectileUpdate);
-    connection.db.projectile.onDelete(this.handleProjectileDelete);
-
-    for (const projectile of connection.db.projectile.iter()) {
-      if (projectile.worldId === this.worldId) {
-        const localProjectile = ProjectileFactory.create(
-          projectile.projectileType.tag,
-          projectile.positionX,
-          projectile.positionY,
-          projectile.velocity.x,
-          projectile.velocity.y,
-          projectile.size,
-          projectile.alliance,
-          projectile.explosionRadius,
-          projectile.trackingStrength,
-          projectile.trackingRadius
-        );
-        this.projectiles.set(projectile.id, localProjectile);
-      }
-    }
+    });
   }
 
   public destroy() {
-    const connection = getConnection();
-    if (connection) {
-      if (this.handleProjectileInsert) connection.db.projectile.removeOnInsert(this.handleProjectileInsert);
-      if (this.handleProjectileUpdate) connection.db.projectile.removeOnUpdate(this.handleProjectileUpdate);
-      if (this.handleProjectileDelete) connection.db.projectile.removeOnDelete(this.handleProjectileDelete);
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
     }
   }
 

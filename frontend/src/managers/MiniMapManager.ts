@@ -5,6 +5,7 @@ import { type EventContext, type TerrainDetailRow, type PickupRow } from "../../
 import WorldRow from "../../module_bindings/world_type";
 import { type Infer } from "spacetimedb";
 import { BaseTerrain } from "../../module_bindings";
+import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -27,32 +28,25 @@ export class MiniMapManager {
   private baseTerrainLayer: BaseTerrainType[] = [];
   private terrainDetailsByPosition: Map<string, Infer<typeof TerrainDetailRow>> = new Map();
   private pickupsByPosition: Map<string, Infer<typeof PickupRow>> = new Map();
-  private handleWorldInsert: ((ctx: EventContext, world: Infer<typeof WorldRow>) => void) | null = null;
-  private handleWorldUpdate: ((ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => void) | null = null;
-  private handleDetailInsert: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
-  private handleDetailDelete: ((ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => void) | null = null;
-  private handlePickupInsert: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
-  private handlePickupDelete: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
+  private subscription: MultiTableSubscription | null = null;
   private redTanksBuffer: Array<{ x: number; y: number; size: number }> = [];
   private blueTanksBuffer: Array<{ x: number; y: number; size: number }> = [];
 
   constructor(tankManager: TankManager, worldId: string) {
     this.tankManager = tankManager;
     this.worldId = worldId;
-    this.subscribeToWorld();
-    this.subscribeToTerrainDetails();
-    this.subscribeToPickups();
+    this.subscribeToTables();
   }
 
   private getPositionKey(x: number, y: number): string {
     return `${x},${y}`;
   }
 
-  private subscribeToWorld() {
+  private subscribeToTables() {
     const connection = getConnection();
     if (!connection) return;
 
-    this.handleWorldInsert = (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+    const handleWorldChange = (world: Infer<typeof WorldRow>) => {
       if (world.id !== this.worldId) return;
       this.worldWidth = world.width;
       this.worldHeight = world.height;
@@ -60,92 +54,64 @@ export class MiniMapManager {
       this.markForRedraw();
     };
 
-    this.handleWorldUpdate = (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
-      if (newWorld.id !== this.worldId) return;
-      this.worldWidth = newWorld.width;
-      this.worldHeight = newWorld.height;
-      this.baseTerrainLayer = newWorld.baseTerrainLayer;
-      this.markForRedraw();
-    };
-
-    connection.db.world.onInsert(this.handleWorldInsert);
-    connection.db.world.onUpdate(this.handleWorldUpdate);
+    this.subscription = createMultiTableSubscription()
+      .add<typeof WorldRow>({
+        table: connection.db.world,
+        handlers: {
+          onInsert: (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+            handleWorldChange(world);
+          },
+          onUpdate: (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
+            handleWorldChange(newWorld);
+          }
+        },
+        loadInitialData: false
+      })
+      .add<typeof TerrainDetailRow>({
+        table: connection.db.terrainDetail,
+        handlers: {
+          onInsert: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+            if (detail.worldId !== this.worldId) return;
+            const key = this.getPositionKey(detail.positionX, detail.positionY);
+            this.terrainDetailsByPosition.set(key, detail);
+            this.markForRedraw();
+          },
+          onDelete: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
+            if (detail.worldId !== this.worldId) return;
+            const key = this.getPositionKey(detail.positionX, detail.positionY);
+            this.terrainDetailsByPosition.delete(key);
+            this.markForRedraw();
+          }
+        }
+      })
+      .add<typeof PickupRow>({
+        table: connection.db.pickup,
+        handlers: {
+          onInsert: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+            if (pickup.worldId !== this.worldId) return;
+            const key = this.getPositionKey(pickup.gridX, pickup.gridY);
+            this.pickupsByPosition.set(key, pickup);
+            this.markForRedraw();
+          },
+          onDelete: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+            if (pickup.worldId !== this.worldId) return;
+            const key = this.getPositionKey(pickup.gridX, pickup.gridY);
+            this.pickupsByPosition.delete(key);
+            this.markForRedraw();
+          }
+        }
+      });
 
     const cachedWorld = connection.db.world.Id.find(this.worldId);
     if (cachedWorld) {
-      this.worldWidth = cachedWorld.width;
-      this.worldHeight = cachedWorld.height;
-      this.baseTerrainLayer = cachedWorld.baseTerrainLayer;
-    }
-  }
-
-  private subscribeToTerrainDetails() {
-    const connection = getConnection();
-    if (!connection) return;
-
-    this.handleDetailInsert = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
-      if (detail.worldId !== this.worldId) return;
-      const key = this.getPositionKey(detail.positionX, detail.positionY);
-      this.terrainDetailsByPosition.set(key, detail);
-      this.markForRedraw();
-    };
-
-    this.handleDetailDelete = (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
-      if (detail.worldId !== this.worldId) return;
-      const key = this.getPositionKey(detail.positionX, detail.positionY);
-      this.terrainDetailsByPosition.delete(key);
-      this.markForRedraw();
-    };
-
-    connection.db.terrainDetail.onInsert(this.handleDetailInsert);
-    connection.db.terrainDetail.onDelete(this.handleDetailDelete);
-
-    for (const detail of connection.db.terrainDetail.iter()) {
-      if (detail.worldId === this.worldId) {
-        const key = this.getPositionKey(detail.positionX, detail.positionY);
-        this.terrainDetailsByPosition.set(key, detail);
-      }
-    }
-  }
-
-  private subscribeToPickups() {
-    const connection = getConnection();
-    if (!connection) return;
-
-    this.handlePickupInsert = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      if (pickup.worldId !== this.worldId) return;
-      const key = this.getPositionKey(pickup.gridX, pickup.gridY);
-      this.pickupsByPosition.set(key, pickup);
-      this.markForRedraw();
-    };
-
-    this.handlePickupDelete = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      if (pickup.worldId !== this.worldId) return;
-      const key = this.getPositionKey(pickup.gridX, pickup.gridY);
-      this.pickupsByPosition.delete(key);
-      this.markForRedraw();
-    };
-
-    connection.db.pickup.onInsert(this.handlePickupInsert);
-    connection.db.pickup.onDelete(this.handlePickupDelete);
-
-    for (const pickup of connection.db.pickup.iter()) {
-      if (pickup.worldId === this.worldId) {
-        const key = this.getPositionKey(pickup.gridX, pickup.gridY);
-        this.pickupsByPosition.set(key, pickup);
-      }
+      handleWorldChange(cachedWorld);
     }
   }
 
   public destroy() {
-    const connection = getConnection();
-    if (connection) {
-      if (this.handleWorldInsert) connection.db.world.removeOnInsert(this.handleWorldInsert);
-      if (this.handleWorldUpdate) connection.db.world.removeOnUpdate(this.handleWorldUpdate);
-      if (this.handleDetailInsert) connection.db.terrainDetail.removeOnInsert(this.handleDetailInsert);
-      if (this.handleDetailDelete) connection.db.terrainDetail.removeOnDelete(this.handleDetailDelete);
-      if (this.handlePickupInsert) connection.db.pickup.removeOnInsert(this.handlePickupInsert);
-      if (this.handlePickupDelete) connection.db.pickup.removeOnDelete(this.handlePickupDelete);
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
     }
     this.terrainDetailsByPosition.clear();
     this.pickupsByPosition.clear();

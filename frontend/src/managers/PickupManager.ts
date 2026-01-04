@@ -4,6 +4,7 @@ import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
 import { UNIT_TO_PIXEL } from "../constants";
 import { pickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
+import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 interface PickupData {
   id: string;
@@ -15,8 +16,7 @@ interface PickupData {
 export class PickupManager {
   private pickups: Map<string, PickupData> = new Map();
   private worldId: string;
-  private handlePickupInsert: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
-  private handlePickupDelete: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
+  private subscription: TableSubscription<typeof PickupRow> | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -27,41 +27,30 @@ export class PickupManager {
     const connection = getConnection();
     if (!connection) return;
 
-    this.handlePickupInsert = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      if (pickup.worldId !== this.worldId) return;
-      this.pickups.set(pickup.id, {
-        id: pickup.id,
-        positionX: pickup.positionX,
-        positionY: pickup.positionY,
-        type: pickup.type,
-      });
-    };
-
-    this.handlePickupDelete = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      if (pickup.worldId !== this.worldId) return;
-      this.pickups.delete(pickup.id);
-    };
-
-    connection.db.pickup.onInsert(this.handlePickupInsert);
-    connection.db.pickup.onDelete(this.handlePickupDelete);
-
-    for (const pickup of connection.db.pickup.iter()) {
-      if (pickup.worldId === this.worldId) {
-        this.pickups.set(pickup.id, {
-          id: pickup.id,
-          positionX: pickup.positionX,
-          positionY: pickup.positionY,
-          type: pickup.type,
-        });
+    this.subscription = subscribeToTable({
+      table: connection.db.pickup,
+      handlers: {
+        onInsert: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+          if (pickup.worldId !== this.worldId) return;
+          this.pickups.set(pickup.id, {
+            id: pickup.id,
+            positionX: pickup.positionX,
+            positionY: pickup.positionY,
+            type: pickup.type,
+          });
+        },
+        onDelete: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+          if (pickup.worldId !== this.worldId) return;
+          this.pickups.delete(pickup.id);
+        }
       }
-    }
+    });
   }
 
   public destroy() {
-    const connection = getConnection();
-    if (connection) {
-      if (this.handlePickupInsert) connection.db.pickup.removeOnInsert(this.handlePickupInsert);
-      if (this.handlePickupDelete) connection.db.pickup.removeOnDelete(this.handlePickupDelete);
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
     }
   }
 
