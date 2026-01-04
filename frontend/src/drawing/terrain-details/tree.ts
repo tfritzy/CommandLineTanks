@@ -1,5 +1,6 @@
 import { getFlashColor } from "../../utils/colors";
-import { TERRAIN_DETAIL_COLORS } from "../../constants";
+import { COLORS } from "../../theme/colors";
+
 
 export function drawTreeShadow(
   ctx: CanvasRenderingContext2D,
@@ -22,7 +23,7 @@ export function drawTreeBody(
   radius: number,
   flashTimer: number
 ) {
-  const colors = TERRAIN_DETAIL_COLORS.TREE;
+  const colors = { BASE: COLORS.TERRAIN.TREE_BASE, FOLIAGE: COLORS.TERRAIN.TREE_FOLIAGE };
 
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);

@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL, TEAM_COLORS } from "../constants";
+import { UNIT_TO_PIXEL } from "../constants";
 import { getNormalizedDPR } from "../utils/dpr";
 import {
   drawNormalProjectileShadow,
@@ -16,6 +16,7 @@ import {
   drawSniperProjectileShadow,
   drawSniperProjectileBody,
 } from "../drawing/projectiles/sniper";
+import { COLORS } from "../theme/colors";
 
 export interface ProjectileTexture {
   x: number;
@@ -74,7 +75,7 @@ export class ProjectileTextureSheet {
 
     this.addNormalProjectile(
       "normal-0",
-      TEAM_COLORS.RED,
+      COLORS.GAME.TEAM_RED_BRIGHT,
       currentX,
       currentY,
       radius
@@ -83,7 +84,7 @@ export class ProjectileTextureSheet {
 
     this.addNormalProjectile(
       "normal-1",
-      TEAM_COLORS.BLUE,
+      COLORS.GAME.TEAM_BLUE_BRIGHT,
       currentX,
       currentY,
       radius
@@ -92,7 +93,7 @@ export class ProjectileTextureSheet {
 
     this.addBoomerangProjectile(
       "boomerang-0",
-      TEAM_COLORS.RED,
+      COLORS.GAME.TEAM_RED_BRIGHT,
       currentX,
       currentY,
       radius
@@ -101,7 +102,7 @@ export class ProjectileTextureSheet {
 
     this.addBoomerangProjectile(
       "boomerang-1",
-      TEAM_COLORS.BLUE,
+      COLORS.GAME.TEAM_BLUE_BRIGHT,
       currentX,
       currentY,
       radius
@@ -111,7 +112,7 @@ export class ProjectileTextureSheet {
 
     this.addGrenadeProjectile(
       "grenade-0",
-      TEAM_COLORS.RED,
+      COLORS.GAME.TEAM_RED_BRIGHT,
       currentX,
       currentY,
       radius
@@ -120,7 +121,7 @@ export class ProjectileTextureSheet {
 
     this.addGrenadeProjectile(
       "grenade-1",
-      TEAM_COLORS.BLUE,
+      COLORS.GAME.TEAM_BLUE_BRIGHT,
       currentX,
       currentY,
       radius
@@ -129,7 +130,7 @@ export class ProjectileTextureSheet {
 
     this.addMoagProjectile(
       "moag-0",
-      TEAM_COLORS.RED,
+      COLORS.GAME.TEAM_RED_BRIGHT,
       currentX,
       currentY,
       radius
@@ -138,7 +139,7 @@ export class ProjectileTextureSheet {
 
     this.addMoagProjectile(
       "moag-1",
-      TEAM_COLORS.BLUE,
+      COLORS.GAME.TEAM_BLUE_BRIGHT,
       currentX,
       currentY,
       radius
@@ -148,7 +149,7 @@ export class ProjectileTextureSheet {
 
     this.addRocketProjectile(
       "rocket-0",
-      TEAM_COLORS.RED,
+      COLORS.GAME.TEAM_RED_BRIGHT,
       currentX,
       currentY,
       radius
@@ -157,7 +158,7 @@ export class ProjectileTextureSheet {
 
     this.addRocketProjectile(
       "rocket-1",
-      TEAM_COLORS.BLUE,
+      COLORS.GAME.TEAM_BLUE_BRIGHT,
       currentX,
       currentY,
       radius
@@ -167,7 +168,7 @@ export class ProjectileTextureSheet {
 
     this.addMissileProjectile(
       "missile-0",
-      TEAM_COLORS.RED,
+      COLORS.GAME.TEAM_RED_BRIGHT,
       currentX,
       currentY,
       radius * 1.5
@@ -176,7 +177,7 @@ export class ProjectileTextureSheet {
 
     this.addMissileProjectile(
       "missile-1",
-      TEAM_COLORS.BLUE,
+      COLORS.GAME.TEAM_BLUE_BRIGHT,
       currentX,
       currentY,
       radius * 1.5
@@ -186,7 +187,7 @@ export class ProjectileTextureSheet {
 
     this.addSniperProjectile(
       "sniper-0",
-      TEAM_COLORS.RED,
+      COLORS.GAME.TEAM_RED_BRIGHT,
       currentX,
       currentY,
       radius
@@ -195,7 +196,7 @@ export class ProjectileTextureSheet {
 
     this.addSniperProjectile(
       "sniper-1",
-      TEAM_COLORS.BLUE,
+      COLORS.GAME.TEAM_BLUE_BRIGHT,
       currentX,
       currentY,
       radius
@@ -265,8 +266,8 @@ export class ProjectileTextureSheet {
     const centerX = x + radius + padding;
     const centerY = y + radius * 1.6 + padding;
 
-    const shadowColor = color === TEAM_COLORS.RED ? "#813645" : "#3e4c7e";
-    const highlightColor = color === TEAM_COLORS.RED ? "#e39764" : "#7396d5";
+    const shadowColor = color === COLORS.GAME.TEAM_RED_BRIGHT ? "#813645" : "#3e4c7e";
+    const highlightColor = color === COLORS.GAME.TEAM_RED_BRIGHT ? "#e39764" : "#7396d5";
 
     drawGrenadeShadow(this.shadowCtx, centerX, centerY, radius);
     drawGrenadeBody(this.ctx, centerX, centerY, radius, color, shadowColor, highlightColor);
@@ -294,7 +295,7 @@ export class ProjectileTextureSheet {
     const centerY = y + radius + padding;
 
     drawMoagShadow(this.shadowCtx, centerX, centerY, 0.5);
-    drawMoagBody(this.ctx, centerX, centerY, 0.5, color === TEAM_COLORS.RED ? 0 : 1);
+    drawMoagBody(this.ctx, centerX, centerY, 0.5, color === COLORS.GAME.TEAM_RED_BRIGHT ? 0 : 1);
 
     const textureData = {
       x: x,

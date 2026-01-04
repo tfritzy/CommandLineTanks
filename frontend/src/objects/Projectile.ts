@@ -1,5 +1,6 @@
 import { UNIT_TO_PIXEL } from "../constants";
-import { TEAM_COLORS } from "../constants";
+import { COLORS } from "../theme/colors";
+
 
 function snapToPixel(value: number): number {
   return Math.round(value * UNIT_TO_PIXEL) / UNIT_TO_PIXEL;
@@ -56,7 +57,7 @@ export class Projectile {
     const centerY = this.y * UNIT_TO_PIXEL;
     const radius = this.size * UNIT_TO_PIXEL;
     
-    ctx.fillStyle = this.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+    ctx.fillStyle = this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     ctx.fill();

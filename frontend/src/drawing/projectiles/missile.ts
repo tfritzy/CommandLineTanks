@@ -1,4 +1,5 @@
-import { EFFECT_COLORS } from "../../constants";
+import { COLORS } from "../../theme/colors";
+
 
 export function drawMissileShadow(
   ctx: CanvasRenderingContext2D,
@@ -37,7 +38,7 @@ export function drawMissileBody(
   ctx.rotate(angle);
   
   const flameLength = radius * 1 + .5;
-  ctx.fillStyle = EFFECT_COLORS.FIRE_YELLOW;
+  ctx.fillStyle = COLORS.EFFECTS.FIRE_YELLOW;
   ctx.beginPath();
   ctx.moveTo(0, -radius * 0.3);
   ctx.lineTo(-flameLength, 0);

@@ -1,5 +1,5 @@
-import { UNIT_TO_PIXEL, UI_COLORS } from "../../constants";
-import { TERMINAL_COLORS } from "../../components/terminal/colors";
+import { UNIT_TO_PIXEL } from "../../constants";
+import { COLORS } from "../../theme/colors";
 
 export function drawUnknownPickupShadow(
   ctx: CanvasRenderingContext2D,
@@ -31,15 +31,15 @@ export function drawUnknownPickupBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = TERMINAL_COLORS.TEXT_MUTED;
-  ctx.strokeStyle = TERMINAL_COLORS.TEXT_DIM;
+  ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
+  ctx.strokeStyle = COLORS.TERMINAL.TEXT_DIM;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = UI_COLORS.TEXT_BRIGHT;
+  ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
   ctx.font = "bold 20px monospace";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";

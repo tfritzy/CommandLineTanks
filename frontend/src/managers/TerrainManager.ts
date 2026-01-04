@@ -3,8 +3,9 @@ import { TerrainDetailManager } from "./TerrainDetailManager";
 import { type EventContext, BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import WorldRow from "../../module_bindings/world_type";
-import { TERRAIN_COLORS, UNIT_TO_PIXEL } from "../constants";
+import { UNIT_TO_PIXEL } from "../constants";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
+import { COLORS } from "../theme/colors";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -102,7 +103,7 @@ export class TerrainManager {
     startTileY: number,
     endTileY: number
   ) {
-    ctx.fillStyle = TERRAIN_COLORS.FARM_GROOVE;
+    ctx.fillStyle = COLORS.TERRAIN.FARM_GROOVE;
     const numGrooves = 2;
     const grooveHeight = UNIT_TO_PIXEL * 0.15;
 
@@ -145,7 +146,7 @@ export class TerrainManager {
     startTileY: number,
     endTileY: number
   ) {
-    ctx.fillStyle = TERRAIN_COLORS.CHECKER;
+    ctx.fillStyle = COLORS.TERRAIN.CHECKER;
     ctx.beginPath();
 
     for (let tileY = startTileY; tileY <= endTileY; tileY++) {

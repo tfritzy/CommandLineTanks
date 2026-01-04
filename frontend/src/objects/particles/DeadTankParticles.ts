@@ -1,6 +1,6 @@
-import { UNIT_TO_PIXEL, TERRAIN_COLORS, UI_COLORS, EFFECT_COLORS } from "../../constants";
-import { TERMINAL_COLORS } from "../../components/terminal/colors";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
+import { COLORS } from "../../theme/colors";
 
 interface DebrisParticle {
   x: number;
@@ -62,8 +62,8 @@ export class DeadTankParticles {
   private isDead = false;
 
   constructor(x: number, y: number, alliance: number) {
-    const teamColor = alliance === 0 ? UI_COLORS.TEAM_RED_MEDIUM : UI_COLORS.TEAM_BLUE_MEDIUM;
-    const darkTeamColor = alliance === 0 ? UI_COLORS.TEAM_RED_DARK : UI_COLORS.TEAM_BLUE_DARK;
+    const teamColor = alliance === 0 ? COLORS.UI.TEAM_RED_MEDIUM : COLORS.UI.TEAM_BLUE_MEDIUM;
+    const darkTeamColor = alliance === 0 ? COLORS.UI.TEAM_RED_DARK : COLORS.UI.TEAM_BLUE_DARK;
 
     // 1. Debris (Tank parts) - Reduced count
     const debrisCount = 6 + Math.floor(Math.random() * 4);
@@ -75,7 +75,7 @@ export class DeadTankParticles {
       
       let color: string = teamColor;
       const rand = Math.random();
-      if (rand > 0.8) color = TERRAIN_COLORS.GROUND;
+      if (rand > 0.8) color = COLORS.TERRAIN.GROUND;
       else if (rand > 0.5) color = darkTeamColor;
       
       this.debrisParticles.push({
@@ -97,7 +97,7 @@ export class DeadTankParticles {
       const angle = Math.random() * Math.PI * 2;
       const speed = 3 + Math.random() * 5;
       const size = 5 + Math.random() * 8;
-      const colors = [EFFECT_COLORS.FIRE_RED, EFFECT_COLORS.FIRE_ORANGE, EFFECT_COLORS.FIRE_YELLOW, EFFECT_COLORS.FIRE_BRIGHT];
+      const colors = [COLORS.EFFECTS.FIRE_RED, COLORS.EFFECTS.FIRE_ORANGE, COLORS.EFFECTS.FIRE_YELLOW, COLORS.EFFECTS.FIRE_BRIGHT];
       this.fireParticles.push({
         x, y,
         velocityX: Math.cos(angle) * speed,
@@ -117,7 +117,7 @@ export class DeadTankParticles {
       const angle = Math.random() * Math.PI * 2;
       const speed = 0.4 + Math.random() * 1.0;
       const size = 10 + Math.random() * 15;
-      const colors = [TERMINAL_COLORS.SEPARATOR, TERMINAL_COLORS.TEXT_DIM];
+      const colors = [COLORS.TERMINAL.SEPARATOR, COLORS.TERMINAL.TEXT_DIM];
       this.smokeParticles.push({
         x, y,
         velocityX: Math.cos(angle) * speed,
@@ -309,7 +309,7 @@ export class DeadTankParticles {
       ctx.translate(particleX, particleY);
       ctx.rotate(particle.rotation);
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = TERMINAL_COLORS.WARNING;
+      ctx.fillStyle = COLORS.TERMINAL.WARNING;
       ctx.fillRect(0, -0.5, particle.width, particle.height);
       ctx.restore();
     }

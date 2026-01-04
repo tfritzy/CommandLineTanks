@@ -1,11 +1,12 @@
 import { TankManager } from "./TankManager";
-import { TERRAIN_COLORS, TERRAIN_DETAIL_COLORS, TEAM_COLORS } from "../constants";
+
 import { getConnection } from "../spacetimedb-connection";
 import { type EventContext, type TerrainDetailRow, type PickupRow } from "../../module_bindings";
 import WorldRow from "../../module_bindings/world_type";
 import { type Infer } from "spacetimedb";
 import { BaseTerrain } from "../../module_bindings";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
+import { COLORS } from "../theme/colors";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -192,12 +193,12 @@ export class MiniMapManager {
       }
     }
 
-    ctx.fillStyle = TEAM_COLORS.RED;
+    ctx.fillStyle = COLORS.GAME.TEAM_RED_BRIGHT;
     for (const tank of this.redTanksBuffer) {
       ctx.fillRect(tank.x, tank.y, tank.size, tank.size);
     }
 
-    ctx.fillStyle = TEAM_COLORS.BLUE;
+    ctx.fillStyle = COLORS.GAME.TEAM_BLUE_BRIGHT;
     for (const tank of this.blueTanksBuffer) {
       ctx.fillRect(tank.x, tank.y, tank.size, tank.size);
     }
@@ -249,11 +250,11 @@ export class MiniMapManager {
     const pixelHeight = miniMapHeight / worldHeight;
 
     // Fill background
-    ctx.fillStyle = TERRAIN_COLORS.GROUND;
+    ctx.fillStyle = COLORS.TERRAIN.GROUND;
     ctx.fillRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
 
     // Draw Farms
-    ctx.fillStyle = TERRAIN_COLORS.FARM_GROOVE;
+    ctx.fillStyle = COLORS.TERRAIN.FARM_GROOVE;
     for (let i = 0; i < this.baseTerrainLayer.length; i++) {
       if (this.baseTerrainLayer[i].tag === "Farm") {
         const tileX = i % worldWidth;
@@ -268,22 +269,22 @@ export class MiniMapManager {
     }
 
     const detailColorMap: Record<string, string> = {
-      Tree: TERRAIN_DETAIL_COLORS.TREE.BASE,
-      Rock: TERRAIN_DETAIL_COLORS.ROCK.BODY,
-      HayBale: TERRAIN_DETAIL_COLORS.HAY_BALE.BODY,
-      FoundationEdge: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
-      FoundationCorner: TERRAIN_DETAIL_COLORS.FOUNDATION.BASE,
-      FenceEdge: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
-      FenceCorner: TERRAIN_DETAIL_COLORS.FENCE.RAIL,
-      TargetDummy: TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY,
-      Label: TERRAIN_COLORS.GROUND,
-      None: TERRAIN_COLORS.GROUND
+      Tree: COLORS.TERRAIN.TREE_BASE,
+      Rock: COLORS.TERRAIN.ROCK_BODY,
+      HayBale: COLORS.TERRAIN.HAY_BALE_BODY,
+      FoundationEdge: COLORS.TERRAIN.FOUNDATION_BASE,
+      FoundationCorner: COLORS.TERRAIN.FOUNDATION_BASE,
+      FenceEdge: COLORS.TERRAIN.FENCE_RAIL,
+      FenceCorner: COLORS.TERRAIN.FENCE_RAIL,
+      TargetDummy: COLORS.TERRAIN.TARGET_DUMMY_BODY,
+      Label: COLORS.TERRAIN.GROUND,
+      None: COLORS.TERRAIN.GROUND
     };
 
     for (const detail of this.terrainDetailsByPosition.values()) {
       const detailType = detail.type.tag;
       const color = detailColorMap[detailType];
-      if (color && color !== TERRAIN_COLORS.GROUND) {
+      if (color && color !== COLORS.TERRAIN.GROUND) {
         ctx.fillStyle = color;
 
         let x = miniMapX + detail.positionX * pixelWidth;
@@ -323,14 +324,14 @@ export class MiniMapManager {
     const pixelWidth = miniMapWidth / worldWidth;
     const pixelHeight = miniMapHeight / worldHeight;
 
-    ctx.fillStyle = TEAM_COLORS.RED + "33";
+    ctx.fillStyle = COLORS.GAME.TEAM_RED_BRIGHT + "33";
     const redSpawnX = miniMapX;
     const redSpawnY = miniMapY;
     const redSpawnWidth = this.spawnZoneWidth * pixelWidth;
     const redSpawnHeight = worldHeight * pixelHeight;
     ctx.fillRect(redSpawnX, redSpawnY, redSpawnWidth, redSpawnHeight);
 
-    ctx.fillStyle = TEAM_COLORS.BLUE + "33";
+    ctx.fillStyle = COLORS.GAME.TEAM_BLUE_BRIGHT + "33";
     const blueSpawnX = miniMapX + (worldWidth - this.spawnZoneWidth) * pixelWidth;
     const blueSpawnY = miniMapY;
     const blueSpawnWidth = this.spawnZoneWidth * pixelWidth;

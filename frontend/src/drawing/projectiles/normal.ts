@@ -1,4 +1,5 @@
-import { UI_COLORS } from "../../constants";
+import { COLORS } from "../../theme/colors";
+
 
 export function drawNormalProjectileShadow(
   ctx: CanvasRenderingContext2D,
@@ -27,7 +28,7 @@ export function drawNormalProjectileBody(
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = UI_COLORS.BLACK;
+  ctx.strokeStyle = COLORS.UI.BLACK;
   ctx.lineWidth = 1;
   ctx.stroke();
   ctx.restore();

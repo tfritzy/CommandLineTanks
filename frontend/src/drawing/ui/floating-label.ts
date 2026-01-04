@@ -1,6 +1,7 @@
-import { UNIT_TO_PIXEL, UI_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
+import { COLORS } from "../../theme/colors";
 
-const LABEL_COLOR = UI_COLORS.LABEL_YELLOW;
+const LABEL_COLOR = COLORS.UI.LABEL_YELLOW;
 
 export function drawFloatingLabel(
   ctx: CanvasRenderingContext2D,

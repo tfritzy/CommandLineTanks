@@ -1,5 +1,6 @@
 import { getFlashColor } from "../../utils/colors";
-import { TERRAIN_DETAIL_COLORS } from "../../constants";
+import { COLORS } from "../../theme/colors";
+
 
 export function drawRockShadow(
   ctx: CanvasRenderingContext2D,
@@ -22,9 +23,9 @@ export function drawRockBody(
   radius: number,
   flashTimer: number
 ) {
-  const bodyColor = getFlashColor(TERRAIN_DETAIL_COLORS.ROCK.BODY, flashTimer);
-  const shadowColor = getFlashColor(TERRAIN_DETAIL_COLORS.ROCK.SHADOW, flashTimer);
-  const highlightColor = getFlashColor(TERRAIN_DETAIL_COLORS.ROCK.HIGHLIGHT, flashTimer);
+  const bodyColor = getFlashColor(COLORS.TERRAIN.ROCK_BODY, flashTimer);
+  const shadowColor = getFlashColor(COLORS.TERRAIN.ROCK_SHADOW, flashTimer);
+  const highlightColor = getFlashColor(COLORS.TERRAIN.ROCK_HIGHLIGHT, flashTimer);
 
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
@@ -43,7 +44,7 @@ export function drawRockBody(
   ctx.arc(centerX + radius * 0.15, centerY - radius * 0.15, radius, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = getFlashColor(TERRAIN_DETAIL_COLORS.ROCK.OUTLINE, flashTimer);
+  ctx.strokeStyle = getFlashColor(COLORS.TERRAIN.ROCK_OUTLINE, flashTimer);
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);

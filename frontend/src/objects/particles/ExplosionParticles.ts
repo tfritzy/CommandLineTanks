@@ -1,6 +1,7 @@
-import { UNIT_TO_PIXEL, EFFECT_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
 import { drawExplosionParticles } from "../../drawing";
+import { COLORS } from "../../theme/colors";
 
 interface Particle {
   x: number;
@@ -19,7 +20,7 @@ export class ExplosionParticles {
   private isDead = false;
 
   constructor(x: number, y: number, explosionRadius: number) {
-    const colors = [EFFECT_COLORS.FIRE_BRIGHT, EFFECT_COLORS.FIRE_YELLOW, EFFECT_COLORS.FIRE_ORANGE];
+    const colors = [COLORS.EFFECTS.FIRE_BRIGHT, COLORS.EFFECTS.FIRE_YELLOW, COLORS.EFFECTS.FIRE_ORANGE];
     
     const count = 20;
     for (let i = 0; i < count; i++) {

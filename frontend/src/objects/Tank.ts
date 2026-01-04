@@ -1,12 +1,7 @@
 import { type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
-import {
-  TEAM_COLORS,
-  INTERPOLATION_DELAY,
-  BUFFER_DURATION,
-  UNIT_TO_PIXEL,
-} from "../constants";
+import { INTERPOLATION_DELAY, BUFFER_DURATION, UNIT_TO_PIXEL,  } from "../constants";
 import {
   drawTankShadow,
   drawTankBody,
@@ -16,6 +11,7 @@ import {
   drawTankTextLabel,
 } from "../drawing/tanks/tank";
 import { ServerTimeSync } from "../utils/ServerTimeSync";
+import { COLORS } from "../theme/colors";
 
 type PathEntry = {
   position: { x: number; y: number };
@@ -89,7 +85,7 @@ export class Tank {
   }
 
   public getAllianceColor(): string {
-    return this.alliance === 0 ? TEAM_COLORS.RED : TEAM_COLORS.BLUE;
+    return this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -147,9 +143,9 @@ export class Tank {
 
   public drawPath(ctx: CanvasRenderingContext2D) {
     const lineColor =
-      this.alliance === 0 ? TEAM_COLORS.RED + "66" : TEAM_COLORS.BLUE + "66";
+      this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "66" : COLORS.GAME.TEAM_BLUE_BRIGHT + "66";
     const dotColor =
-      this.alliance === 0 ? TEAM_COLORS.RED + "ff" : TEAM_COLORS.BLUE + "ff";
+      this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "ff" : COLORS.GAME.TEAM_BLUE_BRIGHT + "ff";
     drawTankPath(ctx, this.x, this.y, this.path, lineColor, dotColor);
   }
 

@@ -1,6 +1,5 @@
 import React from "react";
-import { UI_COLORS } from "../constants";
-import { TERMINAL_COLORS } from "./terminal/colors";
+import { COLORS } from "../theme/colors";
 
 const HomeworldOverlay: React.FC = () => {
     return (
@@ -37,7 +36,7 @@ const HomeworldOverlay: React.FC = () => {
                     style={{
                         margin: 0,
                         fontSize: "14px",
-                        color: UI_COLORS.TEXT_BRIGHT,
+                        color: COLORS.UI.TEXT_PRIMARY,
                         fontFamily: "'JetBrains Mono', monospace",
                         letterSpacing: "0.03em",
                         textAlign: "center",
@@ -47,7 +46,7 @@ const HomeworldOverlay: React.FC = () => {
                     When ready, call the{" "}
                     <code
                         style={{
-                            color: TERMINAL_COLORS.WARNING,
+                            color: COLORS.TERMINAL.WARNING,
                             background: "rgba(252, 235, 168, 0.15)",
                             padding: "2px 6px",
                             borderRadius: "4px",

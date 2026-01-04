@@ -1,4 +1,5 @@
-import { UNIT_TO_PIXEL, TERRAIN_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
+import { COLORS } from "../../theme/colors";
 
 type BaseTerrainType = { tag: string };
 
@@ -29,10 +30,10 @@ export function drawBaseTerrain(
       ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
     }
   }
-  ctx.fillStyle = TERRAIN_COLORS.GROUND;
+  ctx.fillStyle = COLORS.TERRAIN.GROUND;
   ctx.fill();
 
-  ctx.fillStyle = TERRAIN_COLORS.FARM_GROOVE;
+  ctx.fillStyle = COLORS.TERRAIN.FARM_GROOVE;
   const numGrooves = 2;
   const grooveHeight = UNIT_TO_PIXEL * 0.15;
   ctx.beginPath();
@@ -66,7 +67,7 @@ export function drawBaseTerrain(
   }
   ctx.fill();
 
-  ctx.strokeStyle = TERRAIN_COLORS.GRID;
+  ctx.strokeStyle = COLORS.TERRAIN.GRID;
   ctx.lineWidth = 1;
   ctx.beginPath();
   for (let tileY = startTileY; tileY <= endTileY; tileY++) {

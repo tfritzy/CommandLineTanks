@@ -1,5 +1,6 @@
-import { UNIT_TO_PIXEL, TERRAIN_DETAIL_COLORS } from "../../constants";
+import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
+import { COLORS } from "../../theme/colors";
 
 export function drawTargetDummyShadow(
   ctx: CanvasRenderingContext2D,
@@ -19,9 +20,9 @@ export function drawTargetDummyBody(
   centerY: number,
   flashTimer: number
 ) {
-  const bodyColor = getFlashColor(TERRAIN_DETAIL_COLORS.TARGET_DUMMY.BODY, flashTimer);
-  const rimColor = getFlashColor(TERRAIN_DETAIL_COLORS.TARGET_DUMMY.RIM, flashTimer);
-  const centerColor = getFlashColor(TERRAIN_DETAIL_COLORS.TARGET_DUMMY.CENTER, flashTimer);
+  const bodyColor = getFlashColor(COLORS.TERRAIN.TARGET_DUMMY_BODY, flashTimer);
+  const rimColor = getFlashColor(COLORS.TERRAIN.TARGET_DUMMY_RIM, flashTimer);
+  const centerColor = getFlashColor(COLORS.TERRAIN.TARGET_DUMMY_CENTER, flashTimer);
 
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
