@@ -4,6 +4,9 @@ import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
 import { UNIT_TO_PIXEL } from "../constants";
 import { pickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
+import TankRow from "../../module_bindings/tank_type";
+import { drawMoagBody, drawMoagShadow } from "../drawing";
+import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 
 interface PickupData {
   id: string;
@@ -15,53 +18,60 @@ interface PickupData {
 export class PickupManager {
   private pickups: Map<string, PickupData> = new Map();
   private worldId: string;
-  private handlePickupInsert: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
-  private handlePickupDelete: ((ctx: EventContext, pickup: Infer<typeof PickupRow>) => void) | null = null;
+  private playerAlliance: number = 0;
+  private subscription: MultiTableSubscription | null = null;
 
   constructor(worldId: string) {
     this.worldId = worldId;
-    this.subscribeToPickups();
+    this.subscribeToTables();
   }
 
-  private subscribeToPickups() {
+  private subscribeToTables() {
     const connection = getConnection();
     if (!connection) return;
 
-    this.handlePickupInsert = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      if (pickup.worldId !== this.worldId) return;
-      this.pickups.set(pickup.id, {
-        id: pickup.id,
-        positionX: pickup.positionX,
-        positionY: pickup.positionY,
-        type: pickup.type,
+    this.subscription = createMultiTableSubscription()
+      .add<typeof TankRow>({
+        table: connection.db.tank,
+        handlers: {
+          onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+            if (tank.worldId !== this.worldId) return;
+            if (connection.identity && tank.owner.isEqual(connection.identity)) {
+              this.playerAlliance = tank.alliance;
+            }
+          },
+          onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+            if (newTank.worldId !== this.worldId) return;
+            if (connection.identity && newTank.owner.isEqual(connection.identity)) {
+              this.playerAlliance = newTank.alliance;
+            }
+          }
+        }
+      })
+      .add<typeof PickupRow>({
+        table: connection.db.pickup,
+        handlers: {
+          onInsert: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+            if (pickup.worldId !== this.worldId) return;
+            this.pickups.set(pickup.id, {
+              id: pickup.id,
+              positionX: pickup.positionX,
+              positionY: pickup.positionY,
+              type: pickup.type,
+            });
+          },
+          onDelete: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
+            if (pickup.worldId !== this.worldId) return;
+            this.pickups.delete(pickup.id);
+          }
+        }
       });
-    };
-
-    this.handlePickupDelete = (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-      if (pickup.worldId !== this.worldId) return;
-      this.pickups.delete(pickup.id);
-    };
-
-    connection.db.pickup.onInsert(this.handlePickupInsert);
-    connection.db.pickup.onDelete(this.handlePickupDelete);
-
-    for (const pickup of connection.db.pickup.iter()) {
-      if (pickup.worldId === this.worldId) {
-        this.pickups.set(pickup.id, {
-          id: pickup.id,
-          positionX: pickup.positionX,
-          positionY: pickup.positionY,
-          type: pickup.type,
-        });
-      }
-    }
   }
 
   public destroy() {
-    const connection = getConnection();
-    if (connection) {
-      if (this.handlePickupInsert) connection.db.pickup.removeOnInsert(this.handlePickupInsert);
-      if (this.handlePickupDelete) connection.db.pickup.removeOnDelete(this.handlePickupDelete);
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
     }
   }
 
