@@ -116,16 +116,16 @@ public static partial class PickupSpawner
             }
 
             var pickupId = Module.GenerateId(ctx, "pickup");
-            ctx.Db.pickup.Insert(new Module.Pickup
-            {
-                Id = pickupId,
-                WorldId = worldId,
-                PositionX = gridX + 0.5f,
-                PositionY = gridY + 0.5f,
-                GridX = gridX,
-                GridY = gridY,
-                Type = pickupType
-            });
+            ctx.Db.pickup.Insert(Module.Pickup.Build(
+                ctx: ctx,
+                id: pickupId,
+                worldId: worldId,
+                positionX: gridX + 0.5f,
+                positionY: gridY + 0.5f,
+                gridX: gridX,
+                gridY: gridY,
+                type: pickupType
+            ));
         }
     }
 
@@ -197,16 +197,16 @@ public static partial class PickupSpawner
         }
 
         var pickupId = Module.GenerateId(ctx, "pickup");
-        ctx.Db.pickup.Insert(new Module.Pickup
-        {
-            Id = pickupId,
-            WorldId = worldId,
-            PositionX = centerX,
-            PositionY = centerY,
-            GridX = spawnX,
-            GridY = spawnY,
-            Type = pickupType
-        });
+        ctx.Db.pickup.Insert(Module.Pickup.Build(
+            ctx: ctx,
+            id: pickupId,
+            worldId: worldId,
+            positionX: centerX,
+            positionY: centerY,
+            gridX: spawnX,
+            gridY: spawnY,
+            type: pickupType
+        ));
 
         Log.Info($"Spawned {pickupType} at ({centerX}, {centerY}) in world {worldId}");
         return true;

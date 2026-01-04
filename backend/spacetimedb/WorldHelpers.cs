@@ -114,17 +114,17 @@ public static partial class Module
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
-        var tank = BuildTank(
-            ctx,
-            identityString,
-            ctx.Sender,
-            playerName,
-            "",
-            joinCode,
-            0,
-            HOMEWORLD_WIDTH / 2 + .5f,
-            HOMEWORLD_HEIGHT / 2 + .5f,
-            AIBehavior.None);
+        var tank = Tank.Build(
+            ctx: ctx,
+            worldId: identityString,
+            owner: ctx.Sender,
+            name: playerName,
+            targetCode: "",
+            joinCode: joinCode,
+            alliance: 0,
+            positionX: HOMEWORLD_WIDTH / 2 + .5f,
+            positionY: HOMEWORLD_HEIGHT / 2 + .5f,
+            aiBehavior: AIBehavior.None);
 
         AddTankToWorld(ctx, tank);
         StartWorldTickers(ctx, identityString);

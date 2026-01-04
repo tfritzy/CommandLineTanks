@@ -52,54 +52,6 @@ public static partial class Module
         return respawnedTank;
     }
 
-    private static Tank BuildTank(ReducerContext ctx, string worldId, Identity owner, string name, string targetCode, string joinCode, int alliance, float positionX, float positionY, AIBehavior aiBehavior = AIBehavior.None, AiConfig? aiConfig = null)
-    {
-        var tankId = GenerateId(ctx, "tnk");
-        return new Tank
-        {
-            Id = tankId,
-            WorldId = worldId,
-            Owner = owner,
-            Name = name,
-            TargetCode = targetCode,
-            JoinCode = joinCode,
-            IsBot = aiBehavior != AIBehavior.None,
-            AIBehavior = aiBehavior,
-            AiConfig = aiConfig,
-            Alliance = alliance,
-            Health = TANK_HEALTH,
-            MaxHealth = TANK_HEALTH,
-            Kills = 0,
-            Deaths = 0,
-            KillStreak = 0,
-            CollisionRegionX = 0,
-            CollisionRegionY = 0,
-            Target = null,
-            TargetLead = 0.0f,
-            Message = null,
-            PositionX = positionX,
-            PositionY = positionY,
-            TurretRotation = 0.0f,
-            TargetTurretRotation = 0.0f,
-            TopSpeed = 3f,
-            TurretRotationSpeed = 12f,
-            Guns = [BASE_GUN],
-            SelectedGunIndex = 0,
-            RemainingSmokescreenCooldownMicros = 0,
-            HasShield = false,
-            Velocity = new Vector2Float(0, 0),
-            TurretAngularVelocity = 0,
-            RemainingOverdriveCooldownMicros = 0,
-            RemainingOverdriveDurationMicros = 0,
-            RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
-            RemainingRepairCooldownMicros = 0,
-            IsRepairing = false,
-            RepairStartedAt = 0,
-            DeathTimestamp = 0,
-            UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-        };
-    }
-
     public static (float, float) FindSpawnPosition(ReducerContext ctx, World world, int alliance, Random random)
     {
         var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(world.Id);
@@ -208,7 +160,17 @@ public static partial class Module
         int assignedAlliance = GetBalancedAlliance(ctx, worldId);
         var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
 
-        var tank = BuildTank(ctx, worldId, owner, playerName, targetCode, joinCode, assignedAlliance, spawnX, spawnY, AIBehavior.None);
+        var tank = Tank.Build(
+            ctx: ctx,
+            worldId: worldId,
+            owner: owner,
+            name: playerName,
+            targetCode: targetCode,
+            joinCode: joinCode,
+            alliance: assignedAlliance,
+            positionX: spawnX,
+            positionY: spawnY,
+            aiBehavior: AIBehavior.None);
         return tank;
     }
 }
