@@ -11,6 +11,7 @@ import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
+import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -22,39 +23,7 @@ export class TankManager {
   private indicatorManager: TankIndicatorManager;
   private screenShake: ScreenShake;
   private muzzleFlashManager: MuzzleFlashParticlesManager;
-  private handleTankInsert:
-    | ((ctx: EventContext, tank: Infer<typeof TankRow>) => void)
-    | null = null;
-  private handleTankUpdate:
-    | ((
-        ctx: EventContext,
-        oldTank: Infer<typeof TankRow>,
-        newTank: Infer<typeof TankRow>
-      ) => void)
-    | null = null;
-  private handleTankDelete:
-    | ((ctx: EventContext, tank: Infer<typeof TankRow>) => void)
-    | null = null;
-  private handleFireStateUpdate:
-    | ((
-        ctx: EventContext,
-        oldState: Infer<typeof TankFireStateRow>,
-        newState: Infer<typeof TankFireStateRow>
-      ) => void)
-    | null = null;
-  private handleTankPathInsert:
-    | ((ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => void)
-    | null = null;
-  private handleTankPathUpdate:
-    | ((
-        ctx: EventContext,
-        oldPath: Infer<typeof TankPathRow>,
-        newPath: Infer<typeof TankPathRow>
-      ) => void)
-    | null = null;
-  private handleTankPathDelete:
-    | ((ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => void)
-    | null = null;
+  private subscription: MultiTableSubscription | null = null;
 
   constructor(worldId: string, screenShake: ScreenShake) {
     this.worldId = worldId;
@@ -70,189 +39,142 @@ export class TankManager {
     const connection = getConnection();
     if (!connection) return;
 
-    this.setupTankHandlers(connection);
-    this.setupTankPathHandlers(connection);
-    this.setupFireStateHandlers(connection);
-    this.loadInitialTanks(connection);
-  }
+    this.subscription = createMultiTableSubscription()
+      .add<typeof TankRow>({
+        table: connection.db.tank,
+        handlers: {
+          onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+            if (tank.worldId !== this.worldId) return;
+            this.buildTank(tank);
 
-  private setupTankHandlers(connection: any) {
-    this.handleTankInsert = (
-      _ctx: EventContext,
-      tank: Infer<typeof TankRow>
-    ) => {
-      if (tank.worldId !== this.worldId) return;
-      this.buildTank(tank);
+            if (
+              connection.identity &&
+              tank.owner.isEqual(connection.identity) &&
+              tank.worldId == this.worldId
+            ) {
+              this.playerTankId = tank.id;
+              this.updatePlayerTarget(tank.target);
+            }
+          },
+          onUpdate: (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+            if (newTank.worldId !== this.worldId) return;
+            const tank = this.tanks.get(newTank.id);
+            if (tank) {
+              if (oldTank.health > 0 && newTank.health <= 0) {
+                const pos = tank.getPosition();
+                this.particlesManager.spawnParticles(pos.x, pos.y, newTank.alliance);
 
-      if (
-        connection.identity &&
-        tank.owner.isEqual(connection.identity) &&
-        tank.worldId == this.worldId
-      ) {
-        this.playerTankId = tank.id;
-        this.updatePlayerTarget(tank.target);
-      }
-    };
+                if (newTank.id === this.playerTankId) {
+                  this.screenShake.shake(20, 0.5);
+                }
+              }
 
-    this.handleTankUpdate = (
-      _ctx: EventContext,
-      oldTank: Infer<typeof TankRow>,
-      newTank: Infer<typeof TankRow>
-    ) => {
-      if (newTank.worldId !== this.worldId) return;
-      const tank = this.tanks.get(newTank.id);
-      if (tank) {
-        if (oldTank.health > 0 && newTank.health <= 0) {
-          const pos = tank.getPosition();
-          this.particlesManager.spawnParticles(pos.x, pos.y, newTank.alliance);
+              if (oldTank.health <= 0 && newTank.health > 0) {
+                tank.clearPositionBuffer();
+              }
 
-          if (newTank.id === this.playerTankId) {
-            this.screenShake.shake(20, 0.5);
+              if (oldTank.message !== newTank.message && newTank.message) {
+                const pos = tank.getPosition();
+                this.indicatorManager.spawnFloatingLabel(
+                  pos.x,
+                  pos.y - 0.5,
+                  newTank.message
+                );
+              }
+
+              tank.setPosition(
+                newTank.positionX,
+                newTank.positionY,
+                newTank.updatedAt
+              );
+              tank.setTargetTurretRotation(newTank.targetTurretRotation);
+              tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
+              tank.setTurretRotation(newTank.turretRotation);
+              tank.setHealth(newTank.health);
+              tank.setAlliance(newTank.alliance);
+              tank.setGuns(newTank.guns);
+              tank.setSelectedGunIndex(newTank.selectedGunIndex);
+              tank.setHasShield(newTank.hasShield);
+              tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
+              tank.setTargetCode(newTank.targetCode);
+              tank.setMessage(newTank.message ?? null);
+            } else {
+              this.buildTank(newTank);
+            }
+
+            if (
+              connection.identity &&
+              newTank.owner.isEqual(connection.identity) &&
+              newTank.worldId == this.worldId
+            ) {
+              if (oldTank.target !== newTank.target) {
+                this.updatePlayerTarget(newTank.target);
+              }
+            }
+          },
+          onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+            if (tank.worldId !== this.worldId) return;
+            this.tanks.delete(tank.id);
+
+            if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
+              this.playerTankId = null;
+            }
+
+            if (this.playerTargetTankId === tank.id && tank.worldId == this.worldId) {
+              this.updatePlayerTarget(null);
+            }
           }
         }
-
-        if (oldTank.health <= 0 && newTank.health > 0) {
-          tank.clearPositionBuffer();
+      })
+      .add<typeof TankPathRow>({
+        table: connection.db.tankPath,
+        handlers: {
+          onInsert: (_ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => {
+            if (tankPath.worldId !== this.worldId) return;
+            const tank = this.tanks.get(tankPath.tankId);
+            if (tank) {
+              tank.setPath(tankPath.path);
+            }
+          },
+          onUpdate: (_ctx: EventContext, _oldPath: Infer<typeof TankPathRow>, newPath: Infer<typeof TankPathRow>) => {
+            if (newPath.worldId !== this.worldId) return;
+            const tank = this.tanks.get(newPath.tankId);
+            if (tank) {
+              tank.setPath(newPath.path);
+            }
+          },
+          onDelete: (_ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => {
+            if (tankPath.worldId !== this.worldId) return;
+            const tank = this.tanks.get(tankPath.tankId);
+            if (tank) {
+              tank.setPath([]);
+            }
+          }
         }
-
-        if (oldTank.message !== newTank.message && newTank.message) {
-          const pos = tank.getPosition();
-          this.indicatorManager.spawnFloatingLabel(
-            pos.x,
-            pos.y - 0.5,
-            newTank.message
-          );
-        }
-
-        tank.setPosition(
-          newTank.positionX,
-          newTank.positionY,
-          newTank.updatedAt
-        );
-        tank.setTargetTurretRotation(newTank.targetTurretRotation);
-        tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
-        tank.setTurretRotation(newTank.turretRotation);
-        tank.setHealth(newTank.health);
-        tank.setAlliance(newTank.alliance);
-        tank.setGuns(newTank.guns);
-        tank.setSelectedGunIndex(newTank.selectedGunIndex);
-        tank.setHasShield(newTank.hasShield);
-        tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
-        tank.setTargetCode(newTank.targetCode);
-        tank.setMessage(newTank.message ?? null);
-      } else {
-        this.buildTank(newTank);
-      }
-
-      if (
-        connection.identity &&
-        newTank.owner.isEqual(connection.identity) &&
-        newTank.worldId == this.worldId
-      ) {
-        if (oldTank.target !== newTank.target) {
-          this.updatePlayerTarget(newTank.target);
-        }
-      }
-    };
-
-    this.handleTankDelete = (
-      _ctx: EventContext,
-      tank: Infer<typeof TankRow>
-    ) => {
-      if (tank.worldId !== this.worldId) return;
-      this.tanks.delete(tank.id);
-
-      if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
-        this.playerTankId = null;
-      }
-
-      if (this.playerTargetTankId === tank.id && tank.worldId == this.worldId) {
-        this.updatePlayerTarget(null);
-      }
-    };
-
-    connection.db.tank.onInsert(this.handleTankInsert);
-    connection.db.tank.onUpdate(this.handleTankUpdate);
-    connection.db.tank.onDelete(this.handleTankDelete);
-  }
-
-  private setupTankPathHandlers(connection: any) {
-    this.handleTankPathInsert = (
-      _ctx: EventContext,
-      tankPath: Infer<typeof TankPathRow>
-    ) => {
-      if (tankPath.worldId !== this.worldId) return;
-      const tank = this.tanks.get(tankPath.tankId);
-      if (tank) {
-        tank.setPath(tankPath.path);
-      }
-    };
-
-    this.handleTankPathUpdate = (
-      _ctx: EventContext,
-      _oldPath: Infer<typeof TankPathRow>,
-      newPath: Infer<typeof TankPathRow>
-    ) => {
-      if (newPath.worldId !== this.worldId) return;
-      const tank = this.tanks.get(newPath.tankId);
-      if (tank) {
-        tank.setPath(newPath.path);
-      }
-    };
-
-    this.handleTankPathDelete = (
-      _ctx: EventContext,
-      tankPath: Infer<typeof TankPathRow>
-    ) => {
-      if (tankPath.worldId !== this.worldId) return;
-      const tank = this.tanks.get(tankPath.tankId);
-      if (tank) {
-        tank.setPath([]);
-      }
-    };
-
-    connection.db.tankPath.onInsert(this.handleTankPathInsert);
-    connection.db.tankPath.onUpdate(this.handleTankPathUpdate);
-    connection.db.tankPath.onDelete(this.handleTankPathDelete);
-  }
-
-  private setupFireStateHandlers(connection: any) {
-    this.handleFireStateUpdate = (
-      _ctx: EventContext,
-      _oldState: Infer<typeof TankFireStateRow>,
-      newState: Infer<typeof TankFireStateRow>
-    ) => {
-      const tankRow = connection.db.tank.id.find(newState.tankId);
-      if (tankRow && tankRow.health > 0) {
-        const barrelTipX =
-          tankRow.positionX +
-          Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
-        const barrelTipY =
-          tankRow.positionY +
-          Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
-        this.muzzleFlashManager.spawnMuzzleFlash(
-          barrelTipX,
-          barrelTipY,
-          tankRow.turretRotation,
-          tankRow.alliance
-        );
-      }
-    };
-
-    connection.db.tankFireState.onUpdate(this.handleFireStateUpdate);
-  }
-
-  private loadInitialTanks(connection: any) {
-    for (const tank of connection.db.tank.iter()) {
-      if (tank.worldId === this.worldId) {
-        this.buildTank(tank);
-
-        if (connection.identity && tank.owner.isEqual(connection.identity)) {
-          this.playerTankId = tank.id;
-          this.updatePlayerTarget(tank.target);
-        }
-      }
-    }
+      })
+      .add<typeof TankFireStateRow>({
+        table: connection.db.tankFireState,
+        handlers: {
+          onUpdate: (_ctx: EventContext, _oldState: Infer<typeof TankFireStateRow>, newState: Infer<typeof TankFireStateRow>) => {
+            const tankRow = connection.db.tank.id.find(newState.tankId);
+            if (tankRow && tankRow.health > 0) {
+              const barrelTipX =
+                tankRow.positionX +
+                Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+              const barrelTipY =
+                tankRow.positionY +
+                Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+              this.muzzleFlashManager.spawnMuzzleFlash(
+                barrelTipX,
+                barrelTipY,
+                tankRow.turretRotation,
+                tankRow.alliance
+              );
+            }
+          }
+        },
+        loadInitialData: false
+      });
   }
 
   buildTank(tank: Infer<typeof TankRow>) {
@@ -283,22 +205,9 @@ export class TankManager {
   }
 
   public destroy() {
-    const connection = getConnection();
-    if (connection) {
-      if (this.handleTankInsert)
-        connection.db.tank.removeOnInsert(this.handleTankInsert);
-      if (this.handleTankUpdate)
-        connection.db.tank.removeOnUpdate(this.handleTankUpdate);
-      if (this.handleTankDelete)
-        connection.db.tank.removeOnDelete(this.handleTankDelete);
-      if (this.handleFireStateUpdate)
-        connection.db.tankFireState.removeOnUpdate(this.handleFireStateUpdate);
-      if (this.handleTankPathInsert)
-        connection.db.tankPath.removeOnInsert(this.handleTankPathInsert);
-      if (this.handleTankPathUpdate)
-        connection.db.tankPath.removeOnUpdate(this.handleTankPathUpdate);
-      if (this.handleTankPathDelete)
-        connection.db.tankPath.removeOnDelete(this.handleTankPathDelete);
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
     }
   }
 
