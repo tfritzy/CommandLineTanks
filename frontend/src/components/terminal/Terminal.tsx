@@ -18,6 +18,37 @@ const KEY_ESCAPE = 27;
 const ARROW_UP = "\x1b[A";
 const ARROW_DOWN = "\x1b[B";
 
+const F_PREFIX_COMMAND_MAP: Record<string, string> = {
+  'd': 'drive',
+  'drive': 'drive',
+  's': 'stop',
+  'stop': 'stop',
+  'a': 'aim',
+  'aim': 'aim',
+  't': 'target',
+  'target': 'target',
+  'w': 'switch',
+  'switch': 'switch',
+  'sm': 'smokescreen',
+  'smokescreen': 'smokescreen',
+  'o': 'overdrive',
+  'od': 'overdrive',
+  'overdrive': 'overdrive',
+  'rep': 'repair',
+  'repair': 'repair',
+  'respawn': 'respawn',
+  'tanks': 'tanks',
+  'name': 'name',
+  'create': 'create',
+  'join': 'join',
+  'e': 'exit',
+  'exit': 'exit',
+  'h': 'help',
+  'help': 'help',
+  'c': 'clear',
+  'clear': 'clear',
+};
+
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
@@ -89,39 +120,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       
       if (resolvedCommandName.startsWith('f') && resolvedCommandName.length > 1 && resolvedCommandName !== 'fire' && resolvedCommandName !== 'f') {
         const withoutF = resolvedCommandName.substring(1);
-        const commandMap: Record<string, string> = {
-          'd': 'drive',
-          'drive': 'drive',
-          's': 'stop',
-          'stop': 'stop',
-          'a': 'aim',
-          'aim': 'aim',
-          't': 'target',
-          'target': 'target',
-          'w': 'switch',
-          'switch': 'switch',
-          'sm': 'smokescreen',
-          'smokescreen': 'smokescreen',
-          'o': 'overdrive',
-          'od': 'overdrive',
-          'overdrive': 'overdrive',
-          'rep': 'repair',
-          'repair': 'repair',
-          'respawn': 'respawn',
-          'tanks': 'tanks',
-          'name': 'name',
-          'create': 'create',
-          'join': 'join',
-          'e': 'exit',
-          'exit': 'exit',
-          'h': 'help',
-          'help': 'help',
-          'c': 'clear',
-          'clear': 'clear',
-        };
-        
-        if (commandMap[withoutF]) {
-          resolvedCommandName = commandMap[withoutF];
+        if (F_PREFIX_COMMAND_MAP[withoutF]) {
+          resolvedCommandName = F_PREFIX_COMMAND_MAP[withoutF];
         }
       }
 
