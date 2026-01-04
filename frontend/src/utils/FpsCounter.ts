@@ -1,3 +1,5 @@
+import { UI_COLORS, TERRAIN_COLORS } from "../constants";
+
 export class FpsCounter {
   private fps: number = 0;
   private frameCount: number = 0;
@@ -23,8 +25,8 @@ export class FpsCounter {
     if (this.fps > 0) {
       ctx.save();
       ctx.font = "14px monospace";
-      ctx.fillStyle = "#fcfbf3";
-      ctx.strokeStyle = "#2e2e43";
+      ctx.fillStyle = UI_COLORS.TEXT_BRIGHT;
+      ctx.strokeStyle = TERRAIN_COLORS.GROUND;
       ctx.lineWidth = 3;
       ctx.strokeText(`FPS: ${this.fps}`, 10, 20);
       ctx.fillText(`FPS: ${this.fps}`, 10, 20);

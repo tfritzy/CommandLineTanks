@@ -1,9 +1,12 @@
-const ABILITY_SLOT_BACKGROUND = '#34404f';
-const ABILITY_SLOT_BORDER = '#4a4b5b';
+import { UI_COLORS } from "../../constants";
+import { TERMINAL_COLORS } from "../../components/terminal/colors";
+
+const ABILITY_SLOT_BACKGROUND = UI_COLORS.BACKGROUND_DARK;
+const ABILITY_SLOT_BORDER = TERMINAL_COLORS.SEPARATOR;
 const ABILITY_COOLDOWN_FILL = 'rgba(112, 123, 137, 0.4)';
-const ABILITY_TEXT_COLOR = '#fcfbf3';
-const ABILITY_TEXT_STROKE = '#000';
-const ABILITY_NAME_COLOR = '#fceba8';
+const ABILITY_TEXT_COLOR = UI_COLORS.TEXT_BRIGHT;
+const ABILITY_TEXT_STROKE = UI_COLORS.BLACK;
+const ABILITY_NAME_COLOR = TERMINAL_COLORS.WARNING;
 const ABILITY_NAME_BACKGROUND = 'rgba(252, 235, 168, 0.1)';
 
 export function drawAbilitySlot(

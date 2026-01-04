@@ -1,4 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
+import { TERMINAL_COLORS } from "../../components/terminal/colors";
 import { isPointInViewport } from "../../utils/viewport";
 
 interface Particle {
@@ -40,7 +41,7 @@ export class SmokeCloudParticles {
     const dist = Math.random() * this.radius * 0.6;
 
     const speed = 0.1 + Math.random() * 0.3;
-    const color = "#a9bcbf";
+    const color = TERMINAL_COLORS.TEXT_MUTED;
 
     this.particles.push({
       x: this.centerX + Math.cos(angle) * dist,
