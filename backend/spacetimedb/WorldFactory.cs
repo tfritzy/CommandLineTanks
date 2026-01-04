@@ -62,19 +62,19 @@ public static partial class Module
                 posY += (float)(ctx.Rng.NextDouble() * 0.5 - 0.25);
             }
 
-            ctx.Db.terrain_detail.Insert(new TerrainDetail
-            {
-                Id = terrainDetailId,
-                WorldId = worldId,
-                PositionX = posX,
-                PositionY = posY,
-                GridX = detail.x,
-                GridY = detail.y,
-                Type = detail.type,
-                Health = 100,
-                Label = null,
-                Rotation = detail.rotation
-            });
+            ctx.Db.terrain_detail.Insert(BuildTerrainDetail(
+                ctx: ctx,
+                id: terrainDetailId,
+                worldId: worldId,
+                positionX: posX,
+                positionY: posY,
+                gridX: detail.x,
+                gridY: detail.y,
+                type: detail.type,
+                health: 100,
+                label: null,
+                rotation: detail.rotation
+            ));
         }
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap

@@ -21,17 +21,15 @@ public static partial class Module
         int collisionRegionY = (int)(tank.PositionY / COLLISION_REGION_SIZE);
 
         var smokeCloudId = Module.GenerateId(ctx, "smoke");
-        var smokeCloud = new SmokeCloud
-        {
-            Id = smokeCloudId,
-            WorldId = worldId,
-            PositionX = tank.PositionX,
-            PositionY = tank.PositionY,
-            CollisionRegionX = collisionRegionX,
-            CollisionRegionY = collisionRegionY,
-            SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            Radius = SMOKESCREEN_RADIUS
-        };
+        var smokeCloud = BuildSmokeCloud(
+            ctx: ctx,
+            id: smokeCloudId,
+            worldId: worldId,
+            positionX: tank.PositionX,
+            positionY: tank.PositionY,
+            collisionRegionX: collisionRegionX,
+            collisionRegionY: collisionRegionY
+        );
         ctx.Db.smoke_cloud.Insert(smokeCloud);
 
         ulong expirationTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch + (ulong)SMOKESCREEN_DURATION_MICROS;
