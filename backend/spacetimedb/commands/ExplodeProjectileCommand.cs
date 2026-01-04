@@ -11,6 +11,13 @@ public static partial class ProjectileUpdater
             return false;
         }
 
+        if (projectile.ProjectileType == ProjectileType.Grenade)
+        {
+            SpawnGrenadeSubProjectiles(ctx, projectile);
+            Log.Info($"Grenade exploded at ({projectile.PositionX}, {projectile.PositionY}), spawning sub-projectiles");
+            return false;
+        }
+
         float explosionRadius = projectile.ExplosionRadius.Value;
         int projectileCollisionRegionX = (int)(projectile.PositionX / Module.COLLISION_REGION_SIZE);
         int projectileCollisionRegionY = (int)(projectile.PositionY / Module.COLLISION_REGION_SIZE);
@@ -78,11 +85,6 @@ public static partial class ProjectileUpdater
                     }
                 }
             }
-        }
-
-        if (projectile.ProjectileType == ProjectileType.Grenade)
-        {
-            SpawnGrenadeSubProjectiles(ctx, projectile);
         }
 
         Log.Info($"Projectile exploded at ({projectile.PositionX}, {projectile.PositionY})");
