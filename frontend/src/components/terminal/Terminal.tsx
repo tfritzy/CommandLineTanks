@@ -31,7 +31,6 @@ const F_PREFIX_COMMAND_MAP: Record<string, string> = {
   'switch': 'switch',
   'sm': 'smokescreen',
   'smokescreen': 'smokescreen',
-  'o': 'overdrive',
   'od': 'overdrive',
   'overdrive': 'overdrive',
   'rep': 'repair',
