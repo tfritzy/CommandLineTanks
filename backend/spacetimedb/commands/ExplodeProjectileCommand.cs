@@ -104,38 +104,18 @@ public static partial class ProjectileUpdater
             float velocityX = (float)Math.Cos(angle) * subProjectileSpeed;
             float velocityY = (float)Math.Sin(angle) * subProjectileSpeed;
 
-            var subProjectileId = Module.GenerateId(ctx, "prj");
-            var subProjectile = new Module.Projectile
-            {
-                Id = subProjectileId,
-                WorldId = grenade.WorldId,
-                ShooterTankId = grenade.ShooterTankId,
-                Alliance = grenade.Alliance,
-                PositionX = grenade.PositionX,
-                PositionY = grenade.PositionY,
-                Speed = subProjectileSpeed,
-                Size = Module.BASE_GUN.ProjectileSize,
-                Velocity = new Vector2Float(velocityX, velocityY),
-                Damage = Module.BASE_GUN.Damage,
-                TrackingStrength = 0,
-                TrackingRadius = 0,
-                ProjectileType = ProjectileType.Normal,
-                SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-                LifetimeSeconds = subProjectileLifetime,
-                ReturnsToShooter = false,
-                IsReturning = false,
-                MaxCollisions = 1,
-                CollisionCount = 0,
-                PassThroughTerrain = false,
-                CollisionRadius = Module.BASE_GUN.CollisionRadius,
-                ExplosionRadius = null,
-                ExplosionTrigger = ExplosionTrigger.None,
-                Damping = subProjectileDamping,
-                Bounce = false,
-                RecentlyDamagedTiles = new DamagedTile[0],
-                RecentlyHitTanks = new DamagedTank[0],
-                UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-            };
+            var subProjectile = Module.BuildProjectile(
+                ctx: ctx,
+                worldId: grenade.WorldId,
+                shooterTankId: grenade.ShooterTankId,
+                alliance: grenade.Alliance,
+                positionX: grenade.PositionX,
+                positionY: grenade.PositionY,
+                speed: subProjectileSpeed,
+                velocity: new Vector2Float(velocityX, velocityY),
+                lifetimeSeconds: subProjectileLifetime,
+                damping: subProjectileDamping
+            );
 
             ctx.Db.projectile.Insert(subProjectile);
         }
