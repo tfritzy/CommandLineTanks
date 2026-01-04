@@ -1,5 +1,6 @@
 using SpacetimeDB;
 using static Types;
+using System;
 
 public static partial class ProjectileUpdater
 {
@@ -79,8 +80,63 @@ public static partial class ProjectileUpdater
             }
         }
 
+        if (projectile.ProjectileType == ProjectileType.Grenade)
+        {
+            SpawnGrenadeSubProjectiles(ctx, projectile);
+        }
+
         Log.Info($"Projectile exploded at ({projectile.PositionX}, {projectile.PositionY})");
         return traversibilityMapChanged;
+    }
+
+    private static void SpawnGrenadeSubProjectiles(ReducerContext ctx, Module.Projectile grenade)
+    {
+        const int subProjectileCount = 16;
+        const float subProjectileSpeed = Module.PROJECTILE_SPEED * 1.5f;
+        const float subProjectileLifetime = 1.5f;
+        const float subProjectileDamping = 0.15f;
+
+        for (int i = 0; i < subProjectileCount; i++)
+        {
+            float angle = (float)(2 * Math.PI * i / subProjectileCount);
+            float velocityX = (float)Math.Cos(angle) * subProjectileSpeed;
+            float velocityY = (float)Math.Sin(angle) * subProjectileSpeed;
+
+            var subProjectileId = Module.GenerateId(ctx, "prj");
+            var subProjectile = new Module.Projectile
+            {
+                Id = subProjectileId,
+                WorldId = grenade.WorldId,
+                ShooterTankId = grenade.ShooterTankId,
+                Alliance = grenade.Alliance,
+                PositionX = grenade.PositionX,
+                PositionY = grenade.PositionY,
+                Speed = subProjectileSpeed,
+                Size = Module.BASE_GUN.ProjectileSize,
+                Velocity = new Vector2Float(velocityX, velocityY),
+                Damage = Module.BASE_GUN.Damage,
+                TrackingStrength = 0,
+                TrackingRadius = 0,
+                ProjectileType = ProjectileType.Normal,
+                SpawnedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+                LifetimeSeconds = subProjectileLifetime,
+                ReturnsToShooter = false,
+                IsReturning = false,
+                MaxCollisions = 1,
+                CollisionCount = 0,
+                PassThroughTerrain = false,
+                CollisionRadius = Module.BASE_GUN.CollisionRadius,
+                ExplosionRadius = null,
+                ExplosionTrigger = ExplosionTrigger.None,
+                Damping = subProjectileDamping,
+                Bounce = false,
+                RecentlyDamagedTiles = new DamagedTile[0],
+                RecentlyHitTanks = new DamagedTank[0],
+                UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+            };
+
+            ctx.Db.projectile.Insert(subProjectile);
+        }
     }
 
     private static bool DamageTerrainAtTile(
