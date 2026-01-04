@@ -139,7 +139,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(46, 46, 67, 0.8)',
+            backgroundColor: COLORS.UI.OVERLAY_BG_MEDIUM,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -223,7 +223,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                     fontSize: '16px',
                                     color: index === 0 ? COLORS.UI.TEXT_PRIMARY : COLORS.TERMINAL.TEXT_MUTED,
                                     paddingBottom: '12px',
-                                    borderBottom: '1px solid rgba(169, 188, 191, 0.1)',
+                                    borderBottom: `1px solid ${COLORS.UI.SEPARATOR_LIGHT}`,
                                     fontWeight: index === 0 ? 500 : 300
                                 }}>
                                     <span style={{
@@ -278,7 +278,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                     fontSize: '16px',
                                     color: index === 0 ? COLORS.UI.TEXT_PRIMARY : COLORS.TERMINAL.TEXT_MUTED,
                                     paddingBottom: '12px',
-                                    borderBottom: '1px solid rgba(169, 188, 191, 0.1)',
+                                    borderBottom: `1px solid ${COLORS.UI.SEPARATOR_LIGHT}`,
                                     fontWeight: index === 0 ? 500 : 300
                                 }}>
                                     <span style={{

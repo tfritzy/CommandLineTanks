@@ -65,7 +65,7 @@ export function drawSquarePostShadow(
   size: number,
   shadowOffset: number
 ) {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+  ctx.fillStyle = COLORS.GAME.OUTLINE_FENCE;
   ctx.fillRect(centerX - size / 2 - shadowOffset, centerY - size / 2 + shadowOffset, size, size);
 }
 

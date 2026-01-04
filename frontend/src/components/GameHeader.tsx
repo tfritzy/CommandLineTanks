@@ -137,7 +137,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             display: "flex",
             alignItems: "stretch",
             height: "26px",
-            filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))",
+            filter: `drop-shadow(0 2px 4px ${COLORS.UI.DROP_SHADOW})`,
           }}
         >
           <div
@@ -207,7 +207,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
             textAlign: "center",
             letterSpacing: "0.05em",
             textTransform: "uppercase",
-            textShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
+            textShadow: `0 2px 8px ${COLORS.UI.TEXT_SHADOW_LIGHT}`,
           }}
         >
           Game ending in {timeRemaining}

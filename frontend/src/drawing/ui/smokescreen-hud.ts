@@ -38,7 +38,7 @@ export function drawSmokescreenHud(
   ctx.stroke();
 
   const progressBarWidth = width * progress;
-  ctx.fillStyle = isReady ? 'rgba(90, 120, 178, 0.3)' : 'rgba(112, 123, 137, 0.3)';
+  ctx.fillStyle = isReady ? COLORS.ABILITY.SMOKESCREEN_READY_BG : COLORS.ABILITY.COOLDOWN_NOT_READY;
   ctx.fillRect(x, y, progressBarWidth, height);
 
   ctx.fillStyle = isReady ? COLORS.TERMINAL.TANK_CODE : COLORS.TERMINAL.TEXT_MUTED;

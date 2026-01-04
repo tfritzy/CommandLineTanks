@@ -40,7 +40,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         foreground: "#e6eeed",
         cursor: "#96dc7f",
         cursorAccent: "#2a152d",
-        selectionBackground: "rgba(150, 220, 127, 0.3)",
+        selectionBackground: COLORS.UI.SELECTION_BG,
         black: "#2e2e43",
         red: "#c06852",
         green: "#96dc7f",

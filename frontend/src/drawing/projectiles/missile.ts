@@ -13,7 +13,7 @@ export function drawMissileShadow(
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
   
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = COLORS.GAME.SHADOW_LIGHT;
   ctx.beginPath();
   ctx.moveTo(radius * 2, 0);
   ctx.lineTo(0, -radius * 0.8);

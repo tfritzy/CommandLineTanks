@@ -18,7 +18,7 @@ export function drawFoundationCornerShadow(
   ctx.rotate((rotation * 90 * Math.PI) / 180);
   ctx.translate(-centerX, -centerY);
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = COLORS.GAME.SHADOW_LIGHT;
   ctx.beginPath();
   ctx.moveTo(x - UNIT_TO_PIXEL * 0.15, y - UNIT_TO_PIXEL * 0.15);
   ctx.lineTo(x + UNIT_TO_PIXEL * 0.5, y - UNIT_TO_PIXEL * 0.15);

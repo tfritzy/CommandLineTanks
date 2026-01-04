@@ -12,7 +12,7 @@ export function drawHealthPackShadow(
 
   ctx.save();
   ctx.translate(worldX - 4, worldY + 4);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = COLORS.GAME.SHADOW_LIGHT;
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
   ctx.fill();

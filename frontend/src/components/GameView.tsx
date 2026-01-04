@@ -259,14 +259,14 @@ export default function GameView() {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              background: "rgba(46, 46, 67, 0.95)",
+              background: COLORS.UI.OVERLAY_BG_OPAQUE,
               backdropFilter: "blur(4px)",
               borderRadius: "8px",
-              border: "2px solid rgba(112, 123, 137, 0.3)",
+              border: `2px solid ${COLORS.UI.BORDER_MEDIUM}`,
               padding: "40px 60px",
               fontFamily: "'JetBrains Mono', monospace",
               zIndex: 1000,
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+              boxShadow: `0 8px 32px ${COLORS.UI.SHADOW_MEDIUM}`,
               animation: "fadeIn 0.15s ease-out 1s both",
             }}
           >
@@ -289,7 +289,7 @@ export default function GameView() {
                 letterSpacing: "0.15em",
                 textTransform: "uppercase",
                 marginBottom: "24px",
-                textShadow: "0 2px 12px rgba(192, 104, 82, 0.5)",
+                textShadow: `0 2px 12px ${COLORS.UI.TEXT_SHADOW_ERROR}`,
                 lineHeight: 1,
                 textAlign: "center",
               }}
@@ -313,7 +313,7 @@ export default function GameView() {
                   color: COLORS.TERMINAL.WARNING,
                   fontWeight: 500,
                   padding: "2px 8px",
-                  background: "rgba(252, 235, 168, 0.1)",
+                  background: COLORS.UI.CODE_BG,
                   borderRadius: "2px",
                 }}
               >
@@ -324,7 +324,7 @@ export default function GameView() {
 
             <div
               style={{
-                borderTop: "1px solid rgba(112, 123, 137, 0.2)",
+                borderTop: `1px solid ${COLORS.UI.BORDER_SEPARATOR}`,
                 paddingTop: "24px",
                 textAlign: "center",
               }}
@@ -350,8 +350,8 @@ export default function GameView() {
               >
                 <div
                   style={{
-                    background: "rgba(42, 21, 45, 0.6)",
-                    border: "1px solid rgba(112, 123, 137, 0.3)",
+                    background: COLORS.UI.MODAL_BG,
+                    border: `1px solid ${COLORS.UI.BORDER_MEDIUM}`,
                     borderRadius: "4px",
                     padding: "8px 16px",
                     fontSize: "13px",
@@ -374,18 +374,18 @@ export default function GameView() {
                       if (button) {
                         const originalText = button.textContent;
                         button.textContent = "Copied!";
-                        button.style.background = "rgba(121, 150, 109, 0.4)";
+                        button.style.background = COLORS.UI.BUTTON_SUCCESS_HOVER_BG;
                         setTimeout(() => {
                           button.textContent = originalText;
                           button.style.background =
-                            "rgba(129, 54, 69, 0.6)";
+                            COLORS.UI.BUTTON_DANGER_BG;
                         }, 1500);
                       }
                     });
                   }}
                   style={{
-                    background: "rgba(129, 54, 69, 0.6)",
-                    border: "1px solid rgba(192, 104, 82, 0.4)",
+                    background: COLORS.UI.BUTTON_DANGER_BG,
+                    border: `1px solid ${COLORS.UI.BUTTON_DANGER_BORDER}`,
                     borderRadius: "4px",
                     padding: "8px 16px",
                     fontSize: "13px",
@@ -398,16 +398,16 @@ export default function GameView() {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background =
-                      "rgba(129, 54, 69, 0.8)";
+                      COLORS.UI.BUTTON_DANGER_HOVER_BG;
                     e.currentTarget.style.borderColor =
-                      "rgba(192, 104, 82, 0.6)";
+                      COLORS.UI.BUTTON_DANGER_HOVER_BORDER;
                   }}
                   onMouseLeave={(e) => {
                     if (e.currentTarget.textContent !== "Copied!") {
                       e.currentTarget.style.background =
-                        "rgba(129, 54, 69, 0.6)";
+                        COLORS.UI.BUTTON_DANGER_BG;
                       e.currentTarget.style.borderColor =
-                        "rgba(192, 104, 82, 0.4)";
+                        COLORS.UI.BUTTON_DANGER_BORDER;
                     }
                   }}
                 >

@@ -84,14 +84,14 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        background: 'rgba(46, 46, 67, 0.95)',
+        background: COLORS.UI.OVERLAY_BG_OPAQUE,
         backdropFilter: 'blur(4px)',
         borderRadius: '8px',
-        border: '2px solid rgba(112, 123, 137, 0.3)',
+        border: `2px solid ${COLORS.UI.BORDER_MEDIUM}`,
         padding: '40px 60px',
         fontFamily: "'JetBrains Mono', monospace",
         zIndex: 1000,
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+        boxShadow: `0 8px 32px ${COLORS.UI.SHADOW_MEDIUM}`,
         minWidth: '500px',
       }}
     >
@@ -103,7 +103,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
           marginBottom: '40px',
-          textShadow: '0 2px 12px rgba(115, 150, 213, 0.5)',
+          textShadow: `0 2px 12px ${COLORS.UI.TEXT_SHADOW_INFO}`,
           lineHeight: 1,
           textAlign: 'center',
         }}
@@ -139,16 +139,16 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
               padding: '12px 16px',
               fontSize: '14px',
               fontFamily: "'JetBrains Mono', monospace",
-              background: 'rgba(42, 21, 45, 0.6)',
-              border: '1px solid rgba(112, 123, 137, 0.3)',
+              background: COLORS.UI.MODAL_BG,
+              border: `1px solid ${COLORS.UI.BORDER_MEDIUM}`,
               borderRadius: '4px',
               color: COLORS.TERMINAL.TEXT_DEFAULT,
               outline: 'none',
               boxSizing: 'border-box',
               transition: 'border-color 0.2s',
             }}
-            onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.6)'}
-            onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(112, 123, 137, 0.3)'}
+            onFocus={(e) => e.currentTarget.style.borderColor = COLORS.UI.BORDER_HOVER}
+            onBlur={(e) => e.currentTarget.style.borderColor = COLORS.UI.BORDER_MEDIUM}
           />
         </div>
       )}
@@ -173,8 +173,8 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           onClick={handleCopyCommands}
           style={{
             position: 'relative',
-            background: 'rgba(42, 21, 45, 0.8)',
-            border: copied ? '1px solid rgba(150, 220, 127, 0.5)' : '1px solid rgba(112, 123, 137, 0.3)',
+            background: COLORS.UI.MODAL_BG_HOVER,
+            border: copied ? `1px solid ${COLORS.UI.BORDER_SUCCESS}` : `1px solid ${COLORS.UI.BORDER_MEDIUM}`,
             borderRadius: '4px',
             padding: '16px',
             fontSize: '13px',
@@ -187,14 +187,14 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           }}
           onMouseEnter={(e) => {
             if (!copied) {
-              e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.6)';
-              e.currentTarget.style.background = 'rgba(42, 21, 45, 0.9)';
+              e.currentTarget.style.borderColor = COLORS.UI.BORDER_HOVER;
+              e.currentTarget.style.background = COLORS.UI.MODAL_BG_FOCUS;
             }
           }}
           onMouseLeave={(e) => {
             if (!copied) {
-              e.currentTarget.style.borderColor = 'rgba(112, 123, 137, 0.3)';
-              e.currentTarget.style.background = 'rgba(42, 21, 45, 0.8)';
+              e.currentTarget.style.borderColor = COLORS.UI.BORDER_MEDIUM;
+              e.currentTarget.style.background = COLORS.UI.MODAL_BG_HOVER;
             }
           }}
         >

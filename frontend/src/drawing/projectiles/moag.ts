@@ -11,7 +11,7 @@ export function drawMoagShadow(
   const radius = size * UNIT_TO_PIXEL;
 
   ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = COLORS.GAME.SHADOW_LIGHT;
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();

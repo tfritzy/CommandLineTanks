@@ -13,7 +13,7 @@ export function drawGrenadeShadow(
   const ringRadius = radius * 0.25;
 
   ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = COLORS.GAME.SHADOW_LIGHT;
   
   ctx.beginPath();
   ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);

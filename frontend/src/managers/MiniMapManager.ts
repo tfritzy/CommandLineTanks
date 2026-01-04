@@ -161,7 +161,7 @@ export class MiniMapManager {
       ctx.drawImage(this.baseLayerCanvas, miniMapX, miniMapY, miniMapWidth, miniMapHeight);
     }
 
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    ctx.strokeStyle = COLORS.MINIMAP.BORDER;
     ctx.lineWidth = 1;
     ctx.strokeRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
 

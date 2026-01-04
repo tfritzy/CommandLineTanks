@@ -10,7 +10,7 @@ export function drawBoomerangShadow(
 ) {
   ctx.save();
   ctx.translate(centerX, centerY);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillStyle = COLORS.GAME.SHADOW_LIGHT;
 
   for (let i = 0; i < 3; i++) {
     ctx.save();
