@@ -193,7 +193,7 @@ export function colorize(text: string, colorKey: TerminalColorKey): string {
 }
 
 export function success(text: string): string {
-  return colorize(text, 'SUCCESS');
+  return text;
 }
 
 export function info(text: string): string {
