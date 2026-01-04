@@ -139,7 +139,7 @@ export const COLORS = {
     
     PROMPT: PALETTE.GREEN_SUCCESS,
     
-    SUCCESS: PALETTE.GREEN_SUCCESS,
+    SUCCESS: PALETTE.SLATE_LIGHTEST,
     INFO: PALETTE.BLUE_INFO,
     WARNING: PALETTE.YELLOW_BRIGHT,
     ERROR: PALETTE.RED_MUTED,
@@ -193,7 +193,7 @@ export function colorize(text: string, colorKey: TerminalColorKey): string {
 }
 
 export function success(text: string): string {
-  return text;
+  return colorize(text, 'SUCCESS');
 }
 
 export function info(text: string): string {
