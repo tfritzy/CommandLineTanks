@@ -1,4 +1,5 @@
 import { getFlashColor, lerpColor } from "../../utils/colors";
+import { COLORS } from "../../theme/colors";
 
 export function drawSquarePost(
   ctx: CanvasRenderingContext2D,

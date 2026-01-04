@@ -92,7 +92,7 @@ export function drawSniperProjectileBody(
   ctx.stroke();
 
   // Add a highlight
-  ctx.strokeStyle = COLORS.UI.WHITE_30;
+  ctx.strokeStyle = COLORS.MINIMAP.BORDER;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(bulletLength * 0.8, -bulletWidth * 0.3);

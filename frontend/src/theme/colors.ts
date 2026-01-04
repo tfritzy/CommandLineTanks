@@ -69,6 +69,7 @@ const PALETTE = {
   SLATE_MEDIUM_20: "#4a4b5b33",
   SLATE_MEDIUM_30: "#4a4b5b4d",
   
+  SLATE_LIGHT_20: "#707b8933",
   SLATE_LIGHT_30: "#707b8940",
   SLATE_LIGHT_40: "#707b8966",
   SLATE_LIGHT_80: "#707b89cc",
@@ -83,7 +84,9 @@ const PALETTE = {
   
   RED_MEDIUM_80: "#9d4343cc",
   
+  BLUE_LIGHT_30: "#5a78b24d",
   BLUE_LIGHT_60: "#5a78b299",
+  BLUE_LIGHT_80: "#5a78b2cc",
   
   BLUE_INFO_25: "#7396d540",
   BLUE_INFO_50: "#7396d580",

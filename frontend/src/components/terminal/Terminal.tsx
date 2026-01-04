@@ -4,6 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create, changeName, exitWorld, tanks, findCommandSuggestion } from "./commands";
+import { COLORS } from "../../theme/colors";
 
 interface TerminalComponentProps {
   worldId: string;
