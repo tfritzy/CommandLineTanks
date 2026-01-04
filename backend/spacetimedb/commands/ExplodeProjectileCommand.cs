@@ -1,5 +1,6 @@
 using SpacetimeDB;
 using static Types;
+using System;
 
 public static partial class ProjectileUpdater
 {
@@ -7,6 +8,13 @@ public static partial class ProjectileUpdater
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
         {
+            return false;
+        }
+
+        if (projectile.ProjectileType == ProjectileType.Grenade)
+        {
+            SpawnGrenadeSubProjectiles(ctx, projectile);
+            Log.Info($"Grenade exploded at ({projectile.PositionX}, {projectile.PositionY}), spawning sub-projectiles");
             return false;
         }
 
@@ -81,6 +89,36 @@ public static partial class ProjectileUpdater
 
         Log.Info($"Projectile exploded at ({projectile.PositionX}, {projectile.PositionY})");
         return traversibilityMapChanged;
+    }
+
+    private static void SpawnGrenadeSubProjectiles(ReducerContext ctx, Module.Projectile grenade)
+    {
+        const int subProjectileCount = 16;
+        const float subProjectileSpeed = Module.PROJECTILE_SPEED * 1.5f;
+        const float subProjectileLifetime = 1.5f;
+        const float subProjectileDamping = 0.15f;
+
+        for (int i = 0; i < subProjectileCount; i++)
+        {
+            float angle = (float)(2 * Math.PI * i / subProjectileCount);
+            float velocityX = (float)Math.Cos(angle) * subProjectileSpeed;
+            float velocityY = (float)Math.Sin(angle) * subProjectileSpeed;
+
+            var subProjectile = Module.BuildProjectile(
+                ctx: ctx,
+                worldId: grenade.WorldId,
+                shooterTankId: grenade.ShooterTankId,
+                alliance: grenade.Alliance,
+                positionX: grenade.PositionX,
+                positionY: grenade.PositionY,
+                speed: subProjectileSpeed,
+                velocity: new Vector2Float(velocityX, velocityY),
+                lifetimeSeconds: subProjectileLifetime,
+                damping: subProjectileDamping
+            );
+
+            ctx.Db.projectile.Insert(subProjectile);
+        }
     }
 
     private static bool DamageTerrainAtTile(
