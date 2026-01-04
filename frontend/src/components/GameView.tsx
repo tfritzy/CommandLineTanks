@@ -19,6 +19,10 @@ import {
 } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
+const isIdentityFormat = (id: string): boolean => {
+  return /^[0-9a-f]{64}$/i.test(id);
+};
+
 export default function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
   const navigate = useNavigate();
@@ -31,7 +35,7 @@ export default function GameView() {
   const [worldNotFound, setWorldNotFound] = useState(false);
 
   const connection = getConnection();
-  const isHomeworld = connection?.identity && worldId === connection.identity.toHexString();
+  const isHomeworld = connection?.identity && worldId?.toLowerCase() === connection.identity.toHexString().toLowerCase();
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -198,10 +202,6 @@ export default function GameView() {
     if (!connection) return;
 
     setWorldNotFound(false);
-
-    const isIdentityFormat = (id: string): boolean => {
-      return /^[0-9a-f]{64}$/i.test(id);
-    };
 
     const isOtherPlayersHomeworld = 
       isIdentityFormat(worldId) && 
