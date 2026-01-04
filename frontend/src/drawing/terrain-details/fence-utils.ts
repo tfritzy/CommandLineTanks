@@ -1,5 +1,4 @@
 import { getFlashColor, lerpColor } from "../../utils/colors";
-import { COLORS } from "../../theme/colors";
 
 export function drawSquarePost(
   ctx: CanvasRenderingContext2D,
@@ -66,7 +65,7 @@ export function drawSquarePostShadow(
   size: number,
   shadowOffset: number
 ) {
-  ctx.fillStyle = COLORS.GAME.OUTLINE_FENCE;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
   ctx.fillRect(centerX - size / 2 - shadowOffset, centerY - size / 2 + shadowOffset, size, size);
 }
 

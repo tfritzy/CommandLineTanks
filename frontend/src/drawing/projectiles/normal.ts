@@ -8,7 +8,7 @@ export function drawNormalProjectileShadow(
   radius: number
 ) {
   ctx.save();
-  ctx.fillStyle = COLORS.GAME.SHADOW_LIGHT;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();

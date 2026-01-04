@@ -13,7 +13,7 @@ export function drawSniperProjectileShadow(
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
-  ctx.fillStyle = COLORS.GAME.SHADOW_LIGHT;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
   ctx.beginPath();
   // Bullet tip (ogive shape)
   ctx.moveTo(bulletLength, 0);
@@ -92,7 +92,7 @@ export function drawSniperProjectileBody(
   ctx.stroke();
 
   // Add a highlight
-  ctx.strokeStyle = COLORS.MINIMAP.BORDER;
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(bulletLength * 0.8, -bulletWidth * 0.3);

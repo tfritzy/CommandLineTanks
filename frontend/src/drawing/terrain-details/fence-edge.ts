@@ -25,7 +25,7 @@ export function drawFenceEdgeShadow(
   ctx.rotate(angle);
   ctx.translate(-centerX, -centerY);
 
-  ctx.fillStyle = COLORS.GAME.OUTLINE_FENCE;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
   const railWidth = UNIT_TO_PIXEL * 0.05;
   const slatWidth = UNIT_TO_PIXEL * 0.22;
   const slatHeight = UNIT_TO_PIXEL * 0.035;

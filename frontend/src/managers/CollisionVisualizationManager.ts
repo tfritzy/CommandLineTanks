@@ -3,7 +3,6 @@ import { type TraversibilityMapRow, type TankRow, type EventContext } from "../.
 import { type Infer } from "spacetimedb";
 import { UNIT_TO_PIXEL } from "../constants";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
-import { COLORS } from "../theme/colors";
 
 const COLLISION_REGION_SIZE = 4;
 
@@ -113,7 +112,7 @@ export class CollisionVisualizationManager {
     const endTileY = Math.min(this.mapHeight - 1, Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL));
 
     ctx.save();
-    ctx.fillStyle = COLORS.GAME.DEBUG_COLLISION;
+    ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
 
     for (let tileY = startTileY; tileY <= endTileY; tileY++) {
       for (let tileX = startTileX; tileX <= endTileX; tileX++) {
@@ -146,7 +145,7 @@ export class CollisionVisualizationManager {
     }
 
     ctx.save();
-    ctx.strokeStyle = COLORS.GAME.DEBUG_REGION;
+    ctx.strokeStyle = "rgba(0, 255, 0, 0.8)";
     ctx.lineWidth = 3;
 
     for (const regionKey of collisionRegions) {

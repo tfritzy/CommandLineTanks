@@ -42,7 +42,7 @@ export class Projectile {
     const centerY = this.y * UNIT_TO_PIXEL;
     const radius = this.size * UNIT_TO_PIXEL;
     
-    ctx.fillStyle = COLORS.GAME.SHADOW_LIGHT;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.beginPath();
     ctx.arc(centerX - 4, centerY + 4, radius, 0, Math.PI * 2);
     ctx.fill();

@@ -211,8 +211,8 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
 
   const getTeamColor = (alliance: number) => {
     return alliance === 0
-      ? COLORS.UI.TEAM_INDICATOR_RED
-      : COLORS.UI.TEAM_INDICATOR_BLUE;
+      ? "rgba(157, 67, 67, 0.8)"
+      : "rgba(90, 120, 178, 0.8)";
   };
 
   const getBarColor = (player: PlayerScore) => {
@@ -222,7 +222,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
     if (isOwnTank) {
       return getTeamColor(player.alliance);
     }
-    return COLORS.UI.TEAM_INDICATOR_SPECTATOR;
+    return "rgba(112, 123, 137, 0.8)";
   };
 
   return (
@@ -262,7 +262,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
                 left: 0,
                 height: "100%",
                 width: "100%",
-                backgroundColor: COLORS.UI.CARD_SHADOW,
+                backgroundColor: "rgba(0, 0, 0, 0.4)",
                 borderRadius: radius,
               }}
             />
