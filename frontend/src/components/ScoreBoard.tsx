@@ -47,7 +47,6 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
       for (const tank of connection.db.tank.iter()) {
         if (tank.worldId !== worldId) continue;
 
-        const killStreak = tank.killStreak;
         const existing = playerMap.get(tank.id);
 
         playerMap.set(tank.id, {
@@ -55,16 +54,16 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
           name: tank.name,
           kills: tank.kills,
           deaths: tank.deaths,
-          killStreak: killStreak,
+          killStreak: tank.killStreak,
           alliance: tank.alliance,
-          displayScore: existing?.displayScore ?? killStreak,
+          displayScore: existing?.displayScore ?? tank.killStreak,
           owner: tank.owner.toString(),
         });
 
-        if (!existing || existing.killStreak !== killStreak) {
+        if (!existing || existing.killStreak !== tank.killStreak) {
           animatingScoresRef.current.set(tank.id, {
-            targetScore: killStreak,
-            startScore: existing?.displayScore ?? killStreak,
+            targetScore: tank.killStreak,
+            startScore: existing?.displayScore ?? tank.killStreak,
             startTime: performance.now(),
           });
         }
