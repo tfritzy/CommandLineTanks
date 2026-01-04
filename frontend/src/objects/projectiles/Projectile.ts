@@ -96,7 +96,7 @@ export abstract class Projectile {
   }
 
   protected getTextureKey(prefix: string): string {
-    return `${prefix}-${this.alliance === 0 ? "red" : "blue"}`;
+    return `${prefix}-${this.alliance}`;
   }
 
   public isExplosive(): boolean {

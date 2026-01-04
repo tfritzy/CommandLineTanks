@@ -73,7 +73,7 @@ export class ProjectileTextureSheet {
     const radius = textureSize * UNIT_TO_PIXEL;
 
     this.addNormalProjectile(
-      "normal-red",
+      "normal-0",
       TEAM_COLORS.RED,
       currentX,
       currentY,
@@ -82,7 +82,7 @@ export class ProjectileTextureSheet {
     currentX += radius * 2 + padding * 4;
 
     this.addNormalProjectile(
-      "normal-blue",
+      "normal-1",
       TEAM_COLORS.BLUE,
       currentX,
       currentY,
@@ -91,7 +91,7 @@ export class ProjectileTextureSheet {
     currentX += radius * 2 + padding * 4;
 
     this.addBoomerangProjectile(
-      "boomerang-red",
+      "boomerang-0",
       TEAM_COLORS.RED,
       currentX,
       currentY,
@@ -100,7 +100,7 @@ export class ProjectileTextureSheet {
     currentX += radius * 6 + padding * 4;
 
     this.addBoomerangProjectile(
-      "boomerang-blue",
+      "boomerang-1",
       TEAM_COLORS.BLUE,
       currentX,
       currentY,
@@ -110,7 +110,7 @@ export class ProjectileTextureSheet {
     currentY += rowHeight;
 
     this.addGrenadeProjectile(
-      "grenade-red",
+      "grenade-0",
       TEAM_COLORS.RED,
       currentX,
       currentY,
@@ -119,7 +119,7 @@ export class ProjectileTextureSheet {
     currentX += radius * 2 + padding * 4;
 
     this.addGrenadeProjectile(
-      "grenade-blue",
+      "grenade-1",
       TEAM_COLORS.BLUE,
       currentX,
       currentY,
@@ -128,7 +128,7 @@ export class ProjectileTextureSheet {
     currentX += radius * 2 + padding * 4;
 
     this.addMoagProjectile(
-      "moag-red",
+      "moag-0",
       TEAM_COLORS.RED,
       currentX,
       currentY,
@@ -137,7 +137,7 @@ export class ProjectileTextureSheet {
     currentX += radius * 2 + padding * 4;
 
     this.addMoagProjectile(
-      "moag-blue",
+      "moag-1",
       TEAM_COLORS.BLUE,
       currentX,
       currentY,
@@ -147,7 +147,7 @@ export class ProjectileTextureSheet {
     currentY += rowHeight;
 
     this.addRocketProjectile(
-      "rocket-red",
+      "rocket-0",
       TEAM_COLORS.RED,
       currentX,
       currentY,
@@ -156,7 +156,7 @@ export class ProjectileTextureSheet {
     currentX += radius * 8 + padding * 4;
 
     this.addRocketProjectile(
-      "rocket-blue",
+      "rocket-1",
       TEAM_COLORS.BLUE,
       currentX,
       currentY,
@@ -166,7 +166,7 @@ export class ProjectileTextureSheet {
     currentY += rowHeight;
 
     this.addMissileProjectile(
-      "missile-red",
+      "missile-0",
       TEAM_COLORS.RED,
       currentX,
       currentY,
@@ -175,7 +175,7 @@ export class ProjectileTextureSheet {
     currentX += radius * 6 + padding * 4;
 
     this.addMissileProjectile(
-      "missile-blue",
+      "missile-1",
       TEAM_COLORS.BLUE,
       currentX,
       currentY,
@@ -185,7 +185,7 @@ export class ProjectileTextureSheet {
     currentY += rowHeight;
 
     this.addSniperProjectile(
-      "sniper-red",
+      "sniper-0",
       TEAM_COLORS.RED,
       currentX,
       currentY,
@@ -194,7 +194,7 @@ export class ProjectileTextureSheet {
     currentX += radius * 6 + padding * 4;
 
     this.addSniperProjectile(
-      "sniper-blue",
+      "sniper-1",
       TEAM_COLORS.BLUE,
       currentX,
       currentY,
