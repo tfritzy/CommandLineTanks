@@ -655,7 +655,7 @@ public static partial class TerrainGenerator
     private static void RandomlyRemoveTreesPrePass(TerrainDetailType[] terrainDetail, Random random, int width, int height)
     {
         var treeIndices = new List<int>();
-        
+
         for (int i = 0; i < terrainDetail.Length; i++)
         {
             if (terrainDetail[i] == TerrainDetailType.Tree)
@@ -664,8 +664,8 @@ public static partial class TerrainGenerator
             }
         }
 
-        int treesToRemove = (int)(treeIndices.Count * 0.33);
-        
+        int treesToRemove = (int)(treeIndices.Count * 0.5);
+
         for (int i = treeIndices.Count - 1; i >= treeIndices.Count - treesToRemove; i--)
         {
             int swapIndex = random.Next(i + 1);

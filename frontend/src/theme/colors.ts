@@ -15,7 +15,7 @@ const PALETTE = {
   RED_MEDIUM: "#9d4343",
   RED_MUTED: "#c06852",
   
-  BLUE_BRIGHT: "#8383ff",
+  BLUE_BRIGHT: "#556cff",
   BLUE_DARK: "#3e4c7e",
   BLUE_MEDIUM: "#495f94",
   BLUE_LIGHT: "#5a78b2",
