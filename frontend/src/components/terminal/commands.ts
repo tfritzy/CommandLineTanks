@@ -815,6 +815,10 @@ export function drive(
     ];
   }
 
+  if (!connection.identity) {
+    return [themeColors.error("drive: error: no connection")];
+  }
+
   const directionInfo = directionAliases[firstArgLower];
 
   let distance = 1;
