@@ -173,7 +173,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       "Commands:",
-      "  drive, d             Drive to a tank, direction, or coordinate using pathfinding",
+      "  drive, d             Drive in a direction",
       "  stop, s              Stop the tank immediately",
       "  aim, a               Aim turret at an angle or direction",
       "  target, t            Target another tank by code",
@@ -199,17 +199,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "drive":
     case "d":
       return [
-        "drive, d - Drive to a relative coordinate or tank using pathfinding",
+        "drive, d - Drive in a direction",
         "",
-        "Usage: drive <target_code> [throttle]",
-        "       drive <direction> [distance] [throttle]",
-        "       drive <relative_x> <relative_y> [throttle]",
+        "Usage: drive <direction> [distance] [throttle]",
         "",
         "Arguments:",
-        "  <target_code>  Target code of the tank to drive to",
-        "                 Target codes are shown above each tank (e.g., a4, h8, z2)",
-        "                 Format: one letter + one digit",
-        "  <direction>    Direction to drive (with pathfinding)",
+        "  <direction>    Direction to drive",
         "                 Directions:",
         "                   ↑: north, up, n, u",
         "                   ↗: northeast, upright, rightup, ne, ur, ru",
@@ -220,18 +215,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ←: west, left, w, l",
         "                   ↖: northwest, upleft, leftup, nw, ul, lu",
         "  [distance]     Distance to drive in units (default: 1)",
-        "  <relative_x>   X offset from your position (e.g., -10, 0, +15)",
-        "  <relative_y>   Y offset from your position (e.g., -5, 0, +20)",
         "  [throttle]     Speed as percentage 1-100 (default: 100)",
         "",
         "Examples:",
-        "  drive a4",
-        "  drive h8 75",
         "  drive northeast 5",
         "  drive up 3 75",
-        "  drive 10 5      (10 units right, 5 units down)",
-        "  drive -10 0     (10 units left)",
-        "  drive 0 -15 75  (15 units up at 75% throttle)",
+        "  drive n",
       ];
 
     case "stop":
@@ -802,160 +791,46 @@ export function drive(
 
   if (args.length < 1) {
     return [
-      themeColors.error("drive: error: missing required arguments"),
+      themeColors.error("drive: error: missing required argument '<direction>'"),
       "",
-      themeColors.dim("Usage: drive <target_code> [throttle]"),
-      themeColors.dim("       drive <direction> [distance] [throttle]"),
-      themeColors.dim("       drive <relative_x> <relative_y> [throttle]"),
+      themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
       "",
       themeColors.dim("Examples:"),
       themeColors.dim("  drive northeast 5"),
       themeColors.dim("  drive up 3 75"),
-      themeColors.dim("  drive a4"),
-      themeColors.dim("  drive 10 5      (10 units right, 5 units down)"),
+      themeColors.dim("  drive n"),
     ];
-  }
-
-  if (!connection.identity) {
-    return [themeColors.error("drive: error: no connection")];
-  }
-
-  const allTanks = Array.from(connection.db.tank.iter()).filter(
-    (t) => t.worldId === worldId
-  );
-  const myTank = allTanks.find((t) => t.owner.isEqual(connection.identity!));
-
-  if (!myTank) {
-    return [themeColors.error("drive: error: no connection")];
   }
 
   const firstArgLower = args[0].toLowerCase();
-  const targetTank = allTanks.find(
-    (t) => t.targetCode.toLowerCase() === firstArgLower
-  );
 
-  if (targetTank && targetTank.id !== myTank.id) {
-    let throttle = 1;
-    if (args.length > 1) {
-      const parsed = Number.parseInt(args[1]);
-      if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
-        return [
-          themeColors.error(`drive: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`),
-          "",
-          themeColors.dim("Usage: drive <target_code> [throttle]"),
-          themeColors.dim("       drive a4 75"),
-        ];
-      } else {
-        throttle = parsed / 100;
-      }
+  if (!validDirections.includes(firstArgLower)) {
+    return [
+      themeColors.error(`drive: error: invalid direction '${args[0]}'`),
+      "",
+      themeColors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
+      "",
+      themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
+      themeColors.dim("       drive northeast 5"),
+    ];
+  }
+
+  const directionInfo = directionAliases[firstArgLower];
+
+  let distance = 1;
+  if (args.length > 1) {
+    const parsed = Number.parseInt(args[1]);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      return [
+        themeColors.error(`drive: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`),
+        "",
+        themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
+        themeColors.dim("       drive northeast 5"),
+      ];
+    } else {
+      distance = parsed;
     }
-
-    connection.reducers.driveToTank({
-      worldId,
-      targetCode: targetTank.targetCode,
-      throttle,
-    });
-
-    const tankCode = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
-    const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
-    return [
-      themeColors.success(`Driving to tank ${tankCode} (${targetTank.name}) at ${throttleDisplay} throttle`),
-    ];
   }
-
-  if (validDirections.includes(firstArgLower)) {
-    const directionInfo = directionAliases[firstArgLower];
-
-    let distance = 1;
-    if (args.length > 1) {
-      const parsed = Number.parseInt(args[1]);
-      if (Number.isNaN(parsed) || parsed <= 0) {
-        return [
-          themeColors.error(`drive: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`),
-          "",
-          themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
-          themeColors.dim("       drive northeast 5"),
-        ];
-      } else {
-        distance = parsed;
-      }
-    }
-
-    let throttle = 1;
-    if (args.length > 2) {
-      const parsed = Number.parseInt(args[2]);
-      if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
-        return [
-          themeColors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
-          "",
-          themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
-          themeColors.dim("       drive northeast 5 75"),
-        ];
-      } else {
-        throttle = parsed / 100;
-      }
-    }
-
-    const relativeX = directionInfo.x * distance;
-    const relativeY = directionInfo.y * distance;
-
-    const targetX = Math.floor(myTank.positionX) + relativeX;
-    const targetY = Math.floor(myTank.positionY) + relativeY;
-
-    connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
-
-    const distanceText = themeColors.value(distance.toString());
-    const dirSymbol = themeColors.colorize(directionInfo.symbol, 'DIRECTION_SYMBOL');
-    const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
-    const explanation = `${distanceText} ${distance !== 1 ? "units" : "unit"} ${dirSymbol} ${directionInfo.name}`;
-    return [
-      themeColors.success(`Driving ${explanation} at ${throttleDisplay} throttle`),
-    ];
-  }
-
-  if (args.length < 2) {
-    return [
-      themeColors.error("drive: error: missing required arguments"),
-      "",
-      themeColors.dim("Usage: drive <tank_name> [throttle]"),
-      themeColors.dim("       drive <direction> [distance] [throttle]"),
-      themeColors.dim("       drive <relative_x> <relative_y> [throttle]"),
-      "",
-      themeColors.dim("Tank name not found. If you meant coordinates, provide both X and Y:"),
-      themeColors.dim("  drive 10 5      (10 units right, 5 units down)"),
-      themeColors.dim("  drive -10 0     (10 units left)"),
-      themeColors.dim("  drive 0 -15 75  (15 units up at 75% throttle)"),
-    ];
-  }
-
-  const relativeX = Number.parseInt(args[0]);
-
-  if (Number.isNaN(relativeX)) {
-    return [
-      themeColors.error(`drive: error: invalid relative x coordinate '${args[0]}'`),
-      "",
-      themeColors.dim("Relative X coordinate must be an integer (can be negative)"),
-      "",
-      themeColors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
-      themeColors.dim("       drive 10 5"),
-    ];
-  }
-
-  const relativeY = Number.parseInt(args[1]);
-
-  if (Number.isNaN(relativeY)) {
-    return [
-      themeColors.error(`drive: error: invalid relative y coordinate '${args[1]}'`),
-      "",
-      themeColors.dim("Relative Y coordinate must be an integer (can be negative)"),
-      "",
-      themeColors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
-      themeColors.dim("       drive 10 5"),
-    ];
-  }
-
-  const targetX = Math.floor(myTank.positionX) + relativeX;
-  const targetY = Math.floor(myTank.positionY) - relativeY;
 
   let throttle = 1;
   if (args.length > 2) {
@@ -964,21 +839,25 @@ export function drive(
       return [
         themeColors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
         "",
-        themeColors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
-        themeColors.dim("       drive 10 5 75"),
+        themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
+        themeColors.dim("       drive northeast 5 75"),
       ];
     } else {
       throttle = parsed / 100;
     }
   }
 
-  connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
+  const directionX = directionInfo.x * distance;
+  const directionY = directionInfo.y * distance;
 
-  const relativeStr = themeColors.value(`(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`);
-  const targetStr = themeColors.value(`${targetX} ${targetY}`);
+  connection.reducers.drive({ worldId, directionX, directionY, throttle });
+
+  const distanceText = themeColors.value(distance.toString());
+  const dirSymbol = themeColors.colorize(directionInfo.symbol, 'DIRECTION_SYMBOL');
   const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
+  const explanation = `${distanceText} ${distance !== 1 ? "units" : "unit"} ${dirSymbol} ${directionInfo.name}`;
   return [
-    themeColors.success(`Driving to ${relativeStr} -> ${targetStr} at ${throttleDisplay} throttle`),
+    themeColors.success(`Driving ${explanation} at ${throttleDisplay} throttle`),
   ];
 }
 
