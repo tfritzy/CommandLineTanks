@@ -172,24 +172,23 @@ export function findCommandSuggestion(input: string): string | null {
 export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
-      "Commands:",
-      "  drive, d             Drive to a direction or coordinate using pathfinding",
-      "  stop, s              Stop the tank immediately",
-      "  aim, a               Aim turret at an angle or direction",
-      "  target, t            Target another tank by code",
-      "  fire, f              Fire a projectile from your tank",
-      "  switch, w            Switch to a different gun",
-      "  smoke, sm            Deploy a smokescreen that disrupts enemy targeting",
-      "  overdrive, od        Activate overdrive for 25% increased speed for 10 seconds",
-      "  repair, rep          Begin repairing your tank to restore health",
-      "  respawn              Respawn after death",
-      "  tanks                Display all tanks in the world with statistics",
-      "  name                 View or change your player name",
-      "  create               Create a new game world with optional flags",
-      "  join                 Join or create a game world (default: random)",
-      "  exit, e              Return to your homeworld",
-      "  clear, c             Clear the terminal output",
-      "  help, h              Display help information",
+      `  ${themeColors.command("drive")}, ${themeColors.command("d")}             Drive to a direction or coordinate using pathfinding`,
+      `  ${themeColors.command("stop")}, ${themeColors.command("s")}              Stop the tank immediately`,
+      `  ${themeColors.command("aim")}, ${themeColors.command("a")}               Aim turret at an angle or direction`,
+      `  ${themeColors.command("target")}, ${themeColors.command("t")}            Target another tank by code`,
+      `  ${themeColors.command("fire")}, ${themeColors.command("f")}              Fire a projectile from your tank`,
+      `  ${themeColors.command("switch")}, ${themeColors.command("w")}            Switch to a different gun`,
+      `  ${themeColors.command("smoke")}, ${themeColors.command("sm")}            Deploy a smokescreen that disrupts enemy targeting`,
+      `  ${themeColors.command("overdrive")}, ${themeColors.command("od")}        Activate overdrive for 25% increased speed for 10 seconds`,
+      `  ${themeColors.command("repair")}, ${themeColors.command("rep")}          Begin repairing your tank to restore health`,
+      `  ${themeColors.command("respawn")}              Respawn after death`,
+      `  ${themeColors.command("tanks")}                Display all tanks in the world with statistics`,
+      `  ${themeColors.command("name")}                 View or change your player name`,
+      `  ${themeColors.command("create")}               Create a new game world with optional flags`,
+      `  ${themeColors.command("join")}                 Join or create a game world (default: random)`,
+      `  ${themeColors.command("exit")}, ${themeColors.command("e")}              Return to your homeworld`,
+      `  ${themeColors.command("clear")}, ${themeColors.command("c")}             Clear the terminal output`,
+      `  ${themeColors.command("help")}, ${themeColors.command("h")}              Display help information`,
     ];
   }
 
@@ -530,7 +529,7 @@ export function aim(
     const description = `${themeColors.colorize(dirInfo.symbol, 'DIRECTION_SYMBOL')} ${dirInfo.name}`;
 
     connection.reducers.aim({ worldId, angleRadians });
-    return [themeColors.success(`Aiming turret to ${description}`)];
+    return [themeColors.info(`Aiming turret to ${description}`)];
   } else {
     const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
@@ -550,7 +549,7 @@ export function aim(
     const description = `${degrees}°`;
 
     connection.reducers.aim({ worldId, angleRadians });
-    return [themeColors.success(`Aiming turret to ${description}`)];
+    return [themeColors.argument(`Aiming turret to ${description}`)];
   }
 }
 
@@ -864,7 +863,7 @@ export function drive(
     const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
     const explanation = `${distanceText} ${distance !== 1 ? "units" : "unit"} ${dirSymbol} ${directionInfo.name}`;
     return [
-      themeColors.success(`Driving ${explanation} at ${throttleDisplay} throttle`),
+      themeColors.info(`Driving ${explanation} at ${throttleDisplay} throttle`),
     ];
   }
 

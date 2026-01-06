@@ -3,6 +3,7 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
+import { COLORS, PALETTE, colorize } from "../../theme/colors";
 import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create, changeName, exitWorld, tanks, findCommandSuggestion } from "./commands";
 
 interface TerminalComponentProps {
@@ -31,7 +32,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const playerNameRef = useRef<string>("guest");
 
   const getPrompt = () => {
-    return `\x1b[1;36m${playerNameRef.current}@cltanks\x1b[0m:~$ `;
+    const name = playerNameRef.current;
+    return `${colorize(`${name}@cltanks`, 'PROMPT')}${colorize(':~$ ', 'TEXT_DEFAULT')}`;
   };
 
   useEffect(() => {
@@ -66,27 +68,27 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       fontFamily: "'JetBrains Mono', monospace",
       lineHeight: 1.1,
       theme: {
-        background: "#2a152d",
-        foreground: "#e6eeed",
-        cursor: "#96dc7f",
-        cursorAccent: "#2a152d",
-        selectionBackground: "rgba(150, 220, 127, 0.3)",
-        black: "#2e2e43",
-        red: "#c06852",
-        green: "#96dc7f",
-        yellow: "#fceba8",
-        blue: "#5a78b2",
-        magenta: "#794e6d",
-        cyan: "#7fbbdc",
-        white: "#e6eeed",
-        brightBlack: "#707b89",
-        brightRed: "#e39764",
-        brightGreen: "#d5f893",
-        brightYellow: "#f5c47c",
-        brightBlue: "#7396d5",
-        brightMagenta: "#9d4343",
-        brightCyan: "#aaeeea",
-        brightWhite: "#fcfbf3",
+        background: COLORS.TERMINAL.BACKGROUND,
+        foreground: COLORS.TERMINAL.TEXT_DEFAULT,
+        cursor: COLORS.TERMINAL.PROMPT,
+        cursorAccent: COLORS.TERMINAL.BACKGROUND,
+        selectionBackground: `${COLORS.TERMINAL.PROMPT}44`,
+        black: PALETTE.GROUND_DARK,
+        red: COLORS.TERMINAL.ERROR,
+        green: COLORS.TERMINAL.SUCCESS,
+        yellow: COLORS.TERMINAL.WARNING,
+        blue: COLORS.TERMINAL.BORDER,
+        magenta: PALETTE.PURPLE_MEDIUM,
+        cyan: COLORS.TERMINAL.COMMAND,
+        white: COLORS.TERMINAL.TEXT_DEFAULT,
+        brightBlack: COLORS.TERMINAL.TEXT_DIM,
+        brightRed: COLORS.TERMINAL.COOLDOWN,
+        brightGreen: COLORS.TERMINAL.ARGUMENT,
+        brightYellow: PALETTE.YELLOW_MEDIUM,
+        brightBlue: COLORS.TERMINAL.INFO,
+        brightMagenta: COLORS.TERMINAL.HEALTH,
+        brightCyan: COLORS.TERMINAL.TANK_CODE,
+        brightWhite: PALETTE.WHITE_BRIGHT,
       },
       scrollback: 1000,
       convertEol: true,
@@ -134,7 +136,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     const executeCommand = (commandName: string, commandArgs: string[]): string[] | 'CLEAR' => {
       const connection = getConnection();
       if (!connection?.isActive) {
-        return ["Error: connection is currently not active"];
+        return [colorize("Error: connection is currently not active", 'ERROR')];
       }
 
       switch (commandName.toLowerCase()) {
@@ -185,7 +187,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         case 'c':
           return 'CLEAR';
         default:
-          return [`Command not found: ${commandName}`, "", "Use 'help' to see all available commands."];
+          return [colorize(`Command not found: ${commandName}`, 'ERROR'), "", `${colorize("Use 'help' to see all available commands.", 'TEXT_DIM')}`];
       }
     };
 
@@ -205,7 +207,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           const resolvedCmd = resolveCommand(cmd);
 
           if (resolvedCmd !== cmd.toLowerCase()) {
-            term.write(`Assuming you meant '${resolvedCmd}'\r\n\r\n`);
+            term.write(`${colorize('Assuming you meant', 'TEXT_DIM')} ${colorize(`'${resolvedCmd}'`, 'COMMAND')}\r\n\r\n`);
           }
 
           const commandOutput = executeCommand(resolvedCmd, args);
@@ -347,8 +349,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         width: "100%",
         height: "500px",
         maxHeight: "50vh",
-        background: "#2a152d",
-        borderTop: "1px solid #5a78b2",
+        background: COLORS.TERMINAL.BACKGROUND,
+        borderTop: `1px solid ${COLORS.TERMINAL.BORDER}`,
         display: "flex",
         justifyContent: "center",
         padding: "16px",
