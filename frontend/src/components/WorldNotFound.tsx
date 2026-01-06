@@ -46,24 +46,12 @@ export default function WorldNotFound({ worldId }: WorldNotFoundProps) {
       <div style={{
         fontSize: '16px',
         color: '#a9bcbf',
-        marginBottom: '12px',
+        marginBottom: '26px',
         maxWidth: '500px',
         textAlign: 'center',
         lineHeight: 1.6,
       }}>
         The world you're trying to access doesn't exist.
-      </div>
-
-      <div style={{
-        fontSize: '13px',
-        color: '#707b89',
-        marginBottom: '32px',
-        fontFamily: "'JetBrains Mono', monospace",
-        padding: '8px 16px',
-        background: 'rgba(74, 75, 91, 0.3)',
-        border: '1px solid rgba(112, 123, 137, 0.2)',
-      }}>
-        {worldId}
       </div>
 
       <button
@@ -83,7 +71,7 @@ export default function WorldNotFound({ worldId }: WorldNotFoundProps) {
         onMouseEnter={(e) => e.currentTarget.style.background = COLORS.TERMINAL.INFO}
         onMouseLeave={(e) => e.currentTarget.style.background = COLORS.TERMINAL.BORDER}
       >
-        GO TO HOME WORLD
+        GO HOME
       </button>
     </div>
   );

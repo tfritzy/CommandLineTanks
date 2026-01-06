@@ -14,15 +14,14 @@ import { getConnection } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
+import { World } from "../../module_bindings";
 import {
   type EventContext,
   type SubscriptionHandle,
 } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
-const isIdentityFormat = (id: string): boolean => {
-  return /^[0-9a-f]{64}$/i.test(id);
-};
+
 
 export default function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
@@ -205,37 +204,35 @@ export default function GameView() {
 
     setWorldNotFound(false);
 
-    const isOtherPlayersHomeworld =
-      isIdentityFormat(worldId) &&
-      connection.identity &&
-      worldId.toLowerCase() !== connection.identity.toHexString().toLowerCase();
-
-    if (isOtherPlayersHomeworld) {
-      setWorldNotFound(true);
-      return;
-    }
-
-    const checkWorldExists = () => {
+    const check = () => {
       const world = connection.db.world.Id.find(worldId);
-      return world !== undefined;
+      if (world) {
+        setWorldNotFound(false);
+      } else {
+        setWorldNotFound(true);
+      }
     };
 
-    const worldCheckTimeout = setTimeout(() => {
-      const exists = checkWorldExists();
-      setWorldNotFound(!exists);
-    }, 1500);
+    const worldCheckTimeout = setTimeout(check, 1500);
+
+    const handleWorldInsert = (_ctx: EventContext, world: Infer<typeof World>) => {
+      if (world.id === worldId) {
+        setWorldNotFound(false);
+      }
+    };
+
+    connection.db.world.onInsert(handleWorldInsert);
 
     return () => {
       clearTimeout(worldCheckTimeout);
+      if (connection) {
+        connection.db.world.removeOnInsert(handleWorldInsert);
+      }
     };
   }, [worldId]);
 
   if (!worldId) {
     return null;
-  }
-
-  if (worldNotFound) {
-    return <WorldNotFound worldId={worldId} />;
   }
 
   return (
@@ -423,6 +420,25 @@ export default function GameView() {
                   </button>
                 </div>
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {worldNotFound && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 2000,
+              }}
+            >
+              <WorldNotFound worldId={worldId} />
             </motion.div>
           )}
         </AnimatePresence>
