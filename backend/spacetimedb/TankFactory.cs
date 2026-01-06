@@ -37,6 +37,7 @@ public static partial class Module
             Message = null,
             Guns = [BASE_GUN],
             SelectedGunIndex = 0,
+            HasShield = false,
             RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
             DeathTimestamp = 0,
             UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch

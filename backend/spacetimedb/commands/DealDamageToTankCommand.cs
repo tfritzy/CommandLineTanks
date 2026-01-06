@@ -16,6 +16,13 @@ public static partial class Module
             return;
         }
 
+        if (tank.HasShield)
+        {
+            var tankWithoutShield = tank with { HasShield = false };
+            ctx.Db.tank.Id.Update(tankWithoutShield);
+            return;
+        }
+
         var newHealth = tank.Health - damage;
 
         if (newHealth <= 0)

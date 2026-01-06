@@ -68,6 +68,8 @@ public static partial class Module
         public Gun[] Guns;
         public int SelectedGunIndex;
 
+        public bool HasShield;
+
         public long RemainingImmunityMicros;
 
         public ulong DeathTimestamp;
@@ -106,6 +108,7 @@ public static partial class Module
             float targetTurretRotation = 0.0f,
             Gun[]? guns = null,
             int selectedGunIndex = 0,
+            bool hasShield = false,
             long remainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
             ulong deathTimestamp = 0,
             ulong? updatedAt = null)
@@ -143,6 +146,7 @@ public static partial class Module
                 TurretRotationSpeed = turretRotationSpeed,
                 Guns = guns ?? [BASE_GUN],
                 SelectedGunIndex = selectedGunIndex,
+                HasShield = hasShield,
                 Velocity = velocity ?? new Vector2Float(0, 0),
                 TurretAngularVelocity = turretAngularVelocity,
                 RemainingImmunityMicros = remainingImmunityMicros,
