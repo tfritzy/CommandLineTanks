@@ -150,8 +150,13 @@ export class DeadTankParticles {
   }
 
   public update(deltaTime: number): void {
+    let allDead = true;
+
     for (const particle of this.debrisParticles) {
       particle.lifetime += deltaTime;
+      if (particle.lifetime < particle.maxLifetime) {
+        allDead = false;
+      }
       particle.x += particle.velocityX * deltaTime;
       particle.y += particle.velocityY * deltaTime;
       particle.rotation += particle.angularVelocity * deltaTime;
@@ -161,6 +166,9 @@ export class DeadTankParticles {
 
     for (const particle of this.fireParticles) {
       particle.lifetime += deltaTime;
+      if (particle.lifetime < particle.maxLifetime) {
+        allDead = false;
+      }
       particle.x += particle.velocityX * deltaTime;
       particle.y += particle.velocityY * deltaTime;
       particle.rotation += particle.angularVelocity * deltaTime;
@@ -170,6 +178,9 @@ export class DeadTankParticles {
 
     for (const particle of this.smokeParticles) {
       particle.lifetime += deltaTime;
+      if (particle.lifetime < particle.maxLifetime) {
+        allDead = false;
+      }
       particle.x += particle.velocityX * deltaTime;
       particle.y += particle.velocityY * deltaTime;
       particle.rotation += particle.angularVelocity * deltaTime;
@@ -180,17 +191,16 @@ export class DeadTankParticles {
 
     for (const particle of this.sparkParticles) {
       particle.lifetime += deltaTime;
+      if (particle.lifetime < particle.maxLifetime) {
+        allDead = false;
+      }
       particle.x += particle.velocityX * deltaTime;
       particle.y += particle.velocityY * deltaTime;
       particle.velocityX *= 0.95;
       particle.velocityY *= 0.95;
     }
 
-    this.isDead = 
-      this.debrisParticles.every((p) => p.lifetime >= p.maxLifetime) &&
-      this.fireParticles.every((p) => p.lifetime >= p.maxLifetime) &&
-      this.smokeParticles.every((p) => p.lifetime >= p.maxLifetime) &&
-      this.sparkParticles.every((p) => p.lifetime >= p.maxLifetime);
+    this.isDead = allDead;
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {

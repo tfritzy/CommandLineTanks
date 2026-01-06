@@ -11,6 +11,8 @@ export abstract class Projectile {
   protected explosionRadius: number | undefined;
   protected trackingStrength: number;
   protected trackingRadius: number;
+  private cachedScreenPosition: { x: number; y: number } = { x: 0, y: 0 };
+  private cachedShadowPosition: { x: number; y: number } = { x: 0, y: 0 };
 
   constructor(
     x: number,
@@ -82,17 +84,15 @@ export abstract class Projectile {
   }
 
   protected getScreenPosition(): { x: number; y: number } {
-    return {
-      x: this.x * UNIT_TO_PIXEL,
-      y: this.y * UNIT_TO_PIXEL,
-    };
+    this.cachedScreenPosition.x = this.x * UNIT_TO_PIXEL;
+    this.cachedScreenPosition.y = this.y * UNIT_TO_PIXEL;
+    return this.cachedScreenPosition;
   }
 
   protected getShadowScreenPosition(): { x: number; y: number } {
-    return {
-      x: this.x * UNIT_TO_PIXEL - Projectile.SHADOW_OFFSET,
-      y: this.y * UNIT_TO_PIXEL + Projectile.SHADOW_OFFSET,
-    };
+    this.cachedShadowPosition.x = this.x * UNIT_TO_PIXEL - Projectile.SHADOW_OFFSET;
+    this.cachedShadowPosition.y = this.y * UNIT_TO_PIXEL + Projectile.SHADOW_OFFSET;
+    return this.cachedShadowPosition;
   }
 
   protected getTextureKey(prefix: string): string {
