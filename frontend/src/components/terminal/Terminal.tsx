@@ -30,7 +30,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const historyIndexRef = useRef<number>(-1);
   const currentInputRef = useRef<string>("");
   const getPrompt = () => {
-    return colorize('❯ ', 'PROMPT');
+    return `\x1b[1m${colorize('❯ ', 'PROMPT')}`;
   };
 
   useEffect(() => {

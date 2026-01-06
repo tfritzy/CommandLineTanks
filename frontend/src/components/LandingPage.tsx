@@ -48,8 +48,7 @@ const TerminalMock: React.FC = () => {
             fitAddon.fit();
 
             // Mock session content
-            const prompt = '\x1b[36m❯\x1b[0m ';
-
+            const prompt = '\x1b[1m\x1b[32m❯\x1b[0m ';
             const writeDelayed = async (text: string, delay: number) => {
                 return new Promise<void>(resolve => {
                     setTimeout(() => {

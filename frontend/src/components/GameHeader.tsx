@@ -21,7 +21,7 @@ const HeaderBox = ({
 }) => (
   <div
     style={{
-      backgroundColor: "rgba(42, 21, 45, 0.7)",
+      backgroundColor: "rgba(42, 21, 45, .8)",
       backdropFilter: "blur(8px)",
       border: "1px solid rgba(255, 255, 255, 0.1)",
       borderRadius: "4px",
