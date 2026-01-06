@@ -7,7 +7,7 @@ using System.Linq;
 public static partial class Module
 {
     [Reducer]
-    public static void driveTo(ReducerContext ctx, string worldId, int targetX, int targetY, float throttle)
+    public static void drive(ReducerContext ctx, string worldId, int targetX, int targetY, float throttle)
     {
         World? maybeWorld = ctx.Db.world.Id.Find(worldId);
         if (maybeWorld != null)

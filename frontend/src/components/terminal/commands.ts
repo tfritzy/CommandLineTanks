@@ -123,18 +123,18 @@ function levenshteinDistance(str1: string, str2: string): number {
 
 export function findCommandSuggestion(input: string): string | null {
   const inputLower = input.toLowerCase().trim();
-  
+
   if (inputLower.length === 0) {
     return null;
   }
 
   let bestMatch: { command: string; distance: number } | null = null;
-  
+
   for (const cmd of allCommands) {
     const nameDistance = levenshteinDistance(inputLower, cmd.name);
     const aliasDistance = cmd.alias ? levenshteinDistance(inputLower, cmd.alias) : Infinity;
     const distance = Math.min(nameDistance, aliasDistance);
-    
+
     if (distance <= 2) {
       if (!bestMatch || distance < bestMatch.distance) {
         bestMatch = { command: cmd.name, distance };
@@ -146,16 +146,16 @@ export function findCommandSuggestion(input: string): string | null {
 
   if (inputLower.startsWith('f') && inputLower.length > 1 && (!bestMatch || bestMatch.distance > 1)) {
     const withoutF = inputLower.substring(1);
-    
+
     for (const cmd of allCommands) {
       if (cmd.name === 'fire' || cmd.alias === 'f') {
         continue;
       }
-      
+
       const nameDistance = levenshteinDistance(withoutF, cmd.name);
       const aliasDistance = cmd.alias ? levenshteinDistance(withoutF, cmd.alias) : Infinity;
       const distance = Math.min(nameDistance, aliasDistance);
-      
+
       if (distance <= 1) {
         if (!bestMatch || distance < bestMatch.distance) {
           bestMatch = { command: cmd.name, distance };
@@ -173,7 +173,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       "Commands:",
-      "  drive, d             Drive to a tank, direction, or coordinate using pathfinding",
+      "  drive, d             Drive to a direction or coordinate using pathfinding",
       "  stop, s              Stop the tank immediately",
       "  aim, a               Aim turret at an angle or direction",
       "  target, t            Target another tank by code",
@@ -199,16 +199,11 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "drive":
     case "d":
       return [
-        "drive, d - Drive to a relative coordinate or tank using pathfinding",
+        "drive, d - Navigate your tank using pathfinding",
         "",
-        "Usage: drive <target_code> [throttle]",
-        "       drive <direction> [distance] [throttle]",
-        "       drive <relative_x> <relative_y> [throttle]",
+        "Usage: drive <direction> [distance] [throttle]",
         "",
         "Arguments:",
-        "  <target_code>  Target code of the tank to drive to",
-        "                 Target codes are shown above each tank (e.g., a4, h8, z2)",
-        "                 Format: one letter + one digit",
         "  <direction>    Direction to drive (with pathfinding)",
         "                 Directions:",
         "                   ↑: north, up, n, u",
@@ -220,18 +215,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ←: west, left, w, l",
         "                   ↖: northwest, upleft, leftup, nw, ul, lu",
         "  [distance]     Distance to drive in units (default: 1)",
-        "  <relative_x>   X offset from your position (e.g., -10, 0, +15)",
-        "  <relative_y>   Y offset from your position (e.g., -5, 0, +20)",
         "  [throttle]     Speed as percentage 1-100 (default: 100)",
         "",
         "Examples:",
-        "  drive a4",
-        "  drive h8 75",
         "  drive northeast 5",
         "  drive up 3 75",
-        "  drive 10 5      (10 units right, 5 units down)",
-        "  drive -10 0     (10 units left)",
-        "  drive 0 -15 75  (15 units up at 75% throttle)",
+        "  drive s 10",
       ];
 
     case "stop":
@@ -804,14 +793,12 @@ export function drive(
     return [
       themeColors.error("drive: error: missing required arguments"),
       "",
-      themeColors.dim("Usage: drive <target_code> [throttle]"),
-      themeColors.dim("       drive <direction> [distance] [throttle]"),
+      themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
       themeColors.dim("       drive <relative_x> <relative_y> [throttle]"),
       "",
       themeColors.dim("Examples:"),
       themeColors.dim("  drive northeast 5"),
       themeColors.dim("  drive up 3 75"),
-      themeColors.dim("  drive a4"),
       themeColors.dim("  drive 10 5      (10 units right, 5 units down)"),
     ];
   }
@@ -830,38 +817,6 @@ export function drive(
   }
 
   const firstArgLower = args[0].toLowerCase();
-  const targetTank = allTanks.find(
-    (t) => t.targetCode.toLowerCase() === firstArgLower
-  );
-
-  if (targetTank && targetTank.id !== myTank.id) {
-    let throttle = 1;
-    if (args.length > 1) {
-      const parsed = Number.parseInt(args[1]);
-      if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
-        return [
-          themeColors.error(`drive: error: invalid value '${args[1]}' for '[throttle]': must be an integer between 1 and 100`),
-          "",
-          themeColors.dim("Usage: drive <target_code> [throttle]"),
-          themeColors.dim("       drive a4 75"),
-        ];
-      } else {
-        throttle = parsed / 100;
-      }
-    }
-
-    connection.reducers.driveToTank({
-      worldId,
-      targetCode: targetTank.targetCode,
-      throttle,
-    });
-
-    const tankCode = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
-    const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
-    return [
-      themeColors.success(`Driving to tank ${tankCode} (${targetTank.name}) at ${throttleDisplay} throttle`),
-    ];
-  }
 
   if (validDirections.includes(firstArgLower)) {
     const directionInfo = directionAliases[firstArgLower];
@@ -902,7 +857,7 @@ export function drive(
     const targetX = Math.floor(myTank.positionX) + relativeX;
     const targetY = Math.floor(myTank.positionY) + relativeY;
 
-    connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
+    connection.reducers.drive({ worldId, targetX, targetY, throttle });
 
     const distanceText = themeColors.value(distance.toString());
     const dirSymbol = themeColors.colorize(directionInfo.symbol, 'DIRECTION_SYMBOL');
@@ -913,72 +868,14 @@ export function drive(
     ];
   }
 
-  if (args.length < 2) {
-    return [
-      themeColors.error("drive: error: missing required arguments"),
-      "",
-      themeColors.dim("Usage: drive <tank_name> [throttle]"),
-      themeColors.dim("       drive <direction> [distance] [throttle]"),
-      themeColors.dim("       drive <relative_x> <relative_y> [throttle]"),
-      "",
-      themeColors.dim("Tank name not found. If you meant coordinates, provide both X and Y:"),
-      themeColors.dim("  drive 10 5      (10 units right, 5 units down)"),
-      themeColors.dim("  drive -10 0     (10 units left)"),
-      themeColors.dim("  drive 0 -15 75  (15 units up at 75% throttle)"),
-    ];
-  }
-
-  const relativeX = Number.parseInt(args[0]);
-
-  if (Number.isNaN(relativeX)) {
-    return [
-      themeColors.error(`drive: error: invalid relative x coordinate '${args[0]}'`),
-      "",
-      themeColors.dim("Relative X coordinate must be an integer (can be negative)"),
-      "",
-      themeColors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
-      themeColors.dim("       drive 10 5"),
-    ];
-  }
-
-  const relativeY = Number.parseInt(args[1]);
-
-  if (Number.isNaN(relativeY)) {
-    return [
-      themeColors.error(`drive: error: invalid relative y coordinate '${args[1]}'`),
-      "",
-      themeColors.dim("Relative Y coordinate must be an integer (can be negative)"),
-      "",
-      themeColors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
-      themeColors.dim("       drive 10 5"),
-    ];
-  }
-
-  const targetX = Math.floor(myTank.positionX) + relativeX;
-  const targetY = Math.floor(myTank.positionY) - relativeY;
-
-  let throttle = 1;
-  if (args.length > 2) {
-    const parsed = Number.parseInt(args[2]);
-    if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
-      return [
-        themeColors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
-        "",
-        themeColors.dim("Usage: drive <relative_x> <relative_y> [throttle]"),
-        themeColors.dim("       drive 10 5 75"),
-      ];
-    } else {
-      throttle = parsed / 100;
-    }
-  }
-
-  connection.reducers.driveTo({ worldId, targetX, targetY, throttle });
-
-  const relativeStr = themeColors.value(`(${relativeX > 0 ? "+" : ""}${relativeX}, ${relativeY > 0 ? "+" : ""}${relativeY})`);
-  const targetStr = themeColors.value(`${targetX} ${targetY}`);
-  const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
   return [
-    themeColors.success(`Driving to ${relativeStr} -> ${targetStr} at ${throttleDisplay} throttle`),
+    themeColors.error("drive: error: invalid movement command"),
+    "",
+    themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
+    "",
+    themeColors.dim("Examples:"),
+    themeColors.dim("  drive northeast 5"),
+    themeColors.dim("  drive up 3 75"),
   ];
 }
 
@@ -1136,7 +1033,7 @@ export function create(
   args: string[]
 ): string[] {
   const usage = themeColors.dim("Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]");
-  
+
   const defaults = {
     name: 'New World',
     passcode: '',
@@ -1151,7 +1048,7 @@ export function create(
 
   while (i < args.length) {
     const arg = args[i];
-    
+
     if (arg === '--name' || arg === '-n') {
       if (i + 1 >= args.length) {
         return [
@@ -1265,14 +1162,14 @@ export function create(
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
-  
+
   const gameDurationMicros = BigInt(state.duration * 60 * 1000000);
   const visibility = WorldVisibility.Private;
 
-  connection.reducers.createWorld({ 
+  connection.reducers.createWorld({
     joinCode,
     worldName: state.name,
-    visibility, 
+    visibility,
     passcode: state.passcode,
     botCount: state.bots,
     gameDurationMicros,
@@ -1438,7 +1335,7 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
   });
 
   const rows: string[] = [];
-  
+
   const teamWidth = 4;
   const nameWidth = Math.max(4, ...allTanks.map(t => t.name.length));
   const killsWidth = 5;
@@ -1446,7 +1343,7 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
   const kdWidth = 6;
   const positionWidth = 18;
 
-  const header = 
+  const header =
     "Team".padEnd(teamWidth) + " | " +
     "Name".padEnd(nameWidth) + " | " +
     "Kills".padEnd(killsWidth) + " | " +
@@ -1454,25 +1351,25 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
     "K/D".padEnd(kdWidth) + " | " +
     "Position".padEnd(positionWidth) + " | " +
     "Gun";
-  
+
   const separator = "-".repeat(header.length);
-  
+
   rows.push(header);
   rows.push(separator);
 
   for (const tank of allTanks) {
-    const kd = tank.deaths === 0 
-      ? tank.kills.toFixed(2) 
+    const kd = tank.deaths === 0
+      ? tank.kills.toFixed(2)
       : (tank.kills / tank.deaths).toFixed(2);
-    
+
     const position = `(${tank.positionX.toFixed(1)}, ${tank.positionY.toFixed(1)})`;
-    
+
     const selectedGun = tank.guns.at(tank.selectedGunIndex) ?? null;
     const gunName = selectedGun?.gunType.toString() ?? "None";
-    
+
     const teamName = tank.alliance === 0 ? "Red" : tank.alliance === 1 ? "Blue" : "Unknown";
-    
-    const row = 
+
+    const row =
       teamName.padEnd(teamWidth) + " | " +
       tank.name.padEnd(nameWidth) + " | " +
       tank.kills.toString().padEnd(killsWidth) + " | " +
@@ -1480,7 +1377,7 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
       kd.padEnd(kdWidth) + " | " +
       position.padEnd(positionWidth) + " | " +
       gunName;
-    
+
     rows.push(row);
   }
 

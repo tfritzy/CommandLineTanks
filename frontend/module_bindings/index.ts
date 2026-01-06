@@ -45,10 +45,8 @@ import CreateWorld from "./create_world_reducer";
 export { CreateWorld };
 import DeleteKill from "./delete_kill_reducer";
 export { DeleteKill };
-import DriveTo from "./drive_to_reducer";
-export { DriveTo };
-import DriveToTank from "./drive_to_tank_reducer";
-export { DriveToTank };
+import Drive from "./drive_reducer";
+export { Drive };
 import EndGame from "./end_game_reducer";
 export { EndGame };
 import ExitWorld from "./exit_world_reducer";
@@ -565,8 +563,7 @@ const reducersSchema = __reducers(
   __reducerSchema("CleanupSmokeCloud", CleanupSmokeCloud),
   __reducerSchema("createWorld", CreateWorld),
   __reducerSchema("delete_kill", DeleteKill),
-  __reducerSchema("driveTo", DriveTo),
-  __reducerSchema("driveToTank", DriveToTank),
+  __reducerSchema("drive", Drive),
   __reducerSchema("EndGame", EndGame),
   __reducerSchema("exitWorld", ExitWorld),
   __reducerSchema("fire", Fire),
