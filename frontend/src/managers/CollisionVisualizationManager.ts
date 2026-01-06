@@ -150,6 +150,8 @@ export class CollisionVisualizationManager {
 
     for (const regionKey of collisionRegions) {
       const commaIndex = regionKey.indexOf(',');
+      if (commaIndex === -1) continue;
+      
       const regionX = parseInt(regionKey.substring(0, commaIndex));
       const regionY = parseInt(regionKey.substring(commaIndex + 1));
       
