@@ -18,7 +18,6 @@ interface TankDrawParams {
   flashTimer: number;
   name: string;
   health: number;
-  hasShield: boolean;
   isImmune: boolean;
 }
 
@@ -97,24 +96,6 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.restore();
 
   ctx.restore();
-
-  if (params.hasShield) {
-    ctx.save();
-    ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
-
-    const shieldSize = 40;
-    const shieldHalfSize = shieldSize / 2;
-
-    ctx.strokeStyle = COLORS.TERMINAL.INFO;
-    ctx.lineWidth = 2;
-    ctx.fillStyle = "rgba(115, 150, 213, 0.25)";
-    ctx.beginPath();
-    ctx.roundRect(-shieldHalfSize, -shieldHalfSize, shieldSize, shieldSize, 5);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.restore();
-  }
 }
 
 export function drawTankNameLabel(

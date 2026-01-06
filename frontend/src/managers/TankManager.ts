@@ -91,11 +91,6 @@ export class TankManager {
                 this.soundManager.play("damage", 0.5, pos.x, pos.y);
               }
 
-              if (oldTank.hasShield && !newTank.hasShield) {
-                const pos = tank.getPosition();
-                this.soundManager.play("shield-pop", 0.5, pos.x, pos.y);
-              }
-
               if (oldTank.selectedGunIndex !== newTank.selectedGunIndex) {
                 const pos = tank.getPosition();
                 this.soundManager.play("weapon-switch", 0.5, pos.x, pos.y);
@@ -113,7 +108,6 @@ export class TankManager {
               tank.setAlliance(newTank.alliance);
               tank.setGuns(newTank.guns);
               tank.setSelectedGunIndex(newTank.selectedGunIndex);
-              tank.setHasShield(newTank.hasShield);
               tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
               tank.setTargetCode(newTank.targetCode);
               tank.setMessage(newTank.message ?? null);
@@ -205,7 +199,6 @@ export class TankManager {
       path,
       tank.guns,
       tank.selectedGunIndex,
-      tank.hasShield,
       tank.remainingImmunityMicros
     );
 

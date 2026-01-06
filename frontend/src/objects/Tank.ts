@@ -39,7 +39,6 @@ export class Tank {
   private guns: Infer<typeof Gun>[];
   private selectedGunIndex: number;
   private flashTimer: number = 0;
-  private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
   private message: string | null = null;
   private positionBuffer: Array<{
@@ -63,7 +62,6 @@ export class Tank {
     path: PathEntry[] = [],
     guns: Infer<typeof Gun>[] = [],
     selectedGunIndex: number = 0,
-    hasShield: boolean = false,
     remainingImmunityMicros: bigint = 0n
   ) {
     this.id = id;
@@ -80,7 +78,6 @@ export class Tank {
     this.path = path;
     this.guns = guns;
     this.selectedGunIndex = selectedGunIndex;
-    this.hasShield = hasShield;
     this.remainingImmunityMicros = remainingImmunityMicros;
   }
 
@@ -136,7 +133,6 @@ export class Tank {
       flashTimer: this.flashTimer,
       name: this.name,
       health: this.health,
-      hasShield: this.hasShield,
       isImmune: isImmune,
     });
   }
@@ -210,10 +206,6 @@ export class Tank {
 
   public setSelectedGunIndex(selectedGunIndex: number) {
     this.selectedGunIndex = selectedGunIndex;
-  }
-
-  public setHasShield(hasShield: boolean) {
-    this.hasShield = hasShield;
   }
 
   public setRemainingImmunityMicros(remainingImmunityMicros: bigint) {
