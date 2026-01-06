@@ -11,20 +11,11 @@ public static partial class Module
             return;
         }
 
-        Tank tank = ctx.Db.tank.Owner.Filter(ctx.Sender).FirstOrDefault();
-        if (!string.IsNullOrEmpty(tank.Id))
+        var tanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
+        foreach (var tank in tanks)
         {
-            var fireState = ctx.Db.tank_fire_state.TankId.Find(tank.Id);
-            if (fireState != null)
-            {
-                ctx.Db.tank_fire_state.TankId.Delete(tank.Id);
-            }
-
-            DeleteTankPathIfExists(ctx, tank.Id);
-
             RemoveTankFromWorld(ctx, tank);
-            
-            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} named {tank.Name ?? "Unknown"}");
+            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} in world {tank.WorldId}");
         }
     }
 }

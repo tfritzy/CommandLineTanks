@@ -1,10 +1,11 @@
 using SpacetimeDB;
+using System.Linq;
 using static Types;
 
 public static partial class Module
 {
     [Reducer]
-    public static void joinWorld(ReducerContext ctx, string? worldId, string joinCode, string passcode)
+    public static void joinWorld(ReducerContext ctx, string? worldId, string? currentWorldId, string joinCode, string passcode)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -17,7 +18,8 @@ public static partial class Module
 
         if (string.IsNullOrEmpty(worldId))
         {
-            world = ctx.Db.world.GameState_IsHomeWorld_Visibility.Filter((GameState.Playing, false, WorldVisibility.Public)).FirstOrDefault();
+            var worlds = ctx.Db.world.GameState_IsHomeWorld_Visibility.Filter((GameState.Playing, false, WorldVisibility.Public));
+            world = worlds.FirstOrDefault(w => w.Id != currentWorldId);
             
             if (world == null || string.IsNullOrEmpty(world.Value.Id))
             {

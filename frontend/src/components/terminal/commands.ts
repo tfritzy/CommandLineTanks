@@ -1184,7 +1184,11 @@ export function create(
   ];
 }
 
-export function join(connection: DbConnection, args: string[]): string[] {
+export function join(
+  connection: DbConnection,
+  currentWorldId: string,
+  args: string[]
+): string[] {
   const firstArg = args.length > 0 ? args[0] : "random";
   const isRandom = firstArg.toLowerCase() === "random";
   const worldId = isRandom ? undefined : firstArg;
@@ -1195,6 +1199,7 @@ export function join(connection: DbConnection, args: string[]): string[] {
 
   connection.reducers.joinWorld({
     worldId,
+    currentWorldId,
     joinCode,
     passcode,
   });
@@ -1207,7 +1212,9 @@ export function join(connection: DbConnection, args: string[]): string[] {
     return output;
   }
 
-  return [themeColors.success(`Joining world ${themeColors.value(worldId!)}...`)];
+  return [
+    themeColors.success(`Joining world ${themeColors.value(worldId!)}...`),
+  ];
 }
 
 export function changeName(connection: DbConnection, args: string[]): string[] {

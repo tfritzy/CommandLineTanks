@@ -6,13 +6,19 @@ public static partial class Module
     public static void CleanupHomeworldAndJoinCommand(ReducerContext ctx, string worldId, string joinCode)
     {
         var identityString = ctx.Sender.ToString().ToLower();
-        var homeworldTanks = ctx.Db.tank.WorldId.Filter(identityString).Where(t => t.Owner == ctx.Sender);
-        foreach (var homeworldTank in homeworldTanks)
+        var existingTanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
+        bool removedHomeworldTank = false;
+
+        foreach (var existingTank in existingTanks)
         {
-            ctx.Db.tank.Id.Delete(homeworldTank.Id);
+            if (existingTank.WorldId == identityString)
+            {
+                removedHomeworldTank = true;
+            }
+            RemoveTankFromWorld(ctx, existingTank);
         }
 
-        if (!HasAnyTanksInWorld(ctx, identityString))
+        if (removedHomeworldTank && !HasAnyTanksInWorld(ctx, identityString))
         {
             StopWorldTickers(ctx, identityString);
         }

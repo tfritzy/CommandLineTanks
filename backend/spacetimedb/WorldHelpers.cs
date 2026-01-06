@@ -28,6 +28,8 @@ public static partial class Module
             ctx.Db.tank_fire_state.TankId.Delete(tank.Id);
         }
         
+        DeleteTankPathIfExists(ctx, tank.Id);
+        
         ctx.Db.tank.Id.Delete(tank.Id);
         
         if (isBot)

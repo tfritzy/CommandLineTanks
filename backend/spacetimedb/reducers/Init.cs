@@ -6,29 +6,11 @@ public static partial class Module
     [Reducer(ReducerKind.Init)]
     public static void Init(ReducerContext ctx)
     {
-        var worldId = GenerateId(ctx, "wld");
-
-        var width = TerrainGenerator.GetWorldWidth();
-        var height = TerrainGenerator.GetWorldHeight();
-        var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng, width, height);
-        var terrainDetailArray = TerrainGenerator.ConvertToArray(
-            terrainDetails,
-            width,
-            height
-        );
-        var traversibilityMap = TerrainGenerator.CalculateTraversibility(baseTerrain, terrainDetailArray);
-
-        var world = CreateWorld(ctx, worldId, "Default World", baseTerrain, terrainDetails.ToArray(), traversibilityMap, width, height);
-
-        SpawnInitialBots(ctx, worldId, world);
-
         ctx.Db.ScheduledGameCleanup.Insert(new ScheduledGameCleanup
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 300_000_000 })
         });
-
-        Log.Info($"Initialized world {worldId}");
     }
 
     public static void SpawnInitialBots(ReducerContext ctx, string worldId, World world)

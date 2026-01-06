@@ -136,8 +136,8 @@ public static partial class Module
         Tank existingTank = ctx.Db.tank.Owner.Filter(owner).Where(t => t.WorldId == worldId).FirstOrDefault();
         if (!string.IsNullOrEmpty(existingTank.Id))
         {
-            Log.Info("Player already has tank in world");
-            return null;
+            Log.Info($"Player already has tank in world {worldId}, removing before creating new one");
+            RemoveTankFromWorld(ctx, existingTank);
         }
 
         var world = ctx.Db.world.Id.Find(worldId);

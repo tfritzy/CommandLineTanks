@@ -149,7 +149,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         case 'create':
           return create(connection, commandArgs);
         case 'join':
-          return join(connection, commandArgs);
+          return join(connection, worldId, commandArgs);
         case 'exit':
         case 'e':
           return exitWorld(connection, worldId, commandArgs);
