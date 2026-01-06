@@ -110,6 +110,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
   const top3 = players.slice(0, 3);
   const currentPlayer = players.find((p) => p.owner === currentPlayerIdentity);
   const isPlayerInTop3 = top3.some((p) => p.owner === currentPlayerIdentity);
+  const isRedTeam = currentPlayer?.alliance === 0;
 
   const renderPlayerLine = (player: PlayerScore, isLast: boolean = false) => {
     const teamColors = player.alliance === 0
@@ -120,9 +121,9 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
       <motion.div
         key={player.id}
         layout
-        initial={{ opacity: 0, x: 10 }}
+        initial={{ opacity: 0, x: isRedTeam ? -10 : 10 }}
         animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -10 }}
+        exit={{ opacity: 0, x: isRedTeam ? 10 : -10 }}
         transition={{
           layout: { type: "spring", stiffness: 300, damping: 30 },
           opacity: { duration: 0.2 },
@@ -171,7 +172,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
       style={{
         position: "absolute",
         top: "10px",
-        right: "10px",
+        ...(currentPlayer?.alliance === 0 ? { left: "10px" } : { right: "10px" }),
         zIndex: 1000,
         display: "flex",
         flexDirection: "column",
