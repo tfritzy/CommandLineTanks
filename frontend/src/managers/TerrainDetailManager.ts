@@ -1,4 +1,5 @@
 import { getConnection } from "../spacetimedb-connection";
+import { SoundManager } from "./SoundManager";
 import {
   type TerrainDetailRow,
   type EventContext,
@@ -32,12 +33,14 @@ export class TerrainDetailManager {
   private mushroomDecorations: MushroomDecorationsManager =
     new MushroomDecorationsManager();
   private onDetailDeletedCallbacks: (() => void)[] = [];
+  private soundManager: SoundManager;
   private subscription: TableSubscription<typeof TerrainDetailRow> | null = null;
 
-  constructor(worldId: string, worldWidth: number, worldHeight: number) {
+  constructor(worldId: string, worldWidth: number, worldHeight: number, soundManager: SoundManager) {
     this.worldId = worldId;
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
+    this.soundManager = soundManager;
     this.initializeDetailObjectsArray();
     this.subscribeToTerrainDetails();
   }
@@ -93,6 +96,7 @@ export class TerrainDetailManager {
                 detail.positionX,
                 detail.positionY
               );
+              this.soundManager.play("terrain-destroy", 0.5, detail.positionX, detail.positionY);
             }
           }
           this.detailObjects.delete(detail.id);

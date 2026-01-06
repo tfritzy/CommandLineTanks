@@ -1,4 +1,5 @@
 import { getConnection } from "../spacetimedb-connection";
+import { SoundManager } from "./SoundManager";
 import { type PickupRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
@@ -17,10 +18,12 @@ export class PickupManager {
   private pickups: Map<string, PickupData> = new Map();
   private worldId: string;
   private subscription: TableSubscription<typeof PickupRow> | null = null;
+  private soundManager: SoundManager;
   private playerAlliance: number | null = null;
 
-  constructor(worldId: string) {
+  constructor(worldId: string, soundManager: SoundManager) {
     this.worldId = worldId;
+    this.soundManager = soundManager;
     this.subscribeToPickups();
   }
 
@@ -47,6 +50,14 @@ export class PickupManager {
         onDelete: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
           if (pickup.worldId !== this.worldId) return;
           this.pickups.delete(pickup.id);
+
+          if (pickup.type.tag === "Health") {
+            this.soundManager.play("pickup-health", 0.5, pickup.positionX, pickup.positionY);
+          } else if (pickup.type.tag === "Shield") {
+            this.soundManager.play("pickup-shield", 0.5, pickup.positionX, pickup.positionY);
+          } else {
+            this.soundManager.play("pickup-weapon", 0.5, pickup.positionX, pickup.positionY);
+          }
         }
       }
     });
@@ -86,9 +97,9 @@ export class PickupManager {
   private drawPickup(ctx: CanvasRenderingContext2D, pickup: PickupData) {
     const worldX = pickup.positionX * UNIT_TO_PIXEL;
     const worldY = pickup.positionY * UNIT_TO_PIXEL;
-    
+
     const textureSheet = this.playerAlliance === 0 ? redTeamPickupTextureSheet : blueTeamPickupTextureSheet;
-    
+
     switch (pickup.type.tag) {
       case "Health":
         textureSheet.draw(ctx, "health", worldX, worldY);

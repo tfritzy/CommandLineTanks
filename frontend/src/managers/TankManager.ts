@@ -1,4 +1,5 @@
 import { Tank } from "../objects/Tank";
+import { SoundManager } from "./SoundManager";
 import { getConnection } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
@@ -23,10 +24,12 @@ export class TankManager {
   private indicatorManager: TankIndicatorManager;
   private screenShake: ScreenShake;
   private muzzleFlashManager: MuzzleFlashParticlesManager;
+  private soundManager: SoundManager;
   private subscription: MultiTableSubscription | null = null;
 
-  constructor(worldId: string, screenShake: ScreenShake) {
+  constructor(worldId: string, screenShake: ScreenShake, soundManager: SoundManager) {
     this.worldId = worldId;
+    this.soundManager = soundManager;
     this.particlesManager = new DeadTankParticlesManager();
     this.indicatorManager = new TankIndicatorManager();
     this.muzzleFlashManager = new MuzzleFlashParticlesManager();
@@ -63,6 +66,7 @@ export class TankManager {
               if (oldTank.health > 0 && newTank.health <= 0) {
                 const pos = tank.getPosition();
                 this.particlesManager.spawnParticles(pos.x, pos.y, newTank.alliance);
+                this.soundManager.play("death", 0.5, pos.x, pos.y);
 
                 if (newTank.id === this.playerTankId) {
                   this.screenShake.shake(20, 0.5);
@@ -80,6 +84,21 @@ export class TankManager {
                   pos.y - 0.5,
                   newTank.message
                 );
+              }
+
+              if (oldTank.health > newTank.health && newTank.health > 0) {
+                const pos = tank.getPosition();
+                this.soundManager.play("damage", 0.5, pos.x, pos.y);
+              }
+
+              if (oldTank.hasShield && !newTank.hasShield) {
+                const pos = tank.getPosition();
+                this.soundManager.play("shield-pop", 0.5, pos.x, pos.y);
+              }
+
+              if (oldTank.selectedGunIndex !== newTank.selectedGunIndex) {
+                const pos = tank.getPosition();
+                this.soundManager.play("weapon-switch", 0.5, pos.x, pos.y);
               }
 
               tank.setPosition(

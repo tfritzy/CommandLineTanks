@@ -1,4 +1,5 @@
 import { TankManager } from "./managers/TankManager";
+import { SoundManager } from "./managers/SoundManager";
 import { ProjectileManager } from "./managers/ProjectileManager";
 import { TerrainManager } from "./managers/TerrainManager";
 import { GunInventoryManager } from "./managers/GunInventoryManager";
@@ -20,6 +21,7 @@ export class Game {
   private time: number = 0;
   private lastFrameTime: number = 0;
   private tankManager: TankManager;
+  private soundManager: SoundManager;
   private projectileManager: ProjectileManager;
   private terrainManager: TerrainManager;
   private gunInventoryManager: GunInventoryManager;
@@ -46,16 +48,17 @@ export class Game {
     this.resizeCanvas();
     window.addEventListener("resize", this.resizeHandler);
 
+    this.soundManager = SoundManager.getInstance();
     this.screenShake = new ScreenShake();
     this.fpsCounter = new FpsCounter();
-    this.tankManager = new TankManager(worldId, this.screenShake);
-    this.terrainManager = new TerrainManager(worldId);
-    this.projectileManager = new ProjectileManager(worldId, this.screenShake);
+    this.tankManager = new TankManager(worldId, this.screenShake, this.soundManager);
+    this.terrainManager = new TerrainManager(worldId, this.soundManager);
+    this.projectileManager = new ProjectileManager(worldId, this.screenShake, this.soundManager);
     this.projectileManager.setTankManager(this.tankManager);
     this.gunInventoryManager = new GunInventoryManager(worldId);
-    this.pickupManager = new PickupManager(worldId);
+    this.pickupManager = new PickupManager(worldId, this.soundManager);
     this.miniMapManager = new MiniMapManager(this.tankManager, worldId);
-    this.killManager = new KillManager(worldId);
+    this.killManager = new KillManager(worldId, this.soundManager);
     this.smokeCloudManager = new SmokeCloudManager(worldId);
     this.abilitiesBarManager = new AbilitiesBarManager(worldId);
   }
@@ -129,6 +132,12 @@ export class Game {
     const finalCameraY = this.currentCameraY + shakeOffset.y;
 
     this.ctx.translate(-finalCameraX, -finalCameraY);
+
+    const centerX = this.currentCameraX + displayWidth / 2;
+    const centerY = this.currentCameraY + displayHeight / 2;
+    const listenerX = centerX / UNIT_TO_PIXEL;
+    const listenerY = centerY / UNIT_TO_PIXEL;
+    this.soundManager.setListenerPosition(listenerX, listenerY);
 
     this.terrainManager.draw(
       this.ctx,

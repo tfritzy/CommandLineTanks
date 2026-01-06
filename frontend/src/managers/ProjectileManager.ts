@@ -4,6 +4,7 @@ import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesMan
 import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
 import { UNIT_TO_PIXEL } from "../constants";
 import type { TankManager } from "./TankManager";
+import { SoundManager } from "./SoundManager";
 import { ScreenShake } from "../utils/ScreenShake";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
@@ -16,10 +17,12 @@ export class ProjectileManager {
   private particlesManager: ProjectileImpactParticlesManager;
   private tankManager: TankManager | null = null;
   private screenShake: ScreenShake;
+  private soundManager: SoundManager;
   private subscription: TableSubscription<typeof ProjectileRow> | null = null;
 
-  constructor(worldId: string, screenShake: ScreenShake) {
+  constructor(worldId: string, screenShake: ScreenShake, soundManager: SoundManager) {
     this.worldId = worldId;
+    this.soundManager = soundManager;
     this.particlesManager = new ProjectileImpactParticlesManager();
     this.screenShake = screenShake;
     this.subscribeToProjectiles();
@@ -78,6 +81,11 @@ export class ProjectileManager {
           const localProjectile = this.projectiles.get(projectile.id);
           if (localProjectile) {
             localProjectile.spawnDeathParticles(this.particlesManager);
+            if ((projectile.explosionRadius ?? 0) > 0) {
+              this.soundManager.play("explosion", 0.5, projectile.positionX, projectile.positionY);
+            } else {
+              this.soundManager.play("hit", 0.5, projectile.positionX, projectile.positionY);
+            }
           }
           this.projectiles.delete(projectile.id);
         }

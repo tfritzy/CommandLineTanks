@@ -4,6 +4,7 @@ import type { Infer } from 'spacetimedb';
 import Tank from '../../module_bindings/tank_type';
 import { ServerTimeSync } from '../utils/ServerTimeSync';
 import { COLORS } from '../theme/colors';
+import { SoundManager } from '../managers/SoundManager';
 
 const WORLD_RESET_DELAY_MICROS = 30_000_000;
 
@@ -95,6 +96,23 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                     setGameEndTime(endTime);
                     updateTanks();
                     updateScores();
+
+                    const score = connection.db.score.WorldId.find(worldId);
+                    const myTank = Array.from(connection.db.tank.iter()).find(t =>
+                        connection.identity && t.owner.isEqual(connection.identity) && t.worldId === worldId
+                    );
+
+                    if (score && myTank) {
+                        const team0Kills = score.kills[0] || 0;
+                        const team1Kills = score.kills[1] || 0;
+                        const winningTeam = team0Kills > team1Kills ? 0 : 1;
+
+                        if (myTank.alliance === winningTeam) {
+                            SoundManager.getInstance().play('win');
+                        } else {
+                            SoundManager.getInstance().play('loss');
+                        }
+                    }
                 } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
                     setShowResults(false);
                     setGameEndTime(null);
@@ -128,7 +146,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const winnerText = winningTeam === 0 ? 'Red Victory' : 'Blue Victory';
     const winnerColor = winningTeam === 0 ? '#c06852' : '#5a78b2';
 
-    const timeUntilReset = gameEndTime !== null 
+    const timeUntilReset = gameEndTime !== null
         ? Math.ceil(Number(gameEndTime + BigInt(WORLD_RESET_DELAY_MICROS) - BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000))) / 1_000_000)
         : 0;
 
@@ -158,7 +176,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 padding: '60px 40px',
                 animation: 'fadeIn 0.5s ease-in'
             }}>
-                 <style>{`
+                <style>{`
                     @keyframes fadeIn {
                         from {
                             opacity: 0;

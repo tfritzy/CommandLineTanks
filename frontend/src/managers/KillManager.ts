@@ -1,4 +1,5 @@
 import { getConnection } from "../spacetimedb-connection";
+import { SoundManager } from "./SoundManager";
 import { type Infer } from "spacetimedb";
 import KillRow from "../../module_bindings/kills_table";
 import { type EventContext } from "../../module_bindings";
@@ -15,12 +16,14 @@ interface KillNotification {
 export class KillManager {
   private kills: Map<string, KillNotification> = new Map();
   private worldId: string;
+  private soundManager: SoundManager;
   private deletedKills: Set<string> = new Set();
   private sortedNotifications: KillNotification[] = [];
   private subscription: TableSubscription<typeof KillRow> | null = null;
 
-  constructor(worldId: string) {
+  constructor(worldId: string, soundManager: SoundManager) {
     this.worldId = worldId;
+    this.soundManager = soundManager;
     this.subscribeToKills();
   }
 
@@ -44,6 +47,7 @@ export class KillManager {
               displayTime: 0
             };
             this.kills.set(kill.id, notification);
+            this.soundManager.play("kill");
           }
         },
         onDelete: (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
@@ -90,9 +94,9 @@ export class KillManager {
         this.sortedNotifications.push(notification);
       }
     }
-    
+
     if (this.sortedNotifications.length === 0) return;
-    
+
     this.sortedNotifications.sort((a, b) => b.timestamp - a.timestamp);
 
     ctx.save();

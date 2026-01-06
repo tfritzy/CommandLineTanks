@@ -1,5 +1,6 @@
 import { getConnection } from "../spacetimedb-connection";
 import { TerrainDetailManager } from "./TerrainDetailManager";
+import { SoundManager } from "./SoundManager";
 import { type EventContext, BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import WorldRow from "../../module_bindings/world_type";
@@ -15,10 +16,12 @@ export class TerrainManager {
   private worldWidth: number = 0;
   private worldHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
+  private soundManager: SoundManager;
   private subscription: TableSubscription<typeof WorldRow> | null = null;
 
-  constructor(worldId: string) {
+  constructor(worldId: string, soundManager: SoundManager) {
     this.worldId = worldId;
+    this.soundManager = soundManager;
     this.subscribeToWorldForDetails();
   }
 
@@ -31,12 +34,13 @@ export class TerrainManager {
       this.worldWidth = world.width;
       this.worldHeight = world.height;
       this.baseTerrainLayer = world.baseTerrainLayer;
-      
+
       if (!this.detailManager) {
         this.detailManager = new TerrainDetailManager(
           this.worldId,
           world.width,
-          world.height
+          world.height,
+          this.soundManager
         );
       } else {
         this.detailManager.updateWorldDimensions(world.width, world.height);
