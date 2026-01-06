@@ -62,7 +62,6 @@ export default function GameView() {
         `SELECT * FROM tank_path WHERE WorldId = '${worldId}'`,
         `SELECT * FROM projectile WHERE WorldId = '${worldId}'`,
         `SELECT * FROM pickup WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM smoke_cloud WHERE WorldId = '${worldId}'`,
         `SELECT * FROM kills WHERE WorldId = '${worldId}'`,
         `SELECT * FROM tank_fire_state WHERE WorldId = '${worldId}'`,
         `SELECT * FROM terrain_detail WHERE WorldId = '${worldId}'`,
