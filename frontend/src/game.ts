@@ -6,8 +6,6 @@ import { GunInventoryManager } from "./managers/GunInventoryManager";
 import { PickupManager } from "./managers/PickupManager";
 import { MiniMapManager } from "./managers/MiniMapManager";
 import { KillManager } from "./managers/KillManager";
-import { SmokeCloudManager } from "./managers/SmokeCloudManager";
-import { AbilitiesBarManager } from "./managers/AbilitiesBarManager";
 import { UNIT_TO_PIXEL } from "./constants";
 import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
@@ -28,8 +26,6 @@ export class Game {
   private pickupManager: PickupManager;
   private miniMapManager: MiniMapManager;
   private killManager: KillManager;
-  private smokeCloudManager: SmokeCloudManager;
-  private abilitiesBarManager: AbilitiesBarManager;
   private currentCameraX: number = 0;
   private currentCameraY: number = 0;
   private screenShake: ScreenShake;
@@ -59,8 +55,6 @@ export class Game {
     this.pickupManager = new PickupManager(worldId, this.soundManager);
     this.miniMapManager = new MiniMapManager(this.tankManager, worldId);
     this.killManager = new KillManager(worldId, this.soundManager);
-    this.smokeCloudManager = new SmokeCloudManager(worldId);
-    this.abilitiesBarManager = new AbilitiesBarManager(worldId);
   }
 
   private resizeCanvas() {
@@ -96,7 +90,6 @@ export class Game {
     this.projectileManager.update(deltaTime);
     this.terrainManager.update(deltaTime);
     this.killManager.update(deltaTime);
-    this.smokeCloudManager.update(deltaTime);
 
     const dpr = window.devicePixelRatio || 1;
     const displayWidth = this.canvas.width / dpr;
@@ -202,14 +195,6 @@ export class Game {
       displayHeight
     );
 
-    this.smokeCloudManager.draw(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
-    );
-
     this.projectileManager.drawShadows(
       this.ctx,
       this.currentCameraX,
@@ -237,7 +222,6 @@ export class Game {
 
     this.miniMapManager.draw(this.ctx, displayWidth, displayHeight);
     this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
-    this.abilitiesBarManager.draw(this.ctx, displayWidth, displayHeight);
     this.killManager.draw(this.ctx, displayWidth);
 
     this.fpsCounter.draw(this.ctx);
@@ -280,8 +264,6 @@ export class Game {
     this.pickupManager.destroy();
     this.miniMapManager.destroy();
     this.killManager.destroy();
-    this.smokeCloudManager.destroy();
-    this.abilitiesBarManager.destroy();
 
     window.removeEventListener("resize", this.resizeHandler);
   }

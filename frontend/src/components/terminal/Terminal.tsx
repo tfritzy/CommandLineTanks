@@ -4,7 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, smokescreen, overdrive, repair, create, changeName, exitWorld, tanks, findCommandSuggestion } from "./commands";
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, create, changeName, exitWorld, tanks, findCommandSuggestion } from "./commands";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -19,8 +19,7 @@ const ARROW_UP = "\x1b[A";
 const ARROW_DOWN = "\x1b[B";
 
 const VALID_COMMANDS = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'fire', 'f',
-  'switch', 'w', 'smokescreen', 'sm', 'overdrive', 'od', 'repair', 'rep',
-  'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
+  'switch', 'w', 'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
 
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -133,15 +132,6 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         case 'switch':
         case 'w':
           return switchGun(connection, worldId, commandArgs);
-        case 'smokescreen':
-        case 'sm':
-          return smokescreen(connection, worldId, commandArgs);
-        case 'overdrive':
-        case 'od':
-          return overdrive(connection, worldId, commandArgs);
-        case 'repair':
-        case 'rep':
-          return repair(connection, worldId, commandArgs);
         case 'respawn':
           return respawn(connection, worldId, commandArgs);
         case 'tanks':
