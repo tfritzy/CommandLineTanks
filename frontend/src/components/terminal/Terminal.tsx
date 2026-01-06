@@ -9,7 +9,6 @@ interface TerminalComponentProps {
   worldId: string;
 }
 
-const PROMPT = "\x1b[1;32m❯\x1b[0m ";
 const KEY_ENTER = 13;
 const KEY_BACKSPACE = 127;
 const KEY_CTRL_BACKSPACE = 23;
@@ -18,9 +17,9 @@ const KEY_ESCAPE = 27;
 const ARROW_UP = "\x1b[A";
 const ARROW_DOWN = "\x1b[B";
 
-const VALID_COMMANDS = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'fire', 'f', 
-                        'switch', 'w', 'smokescreen', 'sm', 'overdrive', 'od', 'repair', 'rep',
-                        'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
+const VALID_COMMANDS = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'fire', 'f',
+  'switch', 'w', 'smokescreen', 'sm', 'overdrive', 'od', 'repair', 'rep',
+  'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
 
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -29,9 +28,36 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const commandHistoryRef = useRef<string[]>([]);
   const historyIndexRef = useRef<number>(-1);
   const currentInputRef = useRef<string>("");
+  const playerNameRef = useRef<string>("guest");
+
+  const getPrompt = () => {
+    return `\x1b[1;36m${playerNameRef.current}@cltanks\x1b[0m:~$ `;
+  };
 
   useEffect(() => {
     if (!terminalRef.current) return;
+
+    const connection = getConnection();
+    if (connection && connection.identity) {
+      const player = Array.from(connection.db.player.iter()).find((p) =>
+        p.identity.isEqual(connection.identity!)
+      );
+      if (player) {
+        playerNameRef.current = player.name;
+      }
+
+      connection.db.player.onInsert((_ctx, row) => {
+        if (row.identity.isEqual(connection.identity!)) {
+          playerNameRef.current = row.name;
+        }
+      });
+
+      connection.db.player.onUpdate((_ctx, _oldRow, newRow) => {
+        if (newRow.identity.isEqual(connection.identity!)) {
+          playerNameRef.current = newRow.name;
+        }
+      });
+    }
 
     const term = new Terminal({
       cursorBlink: true,
@@ -74,7 +100,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     xtermRef.current = term;
     fitAddonRef.current = fitAddon;
 
-    term.write(PROMPT);
+    term.write(getPrompt());
     term.focus();
 
     const handleResize = () => {
@@ -85,23 +111,23 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     const resolveCommand = (cmd: string): string => {
       const cmdLower = cmd.toLowerCase();
-      
+
       if (VALID_COMMANDS.includes(cmdLower)) {
         return cmdLower;
       }
-      
+
       if (cmdLower.startsWith('f') && cmdLower.length > 1) {
         const withoutF = cmdLower.substring(1);
         if (VALID_COMMANDS.includes(withoutF)) {
           return withoutF;
         }
       }
-      
+
       const suggestion = findCommandSuggestion(cmd);
       if (suggestion && VALID_COMMANDS.includes(suggestion.toLowerCase())) {
         return suggestion.toLowerCase();
       }
-      
+
       return cmdLower;
     };
 
@@ -177,7 +203,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
           const [cmd, ...args] = input.split(' ');
           const resolvedCmd = resolveCommand(cmd);
-          
+
           if (resolvedCmd !== cmd.toLowerCase()) {
             term.write(`Assuming you meant '${resolvedCmd}'\r\n\r\n`);
           }
@@ -187,7 +213,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           if (commandOutput === 'CLEAR') {
             term.clear();
             currentInputRef.current = "";
-            term.write(PROMPT);
+            term.write(getPrompt());
             return;
           }
 
@@ -198,7 +224,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         }
 
         currentInputRef.current = "";
-        term.write(PROMPT);
+        term.write(getPrompt());
       } else if (code === KEY_BACKSPACE) {
         if (currentInputRef.current.length > 0) {
           currentInputRef.current = currentInputRef.current.slice(0, -1);
@@ -208,22 +234,22 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         if (currentInputRef.current.length > 0) {
           const input = currentInputRef.current;
           let deletePos = input.length - 1;
-          
+
           while (deletePos >= 0 && input[deletePos] === ' ') {
             deletePos--;
           }
-          
+
           while (deletePos >= 0 && input[deletePos] !== ' ') {
             deletePos--;
           }
-          
+
           const newInput = input.substring(0, deletePos + 1);
           const charsToDelete = input.length - newInput.length;
-          
+
           for (let i = 0; i < charsToDelete; i++) {
             term.write("\b \b");
           }
-          
+
           currentInputRef.current = newInput;
         }
       } else if (code === KEY_ESCAPE) {

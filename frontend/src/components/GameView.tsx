@@ -203,9 +203,9 @@ export default function GameView() {
 
     setWorldNotFound(false);
 
-    const isOtherPlayersHomeworld = 
-      isIdentityFormat(worldId) && 
-      connection.identity && 
+    const isOtherPlayersHomeworld =
+      isIdentityFormat(worldId) &&
+      connection.identity &&
       worldId.toLowerCase() !== connection.identity.toHexString().toLowerCase();
 
     if (isOtherPlayersHomeworld) {
@@ -260,7 +260,7 @@ export default function GameView() {
             padding: 0,
             width: "100%",
             height: "100%",
-            backgroundColor: "#2e2e43",
+            backgroundColor: COLORS.TERRAIN.GROUND,
           }}
         />
         {showJoinModal && (

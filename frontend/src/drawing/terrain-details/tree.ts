@@ -25,6 +25,7 @@ export function drawTreeBody(
 ) {
   const colors = { BASE: COLORS.TERRAIN.TREE_BASE, FOLIAGE: COLORS.TERRAIN.TREE_FOLIAGE };
 
+  ctx.save();
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.clip();
@@ -41,4 +42,5 @@ export function drawTreeBody(
   const dividerRadius = radius * 1.3;
   ctx.arc(dividerCenterX, dividerCenterY, dividerRadius, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
 }

@@ -24,7 +24,7 @@ export default function WorldNotFound({ worldId }: WorldNotFoundProps) {
       left: 0,
       right: 0,
       bottom: 0,
-      background: '#2e2e43',
+      background: COLORS.TERRAIN.GROUND,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',

@@ -1,13 +1,12 @@
-import { useEffect, useState, useRef } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import { connectToSpacetimeDB } from "./spacetimedb-connection";
 import GameView from "./components/GameView";
+import LandingPage from "./components/LandingPage";
+import HomeWorldRedirector from "./components/HomeWorldRedirector";
 
 function App() {
   const [isSpacetimeConnected, setIsSpacetimeConnected] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const initialPathnameRef = useRef(location.pathname);
 
   useEffect(() => {
     connectToSpacetimeDB()
@@ -17,10 +16,6 @@ function App() {
         if (conn.identity) {
           const identityString = conn.identity.toHexString();
           console.log(`Setting homeworld to identity: ${identityString}`);
-
-          if (!initialPathnameRef.current.startsWith("/world/")) {
-            navigate(`/world/${identityString}`);
-          }
         }
       })
       .catch((error) => {
@@ -29,44 +24,14 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isSpacetimeConnected) {
-    return (
-      <div
-        style={{
-          width: "100vw",
-          height: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#2e2e43",
-          color: "#ffffff",
-        }}
-      >
-        Connecting to SpacetimeDB...
-      </div>
-    );
-  }
-
   return (
     <Routes>
-      <Route path="/world/:worldId" element={<GameView />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/deploy" element={isSpacetimeConnected ? <HomeWorldRedirector /> : <div className="fixed inset-0 bg-[#1a1a24]" />} />
+      <Route path="/world/:worldId" element={isSpacetimeConnected ? <GameView /> : <div className="fixed inset-0 bg-[#1a1a24]" />} />
       <Route
         path="*"
-        element={
-          <div
-            style={{
-              width: "100vw",
-              height: "100vh",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#2e2e43",
-              color: "#ffffff",
-            }}
-          >
-            Loading world...
-          </div>
-        }
+        element={<LandingPage />}
       />
     </Routes>
   );

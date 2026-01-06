@@ -27,6 +27,7 @@ export function drawRockBody(
   const shadowColor = getFlashColor(COLORS.TERRAIN.ROCK_SHADOW, flashTimer);
   const highlightColor = getFlashColor(COLORS.TERRAIN.ROCK_HIGHLIGHT, flashTimer);
 
+  ctx.save();
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.clip();
@@ -49,4 +50,5 @@ export function drawRockBody(
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.stroke();
+  ctx.restore();
 }

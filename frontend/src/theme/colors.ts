@@ -10,12 +10,12 @@ const PALETTE = {
   SLATE_LIGHTER: "#a9bcbf",
   SLATE_LIGHTEST: "#e6eeed",
   
-  RED_BRIGHT: "#ff5555",
+  RED_BRIGHT: "#ff4444",
   RED_DARK: "#813645",
   RED_MEDIUM: "#9d4343",
   RED_MUTED: "#c06852",
   
-  BLUE_BRIGHT: "#556cff",
+  BLUE_BRIGHT: "#44ffff",
   BLUE_DARK: "#3e4c7e",
   BLUE_MEDIUM: "#495f94",
   BLUE_LIGHT: "#5a78b2",
