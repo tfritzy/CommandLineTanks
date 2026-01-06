@@ -116,6 +116,13 @@ export class MiniMapManager {
     }
     this.terrainDetailsByPosition.clear();
     this.pickupsByPosition.clear();
+    
+    if (this.baseLayerCanvas) {
+      this.baseLayerCanvas.width = 0;
+      this.baseLayerCanvas.height = 0;
+      this.baseLayerCanvas = null;
+      this.baseLayerContext = null;
+    }
   }
 
   public markForRedraw() {

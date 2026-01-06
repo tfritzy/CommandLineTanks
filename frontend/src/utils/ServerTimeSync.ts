@@ -4,6 +4,7 @@ export class ServerTimeSync {
   private readonly MAX_SAMPLES = 50;
   private currentOffset: number = 0;
   private sortBuffer: number[] = [];
+  private validSamplesBuffer: number[] = [];
 
   private constructor() {}
 
@@ -38,14 +39,14 @@ export class ServerTimeSync {
     const median = this.sortBuffer[Math.floor(this.sortBuffer.length / 2)];
     
     const threshold = 10;
-    const validSamples: number[] = [];
+    this.validSamplesBuffer.length = 0;
     for (let i = 0; i < this.offsetSamples.length; i++) {
       if (Math.abs(this.offsetSamples[i] - median) < threshold) {
-        validSamples.push(this.offsetSamples[i]);
+        this.validSamplesBuffer.push(this.offsetSamples[i]);
       }
     }
     
-    if (validSamples.length === 0) {
+    if (this.validSamplesBuffer.length === 0) {
       this.currentOffset = median;
       return;
     }
@@ -53,10 +54,10 @@ export class ServerTimeSync {
     let weightedSum = 0;
     let weightSum = 0;
     
-    for (let i = 0; i < validSamples.length; i++) {
-      const age = validSamples.length - i;
+    for (let i = 0; i < this.validSamplesBuffer.length; i++) {
+      const age = this.validSamplesBuffer.length - i;
       const weight = Math.pow(0.95, age);
-      weightedSum += validSamples[i] * weight;
+      weightedSum += this.validSamplesBuffer[i] * weight;
       weightSum += weight;
     }
     
@@ -71,6 +72,7 @@ export class ServerTimeSync {
   public reset(): void {
     this.offsetSamples.length = 0;
     this.sortBuffer.length = 0;
+    this.validSamplesBuffer.length = 0;
     this.currentOffset = 0;
   }
 }

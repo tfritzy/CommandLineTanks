@@ -143,9 +143,19 @@ export class SoundManager {
 
         const clone = audio.cloneNode() as HTMLAudioElement;
         clone.volume = Math.max(0, Math.min(1, finalVolume));
+        
+        const cleanup = () => {
+            clone.removeEventListener('ended', cleanup);
+            clone.removeEventListener('error', cleanup);
+            clone.src = '';
+            clone.load();
+        };
+        
+        clone.addEventListener('ended', cleanup);
+        clone.addEventListener('error', cleanup);
+        
         clone.play().catch(() => {
-            // Autoplay policy might block this until user interaction
-            // console.warn("Audio play failed"); 
+            cleanup();
         });
     }
 }
