@@ -526,10 +526,10 @@ export function aim(
   if (validDirections.includes(inputLower)) {
     const angleRadians = directionToAngle(inputLower);
     const dirInfo = directionAliases[inputLower];
-    const description = `${themeColors.colorize(dirInfo.symbol, 'DIRECTION_SYMBOL')} ${dirInfo.name}`;
+    const description = `${themeColors.colorize(dirInfo.symbol, 'DIRECTION_SYMBOL')} ${themeColors.success(dirInfo.name)}`;
 
     connection.reducers.aim({ worldId, angleRadians });
-    return [themeColors.info(`Aiming turret to ${description}`)];
+    return [themeColors.success("Aiming turret to ") + description];
   } else {
     const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
@@ -549,7 +549,7 @@ export function aim(
     const description = `${degrees}°`;
 
     connection.reducers.aim({ worldId, angleRadians });
-    return [themeColors.argument(`Aiming turret to ${description}`)];
+    return [themeColors.success(`Aiming turret to ${description}`)];
   }
 }
 
@@ -860,10 +860,10 @@ export function drive(
 
     const distanceText = themeColors.value(distance.toString());
     const dirSymbol = themeColors.colorize(directionInfo.symbol, 'DIRECTION_SYMBOL');
-    const throttleDisplay = throttle === 1 ? "full" : themeColors.value(`${throttle * 100}%`);
-    const explanation = `${distanceText} ${distance !== 1 ? "units" : "unit"} ${dirSymbol} ${directionInfo.name}`;
+    const throttleDisplay = throttle === 1 ? themeColors.success("full") : themeColors.value(`${throttle * 100}%`);
+    const explanation = `${distanceText} ${themeColors.success(distance !== 1 ? "units" : "unit")} ${dirSymbol} ${themeColors.success(directionInfo.name)}`;
     return [
-      themeColors.info(`Driving ${explanation} at ${throttleDisplay} throttle`),
+      themeColors.success("Driving ") + explanation + themeColors.success(" at ") + throttleDisplay + themeColors.success(" throttle"),
     ];
   }
 

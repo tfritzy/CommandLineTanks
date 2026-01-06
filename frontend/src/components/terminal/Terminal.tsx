@@ -41,7 +41,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       cursorStyle: "bar",
       fontSize: 12,
       fontFamily: "'JetBrains Mono', monospace",
-      lineHeight: 1.1,
+      lineHeight: 1.2,
       theme: {
         background: COLORS.TERMINAL.BACKGROUND,
         foreground: COLORS.TERMINAL.TEXT_DEFAULT,
