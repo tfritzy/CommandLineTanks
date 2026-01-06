@@ -8,7 +8,8 @@ import ScoreBoard from "./ScoreBoard";
 import JoinWorldModal from "./JoinWorldModal";
 import WorldNotFound from "./WorldNotFound";
 import HomeworldOverlay from "./HomeworldOverlay";
-import { COLORS } from "../theme/colors";
+import { COLORS, PALETTE } from "../theme/colors";
+import { motion, AnimatePresence } from "framer-motion";
 import { getConnection } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
 import { type Infer } from "spacetimedb";
@@ -269,171 +270,162 @@ export default function GameView() {
             worldId={worldId}
           />
         )}
-        {!showJoinModal && isDead && (
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              background: "rgba(46, 46, 67, 0.95)",
-              backdropFilter: "blur(4px)",
-              borderRadius: "8px",
-              border: "2px solid rgba(112, 123, 137, 0.3)",
-              padding: "40px 60px",
-              fontFamily: "'JetBrains Mono', monospace",
-              zIndex: 1000,
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
-              animation: "fadeIn 0.15s ease-out 1s both",
-            }}
-          >
-            <style>{`
-              @keyframes fadeIn {
-                from {
-                  opacity: 0;
-                }
-                to {
-                  opacity: 1;
-                }
-              }
-            `}</style>
-
-            <div
+        <AnimatePresence>
+          {!showJoinModal && isDead && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
+              animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
+              exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
+              transition={{ duration: 0.2, delay: 1, ease: "easeOut" }}
               style={{
-                fontSize: "48px",
-                fontWeight: 900,
-                color: "#c06852",
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                marginBottom: "24px",
-                textShadow: "0 2px 12px rgba(192, 104, 82, 0.5)",
-                lineHeight: 1,
-                textAlign: "center",
-              }}
-            >
-              ELIMINATED
-            </div>
-
-            <div
-              style={{
-                fontSize: "16px",
-                color: COLORS.TERMINAL.TEXT_DEFAULT,
-                marginBottom: "32px",
-                letterSpacing: "0.05em",
-                fontWeight: 300,
-                textAlign: "center",
-              }}
-            >
-              Type{" "}
-              <span
-                style={{
-                  color: COLORS.TERMINAL.WARNING,
-                  fontWeight: 500,
-                  padding: "2px 8px",
-                  background: "rgba(252, 235, 168, 0.1)",
-                  borderRadius: "2px",
-                }}
-              >
-                respawn
-              </span>{" "}
-              to rejoin the battle
-            </div>
-
-            <div
-              style={{
-                borderTop: "1px solid rgba(112, 123, 137, 0.2)",
-                paddingTop: "24px",
-                textAlign: "center",
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                background: `${PALETTE.PURPLE_VOID}d9`,
+                backdropFilter: "blur(12px)",
+                borderRadius: "4px",
+                border: `1px solid ${PALETTE.WHITE_PURE}14`,
+                padding: "24px 32px",
+                fontFamily: "'JetBrains Mono', monospace",
+                zIndex: 1000,
+                boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE}99`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                minWidth: "320px",
               }}
             >
               <div
                 style={{
-                  fontSize: "14px",
-                  color: "#a9bcbf",
-                  marginBottom: "12px",
-                  letterSpacing: "0.05em",
-                  fontWeight: 300,
+                  fontSize: "32px",
+                  fontWeight: "900",
+                  color: PALETTE.RED_MUTED,
+                  letterSpacing: "0.1em",
+                  marginBottom: "20px",
+                  textAlign: "center",
+                  textShadow: `0 0 20px ${PALETTE.RED_MUTED}4d`,
                 }}
               >
-                Invite your friends to this world
+                ELIMINATED
               </div>
+
               <div
                 style={{
+                  fontSize: "13px",
+                  color: COLORS.TERMINAL.TEXT_DEFAULT,
+                  marginBottom: "24px",
+                  textAlign: "center",
+                  lineHeight: 1.6,
+                }}
+              >
+                Type{" "}
+                <span
+                  style={{
+                    color: PALETTE.ORANGE_MEDIUM,
+                    fontWeight: "700",
+                    padding: "2px 6px",
+                    background: `${PALETTE.ORANGE_MEDIUM}1a`,
+                    borderRadius: "2px",
+                  }}
+                >
+                  respawn
+                </span>{" "}
+                in the terminal to rejoin the battle
+              </div>
+
+              <div
+                style={{
+                  width: "100%",
+                  borderTop: `1px solid ${PALETTE.WHITE_PURE}0d`,
+                  paddingTop: "20px",
                   display: "flex",
-                  gap: "8px",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  flexDirection: "column",
+                  gap: "12px",
                 }}
               >
                 <div
                   style={{
-                    background: "rgba(42, 21, 45, 0.6)",
-                    border: "1px solid rgba(112, 123, 137, 0.3)",
-                    borderRadius: "4px",
-                    padding: "8px 16px",
-                    fontSize: "13px",
-                    color: COLORS.TERMINAL.TEXT_DEFAULT,
-                    fontFamily: "'JetBrains Mono', monospace",
-                    letterSpacing: "0.02em",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    maxWidth: "400px",
+                    fontSize: "9px",
+                    color: COLORS.UI.TEXT_DIM,
+                    letterSpacing: "0.1em",
+                    fontWeight: "700",
+                    textAlign: "center",
+                    opacity: 0.6,
+                    textTransform: "uppercase",
                   }}
                 >
-                  {`${window.location.origin}/world/${worldId}`}
+                  Invite Reinforcements
                 </div>
-                <button
-                  onClick={() => {
-                    const url = `${window.location.origin}/world/${worldId}`;
-                    navigator.clipboard.writeText(url).then(() => {
-                      const button = document.activeElement as HTMLElement;
-                      if (button) {
-                        const originalText = button.textContent;
-                        button.textContent = "Copied!";
-                        button.style.background = "rgba(121, 150, 109, 0.4)";
-                        setTimeout(() => {
-                          button.textContent = originalText;
-                          button.style.background =
-                            "rgba(129, 54, 69, 0.6)";
-                        }, 1500);
-                      }
-                    });
-                  }}
+                <div
                   style={{
-                    background: "rgba(129, 54, 69, 0.6)",
-                    border: "1px solid rgba(192, 104, 82, 0.4)",
-                    borderRadius: "4px",
-                    padding: "8px 16px",
-                    fontSize: "13px",
-                    color: COLORS.UI.TEXT_PRIMARY,
-                    fontFamily: "'JetBrains Mono', monospace",
-                    cursor: "pointer",
-                    letterSpacing: "0.05em",
-                    fontWeight: 500,
-                    transition: "all 0.2s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background =
-                      "rgba(129, 54, 69, 0.8)";
-                    e.currentTarget.style.borderColor =
-                      "rgba(192, 104, 82, 0.6)";
-                  }}
-                  onMouseLeave={(e) => {
-                    if (e.currentTarget.textContent !== "Copied!") {
-                      e.currentTarget.style.background =
-                        "rgba(129, 54, 69, 0.6)";
-                      e.currentTarget.style.borderColor =
-                        "rgba(192, 104, 82, 0.4)";
-                    }
+                    display: "flex",
+                    gap: "8px",
+                    width: "100%",
                   }}
                 >
-                  Copy
-                </button>
+                  <div
+                    style={{
+                      flex: 1,
+                      background: `${PALETTE.BLACK_PURE}33`,
+                      border: `1px solid ${PALETTE.WHITE_PURE}0d`,
+                      borderRadius: "4px",
+                      padding: "8px 12px",
+                      fontSize: "12px",
+                      color: COLORS.TERMINAL.TEXT_DIM,
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {`${window.location.origin}/world/${worldId}`}
+                  </div>
+                  <button
+                    onClick={() => {
+                      const url = `${window.location.origin}/world/${worldId}`;
+                      navigator.clipboard.writeText(url).then(() => {
+                        const button = document.activeElement as HTMLElement;
+                        if (button) {
+                          const originalText = button.textContent;
+                          button.textContent = "Copied!";
+                          button.style.background = `${PALETTE.GREEN_HEALTH}66`;
+                          setTimeout(() => {
+                            button.textContent = originalText;
+                            button.style.background = `${PALETTE.RED_DARK}99`;
+                          }, 1500);
+                        }
+                      });
+                    }}
+                    style={{
+                      background: `${PALETTE.RED_DARK}99`,
+                      border: `1px solid ${PALETTE.RED_MUTED}66`,
+                      borderRadius: "4px",
+                      padding: "8px 16px",
+                      fontSize: "12px",
+                      color: COLORS.UI.TEXT_PRIMARY,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      cursor: "pointer",
+                      letterSpacing: "0.05em",
+                      fontWeight: "700",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = `${PALETTE.RED_DARK}cc`;
+                      e.currentTarget.style.borderColor = `${PALETTE.RED_MUTED}99`;
+                    }}
+                    onMouseLeave={(e) => {
+                      if (e.currentTarget.textContent !== "Copied!") {
+                        e.currentTarget.style.background = `${PALETTE.RED_DARK}99`;
+                        e.currentTarget.style.borderColor = `${PALETTE.RED_MUTED}66`;
+                      }
+                    }}
+                  >
+                    Copy
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
         <ResultsScreen worldId={worldId} />
       </div>
       <TerminalComponent worldId={worldId} />

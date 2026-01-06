@@ -152,7 +152,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
         >
           {player.name}
         </span>
-        <span style={{ color: "rgba(255, 255, 255, 0.1)" }}>—</span>
+        <span style={{ color: `${PALETTE.WHITE_PURE}1a` }}>—</span>
         <span
           style={{
             color: teamColors.value,
@@ -182,12 +182,12 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
       <div
         style={{
           width: "100%",
-          backgroundColor: "rgba(30, 15, 33, 0.85)",
+          backgroundColor: `${PALETTE.PURPLE_VOID}d9`,
           backdropFilter: "blur(12px)",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
+          border: `1px solid ${PALETTE.WHITE_PURE}14`,
           borderRadius: "4px",
           padding: "8px 10px",
-          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.5)",
+          boxShadow: `0 4px 16px ${PALETTE.BLACK_PURE}80`,
           display: "flex",
           flexDirection: "column",
         }}
@@ -202,7 +202,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
             marginBottom: "6px",
             textAlign: "center",
             opacity: 0.6,
-            borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+            borderBottom: `1px solid ${PALETTE.WHITE_PURE}0d`,
             paddingBottom: "4px",
           }}
         >
@@ -226,7 +226,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
                   style={{
                     height: "1px",
                     width: "100%",
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    backgroundColor: `${PALETTE.WHITE_PURE}0d`,
                     margin: "4px 0",
                   }}
                 />
