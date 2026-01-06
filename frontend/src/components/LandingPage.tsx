@@ -96,7 +96,7 @@ const TerminalMock: React.FC = () => {
                 term.writeln("");
 
                 term.write(prompt);
-                await new Promise(r => setTimeout(r, 1500));
+                await new Promise(r => setTimeout(r, 1000));
 
                 // Command 3: target
                 await typeCommand("target a4");
