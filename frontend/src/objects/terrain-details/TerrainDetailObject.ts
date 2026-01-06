@@ -18,8 +18,9 @@ export abstract class TerrainDetailObject {
     this.y = data.positionY;
     this.label = data.label;
     this.setHealth(data.health);
-    if (this.rotation !== data.rotation) {
-      this.rotation = data.rotation;
+    const rotationChanged = this.rotation !== data.rotation;
+    this.rotation = data.rotation;
+    if (rotationChanged) {
       this.textureKey = "";
     }
   }

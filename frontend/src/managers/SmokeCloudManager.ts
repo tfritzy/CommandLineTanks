@@ -44,7 +44,7 @@ export class SmokeCloudManager {
 
   public update(deltaTime: number): void {
     this.keysToDelete.length = 0;
-    for (const [id, system] of this.particleSystems) {
+    for (const [id, system] of this.particleSystems.entries()) {
       system.update(deltaTime);
       if (system.getIsDead()) {
         this.keysToDelete.push(id);
