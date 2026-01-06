@@ -15,7 +15,6 @@ public static partial class PickupSpawner
         PickupType.Grenade,
         PickupType.Rocket,
         PickupType.Moag,
-        PickupType.Shield,
         PickupType.Sniper
     };
 
@@ -247,11 +246,6 @@ public static partial class PickupSpawner
             return TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup);
         }
 
-        if (pickup.Type == PickupType.Shield)
-        {
-            return TryCollectShieldPickup(ctx, ref tank, ref needsUpdate, pickup);
-        }
-
         if (PickupToGunMap.TryGetValue(pickup.Type, out Gun gun))
         {
             return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, gun);
@@ -272,17 +266,6 @@ public static partial class PickupSpawner
         return false;
     }
 
-    private static bool TryCollectShieldPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup)
-    {
-        if (!tank.HasShield)
-        {
-            tank = tank with { HasShield = true };
-            needsUpdate = true;
-            ctx.Db.pickup.Id.Delete(pickup.Id);
-            return true;
-        }
-        return false;
-    }
 
     private static bool TryCollectGunPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup, Gun gunToAdd)
     {

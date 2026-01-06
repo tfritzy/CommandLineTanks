@@ -70,7 +70,6 @@ public static partial class Types
         Grenade,
         Rocket,
         Moag,
-        Shield,
         Sniper
     }
 
