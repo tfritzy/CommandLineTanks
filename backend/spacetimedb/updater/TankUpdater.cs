@@ -10,7 +10,6 @@ public static partial class TankUpdater
     {
         private readonly ReducerContext _ctx;
         private readonly string _worldId;
-        private Dictionary<(int, int), List<Module.SmokeCloud>>? _smokeCloudsByRegion;
         private Dictionary<string, Module.Tank?>? _tanksById;
         private Dictionary<(int, int), List<Module.Pickup>>? _pickupsByTile;
         private Dictionary<(int, int), List<Module.TerrainDetail>>? _terrainDetailsByTile;
@@ -19,27 +18,6 @@ public static partial class TankUpdater
         {
             _ctx = ctx;
             _worldId = worldId;
-        }
-
-        public List<Module.SmokeCloud> GetSmokeCloudsByRegion(int regionX, int regionY)
-        {
-            if (_smokeCloudsByRegion == null)
-            {
-                _smokeCloudsByRegion = new Dictionary<(int, int), List<Module.SmokeCloud>>();
-            }
-
-            var key = (regionX, regionY);
-            if (!_smokeCloudsByRegion.ContainsKey(key))
-            {
-                var clouds = new List<Module.SmokeCloud>();
-                foreach (var cloud in _ctx.Db.smoke_cloud.WorldId_CollisionRegionX_CollisionRegionY.Filter((_worldId, regionX, regionY)))
-                {
-                    clouds.Add(cloud);
-                }
-                _smokeCloudsByRegion[key] = clouds;
-            }
-
-            return _smokeCloudsByRegion[key];
         }
 
         public Module.Tank? GetTankById(string tankId)
@@ -153,60 +131,11 @@ public static partial class TankUpdater
                 needsUpdate = true;
             }
 
-            if (tank.RemainingOverdriveDurationMicros > 0)
-            {
-                var newRemainingOverdrive = Math.Max(0, tank.RemainingOverdriveDurationMicros - (long)deltaTimeMicros);
-                tank = tank with { RemainingOverdriveDurationMicros = newRemainingOverdrive };
-                needsUpdate = true;
-            }
-
-            if (tank.RemainingSmokescreenCooldownMicros > 0)
-            {
-                var newRemainingSmokescreenCooldown = Math.Max(0, tank.RemainingSmokescreenCooldownMicros - (long)deltaTimeMicros);
-                tank = tank with { RemainingSmokescreenCooldownMicros = newRemainingSmokescreenCooldown };
-                needsUpdate = true;
-            }
-
-            if (tank.RemainingOverdriveCooldownMicros > 0)
-            {
-                var newRemainingOverdriveCooldown = Math.Max(0, tank.RemainingOverdriveCooldownMicros - (long)deltaTimeMicros);
-                tank = tank with { RemainingOverdriveCooldownMicros = newRemainingOverdriveCooldown };
-                needsUpdate = true;
-            }
-
             if (tank.RemainingImmunityMicros > 0)
             {
                 var newRemainingImmunity = Math.Max(0, tank.RemainingImmunityMicros - (long)deltaTimeMicros);
                 tank = tank with { RemainingImmunityMicros = newRemainingImmunity };
                 needsUpdate = true;
-            }
-
-            if (tank.RemainingRepairCooldownMicros > 0)
-            {
-                var newRemainingRepairCooldown = Math.Max(0, tank.RemainingRepairCooldownMicros - (long)deltaTimeMicros);
-                tank = tank with { RemainingRepairCooldownMicros = newRemainingRepairCooldown };
-                needsUpdate = true;
-            }
-
-            if (tank.IsRepairing && newTickCount % Module.REPAIR_TICK_INTERVAL == 0)
-            {
-                var newHealth = Math.Min(tank.MaxHealth, tank.Health + Module.REPAIR_HEALTH_PER_TICK);
-
-                if (newHealth >= tank.MaxHealth)
-                {
-                    tank = tank with
-                    {
-                        Health = tank.MaxHealth,
-                        IsRepairing = false,
-                        Message = "Repair complete"
-                    };
-                    needsUpdate = true;
-                }
-                else
-                {
-                    tank = tank with { Health = newHealth };
-                    needsUpdate = true;
-                }
             }
 
             var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
@@ -218,8 +147,7 @@ public static partial class TankUpdater
                 var deltaY = targetPos.Position.Y - tank.PositionY;
                 var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-                var speedMultiplier = tank.RemainingOverdriveDurationMicros > 0 ? Module.OVERDRIVE_SPEED_MULTIPLIER : 1.0f;
-                var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent * speedMultiplier;
+                var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
                 var moveDistance = moveSpeed * deltaTime;
 
                 if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
@@ -239,8 +167,7 @@ public static partial class TankUpdater
                         {
                             var nextDirX = nextDeltaX / nextDistance;
                             var nextDirY = nextDeltaY / nextDistance;
-                            var nextSpeedMultiplier = tank.RemainingOverdriveDurationMicros > 0 ? Module.OVERDRIVE_SPEED_MULTIPLIER : 1.0f;
-                            var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent * nextSpeedMultiplier;
+                            var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent;
 
                             var finalX = targetPos.Position.X + nextDirX * Math.Min(overshoot, nextDistance);
                             var finalY = targetPos.Position.Y + nextDirY * Math.Min(overshoot, nextDistance);
@@ -311,41 +238,7 @@ public static partial class TankUpdater
                     }
                     else
                     {
-                        int targetCollisionRegionX = (int)(targetTank.Value.PositionX / Module.COLLISION_REGION_SIZE);
-                        int targetCollisionRegionY = (int)(targetTank.Value.PositionY / Module.COLLISION_REGION_SIZE);
-
-                        int searchRadius = (int)Math.Ceiling(Module.SMOKESCREEN_RADIUS / Module.COLLISION_REGION_SIZE);
-                        bool targetInSmoke = false;
-
-                        for (int dx = -searchRadius; dx <= searchRadius && !targetInSmoke; dx++)
-                        {
-                            for (int dy = -searchRadius; dy <= searchRadius && !targetInSmoke; dy++)
-                            {
-                                int regionX = targetCollisionRegionX + dx;
-                                int regionY = targetCollisionRegionY + dy;
-
-                                var smokeClouds = updateContext.GetSmokeCloudsByRegion(regionX, regionY);
-                                foreach (var smokeCloud in smokeClouds)
-                                {
-                                    var smokeDx = targetTank.Value.PositionX - smokeCloud.PositionX;
-                                    var smokeDy = targetTank.Value.PositionY - smokeCloud.PositionY;
-                                    var smokeDistanceSquared = smokeDx * smokeDx + smokeDy * smokeDy;
-
-                                    if (smokeDistanceSquared <= smokeCloud.Radius * smokeCloud.Radius)
-                                    {
-                                        targetInSmoke = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (targetInSmoke)
-                        {
-                            tank = tank with { Target = null, Message = "Target lost" };
-                            needsUpdate = true;
-                        }
-                        else if (tank.TargetLead > 0)
+                        if (tank.TargetLead > 0)
                         {
                             var targetVelocity = targetTank.Value.Velocity;
                             var velocityMagnitude = Math.Sqrt(targetVelocity.X * targetVelocity.X + targetVelocity.Y * targetVelocity.Y);
@@ -357,18 +250,15 @@ public static partial class TankUpdater
                             }
                         }
 
-                        if (!targetInSmoke)
-                        {
-                            var deltaX = targetX - tank.PositionX;
-                            var deltaY = targetY - tank.PositionY;
-                            var aimAngle = Math.Atan2(deltaY, deltaX);
-                            var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
+                        var deltaX = targetX - tank.PositionX;
+                        var deltaY = targetY - tank.PositionY;
+                        var aimAngle = Math.Atan2(deltaY, deltaX);
+                        var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
 
-                            if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
-                            {
-                                tank = tank with { TargetTurretRotation = normalizedAimAngle };
-                                needsUpdate = true;
-                            }
+                        if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
+                        {
+                            tank = tank with { TargetTurretRotation = normalizedAimAngle };
+                            needsUpdate = true;
                         }
                     }
                 }

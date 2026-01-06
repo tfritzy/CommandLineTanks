@@ -68,21 +68,7 @@ public static partial class Module
         public Gun[] Guns;
         public int SelectedGunIndex;
 
-        public long RemainingSmokescreenCooldownMicros;
-
-        public bool HasShield;
-
-        public long RemainingOverdriveCooldownMicros;
-
-        public long RemainingOverdriveDurationMicros;
-
         public long RemainingImmunityMicros;
-
-        public long RemainingRepairCooldownMicros;
-
-        public bool IsRepairing;
-
-        public ulong RepairStartedAt;
 
         public ulong DeathTimestamp;
 
@@ -120,14 +106,7 @@ public static partial class Module
             float targetTurretRotation = 0.0f,
             Gun[]? guns = null,
             int selectedGunIndex = 0,
-            long remainingSmokescreenCooldownMicros = 0,
-            bool hasShield = false,
-            long remainingOverdriveCooldownMicros = 0,
-            long remainingOverdriveDurationMicros = 0,
             long remainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
-            long remainingRepairCooldownMicros = 0,
-            bool isRepairing = false,
-            ulong repairStartedAt = 0,
             ulong deathTimestamp = 0,
             ulong? updatedAt = null)
         {
@@ -164,16 +143,9 @@ public static partial class Module
                 TurretRotationSpeed = turretRotationSpeed,
                 Guns = guns ?? [BASE_GUN],
                 SelectedGunIndex = selectedGunIndex,
-                RemainingSmokescreenCooldownMicros = remainingSmokescreenCooldownMicros,
-                HasShield = hasShield,
                 Velocity = velocity ?? new Vector2Float(0, 0),
                 TurretAngularVelocity = turretAngularVelocity,
-                RemainingOverdriveCooldownMicros = remainingOverdriveCooldownMicros,
-                RemainingOverdriveDurationMicros = remainingOverdriveDurationMicros,
                 RemainingImmunityMicros = remainingImmunityMicros,
-                RemainingRepairCooldownMicros = remainingRepairCooldownMicros,
-                IsRepairing = isRepairing,
-                RepairStartedAt = repairStartedAt,
                 DeathTimestamp = deathTimestamp,
                 UpdatedAt = updatedAt ?? timestamp
             };

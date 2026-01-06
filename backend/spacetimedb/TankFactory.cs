@@ -37,14 +37,7 @@ public static partial class Module
             Message = null,
             Guns = [BASE_GUN],
             SelectedGunIndex = 0,
-            HasShield = false,
-            RemainingSmokescreenCooldownMicros = 0,
-            RemainingOverdriveCooldownMicros = 0,
-            RemainingOverdriveDurationMicros = 0,
             RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
-            RemainingRepairCooldownMicros = 0,
-            IsRepairing = false,
-            RepairStartedAt = 0,
             DeathTimestamp = 0,
             UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
