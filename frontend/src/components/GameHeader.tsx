@@ -159,7 +159,8 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
           {
             position: "absolute",
             top: "10px",
-            right: "10px",
+            left: "50%",
+            transform: "translateX(-50%)",
             display: "flex",
             gap: "8px",
             zIndex: 1000,

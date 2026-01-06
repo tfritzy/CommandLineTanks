@@ -29,37 +29,12 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const commandHistoryRef = useRef<string[]>([]);
   const historyIndexRef = useRef<number>(-1);
   const currentInputRef = useRef<string>("");
-  const playerNameRef = useRef<string>("guest");
-
   const getPrompt = () => {
-    const name = playerNameRef.current;
-    return `${colorize(`${name}@cltanks`, 'PROMPT')}${colorize(':~$ ', 'TEXT_DEFAULT')}`;
+    return colorize('❯ ', 'PROMPT');
   };
 
   useEffect(() => {
     if (!terminalRef.current) return;
-
-    const connection = getConnection();
-    if (connection && connection.identity) {
-      const player = Array.from(connection.db.player.iter()).find((p) =>
-        p.identity.isEqual(connection.identity!)
-      );
-      if (player) {
-        playerNameRef.current = player.name;
-      }
-
-      connection.db.player.onInsert((_ctx, row) => {
-        if (row.identity.isEqual(connection.identity!)) {
-          playerNameRef.current = row.name;
-        }
-      });
-
-      connection.db.player.onUpdate((_ctx, _oldRow, newRow) => {
-        if (newRow.identity.isEqual(connection.identity!)) {
-          playerNameRef.current = newRow.name;
-        }
-      });
-    }
 
     const term = new Terminal({
       cursorBlink: true,
@@ -196,8 +171,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
       if (code === KEY_ENTER) {
         const input = currentInputRef.current.trim();
-
-        term.write("\r\n");
+        let finalOutput = "\r\n";
 
         if (input) {
           commandHistoryRef.current.push(input);
@@ -207,26 +181,26 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           const resolvedCmd = resolveCommand(cmd);
 
           if (resolvedCmd !== cmd.toLowerCase()) {
-            term.write(`${colorize('Assuming you meant', 'TEXT_DIM')} ${colorize(`'${resolvedCmd}'`, 'COMMAND')}\r\n\r\n`);
+            finalOutput += `${colorize('Assuming you meant', 'TEXT_DIM')} ${colorize(`'${resolvedCmd}'`, 'COMMAND')}\r\n\r\n`;
           }
 
           const commandOutput = executeCommand(resolvedCmd, args);
 
           if (commandOutput === 'CLEAR') {
-            term.clear();
             currentInputRef.current = "";
-            term.write(getPrompt());
+            term.write('\x1b[2J\x1b[3J\x1b[H' + getPrompt());
             return;
           }
 
           for (const line of commandOutput) {
-            term.write(line + "\r\n");
+            finalOutput += line + "\r\n";
           }
-          term.write("\r\n");
+          finalOutput += "\r\n";
         }
 
         currentInputRef.current = "";
-        term.write(getPrompt());
+        finalOutput += getPrompt();
+        term.write(finalOutput);
       } else if (code === KEY_BACKSPACE) {
         if (currentInputRef.current.length > 0) {
           currentInputRef.current = currentInputRef.current.slice(0, -1);

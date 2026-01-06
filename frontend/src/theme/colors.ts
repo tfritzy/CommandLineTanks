@@ -44,7 +44,7 @@ export const PALETTE = {
 
   TRANSPARENT_DARK: "#00000006",
   TRANSPARENT_GRID: "#4a4b5b22",
-  TRANSPARENT_SHADOW: "#00000044",
+  TRANSPARENT_SHADOW: "#00000066",
 } as const;
 
 export const COLORS = {

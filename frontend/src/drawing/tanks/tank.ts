@@ -1,6 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
-import { COLORS } from "../../theme/colors";
+import { COLORS, PALETTE } from "../../theme/colors";
 
 const HEALTH_BAR_WIDTH = 32;
 const HEALTH_BAR_HEIGHT = 4;
@@ -26,11 +26,11 @@ export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: numb
   ctx.save();
   ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
 
-  const shadowColor = "rgba(0, 0, 0, 0.5)";
+  const shadowColor = PALETTE.TRANSPARENT_SHADOW;
   ctx.fillStyle = shadowColor;
 
   ctx.save();
-  ctx.translate(-4, 4);
+  ctx.translate(-2, 2);
   ctx.beginPath();
   ctx.roundRect(-16, -16, 32, 32, 5);
   ctx.fill();
@@ -126,13 +126,13 @@ export function drawTankNameLabel(
 ) {
   ctx.save();
   ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
-  
+
   if (targetCode) {
     ctx.font = "bold 16px monospace";
     ctx.fillStyle = COLORS.TERMINAL.WARNING;
     ctx.textAlign = "center";
     ctx.fillText(targetCode, 0, -34);
-    
+
     ctx.font = "12px monospace";
     ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
     ctx.fillText(name, 0, -20);
@@ -142,7 +142,7 @@ export function drawTankNameLabel(
     ctx.textAlign = "center";
     ctx.fillText(name, 0, -27);
   }
-  
+
   ctx.restore();
 }
 

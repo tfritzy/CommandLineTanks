@@ -11,11 +11,11 @@ export function drawMushrooms(
   ctx.fillStyle = COLORS.TERRAIN.MUSHROOM_SHADOW;
   ctx.beginPath();
   for (const mushroom of mushrooms) {
-    const shadowOffset = mushroom.size * 0.3;
+    const shadowOffset = 2;
     const x = Math.round(mushroom.x - shadowOffset);
     const y = Math.round(mushroom.y + shadowOffset);
     const size = Math.round(mushroom.size);
-    
+
     ctx.moveTo(x + size, y);
     ctx.arc(x, y, size, 0, Math.PI * 2);
   }
@@ -28,7 +28,7 @@ export function drawMushrooms(
     const x = Math.round(mushroom.x);
     const y = Math.round(mushroom.y);
     const size = Math.round(mushroom.size);
-    
+
     ctx.moveTo(x + size, y);
     ctx.arc(x, y, size, 0, Math.PI * 2);
   }
