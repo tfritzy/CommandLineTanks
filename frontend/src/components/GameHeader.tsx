@@ -4,9 +4,44 @@ import { type Infer } from "spacetimedb";
 import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
 import { type EventContext } from "../../module_bindings";
-import { COLORS } from "../theme/colors";
+import { COLORS, PALETTE } from "../theme/colors";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
+
+const HeaderBox = ({
+  label,
+  labelColor,
+  value,
+  valueColor,
+}: {
+  label: string;
+  labelColor: string;
+  value: string | number;
+  valueColor: string;
+}) => (
+  <div
+    style={{
+      backgroundColor: "rgba(42, 21, 45, 0.7)",
+      backdropFilter: "blur(8px)",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      borderRadius: "4px",
+      padding: "4px 10px",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: "14px",
+      fontWeight: "600",
+      lineHeight: "1",
+      letterSpacing: "0.05em",
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+      height: "28px",
+    }}
+  >
+    <span style={{ color: labelColor, display: "inline-flex", alignItems: "center" }}>{label}</span>
+    <span style={{ color: valueColor, display: "inline-flex", alignItems: "center" }}>{value}</span>
+  </div>
+);
 
 interface GameHeaderProps {
   worldId: string;
@@ -123,74 +158,32 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         style={
           {
             position: "absolute",
-            top: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
+            top: "10px",
+            right: "10px",
             display: "flex",
-            alignItems: "center",
+            gap: "8px",
             zIndex: 1000,
           } as React.CSSProperties
         }
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "stretch",
-            height: "26px",
-            filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: COLORS.UI.TEAM_RED_DARK,
-              padding: "6px 14px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: COLORS.UI.TEXT_PRIMARY,
-              fontSize: "20px",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontWeight: "700",
-              clipPath: "polygon(0 0, 100% 0, 100% 100%, 8px 100%)",
-              minWidth: "45px",
-            }}
-          >
-            {team0Kills}
-          </div>
-          <div
-            style={{
-              backgroundColor: COLORS.UI.BACKGROUND_DARK,
-              padding: "6px 16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: COLORS.TERMINAL.TEXT_DEFAULT,
-              fontSize: "13px",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontWeight: "600",
-              minWidth: "50px",
-            }}
-          >
-            {timeString}
-          </div>
-          <div
-            style={{
-              backgroundColor: COLORS.UI.TEAM_BLUE_DARK,
-              padding: "6px 14px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: COLORS.UI.TEXT_PRIMARY,
-              fontSize: "20px",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontWeight: "700",
-              clipPath: "polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
-              minWidth: "45px",
-            }}
-          >
-            {team1Kills}
-          </div>
-        </div>
+        <HeaderBox
+          label="SCORE"
+          labelColor={PALETTE.RED_MUTED}
+          value={team0Kills}
+          valueColor={PALETTE.ORANGE_MEDIUM}
+        />
+        <HeaderBox
+          label="TIME"
+          labelColor={COLORS.UI.LABEL_YELLOW}
+          value={timeString}
+          valueColor={COLORS.UI.TEXT_PRIMARY}
+        />
+        <HeaderBox
+          label="SCORE"
+          labelColor={PALETTE.BLUE_INFO}
+          value={team1Kills}
+          valueColor={PALETTE.BLUE_BRIGHT}
+        />
       </div>
       {showCountdownWarning && (
         <div

@@ -128,7 +128,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
           const easeOutCubic = 1 - Math.pow(1 - progress, 3);
           const displayScore = Math.round(
             anim.startScore +
-              (anim.targetScore - anim.startScore) * easeOutCubic
+            (anim.targetScore - anim.startScore) * easeOutCubic
           );
 
           return { ...player, displayScore };
@@ -182,7 +182,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
           const easeOutCubic = 1 - Math.pow(1 - progress, 3);
           const displayScore = Math.round(
             anim.startScore +
-              (anim.targetScore - anim.startScore) * easeOutCubic
+            (anim.targetScore - anim.startScore) * easeOutCubic
           );
 
           return { ...player, displayScore };
@@ -309,7 +309,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
     <div
       style={{
         position: "absolute",
-        top: "10px",
+        top: "52px",
         right: "10px",
         zIndex: 1000,
         display: "flex",
