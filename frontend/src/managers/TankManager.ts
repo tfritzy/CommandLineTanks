@@ -174,22 +174,11 @@ export class TankManager {
       .add<typeof TankFireStateRow>({
         table: connection.db.tankFireState,
         handlers: {
+          onInsert: (_ctx: EventContext, newState: Infer<typeof TankFireStateRow>) => {
+            this.handleTankFire(newState);
+          },
           onUpdate: (_ctx: EventContext, _oldState: Infer<typeof TankFireStateRow>, newState: Infer<typeof TankFireStateRow>) => {
-            const tankRow = connection.db.tank.id.find(newState.tankId);
-            if (tankRow && tankRow.health > 0) {
-              const barrelTipX =
-                tankRow.positionX +
-                Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
-              const barrelTipY =
-                tankRow.positionY +
-                Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
-              this.muzzleFlashManager.spawnMuzzleFlash(
-                barrelTipX,
-                barrelTipY,
-                tankRow.turretRotation,
-                tankRow.alliance
-              );
-            }
+            this.handleTankFire(newState);
           }
         },
         loadInitialData: false
@@ -221,6 +210,29 @@ export class TankManager {
     );
 
     this.tanks.set(tank.id, newTank);
+  }
+
+  private handleTankFire(fireState: Infer<typeof TankFireStateRow>) {
+    const connection = getConnection();
+    if (!connection) return;
+
+    const tankRow = connection.db.tank.id.find(fireState.tankId);
+    if (tankRow && tankRow.health > 0) {
+      const barrelTipX =
+        tankRow.positionX +
+        Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+      const barrelTipY =
+        tankRow.positionY +
+        Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
+
+      this.muzzleFlashManager.spawnMuzzleFlash(
+        barrelTipX,
+        barrelTipY,
+        tankRow.turretRotation,
+        tankRow.alliance
+      );
+      this.soundManager.play("fire", 0.4, tankRow.positionX, tankRow.positionY);
+    }
   }
 
   public destroy() {

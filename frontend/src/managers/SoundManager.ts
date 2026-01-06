@@ -58,6 +58,26 @@ export class SoundManager {
         'kill': ['/8bit-SFX-Library/Win/win-2.wav'],
         // Loss
         'loss': ['/8bit-SFX-Library/Lose/lose-1.wav'],
+        // Fire
+        'fire': [
+            '/8bit-SFX-Library/Shoot/gun-1.wav',
+            '/8bit-SFX-Library/Shoot/gun-2.wav',
+            '/8bit-SFX-Library/Shoot/gun-3.wav',
+            '/8bit-SFX-Library/Shoot/gun-4.wav',
+            '/8bit-SFX-Library/Shoot/gun-5.wav',
+        ],
+        // Laser
+        'laser': [
+            '/8bit-SFX-Library/Shoot/laser-1.wav',
+            '/8bit-SFX-Library/Shoot/laser-2.wav',
+            '/8bit-SFX-Library/Shoot/laser-3.wav',
+            '/8bit-SFX-Library/Shoot/laser-4.wav',
+            '/8bit-SFX-Library/Shoot/laser-5.wav',
+            '/8bit-SFX-Library/Shoot/laser-6.wav',
+            '/8bit-SFX-Library/Shoot/laser-7.wav',
+            '/8bit-SFX-Library/Shoot/laser-8.wav',
+            '/8bit-SFX-Library/Shoot/laser-9.wav',
+        ],
     };
 
     private static instance: SoundManager;
