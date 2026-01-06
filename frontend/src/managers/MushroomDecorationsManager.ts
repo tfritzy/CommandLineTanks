@@ -56,20 +56,30 @@ export class MushroomDecorationsManager {
     const startY = cameraY / UNIT_TO_PIXEL - padding;
     const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
-    this.visibleMushroomsBuffer.length = 0;
+    let writeIndex = 0;
 
     for (const mushroom of this.mushrooms) {
       const x = mushroom.getX();
       const y = mushroom.getY();
 
       if (x >= startX && x <= endX && y >= startY && y <= endY) {
-        this.visibleMushroomsBuffer.push({
-          x: mushroom.getWorldX(),
-          y: mushroom.getWorldY(),
-          size: mushroom.getSize() * UNIT_TO_PIXEL,
-        });
+        if (writeIndex >= this.visibleMushroomsBuffer.length) {
+          this.visibleMushroomsBuffer.push({
+            x: mushroom.getWorldX(),
+            y: mushroom.getWorldY(),
+            size: mushroom.getSize() * UNIT_TO_PIXEL,
+          });
+        } else {
+          const mushroomInfo = this.visibleMushroomsBuffer[writeIndex];
+          mushroomInfo.x = mushroom.getWorldX();
+          mushroomInfo.y = mushroom.getWorldY();
+          mushroomInfo.size = mushroom.getSize() * UNIT_TO_PIXEL;
+        }
+        writeIndex++;
       }
     }
+
+    this.visibleMushroomsBuffer.length = writeIndex;
 
     drawMushrooms(ctx, this.visibleMushroomsBuffer);
   }

@@ -13,6 +13,7 @@ export abstract class Projectile {
   protected trackingRadius: number;
   private cachedScreenPosition: { x: number; y: number } = { x: 0, y: 0 };
   private cachedShadowPosition: { x: number; y: number } = { x: 0, y: 0 };
+  private textureKeyCache: Map<string, string> = new Map();
 
   constructor(
     x: number,
@@ -96,7 +97,12 @@ export abstract class Projectile {
   }
 
   protected getTextureKey(prefix: string): string {
-    return `${prefix}-${this.alliance}`;
+    let key = this.textureKeyCache.get(prefix);
+    if (key === undefined) {
+      key = `${prefix}-${this.alliance}`;
+      this.textureKeyCache.set(prefix, key);
+    }
+    return key;
   }
 
   public isExplosive(): boolean {
