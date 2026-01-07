@@ -11,11 +11,21 @@ export function parseCommandInput(input: string): string[] {
 
   for (let i = 0; i < input.length; i++) {
     const char = input[i];
+    const prevChar = i > 0 ? input[i - 1] : '';
 
-    if ((char === '"' || char === "'") && !inQuotes) {
+    if (char === '\\' && i + 1 < input.length && inQuotes) {
+      const nextChar = input[i + 1];
+      if (nextChar === quoteChar || nextChar === '\\') {
+        current += nextChar;
+        i++;
+        continue;
+      }
+    }
+
+    if ((char === '"' || char === "'") && !inQuotes && prevChar !== '\\') {
       inQuotes = true;
       quoteChar = char;
-    } else if (char === quoteChar && inQuotes) {
+    } else if (char === quoteChar && inQuotes && prevChar !== '\\') {
       inQuotes = false;
       quoteChar = '';
     } else if (char === ' ' && !inQuotes) {
