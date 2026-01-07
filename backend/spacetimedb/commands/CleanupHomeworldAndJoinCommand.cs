@@ -5,7 +5,7 @@ public static partial class Module
 {
     public static void CleanupHomeworldAndJoinCommand(ReducerContext ctx, string worldId, string joinCode)
     {
-        var identityString = ctx.Sender.ToString().ToLower();
+        var identityString = ctx.Sender.ToString().ToUpper();
         var existingTanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
         bool removedHomeworldTank = false;
 

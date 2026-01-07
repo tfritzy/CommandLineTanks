@@ -48,7 +48,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
   const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
 
   const isHomeworld = connection?.identity
-    ? connection.identity.toHexString().toLowerCase() === worldId
+    ? connection.identity.toHexString().toUpperCase() === worldId
     : false;
 
   useEffect(() => {

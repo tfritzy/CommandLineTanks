@@ -34,7 +34,7 @@ export default function GameView() {
   const [worldNotFound, setWorldNotFound] = useState(false);
 
   const connection = getConnection();
-  const isHomeworld = connection?.identity && worldId?.toLowerCase() === connection.identity.toHexString().toLowerCase();
+  const isHomeworld = connection?.identity && worldId?.toUpperCase() === connection.identity.toHexString().toUpperCase();
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {

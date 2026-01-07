@@ -6,7 +6,7 @@ public static partial class Module
     [Reducer]
     public static void exitWorld(ReducerContext ctx, string worldId, string joinCode)
     {
-        var identityString = ctx.Sender.ToString().ToLower();
+        var identityString = ctx.Sender.ToString().ToUpper();
 
         var currentTank = ctx.Db.tank.WorldId.Filter(worldId)
             .Where(t => t.Owner == ctx.Sender)

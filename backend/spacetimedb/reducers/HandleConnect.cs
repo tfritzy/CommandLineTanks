@@ -27,7 +27,7 @@ public static partial class Module
             Log.Info($"New player connected with ID {playerId}");
         }
 
-        var identityString = ctx.Sender.ToString().ToLower();
+        var identityString = ctx.Sender.ToString().ToUpper();
         var existingHomeworld = ctx.Db.world.Id.Find(identityString);
         if (existingHomeworld == null)
         {
