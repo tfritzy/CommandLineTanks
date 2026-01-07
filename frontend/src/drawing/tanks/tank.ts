@@ -1,5 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
-import { getFlashColor } from "../../utils/colors";
+import { getFlashColor, lerpColor } from "../../utils/colors";
 import { COLORS, PALETTE } from "../../theme/colors";
 
 const HEALTH_BAR_WIDTH = 32;
@@ -43,15 +43,18 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.save();
   ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
 
+  const allianceColor = params.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
+  let bodyColor = getFlashColor(allianceColor, params.flashTimer);
+  let borderColor = getFlashColor(params.alliance === 0 ? "#330000" : "#000033", params.flashTimer);
+  
   if (params.isImmune) {
     const flashCycle = Date.now() / 1000 / IMMUNITY_FLASH_RATE_SECONDS;
-    const opacity = Math.abs(Math.sin(flashCycle * Math.PI)) * (1 - IMMUNITY_MIN_OPACITY) + IMMUNITY_MIN_OPACITY;
-    ctx.globalAlpha = opacity;
+    const lerpAmount = Math.abs(Math.sin(flashCycle * Math.PI)) * (1 - IMMUNITY_MIN_OPACITY) + IMMUNITY_MIN_OPACITY;
+    const groundColor = COLORS.TERRAIN.GROUND;
+    bodyColor = lerpColor(groundColor, bodyColor, lerpAmount);
+    borderColor = lerpColor(groundColor, borderColor, lerpAmount);
   }
-
-  const allianceColor = params.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
-  const bodyColor = getFlashColor(allianceColor, params.flashTimer);
-  const borderColor = getFlashColor(params.alliance === 0 ? "#330000" : "#000033", params.flashTimer);
+  
   const selfShadowColor = "rgba(0, 0, 0, 0.35)";
 
   ctx.fillStyle = bodyColor;
