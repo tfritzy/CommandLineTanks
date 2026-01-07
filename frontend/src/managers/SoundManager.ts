@@ -31,9 +31,9 @@ export class SoundManager {
         // Health Pickup
         'pickup-health': ['/8bit-SFX-Library/Win/win-2.wav'],
         // Shield Pickup
-        'pickup-shield': ['/8bit-SFX-Library/Collect/coin-1.wav'],
+        'pickup-shield': ['/8bit-SFX-Library/Player/jump-10.wav'],
         // Shield Pop
-        'shield-pop': ['/8bit-SFX-Liberary/Player/jump-10.wav'],
+        'shield-pop': ['/8bit-SFX-Liberary/Shoot/laser-4.wav'],
         // Weapon Depletion (Dry Fire) - using a click sound
         'weapon-empty': ['/8bit-SFX-Library/UI/cancel-3.wav'],
         // Weapon Switch

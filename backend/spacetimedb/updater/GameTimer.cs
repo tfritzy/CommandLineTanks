@@ -35,14 +35,5 @@ public static partial class GameTimer
             ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
             WorldId = args.WorldId
         });
-
-        var score = ctx.Db.score.WorldId.Find(args.WorldId);
-        int team0Kills = 0;
-        int team1Kills = 0;
-        if (score != null)
-        {
-            team0Kills = score.Value.Kills.Length > 0 ? score.Value.Kills[0] : 0;
-            team1Kills = score.Value.Kills.Length > 1 ? score.Value.Kills[1] : 0;
-        }
     }
 }

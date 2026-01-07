@@ -4,6 +4,7 @@ import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
 import { COLORS, PALETTE } from "../theme/colors";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
+import { ServerTimeSync } from "../utils/ServerTimeSync";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
 
@@ -24,7 +25,7 @@ const HeaderBox = ({
       backdropFilter: "blur(8px)",
       border: "1px solid rgba(255, 255, 255, 0.1)",
       borderRadius: "4px",
-      padding: "4px 10px",
+      padding: "8px 14px",
       display: "flex",
       alignItems: "center",
       gap: "8px",
@@ -75,7 +76,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
       const world = connection.db.world.Id.find(worldId);
       if (world && world.gameState.tag === "Playing") {
         setIsVisible(true);
-        const currentTime = BigInt(Date.now() * 1000);
+        const currentTime = BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000));
         const gameElapsedMicros = Number(currentTime - world.gameStartedAt);
         const gameDurationMicros = Number(world.gameDurationMicros);
         const remainingMicros = Math.max(
@@ -140,11 +141,11 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         style={
           {
             position: "absolute",
-            top: "10px",
+            top: "5px",
             left: "50%",
             transform: "translateX(-50%)",
             display: "flex",
-            gap: "8px",
+            gap: "4px",
             zIndex: 1000,
           } as React.CSSProperties
         }

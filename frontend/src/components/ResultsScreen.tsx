@@ -6,11 +6,11 @@ import ScoreRow from '../../module_bindings/score_type';
 import WorldRow from '../../module_bindings/world_type';
 import { type EventContext } from "../../module_bindings";
 import { ServerTimeSync } from '../utils/ServerTimeSync';
-import { COLORS } from '../theme/colors';
+import { COLORS, PALETTE } from '../theme/colors';
 import { SoundManager } from '../managers/SoundManager';
 import { createMultiTableSubscription, type MultiTableSubscription } from '../utils/tableSubscription';
 
-const WORLD_RESET_DELAY_MICROS = 30_000_000;
+const WORLD_RESET_DELAY_MICROS = 15_000_000;
 
 interface ResultsScreenProps {
     worldId: string;
@@ -22,7 +22,16 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const [team1Kills, setTeam1Kills] = useState(0);
     const [showResults, setShowResults] = useState(false);
     const [gameEndTime, setGameEndTime] = useState<bigint | null>(null);
+    const [, setTick] = useState(0);
     const subscriptionRef = useRef<MultiTableSubscription | null>(null);
+
+    useEffect(() => {
+        if (!showResults) return;
+        const interval = setInterval(() => {
+            setTick(t => t + 1);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [showResults]);
 
     useEffect(() => {
         const connection = getConnection();
@@ -111,12 +120,16 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                 if (score && myTank) {
                                     const team0Kills = score.kills[0] || 0;
                                     const team1Kills = score.kills[1] || 0;
-                                    const winningTeam = team0Kills > team1Kills ? 0 : 1;
 
-                                    if (myTank.alliance === winningTeam) {
-                                        SoundManager.getInstance().play('win');
-                                    } else {
+                                    if (team0Kills === team1Kills) {
                                         SoundManager.getInstance().play('loss');
+                                    } else {
+                                        const winningTeam = team0Kills > team1Kills ? 0 : 1;
+                                        if (myTank.alliance === winningTeam) {
+                                            SoundManager.getInstance().play('win');
+                                        } else {
+                                            SoundManager.getInstance().play('loss');
+                                        }
                                     }
                                 }
                             } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
@@ -146,12 +159,13 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const team0Tanks = tanks.filter(t => t.alliance === 0).sort((a, b) => b.kills - a.kills);
     const team1Tanks = tanks.filter(t => t.alliance === 1).sort((a, b) => b.kills - a.kills);
 
+    const isDraw = team0Kills === team1Kills;
     const winningTeam = team0Kills > team1Kills ? 0 : 1;
-    const winnerText = winningTeam === 0 ? 'Red Victory' : 'Blue Victory';
-    const winnerColor = winningTeam === 0 ? '#c06852' : '#5a78b2';
+    const winnerText = isDraw ? 'DRAW' : (winningTeam === 0 ? 'RED VICTORY' : 'BLUE VICTORY');
+    const winnerColor = isDraw ? PALETTE.WHITE_BRIGHT : (winningTeam === 0 ? PALETTE.RED_MUTED : PALETTE.BLUE_INFO);
 
     const timeUntilReset = gameEndTime !== null
-        ? Math.ceil(Number(gameEndTime + BigInt(WORLD_RESET_DELAY_MICROS) - BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000))) / 1_000_000)
+        ? Math.max(0, Math.ceil(Number(gameEndTime + BigInt(WORLD_RESET_DELAY_MICROS) - BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000))) / 1_000_000))
         : 0;
 
     return (
@@ -161,7 +175,8 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(46, 46, 67, 0.8)',
+            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -169,164 +184,151 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             fontFamily: "'JetBrains Mono', monospace"
         }}>
             <div style={{
-                background: '#2a152d',
-                border: '4px solid #813645',
-                borderRadius: '8px',
-                maxWidth: '900px',
+                background: `${PALETTE.PURPLE_VOID}d9`,
+                backdropFilter: 'blur(12px)',
+                border: `1px solid ${PALETTE.WHITE_PURE}14`,
+                borderRadius: '4px',
+                maxWidth: '800px',
                 width: '90%',
                 maxHeight: '85vh',
                 overflowY: 'auto',
                 textAlign: 'center',
-                padding: '60px 40px',
-                animation: 'fadeIn 0.5s ease-in'
+                padding: '48px 40px',
+                boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE}99`,
+                animation: 'resultsFadeIn 0.4s ease-out'
             }}>
                 <style>{`
-                    @keyframes fadeIn {
-                        from {
-                            opacity: 0;
-                            transform: scale(0.95);
-                        }
-                        to {
-                            opacity: 1;
-                            transform: scale(1);
-                        }
+                    @keyframes resultsFadeIn {
+                        from { opacity: 0; transform: scale(0.98); }
+                        to { opacity: 1; transform: scale(1); }
                     }
                 `}</style>
                 <div style={{
-                    fontSize: '72px',
-                    fontWeight: 300,
+                    fontSize: '48px',
+                    fontWeight: '900',
                     color: winnerColor,
-                    marginBottom: '16px',
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase'
+                    marginBottom: '8px',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    textShadow: `0 0 20px ${winnerColor}4d`,
                 }}>
                     {winnerText}
                 </div>
 
                 <div style={{
-                    fontSize: '18px',
-                    marginBottom: '80px',
-                    color: COLORS.TERMINAL.TEXT_MUTED,
-                    fontWeight: 300,
-                    letterSpacing: '0.02em'
+                    fontSize: '14px',
+                    marginBottom: '60px',
+                    color: COLORS.UI.TEXT_DIM,
+                    fontWeight: '700',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    opacity: 0.8
                 }}>
-                    Next round in {timeUntilReset}s
+                    Next round in {timeUntilReset} seconds
                 </div>
 
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
-                    gap: '80px',
-                    maxWidth: '800px',
+                    gap: '60px',
+                    maxWidth: '750px',
                     margin: '0 auto'
                 }}>
                     <div>
                         <div style={{
-                            fontSize: '14px',
-                            color: '#c06852',
-                            marginBottom: '24px',
-                            letterSpacing: '0.1em',
+                            fontSize: '9px',
+                            color: PALETTE.RED_MUTED,
+                            marginBottom: '16px',
+                            letterSpacing: '0.2em',
                             textTransform: 'uppercase',
-                            fontWeight: 500,
-                            opacity: 0.9
+                            fontWeight: '800',
+                            borderBottom: `1px solid ${PALETTE.RED_MUTED}33`,
+                            paddingBottom: '8px',
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 40px 40px 50px',
+                            gap: '8px',
+                            textAlign: 'right'
                         }}>
-                            Red · {team0Kills}
+                            <span style={{ textAlign: 'left' }}>RED TEAM</span>
+                            <span style={{ opacity: 0.5 }}>KDR</span>
+                            <span style={{ opacity: 0.5 }}>D</span>
+                            <span style={{ opacity: 0.5 }}>KILLS</span>
                         </div>
                         <div style={{
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '12px'
+                            gap: '4px'
                         }}>
-                            {team0Tanks.map((tank, index) => (
-                                <div key={tank.id} style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    fontSize: '16px',
-                                    color: index === 0 ? COLORS.UI.TEXT_PRIMARY : COLORS.TERMINAL.TEXT_MUTED,
-                                    paddingBottom: '12px',
-                                    borderBottom: '1px solid rgba(169, 188, 191, 0.1)',
-                                    fontWeight: index === 0 ? 500 : 300
-                                }}>
-                                    <span style={{
-                                        flex: 1,
-                                        textAlign: 'left',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap'
-                                    }}>{tank.name}</span>
-                                    <span style={{
-                                        marginLeft: '16px',
-                                        color: index === 0 ? '#c06852' : '#707b89',
-                                        fontSize: '14px'
-                                    }}>{tank.kills} / {tank.deaths}</span>
-                                </div>
-                            ))}
-                            {team0Tanks.length === 0 && (
-                                <div style={{
-                                    fontSize: '14px',
-                                    color: '#707b89',
-                                    fontStyle: 'italic',
-                                    opacity: 0.5
-                                }}>
-                                    No combatants
-                                </div>
-                            )}
+                            {team0Tanks.map((tank) => {
+                                const kdr = tank.deaths === 0 ? tank.kills.toFixed(1) : (tank.kills / tank.deaths).toFixed(1);
+                                return (
+                                    <div key={tank.id} style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '1fr 40px 40px 50px',
+                                        gap: '8px',
+                                        alignItems: 'center',
+                                        fontSize: '13px',
+                                        color: COLORS.UI.TEXT_PRIMARY,
+                                        padding: '4px 0',
+                                        fontWeight: '500',
+                                        textAlign: 'right'
+                                    }}>
+                                        <span style={{ opacity: 0.8, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tank.name}</span>
+                                        <span style={{ opacity: 0.4 }}>{kdr}</span>
+                                        <span style={{ opacity: 0.4 }}>{tank.deaths}</span>
+                                        <span style={{ color: PALETTE.ORANGE_MEDIUM, fontWeight: '800', fontSize: '15px' }}>{tank.kills}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 
                     <div>
                         <div style={{
-                            fontSize: '14px',
-                            color: '#5a78b2',
-                            marginBottom: '24px',
-                            letterSpacing: '0.1em',
+                            fontSize: '9px',
+                            color: PALETTE.BLUE_INFO,
+                            marginBottom: '16px',
+                            letterSpacing: '0.2em',
                             textTransform: 'uppercase',
-                            fontWeight: 500,
-                            opacity: 0.9
+                            fontWeight: '800',
+                            borderBottom: `1px solid ${PALETTE.BLUE_INFO}33`,
+                            paddingBottom: '8px',
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 40px 40px 50px',
+                            gap: '8px',
+                            textAlign: 'right'
                         }}>
-                            Blue · {team1Kills}
+                            <span style={{ textAlign: 'left' }}>BLUE TEAM</span>
+                            <span style={{ opacity: 0.5 }}>KDR</span>
+                            <span style={{ opacity: 0.5 }}>D</span>
+                            <span style={{ opacity: 0.5 }}>KILLS</span>
                         </div>
                         <div style={{
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '12px'
+                            gap: '4px'
                         }}>
-                            {team1Tanks.map((tank, index) => (
-                                <div key={tank.id} style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    fontSize: '16px',
-                                    color: index === 0 ? COLORS.UI.TEXT_PRIMARY : COLORS.TERMINAL.TEXT_MUTED,
-                                    paddingBottom: '12px',
-                                    borderBottom: '1px solid rgba(169, 188, 191, 0.1)',
-                                    fontWeight: index === 0 ? 500 : 300
-                                }}>
-                                    <span style={{
-                                        flex: 1,
-                                        textAlign: 'left',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap'
-                                    }}>{tank.name}</span>
-                                    <span style={{
-                                        marginLeft: '16px',
-                                        color: index === 0 ? '#5a78b2' : '#707b89',
-                                        fontSize: '14px'
-                                    }}>{tank.kills} / {tank.deaths}</span>
-                                </div>
-                            ))}
-                            {team1Tanks.length === 0 && (
-                                <div style={{
-                                    fontSize: '14px',
-                                    color: '#707b89',
-                                    fontStyle: 'italic',
-                                    opacity: 0.5
-                                }}>
-                                    No combatants
-                                </div>
-                            )}
+                            {team1Tanks.map((tank) => {
+                                const kdr = tank.deaths === 0 ? tank.kills.toFixed(1) : (tank.kills / tank.deaths).toFixed(1);
+                                return (
+                                    <div key={tank.id} style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '1fr 40px 40px 50px',
+                                        gap: '8px',
+                                        alignItems: 'center',
+                                        fontSize: '13px',
+                                        color: COLORS.UI.TEXT_PRIMARY,
+                                        padding: '4px 0',
+                                        fontWeight: '500',
+                                        textAlign: 'right'
+                                    }}>
+                                        <span style={{ opacity: 0.8, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tank.name}</span>
+                                        <span style={{ opacity: 0.4 }}>{kdr}</span>
+                                        <span style={{ opacity: 0.4 }}>{tank.deaths}</span>
+                                        <span style={{ color: PALETTE.BLUE_BRIGHT, fontWeight: '800', fontSize: '15px' }}>{tank.kills}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
