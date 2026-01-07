@@ -311,9 +311,11 @@ public static partial class PickupSpawner
         if (existingGunIndex >= 0)
         {
             var existingGun = tank.Guns[existingGunIndex];
-            if (existingGun.Ammo != null && gunToAdd.Ammo != null)
+            int? ammoToAdd = pickup.Ammo ?? gunToAdd.Ammo;
+            
+            if (existingGun.Ammo != null && ammoToAdd != null)
             {
-                existingGun.Ammo = existingGun.Ammo.Value + gunToAdd.Ammo.Value;
+                existingGun.Ammo = existingGun.Ammo.Value + ammoToAdd.Value;
                 tank.Guns[existingGunIndex] = existingGun;
                 needsUpdate = true;
                 ctx.Db.pickup.Id.Delete(pickup.Id);
@@ -322,9 +324,15 @@ public static partial class PickupSpawner
         }
         else if (tank.Guns.Length < 3)
         {
+            var gunWithAmmo = gunToAdd;
+            if (pickup.Ammo.HasValue)
+            {
+                gunWithAmmo.Ammo = pickup.Ammo;
+            }
+            
             tank = tank with
             {
-                Guns = [.. tank.Guns, gunToAdd],
+                Guns = [.. tank.Guns, gunWithAmmo],
                 SelectedGunIndex = tank.Guns.Length
             };
             needsUpdate = true;

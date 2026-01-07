@@ -114,7 +114,8 @@ public static partial class Module
                 positionY: dropY,
                 gridX: gridX,
                 gridY: gridY,
-                type: pickupType.Value
+                type: pickupType.Value,
+                ammo: gun.Ammo
             ));
         }
     }
