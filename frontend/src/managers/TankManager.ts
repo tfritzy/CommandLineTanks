@@ -66,9 +66,9 @@ export class TankManager {
               if (oldTank.health > 0 && newTank.health <= 0) {
                 const pos = tank.getPosition();
                 this.particlesManager.spawnParticles(pos.x, pos.y, newTank.alliance);
-                this.soundManager.play("death", 0.5, pos.x, pos.y);
 
                 if (newTank.id === this.playerTankId) {
+                  this.soundManager.play("death", 0.5, pos.x, pos.y);
                   this.screenShake.shake(20, 0.5);
                 }
               }
@@ -87,18 +87,24 @@ export class TankManager {
               }
 
               if (oldTank.health > newTank.health && newTank.health > 0) {
-                const pos = tank.getPosition();
-                this.soundManager.play("damage", 0.5, pos.x, pos.y);
+                if (newTank.id === this.playerTankId) {
+                  const pos = tank.getPosition();
+                  this.soundManager.play("damage", 0.5, pos.x, pos.y);
+                }
               }
 
               if (oldTank.hasShield && !newTank.hasShield) {
-                const pos = tank.getPosition();
-                this.soundManager.play("shield-pop", 0.5, pos.x, pos.y);
+                if (newTank.id === this.playerTankId) {
+                  const pos = tank.getPosition();
+                  this.soundManager.play("shield-pop", 0.5, pos.x, pos.y);
+                }
               }
 
               if (oldTank.selectedGunIndex !== newTank.selectedGunIndex) {
-                const pos = tank.getPosition();
-                this.soundManager.play("weapon-switch", 0.5, pos.x, pos.y);
+                if (newTank.id === this.playerTankId) {
+                  const pos = tank.getPosition();
+                  this.soundManager.play("weapon-switch", 0.5, pos.x, pos.y);
+                }
               }
 
               tank.setPosition(
@@ -272,6 +278,10 @@ export class TankManager {
 
   public getPlayerTank(): Tank | null {
     return this.playerTankId ? this.tanks.get(this.playerTankId) || null : null;
+  }
+
+  public getPlayerTankId(): string | null {
+    return this.playerTankId;
   }
 
   public drawPaths(ctx: CanvasRenderingContext2D) {
