@@ -73,6 +73,8 @@ export class GunInventoryManager {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
+    this.guns.length = 0;
+    this.playerTankId = null;
   }
 
   private drawGunGraphic(
