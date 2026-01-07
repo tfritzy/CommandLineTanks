@@ -121,7 +121,7 @@ export class PickupTextureSheet {
     }
 
     this.addPickup(
-      "unknown",
+      "Unknown",
       currentX,
       currentY,
       cellSize,
