@@ -7,23 +7,14 @@ export class SoundManager {
     private readonly MAX_DISTANCE = 15; // Tiles
 
     private soundMap: Record<string, string[]> = {
-        // Damage Taken
-        'damage': [
-            // '/8bit-SFX-Library/Collide/hit-1.wav',
-            // '/8bit-SFX-Library/Collide/hit-2.wav',
-            // '/8bit-SFX-Library/Collide/hit-3.wav',
-            // '/8bit-SFX-Library/Collide/hit-4.wav',
-            // '/8bit-SFX-Library/Collide/hit-5.wav',
+        'self-damage': [
             '/8bit-SFX-Library/Collide/hit-6.wav',
-            // '/8bit-SFX-Library/Collide/hit-7.wav',
         ],
-        // Projectile Hit (non-explosive)
-        'hit': [
-            // '/8bit-SFX-Library/Collide/bonk-1.wav',
-            // '/8bit-SFX-Library/Collide/bonk-2.wav',
+        'enemy-damage': [
             '/8bit-SFX-Library/Collide/hit-7.wav',
-            // '/8bit-SFX-Library/Collide/bonk-4.wav',
-            // '/8bit-SFX-Library/Collide/bonk-5.wav',
+        ],
+        'projectile-hit': [
+            '/8bit-SFX-Library/Collide/bonk-1.wav',
         ],
         // Explosion
         'explosion': [
