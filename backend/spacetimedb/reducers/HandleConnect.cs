@@ -28,12 +28,6 @@ public static partial class Module
         }
 
         var identityString = ctx.Sender.ToString().ToLower();
-        var existingHomeworld = ctx.Db.world.Id.Find(identityString);
-        if (existingHomeworld == null)
-        {
-            CreateHomeworld(ctx, identityString);
-        }
-
         var existingTank = ctx.Db.tank.WorldId.Filter(identityString)
             .Where(t => t.Owner == ctx.Sender)
             .FirstOrDefault();
