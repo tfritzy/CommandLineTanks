@@ -90,14 +90,31 @@ public static partial class Module
         ctx.Db.world.Id.Update(updatedWorld);
     }
 
+    public static void DeleteHomeworldIfEmpty(ReducerContext ctx, string identityString)
+    {
+        var homeworld = ctx.Db.world.Id.Find(identityString);
+        if (homeworld == null || !homeworld.Value.IsHomeWorld)
+        {
+            return;
+        }
+
+        var hasHumanPlayers = ctx.Db.tank.WorldId.Filter(identityString).Any(t => !t.IsBot);
+        if (hasHumanPlayers)
+        {
+            return;
+        }
+
+        DeleteWorld(ctx, identityString);
+        Log.Info($"Deleted empty homeworld for identity {identityString}");
+    }
+
     public static void ReturnToHomeworld(ReducerContext ctx, string joinCode)
     {
         var identityString = ctx.Sender.ToString().ToLower();
         var homeworld = ctx.Db.world.Id.Find(identityString);
         if (homeworld == null)
         {
-            Log.Error($"Homeworld not found for identity {identityString}");
-            return;
+            CreateHomeworld(ctx, identityString);
         }
 
         var existingTank = ctx.Db.tank.WorldId.Filter(identityString)
