@@ -39,8 +39,6 @@ import CheckAndRespawnEnemyTanks from "./check_and_respawn_enemy_tanks_reducer";
 export { CheckAndRespawnEnemyTanks };
 import CleanupResultsGames from "./cleanup_results_games_reducer";
 export { CleanupResultsGames };
-import CleanupSmokeCloud from "./cleanup_smoke_cloud_reducer";
-export { CleanupSmokeCloud };
 import CreateWorld from "./create_world_reducer";
 export { CreateWorld };
 import DeleteKill from "./delete_kill_reducer";
@@ -59,18 +57,10 @@ import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
 import JoinWorld from "./join_world_reducer";
 export { JoinWorld };
-import Overdrive from "./overdrive_reducer";
-export { Overdrive };
-import Repair from "./repair_reducer";
-export { Repair };
 import ResetWorld from "./reset_world_reducer";
 export { ResetWorld };
 import Respawn from "./respawn_reducer";
 export { Respawn };
-import Smoke from "./smoke_reducer";
-export { Smoke };
-import Smokescreen from "./smokescreen_reducer";
-export { Smokescreen };
 import SpawnPickup from "./spawn_pickup_reducer";
 export { SpawnPickup };
 import Stop from "./stop_reducer";
@@ -101,8 +91,6 @@ import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
 export { ScheduledProjectileUpdatesRow };
-import ScheduledSmokeCloudCleanupRow from "./scheduled_smoke_cloud_cleanup_table";
-export { ScheduledSmokeCloudCleanupRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import ScheduledWorldResetRow from "./scheduled_world_reset_table";
@@ -117,8 +105,6 @@ import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
-import SmokeCloudRow from "./smoke_cloud_table";
-export { SmokeCloudRow };
 import TankRow from "./tank_table";
 export { TankRow };
 import TankFireStateRow from "./tank_fire_state_table";
@@ -179,16 +165,12 @@ import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
-import ScheduledSmokeCloudCleanup from "./scheduled_smoke_cloud_cleanup_type";
-export { ScheduledSmokeCloudCleanup };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 export { ScheduledTankUpdates };
 import ScheduledWorldReset from "./scheduled_world_reset_type";
 export { ScheduledWorldReset };
 import Score from "./score_type";
 export { Score };
-import SmokeCloud from "./smoke_cloud_type";
-export { SmokeCloud };
 import Tank from "./tank_type";
 export { Tank };
 import TankFireState from "./tank_fire_state_type";
@@ -294,23 +276,6 @@ const tablesSchema = __schema(
     ],
   }, ScheduledProjectileUpdatesRow),
   __table({
-    name: 'ScheduledSmokeCloudCleanup',
-    indexes: [
-      { name: 'ScheduledId', algorithm: 'btree', columns: [
-        'scheduledId',
-      ] },
-      { name: 'SmokeCloudId', algorithm: 'btree', columns: [
-        'smokeCloudId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
-      ] },
-    ],
-    constraints: [
-      { name: 'ScheduledSmokeCloudCleanup_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
-    ],
-  }, ScheduledSmokeCloudCleanupRow),
-  __table({
     name: 'ScheduledTankUpdates',
     indexes: [
       { name: 'ScheduledId', algorithm: 'btree', columns: [
@@ -411,25 +376,6 @@ const tablesSchema = __schema(
       { name: 'score_WorldId_key', constraint: 'unique', columns: ['worldId'] },
     ],
   }, ScoreRow),
-  __table({
-    name: 'smoke_cloud',
-    indexes: [
-      { name: 'Id', algorithm: 'btree', columns: [
-        'id',
-      ] },
-      { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
-        'worldId',
-        'collisionRegionX',
-        'collisionRegionY',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
-      ] },
-    ],
-    constraints: [
-      { name: 'smoke_cloud_Id_key', constraint: 'unique', columns: ['id'] },
-    ],
-  }, SmokeCloudRow),
   __table({
     name: 'tank',
     indexes: [
@@ -560,7 +506,6 @@ const reducersSchema = __reducers(
   __reducerSchema("changeName", ChangeName),
   __reducerSchema("CheckAndRespawnEnemyTanks", CheckAndRespawnEnemyTanks),
   __reducerSchema("CleanupResultsGames", CleanupResultsGames),
-  __reducerSchema("CleanupSmokeCloud", CleanupSmokeCloud),
   __reducerSchema("createWorld", CreateWorld),
   __reducerSchema("delete_kill", DeleteKill),
   __reducerSchema("drive", Drive),
@@ -568,12 +513,8 @@ const reducersSchema = __reducers(
   __reducerSchema("exitWorld", ExitWorld),
   __reducerSchema("fire", Fire),
   __reducerSchema("joinWorld", JoinWorld),
-  __reducerSchema("overdrive", Overdrive),
-  __reducerSchema("repair", Repair),
   __reducerSchema("ResetWorld", ResetWorld),
   __reducerSchema("respawn", Respawn),
-  __reducerSchema("smoke", Smoke),
-  __reducerSchema("smokescreen", Smokescreen),
   __reducerSchema("SpawnPickup", SpawnPickup),
   __reducerSchema("stop", Stop),
   __reducerSchema("switchGun", SwitchGun),

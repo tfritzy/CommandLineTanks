@@ -6,7 +6,7 @@ interface WorldNotFoundProps {
   worldId: string;
 }
 
-export default function WorldNotFound({ worldId }: WorldNotFoundProps) {
+export default function WorldNotFound({ worldId: _worldId }: WorldNotFoundProps) {
   const navigate = useNavigate();
 
   const handleGoHome = () => {
