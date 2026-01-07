@@ -371,66 +371,6 @@ const LandingPage: React.FC = () => {
 
                         <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <span className="material-symbols-outlined text-7xl text-white">cloud</span>
-                            </div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="text-secondary font-mono text-xl font-bold">smoke</span>
-                                </div>
-                                <p className="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
-                                    Deploy a smoke cloud at your position. Breaks lock-ons and obscures vision.
-                                </p>
-                                <div className="bg-code-bg rounded border border-white/5 p-4 font-mono text-xs text-gray-300 shadow-inner">
-                                    <div className="text-gray-500 mb-1"># Syntax</div>
-                                    <div className="text-primary font-bold mb-3">smoke</div>
-                                    <div className="text-gray-500 mb-1"># Type this:</div>
-                                    <div className="text-white"><span className="text-secondary">$</span> smoke</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <span className="material-symbols-outlined text-7xl text-white">electric_bolt</span>
-                            </div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="text-secondary font-mono text-xl font-bold">overdrive</span>
-                                </div>
-                                <p className="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
-                                    Temporarily push your engines beyond safety limits. 25% speed increase.
-                                </p>
-                                <div className="bg-code-bg rounded border border-white/5 p-4 font-mono text-xs text-gray-300 shadow-inner">
-                                    <div className="text-gray-500 mb-1"># Syntax</div>
-                                    <div className="text-primary font-bold mb-3">overdrive</div>
-                                    <div className="text-gray-500 mb-1"># Type this:</div>
-                                    <div className="text-white"><span className="text-secondary">$</span> od</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <span className="material-symbols-outlined text-7xl text-white">build_circle</span>
-                            </div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="text-secondary font-mono text-xl font-bold">repair</span>
-                                </div>
-                                <p className="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
-                                    Initiate field repairs. Regenerates health over time, but movement cancels it.
-                                </p>
-                                <div className="bg-code-bg rounded border border-white/5 p-4 font-mono text-xs text-gray-300 shadow-inner">
-                                    <div className="text-gray-500 mb-1"># Syntax</div>
-                                    <div className="text-primary font-bold mb-3">repair</div>
-                                    <div className="text-gray-500 mb-1"># Type this:</div>
-                                    <div className="text-white"><span className="text-secondary">$</span> rep</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">list</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">

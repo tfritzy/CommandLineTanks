@@ -90,7 +90,6 @@ const allCommands = [
   { name: 'aim', alias: 'a' },
   { name: 'target', alias: 't' },
   { name: 'fire', alias: 'f' },
-  { name: 'repair', alias: 'rep' },
   { name: 'tanks', alias: undefined }
 ];
 
@@ -178,9 +177,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       `  ${themeColors.command("target")}, ${themeColors.command("t")}            Target another tank by code`,
       `  ${themeColors.command("fire")}, ${themeColors.command("f")}              Fire a projectile from your tank`,
       `  ${themeColors.command("switch")}, ${themeColors.command("w")}            Switch to a different gun`,
-      `  ${themeColors.command("smoke")}, ${themeColors.command("sm")}            Deploy a smokescreen that disrupts enemy targeting`,
-      `  ${themeColors.command("overdrive")}, ${themeColors.command("od")}        Activate overdrive for 25% increased speed for 10 seconds`,
-      `  ${themeColors.command("repair")}, ${themeColors.command("rep")}          Begin repairing your tank to restore health`,
       `  ${themeColors.command("respawn")}              Respawn after death`,
       `  ${themeColors.command("tanks")}                Display all tanks in the world with statistics`,
       `  ${themeColors.command("name")}                 View or change your player name`,
@@ -311,53 +307,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  switch 1",
         "  switch 2",
         "  w 3",
-      ];
-
-    case "smoke":
-    case "smokescreen":
-    case "sm":
-      return [
-        "smoke, sm - Deploy a smokescreen",
-        "",
-        "Usage: smoke",
-        "",
-        "Deploys a smoke cloud that disrupts enemy targeting.",
-        "60 second cooldown.",
-        "",
-        "Examples:",
-        "  smoke",
-        "  sm",
-      ];
-
-    case "overdrive":
-    case "od":
-      return [
-        "overdrive, od - Activate overdrive",
-        "",
-        "Usage: overdrive",
-        "",
-        "Increases movement speed by 25% for 10 seconds.",
-        "60 second cooldown.",
-        "",
-        "Examples:",
-        "  overdrive",
-        "  od",
-      ];
-
-    case "repair":
-    case "rep":
-      return [
-        "repair, rep - Repair your tank",
-        "",
-        "Usage: repair",
-        "",
-        "Starts repairing your tank, regenerating health over time.",
-        "Repair is interrupted if you take damage or issue a movement command.",
-        "60 second cooldown.",
-        "",
-        "Examples:",
-        "  repair",
-        "  rep",
       ];
 
     case "respawn":
@@ -876,155 +825,6 @@ export function drive(
     themeColors.dim("  drive northeast 5"),
     themeColors.dim("  drive up 3 75"),
   ];
-}
-
-export function smokescreen(
-  connection: DbConnection,
-  worldId: string,
-  args: string[]
-): string[] {
-  if (isPlayerDead(connection, worldId)) {
-    return [
-      themeColors.error("smoke: error: cannot deploy smoke while dead"),
-      "",
-      themeColors.dim("Use 'respawn' to respawn"),
-    ];
-  }
-
-  if (args.length > 0) {
-    return [
-      themeColors.error("smoke: error: smoke command takes no arguments"),
-      "",
-      themeColors.dim("Usage: smoke"),
-      themeColors.dim("       sm"),
-    ];
-  }
-
-  const allTanks = Array.from(connection.db.tank.iter()).filter(
-    (t) => t.worldId === worldId
-  );
-  const myTank = allTanks.find(
-    (t) => connection.identity && t.owner.isEqual(connection.identity)
-  );
-
-  if (myTank) {
-    const remainingMicros = myTank.remainingSmokescreenCooldownMicros;
-
-    if (remainingMicros > 0n) {
-      const remaining = Number(remainingMicros) / 1_000_000;
-      return [
-        themeColors.error("smoke: error: ability is on cooldown"),
-        "",
-        `Time remaining: ${themeColors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
-      ];
-    }
-  }
-
-  connection.reducers.smoke({ worldId });
-
-  return [themeColors.success("Deploying smoke...")];
-}
-
-export function overdrive(
-  connection: DbConnection,
-  worldId: string,
-  args: string[]
-): string[] {
-  if (isPlayerDead(connection, worldId)) {
-    return [
-      themeColors.error("overdrive: error: cannot activate overdrive while dead"),
-      "",
-      themeColors.dim("Use 'respawn' to respawn"),
-    ];
-  }
-
-  if (args.length > 0) {
-    return [
-      themeColors.error("overdrive: error: overdrive command takes no arguments"),
-      "",
-      themeColors.dim("Usage: overdrive"),
-      themeColors.dim("       od"),
-    ];
-  }
-
-  const allTanks = Array.from(connection.db.tank.iter()).filter(
-    (t) => t.worldId === worldId
-  );
-  const myTank = allTanks.find(
-    (t) => connection.identity && t.owner.isEqual(connection.identity)
-  );
-
-  if (myTank) {
-    const remainingMicros = myTank.remainingOverdriveCooldownMicros;
-
-    if (remainingMicros > 0n) {
-      const remaining = Number(remainingMicros) / 1_000_000;
-      return [
-        themeColors.error("overdrive: error: ability is on cooldown"),
-        "",
-        `Time remaining: ${themeColors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
-      ];
-    }
-  }
-
-  connection.reducers.overdrive({ worldId });
-
-  return [themeColors.success(`Activating overdrive! ${themeColors.value("+25%")} speed for ${themeColors.value("10")} seconds`)];
-}
-
-export function repair(
-  connection: DbConnection,
-  worldId: string,
-  args: string[]
-): string[] {
-  if (isPlayerDead(connection, worldId)) {
-    return [
-      themeColors.error("repair: error: cannot repair while dead"),
-      "",
-      themeColors.dim("Use 'respawn' to respawn"),
-    ];
-  }
-
-  if (args.length > 0) {
-    return [
-      themeColors.error("repair: error: repair command takes no arguments"),
-      "",
-      themeColors.dim("Usage: repair"),
-      themeColors.dim("       rep"),
-    ];
-  }
-
-  const allTanks = Array.from(connection.db.tank.iter()).filter(
-    (t) => t.worldId === worldId
-  );
-  const myTank = allTanks.find(
-    (t) => connection.identity && t.owner.isEqual(connection.identity)
-  );
-
-  if (myTank) {
-    if (myTank.health >= myTank.maxHealth) {
-      return [
-        themeColors.error("repair: error: tank is already at full health"),
-        "",
-        `Health: ${themeColors.colorize(myTank.health.toString(), 'HEALTH')}/${themeColors.colorize(myTank.maxHealth.toString(), 'HEALTH')}`,
-      ];
-    }
-
-    const remainingMicros = myTank.remainingRepairCooldownMicros;
-
-    if (remainingMicros > 0n) {
-      const remaining = Number(remainingMicros) / 1_000_000;
-      return [
-        themeColors.error("repair: error: ability is on cooldown"),
-        "",
-        `Time remaining: ${themeColors.colorize(Math.ceil(remaining).toString(), 'COOLDOWN')} seconds`,
-      ];
-    }
-  }
-
-  connection.reducers.repair({ worldId });
-
-  return [themeColors.success("Repairing... (interrupted by damage or movement)")];
 }
 
 export function create(
