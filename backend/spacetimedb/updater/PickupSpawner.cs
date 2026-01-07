@@ -324,11 +324,9 @@ public static partial class PickupSpawner
         }
         else if (tank.Guns.Length < 3)
         {
-            var gunWithAmmo = gunToAdd;
-            if (pickup.Ammo.HasValue)
-            {
-                gunWithAmmo.Ammo = pickup.Ammo;
-            }
+            var gunWithAmmo = pickup.Ammo.HasValue 
+                ? gunToAdd with { Ammo = pickup.Ammo }
+                : gunToAdd;
             
             tank = tank with
             {
