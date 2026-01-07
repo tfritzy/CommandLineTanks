@@ -90,7 +90,7 @@ public static partial class Module
         ctx.Db.world.Id.Update(updatedWorld);
     }
 
-    public static void DeleteHomeworld(ReducerContext ctx, string identityString)
+    public static void DeleteHomeworldIfEmpty(ReducerContext ctx, string identityString)
     {
         var homeworld = ctx.Db.world.Id.Find(identityString);
         if (homeworld == null || !homeworld.Value.IsHomeWorld)
@@ -98,50 +98,14 @@ public static partial class Module
             return;
         }
 
-        foreach (var tank in ctx.Db.tank.WorldId.Filter(identityString))
+        var hasHumanPlayers = ctx.Db.tank.WorldId.Filter(identityString).Any(t => !t.IsBot);
+        if (hasHumanPlayers)
         {
-            var fireState = ctx.Db.tank_fire_state.TankId.Find(tank.Id);
-            if (fireState != null)
-            {
-                ctx.Db.tank_fire_state.TankId.Delete(tank.Id);
-            }
-            
-            DeleteTankPathIfExists(ctx, tank.Id);
-            ctx.Db.tank.Id.Delete(tank.Id);
+            return;
         }
 
-        foreach (var projectile in ctx.Db.projectile.WorldId.Filter(identityString))
-        {
-            ctx.Db.projectile.Id.Delete(projectile.Id);
-        }
-
-        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId.Filter(identityString))
-        {
-            ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
-        }
-
-        foreach (var pickup in ctx.Db.pickup.WorldId.Filter(identityString))
-        {
-            ctx.Db.pickup.Id.Delete(pickup.Id);
-        }
-
-        var score = ctx.Db.score.WorldId.Find(identityString);
-        if (score != null)
-        {
-            ctx.Db.score.WorldId.Delete(identityString);
-        }
-
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(identityString);
-        if (traversibilityMap != null)
-        {
-            ctx.Db.traversibility_map.WorldId.Delete(identityString);
-        }
-
-        StopWorldTickers(ctx, identityString);
-
-        ctx.Db.world.Id.Delete(identityString);
-
-        Log.Info($"Deleted homeworld for identity {identityString}");
+        DeleteWorld(ctx, identityString);
+        Log.Info($"Deleted empty homeworld for identity {identityString}");
     }
 
     public static void ReturnToHomeworld(ReducerContext ctx, string joinCode)

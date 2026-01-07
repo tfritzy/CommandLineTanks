@@ -19,6 +19,6 @@ public static partial class Module
         }
 
         var identityString = ctx.Sender.ToString().ToLower();
-        DeleteHomeworld(ctx, identityString);
+        DeleteHomeworldIfEmpty(ctx, identityString);
     }
 }

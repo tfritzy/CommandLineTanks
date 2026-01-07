@@ -37,8 +37,6 @@ import ChangeName from "./change_name_reducer";
 export { ChangeName };
 import CheckAndRespawnEnemyTanks from "./check_and_respawn_enemy_tanks_reducer";
 export { CheckAndRespawnEnemyTanks };
-import CleanupEmptyHomeworlds from "./cleanup_empty_homeworlds_reducer";
-export { CleanupEmptyHomeworlds };
 import CleanupResultsGames from "./cleanup_results_games_reducer";
 export { CleanupResultsGames };
 import CreateWorld from "./create_world_reducer";
@@ -89,8 +87,6 @@ import ScheduledGameCleanupRow from "./scheduled_game_cleanup_table";
 export { ScheduledGameCleanupRow };
 import ScheduledGameEndRow from "./scheduled_game_end_table";
 export { ScheduledGameEndRow };
-import ScheduledHomeworldCleanupRow from "./scheduled_homeworld_cleanup_table";
-export { ScheduledHomeworldCleanupRow };
 import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
@@ -165,8 +161,6 @@ import ScheduledGameCleanup from "./scheduled_game_cleanup_type";
 export { ScheduledGameCleanup };
 import ScheduledGameEnd from "./scheduled_game_end_type";
 export { ScheduledGameEnd };
-import ScheduledHomeworldCleanup from "./scheduled_homeworld_cleanup_type";
-export { ScheduledHomeworldCleanup };
 import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
@@ -253,17 +247,6 @@ const tablesSchema = __schema(
       { name: 'ScheduledGameEnd_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledGameEndRow),
-  __table({
-    name: 'ScheduledHomeworldCleanup',
-    indexes: [
-      { name: 'ScheduledId', algorithm: 'btree', columns: [
-        'scheduledId',
-      ] },
-    ],
-    constraints: [
-      { name: 'ScheduledHomeworldCleanup_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
-    ],
-  }, ScheduledHomeworldCleanupRow),
   __table({
     name: 'ScheduledPickupSpawn',
     indexes: [
@@ -522,7 +505,6 @@ const reducersSchema = __reducers(
   __reducerSchema("aim", Aim),
   __reducerSchema("changeName", ChangeName),
   __reducerSchema("CheckAndRespawnEnemyTanks", CheckAndRespawnEnemyTanks),
-  __reducerSchema("CleanupEmptyHomeworlds", CleanupEmptyHomeworlds),
   __reducerSchema("CleanupResultsGames", CleanupResultsGames),
   __reducerSchema("createWorld", CreateWorld),
   __reducerSchema("delete_kill", DeleteKill),
