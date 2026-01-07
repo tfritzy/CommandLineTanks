@@ -14,6 +14,10 @@ export class ProjectileImpactParticlesManager {
     this.particleSystems.push(particles);
   }
 
+  public destroy(): void {
+    this.particleSystems.length = 0;
+  }
+
   public update(deltaTime: number): void {
     let writeIndex = 0;
     for (let i = 0; i < this.particleSystems.length; i++) {

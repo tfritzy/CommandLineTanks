@@ -73,7 +73,9 @@ export class TerrainManager {
     }
     if (this.detailManager) {
       this.detailManager.destroy();
+      this.detailManager = null;
     }
+    this.baseTerrainLayer = [];
   }
 
   public update(deltaTime: number) {

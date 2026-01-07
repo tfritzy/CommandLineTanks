@@ -52,8 +52,27 @@ export class SoundManager {
         return SoundManager.instance;
     }
 
+    public static resetInstance(): void {
+        if (SoundManager.instance) {
+            SoundManager.instance.cleanup();
+            SoundManager.instance = new SoundManager();
+        }
+    }
+
     private constructor() {
         this.preloadSounds();
+    }
+
+    private cleanup(): void {
+        for (const activeArray of this.activeSounds.values()) {
+            for (const audio of activeArray) {
+                audio.pause();
+                audio.src = '';
+                audio.load();
+            }
+        }
+        this.sounds.clear();
+        this.activeSounds.clear();
     }
 
     private preloadSounds() {

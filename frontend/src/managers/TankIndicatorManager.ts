@@ -13,6 +13,10 @@ export class TankIndicatorManager {
     this.indicators.push(indicator);
   }
 
+  public destroy(): void {
+    this.indicators.length = 0;
+  }
+
   public update(deltaTime: number): void {
     let writeIndex = 0;
     for (let i = 0; i < this.indicators.length; i++) {

@@ -253,6 +253,13 @@ export class TankManager {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
+    this.tanks.clear();
+    this.playerTankId = null;
+    this.playerTargetTankId = null;
+    this.targetingReticle.clearTank();
+    this.particlesManager.destroy();
+    this.indicatorManager.destroy();
+    this.muzzleFlashManager.destroy();
   }
 
   private updatePlayerTarget(targetId: string | null | undefined) {

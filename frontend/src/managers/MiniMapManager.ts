@@ -116,6 +116,8 @@ export class MiniMapManager {
     }
     this.terrainDetailsByPosition.clear();
     this.pickupsByPosition.clear();
+    this.redTanksBuffer.length = 0;
+    this.blueTanksBuffer.length = 0;
     
     if (this.baseLayerCanvas) {
       this.baseLayerCanvas.width = 0;

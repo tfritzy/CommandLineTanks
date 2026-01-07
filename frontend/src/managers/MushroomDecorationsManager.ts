@@ -43,6 +43,11 @@ export class MushroomDecorationsManager {
     }
   }
 
+  public destroy(): void {
+    this.mushrooms.length = 0;
+    this.visibleMushroomsBuffer.length = 0;
+  }
+
   public draw(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
