@@ -75,29 +75,6 @@ export class GunInventoryManager {
     }
   }
 
-  private getPickupTextureKey(gun: Infer<typeof Gun>): string | null {
-    switch (gun.gunType.tag) {
-      case "Base":
-        return null;
-      case "TripleShooter":
-        return "triple-shooter";
-      case "MissileLauncher":
-        return "missile-launcher";
-      case "Boomerang":
-        return "boomerang";
-      case "Grenade":
-        return "grenade";
-      case "Rocket":
-        return "rocket";
-      case "Moag":
-        return "moag";
-      case "Sniper":
-        return "sniper";
-      default:
-        return null;
-    }
-  }
-
   private drawGunGraphic(
     ctx: CanvasRenderingContext2D,
     gun: Infer<typeof Gun>,
@@ -109,11 +86,10 @@ export class GunInventoryManager {
     const centerX = x + size / 2;
     const centerY = y + size / 2;
 
-    const textureKey = this.getPickupTextureKey(gun);
     const textureSheet = this.playerAlliance === 0 ? redTeamPickupTextureSheet : blueTeamPickupTextureSheet;
 
-    if (textureKey) {
-      textureSheet.draw(ctx, textureKey, centerX, centerY);
+    if (gun.gunType.tag !== "Base") {
+      textureSheet.draw(ctx, gun.gunType.tag, centerX, centerY);
     } else {
       ctx.fillStyle = "#fcfbf3";
       ctx.font = "bold 20px monospace";

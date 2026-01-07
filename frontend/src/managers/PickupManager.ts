@@ -100,37 +100,6 @@ export class PickupManager {
 
     const textureSheet = this.playerAlliance === 0 ? redTeamPickupTextureSheet : blueTeamPickupTextureSheet;
 
-    switch (pickup.type.tag) {
-      case "Health":
-        textureSheet.draw(ctx, "health", worldX, worldY);
-        break;
-      case "Shield":
-        textureSheet.draw(ctx, "shield", worldX, worldY);
-        break;
-      case "TripleShooter":
-        textureSheet.draw(ctx, "triple-shooter", worldX, worldY);
-        break;
-      case "MissileLauncher":
-        textureSheet.draw(ctx, "missile-launcher", worldX, worldY);
-        break;
-      case "Boomerang":
-        textureSheet.draw(ctx, "boomerang", worldX, worldY);
-        break;
-      case "Grenade":
-        textureSheet.draw(ctx, "grenade", worldX, worldY);
-        break;
-      case "Rocket":
-        textureSheet.draw(ctx, "rocket", worldX, worldY);
-        break;
-      case "Moag":
-        textureSheet.draw(ctx, "moag", worldX, worldY);
-        break;
-      case "Sniper":
-        textureSheet.draw(ctx, "sniper", worldX, worldY);
-        break;
-      default:
-        textureSheet.draw(ctx, "unknown", worldX, worldY);
-        break;
-    }
+    textureSheet.draw(ctx, pickup.type.tag, worldX, worldY);
   }
 }
