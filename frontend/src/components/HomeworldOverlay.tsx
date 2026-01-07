@@ -1,8 +1,18 @@
-import React from "react";
-import { COLORS } from "../theme/colors";
+import React, { useState } from "react";
+import { COLORS, PALETTE } from "../theme/colors";
+import { AnimatePresence } from "framer-motion";
+import HostGameModal from "./HostGameModal";
 
 const HomeworldOverlay: React.FC = () => {
+    const [showHostModal, setShowHostModal] = useState(false);
+
     return (
+        <>
+        <AnimatePresence>
+            {showHostModal && (
+                <HostGameModal onClose={() => setShowHostModal(false)} />
+            )}
+        </AnimatePresence>
         <div
             style={{
                 position: "absolute",
@@ -30,6 +40,9 @@ const HomeworldOverlay: React.FC = () => {
                     borderTopRightRadius: 0,
                     boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
                     animation: "fadeInDown 0.6s ease-out",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
                 }}
             >
                 <p
@@ -57,6 +70,35 @@ const HomeworldOverlay: React.FC = () => {
                     </code>{" "}
                     command to find a match
                 </p>
+                <button
+                    onClick={() => setShowHostModal(true)}
+                    style={{
+                        pointerEvents: "auto",
+                        background: `${PALETTE.BLUE_LIGHT}33`,
+                        border: `1px solid ${PALETTE.BLUE_LIGHT}66`,
+                        borderRadius: "4px",
+                        padding: "6px 12px",
+                        fontSize: "12px",
+                        color: PALETTE.BLUE_LIGHT,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        cursor: "pointer",
+                        letterSpacing: "0.05em",
+                        fontWeight: "700",
+                        transition: "all 0.2s ease",
+                        textTransform: "uppercase",
+                        whiteSpace: "nowrap",
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = `${PALETTE.BLUE_LIGHT}66`;
+                        e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`;
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = `${PALETTE.BLUE_LIGHT}33`;
+                        e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}66`;
+                    }}
+                >
+                    Host Game
+                </button>
             </div>
 
             <style>{`
@@ -72,6 +114,7 @@ const HomeworldOverlay: React.FC = () => {
         }
       `}</style>
         </div>
+        </>
     );
 };
 
