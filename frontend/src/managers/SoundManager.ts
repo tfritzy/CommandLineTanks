@@ -14,7 +14,7 @@ export class SoundManager {
             // '/8bit-SFX-Library/Collide/hit-3.wav',
             // '/8bit-SFX-Library/Collide/hit-4.wav',
             // '/8bit-SFX-Library/Collide/hit-5.wav',
-            '8bit-SFX-Library/Collide/hit-6.wav',
+            '/8bit-SFX-Library/Collide/hit-6.wav',
             // '/8bit-SFX-Library/Collide/hit-7.wav',
         ],
         // Projectile Hit (non-explosive)
@@ -175,7 +175,11 @@ export class SoundManager {
         const cleanup = () => {
             const index = active!.indexOf(clone);
             if (index !== -1) {
-                active!.splice(index, 1);
+                const lastIndex = active!.length - 1;
+                if (index !== lastIndex) {
+                    active![index] = active![lastIndex];
+                }
+                active!.length = lastIndex;
             }
             clone.removeEventListener('ended', cleanup);
             clone.removeEventListener('error', cleanup);

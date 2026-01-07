@@ -50,6 +50,7 @@ export class ProjectileManager {
             newProjectile.velocity.y,
             newProjectile.size,
             newProjectile.alliance,
+            newProjectile.shooterTankId,
             newProjectile.explosionRadius,
             newProjectile.trackingStrength,
             newProjectile.trackingRadius

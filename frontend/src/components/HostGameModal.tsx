@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { COLORS, PALETTE } from '../theme/colors';
 import { motion } from 'framer-motion';
 import { getConnection } from '../spacetimedb-connection';
@@ -16,6 +16,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
   const [width, setWidth] = useState(50);
   const [height, setHeight] = useState(50);
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const connection = getConnection();
@@ -34,6 +35,14 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
         setName(worldName);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current !== null) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
   }, []);
 
   const command = useMemo(() => {
@@ -67,10 +76,17 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
   }, [name, passcode, bots, duration, width, height, defaultWorldName]);
 
   const handleCopy = async () => {
+    if (copyTimeoutRef.current !== null) {
+      clearTimeout(copyTimeoutRef.current);
+    }
+
     try {
       await navigator.clipboard.writeText(command);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopied(false);
+        copyTimeoutRef.current = null;
+      }, 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }

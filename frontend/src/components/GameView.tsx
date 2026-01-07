@@ -21,8 +21,6 @@ import {
 } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
-
-
 export default function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
   const navigate = useNavigate();

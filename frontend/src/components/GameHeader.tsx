@@ -71,26 +71,6 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
       }
     };
 
-    subscription.current = createMultiTableSubscription().add<typeof ScoreRow>({
-      table: connection.db.score,
-      handlers: {
-        onUpdate: (_ctx, _oldScore, newScore) => {
-          if (newScore.worldId === worldId) {
-            updateScores();
-          }
-        }
-      }
-    }).add<typeof WorldRow>({
-      table: connection.db.world,
-      handlers: {
-        onUpdate: (_ctx, _oldWorld, newWorld) => {
-          if (newWorld.id === worldId) {
-            updateTimer();
-          }
-        }
-      }
-    })
-
     const updateTimer = () => {
       const world = connection.db.world.Id.find(worldId);
       if (world && world.gameState.tag === "Playing") {
@@ -108,6 +88,28 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         setIsVisible(false);
       }
     };
+
+    subscription.current = createMultiTableSubscription()
+      .add<typeof ScoreRow>({
+        table: connection.db.score,
+        handlers: {
+          onUpdate: (_ctx, _oldScore, newScore) => {
+            if (newScore.worldId === worldId) {
+              updateScores();
+            }
+          }
+        }
+      })
+      .add<typeof WorldRow>({
+        table: connection.db.world,
+        handlers: {
+          onUpdate: (_ctx, _oldWorld, newWorld) => {
+            if (newWorld.id === worldId) {
+              updateTimer();
+            }
+          }
+        }
+      });
 
     updateScores();
     updateTimer();

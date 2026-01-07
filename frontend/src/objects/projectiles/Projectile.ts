@@ -8,6 +8,7 @@ export abstract class Projectile {
   protected velocityY: number;
   protected size: number;
   protected alliance: number;
+  protected shooterTankId: string;
   protected explosionRadius: number | undefined;
   protected trackingStrength: number;
   protected trackingRadius: number;
@@ -22,6 +23,7 @@ export abstract class Projectile {
     velocityY: number,
     size: number,
     alliance: number,
+    shooterTankId: string,
     explosionRadius?: number,
     trackingStrength?: number,
     trackingRadius?: number
@@ -32,6 +34,7 @@ export abstract class Projectile {
     this.velocityY = velocityY;
     this.size = size;
     this.alliance = alliance;
+    this.shooterTankId = shooterTankId;
     this.explosionRadius = explosionRadius;
     this.trackingStrength = trackingStrength || 0;
     this.trackingRadius = trackingRadius || 0;
