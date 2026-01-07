@@ -1,15 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { COLORS, PALETTE } from '../theme/colors';
 import { motion } from 'framer-motion';
+import { getConnection } from '../spacetimedb-connection';
 
 interface HostGameModalProps {
   onClose: () => void;
 }
 
-const DEFAULT_WORLD_NAME = 'New World';
-
 export default function HostGameModal({ onClose }: HostGameModalProps) {
-  const [name, setName] = useState(DEFAULT_WORLD_NAME);
+  const [defaultWorldName, setDefaultWorldName] = useState('New World');
+  const [name, setName] = useState('New World');
   const [passcode, setPasscode] = useState('');
   const [bots, setBots] = useState(0);
   const [duration, setDuration] = useState(10);
@@ -17,10 +17,29 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
   const [height, setHeight] = useState(50);
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    const connection = getConnection();
+    if (connection?.identity) {
+      let player = null;
+      for (const p of connection.db.player.iter()) {
+        if (p.identity.isEqual(connection.identity)) {
+          player = p;
+          break;
+        }
+      }
+
+      if (player) {
+        const worldName = `${player.name}'s game`;
+        setDefaultWorldName(worldName);
+        setName(worldName);
+      }
+    }
+  }, []);
+
   const command = useMemo(() => {
     const parts = ['create'];
     
-    if (name !== DEFAULT_WORLD_NAME) {
+    if (name !== defaultWorldName) {
       parts.push(`--name "${name}"`);
     }
     
@@ -45,7 +64,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
     }
     
     return parts.join(' ');
-  }, [name, passcode, bots, duration, width, height]);
+  }, [name, passcode, bots, duration, width, height, defaultWorldName]);
 
   const handleCopy = async () => {
     try {
@@ -97,11 +116,11 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
           style={{
             fontSize: '32px',
             fontWeight: '900',
-            color: PALETTE.BLUE_LIGHT,
+            color: PALETTE.RED_MUTED,
             letterSpacing: '0.1em',
             marginBottom: '24px',
             textAlign: 'center',
-            textShadow: `0 0 20px ${PALETTE.BLUE_LIGHT}4d`,
+            textShadow: `0 0 20px ${PALETTE.RED_MUTED}4d`,
           }}
         >
           HOST GAME
