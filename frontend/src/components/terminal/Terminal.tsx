@@ -4,7 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, create, changeName, exitWorld, tanks, findCommandSuggestion } from "./commands";
+import { aim, drive, fire, help, respawn, stop, switchGun, target, join, create, changeName, exitWorld, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -168,7 +168,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           commandHistoryRef.current.push(input);
           historyIndexRef.current = -1;
 
-          const [cmd, ...args] = input.split(' ');
+          const parsedArgs = parseCommandInput(input);
+          const [cmd, ...args] = parsedArgs;
           const resolvedCmd = resolveCommand(cmd);
 
           if (resolvedCmd !== cmd.toLowerCase()) {
