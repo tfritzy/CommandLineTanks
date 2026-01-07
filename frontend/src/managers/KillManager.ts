@@ -103,7 +103,15 @@ export class KillManager {
 
     if (this.sortedNotifications.length === 0) return;
 
-    this.sortedNotifications.sort((a, b) => b.timestamp - a.timestamp);
+    for (let i = 1; i < this.sortedNotifications.length; i++) {
+      const current = this.sortedNotifications[i];
+      let j = i - 1;
+      while (j >= 0 && this.sortedNotifications[j].timestamp < current.timestamp) {
+        this.sortedNotifications[j + 1] = this.sortedNotifications[j];
+        j--;
+      }
+      this.sortedNotifications[j + 1] = current;
+    }
 
     ctx.save();
 
