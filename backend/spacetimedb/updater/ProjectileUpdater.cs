@@ -428,7 +428,7 @@ public static partial class ProjectileUpdater
                             return (true, projectile, false);
                         }
 
-                        if (tank.Alliance != projectile.Alliance && tank.Health > 0)
+                        if (tank.Alliance != projectile.Alliance && tank.Health > 0 && tank.RemainingImmunityMicros <= 0)
                         {
                             bool alreadyHit = false;
                             foreach (var hitTank in recentlyHitList)
