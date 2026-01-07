@@ -75,7 +75,16 @@ public static partial class Module
                 tank.Guns = tank.Guns.Where((_, index) => index != tank.SelectedGunIndex).ToArray();
                 if (tank.Guns.Length > 0)
                 {
-                    tank.SelectedGunIndex = 0;
+                    int firstNonBaseGunIndex = -1;
+                    for (int i = 0; i < tank.Guns.Length; i++)
+                    {
+                        if (tank.Guns[i].GunType != Types.GunType.Base)
+                        {
+                            firstNonBaseGunIndex = i;
+                            break;
+                        }
+                    }
+                    tank.SelectedGunIndex = firstNonBaseGunIndex >= 0 ? firstNonBaseGunIndex : 0;
                 }
                 else
                 {
