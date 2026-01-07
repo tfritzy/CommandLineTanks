@@ -3,14 +3,7 @@ import { getConnection } from "../spacetimedb-connection";
 import Gun from "../../module_bindings/gun_type";
 import { type EventContext } from "../../module_bindings";
 import TankRow from "../../module_bindings/tank_type";
-import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
-import { NormalProjectile } from "../objects/projectiles/NormalProjectile";
-import { MissileProjectile } from "../objects/projectiles/MissileProjectile";
-import { RocketProjectile } from "../objects/projectiles/RocketProjectile";
-import { GrenadeProjectile } from "../objects/projectiles/GrenadeProjectile";
-import { BoomerangProjectile } from "../objects/projectiles/BoomerangProjectile";
-import { MoagProjectile } from "../objects/projectiles/MoagProjectile";
-import { Projectile } from "../objects/projectiles/Projectile";
+import { redTeamPickupTextureSheet, blueTeamPickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export class GunInventoryManager {
@@ -82,6 +75,29 @@ export class GunInventoryManager {
     }
   }
 
+  private getPickupTextureKey(gun: Infer<typeof Gun>): string | null {
+    switch (gun.gunType.tag) {
+      case "Base":
+        return null;
+      case "TripleShooter":
+        return "triple-shooter";
+      case "MissileLauncher":
+        return "missile-launcher";
+      case "Boomerang":
+        return "boomerang";
+      case "Grenade":
+        return "grenade";
+      case "Rocket":
+        return "rocket";
+      case "Moag":
+        return "moag";
+      case "Sniper":
+        return "sniper";
+      default:
+        return null;
+    }
+  }
+
   private drawGunGraphic(
     ctx: CanvasRenderingContext2D,
     gun: Infer<typeof Gun>,
@@ -93,15 +109,11 @@ export class GunInventoryManager {
     const centerX = x + size / 2;
     const centerY = y + size / 2;
 
-    const projectile = this.createProjectileForGun(gun);
+    const textureKey = this.getPickupTextureKey(gun);
+    const textureSheet = this.playerAlliance === 0 ? redTeamPickupTextureSheet : blueTeamPickupTextureSheet;
 
-    if (projectile) {
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      const scale = 1.2;
-      ctx.scale(scale, scale);
-      projectile.drawBody(ctx, projectileTextureSheet);
-      ctx.restore();
+    if (textureKey) {
+      textureSheet.draw(ctx, textureKey, centerX, centerY);
     } else {
       ctx.fillStyle = "#fcfbf3";
       ctx.font = "bold 20px monospace";
@@ -173,64 +185,6 @@ export class GunInventoryManager {
     ctx.fillText((slotIndex + 1).toString(), x + 4, y + 4);
 
     ctx.restore();
-  }
-
-  private createProjectileForGun(
-    gun: Infer<typeof Gun>
-  ): Projectile | undefined {
-    const x = 0;
-    const y = 0;
-    let angle = -Math.PI / 2;
-
-    if (
-      gun.projectileType.tag === "Missile" ||
-      gun.projectileType.tag === "Rocket"
-    ) {
-      angle = -Math.PI / 4;
-    }
-
-    const velocityX = Math.cos(angle);
-    const velocityY = Math.sin(angle);
-    const size = gun.projectileSize;
-    const alliance = this.playerAlliance;
-
-    switch (gun.projectileType.tag) {
-      case "Normal":
-        return new NormalProjectile(x, y, velocityX, velocityY, size, alliance);
-      case "Missile":
-        return new MissileProjectile(
-          x,
-          y,
-          velocityX,
-          velocityY,
-          size,
-          alliance
-        );
-      case "Rocket":
-        return new RocketProjectile(x, y, velocityX, velocityY, size, alliance);
-      case "Grenade":
-        return new GrenadeProjectile(
-          x,
-          y,
-          velocityX,
-          velocityY,
-          size,
-          alliance
-        );
-      case "Boomerang":
-        return new BoomerangProjectile(
-          x,
-          y,
-          velocityX,
-          velocityY,
-          size,
-          alliance
-        );
-      case "Moag":
-        return new MoagProjectile(x, y, velocityX, velocityY, 0.25, alliance);
-      default:
-        return undefined;
-    }
   }
 
   public draw(
