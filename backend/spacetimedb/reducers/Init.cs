@@ -9,7 +9,7 @@ public static partial class Module
         ctx.Db.ScheduledGameCleanup.Insert(new ScheduledGameCleanup
         {
             ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 300_000_000 })
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = CLEANUP_INTERVAL_MICROS })
         });
     }
 

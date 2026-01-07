@@ -18,6 +18,8 @@ public static partial class Module
     public const float MAX_TARGETING_RANGE = 18.0f;
     public const ulong FIRE_RATE_LIMIT_MICROS = 100_000;
     public const long SPAWN_IMMUNITY_DURATION_MICROS = 3_000_000;
+    public const long CLEANUP_INTERVAL_MICROS = 300_000_000;
+
     public const long BOT_RESPAWN_DELAY_MICROS = 5_000_000;
 
     public static readonly Gun BASE_GUN = new Gun

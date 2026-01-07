@@ -17,5 +17,8 @@ public static partial class Module
             RemoveTankFromWorld(ctx, tank);
             Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} in world {tank.WorldId}");
         }
+
+        var identityString = ctx.Sender.ToString().ToLower();
+        DeleteHomeworldIfEmpty(ctx, identityString);
     }
 }

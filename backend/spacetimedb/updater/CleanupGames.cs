@@ -34,6 +34,30 @@ public static partial class Module
         {
             Log.Info($"Cleaned up {worldsToDelete.Count} game(s) in Results state");
         }
+
+        var homeworldsToDelete = new System.Collections.Generic.List<string>();
+
+        foreach (var world in ctx.Db.world.Iter())
+        {
+            if (world.IsHomeWorld)
+            {
+                var hasHumanPlayers = ctx.Db.tank.WorldId.Filter(world.Id).Any(t => !t.IsBot);
+                if (!hasHumanPlayers)
+                {
+                    homeworldsToDelete.Add(world.Id);
+                }
+            }
+        }
+
+        foreach (var worldId in homeworldsToDelete)
+        {
+            DeleteWorld(ctx, worldId);
+        }
+
+        if (homeworldsToDelete.Count > 0)
+        {
+            Log.Info($"Cleaned up {homeworldsToDelete.Count} empty homeworld(s)");
+        }
     }
 
     private static void DeleteWorld(ReducerContext ctx, string worldId)
