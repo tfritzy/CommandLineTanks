@@ -12,7 +12,7 @@ const HomeWorldRedirector: React.FC = () => {
             return;
         }
 
-        const homeWorldId = conn.identity.toHexString().toUpperCase();
+        const homeWorldId = conn.identity.toHexString().toLowerCase();
         navigate(`/world/${homeWorldId}`, { replace: true });
     }, [navigate]);
 

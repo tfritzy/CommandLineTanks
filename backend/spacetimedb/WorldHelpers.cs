@@ -92,7 +92,7 @@ public static partial class Module
 
     public static void ReturnToHomeworld(ReducerContext ctx, string joinCode)
     {
-        var identityString = ctx.Sender.ToString().ToUpper();
+        var identityString = ctx.Sender.ToString().ToLower();
         var homeworld = ctx.Db.world.Id.Find(identityString);
         if (homeworld == null)
         {

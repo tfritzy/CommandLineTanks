@@ -56,7 +56,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
   const connection = getConnection();
   const isHomeworld = useMemo(() => {
     if (!connection?.identity) return false;
-    const identityString = connection.identity.toHexString().toUpperCase();
+    const identityString = connection.identity.toHexString().toLowerCase();
     return identityString === worldId;
   }, [connection, worldId]);
 
