@@ -88,15 +88,7 @@ export class GunInventoryManager {
 
     const textureSheet = this.playerAlliance === 0 ? redTeamPickupTextureSheet : blueTeamPickupTextureSheet;
 
-    if (gun.gunType.tag !== "Base") {
-      textureSheet.draw(ctx, gun.gunType.tag, centerX, centerY);
-    } else {
-      ctx.fillStyle = "#fcfbf3";
-      ctx.font = "bold 20px monospace";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("?", centerX, centerY);
-    }
+    textureSheet.draw(ctx, gun.gunType.tag, centerX, centerY);
 
     ctx.restore();
   }
