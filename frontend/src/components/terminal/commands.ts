@@ -3,6 +3,38 @@ import WorldVisibility from "../../../module_bindings/world_visibility_type";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 import * as themeColors from "../../theme/colors";
 
+export function parseCommandInput(input: string): string[] {
+  const args: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  let quoteChar = '';
+
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i];
+
+    if ((char === '"' || char === "'") && !inQuotes) {
+      inQuotes = true;
+      quoteChar = char;
+    } else if (char === quoteChar && inQuotes) {
+      inQuotes = false;
+      quoteChar = '';
+    } else if (char === ' ' && !inQuotes) {
+      if (current.length > 0) {
+        args.push(current);
+        current = '';
+      }
+    } else {
+      current += char;
+    }
+  }
+
+  if (current.length > 0) {
+    args.push(current);
+  }
+
+  return args;
+}
+
 function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
     return false;
@@ -333,11 +365,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "With no arguments, displays your current name.",
         "With 'set', changes your player name across all tanks and worlds.",
+        "Use quotes for names with spaces.",
         "",
         "Examples:",
         "  name",
         "  name set Tank47",
-        "  name set Viper",
+        "  name set 'Tank Commander'",
       ];
 
     case "create":
@@ -376,13 +409,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "With no arguments or 'random', finds an available public game or creates one.",
         "With a world ID, joins that specific world.",
-        "Private worlds require a passcode.",
+        "Private worlds require a passcode. Use quotes for passcodes with spaces.",
         "",
         "Examples:",
         "  join              (same as 'join random')",
         "  join random",
         "  join abcd",
         "  join abcd mysecretpass",
+        "  join abcd 'my secret pass'",
       ];
 
     case "exit":
