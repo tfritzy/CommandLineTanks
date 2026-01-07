@@ -44,8 +44,15 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
 
   const allianceColor = params.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
-  let bodyColor = getFlashColor(allianceColor, params.flashTimer);
-  let borderColor = getFlashColor(params.alliance === 0 ? "#330000" : "#000033", params.flashTimer);
+  const baseBorderColor = params.alliance === 0 ? "#330000" : "#000033";
+  
+  let bodyColor: string = allianceColor;
+  let borderColor: string = baseBorderColor;
+  
+  if (params.flashTimer > 0) {
+    bodyColor = getFlashColor(allianceColor, params.flashTimer);
+    borderColor = getFlashColor(baseBorderColor, params.flashTimer);
+  }
   
   if (params.isImmune) {
     const flashCycle = Date.now() / 1000 / IMMUNITY_FLASH_RATE_SECONDS;
