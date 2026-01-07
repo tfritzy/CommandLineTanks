@@ -6,72 +6,56 @@ export class SoundManager {
     private listenerY: number = 0;
     private readonly MAX_DISTANCE = 15; // Tiles
 
-    private soundMap: Record<string, string[]> = {
-        'self-damage': [
-            '/8bit-SFX-Library/Collide/hit-6.wav',
-        ],
-        'enemy-damage': [
-            '/8bit-SFX-Library/Collide/hit-7.wav',
-        ],
-        'projectile-hit': [
-            '/8bit-SFX-Library/Collide/bonk-1.wav',
-        ],
+    private soundMap: Record<string, { paths: string[], volume?: number }> = {
+        'self-damage': {
+            paths: ['/8bit-SFX-Library/Collide/hit-6.wav'],
+        },
+        'enemy-damage': {
+            paths: ['/8bit-SFX-Library/Player/footstep.wav'],
+            volume: 0.2,
+        },
+        'projectile-hit': {
+            paths: ['/8bit-SFX-Library/Player/landing.wav'],
+        },
         // Explosion
-        'explosion': [
-            // '/8bit-SFX-Library/Collide/explode-1.wav',
-            // '/8bit-SFX-Library/Collide/explode-2.wav',
-            // '/8bit-SFX-Library/Collide/explode-3.wav',
-            '/8bit-SFX-Library/Collide/explode-1.wav',
-            // '/8bit-SFX-Library/Collide/explode-5.wav',
-            // '/8bit-SFX-Library/Collide/explode-6.wav',
-            // '/8bit-SFX-Library/Collide/explode-7.wav',
-        ],
+        'explosion': {
+            paths: [
+                '/8bit-SFX-Library/Collide/explode-1.wav',
+            ],
+        },
         // Weapon Pickup
-        'pickup-weapon': ['/8bit-SFX-Library/Collect/coin-4.wav'],
+        'pickup-weapon': { paths: ['/8bit-SFX-Library/Collect/coin-4.wav'] },
         // Health Pickup
-        'pickup-health': ['/8bit-SFX-Library/Win/win-2.wav'],
+        'pickup-health': { paths: ['/8bit-SFX-Library/Win/win-2.wav'] },
         // Shield Pickup
-        'pickup-shield': ['/8bit-SFX-Library/Player/jump-10.wav'],
+        'pickup-shield': { paths: ['/8bit-SFX-Library/Player/jump-10.wav'] },
         // Shield Pop
-        'shield-pop': ['/8bit-SFX-Liberary/Shoot/laser-4.wav'],
+        'shield-pop': { paths: ['/8bit-SFX-Library/Shoot/laser-4.wav'] },
         // Weapon Depletion (Dry Fire) - using a click sound
-        'weapon-empty': ['/8bit-SFX-Library/UI/cancel-3.wav'],
+        'weapon-empty': { paths: ['/8bit-SFX-Library/UI/cancel-3.wav'] },
         // Weapon Switch
-        'weapon-switch': ['/8bit-SFX-Library/UI/blip-2.wav'],
+        'weapon-switch': { paths: ['/8bit-SFX-Library/UI/blip-2.wav'] },
         // Terrain Destruction
-        'terrain-destroy': [
-            // '/8bit-SFX-Library/Collide/bonk-1.wav',
-            '/8bit-SFX-Library/Collide/bonk-6.wav'
-        ],
+        'terrain-destroy': {
+            paths: [
+                '/8bit-SFX-Library/Collide/bonk-6.wav'
+            ],
+        },
         // Win
-        'win': ['/8bit-SFX-Library/Win/win-1.wav'],
+        'win': { paths: ['/8bit-SFX-Library/Win/win-1.wav'] },
         // Death
-        'death': ['/8bit-SFX-Library/Lose/lose-4.wav'],
+        'death': { paths: ['/8bit-SFX-Library/Lose/lose-4.wav'] },
         // Kill
-        'kill': ['/8bit-SFX-Library/Collide/explode-2.wav'],
+        'kill': { paths: ['/8bit-SFX-Library/Collide/explode-2.wav'] },
         // Loss
-        'loss': ['/8bit-SFX-Library/Lose/lose-1.wav'],
+        'loss': { paths: ['/8bit-SFX-Library/Lose/lose-1.wav'] },
         // Fire
-        'fire': [
-            '/8bit-SFX-Library/Collide/bonk-6.wav',
-            // '/8bit-SFX-Library/Shoot/gun-1.wav',
-            // '/8bit-SFX-Library/Shoot/gun-2.wav',
-            // '/8bit-SFX-Library/Shoot/gun-3.wav',
-            // '/8bit-SFX-Library/Shoot/gun-4.wav',
-            // '/8bit-SFX-Library/Shoot/gun-5.wav',
-        ],
-        // Laser
-        'laser': [
-            '/8bit-SFX-Library/Shoot/laser-1.wav',
-            '/8bit-SFX-Library/Shoot/laser-2.wav',
-            '/8bit-SFX-Library/Shoot/laser-3.wav',
-            '/8bit-SFX-Library/Shoot/laser-4.wav',
-            '/8bit-SFX-Library/Shoot/laser-5.wav',
-            '/8bit-SFX-Library/Shoot/laser-6.wav',
-            '/8bit-SFX-Library/Shoot/laser-7.wav',
-            '/8bit-SFX-Library/Shoot/laser-8.wav',
-            '/8bit-SFX-Library/Shoot/laser-9.wav',
-        ],
+        'fire': {
+            paths: [
+                '/8bit-SFX-Library/Collide/bonk-6.wav',
+            ],
+            volume: .7
+        },
     };
 
     private static instance: SoundManager;
@@ -88,10 +72,9 @@ export class SoundManager {
     }
 
     private preloadSounds() {
-        for (const [key, paths] of Object.entries(this.soundMap)) {
-            const audioElements = paths.map(path => {
+        for (const [key, config] of Object.entries(this.soundMap)) {
+            const audioElements = config.paths.map(path => {
                 const audio = new Audio(path);
-                audio.volume = 0.4;
                 return audio;
             });
             this.sounds.set(key, audioElements);
@@ -113,7 +96,9 @@ export class SoundManager {
             this.activeSounds.set(key, active);
         }
 
-        let finalVolume = volume;
+        const config = this.soundMap[key];
+        const baseVolume = config?.volume ?? 1.0;
+        let finalVolume = volume * baseVolume;
 
         if (x !== undefined && y !== undefined) {
             const dx = x - this.listenerX;
@@ -126,7 +111,7 @@ export class SoundManager {
 
             // Linear falloff
             const falloff = 1 - (dist / this.MAX_DISTANCE);
-            finalVolume = volume * falloff;
+            finalVolume *= falloff;
         }
 
         // Pick a random variant

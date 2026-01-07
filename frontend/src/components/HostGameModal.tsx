@@ -47,31 +47,31 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
 
   const command = useMemo(() => {
     const parts = ['create'];
-    
+
     if (name !== defaultWorldName) {
       parts.push(`--name "${name}"`);
     }
-    
+
     if (passcode) {
       parts.push(`--passcode "${passcode}"`);
     }
-    
+
     if (bots !== 0) {
       parts.push(`--bots ${bots}`);
     }
-    
+
     if (duration !== 10) {
       parts.push(`--duration ${duration}`);
     }
-    
+
     if (width !== 50) {
       parts.push(`--width ${width}`);
     }
-    
+
     if (height !== 50) {
       parts.push(`--height ${height}`);
     }
-    
+
     return parts.join(' ');
   }, [name, passcode, bots, duration, width, height, defaultWorldName]);
 
