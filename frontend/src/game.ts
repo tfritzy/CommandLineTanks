@@ -30,6 +30,7 @@ export class Game {
   private currentCameraY: number = 0;
   private screenShake: ScreenShake;
   private resizeHandler: () => void;
+  private resizeObserver: ResizeObserver | null = null;
   private fpsCounter: FpsCounter;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
@@ -43,6 +44,13 @@ export class Game {
     this.resizeHandler = () => this.resizeCanvas();
     this.resizeCanvas();
     window.addEventListener("resize", this.resizeHandler);
+
+    if (this.canvas.parentElement) {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.resizeCanvas();
+      });
+      this.resizeObserver.observe(this.canvas.parentElement);
+    }
 
     this.soundManager = SoundManager.getInstance();
     this.screenShake = new ScreenShake();
@@ -256,5 +264,9 @@ export class Game {
     this.killManager.destroy();
 
     window.removeEventListener("resize", this.resizeHandler);
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
   }
 }

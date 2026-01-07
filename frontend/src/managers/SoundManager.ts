@@ -17,39 +17,24 @@ export class SoundManager {
         'projectile-hit': {
             paths: ['/8bit-SFX-Library/Player/landing.wav'],
         },
-        // Explosion
         'explosion': {
             paths: [
                 '/8bit-SFX-Library/Collide/explode-1.wav',
             ],
         },
-        // Weapon Pickup
         'pickup-weapon': { paths: ['/8bit-SFX-Library/Collect/coin-4.wav'] },
-        // Health Pickup
         'pickup-health': { paths: ['/8bit-SFX-Library/Win/win-2.wav'] },
-        // Shield Pickup
         'pickup-shield': { paths: ['/8bit-SFX-Library/Player/jump-10.wav'] },
-        // Shield Pop
         'shield-pop': { paths: ['/8bit-SFX-Library/Shoot/laser-4.wav'] },
-        // Weapon Depletion (Dry Fire) - using a click sound
         'weapon-empty': { paths: ['/8bit-SFX-Library/UI/cancel-3.wav'] },
-        // Weapon Switch
         'weapon-switch': { paths: ['/8bit-SFX-Library/UI/blip-2.wav'] },
-        // Terrain Destruction
         'terrain-destroy': {
             paths: [
                 '/8bit-SFX-Library/Collide/bonk-6.wav'
             ],
         },
-        // Win
-        'win': { paths: ['/8bit-SFX-Library/Win/win-1.wav'] },
-        // Death
-        'death': { paths: ['/8bit-SFX-Library/Lose/lose-4.wav'] },
-        // Kill
+        'death': { paths: ['/8bit-SFX-Library/Lose/lose-10.wav'] },
         'kill': { paths: ['/8bit-SFX-Library/Collide/explode-2.wav'] },
-        // Loss
-        'loss': { paths: ['/8bit-SFX-Library/Lose/lose-1.wav'] },
-        // Fire
         'fire': {
             paths: [
                 '/8bit-SFX-Library/Collide/bonk-6.wav',

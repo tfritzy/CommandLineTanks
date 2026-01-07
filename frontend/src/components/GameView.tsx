@@ -20,6 +20,7 @@ import {
   type SubscriptionHandle,
 } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
+import CopyBox from "./CopyBox";
 
 export default function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
@@ -354,19 +355,10 @@ export default function GameView() {
                   lineHeight: 1.6,
                 }}
               >
-                Type{" "}
-                <span
-                  style={{
-                    color: PALETTE.ORANGE_MEDIUM,
-                    fontWeight: "700",
-                    padding: "2px 6px",
-                    background: `${PALETTE.ORANGE_MEDIUM}1a`,
-                    borderRadius: "2px",
-                  }}
-                >
-                  respawn
-                </span>{" "}
-                in the terminal to rejoin the battle
+                Run this command to rejoin:
+                <div style={{ marginTop: '12px' }}>
+                  <CopyBox text="respawn" showDollar={true} activeColor={PALETTE.ORANGE_MEDIUM} />
+                </div>
               </div>
 
               <div
@@ -392,72 +384,7 @@ export default function GameView() {
                 >
                   Invite Reinforcements
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "8px",
-                    width: "100%",
-                  }}
-                >
-                  <div
-                    style={{
-                      flex: 1,
-                      background: `${PALETTE.BLACK_PURE}33`,
-                      border: `1px solid ${PALETTE.WHITE_PURE}0d`,
-                      borderRadius: "4px",
-                      padding: "8px 12px",
-                      fontSize: "12px",
-                      color: COLORS.TERMINAL.TEXT_DIM,
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {`${window.location.origin}/world/${worldId}`}
-                  </div>
-                  <button
-                    onClick={() => {
-                      const url = `${window.location.origin}/world/${worldId}`;
-                      navigator.clipboard.writeText(url).then(() => {
-                        const button = document.activeElement as HTMLElement;
-                        if (button) {
-                          const originalText = button.textContent;
-                          button.textContent = "Copied!";
-                          button.style.background = `${PALETTE.GREEN_HEALTH}66`;
-                          setTimeout(() => {
-                            button.textContent = originalText;
-                            button.style.background = `${PALETTE.RED_DARK}99`;
-                          }, 1500);
-                        }
-                      });
-                    }}
-                    style={{
-                      background: `${PALETTE.RED_DARK}99`,
-                      border: `1px solid ${PALETTE.RED_MUTED}66`,
-                      borderRadius: "4px",
-                      padding: "8px 16px",
-                      fontSize: "12px",
-                      color: COLORS.UI.TEXT_PRIMARY,
-                      fontFamily: "'JetBrains Mono', monospace",
-                      cursor: "pointer",
-                      letterSpacing: "0.05em",
-                      fontWeight: "700",
-                      transition: "all 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = `${PALETTE.RED_DARK}cc`;
-                      e.currentTarget.style.borderColor = `${PALETTE.RED_MUTED}99`;
-                    }}
-                    onMouseLeave={(e) => {
-                      if (e.currentTarget.textContent !== "Copied!") {
-                        e.currentTarget.style.background = `${PALETTE.RED_DARK}99`;
-                        e.currentTarget.style.borderColor = `${PALETTE.RED_MUTED}66`;
-                      }
-                    }}
-                  >
-                    Copy
-                  </button>
-                </div>
+                <CopyBox text={`${window.location.origin}/world/${worldId}`} label="COPY LINK" />
               </div>
             </motion.div>
           )}

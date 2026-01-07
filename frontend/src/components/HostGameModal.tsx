@@ -1,7 +1,8 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { COLORS, PALETTE } from '../theme/colors';
 import { motion } from 'framer-motion';
 import { getConnection } from '../spacetimedb-connection';
+import CopyBox from './CopyBox';
 
 interface HostGameModalProps {
   onClose: () => void;
@@ -15,8 +16,6 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
   const [duration, setDuration] = useState(10);
   const [width, setWidth] = useState(50);
   const [height, setHeight] = useState(50);
-  const [copied, setCopied] = useState(false);
-  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const connection = getConnection();
@@ -35,14 +34,6 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
         setName(worldName);
       }
     }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (copyTimeoutRef.current !== null) {
-        clearTimeout(copyTimeoutRef.current);
-      }
-    };
   }, []);
 
   const command = useMemo(() => {
@@ -74,23 +65,6 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
 
     return parts.join(' ');
   }, [name, passcode, bots, duration, width, height, defaultWorldName]);
-
-  const handleCopy = async () => {
-    if (copyTimeoutRef.current !== null) {
-      clearTimeout(copyTimeoutRef.current);
-    }
-
-    try {
-      await navigator.clipboard.writeText(command);
-      setCopied(true);
-      copyTimeoutRef.current = setTimeout(() => {
-        setCopied(false);
-        copyTimeoutRef.current = null;
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
 
   return (
     <div
@@ -398,96 +372,22 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
 
         <div
           style={{
-            marginTop: '24px',
-            paddingTop: '20px',
-            borderTop: `1px solid ${PALETTE.WHITE_PURE}0d`,
+            marginTop: '32px',
           }}
         >
           <div
             style={{
               fontSize: '12px',
               color: COLORS.TERMINAL.TEXT_DEFAULT,
-              marginBottom: '8px',
+              marginBottom: '10px',
               fontWeight: '500',
             }}
           >
-            Run this command in the terminal below:
+            Copy and run this command:
           </div>
-
-          <div
-            onClick={handleCopy}
-            style={{
-              position: 'relative',
-              background: `${PALETTE.BLACK_PURE}4d`,
-              border: copied ? `1px solid ${PALETTE.GREEN_SUCCESS}80` : `1px solid ${PALETTE.SLATE_LIGHT}4d`,
-              borderRadius: '4px',
-              padding: '12px 16px',
-              fontSize: '12px',
-              color: COLORS.TERMINAL.TEXT_DEFAULT,
-              fontFamily: "'JetBrains Mono', monospace",
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              wordBreak: 'break-all',
-            }}
-            onMouseEnter={(e) => {
-              if (!copied) {
-                e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`;
-                e.currentTarget.style.background = `${PALETTE.BLACK_PURE}66`;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!copied) {
-                e.currentTarget.style.borderColor = `${PALETTE.SLATE_LIGHT}4d`;
-                e.currentTarget.style.background = `${PALETTE.BLACK_PURE}4d`;
-              }
-            }}
-          >
-            {command}
-            <div
-              style={{
-                position: 'absolute',
-                top: '8px',
-                right: '12px',
-                fontSize: '10px',
-                color: copied ? COLORS.TERMINAL.SUCCESS : COLORS.TERMINAL.TEXT_DIM,
-                fontWeight: '500',
-                letterSpacing: '0.05em',
-                transition: 'color 0.2s',
-              }}
-            >
-              {copied ? '✓ COPIED' : 'CLICK TO COPY'}
-            </div>
-          </div>
+          
+          <CopyBox text={command} />
         </div>
-
-        <button
-          onClick={onClose}
-          style={{
-            marginTop: '20px',
-            width: '100%',
-            padding: '12px',
-            fontSize: '13px',
-            fontFamily: "'JetBrains Mono', monospace",
-            background: `${PALETTE.SLATE_DARKEST}99`,
-            border: `1px solid ${PALETTE.SLATE_LIGHT}4d`,
-            borderRadius: '4px',
-            color: COLORS.TERMINAL.TEXT_DEFAULT,
-            cursor: 'pointer',
-            fontWeight: '500',
-            letterSpacing: '0.05em',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`;
-            e.currentTarget.style.background = `${PALETTE.SLATE_DARKEST}cc`;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = `${PALETTE.SLATE_LIGHT}4d`;
-            e.currentTarget.style.background = `${PALETTE.SLATE_DARKEST}99`;
-          }}
-        >
-          Close
-        </button>
       </motion.div>
     </div>
   );
