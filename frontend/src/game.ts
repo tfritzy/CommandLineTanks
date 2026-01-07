@@ -49,7 +49,7 @@ export class Game {
     this.fpsCounter = new FpsCounter();
     this.tankManager = new TankManager(worldId, this.screenShake, this.soundManager);
     this.terrainManager = new TerrainManager(worldId, this.soundManager);
-    this.projectileManager = new ProjectileManager(worldId, this.screenShake, this.soundManager);
+    this.projectileManager = new ProjectileManager(worldId, this.screenShake);
     this.projectileManager.setTankManager(this.tankManager);
     this.gunInventoryManager = new GunInventoryManager(worldId);
     this.pickupManager = new PickupManager(worldId, this.soundManager);

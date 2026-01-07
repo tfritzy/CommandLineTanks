@@ -152,21 +152,25 @@ export default function GameView() {
             const isNowDead = newTank.health <= 0;
             
             if (!wasDead && isNowDead && newTank.lastDamagedBy) {
-              const killerTank = Array.from(connection.db.tank.iter()).find(
-                t => t.owner.isEqual(newTank.lastDamagedBy!)
-              );
-              if (killerTank) {
-                setKillerName(killerTank.name);
-              } else {
-                const killerPlayer = Array.from(connection.db.player.iter()).find(
-                  p => p.identity.isEqual(newTank.lastDamagedBy!)
-                );
-                if (killerPlayer) {
-                  setKillerName(killerPlayer.name);
-                } else {
-                  setKillerName(null);
+              let killerName: string | null = null;
+              
+              for (const tank of connection.db.tank.iter()) {
+                if (tank.worldId === worldId && tank.owner.isEqual(newTank.lastDamagedBy)) {
+                  killerName = tank.name;
+                  break;
                 }
               }
+              
+              if (!killerName) {
+                for (const player of connection.db.player.iter()) {
+                  if (player.identity.isEqual(newTank.lastDamagedBy)) {
+                    killerName = player.name;
+                    break;
+                  }
+                }
+              }
+              
+              setKillerName(killerName);
             } else if (!isNowDead) {
               setKillerName(null);
             }
