@@ -9,6 +9,7 @@ export class SmokeCloudManager {
   private particleSystems: Map<string, SmokeCloudParticles> = new Map();
   private worldId: string;
   private subscription: TableSubscription<typeof SmokeCloudRow> | null = null;
+  private keysToDelete: string[] = [];
 
   constructor(worldId: string) {
     this.worldId = worldId;
@@ -42,11 +43,15 @@ export class SmokeCloudManager {
   }
 
   public update(deltaTime: number): void {
+    this.keysToDelete.length = 0;
     for (const [id, system] of this.particleSystems.entries()) {
       system.update(deltaTime);
       if (system.getIsDead()) {
-        this.particleSystems.delete(id);
+        this.keysToDelete.push(id);
       }
+    }
+    for (let i = 0; i < this.keysToDelete.length; i++) {
+      this.particleSystems.delete(this.keysToDelete[i]);
     }
   }
 

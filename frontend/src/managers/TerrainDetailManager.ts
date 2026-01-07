@@ -194,7 +194,7 @@ export class TerrainDetailManager {
 
       if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
         const texture = terrainDetailTextureSheet.getShadowTexture(
-          this.getTextureKey(obj)
+          obj.getTextureKey()
         );
 
         if (!texture) {
@@ -260,7 +260,7 @@ export class TerrainDetailManager {
 
       if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
         const texture = terrainDetailTextureSheet.getTexture(
-          this.getTextureKey(obj)
+          obj.getTextureKey()
         );
 
         if (texture) {
@@ -328,16 +328,6 @@ export class TerrainDetailManager {
     this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, false);
     this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, true);
     this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, true);
-  }
-
-  private getTextureKey(obj: TerrainDetailObject): string {
-    const type = obj.constructor.name.toLowerCase();
-
-    if (type.includes("fence") || type.includes("foundation")) {
-      return `${type}-${obj.getRotation()}`;
-    }
-
-    return type;
   }
 
   public drawParticles(

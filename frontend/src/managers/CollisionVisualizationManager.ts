@@ -149,7 +149,11 @@ export class CollisionVisualizationManager {
     ctx.lineWidth = 3;
 
     for (const regionKey of collisionRegions) {
-      const [regionX, regionY] = regionKey.split(',').map(Number);
+      const commaIndex = regionKey.indexOf(',');
+      if (commaIndex === -1) continue;
+      
+      const regionX = parseInt(regionKey.substring(0, commaIndex));
+      const regionY = parseInt(regionKey.substring(commaIndex + 1));
       
       const worldX = regionX * COLLISION_REGION_SIZE * UNIT_TO_PIXEL;
       const worldY = regionY * COLLISION_REGION_SIZE * UNIT_TO_PIXEL;

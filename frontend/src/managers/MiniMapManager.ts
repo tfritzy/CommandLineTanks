@@ -172,8 +172,8 @@ export class MiniMapManager {
     ctx.lineWidth = 1;
     ctx.strokeRect(miniMapX, miniMapY, miniMapWidth, miniMapHeight);
 
-    this.redTanksBuffer.length = 0;
-    this.blueTanksBuffer.length = 0;
+    let redIndex = 0;
+    let blueIndex = 0;
 
     for (const tank of this.tankManager.getAllTanks()) {
       if (tank.getHealth() <= 0) continue;
@@ -187,18 +187,34 @@ export class MiniMapManager {
       const isPlayerTank = tank.id === playerTank.id;
       const size = isPlayerTank ? this.playerTankIndicatorSize : this.tankIndicatorSize;
 
-      const tankInfo = {
-        x: miniMapX + tankX - size / 2,
-        y: miniMapY + tankY - size / 2,
-        size
-      };
+      const x = miniMapX + tankX - size / 2;
+      const y = miniMapY + tankY - size / 2;
 
       if (tank.getAlliance() === 0) {
-        this.redTanksBuffer.push(tankInfo);
+        if (redIndex >= this.redTanksBuffer.length) {
+          this.redTanksBuffer.push({ x, y, size });
+        } else {
+          const tankInfo = this.redTanksBuffer[redIndex];
+          tankInfo.x = x;
+          tankInfo.y = y;
+          tankInfo.size = size;
+        }
+        redIndex++;
       } else {
-        this.blueTanksBuffer.push(tankInfo);
+        if (blueIndex >= this.blueTanksBuffer.length) {
+          this.blueTanksBuffer.push({ x, y, size });
+        } else {
+          const tankInfo = this.blueTanksBuffer[blueIndex];
+          tankInfo.x = x;
+          tankInfo.y = y;
+          tankInfo.size = size;
+        }
+        blueIndex++;
       }
     }
+
+    this.redTanksBuffer.length = redIndex;
+    this.blueTanksBuffer.length = blueIndex;
 
     ctx.fillStyle = COLORS.GAME.TEAM_RED_BRIGHT;
     for (const tank of this.redTanksBuffer) {

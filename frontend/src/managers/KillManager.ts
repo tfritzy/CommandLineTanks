@@ -88,12 +88,18 @@ export class KillManager {
   }
 
   public draw(ctx: CanvasRenderingContext2D, canvasWidth: number) {
-    this.sortedNotifications.length = 0;
+    let writeIndex = 0;
     for (const notification of this.kills.values()) {
       if (notification.displayTime < 3.0) {
-        this.sortedNotifications.push(notification);
+        if (writeIndex >= this.sortedNotifications.length) {
+          this.sortedNotifications.push(notification);
+        } else {
+          this.sortedNotifications[writeIndex] = notification;
+        }
+        writeIndex++;
       }
     }
+    this.sortedNotifications.length = writeIndex;
 
     if (this.sortedNotifications.length === 0) return;
 
