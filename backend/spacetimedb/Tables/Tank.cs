@@ -74,6 +74,8 @@ public static partial class Module
 
         public ulong DeathTimestamp;
 
+        public Identity? LastDamagedBy;
+
         public ulong UpdatedAt;
 
         public static Tank Build(
@@ -111,6 +113,7 @@ public static partial class Module
             bool hasShield = false,
             long remainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
             ulong deathTimestamp = 0,
+            Identity? lastDamagedBy = null,
             ulong? updatedAt = null)
         {
             var timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
@@ -151,6 +154,7 @@ public static partial class Module
                 TurretAngularVelocity = turretAngularVelocity,
                 RemainingImmunityMicros = remainingImmunityMicros,
                 DeathTimestamp = deathTimestamp,
+                LastDamagedBy = lastDamagedBy,
                 UpdatedAt = updatedAt ?? timestamp
             };
         }

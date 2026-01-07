@@ -90,6 +90,13 @@ export class TankManager {
                 if (newTank.id === this.playerTankId) {
                   const pos = tank.getPosition();
                   this.soundManager.play("damage", 0.5, pos.x, pos.y);
+                } else if (
+                  connection.identity &&
+                  newTank.lastDamagedBy &&
+                  newTank.lastDamagedBy.isEqual(connection.identity)
+                ) {
+                  const pos = tank.getPosition();
+                  this.soundManager.play("hit", 0.5, pos.x, pos.y);
                 }
               }
 

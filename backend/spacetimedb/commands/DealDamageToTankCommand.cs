@@ -17,9 +17,16 @@ public static partial class Module
             return;
         }
 
+        var shooterTank = ctx.Db.tank.Id.Find(shooterTankId);
+        var shooterIdentity = shooterTank?.Owner;
+
         if (tank.HasShield)
         {
-            var tankWithoutShield = tank with { HasShield = false };
+            var tankWithoutShield = tank with 
+            { 
+                HasShield = false,
+                LastDamagedBy = shooterIdentity
+            };
             ctx.Db.tank.Id.Update(tankWithoutShield);
             return;
         }
@@ -35,13 +42,13 @@ public static partial class Module
                 Health = newHealth,
                 Deaths = tank.Deaths + 1,
                 KillStreak = 0,
-                DeathTimestamp = tank.IsBot ? (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch : 0
+                DeathTimestamp = tank.IsBot ? (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch : 0,
+                LastDamagedBy = shooterIdentity
             };
             ctx.Db.tank.Id.Update(killedTank);
 
             DropWeaponsOnDeath(ctx, tank, worldId);
 
-            var shooterTank = ctx.Db.tank.Id.Find(shooterTankId);
             if (shooterTank != null)
             {
                 var updatedShooterTank = shooterTank.Value with
@@ -77,7 +84,8 @@ public static partial class Module
         {
             var updatedTank = tank with
             {
-                Health = newHealth
+                Health = newHealth,
+                LastDamagedBy = shooterIdentity
             };
             ctx.Db.tank.Id.Update(updatedTank);
         }

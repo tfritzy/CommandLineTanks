@@ -22,6 +22,7 @@ export default __t.object("Pickup", {
   get type() {
     return PickupType;
   },
+  ammo: __t.option(__t.i32()),
 });
 
 
