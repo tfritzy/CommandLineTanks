@@ -89,14 +89,14 @@ export class TankManager {
               if (oldTank.health > newTank.health && newTank.health > 0) {
                 if (newTank.id === this.playerTankId) {
                   const pos = tank.getPosition();
-                  this.soundManager.play("damage", 0.5, pos.x, pos.y);
+                  this.soundManager.play("self-damage", 0.5, pos.x, pos.y);
                 } else if (
                   connection.identity &&
                   newTank.lastDamagedBy &&
                   newTank.lastDamagedBy.isEqual(connection.identity)
                 ) {
                   const pos = tank.getPosition();
-                  this.soundManager.play("hit", 0.5, pos.x, pos.y);
+                  this.soundManager.play("enemy-damage", 0.5, pos.x, pos.y);
                 }
               }
 
