@@ -1175,8 +1175,9 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
     const gunName = selectedGun?.gunType.tag ?? "None";
 
     const teamName = tank.alliance === 0 ? "Red" : tank.alliance === 1 ? "Blue" : "Unknown";
+    const teamColorKey = tank.alliance === 0 ? 'TEAM_RED' : tank.alliance === 1 ? 'TEAM_BLUE' : 'TEXT_MUTED';
 
-    const teamColored = themeColors.colorize(teamName.padEnd(teamWidth), 'TEXT_DEFAULT');
+    const teamColored = themeColors.colorize(teamName.padEnd(teamWidth), teamColorKey);
     const nameColored = themeColors.colorize(tank.name.padEnd(nameWidth), 'TEXT_DEFAULT');
     const killsColored = themeColors.colorize(tank.kills.toString().padEnd(killsWidth), 'TEXT_DEFAULT');
     const deathsColored = themeColors.colorize(tank.deaths.toString().padEnd(deathsWidth), 'TEXT_DEFAULT');
