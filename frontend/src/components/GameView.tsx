@@ -29,6 +29,7 @@ export default function GameView() {
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
   const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
   const [isDead, setIsDead] = useState(false);
+  const [killerName, setKillerName] = useState<string | null>(null);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
 
@@ -141,13 +142,36 @@ export default function GameView() {
             setIsDead(tank.health <= 0);
           }
         },
-        onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+        onUpdate: (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
           if (
             connection.identity &&
             newTank.owner.isEqual(connection.identity) &&
             newTank.worldId === worldId
           ) {
-            setIsDead(newTank.health <= 0);
+            const wasDead = oldTank.health <= 0;
+            const isNowDead = newTank.health <= 0;
+            
+            if (!wasDead && isNowDead && newTank.lastDamagedBy) {
+              const killerTank = Array.from(connection.db.tank.iter()).find(
+                t => t.owner.isEqual(newTank.lastDamagedBy!)
+              );
+              if (killerTank) {
+                setKillerName(killerTank.name);
+              } else {
+                const killerPlayer = Array.from(connection.db.player.iter()).find(
+                  p => p.identity.isEqual(newTank.lastDamagedBy!)
+                );
+                if (killerPlayer) {
+                  setKillerName(killerPlayer.name);
+                } else {
+                  setKillerName(null);
+                }
+              }
+            } else if (!isNowDead) {
+              setKillerName(null);
+            }
+            
+            setIsDead(isNowDead);
           }
         },
         onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
@@ -303,6 +327,19 @@ export default function GameView() {
               >
                 ELIMINATED
               </div>
+
+              {killerName && (
+                <div
+                  style={{
+                    fontSize: "14px",
+                    color: COLORS.UI.TEXT_DIM,
+                    marginBottom: "20px",
+                    textAlign: "center",
+                  }}
+                >
+                  Killed by {killerName}
+                </div>
+              )}
 
               <div
                 style={{

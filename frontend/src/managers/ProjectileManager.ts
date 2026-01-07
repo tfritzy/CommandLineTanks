@@ -82,10 +82,18 @@ export class ProjectileManager {
           const localProjectile = this.projectiles.get(projectile.id);
           if (localProjectile) {
             localProjectile.spawnDeathParticles(this.particlesManager);
+            
+            const playerTank = this.tankManager?.getPlayerTank();
+            const isPlayerShot = playerTank && projectile.shooterTankId === playerTank.id;
+            
             if ((projectile.explosionRadius ?? 0) > 0) {
-              this.soundManager.play("explosion", 0.5, projectile.positionX, projectile.positionY);
+              if (isPlayerShot) {
+                this.soundManager.play("explosion", 0.5, projectile.positionX, projectile.positionY);
+              }
             } else {
-              this.soundManager.play("hit", 0.5, projectile.positionX, projectile.positionY);
+              if (isPlayerShot) {
+                this.soundManager.play("hit", 0.5, projectile.positionX, projectile.positionY);
+              }
             }
           }
           this.projectiles.delete(projectile.id);
