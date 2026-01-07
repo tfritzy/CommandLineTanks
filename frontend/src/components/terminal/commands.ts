@@ -11,7 +11,6 @@ export function parseCommandInput(input: string): string[] {
 
   for (let i = 0; i < input.length; i++) {
     const char = input[i];
-    const prevChar = i > 0 ? input[i - 1] : '';
 
     if (char === '\\' && i + 1 < input.length && inQuotes) {
       const nextChar = input[i + 1];
@@ -22,10 +21,10 @@ export function parseCommandInput(input: string): string[] {
       }
     }
 
-    if ((char === '"' || char === "'") && !inQuotes && prevChar !== '\\') {
+    if ((char === '"' || char === "'") && !inQuotes) {
       inQuotes = true;
       quoteChar = char;
-    } else if (char === quoteChar && inQuotes && prevChar !== '\\') {
+    } else if (char === quoteChar && inQuotes) {
       inQuotes = false;
       quoteChar = '';
     } else if (char === ' ' && !inQuotes) {
