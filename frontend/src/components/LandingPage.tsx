@@ -167,7 +167,7 @@ const LandingPage: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="size-8 bg-primary rounded flex items-center justify-center text-white">
-                            <span className="material-symbols-outlined text-[20px]">keyboard</span>
+                            <span className="material-symbols-outlined text-[20px]">terminal</span>
                         </div>
                         <h2 className="text-white text-xl font-bold tracking-tight font-mono">CL<span className="text-primary">TANKS</span></h2>
                     </div>
@@ -557,7 +557,7 @@ const LandingPage: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-center md:justify-start gap-2 text-white">
-                            <span className="material-symbols-outlined text-primary">keyboard</span>
+                            <span className="material-symbols-outlined text-primary">terminal</span>
                             <span className="font-bold tracking-tight font-mono">CLTANKS</span>
                         </div>
                         <p className="text-gray-500 text-sm font-mono">© 2026 CLTanks "Everyone's a tankie"</p>

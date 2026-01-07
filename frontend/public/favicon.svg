@@ -1,19 +1,12 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="32" height="32" rx="4" fill="#ff0099"/>
-  <!-- Keyboard outline -->
-  <rect x="6" y="9" width="20" height="14" rx="2" stroke="white" stroke-width="1.5" fill="none"/>
-  <!-- Row 1 -->
-  <rect x="8.5" y="11.5" width="3" height="3" fill="white"/>
-  <rect x="12" y="11.5" width="3" height="3" fill="white"/>
-  <rect x="15.5" y="11.5" width="3" height="3" fill="white"/>
-  <rect x="19" y="11.5" width="3" height="3" fill="white"/>
-  <rect x="22.5" y="11.5" width="3" height="3" fill="white"/>
-  <!-- Row 2 -->
-  <rect x="8.5" y="15" width="3" height="3" fill="white"/>
-  <rect x="12" y="15" width="3" height="3" fill="white"/>
-  <rect x="15.5" y="15" width="3" height="3" fill="white"/>
-  <rect x="19" y="15" width="3" height="3" fill="white"/>
-  <rect x="22.5" y="15" width="3" height="3" fill="white"/>
-  <!-- Spacebar - spans middle 3 keys -->
-  <rect x="12" y="18.5" width="9.5" height="2.5" fill="white"/>
+  <!-- Terminal window -->
+  <rect x="5" y="7" width="22" height="18" rx="2" stroke="white" stroke-width="1.5" fill="none"/>
+  <!-- Prompt symbol (>) -->
+  <path d="M 8 12 L 11 14.5 L 8 17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Cursor/underscore -->
+  <rect x="13" y="16" width="4" height="1.5" fill="white"/>
+  <!-- Text lines in background -->
+  <rect x="8" y="19.5" width="6" height="1" fill="white" opacity="0.6"/>
+  <rect x="15" y="19.5" width="8" height="1" fill="white" opacity="0.6"/>
 </svg>
