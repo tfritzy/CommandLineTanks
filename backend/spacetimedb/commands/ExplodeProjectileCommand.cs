@@ -18,6 +18,7 @@ public static partial class ProjectileUpdater
         }
 
         float explosionRadius = projectile.ExplosionRadius.Value;
+        float explosionRadiusSquared = explosionRadius * explosionRadius;
         int projectileCollisionRegionX = (int)(projectile.PositionX / Module.COLLISION_REGION_SIZE);
         int projectileCollisionRegionY = (int)(projectile.PositionY / Module.COLLISION_REGION_SIZE);
 
@@ -37,7 +38,6 @@ public static partial class ProjectileUpdater
                         float dx_tank = tank.PositionX - projectile.PositionX;
                         float dy_tank = tank.PositionY - projectile.PositionY;
                         float distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
-                        float explosionRadiusSquared = explosionRadius * explosionRadius;
 
                         if (distanceSquared <= explosionRadiusSquared)
                         {
@@ -73,7 +73,6 @@ public static partial class ProjectileUpdater
                 float dx_tile = tileCenterX - projectile.PositionX;
                 float dy_tile = tileCenterY - projectile.PositionY;
                 float distanceSquared = dx_tile * dx_tile + dy_tile * dy_tile;
-                float explosionRadiusSquared = explosionRadius * explosionRadius;
 
                 if (distanceSquared <= explosionRadiusSquared)
                 {
