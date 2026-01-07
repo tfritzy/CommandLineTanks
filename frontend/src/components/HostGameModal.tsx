@@ -6,8 +6,10 @@ interface HostGameModalProps {
   onClose: () => void;
 }
 
+const DEFAULT_WORLD_NAME = 'New World';
+
 export default function HostGameModal({ onClose }: HostGameModalProps) {
-  const [name, setName] = useState('New World');
+  const [name, setName] = useState(DEFAULT_WORLD_NAME);
   const [passcode, setPasscode] = useState('');
   const [bots, setBots] = useState(0);
   const [duration, setDuration] = useState(10);
@@ -18,7 +20,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
   const command = useMemo(() => {
     const parts = ['create'];
     
-    if (name !== 'New World') {
+    if (name !== DEFAULT_WORLD_NAME) {
       parts.push(`--name "${name}"`);
     }
     
@@ -204,8 +206,12 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 type="number"
                 value={bots}
                 onChange={(e) => {
-                  const val = parseInt(e.target.value) || 0;
-                  setBots(Math.max(0, Math.min(10, val)));
+                  let val = parseInt(e.target.value) || 0;
+                  val = Math.max(0, Math.min(10, val));
+                  if (val % 2 !== 0) {
+                    val = Math.max(0, val - 1);
+                  }
+                  setBots(val);
                 }}
                 min="0"
                 max="10"
