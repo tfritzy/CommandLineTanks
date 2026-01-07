@@ -23,15 +23,12 @@ public static partial class TankUpdater
 
         public List<Module.SmokeCloud> GetSmokeCloudsByRegion(int regionX, int regionY)
         {
-            if (_smokeCloudsByRegion == null)
-            {
-                _smokeCloudsByRegion = new Dictionary<(int, int), List<Module.SmokeCloud>>();
-            }
+            _smokeCloudsByRegion ??= new Dictionary<(int, int), List<Module.SmokeCloud>>();
 
             var key = (regionX, regionY);
-            if (!_smokeCloudsByRegion.ContainsKey(key))
+            if (!_smokeCloudsByRegion.TryGetValue(key, out var clouds))
             {
-                var clouds = new List<Module.SmokeCloud>();
+                clouds = new List<Module.SmokeCloud>();
                 foreach (var cloud in _ctx.Db.smoke_cloud.WorldId_CollisionRegionX_CollisionRegionY.Filter((_worldId, regionX, regionY)))
                 {
                     clouds.Add(cloud);
@@ -39,35 +36,30 @@ public static partial class TankUpdater
                 _smokeCloudsByRegion[key] = clouds;
             }
 
-            return _smokeCloudsByRegion[key];
+            return clouds;
         }
 
         public Module.Tank? GetTankById(string tankId)
         {
-            if (_tanksById == null)
+            _tanksById ??= new Dictionary<string, Module.Tank?>();
+
+            if (!_tanksById.TryGetValue(tankId, out var tank))
             {
-                _tanksById = new Dictionary<string, Module.Tank?>();
+                tank = _ctx.Db.tank.Id.Find(tankId);
+                _tanksById[tankId] = tank;
             }
 
-            if (!_tanksById.ContainsKey(tankId))
-            {
-                _tanksById[tankId] = _ctx.Db.tank.Id.Find(tankId);
-            }
-
-            return _tanksById[tankId];
+            return tank;
         }
 
         public List<Module.Pickup> GetPickupsByTile(int tileX, int tileY)
         {
-            if (_pickupsByTile == null)
-            {
-                _pickupsByTile = new Dictionary<(int, int), List<Module.Pickup>>();
-            }
+            _pickupsByTile ??= new Dictionary<(int, int), List<Module.Pickup>>();
 
             var key = (tileX, tileY);
-            if (!_pickupsByTile.ContainsKey(key))
+            if (!_pickupsByTile.TryGetValue(key, out var pickups))
             {
-                var pickups = new List<Module.Pickup>();
+                pickups = new List<Module.Pickup>();
                 foreach (var pickup in _ctx.Db.pickup.WorldId_GridX_GridY.Filter((_worldId, tileX, tileY)))
                 {
                     pickups.Add(pickup);
@@ -75,20 +67,17 @@ public static partial class TankUpdater
                 _pickupsByTile[key] = pickups;
             }
 
-            return _pickupsByTile[key];
+            return pickups;
         }
 
         public List<Module.TerrainDetail> GetTerrainDetailsByTile(int tileX, int tileY)
         {
-            if (_terrainDetailsByTile == null)
-            {
-                _terrainDetailsByTile = new Dictionary<(int, int), List<Module.TerrainDetail>>();
-            }
+            _terrainDetailsByTile ??= new Dictionary<(int, int), List<Module.TerrainDetail>>();
 
             var key = (tileX, tileY);
-            if (!_terrainDetailsByTile.ContainsKey(key))
+            if (!_terrainDetailsByTile.TryGetValue(key, out var details))
             {
-                var details = new List<Module.TerrainDetail>();
+                details = new List<Module.TerrainDetail>();
                 foreach (var detail in _ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((_worldId, tileX, tileY)))
                 {
                     details.Add(detail);
@@ -96,7 +85,7 @@ public static partial class TankUpdater
                 _terrainDetailsByTile[key] = details;
             }
 
-            return _terrainDetailsByTile[key];
+            return details;
         }
     }
 
@@ -111,6 +100,22 @@ public static partial class TankUpdater
         public string WorldId;
         public ulong LastTickAt;
         public ulong TickCount;
+    }
+
+    private static bool TryDecrementCooldown(
+        ref Module.Tank tank,
+        long currentValue,
+        ulong deltaTimeMicros,
+        System.Func<Module.Tank, long, Module.Tank> updateFunc)
+    {
+        if (currentValue <= 0)
+        {
+            return false;
+        }
+
+        var newValue = Math.Max(0, currentValue - (long)deltaTimeMicros);
+        tank = updateFunc(tank, newValue);
+        return true;
     }
 
     [Reducer]
@@ -153,40 +158,20 @@ public static partial class TankUpdater
                 needsUpdate = true;
             }
 
-            if (tank.RemainingOverdriveDurationMicros > 0)
-            {
-                var newRemainingOverdrive = Math.Max(0, tank.RemainingOverdriveDurationMicros - (long)deltaTimeMicros);
-                tank = tank with { RemainingOverdriveDurationMicros = newRemainingOverdrive };
-                needsUpdate = true;
-            }
+            needsUpdate |= TryDecrementCooldown(ref tank, tank.RemainingOverdriveDurationMicros, deltaTimeMicros,
+                (t, v) => t with { RemainingOverdriveDurationMicros = v });
 
-            if (tank.RemainingSmokescreenCooldownMicros > 0)
-            {
-                var newRemainingSmokescreenCooldown = Math.Max(0, tank.RemainingSmokescreenCooldownMicros - (long)deltaTimeMicros);
-                tank = tank with { RemainingSmokescreenCooldownMicros = newRemainingSmokescreenCooldown };
-                needsUpdate = true;
-            }
+            needsUpdate |= TryDecrementCooldown(ref tank, tank.RemainingSmokescreenCooldownMicros, deltaTimeMicros,
+                (t, v) => t with { RemainingSmokescreenCooldownMicros = v });
 
-            if (tank.RemainingOverdriveCooldownMicros > 0)
-            {
-                var newRemainingOverdriveCooldown = Math.Max(0, tank.RemainingOverdriveCooldownMicros - (long)deltaTimeMicros);
-                tank = tank with { RemainingOverdriveCooldownMicros = newRemainingOverdriveCooldown };
-                needsUpdate = true;
-            }
+            needsUpdate |= TryDecrementCooldown(ref tank, tank.RemainingOverdriveCooldownMicros, deltaTimeMicros,
+                (t, v) => t with { RemainingOverdriveCooldownMicros = v });
 
-            if (tank.RemainingImmunityMicros > 0)
-            {
-                var newRemainingImmunity = Math.Max(0, tank.RemainingImmunityMicros - (long)deltaTimeMicros);
-                tank = tank with { RemainingImmunityMicros = newRemainingImmunity };
-                needsUpdate = true;
-            }
+            needsUpdate |= TryDecrementCooldown(ref tank, tank.RemainingImmunityMicros, deltaTimeMicros,
+                (t, v) => t with { RemainingImmunityMicros = v });
 
-            if (tank.RemainingRepairCooldownMicros > 0)
-            {
-                var newRemainingRepairCooldown = Math.Max(0, tank.RemainingRepairCooldownMicros - (long)deltaTimeMicros);
-                tank = tank with { RemainingRepairCooldownMicros = newRemainingRepairCooldown };
-                needsUpdate = true;
-            }
+            needsUpdate |= TryDecrementCooldown(ref tank, tank.RemainingRepairCooldownMicros, deltaTimeMicros,
+                (t, v) => t with { RemainingRepairCooldownMicros = v });
 
             if (tank.IsRepairing && newTickCount % Module.REPAIR_TICK_INTERVAL == 0)
             {
