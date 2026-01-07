@@ -17,16 +17,7 @@ public static partial class Module
     public const long COUNTDOWN_MICROS = 10_000_000;
     public const float MAX_TARGETING_RANGE = 18.0f;
     public const ulong FIRE_RATE_LIMIT_MICROS = 100_000;
-    public const long SMOKESCREEN_COOLDOWN_MICROS = 60_000_000;
-    public const float SMOKESCREEN_RADIUS = 3.0f;
-    public const long SMOKESCREEN_DURATION_MICROS = 5_000_000;
-    public const long OVERDRIVE_COOLDOWN_MICROS = 60_000_000;
-    public const long OVERDRIVE_DURATION_MICROS = 10_000_000;
-    public const float OVERDRIVE_SPEED_MULTIPLIER = 1.25f;
     public const long SPAWN_IMMUNITY_DURATION_MICROS = 3_000_000;
-    public const long REPAIR_COOLDOWN_MICROS = 60_000_000;
-    public const int REPAIR_HEALTH_PER_TICK = 1;
-    public const int REPAIR_TICK_INTERVAL = 2;
 
     public const long BOT_RESPAWN_DELAY_MICROS = 5_000_000;
 

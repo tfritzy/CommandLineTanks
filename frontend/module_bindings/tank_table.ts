@@ -54,14 +54,8 @@ export default __t.row({
     return __t.array(Gun);
   },
   selectedGunIndex: __t.i32(),
-  remainingSmokescreenCooldownMicros: __t.i64(),
   hasShield: __t.bool(),
-  remainingOverdriveCooldownMicros: __t.i64(),
-  remainingOverdriveDurationMicros: __t.i64(),
   remainingImmunityMicros: __t.i64(),
-  remainingRepairCooldownMicros: __t.i64(),
-  isRepairing: __t.bool(),
-  repairStartedAt: __t.u64(),
   deathTimestamp: __t.u64(),
   updatedAt: __t.u64(),
 });
