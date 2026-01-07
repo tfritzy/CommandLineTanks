@@ -46,22 +46,14 @@ public static partial class PickupSpawner
         { PickupType.Sniper, Module.SNIPER_GUN }
     };
 
-    private static readonly Dictionary<GunType, PickupType> GunToPickupMap = new Dictionary<GunType, PickupType>
-    {
-        { GunType.TripleShooter, PickupType.TripleShooter },
-        { GunType.MissileLauncher, PickupType.MissileLauncher },
-        { GunType.Boomerang, PickupType.Boomerang },
-        { GunType.Grenade, PickupType.Grenade },
-        { GunType.Rocket, PickupType.Rocket },
-        { GunType.Moag, PickupType.Moag },
-        { GunType.Sniper, PickupType.Sniper }
-    };
-
     public static PickupType? GetPickupTypeForGun(GunType gunType)
     {
-        if (GunToPickupMap.TryGetValue(gunType, out PickupType pickupType))
+        foreach (var kvp in PickupToGunMap)
         {
-            return pickupType;
+            if (kvp.Value.GunType == gunType)
+            {
+                return kvp.Key;
+            }
         }
         return null;
     }
