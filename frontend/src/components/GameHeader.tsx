@@ -62,6 +62,11 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
   }, [connection, worldId]);
 
   useEffect(() => {
+    setTeam0Kills(0);
+    setTeam1Kills(0);
+    setTimeRemaining(null);
+    setIsVisible(false);
+
     if (!connection || isHomeworld) return;
 
     const updateScores = () => {
