@@ -61,12 +61,12 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
   }, [connection, worldId]);
 
   useEffect(() => {
-    if (!connection || isHomeworld) return;
-
     setTeam0Kills(0);
     setTeam1Kills(0);
     setTimeRemaining(null);
     setIsVisible(false);
+
+    if (!connection || isHomeworld) return;
 
     const updateScores = () => {
       const score = connection.db.score.WorldId.find(worldId);
