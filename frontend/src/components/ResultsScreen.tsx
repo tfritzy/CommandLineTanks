@@ -7,7 +7,6 @@ import WorldRow from '../../module_bindings/world_type';
 import { type EventContext } from "../../module_bindings";
 import { ServerTimeSync } from '../utils/ServerTimeSync';
 import { COLORS, PALETTE } from '../theme/colors';
-import { SoundManager } from '../managers/SoundManager';
 import { createMultiTableSubscription, type MultiTableSubscription } from '../utils/tableSubscription';
 
 const WORLD_RESET_DELAY_MICROS = 15_000_000;
@@ -112,26 +111,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                 updateTanks();
                                 updateScores();
 
-                                const score = connection.db.score.WorldId.find(worldId);
-                                const myTank = Array.from(connection.db.tank.iter()).find(t =>
-                                    connection.identity && t.owner.isEqual(connection.identity) && t.worldId === worldId
-                                );
 
-                                if (score && myTank) {
-                                    const team0Kills = score.kills[0] || 0;
-                                    const team1Kills = score.kills[1] || 0;
-
-                                    if (team0Kills === team1Kills) {
-                                        SoundManager.getInstance().play('loss');
-                                    } else {
-                                        const winningTeam = team0Kills > team1Kills ? 0 : 1;
-                                        if (myTank.alliance === winningTeam) {
-                                            SoundManager.getInstance().play('win');
-                                        } else {
-                                            SoundManager.getInstance().play('loss');
-                                        }
-                                    }
-                                }
                             } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
                                 setShowResults(false);
                                 setGameEndTime(null);
