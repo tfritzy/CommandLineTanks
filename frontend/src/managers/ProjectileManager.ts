@@ -95,6 +95,8 @@ export class ProjectileManager {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
+    this.projectiles.clear();
+    this.particlesManager.destroy();
   }
 
   public update(deltaTime: number) {

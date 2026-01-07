@@ -32,4 +32,8 @@ export class TankIndicatorManager {
       indicator.draw(ctx);
     }
   }
+
+  public destroy(): void {
+    this.indicators.length = 0;
+  }
 }

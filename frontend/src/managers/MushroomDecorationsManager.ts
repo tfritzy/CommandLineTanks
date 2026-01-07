@@ -83,4 +83,9 @@ export class MushroomDecorationsManager {
 
     drawMushrooms(ctx, this.visibleMushroomsBuffer);
   }
+
+  public destroy(): void {
+    this.mushrooms.length = 0;
+    this.visibleMushroomsBuffer.length = 0;
+  }
 }

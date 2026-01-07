@@ -68,6 +68,7 @@ export class PickupManager {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
+    this.pickups.clear();
   }
 
   public draw(

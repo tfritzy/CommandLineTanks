@@ -113,6 +113,8 @@ export class TerrainDetailManager {
     }
     this.detailObjects.clear();
     this.onDetailDeletedCallbacks = [];
+    this.terrainDebrisParticles.destroy();
+    this.mushroomDecorations.destroy();
   }
 
   public update(deltaTime: number) {

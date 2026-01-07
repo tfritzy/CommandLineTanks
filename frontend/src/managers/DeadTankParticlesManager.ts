@@ -27,4 +27,8 @@ export class DeadTankParticlesManager {
       system.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
     }
   }
+
+  public destroy(): void {
+    this.particleSystems.length = 0;
+  }
 }

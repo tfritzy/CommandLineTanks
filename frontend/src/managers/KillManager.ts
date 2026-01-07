@@ -64,6 +64,9 @@ export class KillManager {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
+    this.kills.clear();
+    this.deletedKills.clear();
+    this.sortedNotifications.length = 0;
   }
 
   private deleteKill(killId: string) {
