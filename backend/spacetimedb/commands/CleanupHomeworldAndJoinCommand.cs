@@ -7,21 +7,13 @@ public static partial class Module
     {
         var identityString = ctx.Sender.ToString().ToLower();
         var existingTanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
-        bool removedHomeworldTank = false;
 
         foreach (var existingTank in existingTanks)
         {
-            if (existingTank.WorldId == identityString)
-            {
-                removedHomeworldTank = true;
-            }
             RemoveTankFromWorld(ctx, existingTank);
         }
 
-        if (removedHomeworldTank && !HasAnyTanksInWorld(ctx, identityString))
-        {
-            StopWorldTickers(ctx, identityString);
-        }
+        DeleteHomeworld(ctx, identityString);
 
         var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, joinCode);
         if (tank != null)

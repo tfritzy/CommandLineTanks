@@ -12,6 +12,15 @@ public static partial class Module
         public ScheduleAt ScheduledAt;
     }
 
+    [Table(Scheduled = nameof(CleanupEmptyHomeworlds))]
+    public partial struct ScheduledHomeworldCleanup
+    {
+        [AutoInc]
+        [PrimaryKey]
+        public ulong ScheduledId;
+        public ScheduleAt ScheduledAt;
+    }
+
     [Reducer]
     public static void CleanupResultsGames(ReducerContext ctx, ScheduledGameCleanup args)
     {
@@ -33,6 +42,30 @@ public static partial class Module
         if (worldsToDelete.Count > 0)
         {
             Log.Info($"Cleaned up {worldsToDelete.Count} game(s) in Results state");
+        }
+    }
+
+    [Reducer]
+    public static void CleanupEmptyHomeworlds(ReducerContext ctx, ScheduledHomeworldCleanup args)
+    {
+        var homeworldsToDelete = new System.Collections.Generic.List<string>();
+
+        foreach (var world in ctx.Db.world.Iter())
+        {
+            if (world.IsHomeWorld && !HasAnyTanksInWorld(ctx, world.Id))
+            {
+                homeworldsToDelete.Add(world.Id);
+            }
+        }
+
+        foreach (var worldId in homeworldsToDelete)
+        {
+            DeleteHomeworld(ctx, worldId);
+        }
+
+        if (homeworldsToDelete.Count > 0)
+        {
+            Log.Info($"Cleaned up {homeworldsToDelete.Count} empty homeworld(s)");
         }
     }
 

@@ -11,6 +11,12 @@ public static partial class Module
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 300_000_000 })
         });
+
+        ctx.Db.ScheduledHomeworldCleanup.Insert(new ScheduledHomeworldCleanup
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 300_000_000 })
+        });
     }
 
     public static void SpawnInitialBots(ReducerContext ctx, string worldId, World world)
