@@ -57,6 +57,7 @@ export default __t.object("Tank", {
   hasShield: __t.bool(),
   remainingImmunityMicros: __t.i64(),
   deathTimestamp: __t.u64(),
+  lastDamagedBy: __t.option(__t.identity()),
   updatedAt: __t.u64(),
 });
 

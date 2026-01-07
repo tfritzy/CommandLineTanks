@@ -22,4 +22,5 @@ export default __t.row({
   get type() {
     return PickupType;
   },
+  ammo: __t.option(__t.i32()),
 });
