@@ -1,5 +1,6 @@
 using SpacetimeDB;
 using static Types;
+using System;
 
 public static partial class Module
 {
@@ -37,6 +38,8 @@ public static partial class Module
                 DeathTimestamp = tank.IsBot ? (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch : 0
             };
             ctx.Db.tank.Id.Update(killedTank);
+
+            DropWeaponsOnDeath(ctx, tank, worldId);
 
             var shooterTank = ctx.Db.tank.Id.Find(shooterTankId);
             if (shooterTank != null)
@@ -77,6 +80,42 @@ public static partial class Module
                 Health = newHealth
             };
             ctx.Db.tank.Id.Update(updatedTank);
+        }
+    }
+
+    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, string worldId)
+    {
+        foreach (var gun in tank.Guns)
+        {
+            if (gun.GunType == GunType.Base)
+            {
+                continue;
+            }
+
+            var pickupType = PickupSpawner.GetPickupTypeForGun(gun.GunType);
+            if (pickupType == null)
+            {
+                continue;
+            }
+
+            float offsetX = ((float)ctx.Rng.NextDouble() - 0.5f) * 1.5f;
+            float offsetY = ((float)ctx.Rng.NextDouble() - 0.5f) * 1.5f;
+
+            float dropX = tank.PositionX + offsetX;
+            float dropY = tank.PositionY + offsetY;
+
+            int gridX = (int)Math.Floor(dropX);
+            int gridY = (int)Math.Floor(dropY);
+
+            ctx.Db.pickup.Insert(Pickup.Build(
+                ctx: ctx,
+                worldId: worldId,
+                positionX: dropX,
+                positionY: dropY,
+                gridX: gridX,
+                gridY: gridY,
+                type: pickupType.Value
+            ));
         }
     }
 }
