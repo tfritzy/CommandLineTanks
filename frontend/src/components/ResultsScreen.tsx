@@ -110,8 +110,6 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                 setGameEndTime(endTime);
                                 updateTanks();
                                 updateScores();
-
-
                             } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
                                 setShowResults(false);
                                 setGameEndTime(null);
