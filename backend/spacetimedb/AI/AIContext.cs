@@ -27,20 +27,12 @@ public class AIContext
 
     public List<Tank> GetAllTanks()
     {
-        if (_allTanks == null)
-        {
-            _allTanks = _ctx.Db.tank.WorldId.Filter(_worldId).ToList();
-        }
-        return _allTanks;
+        return _allTanks ??= _ctx.Db.tank.WorldId.Filter(_worldId).ToList();
     }
 
     public List<Pickup> GetAllPickups()
     {
-        if (_allPickups == null)
-        {
-            _allPickups = _ctx.Db.pickup.WorldId.Filter(_worldId).ToList();
-        }
-        return _allPickups;
+        return _allPickups ??= _ctx.Db.pickup.WorldId.Filter(_worldId).ToList();
     }
 
     public TraversibilityMap? GetTraversibilityMap()
@@ -55,17 +47,15 @@ public class AIContext
 
     public Module.TankPath? GetTankPath(string tankId)
     {
-        if (_tankPaths == null)
+        _tankPaths ??= new Dictionary<string, Module.TankPath?>();
+
+        if (!_tankPaths.TryGetValue(tankId, out var path))
         {
-            _tankPaths = new Dictionary<string, Module.TankPath?>();
+            path = _ctx.Db.tank_path.TankId.Find(tankId);
+            _tankPaths[tankId] = path;
         }
 
-        if (!_tankPaths.ContainsKey(tankId))
-        {
-            _tankPaths[tankId] = _ctx.Db.tank_path.TankId.Find(tankId);
-        }
-
-        return _tankPaths[tankId];
+        return path;
     }
 
     public Tank? GetClosestEnemyTank(Tank sourceTank)
