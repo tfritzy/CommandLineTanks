@@ -58,6 +58,15 @@ public static partial class PickupSpawner
         return null;
     }
 
+    public static int? GetAmmoForPickupType(PickupType pickupType)
+    {
+        if (PickupToGunMap.TryGetValue(pickupType, out Gun gun))
+        {
+            return gun.Ammo;
+        }
+        return null;
+    }
+
     [Table(Scheduled = nameof(SpawnPickup))]
     public partial struct ScheduledPickupSpawn
     {
@@ -127,12 +136,6 @@ public static partial class PickupSpawner
 
             var pickupId = Module.GenerateId(ctx, "pickup");
             
-            int? pickupAmmo = null;
-            if (PickupToGunMap.TryGetValue(pickupType, out Gun gun))
-            {
-                pickupAmmo = gun.Ammo;
-            }
-            
             ctx.Db.pickup.Insert(Module.Pickup.Build(
                 ctx: ctx,
                 id: pickupId,
@@ -142,7 +145,7 @@ public static partial class PickupSpawner
                 gridX: gridX,
                 gridY: gridY,
                 type: pickupType,
-                ammo: pickupAmmo
+                ammo: GetAmmoForPickupType(pickupType)
             ));
         }
     }
@@ -216,12 +219,6 @@ public static partial class PickupSpawner
 
         var pickupId = Module.GenerateId(ctx, "pickup");
         
-        int? pickupAmmo = null;
-        if (PickupToGunMap.TryGetValue(pickupType, out Gun gun))
-        {
-            pickupAmmo = gun.Ammo;
-        }
-        
         ctx.Db.pickup.Insert(Module.Pickup.Build(
             ctx: ctx,
             id: pickupId,
@@ -231,7 +228,7 @@ public static partial class PickupSpawner
             gridX: spawnX,
             gridY: spawnY,
             type: pickupType,
-            ammo: pickupAmmo
+            ammo: GetAmmoForPickupType(pickupType)
         ));
 
         Log.Info($"Spawned {pickupType} at ({centerX}, {centerY}) in world {worldId}");
@@ -328,9 +325,16 @@ public static partial class PickupSpawner
         {
             var existingGun = tank.Guns[existingGunIndex];
             
-            if (existingGun.Ammo != null && pickup.Ammo != null)
+            if (pickup.Ammo != null)
             {
-                existingGun.Ammo = existingGun.Ammo.Value + pickup.Ammo.Value;
+                if (existingGun.Ammo != null)
+                {
+                    existingGun.Ammo = existingGun.Ammo.Value + pickup.Ammo.Value;
+                }
+                else
+                {
+                    existingGun.Ammo = pickup.Ammo;
+                }
                 tank.Guns[existingGunIndex] = existingGun;
                 needsUpdate = true;
                 ctx.Db.pickup.Id.Delete(pickup.Id);
