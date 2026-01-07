@@ -25,25 +25,26 @@ export class ProjectileFactory {
     velocityY: number,
     size: number,
     alliance: number,
+    shooterTankId: string,
     explosionRadius?: number,
     trackingStrength?: number,
     trackingRadius?: number
   ): Projectile {
     switch (type) {
       case "Grenade":
-        return new GrenadeProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
+        return new GrenadeProjectile(x, y, velocityX, velocityY, size, alliance, shooterTankId, explosionRadius, trackingStrength, trackingRadius);
       case "Rocket":
-        return new RocketProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
+        return new RocketProjectile(x, y, velocityX, velocityY, size, alliance, shooterTankId, explosionRadius, trackingStrength, trackingRadius);
       case "Missile":
-        return new MissileProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
+        return new MissileProjectile(x, y, velocityX, velocityY, size, alliance, shooterTankId, explosionRadius, trackingStrength, trackingRadius);
       case "Moag":
-        return new MoagProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
+        return new MoagProjectile(x, y, velocityX, velocityY, size, alliance, shooterTankId, explosionRadius, trackingStrength, trackingRadius);
       case "Boomerang":
-        return new BoomerangProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
+        return new BoomerangProjectile(x, y, velocityX, velocityY, size, alliance, shooterTankId, explosionRadius, trackingStrength, trackingRadius);
       case "Sniper":
-        return new SniperProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
+        return new SniperProjectile(x, y, velocityX, velocityY, size, alliance, shooterTankId, explosionRadius, trackingStrength, trackingRadius);
       default:
-        return new NormalProjectile(x, y, velocityX, velocityY, size, alliance, explosionRadius, trackingStrength, trackingRadius);
+        return new NormalProjectile(x, y, velocityX, velocityY, size, alliance, shooterTankId, explosionRadius, trackingStrength, trackingRadius);
     }
   }
 }

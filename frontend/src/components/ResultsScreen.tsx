@@ -1,38 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getConnection } from '../spacetimedb-connection';
-import type { Infer } from 'spacetimedb';
-import Tank from '../../module_bindings/tank_type';
+import { type Infer } from 'spacetimedb';
+import TankRow from '../../module_bindings/tank_type';
+import ScoreRow from '../../module_bindings/score_type';
+import WorldRow from '../../module_bindings/world_type';
+import { type EventContext } from "../../module_bindings";
 import { ServerTimeSync } from '../utils/ServerTimeSync';
 import { COLORS } from '../theme/colors';
 import { SoundManager } from '../managers/SoundManager';
+import { createMultiTableSubscription, type MultiTableSubscription } from '../utils/tableSubscription';
 
 const WORLD_RESET_DELAY_MICROS = 30_000_000;
-
-type TankType = Infer<typeof Tank>;
 
 interface ResultsScreenProps {
     worldId: string;
 }
 
 export default function ResultsScreen({ worldId }: ResultsScreenProps) {
-    const [tanks, setTanks] = useState<TankType[]>([]);
+    const [tanks, setTanks] = useState<Infer<typeof TankRow>[]>([]);
     const [team0Kills, setTeam0Kills] = useState(0);
     const [team1Kills, setTeam1Kills] = useState(0);
     const [showResults, setShowResults] = useState(false);
     const [gameEndTime, setGameEndTime] = useState<bigint | null>(null);
+    const subscriptionRef = useRef<MultiTableSubscription | null>(null);
 
     useEffect(() => {
         const connection = getConnection();
         if (!connection) return;
-
-        const subscriptionHandle = connection
-            .subscriptionBuilder()
-            .onError((e) => console.error("Results subscription error", e))
-            .subscribe([
-                `SELECT * FROM tank WHERE WorldId = '${worldId}'`,
-                `SELECT * FROM score WHERE WorldId = '${worldId}'`,
-                `SELECT * FROM world WHERE Id = '${worldId}'`
-            ]);
 
         const updateTanks = () => {
             const allTanks = Array.from(connection.db.tank.iter())
@@ -60,78 +54,88 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             }
         };
 
+        subscriptionRef.current = createMultiTableSubscription()
+            .add<typeof TankRow>({
+                table: connection.db.tank,
+                handlers: {
+                    onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+                        if (tank.worldId === worldId) updateTanks();
+                    },
+                    onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+                        if (newTank.worldId === worldId) updateTanks();
+                    },
+                    onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+                        if (tank.worldId === worldId) updateTanks();
+                    }
+                },
+                loadInitialData: false
+            })
+            .add<typeof ScoreRow>({
+                table: connection.db.score,
+                handlers: {
+                    onInsert: (_ctx: EventContext, score: Infer<typeof ScoreRow>) => {
+                        if (score.worldId === worldId) updateScores();
+                    },
+                    onUpdate: (_ctx: EventContext, _oldScore: Infer<typeof ScoreRow>, newScore: Infer<typeof ScoreRow>) => {
+                        if (newScore.worldId === worldId) updateScores();
+                    }
+                },
+                loadInitialData: false
+            })
+            .add<typeof WorldRow>({
+                table: connection.db.world,
+                handlers: {
+                    onInsert: (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+                        if (world.id === worldId && world.gameState.tag === 'Results') {
+                            setShowResults(true);
+                            const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
+                            setGameEndTime(endTime);
+                            updateTanks();
+                            updateScores();
+                        }
+                    },
+                    onUpdate: (_ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
+                        if (newWorld.id === worldId) {
+                            if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
+                                setShowResults(true);
+                                const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros);
+                                setGameEndTime(endTime);
+                                updateTanks();
+                                updateScores();
+
+                                const score = connection.db.score.WorldId.find(worldId);
+                                const myTank = Array.from(connection.db.tank.iter()).find(t =>
+                                    connection.identity && t.owner.isEqual(connection.identity) && t.worldId === worldId
+                                );
+
+                                if (score && myTank) {
+                                    const team0Kills = score.kills[0] || 0;
+                                    const team1Kills = score.kills[1] || 0;
+                                    const winningTeam = team0Kills > team1Kills ? 0 : 1;
+
+                                    if (myTank.alliance === winningTeam) {
+                                        SoundManager.getInstance().play('win');
+                                    } else {
+                                        SoundManager.getInstance().play('loss');
+                                    }
+                                }
+                            } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
+                                setShowResults(false);
+                                setGameEndTime(null);
+                            }
+                        }
+                    }
+                },
+                loadInitialData: false
+            });
+
         updateTanks();
         updateScores();
         updateVisibility();
 
-        connection.db.tank.onUpdate((_ctx, _oldTank, newTank) => {
-            if (newTank.worldId === worldId) {
-                updateTanks();
-            }
-        });
-
-        connection.db.tank.onInsert((_ctx, tank) => {
-            if (tank.worldId === worldId) {
-                updateTanks();
-            }
-        });
-
-        connection.db.tank.onDelete((_ctx, tank) => {
-            if (tank.worldId === worldId) {
-                updateTanks();
-            }
-        });
-
-        connection.db.score.onUpdate((_ctx, _oldScore, newScore) => {
-            if (newScore.worldId === worldId) {
-                updateScores();
-            }
-        });
-
-        connection.db.world.onUpdate((_ctx, oldWorld, newWorld) => {
-            if (newWorld.id === worldId) {
-                if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
-                    setShowResults(true);
-                    const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros);
-                    setGameEndTime(endTime);
-                    updateTanks();
-                    updateScores();
-
-                    const score = connection.db.score.WorldId.find(worldId);
-                    const myTank = Array.from(connection.db.tank.iter()).find(t =>
-                        connection.identity && t.owner.isEqual(connection.identity) && t.worldId === worldId
-                    );
-
-                    if (score && myTank) {
-                        const team0Kills = score.kills[0] || 0;
-                        const team1Kills = score.kills[1] || 0;
-                        const winningTeam = team0Kills > team1Kills ? 0 : 1;
-
-                        if (myTank.alliance === winningTeam) {
-                            SoundManager.getInstance().play('win');
-                        } else {
-                            SoundManager.getInstance().play('loss');
-                        }
-                    }
-                } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
-                    setShowResults(false);
-                    setGameEndTime(null);
-                }
-            }
-        });
-
-        connection.db.world.onInsert((_ctx, world) => {
-            if (world.id === worldId && world.gameState.tag === 'Results') {
-                setShowResults(true);
-                const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
-                setGameEndTime(endTime);
-                updateTanks();
-                updateScores();
-            }
-        });
-
         return () => {
-            subscriptionHandle.unsubscribe();
+            subscriptionRef.current?.unsubscribe();
+            subscriptionRef.current = null;
         };
     }, [worldId]);
 

@@ -65,6 +65,7 @@ export default function GameView() {
         `SELECT * FROM tank_fire_state WHERE WorldId = '${worldId}'`,
         `SELECT * FROM terrain_detail WHERE WorldId = '${worldId}'`,
         `SELECT * FROM world WHERE Id = '${worldId}'`,
+        `SELECT * FROM score WHERE WorldId = '${worldId}'`,
         `SELECT * FROM player WHERE Identity = '${connection.identity}'`,
       ]);
 

@@ -76,8 +76,6 @@ export class Game {
     }
   }
 
-
-
   private update(currentTime: number = 0) {
     const deltaTime =
       this.lastFrameTime === 0 ? 0 : (currentTime - this.lastFrameTime) / 1000;
@@ -209,14 +207,6 @@ export class Game {
       displayWidth,
       displayHeight
     );
-
-    // this.collisionVisualizationManager.draw(
-    //   this.ctx,
-    //   cameraX,
-    //   cameraY,
-    //   displayWidth,
-    //   displayHeight
-    // );
 
     this.ctx.restore();
 

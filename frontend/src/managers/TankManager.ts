@@ -276,6 +276,10 @@ export class TankManager {
     this.muzzleFlashManager.update(deltaTime);
   }
 
+  public getTank(tankId: string): Tank | undefined {
+    return this.tanks.get(tankId);
+  }
+
   public getPlayerTank(): Tank | null {
     return this.playerTankId ? this.tanks.get(this.playerTankId) || null : null;
   }

@@ -1,10 +1,9 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { getConnection } from "../spacetimedb-connection";
-import { type Infer } from "spacetimedb";
 import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
-import { type EventContext } from "../../module_bindings";
 import { COLORS, PALETTE } from "../theme/colors";
+import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
 
@@ -52,6 +51,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
   const [team1Kills, setTeam1Kills] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const subscription = useRef<MultiTableSubscription>(null);
 
   const connection = getConnection();
   const isHomeworld = useMemo(() => {
@@ -63,14 +63,6 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
   useEffect(() => {
     if (!connection || isHomeworld) return;
 
-    const subscriptionHandle = connection
-      .subscriptionBuilder()
-      .onError((e) => console.error("Game header subscription error", e))
-      .subscribe([
-        `SELECT * FROM score WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM world WHERE Id = '${worldId}'`,
-      ]);
-
     const updateScores = () => {
       const score = connection.db.score.WorldId.find(worldId);
       if (score) {
@@ -78,6 +70,26 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         setTeam1Kills(score.kills[1] || 0);
       }
     };
+
+    subscription.current = createMultiTableSubscription().add<typeof ScoreRow>({
+      table: connection.db.score,
+      handlers: {
+        onUpdate: (_ctx, _oldScore, newScore) => {
+          if (newScore.worldId === worldId) {
+            updateScores();
+          }
+        }
+      }
+    }).add<typeof WorldRow>({
+      table: connection.db.world,
+      handlers: {
+        onUpdate: (_ctx, _oldWorld, newWorld) => {
+          if (newWorld.id === worldId) {
+            updateTimer();
+          }
+        }
+      }
+    })
 
     const updateTimer = () => {
       const world = connection.db.world.Id.find(worldId);
@@ -104,41 +116,9 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
       updateTimer();
     }, 1000);
 
-    connection.db.score.onUpdate(
-      (
-        _ctx: EventContext,
-        _oldScore: Infer<typeof ScoreRow>,
-        newScore: Infer<typeof ScoreRow>
-      ) => {
-        if (newScore.worldId === worldId) {
-          updateScores();
-        }
-      }
-    );
-
-    connection.db.world.onUpdate(
-      (
-        _ctx: EventContext,
-        _oldWorld: Infer<typeof WorldRow>,
-        newWorld: Infer<typeof WorldRow>
-      ) => {
-        if (newWorld.id === worldId) {
-          updateTimer();
-        }
-      }
-    );
-
-    connection.db.world.onInsert(
-      (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
-        if (world.id === worldId) {
-          updateTimer();
-        }
-      }
-    );
-
     return () => {
       clearInterval(interval);
-      subscriptionHandle.unsubscribe();
+      subscription.current?.unsubscribe();
     };
   }, [worldId, connection, isHomeworld]);
 
