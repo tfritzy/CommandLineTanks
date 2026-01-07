@@ -48,6 +48,7 @@ export interface PickupTexture {
 }
 
 const PROJECTILE_PICKUP_TYPES = [
+  "Base",
   "TripleShooter",
   "MissileLauncher",
   "Boomerang",
@@ -174,6 +175,12 @@ export class PickupTextureSheet {
     this.ctx.translate(centerX, centerY);
 
     switch (key) {
+      case "Base": {
+        const radius = 0.1 * UNIT_TO_PIXEL;
+        drawNormalProjectileShadow(this.ctx, -4, 4, radius);
+        drawNormalProjectileBody(this.ctx, 0, 0, radius, this.pickupColor);
+        break;
+      }
       case "TripleShooter": {
         const triangleSpacing = 0.15 * UNIT_TO_PIXEL;
         const cos30 = Math.sqrt(3) / 2;
