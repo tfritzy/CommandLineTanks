@@ -136,19 +136,6 @@ public static partial class TankUpdater
             }
             var transform = transformQuery.Value;
 
-            int newCollisionRegionX = (int)(transform.PositionX / Module.COLLISION_REGION_SIZE);
-            int newCollisionRegionY = (int)(transform.PositionY / Module.COLLISION_REGION_SIZE);
-
-            if (newCollisionRegionX != transform.CollisionRegionX || newCollisionRegionY != transform.CollisionRegionY)
-            {
-                transform = transform with
-                {
-                    CollisionRegionX = newCollisionRegionX,
-                    CollisionRegionY = newCollisionRegionY
-                };
-                needsTransformUpdate = true;
-            }
-
             if (tank.RemainingImmunityMicros > 0)
             {
                 var newRemainingImmunity = Math.Max(0, tank.RemainingImmunityMicros - (long)deltaTimeMicros);
@@ -340,6 +327,19 @@ public static partial class TankUpdater
                 {
                     ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
                 }
+            }
+
+            int newCollisionRegionX = (int)(transform.PositionX / Module.COLLISION_REGION_SIZE);
+            int newCollisionRegionY = (int)(transform.PositionY / Module.COLLISION_REGION_SIZE);
+
+            if (newCollisionRegionX != transform.CollisionRegionX || newCollisionRegionY != transform.CollisionRegionY)
+            {
+                transform = transform with
+                {
+                    CollisionRegionX = newCollisionRegionX,
+                    CollisionRegionY = newCollisionRegionY
+                };
+                needsTransformUpdate = true;
             }
 
             if (needsTankUpdate)
