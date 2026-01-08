@@ -423,9 +423,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  join              (same as 'join random')",
         "  join random",
-        "  join abcd",
-        "  join abcd mysecretpass",
-        "  join abcd 'my secret pass'",
+        "  join ABCD",
+        "  join ABCD mysecretpass",
+        "  join ABCD 'my secret pass'",
       ];
 
     case "exit":
