@@ -41,7 +41,7 @@ public static partial class Module
         {
             if (world.IsHomeWorld)
             {
-                var hasHumanPlayers = ctx.Db.tank_metadata.WorldId.Filter(world.Id).Any(m => !m.IsBot);
+                var hasHumanPlayers = ctx.Db.tank.WorldId.Filter(world.Id).Any(t => !t.IsBot);
                 if (!hasHumanPlayers)
                 {
                     homeworldsToDelete.Add(world.Id);
@@ -67,14 +67,9 @@ public static partial class Module
             ctx.Db.tank.Id.Delete(tank.Id);
         }
 
-        foreach (var metadata in ctx.Db.tank_metadata.WorldId.Filter(worldId))
+        foreach (var transform in ctx.Db.tank_transform.WorldId.Filter(worldId))
         {
-            ctx.Db.tank_metadata.TankId.Delete(metadata.TankId);
-        }
-
-        foreach (var position in ctx.Db.tank_position.WorldId.Filter(worldId))
-        {
-            ctx.Db.tank_position.TankId.Delete(position.TankId);
+            ctx.Db.tank_transform.TankId.Delete(transform.TankId);
         }
 
         foreach (var fireState in ctx.Db.tank_fire_state.WorldId.Filter(worldId))

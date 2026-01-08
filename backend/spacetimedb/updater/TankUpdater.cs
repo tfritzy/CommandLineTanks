@@ -10,7 +10,7 @@ public static partial class TankUpdater
     {
         private readonly ReducerContext _ctx;
         private readonly string _worldId;
-        private Dictionary<string, (Module.Tank, Module.TankMetadata, Module.TankPosition)?>? _fullTanksById;
+        private Dictionary<string, (Module.Tank, Module.TankTransform)?>? _fullTanksById;
         private Dictionary<(int, int), List<Module.Pickup>>? _pickupsByTile;
         private Dictionary<(int, int), List<Module.TerrainDetail>>? _terrainDetailsByTile;
 
@@ -20,22 +20,21 @@ public static partial class TankUpdater
             _worldId = worldId;
         }
 
-        public (Module.Tank, Module.TankMetadata, Module.TankPosition)? GetFullTankById(string tankId)
+        public (Module.Tank, Module.TankTransform)? GetFullTankById(string tankId)
         {
             if (_fullTanksById == null)
             {
-                _fullTanksById = new Dictionary<string, (Module.Tank, Module.TankMetadata, Module.TankPosition)?>();
+                _fullTanksById = new Dictionary<string, (Module.Tank, Module.TankTransform)?>();
             }
 
             if (!_fullTanksById.ContainsKey(tankId))
             {
                 var tank = _ctx.Db.tank.Id.Find(tankId);
-                var metadata = _ctx.Db.tank_metadata.TankId.Find(tankId);
-                var position = _ctx.Db.tank_position.TankId.Find(tankId);
+                var transform = _ctx.Db.tank_transform.TankId.Find(tankId);
 
-                if (tank != null && metadata != null && position != null)
+                if (tank != null && transform != null)
                 {
-                    _fullTanksById[tankId] = (tank.Value, metadata.Value, position.Value);
+                    _fullTanksById[tankId] = (tank.Value, transform.Value);
                 }
                 else
                 {
@@ -122,7 +121,7 @@ public static partial class TankUpdater
         foreach (var iTank in ctx.Db.tank.WorldId.Filter(args.WorldId))
         {
             bool needsTankUpdate = false;
-            bool needsPositionUpdate = false;
+            bool needsTransformUpdate = false;
             var tank = iTank;
 
             if (tank.Health <= 0)
@@ -130,26 +129,24 @@ public static partial class TankUpdater
                 continue;
             }
 
-            var metadataQuery = ctx.Db.tank_metadata.TankId.Find(tank.Id);
-            var positionQuery = ctx.Db.tank_position.TankId.Find(tank.Id);
-            if (metadataQuery == null || positionQuery == null)
+            var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+            if (transformQuery == null)
             {
                 continue;
             }
-            var metadata = metadataQuery.Value;
-            var position = positionQuery.Value;
+            var transform = transformQuery.Value;
 
-            int newCollisionRegionX = (int)(position.PositionX / Module.COLLISION_REGION_SIZE);
-            int newCollisionRegionY = (int)(position.PositionY / Module.COLLISION_REGION_SIZE);
+            int newCollisionRegionX = (int)(transform.PositionX / Module.COLLISION_REGION_SIZE);
+            int newCollisionRegionY = (int)(transform.PositionY / Module.COLLISION_REGION_SIZE);
 
-            if (newCollisionRegionX != position.CollisionRegionX || newCollisionRegionY != position.CollisionRegionY)
+            if (newCollisionRegionX != transform.CollisionRegionX || newCollisionRegionY != transform.CollisionRegionY)
             {
-                position = position with
+                transform = transform with
                 {
                     CollisionRegionX = newCollisionRegionX,
                     CollisionRegionY = newCollisionRegionY
                 };
-                needsPositionUpdate = true;
+                needsTransformUpdate = true;
             }
 
             if (tank.RemainingImmunityMicros > 0)
@@ -164,11 +161,11 @@ public static partial class TankUpdater
             {
                 var currentPath = pathState.Value.Path;
                 var targetPos = currentPath[0];
-                var deltaX = targetPos.Position.X - position.PositionX;
-                var deltaY = targetPos.Position.Y - position.PositionY;
+                var deltaX = targetPos.Position.X - transform.PositionX;
+                var deltaY = targetPos.Position.Y - transform.PositionY;
                 var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-                var moveSpeed = metadata.TopSpeed * targetPos.ThrottlePercent;
+                var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
                 var moveDistance = moveSpeed * deltaTime;
 
                 if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
@@ -188,12 +185,12 @@ public static partial class TankUpdater
                         {
                             var nextDirX = nextDeltaX / nextDistance;
                             var nextDirY = nextDeltaY / nextDistance;
-                            var nextMoveSpeed = metadata.TopSpeed * nextTarget.ThrottlePercent;
+                            var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent;
 
                             var finalX = targetPos.Position.X + nextDirX * Math.Min(overshoot, nextDistance);
                             var finalY = targetPos.Position.Y + nextDirY * Math.Min(overshoot, nextDistance);
 
-                            position = position with
+                            transform = transform with
                             {
                                 PositionX = (float)finalX,
                                 PositionY = (float)finalY,
@@ -202,7 +199,7 @@ public static partial class TankUpdater
                         }
                         else
                         {
-                            position = position with
+                            transform = transform with
                             {
                                 PositionX = targetPos.Position.X,
                                 PositionY = targetPos.Position.Y,
@@ -214,7 +211,7 @@ public static partial class TankUpdater
                     }
                     else
                     {
-                        position = position with
+                        transform = transform with
                         {
                             PositionX = targetPos.Position.X,
                             PositionY = targetPos.Position.Y,
@@ -223,20 +220,20 @@ public static partial class TankUpdater
 
                         ctx.Db.tank_path.TankId.Delete(tank.Id);
                     }
-                    needsPositionUpdate = true;
+                    needsTransformUpdate = true;
                 }
                 else
                 {
                     var dirX = deltaX / distance;
                     var dirY = deltaY / distance;
 
-                    position = position with
+                    transform = transform with
                     {
-                        PositionX = (float)(position.PositionX + dirX * moveDistance),
-                        PositionY = (float)(position.PositionY + dirY * moveDistance),
+                        PositionX = (float)(transform.PositionX + dirX * moveDistance),
+                        PositionY = (float)(transform.PositionY + dirY * moveDistance),
                         Velocity = new Vector2Float((float)(dirX * moveSpeed), (float)(dirY * moveSpeed))
                     };
-                    needsPositionUpdate = true;
+                    needsTransformUpdate = true;
                 }
             }
 
@@ -245,12 +242,12 @@ public static partial class TankUpdater
                 var targetFullTank = updateContext.GetFullTankById(tank.Target);
                 if (targetFullTank != null && targetFullTank.Value.Item1.Health > 0)
                 {
-                    var (_, _, targetPosition) = targetFullTank.Value;
-                    var targetX = targetPosition.PositionX;
-                    var targetY = targetPosition.PositionY;
+                    var (_, targetTransform) = targetFullTank.Value;
+                    var targetX = targetTransform.PositionX;
+                    var targetY = targetTransform.PositionY;
 
-                    var distanceDeltaX = targetX - position.PositionX;
-                    var distanceDeltaY = targetY - position.PositionY;
+                    var distanceDeltaX = targetX - transform.PositionX;
+                    var distanceDeltaY = targetY - transform.PositionY;
                     var distanceSquared = distanceDeltaX * distanceDeltaX + distanceDeltaY * distanceDeltaY;
 
                     if (distanceSquared > Module.MAX_TARGETING_RANGE * Module.MAX_TARGETING_RANGE)
@@ -262,7 +259,7 @@ public static partial class TankUpdater
                     {
                         if (tank.TargetLead > 0)
                         {
-                            var targetVelocity = targetPosition.Velocity;
+                            var targetVelocity = targetTransform.Velocity;
                             var velocityMagnitude = Math.Sqrt(targetVelocity.X * targetVelocity.X + targetVelocity.Y * targetVelocity.Y);
                             if (velocityMagnitude > 0)
                             {
@@ -272,15 +269,15 @@ public static partial class TankUpdater
                             }
                         }
 
-                        var deltaX = targetX - position.PositionX;
-                        var deltaY = targetY - position.PositionY;
+                        var deltaX = targetX - transform.PositionX;
+                        var deltaY = targetY - transform.PositionY;
                         var aimAngle = Math.Atan2(deltaY, deltaX);
-                        var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, tank.TurretRotation);
+                        var normalizedAimAngle = Module.NormalizeAngleToTarget((float)aimAngle, transform.TurretRotation);
 
-                        if (Math.Abs(tank.TargetTurretRotation - normalizedAimAngle) > 0.001)
+                        if (Math.Abs(transform.TargetTurretRotation - normalizedAimAngle) > 0.001)
                         {
-                            tank = tank with { TargetTurretRotation = normalizedAimAngle };
-                            needsTankUpdate = true;
+                            transform = transform with { TargetTurretRotation = normalizedAimAngle };
+                            needsTransformUpdate = true;
                         }
                     }
                 }
@@ -291,43 +288,43 @@ public static partial class TankUpdater
                 }
             }
 
-            if (Math.Abs(tank.TurretRotation - tank.TargetTurretRotation) > 0.001)
+            if (Math.Abs(transform.TurretRotation - transform.TargetTurretRotation) > 0.001)
             {
-                var angleDiff = Module.GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation);
+                var angleDiff = Module.GetNormalizedAngleDifference(transform.TargetTurretRotation, transform.TurretRotation);
 
-                var rotationAmount = metadata.TurretRotationSpeed * deltaTime;
+                var rotationAmount = tank.TurretRotationSpeed * deltaTime;
 
-                if (tank.TurretAngularVelocity == 0)
+                if (transform.TurretAngularVelocity == 0)
                 {
-                    tank = tank with
+                    transform = transform with
                     {
-                        TurretAngularVelocity = (float)(Math.Sign(angleDiff) * metadata.TurretRotationSpeed)
+                        TurretAngularVelocity = (float)(Math.Sign(angleDiff) * tank.TurretRotationSpeed)
                     };
-                    needsTankUpdate = true;
+                    needsTransformUpdate = true;
                 }
                 else if (Math.Abs(angleDiff) <= rotationAmount)
                 {
-                    tank = tank with
+                    transform = transform with
                     {
-                        TurretRotation = tank.TargetTurretRotation,
+                        TurretRotation = transform.TargetTurretRotation,
                         TurretAngularVelocity = 0
                     };
-                    needsTankUpdate = true;
+                    needsTransformUpdate = true;
                 }
                 else
                 {
                     rotationAmount = Math.Sign(angleDiff) * rotationAmount;
-                    tank = tank with
+                    transform = transform with
                     {
-                        TurretRotation = (float)(tank.TurretRotation + rotationAmount),
-                        TurretAngularVelocity = (float)(Math.Sign(angleDiff) * metadata.TurretRotationSpeed)
+                        TurretRotation = (float)(transform.TurretRotation + rotationAmount),
+                        TurretAngularVelocity = (float)(Math.Sign(angleDiff) * tank.TurretRotationSpeed)
                     };
-                    needsTankUpdate = true;
+                    needsTransformUpdate = true;
                 }
             }
 
-            int tankTileX = (int)position.PositionX;
-            int tankTileY = (int)position.PositionY;
+            int tankTileX = (int)transform.PositionX;
+            int tankTileY = (int)transform.PositionY;
 
             foreach (var pickup in updateContext.GetPickupsByTile(tankTileX, tankTileY))
             {
@@ -350,10 +347,10 @@ public static partial class TankUpdater
                 ctx.Db.tank.Id.Update(tank);
             }
 
-            if (needsPositionUpdate)
+            if (needsTransformUpdate)
             {
-                position = position with { UpdatedAt = currentTime };
-                ctx.Db.tank_position.TankId.Update(position);
+                transform = transform with { UpdatedAt = currentTime };
+                ctx.Db.tank_transform.TankId.Update(transform);
             }
         }
     }

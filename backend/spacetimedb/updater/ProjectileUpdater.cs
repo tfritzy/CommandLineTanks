@@ -70,7 +70,7 @@ public static partial class ProjectileUpdater
 
         int searchRadius = (int)Math.Ceiling(projectile.TrackingRadius / Module.COLLISION_REGION_SIZE);
 
-        Module.TankPosition? closestPosition = null;
+        Module.TankTransform? closestPosition = null;
         float closestDistanceSquared = projectile.TrackingRadius * projectile.TrackingRadius;
 
         for (int deltaX = -searchRadius; deltaX <= searchRadius; deltaX++)
@@ -80,22 +80,21 @@ public static partial class ProjectileUpdater
                 int regionX = projectileCollisionRegionX + deltaX;
                 int regionY = projectileCollisionRegionY + deltaY;
 
-                foreach (var position in ctx.Db.tank_position.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                foreach (var transform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
                 {
-                    var tank = ctx.Db.tank.Id.Find(position.TankId);
-                    var metadata = ctx.Db.tank_metadata.TankId.Find(position.TankId);
-                    if (tank == null || metadata == null) continue;
+                    var tank = ctx.Db.tank.Id.Find(transform.TankId);
+                    if (tank == null) continue;
                     
-                    if (metadata.Value.Alliance != projectile.Alliance && tank.Value.Health > 0)
+                    if (tank.Value.Alliance != projectile.Alliance && tank.Value.Health > 0)
                     {
-                        var dx_tank = position.PositionX - projectile.PositionX;
-                        var dy_tank = position.PositionY - projectile.PositionY;
+                        var dx_tank = transform.PositionX - projectile.PositionX;
+                        var dy_tank = transform.PositionY - projectile.PositionY;
                         var distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
 
                         if (distanceSquared < closestDistanceSquared)
                         {
                             closestDistanceSquared = distanceSquared;
-                            closestPosition = position;
+                            closestPosition = transform;
                         }
                     }
                 }
@@ -337,7 +336,7 @@ public static partial class ProjectileUpdater
         return (minRegionX, maxRegionX, minRegionY, maxRegionY);
     }
 
-    private static bool HandleBoomerangReturn(ReducerContext ctx, Projectile projectile, Module.Tank tank, Module.TankMetadata metadata)
+    private static bool HandleBoomerangReturn(ReducerContext ctx, Projectile projectile, Module.Tank tank)
     {
         if (!projectile.ReturnsToShooter || !projectile.IsReturning || tank.Id != projectile.ShooterTankId)
         {
@@ -362,7 +361,7 @@ public static partial class ProjectileUpdater
                 gun.Ammo = gun.Ammo.Value + 1;
                 tank.Guns[existingGunIndex] = gun;
                 ctx.Db.tank.Id.Update(tank);
-                Log.Info($"Tank {metadata.Name} caught the boomerang! Ammo: {gun.Ammo}");
+                Log.Info($"Tank {tank.Name} caught the boomerang! Ammo: {gun.Ammo}");
             }
         }
         else if (tank.Guns.Length < 3)
@@ -375,11 +374,11 @@ public static partial class ProjectileUpdater
                 SelectedGunIndex = newGunIndex
             };
             ctx.Db.tank.Id.Update(tank);
-            Log.Info($"Tank {metadata.Name} caught the boomerang! New gun added with 1 ammo.");
+            Log.Info($"Tank {tank.Name} caught the boomerang! New gun added with 1 ammo.");
         }
         else
         {
-            Log.Info($"Tank {metadata.Name} inventory full - boomerang lost!");
+            Log.Info($"Tank {tank.Name} inventory full - boomerang lost!");
         }
 
         ctx.Db.projectile.Id.Delete(projectile.Id);
@@ -419,26 +418,24 @@ public static partial class ProjectileUpdater
             {
                 if (regionY < 0) continue;
 
-                foreach (var position in ctx.Db.tank_position.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                foreach (var transform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
                 {
-                    float dx = position.PositionX - projectile.PositionX;
-                    float dy = position.PositionY - projectile.PositionY;
+                    float dx = transform.PositionX - projectile.PositionX;
+                    float dy = transform.PositionY - projectile.PositionY;
                     float distanceSquared = dx * dx + dy * dy;
 
                     if (distanceSquared <= collisionRadiusSquared)
                     {
-                        var tankQuery = ctx.Db.tank.Id.Find(position.TankId);
-                        var metadataQuery = ctx.Db.tank_metadata.TankId.Find(position.TankId);
-                        if (tankQuery == null || metadataQuery == null) continue;
+                        var tankQuery = ctx.Db.tank.Id.Find(transform.TankId);
+                        if (tankQuery == null) continue;
                         var tank = tankQuery.Value;
-                        var metadata = metadataQuery.Value;
                         
-                        if (HandleBoomerangReturn(ctx, projectile, tank, metadata))
+                        if (HandleBoomerangReturn(ctx, projectile, tank))
                         {
                             return (true, projectile, false);
                         }
 
-                        if (metadata.Alliance != projectile.Alliance && tank.Health > 0 && tank.RemainingImmunityMicros <= 0)
+                        if (tank.Alliance != projectile.Alliance && tank.Health > 0 && tank.RemainingImmunityMicros <= 0)
                         {
                             bool alreadyHit = false;
                             foreach (var hitTank in recentlyHitList)
@@ -463,7 +460,7 @@ public static partial class ProjectileUpdater
                                 }
                                 else
                                 {
-                                    Module.DealDamageToTankCommand(ctx, tank, metadata, position, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
+                                    Module.DealDamageToTankCommand(ctx, tank, transform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
                                 }
 
                                 recentlyHitList.Add(new DamagedTank

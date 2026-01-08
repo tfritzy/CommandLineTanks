@@ -6,16 +6,12 @@ public static partial class Module
     [Reducer]
     public static void exitWorld(ReducerContext ctx, string worldId, string joinCode)
     {
-        var currentMetadata = ctx.Db.tank_metadata.WorldId_Owner.Filter((worldId, ctx.Sender))
+        var currentTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender))
             .FirstOrDefault();
 
-        if (currentMetadata.TankId != null)
+        if (currentTank.Id != null)
         {
-            var tank = ctx.Db.tank.Id.Find(currentMetadata.TankId);
-            if (tank != null)
-            {
-                RemoveTankFromWorld(ctx, tank.Value, currentMetadata);
-            }
+            RemoveTankFromWorld(ctx, currentTank);
         }
 
         ReturnToHomeworld(ctx, joinCode);

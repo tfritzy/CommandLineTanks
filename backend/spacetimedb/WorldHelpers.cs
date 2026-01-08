@@ -3,26 +3,25 @@ using static Types;
 
 public static partial class Module
 {
-    public static void AddTankToWorld(ReducerContext ctx, Tank tank, TankMetadata metadata, TankPosition position)
+    public static void AddTankToWorld(ReducerContext ctx, Tank tank, TankTransform transform)
     {
         ctx.Db.tank.Insert(tank);
-        ctx.Db.tank_metadata.Insert(metadata);
-        ctx.Db.tank_position.Insert(position);
+        ctx.Db.tank_transform.Insert(transform);
         
-        if (metadata.IsBot)
+        if (tank.IsBot)
         {
-            IncrementBotCount(ctx, metadata.WorldId);
+            IncrementBotCount(ctx, tank.WorldId);
         }
         else
         {
-            IncrementPlayerCount(ctx, metadata.WorldId);
+            IncrementPlayerCount(ctx, tank.WorldId);
         }
     }
 
-    public static void RemoveTankFromWorld(ReducerContext ctx, Tank tank, TankMetadata metadata)
+    public static void RemoveTankFromWorld(ReducerContext ctx, Tank tank)
     {
-        var isBot = metadata.IsBot;
-        var worldId = metadata.WorldId;
+        var isBot = tank.IsBot;
+        var worldId = tank.WorldId;
         
         var fireState = ctx.Db.tank_fire_state.TankId.Find(tank.Id);
         if (fireState != null)
@@ -32,8 +31,7 @@ public static partial class Module
         
         DeleteTankPathIfExists(ctx, tank.Id);
         
-        ctx.Db.tank_position.TankId.Delete(tank.Id);
-        ctx.Db.tank_metadata.TankId.Delete(tank.Id);
+        ctx.Db.tank_transform.TankId.Delete(tank.Id);
         ctx.Db.tank.Id.Delete(tank.Id);
         
         if (isBot)
@@ -102,7 +100,7 @@ public static partial class Module
             return;
         }
 
-        var hasHumanPlayers = ctx.Db.tank_metadata.WorldId.Filter(identityString).Any(m => !m.IsBot);
+        var hasHumanPlayers = ctx.Db.tank.WorldId.Filter(identityString).Any(t => !t.IsBot);
         if (hasHumanPlayers)
         {
             return;
@@ -121,13 +119,13 @@ public static partial class Module
             CreateHomeworld(ctx, identityString);
         }
 
-        var existingMetadata = ctx.Db.tank_metadata.WorldId_Owner.Filter((identityString, ctx.Sender))
+        var existingTank = ctx.Db.tank.WorldId_Owner.Filter((identityString, ctx.Sender))
             .FirstOrDefault();
         
-        if (existingMetadata.TankId != null)
+        if (existingTank.Id != null)
         {
-            var updatedMetadata = existingMetadata with { JoinCode = joinCode };
-            ctx.Db.tank_metadata.TankId.Update(updatedMetadata);
+            var updatedTank = existingTank with { JoinCode = joinCode };
+            ctx.Db.tank.Id.Update(updatedTank);
             StartWorldTickers(ctx, identityString);
             Log.Info($"Updated existing homeworld tank with new join code");
             return;
@@ -136,7 +134,7 @@ public static partial class Module
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
-        var (tank, metadata, position) = BuildTank(
+        var (tank, transform) = BuildTank(
             ctx: ctx,
             worldId: identityString,
             owner: ctx.Sender,
@@ -148,7 +146,7 @@ public static partial class Module
             positionY: HOMEWORLD_HEIGHT / 2 + .5f,
             aiBehavior: AIBehavior.None);
 
-        AddTankToWorld(ctx, tank, metadata, position);
+        AddTankToWorld(ctx, tank, transform);
         StartWorldTickers(ctx, identityString);
         Log.Info($"Created homeworld tank for identity {identityString}");
     }

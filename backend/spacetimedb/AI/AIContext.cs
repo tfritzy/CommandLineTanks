@@ -32,11 +32,10 @@ public class AIContext
             _allFullTanks = new List<FullTank>();
             foreach (var tank in _ctx.Db.tank.WorldId.Filter(_worldId))
             {
-                var metadata = _ctx.Db.tank_metadata.TankId.Find(tank.Id);
-                var position = _ctx.Db.tank_position.TankId.Find(tank.Id);
-                if (metadata != null && position != null)
+                var transform = _ctx.Db.tank_transform.TankId.Find(tank.Id);
+                if (transform != null)
                 {
-                    _allFullTanks.Add(new FullTank(tank, metadata.Value, position.Value));
+                    _allFullTanks.Add(new FullTank(tank, transform.Value));
                 }
             }
         }

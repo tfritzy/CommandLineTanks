@@ -139,7 +139,7 @@ public static partial class Module
     private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "Turret";
-        var (turretBot, turretMetadata, turretPosition) = BuildTank(
+        var (turretBot, turretTransform) = BuildTank(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
             worldId: worldId,
@@ -154,14 +154,13 @@ public static partial class Module
             aiConfig: aiConfig
         );
         ctx.Db.tank.Insert(turretBot);
-        ctx.Db.tank_metadata.Insert(turretMetadata);
-        ctx.Db.tank_position.Insert(turretPosition);
+        ctx.Db.tank_transform.Insert(turretTransform);
     }
 
     private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "AimBot";
-        var (aimBot, aimMetadata, aimPosition) = BuildTank(
+        var (aimBot, aimTransform) = BuildTank(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
             worldId: worldId,
@@ -176,14 +175,13 @@ public static partial class Module
             aiConfig: aiConfig
         );
         ctx.Db.tank.Insert(aimBot);
-        ctx.Db.tank_metadata.Insert(aimMetadata);
-        ctx.Db.tank_position.Insert(aimPosition);
+        ctx.Db.tank_transform.Insert(aimTransform);
     }
 
     private static void SpawnTileboundBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "TileBot";
-        var (tileboundBot, tileboundMetadata, tileboundPosition) = BuildTank(
+        var (tileboundBot, tileboundTransform) = BuildTank(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
             worldId: worldId,
@@ -198,8 +196,7 @@ public static partial class Module
             aiConfig: aiConfig
         );
         ctx.Db.tank.Insert(tileboundBot);
-        ctx.Db.tank_metadata.Insert(tileboundMetadata);
-        ctx.Db.tank_position.Insert(tileboundPosition);
+        ctx.Db.tank_transform.Insert(tileboundTransform);
     }
 
     private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)

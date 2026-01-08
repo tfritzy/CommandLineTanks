@@ -5,23 +5,25 @@ public static partial class Module
     [Reducer]
     public static void aim(ReducerContext ctx, string worldId, float angleRadians)
     {
-        TankMetadata? metadataQuery = ctx.Db.tank_metadata.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (metadataQuery == null || metadataQuery.Value.TankId == null) return;
-        var metadata = metadataQuery.Value;
-        
-        var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
-        if (tankQuery == null) return;
+        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
 
         if (tank.Health <= 0) return;
 
-        var normalizedAngle = Module.NormalizeAngleToTarget(angleRadians, tank.TurretRotation);
+        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        if (transformQuery == null) return;
+        var transform = transformQuery.Value;
 
-        var updatedTank = tank with 
+        var normalizedAngle = Module.NormalizeAngleToTarget(angleRadians, transform.TurretRotation);
+
+        var updatedTransform = transform with 
         {
-            TargetTurretRotation = normalizedAngle,
-            Target = null
+            TargetTurretRotation = normalizedAngle
         };
+        ctx.Db.tank_transform.TankId.Update(updatedTransform);
+
+        var updatedTank = tank with { Target = null };
         ctx.Db.tank.Id.Update(updatedTank);
     }
 }

@@ -11,14 +11,14 @@ public static partial class Module
 
     public static string? AllocateTargetCode(ReducerContext ctx, string worldId)
     {
-        var metadatasInWorld = ctx.Db.tank_metadata.WorldId.Filter(worldId);
+        var tanksInWorld = ctx.Db.tank.WorldId.Filter(worldId);
         var usedCodes = new HashSet<string>();
         
-        foreach (var metadata in metadatasInWorld)
+        foreach (var tank in tanksInWorld)
         {
-            if (metadata.TargetCode != null)
+            if (tank.TargetCode != null)
             {
-                usedCodes.Add(metadata.TargetCode);
+                usedCodes.Add(tank.TargetCode);
             }
         }
 

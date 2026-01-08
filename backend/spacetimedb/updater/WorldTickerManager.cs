@@ -101,8 +101,8 @@ public static partial class Module
         var oldWorld = ctx.Db.world.Id.Find(args.WorldId);
         if (oldWorld == null) return;
 
-        var playerMetadatas = new List<Module.TankMetadata>();
-        foreach (var metadata in ctx.Db.tank_metadata.WorldId.Filter(args.WorldId))
+        var playerMetadatas = new List<Module.Tank>();
+        foreach (var metadata in ctx.Db.tank.WorldId.Filter(args.WorldId))
         {
             if (!metadata.IsBot)
             {

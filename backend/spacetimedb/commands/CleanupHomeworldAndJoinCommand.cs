@@ -6,15 +6,11 @@ public static partial class Module
     public static void CleanupHomeworldAndJoinCommand(ReducerContext ctx, string worldId, string joinCode)
     {
         var identityString = ctx.Sender.ToString().ToLower();
-        var existingMetadatas = ctx.Db.tank_metadata.Owner.Filter(ctx.Sender);
+        var existingTanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
 
-        foreach (var existingMetadata in existingMetadatas)
+        foreach (var existingTank in existingTanks)
         {
-            var tank = ctx.Db.tank.Id.Find(existingMetadata.TankId);
-            if (tank != null)
-            {
-                RemoveTankFromWorld(ctx, tank.Value, existingMetadata);
-            }
+            RemoveTankFromWorld(ctx, existingTank);
         }
 
         DeleteHomeworldIfEmpty(ctx, identityString);
@@ -22,8 +18,8 @@ public static partial class Module
         var result = CreateTankInWorld(ctx, worldId, ctx.Sender, joinCode);
         if (result != null)
         {
-            var (tank, metadata, position) = result.Value;
-            AddTankToWorld(ctx, tank, metadata, position);
+            var (tank, transform) = result.Value;
+            AddTankToWorld(ctx, tank, transform);
         }
     }
 }

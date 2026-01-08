@@ -5,12 +5,8 @@ public static partial class Module
     [Reducer]
     public static void targetTank(ReducerContext ctx, string worldId, string targetCode, float lead)
     {
-        TankMetadata? metadataQuery = ctx.Db.tank_metadata.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (metadataQuery == null || metadataQuery.Value.TankId == null) return;
-        var metadata = metadataQuery.Value;
-        
-        var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
-        if (tankQuery == null) return;
+        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
 
         tank = TargetTankByCode(ctx, tank, targetCode, lead);
@@ -22,16 +18,16 @@ public static partial class Module
         if (tank.Health <= 0) return tank;
 
         var targetCodeLower = targetCode.ToLower();
-        var targetMetadata = ctx.Db.tank_metadata.WorldId_TargetCode.Filter((tank.WorldId, targetCodeLower)).FirstOrDefault();
+        var targetTank = ctx.Db.tank.WorldId_TargetCode.Filter((tank.WorldId, targetCodeLower)).FirstOrDefault();
 
-        if (targetMetadata.TankId == null)
+        if (targetTank.Id == null)
         {
             return tank;
         }
 
         return tank with
         {
-            Target = targetMetadata.TankId,
+            Target = targetTank.Id,
             TargetLead = lead
         };
     }

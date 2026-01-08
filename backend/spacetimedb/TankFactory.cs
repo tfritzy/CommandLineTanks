@@ -7,7 +7,7 @@ public static partial class Module
     private const int MAX_SPAWN_ATTEMPTS = 100;
     private const int SPAWN_ZONE_WIDTH = 5;
 
-    public static void RespawnTank(ReducerContext ctx, Tank tank, TankMetadata metadata, TankPosition position, string worldId, int alliance, bool resetKills = false, (float, float)? spawnPosition = null)
+    public static void RespawnTank(ReducerContext ctx, Tank tank, TankTransform transform, string worldId, int alliance, bool resetKills = false, (float, float)? spawnPosition = null)
     {
         var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
         if (traversibilityMap == null)
@@ -17,15 +17,14 @@ public static partial class Module
 
         var (spawnX, spawnY) = spawnPosition ?? FindSpawnPosition(ctx, traversibilityMap.Value, alliance, ctx.Rng);
 
-        var newTargetCode = AllocateTargetCode(ctx, worldId) ?? metadata.TargetCode;
+        var newTargetCode = AllocateTargetCode(ctx, worldId) ?? tank.TargetCode;
 
         var respawnedTank = tank with
         {
-            Health = metadata.MaxHealth,
+            Health = tank.MaxHealth,
             Kills = resetKills ? 0 : tank.Kills,
             Deaths = resetKills ? 0 : tank.Deaths,
             KillStreak = 0,
-            TurretAngularVelocity = 0,
             Target = null,
             TargetLead = 0.0f,
             Message = null,
@@ -33,26 +32,24 @@ public static partial class Module
             SelectedGunIndex = 0,
             HasShield = false,
             RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
-            DeathTimestamp = 0
-        };
-
-        var respawnedMetadata = metadata with
-        {
+            DeathTimestamp = 0,
             Alliance = alliance,
             TargetCode = newTargetCode
         };
 
-        var respawnedPosition = position with
+        var respawnedTransform = transform with
         {
             PositionX = spawnX,
             PositionY = spawnY,
             Velocity = new Vector2Float(0, 0),
+            TurretRotation = 0,
+            TargetTurretRotation = 0,
+            TurretAngularVelocity = 0,
             UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
         ctx.Db.tank.Id.Update(respawnedTank);
-        ctx.Db.tank_metadata.TankId.Update(respawnedMetadata);
-        ctx.Db.tank_position.TankId.Update(respawnedPosition);
+        ctx.Db.tank_transform.TankId.Update(respawnedTransform);
     }
 
     public static (float, float) FindSpawnPosition(ReducerContext ctx, World world, int alliance, Random random)
@@ -119,13 +116,13 @@ public static partial class Module
     {
         int alliance0Count = 0;
         int alliance1Count = 0;
-        foreach (var m in ctx.Db.tank_metadata.WorldId.Filter(worldId))
+        foreach (var t in ctx.Db.tank.WorldId.Filter(worldId))
         {
-            if (m.Alliance == 0)
+            if (t.Alliance == 0)
             {
                 alliance0Count++;
             }
-            else if (m.Alliance == 1)
+            else if (t.Alliance == 1)
             {
                 alliance1Count++;
             }
@@ -134,17 +131,13 @@ public static partial class Module
         return alliance0Count <= alliance1Count ? 0 : 1;
     }
 
-    public static (Tank, TankMetadata, TankPosition)? CreateTankInWorld(ReducerContext ctx, string worldId, Identity owner, string joinCode)
+    public static (Tank, TankTransform)? CreateTankInWorld(ReducerContext ctx, string worldId, Identity owner, string joinCode)
     {
-        TankMetadata? existingMetadata = ctx.Db.tank_metadata.WorldId_Owner.Filter((worldId, owner)).FirstOrDefault();
-        if (existingMetadata != null && !string.IsNullOrEmpty(existingMetadata.Value.TankId))
+        Tank? existingTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, owner)).FirstOrDefault();
+        if (existingTank != null && !string.IsNullOrEmpty(existingTank.Value.Id))
         {
             Log.Info($"Player already has tank in world {worldId}, removing before creating new one");
-            var existingTank = ctx.Db.tank.Id.Find(existingMetadata.Value.TankId);
-            if (existingTank != null)
-            {
-                RemoveTankFromWorld(ctx, existingTank.Value, existingMetadata.Value);
-            }
+            RemoveTankFromWorld(ctx, existingTank.Value);
         }
 
         var world = ctx.Db.world.Id.Find(worldId);
@@ -167,7 +160,7 @@ public static partial class Module
         int assignedAlliance = GetBalancedAlliance(ctx, worldId);
         var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
 
-        var (tank, metadata, position) = BuildTank(
+        var (tank, transform) = BuildTank(
             ctx: ctx,
             worldId: worldId,
             owner: owner,
@@ -178,6 +171,6 @@ public static partial class Module
             positionX: spawnX,
             positionY: spawnY,
             aiBehavior: AIBehavior.None);
-        return (tank, metadata, position);
+        return (tank, transform);
     }
 }

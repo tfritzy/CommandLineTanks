@@ -34,11 +34,11 @@ public static partial class Module
         updatedPlayer.Name = newName;
         ctx.Db.player.Id.Update(updatedPlayer);
 
-        var metadatas = ctx.Db.tank_metadata.Owner.Filter(ctx.Sender);
-        foreach (var metadata in metadatas)
+        var tanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
+        foreach (var tank in tanks)
         {
-            var updatedMetadata = metadata with { Name = newName };
-            ctx.Db.tank_metadata.TankId.Update(updatedMetadata);
+            var updatedTank = tank with { Name = newName };
+            ctx.Db.tank.Id.Update(updatedTank);
         }
 
         Log.Info($"Player name changed to: {newName}");

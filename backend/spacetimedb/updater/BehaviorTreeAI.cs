@@ -23,17 +23,15 @@ public static partial class BehaviorTreeAI
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
         var aiContext = new AIContext(ctx, args.WorldId);
-        var aiMetadata = ctx.Db.tank_metadata.WorldId_IsBot.Filter((args.WorldId, true)).ToList();
+        var aiTanks = ctx.Db.tank.WorldId_IsBot.Filter((args.WorldId, true)).ToList();
 
-        foreach (var metadata in aiMetadata)
+        foreach (var tank in aiTanks)
         {
-            var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
-            var positionQuery = ctx.Db.tank_position.TankId.Find(metadata.TankId);
-            if (tankQuery == null || positionQuery == null) continue;
+            var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+            if (transformQuery == null) continue;
             
-            var tank = tankQuery.Value;
-            var position = positionQuery.Value;
-            var fullTank = new FullTank(tank, metadata, position);
+            var transform = transformQuery.Value;
+            var fullTank = new FullTank(tank, transform);
 
             if (tank.Health <= 0)
             {
@@ -51,16 +49,16 @@ public static partial class BehaviorTreeAI
                 }
 
                 (float, float)? spawnPosition = null;
-                if (metadata.AIBehavior == AIBehavior.Tilebound)
+                if (tank.AIBehavior == AIBehavior.Tilebound)
                 {
-                    spawnPosition = (position.PositionX, position.PositionY);
+                    spawnPosition = (transform.PositionX, transform.PositionY);
                 }
-                RespawnTank(ctx, tank, metadata, position, args.WorldId, metadata.Alliance, false, spawnPosition);
+                RespawnTank(ctx, tank, transform, args.WorldId, tank.Alliance, false, spawnPosition);
                 continue;
             }
 
             Tank mutatedTank = tank;
-            switch (metadata.AIBehavior)
+            switch (tank.AIBehavior)
             {
                 case AIBehavior.GameAI:
                     mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext);

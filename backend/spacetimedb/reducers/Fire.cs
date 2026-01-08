@@ -6,30 +6,26 @@ public static partial class Module
     [Reducer]
     public static void fire(ReducerContext ctx, string worldId)
     {
-        TankMetadata? metadataQuery = ctx.Db.tank_metadata.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (metadataQuery == null || metadataQuery.Value.TankId == null) return;
-        var metadata = metadataQuery.Value;
-        
-        var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
-        if (tankQuery == null) return;
+        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
         
-        var positionQuery = ctx.Db.tank_position.TankId.Find(metadata.TankId);
-        if (positionQuery == null) return;
-        var position = positionQuery.Value;
+        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        if (transformQuery == null) return;
+        var transform = transformQuery.Value;
 
-        tank = FireTankWeapon(ctx, tank, position);
+        tank = FireTankWeapon(ctx, tank, transform);
         ctx.Db.tank.Id.Update(tank);
     }
 
     public static Tank FireTankWeapon(ReducerContext ctx, Tank tank)
     {
-        var positionQuery = ctx.Db.tank_position.TankId.Find(tank.Id);
-        if (positionQuery == null) return tank;
-        return FireTankWeapon(ctx, tank, positionQuery.Value);
+        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        if (transformQuery == null) return tank;
+        return FireTankWeapon(ctx, tank, transformQuery.Value);
     }
 
-    public static Tank FireTankWeapon(ReducerContext ctx, Tank tank, TankPosition position)
+    public static Tank FireTankWeapon(ReducerContext ctx, Tank tank, TankTransform transform)
     {
         if (tank.Health <= 0) return tank;
 
@@ -46,41 +42,37 @@ public static partial class Module
         var gun = tank.Guns[tank.SelectedGunIndex];
 
         if (gun.Ammo != null && gun.Ammo <= 0) return tank;
-        
-        var metadataQuery = ctx.Db.tank_metadata.TankId.Find(tank.Id);
-        if (metadataQuery == null) return tank;
-        var metadata = metadataQuery.Value;
 
         if (gun.ProjectileCount == 1)
         {
-            CreateProjectile(ctx, tank, metadata, position.PositionX, position.PositionY, tank.TurretRotation, gun);
+            CreateProjectile(ctx, tank, transform.PositionX, transform.PositionY, transform.TurretRotation, gun);
         }
         else
         {
             float halfSpread = gun.SpreadAngle * (gun.ProjectileCount - 1) / 2.0f;
             for (int i = 0; i < gun.ProjectileCount; i++)
             {
-                float angle = tank.TurretRotation - halfSpread + (i * gun.SpreadAngle);
-                float posX = position.PositionX;
-                float posY = position.PositionY;
+                float angle = transform.TurretRotation - halfSpread + (i * gun.SpreadAngle);
+                float posX = transform.PositionX;
+                float posY = transform.PositionY;
 
                 if (gun.GunType == Types.GunType.TripleShooter)
                 {
                     if (i == 1)
                     {
                         float forwardOffset = 0.2f;
-                        posX += (float)Math.Cos(tank.TurretRotation) * forwardOffset;
-                        posY += (float)Math.Sin(tank.TurretRotation) * forwardOffset;
+                        posX += (float)Math.Cos(transform.TurretRotation) * forwardOffset;
+                        posY += (float)Math.Sin(transform.TurretRotation) * forwardOffset;
                     }
                     else
                     {
                         float lateralOffset = (i - 1) * 0.25f;
-                        posX += (float)Math.Cos(tank.TurretRotation + Math.PI / 2.0) * lateralOffset;
-                        posY += (float)Math.Sin(tank.TurretRotation + Math.PI / 2.0) * lateralOffset;
+                        posX += (float)Math.Cos(transform.TurretRotation + Math.PI / 2.0) * lateralOffset;
+                        posY += (float)Math.Sin(transform.TurretRotation + Math.PI / 2.0) * lateralOffset;
                     }
                 }
 
-                CreateProjectile(ctx, tank, metadata, posX, posY, angle, gun);
+                CreateProjectile(ctx, tank, posX, posY, angle, gun);
             }
         }
 

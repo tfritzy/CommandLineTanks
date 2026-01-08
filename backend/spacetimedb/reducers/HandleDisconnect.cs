@@ -11,15 +11,11 @@ public static partial class Module
             return;
         }
 
-        var metadatas = ctx.Db.tank_metadata.Owner.Filter(ctx.Sender);
-        foreach (var metadata in metadatas)
+        var tanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
+        foreach (var tank in tanks)
         {
-            var tank = ctx.Db.tank.Id.Find(metadata.TankId);
-            if (tank != null)
-            {
-                RemoveTankFromWorld(ctx, tank.Value, metadata);
-                Log.Info($"Player {player.Value.Name} disconnected, removed tank {metadata.TankId} in world {metadata.WorldId}");
-            }
+            RemoveTankFromWorld(ctx, tank);
+            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} in world {tank.WorldId}");
         }
 
         var identityString = ctx.Sender.ToString().ToLower();

@@ -19,15 +19,11 @@ public static partial class EnemyTankRespawner
     [Reducer]
     public static void CheckAndRespawnEnemyTanks(ReducerContext ctx, ScheduledEnemyTankRespawnCheck args)
     {
-        var metadatas = ctx.Db.tank_metadata.WorldId.Filter(args.WorldId);
-        foreach (var metadata in metadatas)
+        var tanks = ctx.Db.tank.WorldId.Filter(args.WorldId);
+        foreach (var tank in tanks)
         {
-            if (metadata.Alliance == 1)
+            if (tank.Alliance == 1)
             {
-                var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
-                if (tankQuery == null) continue;
-                var tank = tankQuery.Value;
-                
                 if (tank.Health <= 0)
                 {
                     if (tank.DeathTimestamp == 0)
@@ -43,7 +39,7 @@ public static partial class EnemyTankRespawner
                         continue;
                     }
                     
-                    var positionQuery = ctx.Db.tank_position.TankId.Find(metadata.TankId);
+                    var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
 
                     var respawnedTank = tank with
                     {
@@ -52,7 +48,7 @@ public static partial class EnemyTankRespawner
                         DeathTimestamp = 0
                     };
                     ctx.Db.tank.Id.Update(respawnedTank);
-                    Log.Info($"Respawned enemy tank {metadata.Name} at position ({positionQuery?.PositionX ?? 0}, {positionQuery?.PositionY ?? 0})");
+                    Log.Info($"Respawned enemy tank {tank.Name} at position ({transformQuery?.PositionX ?? 0}, {transformQuery?.PositionY ?? 0})");
                 }
             }
         }

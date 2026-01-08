@@ -6,23 +6,19 @@ public static partial class Module
     [Reducer]
     public static void respawn(ReducerContext ctx, string worldId)
     {
-        TankMetadata? metadataQuery = ctx.Db.tank_metadata.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (metadataQuery == null || metadataQuery.Value.TankId == null) return;
-        var metadata = metadataQuery.Value;
-        
-        var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
-        if (tankQuery == null) return;
+        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
         
-        var positionQuery = ctx.Db.tank_position.TankId.Find(metadata.TankId);
-        if (positionQuery == null) return;
-        var position = positionQuery.Value;
+        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        if (transformQuery == null) return;
+        var transform = transformQuery.Value;
 
         if (tank.Health > 0) return;
 
         DeleteTankPathIfExists(ctx, tank.Id);
 
-        RespawnTank(ctx, tank, metadata, position, worldId, metadata.Alliance);
-        Log.Info($"Tank {metadata.Name} respawned");
+        RespawnTank(ctx, tank, transform, worldId, tank.Alliance);
+        Log.Info($"Tank {tank.Name} respawned");
     }
 }

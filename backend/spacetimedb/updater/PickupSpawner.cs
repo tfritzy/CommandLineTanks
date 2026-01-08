@@ -269,9 +269,7 @@ public static partial class PickupSpawner
     {
         if (pickup.Type == PickupType.Health)
         {
-            var metadata = ctx.Db.tank_metadata.TankId.Find(tank.Id);
-            if (metadata == null) return false;
-            return TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup, metadata.Value.MaxHealth);
+            return TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup, tank.MaxHealth);
         }
 
         if (pickup.Type == PickupType.Shield)

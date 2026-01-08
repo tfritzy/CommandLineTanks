@@ -30,24 +30,22 @@ public static partial class ProjectileUpdater
                 int regionX = projectileCollisionRegionX + dx;
                 int regionY = projectileCollisionRegionY + dy;
 
-                foreach (var position in ctx.Db.tank_position.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                foreach (var transform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
                 {
-                    var tankQuery = ctx.Db.tank.Id.Find(position.TankId);
-                    var metadataQuery = ctx.Db.tank_metadata.TankId.Find(position.TankId);
-                    if (tankQuery == null || metadataQuery == null) continue;
+                    var tankQuery = ctx.Db.tank.Id.Find(transform.TankId);
+                    if (tankQuery == null) continue;
                     var tank = tankQuery.Value;
-                    var metadata = metadataQuery.Value;
                     
-                    if (tank.Health > 0 && metadata.Alliance != projectile.Alliance)
+                    if (tank.Health > 0 && tank.Alliance != projectile.Alliance)
                     {
-                        float dx_tank = position.PositionX - projectile.PositionX;
-                        float dy_tank = position.PositionY - projectile.PositionY;
+                        float dx_tank = transform.PositionX - projectile.PositionX;
+                        float dy_tank = transform.PositionY - projectile.PositionY;
                         float distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
                         float explosionRadiusSquared = explosionRadius * explosionRadius;
 
                         if (distanceSquared <= explosionRadiusSquared)
                         {
-                            Module.DealDamageToTankCommand(ctx, tank, metadata, position, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
+                            Module.DealDamageToTankCommand(ctx, tank, transform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
                         }
                     }
                 }

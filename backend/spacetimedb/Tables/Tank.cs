@@ -5,6 +5,9 @@ using System;
 public static partial class Module
 {
     [Table(Name = "tank", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.WorldId), nameof(Tank.Owner) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.WorldId), nameof(Tank.TargetCode) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.WorldId), nameof(Tank.IsBot) })]
     public partial struct Tank
     {
         [PrimaryKey]
@@ -12,6 +15,29 @@ public static partial class Module
 
         [SpacetimeDB.Index.BTree]
         public string WorldId;
+
+        [SpacetimeDB.Index.BTree]
+        public Identity Owner;
+
+        public string Name;
+
+        public string TargetCode;
+
+        public string? JoinCode;
+
+        public bool IsBot;
+
+        public AIBehavior AIBehavior;
+
+        public AiConfig? AiConfig;
+
+        public int Alliance;
+
+        public int MaxHealth;
+
+        public float TopSpeed;
+
+        public float TurretRotationSpeed;
 
         public int Health;
 
@@ -26,11 +52,6 @@ public static partial class Module
 
         public string? Message;
 
-        public float TurretAngularVelocity;
-
-        public float TurretRotation;
-        public float TargetTurretRotation;
-
         public Gun[] Guns;
         public int SelectedGunIndex;
 
@@ -43,7 +64,7 @@ public static partial class Module
         public Identity? LastDamagedBy;
     }
 
-    public static (Tank, TankMetadata, TankPosition) BuildTank(
+    public static (Tank, TankTransform) BuildTank(
         ReducerContext ctx,
         string? id = null,
         string? worldId = null,
@@ -91,28 +112,6 @@ public static partial class Module
         {
             Id = tankId,
             WorldId = tankWorldId,
-            Health = health,
-            Kills = kills,
-            Deaths = deaths,
-            KillStreak = killStreak,
-            Target = target,
-            TargetLead = targetLead,
-            Message = message,
-            TurretRotation = turretRotation,
-            TargetTurretRotation = targetTurretRotation,
-            Guns = guns ?? [BASE_GUN],
-            SelectedGunIndex = selectedGunIndex,
-            HasShield = hasShield,
-            TurretAngularVelocity = turretAngularVelocity,
-            RemainingImmunityMicros = remainingImmunityMicros,
-            DeathTimestamp = deathTimestamp,
-            LastDamagedBy = lastDamagedBy
-        };
-
-        var metadata = new TankMetadata
-        {
-            TankId = tankId,
-            WorldId = tankWorldId,
             Owner = owner ?? Identity.From(new byte[32]),
             Name = name ?? "",
             TargetCode = targetCode ?? "",
@@ -123,10 +122,23 @@ public static partial class Module
             Alliance = alliance,
             MaxHealth = maxHealth,
             TopSpeed = topSpeed,
-            TurretRotationSpeed = turretRotationSpeed
+            TurretRotationSpeed = turretRotationSpeed,
+            Health = health,
+            Kills = kills,
+            Deaths = deaths,
+            KillStreak = killStreak,
+            Target = target,
+            TargetLead = targetLead,
+            Message = message,
+            Guns = guns ?? [BASE_GUN],
+            SelectedGunIndex = selectedGunIndex,
+            HasShield = hasShield,
+            RemainingImmunityMicros = remainingImmunityMicros,
+            DeathTimestamp = deathTimestamp,
+            LastDamagedBy = lastDamagedBy
         };
 
-        var position = new TankPosition
+        var transform = new TankTransform
         {
             TankId = tankId,
             WorldId = tankWorldId,
@@ -135,9 +147,12 @@ public static partial class Module
             Velocity = velocity ?? new Vector2Float(0, 0),
             CollisionRegionX = collisionRegionX,
             CollisionRegionY = collisionRegionY,
+            TurretRotation = turretRotation,
+            TargetTurretRotation = targetTurretRotation,
+            TurretAngularVelocity = turretAngularVelocity,
             UpdatedAt = computedUpdatedAt
         };
 
-        return (tank, metadata, position);
+        return (tank, transform);
     }
 }

@@ -3,9 +3,9 @@ using static Types;
 
 public static partial class Module
 {
-    [Table(Name = "tank_position", Public = true)]
+    [Table(Name = "tank_transform", Public = true)]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
-    public partial struct TankPosition
+    public partial struct TankTransform
     {
         [PrimaryKey]
         public string TankId;
@@ -22,6 +22,12 @@ public static partial class Module
         public int CollisionRegionX;
 
         public int CollisionRegionY;
+
+        public float TurretRotation;
+
+        public float TargetTurretRotation;
+
+        public float TurretAngularVelocity;
 
         public ulong UpdatedAt;
     }

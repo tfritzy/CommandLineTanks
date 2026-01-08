@@ -28,9 +28,9 @@ public static partial class Module
         }
 
         var identityString = ctx.Sender.ToString().ToLower();
-        var existingMetadata = ctx.Db.tank_metadata.WorldId_Owner.Filter((identityString, ctx.Sender))
+        var existingTank = ctx.Db.tank.WorldId_Owner.Filter((identityString, ctx.Sender))
             .FirstOrDefault();
-        if (existingMetadata.TankId == null)
+        if (existingTank.Id == null)
         {
             ReturnToHomeworld(ctx, "");
         }

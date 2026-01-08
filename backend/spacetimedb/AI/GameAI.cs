@@ -37,11 +37,11 @@ public static partial class GameAI
                 {
                     DeleteTankPathIfExists(ctx, tank.Id);
 
-                    var positionQuery = ctx.Db.tank_position.TankId.Find(tank.Id);
-                    if (positionQuery != null)
+                    var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+                    if (transformQuery != null)
                     {
-                        var updatedPosition = positionQuery.Value with { Velocity = new Vector2Float(0, 0) };
-                        ctx.Db.tank_position.TankId.Update(updatedPosition);
+                        var updatedTransform = transformQuery.Value with { Velocity = new Vector2Float(0, 0) };
+                        ctx.Db.tank_transform.TankId.Update(updatedTransform);
                     }
 
                     tank = TargetTankByCode(ctx, tank, decision.TargetTank.Value.TargetCode, 0);
