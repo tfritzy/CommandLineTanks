@@ -232,7 +232,7 @@ export class Game {
     this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
     this.killManager.draw(this.ctx, displayWidth);
 
-    this.fpsCounter.draw(this.ctx);
+    this.fpsCounter.draw(this.ctx, displayHeight);
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }

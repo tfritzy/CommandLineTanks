@@ -22,15 +22,17 @@ export class FpsCounter {
     }
   }
 
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public draw(ctx: CanvasRenderingContext2D, displayHeight: number): void {
     if (this.fps > 0) {
       ctx.save();
       ctx.font = "14px monospace";
       ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
       ctx.strokeStyle = COLORS.TERRAIN.GROUND;
       ctx.lineWidth = 3;
-      ctx.strokeText(`FPS: ${this.fps}`, 10, 20);
-      ctx.fillText(`FPS: ${this.fps}`, 10, 20);
+      const x = 10;
+      const y = displayHeight - 10;
+      ctx.strokeText(`FPS: ${this.fps}`, x, y);
+      ctx.fillText(`FPS: ${this.fps}`, x, y);
       ctx.restore();
     }
   }
