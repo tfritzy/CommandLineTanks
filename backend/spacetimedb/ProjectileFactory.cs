@@ -4,7 +4,7 @@ using System;
 
 public static partial class Module
 {
-    private static void CreateProjectile(ReducerContext ctx, Tank tank, float startX, float startY, float angle, Gun gun)
+    private static void CreateProjectile(ReducerContext ctx, Tank tank, TankMetadata metadata, float startX, float startY, float angle, Gun gun)
     {
         float velocityX = (float)Math.Cos(angle) * gun.ProjectileSpeed;
         float velocityY = (float)Math.Sin(angle) * gun.ProjectileSpeed;
@@ -13,7 +13,7 @@ public static partial class Module
             ctx: ctx,
             worldId: tank.WorldId,
             shooterTankId: tank.Id,
-            alliance: tank.Alliance,
+            alliance: metadata.Alliance,
             positionX: startX,
             positionY: startY,
             speed: gun.ProjectileSpeed,

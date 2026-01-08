@@ -139,7 +139,7 @@ public static partial class Module
     private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "Turret";
-        var turretBot = Tank.Build(
+        var (turretBot, turretMetadata, turretPosition) = BuildTank(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
             worldId: worldId,
@@ -154,12 +154,14 @@ public static partial class Module
             aiConfig: aiConfig
         );
         ctx.Db.tank.Insert(turretBot);
+        ctx.Db.tank_metadata.Insert(turretMetadata);
+        ctx.Db.tank_position.Insert(turretPosition);
     }
 
     private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "AimBot";
-        var aimBot = Tank.Build(
+        var (aimBot, aimMetadata, aimPosition) = BuildTank(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
             worldId: worldId,
@@ -174,12 +176,14 @@ public static partial class Module
             aiConfig: aiConfig
         );
         ctx.Db.tank.Insert(aimBot);
+        ctx.Db.tank_metadata.Insert(aimMetadata);
+        ctx.Db.tank_position.Insert(aimPosition);
     }
 
     private static void SpawnTileboundBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
         var targetCode = AllocateTargetCode(ctx, worldId) ?? "TileBot";
-        var tileboundBot = Tank.Build(
+        var (tileboundBot, tileboundMetadata, tileboundPosition) = BuildTank(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
             worldId: worldId,
@@ -194,6 +198,8 @@ public static partial class Module
             aiConfig: aiConfig
         );
         ctx.Db.tank.Insert(tileboundBot);
+        ctx.Db.tank_metadata.Insert(tileboundMetadata);
+        ctx.Db.tank_position.Insert(tileboundPosition);
     }
 
     private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)

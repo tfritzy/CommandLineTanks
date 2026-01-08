@@ -101,16 +101,16 @@ public static partial class Module
         var oldWorld = ctx.Db.world.Id.Find(args.WorldId);
         if (oldWorld == null) return;
 
-        var tanks = new List<Module.Tank>();
-        foreach (var tank in ctx.Db.tank.WorldId.Filter(args.WorldId))
+        var playerMetadatas = new List<Module.TankMetadata>();
+        foreach (var metadata in ctx.Db.tank_metadata.WorldId.Filter(args.WorldId))
         {
-            if (!tank.IsBot)
+            if (!metadata.IsBot)
             {
-                tanks.Add(tank);
+                playerMetadatas.Add(metadata);
             }
         }
 
-        int totalTanks = tanks.Count;
+        int totalTanks = playerMetadatas.Count;
         
         if (totalTanks == 0)
         {
@@ -145,24 +145,24 @@ public static partial class Module
         for (int i = 0; i < totalTanks; i++)
         {
             int tankIndex = shuffledIndices[i];
-            var tank = tanks[tankIndex];
+            var oldMetadata = playerMetadatas[tankIndex];
 
             int newAlliance = i < (totalTanks + 1) / 2 ? 0 : 1;
 
             var (spawnX, spawnY) = FindSpawnPosition(ctx, newWorld, newAlliance, ctx.Rng);
 
-            var newTank = Tank.Build(
+            var (newTank, newMetadata, newPosition) = BuildTank(
                 ctx: ctx,
                 worldId: newWorldId,
-                owner: tank.Owner,
-                name: tank.Name,
-                targetCode: tank.TargetCode,
+                owner: oldMetadata.Owner,
+                name: oldMetadata.Name,
+                targetCode: oldMetadata.TargetCode,
                 joinCode: args.WorldId,
                 alliance: newAlliance,
                 positionX: spawnX,
                 positionY: spawnY,
                 aiBehavior: AIBehavior.None);
-            AddTankToWorld(ctx, newTank);
+            AddTankToWorld(ctx, newTank, newMetadata, newPosition);
         }
 
         Log.Info($"Created new world {newWorldId} from {args.WorldId}. Teams randomized, {totalTanks} tanks created.");

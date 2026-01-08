@@ -6,15 +6,30 @@ public static partial class Module
     [Reducer]
     public static void fire(ReducerContext ctx, string worldId)
     {
-        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (maybeTank == null) return;
-        var tank = maybeTank.Value;
+        TankMetadata? metadataQuery = ctx.Db.tank_metadata.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (metadataQuery == null || metadataQuery.Value.TankId == null) return;
+        var metadata = metadataQuery.Value;
+        
+        var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
+        if (tankQuery == null) return;
+        var tank = tankQuery.Value;
+        
+        var positionQuery = ctx.Db.tank_position.TankId.Find(metadata.TankId);
+        if (positionQuery == null) return;
+        var position = positionQuery.Value;
 
-        tank = FireTankWeapon(ctx, tank);
+        tank = FireTankWeapon(ctx, tank, position);
         ctx.Db.tank.Id.Update(tank);
     }
 
     public static Tank FireTankWeapon(ReducerContext ctx, Tank tank)
+    {
+        var positionQuery = ctx.Db.tank_position.TankId.Find(tank.Id);
+        if (positionQuery == null) return tank;
+        return FireTankWeapon(ctx, tank, positionQuery.Value);
+    }
+
+    public static Tank FireTankWeapon(ReducerContext ctx, Tank tank, TankPosition position)
     {
         if (tank.Health <= 0) return tank;
 
@@ -31,10 +46,14 @@ public static partial class Module
         var gun = tank.Guns[tank.SelectedGunIndex];
 
         if (gun.Ammo != null && gun.Ammo <= 0) return tank;
+        
+        var metadataQuery = ctx.Db.tank_metadata.TankId.Find(tank.Id);
+        if (metadataQuery == null) return tank;
+        var metadata = metadataQuery.Value;
 
         if (gun.ProjectileCount == 1)
         {
-            CreateProjectile(ctx, tank, tank.PositionX, tank.PositionY, tank.TurretRotation, gun);
+            CreateProjectile(ctx, tank, metadata, position.PositionX, position.PositionY, tank.TurretRotation, gun);
         }
         else
         {
@@ -42,8 +61,8 @@ public static partial class Module
             for (int i = 0; i < gun.ProjectileCount; i++)
             {
                 float angle = tank.TurretRotation - halfSpread + (i * gun.SpreadAngle);
-                float posX = tank.PositionX;
-                float posY = tank.PositionY;
+                float posX = position.PositionX;
+                float posY = position.PositionY;
 
                 if (gun.GunType == Types.GunType.TripleShooter)
                 {
@@ -61,7 +80,7 @@ public static partial class Module
                     }
                 }
 
-                CreateProjectile(ctx, tank, posX, posY, angle, gun);
+                CreateProjectile(ctx, tank, metadata, posX, posY, angle, gun);
             }
         }
 

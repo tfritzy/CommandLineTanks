@@ -17,9 +17,17 @@ public static partial class Module
             targetY = Math.Max(0, Math.Min(world.Height - 1, targetY));
         }
 
-        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (maybeTank == null) return;
-        var tank = maybeTank.Value;
+        TankMetadata? metadataQuery = ctx.Db.tank_metadata.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (metadataQuery == null || metadataQuery.Value.TankId == null) return;
+        var metadata = metadataQuery.Value;
+        
+        var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
+        if (tankQuery == null) return;
+        var tank = tankQuery.Value;
+        
+        var positionQuery = ctx.Db.tank_position.TankId.Find(metadata.TankId);
+        if (positionQuery == null) return;
+        var position = positionQuery.Value;
 
         if (tank.Health <= 0) return;
 
@@ -27,8 +35,8 @@ public static partial class Module
         if (maybeMap == null) return;
         var traversibilityMap = maybeMap.Value;
 
-        int startX = (int)tank.PositionX;
-        int startY = (int)tank.PositionY;
+        int startX = (int)position.PositionX;
+        int startY = (int)position.PositionY;
 
         var pathPoints = AStarPathfinding.FindPath(
             startX,
@@ -63,12 +71,12 @@ public static partial class Module
 
         UpsertTankPath(ctx, newPathState);
 
-        tank = tank with
+        var updatedPosition = position with
         {
             Velocity = new Vector2Float(0, 0),
             UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
-        ctx.Db.tank.Id.Update(tank);
+        ctx.Db.tank_position.TankId.Update(updatedPosition);
     }
 }

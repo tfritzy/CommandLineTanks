@@ -6,17 +6,28 @@ public static partial class Module
     [Reducer]
     public static void stop(ReducerContext ctx, string worldId)
     {
-        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (maybeTank == null) return;
-        var tank = maybeTank.Value;
+        TankMetadata? metadataQuery = ctx.Db.tank_metadata.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (metadataQuery == null || metadataQuery.Value.TankId == null) return;
+        var metadata = metadataQuery.Value;
+        
+        var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
+        if (tankQuery == null) return;
+        var tank = tankQuery.Value;
+        
+        var positionQuery = ctx.Db.tank_position.TankId.Find(metadata.TankId);
+        if (positionQuery == null) return;
+        var position = positionQuery.Value;
 
         if (tank.Health <= 0) return;
 
         DeleteTankPathIfExists(ctx, tank.Id);
 
-        tank.Velocity = new Vector2Float(0, 0);
-        tank.UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        ctx.Db.tank.Id.Update(tank);
-        Log.Info($"Tank {tank.Name} stopped");
+        var updatedPosition = position with 
+        {
+            Velocity = new Vector2Float(0, 0),
+            UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+        };
+        ctx.Db.tank_position.TankId.Update(updatedPosition);
+        Log.Info($"Tank {metadata.Name} stopped");
     }
 }

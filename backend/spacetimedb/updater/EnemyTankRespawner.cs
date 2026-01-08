@@ -19,32 +19,41 @@ public static partial class EnemyTankRespawner
     [Reducer]
     public static void CheckAndRespawnEnemyTanks(ReducerContext ctx, ScheduledEnemyTankRespawnCheck args)
     {
-        var tanks = ctx.Db.tank.WorldId.Filter(args.WorldId);
-        foreach (var tank in tanks)
+        var metadatas = ctx.Db.tank_metadata.WorldId.Filter(args.WorldId);
+        foreach (var metadata in metadatas)
         {
-            if (tank.Alliance == 1 && tank.Health <= 0)
+            if (metadata.Alliance == 1)
             {
-                if (tank.DeathTimestamp == 0)
+                var tankQuery = ctx.Db.tank.Id.Find(metadata.TankId);
+                if (tankQuery == null) continue;
+                var tank = tankQuery.Value;
+                
+                if (tank.Health <= 0)
                 {
-                    continue;
+                    if (tank.DeathTimestamp == 0)
+                    {
+                        continue;
+                    }
+
+                    ulong currentTimestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+                    ulong timeSinceDeath = currentTimestamp - tank.DeathTimestamp;
+
+                    if (timeSinceDeath < (ulong)Module.BOT_RESPAWN_DELAY_MICROS)
+                    {
+                        continue;
+                    }
+                    
+                    var positionQuery = ctx.Db.tank_position.TankId.Find(metadata.TankId);
+
+                    var respawnedTank = tank with
+                    {
+                        Health = Module.TANK_HEALTH,
+                        RemainingImmunityMicros = Module.SPAWN_IMMUNITY_DURATION_MICROS,
+                        DeathTimestamp = 0
+                    };
+                    ctx.Db.tank.Id.Update(respawnedTank);
+                    Log.Info($"Respawned enemy tank {metadata.Name} at position ({positionQuery?.PositionX ?? 0}, {positionQuery?.PositionY ?? 0})");
                 }
-
-                ulong currentTimestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-                ulong timeSinceDeath = currentTimestamp - tank.DeathTimestamp;
-
-                if (timeSinceDeath < (ulong)Module.BOT_RESPAWN_DELAY_MICROS)
-                {
-                    continue;
-                }
-
-                var respawnedTank = tank with
-                {
-                    Health = Module.TANK_HEALTH,
-                    RemainingImmunityMicros = Module.SPAWN_IMMUNITY_DURATION_MICROS,
-                    DeathTimestamp = 0
-                };
-                ctx.Db.tank.Id.Update(respawnedTank);
-                Log.Info($"Respawned enemy tank {respawnedTank.Name} at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");
             }
         }
     }
