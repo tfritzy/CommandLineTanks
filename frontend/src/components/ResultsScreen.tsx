@@ -6,7 +6,6 @@ import ScoreRow from '../../module_bindings/score_type';
 import WorldRow from '../../module_bindings/world_type';
 import { type EventContext } from "../../module_bindings";
 import { ServerTimeSync } from '../utils/ServerTimeSync';
-import { COLORS, PALETTE } from '../theme/colors';
 import { SoundManager } from '../managers/SoundManager';
 import { createMultiTableSubscription, type MultiTableSubscription } from '../utils/tableSubscription';
 
@@ -162,121 +161,46 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
     const isDraw = team0Kills === team1Kills;
     const winningTeam = team0Kills > team1Kills ? 0 : 1;
     const winnerText = isDraw ? 'DRAW' : (winningTeam === 0 ? 'RED VICTORY' : 'BLUE VICTORY');
-    const winnerColor = isDraw ? PALETTE.WHITE_BRIGHT : (winningTeam === 0 ? PALETTE.RED_MUTED : PALETTE.BLUE_INFO);
+    const winnerColor = isDraw ? '#fcfbf3' : (winningTeam === 0 ? '#c06852' : '#7396d5');
 
     const timeUntilReset = gameEndTime !== null
         ? Math.max(0, Math.ceil(Number(gameEndTime + BigInt(WORLD_RESET_DELAY_MICROS) - BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000))) / 1_000_000))
         : 0;
 
     return (
-        <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            fontFamily: "'JetBrains Mono', monospace"
-        }}>
-            <div style={{
-                background: `${PALETTE.PURPLE_VOID}d9`,
-                backdropFilter: 'blur(12px)',
-                border: `1px solid ${PALETTE.WHITE_PURE}14`,
-                borderRadius: '4px',
-                maxWidth: '800px',
-                width: '90%',
-                maxHeight: '85vh',
-                overflowY: 'auto',
-                textAlign: 'center',
-                padding: '48px 40px',
-                boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE}99`,
-                animation: 'resultsFadeIn 0.4s ease-out'
-            }}>
+        <div className="absolute inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-[2000] font-mono">
+            <div className="bg-palette-purple-void/85 backdrop-blur-xl border border-palette-white-pure/[0.08] rounded max-w-[800px] w-[90%] max-h-[85vh] overflow-y-auto text-center py-12 px-10 shadow-2xl animate-[resultsFadeIn_0.4s_ease-out]">
                 <style>{`
                     @keyframes resultsFadeIn {
                         from { opacity: 0; transform: scale(0.98); }
                         to { opacity: 1; transform: scale(1); }
                     }
                 `}</style>
-                <div style={{
-                    fontSize: '48px',
-                    fontWeight: '900',
-                    color: winnerColor,
-                    marginBottom: '8px',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    textShadow: `0 0 20px ${winnerColor}4d`,
-                }}>
+                <div className="text-5xl font-black mb-2 tracking-[0.1em] uppercase" style={{ color: winnerColor, textShadow: `0 0 20px ${winnerColor}30` }}>
                     {winnerText}
                 </div>
 
-                <div style={{
-                    fontSize: '14px',
-                    marginBottom: '60px',
-                    color: COLORS.UI.TEXT_DIM,
-                    fontWeight: '700',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    opacity: 0.8
-                }}>
+                <div className="text-sm mb-[60px] text-ui-text-dim font-bold tracking-[0.1em] uppercase opacity-80">
                     Next round in {timeUntilReset} seconds
                 </div>
 
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '60px',
-                    maxWidth: '750px',
-                    margin: '0 auto'
-                }}>
+                <div className="grid grid-cols-2 gap-[60px] max-w-[750px] mx-auto">
                     <div>
-                        <div style={{
-                            fontSize: '9px',
-                            color: PALETTE.RED_MUTED,
-                            marginBottom: '16px',
-                            letterSpacing: '0.2em',
-                            textTransform: 'uppercase',
-                            fontWeight: '800',
-                            borderBottom: `1px solid ${PALETTE.RED_MUTED}33`,
-                            paddingBottom: '8px',
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 40px 40px 50px',
-                            gap: '8px',
-                            textAlign: 'right'
-                        }}>
-                            <span style={{ textAlign: 'left' }}>RED TEAM</span>
-                            <span style={{ opacity: 0.5 }}>KDR</span>
-                            <span style={{ opacity: 0.5 }}>D</span>
-                            <span style={{ opacity: 0.5 }}>KILLS</span>
+                        <div className="text-[9px] text-palette-red-muted mb-4 tracking-[0.2em] uppercase font-extrabold border-b border-palette-red-muted/20 pb-2 grid grid-cols-[1fr_40px_40px_50px] gap-2 text-right">
+                            <span className="text-left">RED TEAM</span>
+                            <span className="opacity-50">KDR</span>
+                            <span className="opacity-50">D</span>
+                            <span className="opacity-50">KILLS</span>
                         </div>
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '4px'
-                        }}>
+                        <div className="flex flex-col gap-1">
                             {team0Tanks.map((tank) => {
                                 const kdr = tank.deaths === 0 ? tank.kills.toFixed(1) : (tank.kills / tank.deaths).toFixed(1);
                                 return (
-                                    <div key={tank.id} style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: '1fr 40px 40px 50px',
-                                        gap: '8px',
-                                        alignItems: 'center',
-                                        fontSize: '13px',
-                                        color: COLORS.UI.TEXT_PRIMARY,
-                                        padding: '4px 0',
-                                        fontWeight: '500',
-                                        textAlign: 'right'
-                                    }}>
-                                        <span style={{ opacity: 0.8, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tank.name}</span>
-                                        <span style={{ opacity: 0.4 }}>{kdr}</span>
-                                        <span style={{ opacity: 0.4 }}>{tank.deaths}</span>
-                                        <span style={{ color: PALETTE.ORANGE_MEDIUM, fontWeight: '800', fontSize: '15px' }}>{tank.kills}</span>
+                                    <div key={tank.id} className="grid grid-cols-[1fr_40px_40px_50px] gap-2 items-center text-[13px] text-ui-text-primary py-1 font-medium text-right">
+                                        <span className="opacity-80 text-left overflow-hidden text-ellipsis whitespace-nowrap">{tank.name}</span>
+                                        <span className="opacity-40">{kdr}</span>
+                                        <span className="opacity-40">{tank.deaths}</span>
+                                        <span className="text-palette-orange-medium font-extrabold text-[15px]">{tank.kills}</span>
                                     </div>
                                 );
                             })}
@@ -284,48 +208,21 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                     </div>
 
                     <div>
-                        <div style={{
-                            fontSize: '9px',
-                            color: PALETTE.BLUE_INFO,
-                            marginBottom: '16px',
-                            letterSpacing: '0.2em',
-                            textTransform: 'uppercase',
-                            fontWeight: '800',
-                            borderBottom: `1px solid ${PALETTE.BLUE_INFO}33`,
-                            paddingBottom: '8px',
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 40px 40px 50px',
-                            gap: '8px',
-                            textAlign: 'right'
-                        }}>
-                            <span style={{ textAlign: 'left' }}>BLUE TEAM</span>
-                            <span style={{ opacity: 0.5 }}>KDR</span>
-                            <span style={{ opacity: 0.5 }}>D</span>
-                            <span style={{ opacity: 0.5 }}>KILLS</span>
+                        <div className="text-[9px] text-palette-blue-info mb-4 tracking-[0.2em] uppercase font-extrabold border-b border-palette-blue-info/20 pb-2 grid grid-cols-[1fr_40px_40px_50px] gap-2 text-right">
+                            <span className="text-left">BLUE TEAM</span>
+                            <span className="opacity-50">KDR</span>
+                            <span className="opacity-50">D</span>
+                            <span className="opacity-50">KILLS</span>
                         </div>
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '4px'
-                        }}>
+                        <div className="flex flex-col gap-1">
                             {team1Tanks.map((tank) => {
                                 const kdr = tank.deaths === 0 ? tank.kills.toFixed(1) : (tank.kills / tank.deaths).toFixed(1);
                                 return (
-                                    <div key={tank.id} style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: '1fr 40px 40px 50px',
-                                        gap: '8px',
-                                        alignItems: 'center',
-                                        fontSize: '13px',
-                                        color: COLORS.UI.TEXT_PRIMARY,
-                                        padding: '4px 0',
-                                        fontWeight: '500',
-                                        textAlign: 'right'
-                                    }}>
-                                        <span style={{ opacity: 0.8, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tank.name}</span>
-                                        <span style={{ opacity: 0.4 }}>{kdr}</span>
-                                        <span style={{ opacity: 0.4 }}>{tank.deaths}</span>
-                                        <span style={{ color: PALETTE.BLUE_BRIGHT, fontWeight: '800', fontSize: '15px' }}>{tank.kills}</span>
+                                    <div key={tank.id} className="grid grid-cols-[1fr_40px_40px_50px] gap-2 items-center text-[13px] text-ui-text-primary py-1 font-medium text-right">
+                                        <span className="opacity-80 text-left overflow-hidden text-ellipsis whitespace-nowrap">{tank.name}</span>
+                                        <span className="opacity-40">{kdr}</span>
+                                        <span className="opacity-40">{tank.deaths}</span>
+                                        <span className="text-palette-blue-bright font-extrabold text-[15px]">{tank.kills}</span>
                                     </div>
                                 );
                             })}
