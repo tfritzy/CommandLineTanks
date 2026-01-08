@@ -137,8 +137,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
 
   return (
     <div
-      className="absolute top-[5px] z-[1000] flex flex-col w-[200px]"
-      style={{ ...(currentPlayer?.alliance === 0 ? { left: '5px' } : { right: '5px' }) }}
+      className={`absolute top-[5px] z-[1000] flex flex-col w-[200px] ${currentPlayer?.alliance === 0 ? 'left-[5px]' : 'right-[5px]'}`}
     >
       <div className="w-full bg-palette-purple-void/85 backdrop-blur-xl border border-palette-white-pure/[0.08] rounded p-3 shadow-2xl flex flex-col">
         <div className="text-ui-text-dim text-[10px] font-mono font-extrabold tracking-[0.2em] mb-2.5 text-center opacity-80 border-b border-palette-white-pure/[0.08] pb-1.5 uppercase">
