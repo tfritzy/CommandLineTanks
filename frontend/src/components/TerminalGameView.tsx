@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { TerminalGame } from "../rendering/TerminalGame";
+import { Game } from "../game";
+import { AsciiRenderer } from "../rendering/AsciiRenderer";
 import TerminalComponent from "./terminal/Terminal";
 import ResultsScreen from "./ResultsScreen";
 import GameHeader from "./GameHeader";
@@ -20,13 +21,15 @@ import {
   type SubscriptionHandle,
 } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
-import { COLORS } from "../theme/colors";
 
 export default function TerminalGameView() {
   const { worldId } = useParams<{ worldId: string }>();
   const navigate = useNavigate();
-  const terminalGameRef = useRef<HTMLDivElement>(null);
-  const gameRef = useRef<TerminalGame | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const asciiContainerRef = useRef<HTMLDivElement>(null);
+  const gameRef = useRef<Game | null>(null);
+  const asciiRendererRef = useRef<AsciiRenderer | null>(null);
+  const asciiAnimationRef = useRef<number | null>(null);
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
   const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
   const joinModalTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -80,13 +83,32 @@ export default function TerminalGameView() {
   }, [worldId]);
 
   useEffect(() => {
-    if (!terminalGameRef.current || !worldId) return;
+    if (!canvasRef.current || !asciiContainerRef.current || !worldId) return;
 
     gameRef.current?.destroy();
-    gameRef.current = new TerminalGame(terminalGameRef.current, worldId);
+    gameRef.current = new Game(canvasRef.current, worldId);
     gameRef.current.start();
 
+    asciiRendererRef.current = new AsciiRenderer();
+    asciiRendererRef.current.mount(asciiContainerRef.current);
+    asciiRendererRef.current.setSourceCanvas(canvasRef.current);
+
+    const renderAscii = () => {
+      if (asciiRendererRef.current) {
+        asciiRendererRef.current.render();
+      }
+      asciiAnimationRef.current = requestAnimationFrame(renderAscii);
+    };
+
+    asciiAnimationRef.current = requestAnimationFrame(renderAscii);
+
     return () => {
+      if (asciiAnimationRef.current) {
+        cancelAnimationFrame(asciiAnimationRef.current);
+        asciiAnimationRef.current = null;
+      }
+      asciiRendererRef.current?.unmount();
+      asciiRendererRef.current = null;
       gameRef.current?.destroy();
       gameRef.current = null;
     };
@@ -268,10 +290,13 @@ export default function TerminalGameView() {
         <GameHeader worldId={worldId} />
         <ScoreBoard worldId={worldId} />
         {isHomeworld && <HomeworldOverlay />}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+        />
         <div
-          ref={terminalGameRef}
-          className="block m-0 p-0 w-full h-full"
-          style={{ backgroundColor: COLORS.TERRAIN.GROUND }}
+          ref={asciiContainerRef}
+          className="absolute inset-0 w-full h-full"
         />
         {showJoinModal && (
           <JoinWorldModal
