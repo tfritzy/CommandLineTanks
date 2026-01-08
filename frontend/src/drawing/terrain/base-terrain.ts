@@ -1,5 +1,8 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { COLORS } from "../../theme/colors";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_SMALL } from "../../utils/neon";
+
+const NEON_CYAN = "#00ffff";
 
 type BaseTerrainType = { tag: string };
 
@@ -67,6 +70,7 @@ export function drawBaseTerrain(
   }
   ctx.fill();
 
+  setGlow(ctx, NEON_CYAN, NEON_GLOW_BLUR_SMALL);
   ctx.strokeStyle = COLORS.TERRAIN.GRID;
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -87,4 +91,5 @@ export function drawBaseTerrain(
     }
   }
   ctx.stroke();
+  clearGlow(ctx);
 }

@@ -1,4 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_LARGE } from "../../utils/neon";
 
 interface Particle {
   x: number;
@@ -22,10 +23,12 @@ export function drawExplosionParticles(
   const progress = particle.lifetime / particle.maxLifetime;
   ctx.globalAlpha = 1 - progress;
   
+  setGlow(ctx, particle.color, NEON_GLOW_BLUR_LARGE);
   ctx.beginPath();
   ctx.arc(px, py, pSize, 0, Math.PI * 2);
   ctx.fillStyle = particle.color;
   ctx.fill();
+  clearGlow(ctx);
 
   ctx.restore();
 }

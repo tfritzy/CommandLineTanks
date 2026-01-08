@@ -1,5 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { COLORS } from "../../theme/colors";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
 
 const RETICLE_SIZE = 20;
 const RETICLE_GAP = 6;
@@ -16,6 +17,7 @@ export function drawTargetingReticle(
   const pixelY = y * UNIT_TO_PIXEL;
 
   ctx.save();
+  setGlow(ctx, RETICLE_COLOR, NEON_GLOW_BLUR_MEDIUM);
   ctx.strokeStyle = RETICLE_COLOR;
   ctx.lineWidth = RETICLE_LINE_WIDTH;
 
@@ -40,6 +42,7 @@ export function drawTargetingReticle(
   ctx.moveTo(pixelX + RETICLE_SIZE + RETICLE_GAP, pixelY + RETICLE_SIZE + RETICLE_GAP);
   ctx.lineTo(pixelX + RETICLE_SIZE + RETICLE_GAP, pixelY + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH);
   ctx.stroke();
+  clearGlow(ctx);
 
   ctx.restore();
 }

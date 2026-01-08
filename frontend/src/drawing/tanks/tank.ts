@@ -1,6 +1,9 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor, lerpColor } from "../../utils/colors";
-import { COLORS, PALETTE } from "../../theme/colors";
+import { COLORS } from "../../theme/colors";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, NEON_GLOW_BLUR_LARGE } from "../../utils/neon";
+
+const NEON_YELLOW = "#ffff00";
 
 const HEALTH_BAR_WIDTH = 32;
 const HEALTH_BAR_HEIGHT = 4;
@@ -22,21 +25,7 @@ interface TankDrawParams {
   isImmune: boolean;
 }
 
-export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  ctx.save();
-  ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
-
-  const shadowColor = PALETTE.TRANSPARENT_SHADOW;
-  ctx.fillStyle = shadowColor;
-
-  ctx.save();
-  ctx.translate(-2, 2);
-  ctx.beginPath();
-  ctx.roundRect(-16, -16, 32, 32, 5);
-  ctx.fill();
-  ctx.restore();
-
-  ctx.restore();
+export function drawTankShadow(_ctx: CanvasRenderingContext2D, _x: number, _y: number) {
 }
 
 export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawParams) {
@@ -44,14 +33,11 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
 
   const allianceColor = params.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
-  const baseBorderColor = params.alliance === 0 ? "#330000" : "#000033";
   
   let bodyColor: string = allianceColor;
-  let borderColor: string = baseBorderColor;
   
   if (params.flashTimer > 0) {
     bodyColor = getFlashColor(allianceColor, params.flashTimer);
-    borderColor = getFlashColor(baseBorderColor, params.flashTimer);
   }
   
   if (params.isImmune) {
@@ -59,36 +45,18 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     const lerpAmount = Math.abs(Math.sin(flashCycle * Math.PI)) * (1 - IMMUNITY_MIN_OPACITY) + IMMUNITY_MIN_OPACITY;
     const groundColor = COLORS.TERRAIN.GROUND;
     bodyColor = lerpColor(groundColor, bodyColor, lerpAmount);
-    borderColor = lerpColor(groundColor, borderColor, lerpAmount);
   }
-  
-  const selfShadowColor = "rgba(0, 0, 0, 0.35)";
+
+  setGlow(ctx, bodyColor, NEON_GLOW_BLUR_LARGE);
 
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
   ctx.roundRect(-16, -16, 32, 32, 5);
   ctx.fill();
-  ctx.strokeStyle = borderColor;
-  ctx.lineWidth = 1;
+
+  ctx.strokeStyle = bodyColor;
+  ctx.lineWidth = 2;
   ctx.stroke();
-
-  ctx.fillStyle = selfShadowColor;
-
-  ctx.save();
-  ctx.translate(-2, 2);
-  ctx.rotate(params.turretRotation);
-  ctx.beginPath();
-  ctx.roundRect(0, -5, 24, 10, 3);
-  ctx.fill();
-  ctx.restore();
-
-  ctx.save();
-  ctx.translate(-1.5, 1.5);
-  ctx.rotate(params.turretRotation);
-  ctx.beginPath();
-  ctx.roundRect(-12, -12, 24, 24, 10);
-  ctx.fill();
-  ctx.restore();
 
   ctx.save();
   ctx.rotate(params.turretRotation);
@@ -106,6 +74,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.stroke();
   ctx.restore();
 
+  clearGlow(ctx);
   ctx.restore();
 
   if (params.hasShield) {
@@ -115,13 +84,13 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     const shieldSize = 40;
     const shieldHalfSize = shieldSize / 2;
 
+    setGlow(ctx, COLORS.TERMINAL.INFO, NEON_GLOW_BLUR_MEDIUM);
     ctx.strokeStyle = COLORS.TERMINAL.INFO;
     ctx.lineWidth = 2;
-    ctx.fillStyle = "rgba(115, 150, 213, 0.25)";
     ctx.beginPath();
     ctx.roundRect(-shieldHalfSize, -shieldHalfSize, shieldSize, shieldSize, 5);
-    ctx.fill();
     ctx.stroke();
+    clearGlow(ctx);
 
     ctx.restore();
   }
@@ -138,19 +107,25 @@ export function drawTankNameLabel(
   ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
 
   if (targetCode) {
+    setGlow(ctx, COLORS.TERMINAL.WARNING, NEON_GLOW_BLUR_MEDIUM);
     ctx.font = "bold 16px monospace";
     ctx.fillStyle = COLORS.TERMINAL.WARNING;
     ctx.textAlign = "center";
     ctx.fillText(targetCode, 0, -34);
+    clearGlow(ctx);
 
+    setGlow(ctx, COLORS.TERMINAL.TEXT_MUTED, NEON_GLOW_BLUR_MEDIUM);
     ctx.font = "12px monospace";
     ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
     ctx.fillText(name, 0, -20);
+    clearGlow(ctx);
   } else {
+    setGlow(ctx, COLORS.TERMINAL.TEXT_MUTED, NEON_GLOW_BLUR_MEDIUM);
     ctx.font = "12px monospace";
     ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
     ctx.textAlign = "center";
     ctx.fillText(name, 0, -27);
+    clearGlow(ctx);
   }
 
   ctx.restore();
@@ -164,10 +139,12 @@ export function drawTankTextLabel(
 ) {
   ctx.save();
   ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
+  setGlow(ctx, NEON_YELLOW, NEON_GLOW_BLUR_MEDIUM);
   ctx.font = "14px monospace";
-  ctx.fillStyle = "#f5c47c";
+  ctx.fillStyle = NEON_YELLOW;
   ctx.textAlign = "center";
   ctx.fillText(text, 0, -26);
+  clearGlow(ctx);
   ctx.restore();
 }
 
@@ -184,7 +161,7 @@ export function drawTankHealthBar(
   ctx.save();
   ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  ctx.fillStyle = "#000000";
   ctx.beginPath();
   ctx.roundRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT, HEALTH_BAR_BORDER_RADIUS);
   ctx.fill();
@@ -193,6 +170,7 @@ export function drawTankHealthBar(
   const innerWidth = HEALTH_BAR_WIDTH - HEALTH_BAR_PADDING * 2;
   const healthBarWidth = innerWidth * healthPercent;
 
+  setGlow(ctx, allianceColor, NEON_GLOW_BLUR_MEDIUM);
   ctx.fillStyle = allianceColor;
   ctx.beginPath();
   ctx.roundRect(
@@ -203,6 +181,7 @@ export function drawTankHealthBar(
     HEALTH_BAR_BORDER_RADIUS
   );
   ctx.fill();
+  clearGlow(ctx);
 
   ctx.restore();
 }
@@ -221,6 +200,7 @@ export function drawTankPath(
 
   ctx.save();
 
+  setGlow(ctx, lineColor, NEON_GLOW_BLUR_MEDIUM);
   ctx.strokeStyle = lineColor;
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -241,10 +221,12 @@ export function drawTankPath(
   const endX = lastEntry.position.x * UNIT_TO_PIXEL;
   const endY = lastEntry.position.y * UNIT_TO_PIXEL;
 
+  setGlow(ctx, dotColor, NEON_GLOW_BLUR_MEDIUM);
   ctx.fillStyle = dotColor;
   ctx.beginPath();
   ctx.arc(endX, endY, dotRadius, 0, Math.PI * 2);
   ctx.fill();
+  clearGlow(ctx);
 
   ctx.restore();
 }

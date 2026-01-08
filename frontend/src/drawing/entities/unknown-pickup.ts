@@ -1,23 +1,14 @@
 import { UNIT_TO_PIXEL } from "../../constants";
-import { COLORS } from "../../theme/colors";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
 
 export function drawUnknownPickupShadow(
-  ctx: CanvasRenderingContext2D,
-  positionX: number,
-  positionY: number
+  _ctx: CanvasRenderingContext2D,
+  _positionX: number,
+  _positionY: number
 ) {
-  const worldX = positionX * UNIT_TO_PIXEL;
-  const worldY = positionY * UNIT_TO_PIXEL;
-  const size = UNIT_TO_PIXEL * 0.6;
-
-  ctx.save();
-  ctx.translate(worldX - 4, worldY + 4);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-  ctx.beginPath();
-  ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
 }
+
+const NEON_PURPLE = "#aa00ff";
 
 export function drawUnknownPickupBody(
   ctx: CanvasRenderingContext2D,
@@ -31,19 +22,24 @@ export function drawUnknownPickupBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
-  ctx.strokeStyle = COLORS.TERMINAL.TEXT_DIM;
-  ctx.lineWidth = 3;
+  ctx.fillStyle = "#000000";
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
   ctx.fill();
+
+  setGlow(ctx, NEON_PURPLE, NEON_GLOW_BLUR_MEDIUM);
+  ctx.strokeStyle = NEON_PURPLE;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
+  ctx.fillStyle = NEON_PURPLE;
   ctx.font = "bold 20px monospace";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("?", 0, 0);
+  clearGlow(ctx);
 
   ctx.restore();
 }

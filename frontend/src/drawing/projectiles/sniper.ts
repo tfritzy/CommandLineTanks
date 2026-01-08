@@ -1,39 +1,15 @@
-import { COLORS } from "../../theme/colors";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
 
 
 export function drawSniperProjectileShadow(
-  ctx: CanvasRenderingContext2D,
-  centerX: number,
-  centerY: number,
-  bulletLength: number,
-  bulletWidth: number,
-  bulletBackRatio: number,
-  angle: number
+  _ctx: CanvasRenderingContext2D,
+  _centerX: number,
+  _centerY: number,
+  _bulletLength: number,
+  _bulletWidth: number,
+  _bulletBackRatio: number,
+  _angle: number
 ) {
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(angle);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-  ctx.beginPath();
-  // Bullet tip (ogive shape)
-  ctx.moveTo(bulletLength, 0);
-  ctx.bezierCurveTo(
-    bulletLength * 0.8, -bulletWidth * 0.2,
-    bulletLength * 0.4, -bulletWidth,
-    0, -bulletWidth
-  );
-  // Body
-  ctx.lineTo(-bulletLength * bulletBackRatio, -bulletWidth);
-  ctx.lineTo(-bulletLength * bulletBackRatio, bulletWidth);
-  ctx.lineTo(0, bulletWidth);
-  ctx.bezierCurveTo(
-    bulletLength * 0.4, bulletWidth,
-    bulletLength * 0.8, bulletWidth * 0.2,
-    bulletLength, 0
-  );
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
 }
 
 export function drawSniperProjectileBody(
@@ -50,12 +26,13 @@ export function drawSniperProjectileBody(
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
 
-  // Draw the casing (back part)
-  ctx.fillStyle = color;
+  setGlow(ctx, color, NEON_GLOW_BLUR_MEDIUM);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+
   ctx.beginPath();
   ctx.moveTo(0, -bulletWidth);
   ctx.lineTo(-bulletLength * bulletBackRatio, -bulletWidth);
-  // Small rim at the back
   ctx.lineTo(-bulletLength * bulletBackRatio, -bulletWidth * 1.1);
   ctx.lineTo(-bulletLength * (bulletBackRatio + 0.05), -bulletWidth * 1.1);
   ctx.lineTo(-bulletLength * (bulletBackRatio + 0.05), bulletWidth * 1.1);
@@ -63,14 +40,8 @@ export function drawSniperProjectileBody(
   ctx.lineTo(-bulletLength * bulletBackRatio, bulletWidth);
   ctx.lineTo(0, bulletWidth);
   ctx.closePath();
-  ctx.fill();
-  
-  ctx.strokeStyle = COLORS.GAME.PROJECTILE_OUTLINE;
-  ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Draw the bullet (front part)
-  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(bulletLength, 0);
   ctx.bezierCurveTo(
@@ -85,11 +56,8 @@ export function drawSniperProjectileBody(
     bulletLength, 0
   );
   ctx.closePath();
-  ctx.fill();
-
-  ctx.strokeStyle = COLORS.GAME.PROJECTILE_OUTLINE;
-  ctx.lineWidth = 1;
   ctx.stroke();
+  clearGlow(ctx);
 
   ctx.restore();
 }

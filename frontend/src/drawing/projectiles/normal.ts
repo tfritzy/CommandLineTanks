@@ -1,18 +1,12 @@
-import { COLORS } from "../../theme/colors";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
 
 
 export function drawNormalProjectileShadow(
-  ctx: CanvasRenderingContext2D,
-  centerX: number,
-  centerY: number,
-  radius: number
+  _ctx: CanvasRenderingContext2D,
+  _centerX: number,
+  _centerY: number,
+  _radius: number
 ) {
-  ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
 }
 
 export function drawNormalProjectileBody(
@@ -23,13 +17,15 @@ export function drawNormalProjectileBody(
   color: string
 ) {
   ctx.save();
+  setGlow(ctx, color, NEON_GLOW_BLUR_MEDIUM);
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = COLORS.UI.BLACK;
+  ctx.strokeStyle = color;
   ctx.lineWidth = 1;
   ctx.stroke();
+  clearGlow(ctx);
   ctx.restore();
 }

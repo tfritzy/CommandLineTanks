@@ -1,4 +1,5 @@
 import { COLORS } from "../../theme/colors";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
 
 export function drawKillNotification(
   ctx: CanvasRenderingContext2D,
@@ -29,7 +30,7 @@ export function drawKillNotification(
   ctx.translate(x, y);
   ctx.scale(scale, scale);
 
-  ctx.fillStyle = COLORS.TERMINAL.BACKGROUND + 'aa';
+  ctx.fillStyle = "#000000aa";
   
   const radius = 4;
   ctx.beginPath();
@@ -40,6 +41,12 @@ export function drawKillNotification(
   ctx.arcTo(-width / 2, -height / 2, width / 2, -height / 2, radius);
   ctx.closePath();
   ctx.fill();
+
+  setGlow(ctx, COLORS.TERMINAL.ERROR, NEON_GLOW_BLUR_MEDIUM);
+  ctx.strokeStyle = COLORS.TERMINAL.ERROR;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  clearGlow(ctx);
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -57,11 +64,15 @@ export function drawKillNotification(
   
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
+  setGlow(ctx, COLORS.TERMINAL.ERROR, NEON_GLOW_BLUR_MEDIUM);
   ctx.fillStyle = COLORS.TERMINAL.ERROR;
   ctx.fillText(label, startX, 1);
+  clearGlow(ctx);
   
+  setGlow(ctx, COLORS.UI.TEXT_PRIMARY, NEON_GLOW_BLUR_MEDIUM);
   ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
   ctx.fillText(name, startX + labelWidth, 1);
+  clearGlow(ctx);
 
   ctx.restore();
 }

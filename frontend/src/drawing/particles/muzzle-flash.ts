@@ -1,4 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_LARGE } from "../../utils/neon";
 
 const TWO_PI = Math.PI * 2;
 
@@ -23,11 +24,14 @@ export function drawMuzzleFlashParticles(
 
   const alpha = 1 - particle.lifetime / particle.maxLifetime;
   ctx.globalAlpha = alpha;
+
+  setGlow(ctx, particle.color, NEON_GLOW_BLUR_LARGE);
   ctx.fillStyle = particle.color;
   
   ctx.beginPath();
   ctx.arc(px, py, pSize, 0, TWO_PI);
   ctx.fill();
+  clearGlow(ctx);
 
   ctx.restore();
 }

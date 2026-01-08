@@ -1,4 +1,5 @@
 import { COLORS } from "../../theme/colors";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_SMALL, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
 
 export function drawGunSlot(
   ctx: CanvasRenderingContext2D,
@@ -11,8 +12,7 @@ export function drawGunSlot(
 ) {
   ctx.save();
 
-  ctx.fillStyle = hasGun ? COLORS.TERMINAL.SEPARATOR : COLORS.TERMINAL.BACKGROUND;
-  ctx.globalAlpha = hasGun ? 0.8 : 0.3;
+  ctx.fillStyle = "#000000";
 
   const radius = 4;
   ctx.beginPath();
@@ -33,16 +33,18 @@ export function drawGunSlot(
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = isSelected ? COLORS.TERMINAL.WARNING : COLORS.TERMINAL.SEPARATOR;
-  ctx.lineWidth = 1;
-  ctx.globalAlpha = 1;
+  const slotColor = isSelected ? COLORS.TERMINAL.WARNING : (hasGun ? COLORS.TERMINAL.INFO : COLORS.TERMINAL.SEPARATOR);
+  setGlow(ctx, slotColor, isSelected ? NEON_GLOW_BLUR_MEDIUM : NEON_GLOW_BLUR_SMALL);
+  ctx.strokeStyle = slotColor;
+  ctx.lineWidth = isSelected ? 2 : 1;
   ctx.stroke();
 
-  ctx.fillStyle = isSelected ? COLORS.TERMINAL.WARNING : COLORS.TERMINAL.TEXT_MUTED;
+  ctx.fillStyle = slotColor;
   ctx.font = "bold 10px monospace";
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
   ctx.fillText((slotIndex + 1).toString(), x + 4, y + 4);
+  clearGlow(ctx);
 
   ctx.restore();
 }
@@ -55,10 +57,12 @@ export function drawGunAmmo(
   slotSize: number
 ) {
   ctx.save();
+  setGlow(ctx, COLORS.UI.TEXT_PRIMARY, NEON_GLOW_BLUR_SMALL);
   ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
   ctx.font = "bold 10px monospace";
   ctx.textAlign = "right";
   ctx.textBaseline = "bottom";
   ctx.fillText(ammo.toString(), x + slotSize - 4, y + slotSize - 3);
+  clearGlow(ctx);
   ctx.restore();
 }
