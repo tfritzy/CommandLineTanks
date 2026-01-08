@@ -1,5 +1,6 @@
 import { getConnection } from "../spacetimedb-connection";
-import { Identity } from "spacetimedb";
+import { Identity, type Infer } from "spacetimedb";
+import Gun from "../../module_bindings/gun_type";
 
 export interface FullTankData {
   id: string;
@@ -19,11 +20,11 @@ export interface FullTankData {
   deathTimestamp: bigint;
   selectedGunIndex: number;
   lastDamagedBy: Identity | undefined;
-  guns: Array<{ gunType: number; ammo?: number }>;
+  guns: Infer<typeof Gun>[];
   owner: Identity;
   name: string;
   targetCode: string;
-  joinCode: string;
+  joinCode: string | undefined;
   alliance: number;
   isBot: boolean;
   maxHealth: number;
@@ -91,7 +92,7 @@ export function getTankPosition(tankId: string) {
 export function getTankMetadataByOwner(worldId: string, owner: Identity) {
   const connection = getConnection();
   if (!connection) return null;
-  for (const metadata of connection.db.tankMetadata.worldId.filter(worldId)) {
+  for (const metadata of connection.db.tankMetadata.WorldId.filter(worldId)) {
     if (metadata.owner.isEqual(owner)) {
       return metadata;
     }

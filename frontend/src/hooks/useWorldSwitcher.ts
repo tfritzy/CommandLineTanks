@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { getConnection, getPendingJoinCode, clearPendingJoinCode, isCurrentIdentity } from '../spacetimedb-connection';
 import type { EventContext, SubscriptionHandle } from '../../module_bindings';
 import { type Infer } from "spacetimedb";
-import { TankRow } from '../../module_bindings';
+import TankMetadataRow from '../../module_bindings/tank_metadata_type';
 
 export function useWorldSwitcher(onWorldChange: (worldId: string) => void, currentWorldId: string | null) {
     const subscriptionHandleRef = useRef<SubscriptionHandle | null>(null);
@@ -13,54 +13,54 @@ export function useWorldSwitcher(onWorldChange: (worldId: string) => void, curre
 
         const subscription = connection
             .subscriptionBuilder()
-            .onError((e) => console.log("Tank subscription error", e))
-            .subscribe([`SELECT * FROM tank WHERE Owner = '${connection.identity}'`]);
+            .onError((e) => console.log("Tank metadata subscription error", e))
+            .subscribe([`SELECT * FROM tank_metadata WHERE Owner = '${connection.identity}'`]);
 
         subscriptionHandleRef.current = subscription;
 
-        const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-            if (isCurrentIdentity(tank.owner)) {
+        const handleMetadataInsert = (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
+            if (isCurrentIdentity(metadata.owner)) {
                 const pendingJoinCode = getPendingJoinCode();
-                if (pendingJoinCode && tank.joinCode === pendingJoinCode) {
-                    console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${tank.worldId}`);
-                    console.log(`Switching to world: ${tank.worldId}`);
-                    onWorldChange(tank.worldId);
+                if (pendingJoinCode && metadata.joinCode === pendingJoinCode) {
+                    console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${metadata.worldId}`);
+                    console.log(`Switching to world: ${metadata.worldId}`);
+                    onWorldChange(metadata.worldId);
                     clearPendingJoinCode();
                 }
-                else if (currentWorldId && tank.joinCode === currentWorldId && tank.worldId !== currentWorldId) {
-                    console.log(`World reset detected: tank has joinCode ${tank.joinCode} matching current world, but is in new world ${tank.worldId}`);
-                    console.log(`Switching to new world: ${tank.worldId}`);
-                    onWorldChange(tank.worldId);
+                else if (currentWorldId && metadata.joinCode === currentWorldId && metadata.worldId !== currentWorldId) {
+                    console.log(`World reset detected: tank has joinCode ${metadata.joinCode} matching current world, but is in new world ${metadata.worldId}`);
+                    console.log(`Switching to new world: ${metadata.worldId}`);
+                    onWorldChange(metadata.worldId);
                 }
             }
         };
 
-        const handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-            if (isCurrentIdentity(newTank.owner)) {
+        const handleMetadataUpdate = (_ctx: EventContext, _oldMetadata: Infer<typeof TankMetadataRow>, newMetadata: Infer<typeof TankMetadataRow>) => {
+            if (isCurrentIdentity(newMetadata.owner)) {
                 const pendingJoinCode = getPendingJoinCode();
-                if (pendingJoinCode && newTank.joinCode === pendingJoinCode) {
-                    console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${newTank.worldId}`);
-                    console.log(`Switching to world: ${newTank.worldId}`);
-                    onWorldChange(newTank.worldId);
+                if (pendingJoinCode && newMetadata.joinCode === pendingJoinCode) {
+                    console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${newMetadata.worldId}`);
+                    console.log(`Switching to world: ${newMetadata.worldId}`);
+                    onWorldChange(newMetadata.worldId);
                     clearPendingJoinCode();
                 }
-                else if (currentWorldId && newTank.joinCode === currentWorldId && newTank.worldId !== currentWorldId) {
-                    console.log(`World reset detected: tank has joinCode ${newTank.joinCode} matching current world, but is in new world ${newTank.worldId}`);
-                    console.log(`Switching to new world: ${newTank.worldId}`);
-                    onWorldChange(newTank.worldId);
+                else if (currentWorldId && newMetadata.joinCode === currentWorldId && newMetadata.worldId !== currentWorldId) {
+                    console.log(`World reset detected: tank has joinCode ${newMetadata.joinCode} matching current world, but is in new world ${newMetadata.worldId}`);
+                    console.log(`Switching to new world: ${newMetadata.worldId}`);
+                    onWorldChange(newMetadata.worldId);
                 }
             }
         };
 
-        connection.db.tank.onInsert(handleTankInsert);
-        connection.db.tank.onUpdate(handleTankUpdate);
+        connection.db.tankMetadata.onInsert(handleMetadataInsert);
+        connection.db.tankMetadata.onUpdate(handleMetadataUpdate);
 
         return () => {
             if (subscriptionHandleRef.current) {
                 subscriptionHandleRef.current.unsubscribe();
             }
-            connection.db.tank.removeOnInsert(handleTankInsert);
-            connection.db.tank.removeOnUpdate(handleTankUpdate);
+            connection.db.tankMetadata.removeOnInsert(handleMetadataInsert);
+            connection.db.tankMetadata.removeOnUpdate(handleMetadataUpdate);
         };
     }, [onWorldChange, currentWorldId]);
 }
