@@ -54,7 +54,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
 
     const updatePlayerScores = () => {
       const tanks = Array.from(connection.db.tank.iter())
-        .filter(tank => tank.worldId === worldId && !tank.isBot)
+        .filter(tank => tank.worldId === worldId)
         .sort((a, b) => b.killStreak - a.killStreak);
 
       const newPlayers: PlayerScore[] = [];
