@@ -301,9 +301,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       }
     };
 
-    term.onData(handleData);
+    const dataDisposable = term.onData(handleData);
 
     return () => {
+      dataDisposable.dispose();
       window.removeEventListener("resize", handleResize);
       term.dispose();
     };

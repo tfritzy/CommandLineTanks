@@ -95,7 +95,7 @@ export default function GameView() {
 
     let hasReceivedPlayerTankData = false;
     let firstTankDataReceived = false;
-    let joinModalTimeout: ReturnType<typeof setTimeout> | null = null;
+    const joinModalTimeoutRef: { current: ReturnType<typeof setTimeout> | null } = { current: null };
 
     const checkForTank = () => {
       for (const tank of connection.db.tank.iter()) {
@@ -121,10 +121,10 @@ export default function GameView() {
 
           if (!firstTankDataReceived) {
             firstTankDataReceived = true;
-            if (joinModalTimeout) {
-              clearTimeout(joinModalTimeout);
+            if (joinModalTimeoutRef.current) {
+              clearTimeout(joinModalTimeoutRef.current);
             }
-            joinModalTimeout = setTimeout(() => {
+            joinModalTimeoutRef.current = setTimeout(() => {
               if (!hasReceivedPlayerTankData) {
                 if (!checkForTank()) {
                   setShowJoinModal(true);
@@ -197,10 +197,10 @@ export default function GameView() {
     );
     if (existingTanks.length > 0) {
       firstTankDataReceived = true;
-      if (joinModalTimeout) {
-        clearTimeout(joinModalTimeout);
+      if (joinModalTimeoutRef.current) {
+        clearTimeout(joinModalTimeoutRef.current);
       }
-      joinModalTimeout = setTimeout(() => {
+      joinModalTimeoutRef.current = setTimeout(() => {
         if (!hasReceivedPlayerTankData) {
           if (!checkForTank()) {
             setShowJoinModal(true);
@@ -212,8 +212,8 @@ export default function GameView() {
     checkForTank();
 
     return () => {
-      if (joinModalTimeout) {
-        clearTimeout(joinModalTimeout);
+      if (joinModalTimeoutRef.current) {
+        clearTimeout(joinModalTimeoutRef.current);
       }
       if (tankSubscriptionRef.current) {
         tankSubscriptionRef.current.unsubscribe();
@@ -239,7 +239,9 @@ export default function GameView() {
       }
     };
 
-    const worldCheckTimeout = setTimeout(check, 1500);
+    const worldCheckTimeoutRef: { current: ReturnType<typeof setTimeout> | null } = { 
+      current: setTimeout(check, 1500) 
+    };
 
     const handleWorldInsert = (_ctx: EventContext, world: Infer<typeof World>) => {
       if (world.id === worldId) {
@@ -250,7 +252,9 @@ export default function GameView() {
     connection.db.world.onInsert(handleWorldInsert);
 
     return () => {
-      clearTimeout(worldCheckTimeout);
+      if (worldCheckTimeoutRef.current) {
+        clearTimeout(worldCheckTimeoutRef.current);
+      }
       if (connection) {
         connection.db.world.removeOnInsert(handleWorldInsert);
       }
