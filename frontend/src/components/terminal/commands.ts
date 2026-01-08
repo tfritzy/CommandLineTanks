@@ -471,7 +471,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  - Kills: Number of tanks destroyed",
         "  - Deaths: Number of times destroyed",
         "  - K/D: Kill/death ratio",
-        "  - Position: Current (x, y) coordinates",
         "  - Gun: Currently selected gun type",
         "",
         "Tanks are sorted by team first, then by net kills (kills - deaths).",
@@ -1156,14 +1155,14 @@ export function exitWorld(connection: DbConnection, worldId: string, args: strin
 export function tanks(connection: DbConnection, worldId: string, args: string[]): string[] {
   if (args.length > 0) {
     return [
-      "tanks: error: tanks command takes no arguments",
+      themeColors.error("tanks: error: tanks command takes no arguments"),
       "",
-      "Usage: tanks"
+      themeColors.dim("Usage: tanks")
     ];
   }
 
   if (!connection.identity) {
-    return ["tanks: error: no connection"];
+    return [themeColors.error("tanks: error: no connection")];
   }
 
   const allTanks = Array.from(connection.db.tank.iter()).filter(
@@ -1171,7 +1170,7 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
   );
 
   if (allTanks.length === 0) {
-    return ["No tanks found in this world"];
+    return [themeColors.dim("No tanks found in this world")];
   }
 
   allTanks.sort((a, b) => {
@@ -1190,18 +1189,22 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
   const killsWidth = 5;
   const deathsWidth = 6;
   const kdWidth = 6;
-  const positionWidth = 18;
+  const gunWidth = Math.max(3, ...allTanks.map(t => {
+    const selectedGun = t.guns.at(t.selectedGunIndex) ?? null;
+    const gunName = selectedGun?.gunType.tag ?? "None";
+    return gunName.length;
+  }));
 
   const header =
-    "Team".padEnd(teamWidth) + " | " +
-    "Name".padEnd(nameWidth) + " | " +
-    "Kills".padEnd(killsWidth) + " | " +
-    "Deaths".padEnd(deathsWidth) + " | " +
-    "K/D".padEnd(kdWidth) + " | " +
-    "Position".padEnd(positionWidth) + " | " +
-    "Gun";
+    themeColors.colorize("Team".padEnd(teamWidth), 'HEADER_TEXT') + themeColors.colorize(" | ", 'SEPARATOR') +
+    themeColors.colorize("Name".padEnd(nameWidth), 'HEADER_TEXT') + themeColors.colorize(" | ", 'SEPARATOR') +
+    themeColors.colorize("Kills".padEnd(killsWidth), 'HEADER_TEXT') + themeColors.colorize(" | ", 'SEPARATOR') +
+    themeColors.colorize("Deaths".padEnd(deathsWidth), 'HEADER_TEXT') + themeColors.colorize(" | ", 'SEPARATOR') +
+    themeColors.colorize("K/D".padEnd(kdWidth), 'HEADER_TEXT') + themeColors.colorize(" | ", 'SEPARATOR') +
+    themeColors.colorize("Gun".padEnd(gunWidth), 'HEADER_TEXT');
 
-  const separator = "-".repeat(header.length);
+  const separatorLength = teamWidth + nameWidth + killsWidth + deathsWidth + kdWidth + gunWidth + 15;
+  const separator = themeColors.colorize("-".repeat(separatorLength), 'SEPARATOR');
 
   rows.push(header);
   rows.push(separator);
@@ -1211,21 +1214,26 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
       ? tank.kills.toFixed(2)
       : (tank.kills / tank.deaths).toFixed(2);
 
-    const position = `(${tank.positionX.toFixed(1)}, ${tank.positionY.toFixed(1)})`;
-
     const selectedGun = tank.guns.at(tank.selectedGunIndex) ?? null;
-    const gunName = selectedGun?.gunType.toString() ?? "None";
+    const gunName = selectedGun?.gunType.tag ?? "None";
 
     const teamName = tank.alliance === 0 ? "Red" : tank.alliance === 1 ? "Blue" : "Unknown";
+    const teamColorKey = tank.alliance === 0 ? 'TEAM_RED' : tank.alliance === 1 ? 'TEAM_BLUE' : 'TEXT_MUTED';
+
+    const teamColored = themeColors.colorize(teamName.padEnd(teamWidth), teamColorKey);
+    const nameColored = themeColors.colorize(tank.name.padEnd(nameWidth), 'TEXT_DEFAULT');
+    const killsColored = themeColors.colorize(tank.kills.toString().padEnd(killsWidth), 'TEXT_DEFAULT');
+    const deathsColored = themeColors.colorize(tank.deaths.toString().padEnd(deathsWidth), 'TEXT_DEFAULT');
+    const kdColored = themeColors.colorize(kd.padEnd(kdWidth), 'TEXT_DEFAULT');
+    const gunColored = themeColors.colorize(gunName.padEnd(gunWidth), 'VALUE');
 
     const row =
-      teamName.padEnd(teamWidth) + " | " +
-      tank.name.padEnd(nameWidth) + " | " +
-      tank.kills.toString().padEnd(killsWidth) + " | " +
-      tank.deaths.toString().padEnd(deathsWidth) + " | " +
-      kd.padEnd(kdWidth) + " | " +
-      position.padEnd(positionWidth) + " | " +
-      gunName;
+      teamColored + themeColors.colorize(" | ", 'SEPARATOR') +
+      nameColored + themeColors.colorize(" | ", 'SEPARATOR') +
+      killsColored + themeColors.colorize(" | ", 'SEPARATOR') +
+      deathsColored + themeColors.colorize(" | ", 'SEPARATOR') +
+      kdColored + themeColors.colorize(" | ", 'SEPARATOR') +
+      gunColored;
 
     rows.push(row);
   }
