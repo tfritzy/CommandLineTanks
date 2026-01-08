@@ -126,7 +126,7 @@ export class SoundManager {
             const oldest = active.shift();
             if (oldest) {
                 oldest.pause();
-                oldest.src = '';
+                oldest.removeAttribute('src');
                 oldest.load();
             }
         }
@@ -144,7 +144,8 @@ export class SoundManager {
             }
             clone.removeEventListener('ended', cleanup);
             clone.removeEventListener('error', cleanup);
-            clone.src = '';
+            clone.pause();
+            clone.removeAttribute('src');
             clone.load();
         };
 

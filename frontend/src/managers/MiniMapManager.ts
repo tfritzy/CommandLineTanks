@@ -123,6 +123,9 @@ export class MiniMapManager {
       this.baseLayerCanvas = null;
       this.baseLayerContext = null;
     }
+    
+    this.redTanksBuffer.length = 0;
+    this.blueTanksBuffer.length = 0;
   }
 
   public markForRedraw() {
