@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { PALETTE } from '../theme/colors';
 
 interface CopyBoxProps {
     text: string;
@@ -11,10 +10,11 @@ interface CopyBoxProps {
 const CopyBox: React.FC<CopyBoxProps> = ({ 
     text, 
     label = 'CLICK TO COPY', 
-    activeColor = PALETTE.RED_MUTED,
+    activeColor = '#c06852',
     showDollar = true 
 }) => {
     const [copied, setCopied] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -41,56 +41,28 @@ const CopyBox: React.FC<CopyBoxProps> = ({
     return (
         <div
             onClick={handleCopy}
-            style={{
-                position: 'relative',
-                background: `${PALETTE.BLACK_PURE}4d`,
-                border: copied ? `1px solid ${PALETTE.GREEN_SUCCESS}80` : `1px solid ${PALETTE.WHITE_PURE}11`,
-                borderRadius: '4px',
-                padding: '16px',
-                fontSize: '13px',
-                color: PALETTE.WHITE_PURE,
-                fontFamily: "'JetBrains Mono', monospace",
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                wordBreak: 'break-all',
-                textAlign: 'left',
-                whiteSpace: 'pre-wrap',
-                lineHeight: 1.5,
-            }}
-            onMouseEnter={(e) => {
-                if (!copied) {
-                    e.currentTarget.style.borderColor = `${PALETTE.WHITE_PURE}33`;
-                    e.currentTarget.style.background = `${PALETTE.BLACK_PURE}66`;
-                }
-            }}
-            onMouseLeave={(e) => {
-                if (!copied) {
-                    e.currentTarget.style.borderColor = `${PALETTE.WHITE_PURE}11`;
-                    e.currentTarget.style.background = `${PALETTE.BLACK_PURE}4d`;
-                }
-            }}
+            onMouseEnter={() => !copied && setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className={`relative bg-palette-black-pure/30 ${
+                copied 
+                    ? 'border-palette-green-success/50' 
+                    : isHovered 
+                        ? 'border-palette-white-pure/20 bg-palette-black-pure/40' 
+                        : 'border-palette-white-pure/[0.07]'
+            } border rounded p-4 text-[13px] text-palette-white-pure font-mono cursor-pointer transition-all break-words text-left whitespace-pre-wrap leading-normal`}
         >
             {showDollar && (
-                <span style={{ color: activeColor, marginRight: '8px', userSelect: 'none' }}>$</span>
+                <span className="mr-2 select-none" style={{ color: activeColor }}>$</span>
             )}
             {text}
             
             <div
-                style={{
-                    position: 'absolute',
-                    top: '-10px',
-                    right: '10px',
-                    fontSize: '9px',
-                    background: copied ? PALETTE.GREEN_SUCCESS : activeColor,
-                    color: copied ? PALETTE.SLATE_DARKEST : PALETTE.WHITE_BRIGHT,
-                    padding: '2px 8px',
-                    borderRadius: '2px',
-                    fontWeight: 'bold',
-                    letterSpacing: '0.05em',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                    zIndex: 1,
-                    pointerEvents: 'none',
-                }}
+                className={`absolute -top-2.5 right-2.5 text-[9px] ${
+                    copied 
+                        ? 'bg-palette-green-success text-palette-slate-darkest' 
+                        : 'text-palette-white-bright'
+                } px-2 py-0.5 rounded-sm font-bold tracking-wide shadow-md z-10 pointer-events-none`}
+                style={{ backgroundColor: copied ? undefined : activeColor }}
             >
                 {copied ? 'COPIED!' : label}
             </div>
