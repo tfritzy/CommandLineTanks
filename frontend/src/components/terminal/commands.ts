@@ -1,5 +1,7 @@
 import { type DbConnection } from "../../../module_bindings";
 import WorldVisibility from "../../../module_bindings/world_visibility_type";
+import Gun from "../../../module_bindings/gun_type";
+import { type Infer } from "spacetimedb";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 import * as themeColors from "../../theme/colors";
 
@@ -1198,7 +1200,7 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
     kills: number;
     deaths: number;
     selectedGunIndex: number;
-    guns: typeof connection.db.tank extends { iter: () => IterableIterator<infer T> } ? (T extends { guns: infer G } ? G : never) : never;
+    guns: Infer<typeof Gun>[];
   }
 
   const combinedTanks: CombinedTank[] = [];
