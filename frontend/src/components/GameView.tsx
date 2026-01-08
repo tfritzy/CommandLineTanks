@@ -28,6 +28,8 @@ export default function GameView() {
   const gameRef = useRef<Game | null>(null);
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
   const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
+  const joinModalTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const worldCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDead, setIsDead] = useState(false);
   const [killerName, setKillerName] = useState<string | null>(null);
   const [showJoinModal, setShowJoinModal] = useState(false);
@@ -95,7 +97,6 @@ export default function GameView() {
 
     let hasReceivedPlayerTankData = false;
     let firstTankDataReceived = false;
-    const joinModalTimeoutRef: { current: ReturnType<typeof setTimeout> | null } = { current: null };
 
     const checkForTank = () => {
       for (const tank of connection.db.tank.iter()) {
@@ -239,9 +240,7 @@ export default function GameView() {
       }
     };
 
-    const worldCheckTimeoutRef: { current: ReturnType<typeof setTimeout> | null } = { 
-      current: setTimeout(check, 1500) 
-    };
+    worldCheckTimeoutRef.current = setTimeout(check, 1500);
 
     const handleWorldInsert = (_ctx: EventContext, world: Infer<typeof World>) => {
       if (world.id === worldId) {
