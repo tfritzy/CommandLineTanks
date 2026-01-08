@@ -9,7 +9,6 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2Float from "./vector_2_float_type";
 import ProjectileType from "./projectile_type_type";
 import ExplosionTrigger from "./explosion_trigger_type";
 import DamagedTile from "./damaged_tile_type";
@@ -17,17 +16,11 @@ import DamagedTank from "./damaged_tank_type";
 
 
 export default __t.object("Projectile", {
-  id: __t.string(),
+  id: __t.u64(),
   worldId: __t.string(),
   shooterTankId: __t.string(),
   alliance: __t.i32(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  speed: __t.f32(),
   size: __t.f32(),
-  get velocity() {
-    return Vector2Float;
-  },
   damage: __t.i32(),
   trackingStrength: __t.f32(),
   trackingRadius: __t.f32(),
@@ -37,9 +30,7 @@ export default __t.object("Projectile", {
   spawnedAt: __t.u64(),
   lifetimeSeconds: __t.f32(),
   returnsToShooter: __t.bool(),
-  isReturning: __t.bool(),
   maxCollisions: __t.i32(),
-  collisionCount: __t.i32(),
   passThroughTerrain: __t.bool(),
   collisionRadius: __t.f32(),
   explosionRadius: __t.option(__t.f32()),
@@ -48,13 +39,14 @@ export default __t.object("Projectile", {
   },
   damping: __t.option(__t.f32()),
   bounce: __t.bool(),
+  speed: __t.f32(),
+  isReturning: __t.bool(),
   get recentlyDamagedTiles() {
     return __t.array(DamagedTile);
   },
   get recentlyHitTanks() {
     return __t.array(DamagedTank);
   },
-  updatedAt: __t.u64(),
 });
 
 

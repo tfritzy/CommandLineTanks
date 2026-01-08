@@ -12,17 +12,12 @@ import {
 import Vector2Float from "./vector_2_float_type";
 
 
-export default __t.object("TankPosition", {
-  tankId: __t.string(),
-  worldId: __t.string(),
+export default __t.row({
+  projectileId: __t.u64().primaryKey(),
   positionX: __t.f32(),
   positionY: __t.f32(),
   get velocity() {
     return Vector2Float;
   },
-  collisionRegionX: __t.i32(),
-  collisionRegionY: __t.i32(),
-  updatedAt: __t.u64(),
+  collisionCount: __t.i32(),
 });
-
-

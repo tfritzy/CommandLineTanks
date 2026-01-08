@@ -39,10 +39,9 @@ export function getFullTank(tankId: string): FullTankData | null {
   if (!connection) return null;
 
   const tank = connection.db.tank.id.find(tankId);
-  const metadata = connection.db.tankMetadata.tankId.find(tankId);
-  const position = connection.db.tankPosition.tankId.find(tankId);
+  const transform = connection.db.tankTransform.tankId.find(tankId);
 
-  if (!tank || !metadata || !position) return null;
+  if (!tank || !transform) return null;
 
   return {
     id: tank.id,
@@ -54,47 +53,47 @@ export function getFullTank(tankId: string): FullTankData | null {
     target: tank.target,
     targetLead: tank.targetLead,
     message: tank.message,
-    turretAngularVelocity: tank.turretAngularVelocity,
-    turretRotation: tank.turretRotation,
-    targetTurretRotation: tank.targetTurretRotation,
+    turretAngularVelocity: transform.turretAngularVelocity,
+    turretRotation: transform.turretRotation,
+    targetTurretRotation: transform.targetTurretRotation,
     hasShield: tank.hasShield,
     remainingImmunityMicros: tank.remainingImmunityMicros,
     deathTimestamp: tank.deathTimestamp,
     selectedGunIndex: tank.selectedGunIndex,
     lastDamagedBy: tank.lastDamagedBy,
     guns: tank.guns,
-    owner: metadata.owner,
-    name: metadata.name,
-    targetCode: metadata.targetCode,
-    joinCode: metadata.joinCode,
-    alliance: metadata.alliance,
-    isBot: metadata.isBot,
-    maxHealth: metadata.maxHealth,
-    positionX: position.positionX,
-    positionY: position.positionY,
-    velocity: position.velocity,
-    updatedAt: position.updatedAt,
+    owner: tank.owner,
+    name: tank.name,
+    targetCode: tank.targetCode,
+    joinCode: tank.joinCode,
+    alliance: tank.alliance,
+    isBot: tank.isBot,
+    maxHealth: tank.maxHealth,
+    positionX: transform.positionX,
+    positionY: transform.positionY,
+    velocity: transform.velocity,
+    updatedAt: transform.updatedAt,
   };
 }
 
-export function getTankMetadata(tankId: string) {
+export function getTank(tankId: string) {
   const connection = getConnection();
   if (!connection) return null;
-  return connection.db.tankMetadata.tankId.find(tankId);
+  return connection.db.tank.id.find(tankId);
 }
 
-export function getTankPosition(tankId: string) {
+export function getTankTransform(tankId: string) {
   const connection = getConnection();
   if (!connection) return null;
-  return connection.db.tankPosition.tankId.find(tankId);
+  return connection.db.tankTransform.tankId.find(tankId);
 }
 
-export function getTankMetadataByOwner(worldId: string, owner: Identity) {
+export function getTankByOwner(worldId: string, owner: Identity) {
   const connection = getConnection();
   if (!connection) return null;
-  for (const metadata of connection.db.tankMetadata.WorldId.filter(worldId)) {
-    if (metadata.owner.isEqual(owner)) {
-      return metadata;
+  for (const tank of connection.db.tank.WorldId.filter(worldId)) {
+    if (tank.owner.isEqual(owner)) {
+      return tank;
     }
   }
   return null;

@@ -9,12 +9,29 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import AiBehavior from "./ai_behavior_type";
+import AiConfig from "./ai_config_type";
 import Gun from "./gun_type";
 
 
 export default __t.row({
   id: __t.string().primaryKey(),
   worldId: __t.string(),
+  owner: __t.identity(),
+  name: __t.string(),
+  targetCode: __t.string(),
+  joinCode: __t.option(__t.string()),
+  isBot: __t.bool(),
+  get aiBehavior() {
+    return AiBehavior;
+  },
+  get aiConfig() {
+    return __t.option(AiConfig);
+  },
+  alliance: __t.i32(),
+  maxHealth: __t.i32(),
+  topSpeed: __t.f32(),
+  turretRotationSpeed: __t.f32(),
   health: __t.i32(),
   kills: __t.i32(),
   deaths: __t.i32(),
@@ -22,9 +39,6 @@ export default __t.row({
   target: __t.option(__t.string()),
   targetLead: __t.f32(),
   message: __t.option(__t.string()),
-  turretAngularVelocity: __t.f32(),
-  turretRotation: __t.f32(),
-  targetTurretRotation: __t.f32(),
   get guns() {
     return __t.array(Gun);
   },

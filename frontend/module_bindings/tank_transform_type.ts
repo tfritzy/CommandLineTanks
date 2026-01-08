@@ -12,8 +12,8 @@ import {
 import Vector2Float from "./vector_2_float_type";
 
 
-export default __t.row({
-  tankId: __t.string().primaryKey(),
+export default __t.object("TankTransform", {
+  tankId: __t.string(),
   worldId: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
@@ -22,5 +22,10 @@ export default __t.row({
   },
   collisionRegionX: __t.i32(),
   collisionRegionY: __t.i32(),
+  turretRotation: __t.f32(),
+  targetTurretRotation: __t.f32(),
+  turretAngularVelocity: __t.f32(),
   updatedAt: __t.u64(),
 });
+
+

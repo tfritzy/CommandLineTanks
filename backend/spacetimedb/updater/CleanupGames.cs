@@ -84,6 +84,7 @@ public static partial class Module
 
         foreach (var projectile in ctx.Db.projectile.WorldId.Filter(worldId))
         {
+            ctx.Db.projectile_transform.ProjectileId.Delete(projectile.Id);
             ctx.Db.projectile.Id.Delete(projectile.Id);
         }
 

@@ -2,21 +2,23 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-    public static (bool shouldDelete, Projectile projectile) IncrementProjectileCollision(
+    public static (bool shouldDelete, ProjectileTransform transform) IncrementProjectileCollision(
         ReducerContext ctx,
-        Projectile projectile)
+        Projectile projectile,
+        ProjectileTransform transform)
     {
-        projectile = projectile with
+        transform = transform with
         {
-            CollisionCount = projectile.CollisionCount + 1
+            CollisionCount = transform.CollisionCount + 1
         };
 
-        if (projectile.CollisionCount >= projectile.MaxCollisions)
+        if (transform.CollisionCount >= projectile.MaxCollisions)
         {
             ctx.Db.projectile.Id.Delete(projectile.Id);
-            return (true, projectile);
+            ctx.Db.projectile_transform.ProjectileId.Delete(transform.ProjectileId);
+            return (true, transform);
         }
 
-        return (false, projectile);
+        return (false, transform);
     }
 }

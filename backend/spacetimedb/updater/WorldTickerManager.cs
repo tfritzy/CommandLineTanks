@@ -151,7 +151,7 @@ public static partial class Module
 
             var (spawnX, spawnY) = FindSpawnPosition(ctx, newWorld, newAlliance, ctx.Rng);
 
-            var (newTank, newMetadata, newPosition) = BuildTank(
+            var (newTank, newTransform) = BuildTank(
                 ctx: ctx,
                 worldId: newWorldId,
                 owner: oldMetadata.Owner,
@@ -162,7 +162,7 @@ public static partial class Module
                 positionX: spawnX,
                 positionY: spawnY,
                 aiBehavior: AIBehavior.None);
-            AddTankToWorld(ctx, newTank, newMetadata, newPosition);
+            AddTankToWorld(ctx, newTank, newTransform);
         }
 
         Log.Info($"Created new world {newWorldId} from {args.WorldId}. Teams randomized, {totalTanks} tanks created.");

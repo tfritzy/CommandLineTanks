@@ -9,7 +9,7 @@ public static partial class Module
         float velocityX = (float)Math.Cos(angle) * gun.ProjectileSpeed;
         float velocityY = (float)Math.Sin(angle) * gun.ProjectileSpeed;
 
-        var projectile = Projectile.Build(
+        var (projectile, transform) = BuildProjectile(
             ctx: ctx,
             worldId: tank.WorldId,
             shooterTankId: tank.Id,
@@ -34,6 +34,8 @@ public static partial class Module
             bounce: gun.Bounce
         );
 
-        ctx.Db.projectile.Insert(projectile);
+        var insertedProjectile = ctx.Db.projectile.Insert(projectile);
+        transform = transform with { ProjectileId = insertedProjectile.Id };
+        ctx.Db.projectile_transform.Insert(transform);
     }
 }

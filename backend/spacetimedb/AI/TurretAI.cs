@@ -30,7 +30,7 @@ public static partial class TurretAI
 
         if (tank.Target != null && !targetJustSelected)
         {
-            float angleDiff = Math.Abs(GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation));
+            float angleDiff = Math.Abs(GetNormalizedAngleDifference(fullTank.TargetTurretRotation, fullTank.TurretRotation));
             if (angleDiff < AIM_TOLERANCE)
             {
                 tank = FireTankWeapon(ctx, tank) with
