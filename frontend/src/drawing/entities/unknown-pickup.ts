@@ -1,14 +1,26 @@
 import { UNIT_TO_PIXEL } from "../../constants";
-import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
-
-export function drawUnknownPickupShadow(
-  _ctx: CanvasRenderingContext2D,
-  _positionX: number,
-  _positionY: number
-) {
-}
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, getNeonFillColor, getNeonShadowColor } from "../../utils/neon";
 
 const NEON_PURPLE = "#aa00ff";
+
+export function drawUnknownPickupShadow(
+  ctx: CanvasRenderingContext2D,
+  positionX: number,
+  positionY: number
+) {
+  const worldX = positionX * UNIT_TO_PIXEL;
+  const worldY = positionY * UNIT_TO_PIXEL;
+  const size = UNIT_TO_PIXEL * 0.6;
+  const shadowColor = getNeonShadowColor(NEON_PURPLE);
+
+  ctx.save();
+  ctx.translate(worldX - 4, worldY + 4);
+  ctx.fillStyle = shadowColor;
+  ctx.beginPath();
+  ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
 
 export function drawUnknownPickupBody(
   ctx: CanvasRenderingContext2D,
@@ -18,11 +30,12 @@ export function drawUnknownPickupBody(
   const worldX = positionX * UNIT_TO_PIXEL;
   const worldY = positionY * UNIT_TO_PIXEL;
   const size = UNIT_TO_PIXEL * 0.6;
+  const fillColor = getNeonFillColor(NEON_PURPLE);
 
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = fillColor;
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
   ctx.fill();

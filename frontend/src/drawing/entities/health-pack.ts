@@ -1,12 +1,24 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { COLORS } from "../../theme/colors";
-import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, getNeonFillColor, getNeonShadowColor } from "../../utils/neon";
 
 export function drawHealthPackShadow(
-  _ctx: CanvasRenderingContext2D,
-  _positionX: number,
-  _positionY: number
+  ctx: CanvasRenderingContext2D,
+  positionX: number,
+  positionY: number
 ) {
+  const worldX = positionX * UNIT_TO_PIXEL;
+  const worldY = positionY * UNIT_TO_PIXEL;
+  const size = UNIT_TO_PIXEL * 0.6;
+  const shadowColor = getNeonShadowColor(COLORS.TERMINAL.SUCCESS);
+
+  ctx.save();
+  ctx.translate(worldX - 4, worldY + 4);
+  ctx.fillStyle = shadowColor;
+  ctx.beginPath();
+  ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
 export function drawHealthPackBody(
@@ -17,11 +29,12 @@ export function drawHealthPackBody(
   const worldX = positionX * UNIT_TO_PIXEL;
   const worldY = positionY * UNIT_TO_PIXEL;
   const size = UNIT_TO_PIXEL * 0.6;
+  const fillColor = getNeonFillColor(COLORS.TERMINAL.SUCCESS);
 
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = fillColor;
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
   ctx.fill();

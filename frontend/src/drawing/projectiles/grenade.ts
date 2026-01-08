@@ -1,12 +1,22 @@
-import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, getNeonFillColor, getNeonShadowColor } from "../../utils/neon";
 
 
 export function drawGrenadeShadow(
-  _ctx: CanvasRenderingContext2D,
-  _centerX: number,
-  _centerY: number,
-  _radius: number
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  radius: number,
+  color: string
 ) {
+  const shadowColor = getNeonShadowColor(color);
+  ctx.save();
+  ctx.fillStyle = shadowColor;
+
+  ctx.beginPath();
+  ctx.ellipse(centerX - 3, centerY + 3, radius, radius * 1.1, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
 }
 
 export function drawGrenadeBody(
@@ -18,7 +28,8 @@ export function drawGrenadeBody(
 ) {
   ctx.save();
 
-  ctx.fillStyle = "#000000";
+  const fillColor = getNeonFillColor(color);
+  ctx.fillStyle = fillColor;
   ctx.beginPath();
   ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
   ctx.fill();

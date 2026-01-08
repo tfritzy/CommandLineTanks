@@ -1,5 +1,5 @@
 import { getFlashColor } from "../../utils/colors";
-import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, getNeonFillColor, getNeonShadowColor } from "../../utils/neon";
 
 export function drawSquarePost(
   ctx: CanvasRenderingContext2D,
@@ -10,10 +10,11 @@ export function drawSquarePost(
   flashTimer: number
 ) {
   const postColor = getFlashColor(baseColor, flashTimer);
+  const fillColor = getNeonFillColor(postColor);
 
   const halfSize = size / 2;
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = fillColor;
   ctx.fillRect(centerX - halfSize, centerY - halfSize, size, size);
 
   setGlow(ctx, postColor, NEON_GLOW_BLUR_MEDIUM);
@@ -24,11 +25,15 @@ export function drawSquarePost(
 }
 
 export function drawSquarePostShadow(
-  _ctx: CanvasRenderingContext2D,
-  _centerX: number,
-  _centerY: number,
-  _size: number,
-  _shadowOffset: number
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  size: number,
+  shadowOffset: number,
+  baseColor: string
 ) {
+  const shadowColor = getNeonShadowColor(baseColor);
+  ctx.fillStyle = shadowColor;
+  ctx.fillRect(centerX - size / 2 - shadowOffset, centerY - size / 2 + shadowOffset, size, size);
 }
 

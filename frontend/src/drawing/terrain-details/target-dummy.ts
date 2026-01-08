@@ -1,13 +1,19 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor } from "../../utils/colors";
 import { COLORS } from "../../theme/colors";
-import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, getNeonFillColor, getNeonShadowColor } from "../../utils/neon";
 
 export function drawTargetDummyShadow(
-  _ctx: CanvasRenderingContext2D,
-  _centerX: number,
-  _centerY: number
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number
 ) {
+  const shadowOffset = UNIT_TO_PIXEL * 0.1;
+  const shadowColor = getNeonShadowColor(COLORS.TERRAIN.TARGET_DUMMY_RIM);
+  ctx.fillStyle = shadowColor;
+  ctx.beginPath();
+  ctx.arc(centerX - shadowOffset, centerY + shadowOffset, UNIT_TO_PIXEL * 0.4, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 export function drawTargetDummyBody(
@@ -18,8 +24,9 @@ export function drawTargetDummyBody(
 ) {
   const rimColor = getFlashColor(COLORS.TERRAIN.TARGET_DUMMY_RIM, flashTimer);
   const centerColor = getFlashColor(COLORS.TERRAIN.TARGET_DUMMY_CENTER, flashTimer);
+  const fillColor = getNeonFillColor(rimColor);
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = fillColor;
   ctx.beginPath();
   ctx.arc(centerX, centerY, UNIT_TO_PIXEL * 0.4, 0, Math.PI * 2);
   ctx.fill();

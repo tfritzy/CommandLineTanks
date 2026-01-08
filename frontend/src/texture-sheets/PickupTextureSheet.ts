@@ -177,7 +177,7 @@ export class PickupTextureSheet {
     switch (key) {
       case "Base": {
         const radius = 0.1 * UNIT_TO_PIXEL;
-        drawNormalProjectileShadow(this.ctx, -4, 4, radius);
+        drawNormalProjectileShadow(this.ctx, -4, 4, radius, this.pickupColor);
         drawNormalProjectileBody(this.ctx, 0, 0, radius, this.pickupColor);
         break;
       }
@@ -197,7 +197,8 @@ export class PickupTextureSheet {
             this.ctx,
             trianglePositions[i].x - 4,
             trianglePositions[i].y + 4,
-            radius
+            radius,
+            this.pickupColor
           );
         }
         for (let i = 0; i < 3; i++) {
@@ -213,19 +214,19 @@ export class PickupTextureSheet {
       }
       case "MissileLauncher": {
         const radius = 0.2 * UNIT_TO_PIXEL;
-        drawMissileShadow(this.ctx, -4, 4, radius, angle);
+        drawMissileShadow(this.ctx, -4, 4, radius, angle, this.pickupColor);
         drawMissileBody(this.ctx, 0, 0, radius, angle, this.pickupColor);
         break;
       }
       case "Rocket": {
         const radius = 0.1 * UNIT_TO_PIXEL;
-        drawRocketShadow(this.ctx, -4, 4, radius, angle);
+        drawRocketShadow(this.ctx, -4, 4, radius, angle, this.pickupColor);
         drawRocketBody(this.ctx, 0, 0, radius, angle, this.pickupColor);
         break;
       }
       case "Grenade": {
         const radius = 0.2 * UNIT_TO_PIXEL;
-        drawGrenadeShadow(this.ctx, -4, 4, radius);
+        drawGrenadeShadow(this.ctx, -4, 4, radius, this.pickupColor);
         drawGrenadeBody(this.ctx, 0, 0, radius, this.pickupColor);
         break;
       }
@@ -233,14 +234,14 @@ export class PickupTextureSheet {
         const radius = 0.18 * UNIT_TO_PIXEL;
         const armWidth = radius * 0.8;
         const armLength = radius * 2.2;
-        drawBoomerangShadow(this.ctx, -4, 4, armLength, armWidth);
+        drawBoomerangShadow(this.ctx, -4, 4, armLength, armWidth, this.pickupColor);
         drawBoomerangBody(this.ctx, 0, 0, armLength, armWidth, this.pickupColor);
         break;
       }
       case "Moag": {
         const scale = 0.3;
         const radius = scale * UNIT_TO_PIXEL;
-        drawMoagShadow(this.ctx, -4, 4, scale);
+        drawMoagShadow(this.ctx, -4, 4, scale, 0);
         
         this.ctx.fillStyle = this.pickupColor;
         this.ctx.beginPath();
@@ -258,7 +259,7 @@ export class PickupTextureSheet {
         const bulletLength = 0.4 * UNIT_TO_PIXEL;
         const bulletWidth = bulletLength * 0.3;
         const bulletBackRatio = 0.4;
-        drawSniperProjectileShadow(this.ctx, -4, 4, bulletLength, bulletWidth, bulletBackRatio, angle);
+        drawSniperProjectileShadow(this.ctx, -4, 4, bulletLength, bulletWidth, bulletBackRatio, angle, this.pickupColor);
         drawSniperProjectileBody(this.ctx, 0, 0, bulletLength, bulletWidth, bulletBackRatio, angle, this.pickupColor);
         break;
       }

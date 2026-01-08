@@ -1,7 +1,7 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { getFlashColor, lerpColor } from "../../utils/colors";
-import { COLORS } from "../../theme/colors";
-import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, NEON_GLOW_BLUR_LARGE } from "../../utils/neon";
+import { COLORS, PALETTE } from "../../theme/colors";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, NEON_GLOW_BLUR_LARGE, getNeonFillColor, getNeonShadowColor } from "../../utils/neon";
 
 const NEON_YELLOW = "#ffff00";
 
@@ -25,7 +25,21 @@ interface TankDrawParams {
   isImmune: boolean;
 }
 
-export function drawTankShadow(_ctx: CanvasRenderingContext2D, _x: number, _y: number) {
+export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  ctx.save();
+  ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
+
+  const shadowColor = getNeonShadowColor(PALETTE.BLUE_CYAN);
+  ctx.fillStyle = shadowColor;
+
+  ctx.save();
+  ctx.translate(-3, 3);
+  ctx.beginPath();
+  ctx.roundRect(-16, -16, 32, 32, 5);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.restore();
 }
 
 export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawParams) {
@@ -47,13 +61,14 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     bodyColor = lerpColor(groundColor, bodyColor, lerpAmount);
   }
 
-  setGlow(ctx, bodyColor, NEON_GLOW_BLUR_LARGE);
+  const fillColor = getNeonFillColor(bodyColor);
 
-  ctx.fillStyle = bodyColor;
+  ctx.fillStyle = fillColor;
   ctx.beginPath();
   ctx.roundRect(-16, -16, 32, 32, 5);
   ctx.fill();
 
+  setGlow(ctx, bodyColor, NEON_GLOW_BLUR_LARGE);
   ctx.strokeStyle = bodyColor;
   ctx.lineWidth = 2;
   ctx.stroke();
@@ -61,16 +76,18 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.save();
   ctx.rotate(params.turretRotation);
 
-  ctx.fillStyle = bodyColor;
+  ctx.fillStyle = fillColor;
   ctx.beginPath();
   ctx.roundRect(0, -5, 24, 10, 3);
   ctx.fill();
+  ctx.strokeStyle = bodyColor;
   ctx.stroke();
 
-  ctx.fillStyle = bodyColor;
+  ctx.fillStyle = fillColor;
   ctx.beginPath();
   ctx.roundRect(-12, -12, 24, 24, 10);
   ctx.fill();
+  ctx.strokeStyle = bodyColor;
   ctx.stroke();
   ctx.restore();
 
@@ -83,12 +100,16 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
 
     const shieldSize = 40;
     const shieldHalfSize = shieldSize / 2;
+    const shieldColor = COLORS.TERMINAL.INFO;
 
-    setGlow(ctx, COLORS.TERMINAL.INFO, NEON_GLOW_BLUR_MEDIUM);
-    ctx.strokeStyle = COLORS.TERMINAL.INFO;
-    ctx.lineWidth = 2;
+    ctx.fillStyle = getNeonFillColor(shieldColor);
     ctx.beginPath();
     ctx.roundRect(-shieldHalfSize, -shieldHalfSize, shieldSize, shieldSize, 5);
+    ctx.fill();
+
+    setGlow(ctx, shieldColor, NEON_GLOW_BLUR_MEDIUM);
+    ctx.strokeStyle = shieldColor;
+    ctx.lineWidth = 2;
     ctx.stroke();
     clearGlow(ctx);
 

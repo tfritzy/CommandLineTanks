@@ -6,7 +6,7 @@ import { drawMoagShadow, drawMoagBody } from "../../drawing";
 export class MoagProjectile extends Projectile {
   public drawShadow(ctx: CanvasRenderingContext2D, _textureSheet: ProjectileTextureSheet) {
     const { x: centerX, y: centerY } = this.getShadowScreenPosition();
-    drawMoagShadow(ctx, centerX, centerY, this.size);
+    drawMoagShadow(ctx, centerX, centerY, this.size, this.alliance);
   }
 
   public drawBody(ctx: CanvasRenderingContext2D, _textureSheet: ProjectileTextureSheet) {

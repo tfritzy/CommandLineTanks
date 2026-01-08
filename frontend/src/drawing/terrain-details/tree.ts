@@ -1,14 +1,21 @@
 import { getFlashColor } from "../../utils/colors";
 import { COLORS } from "../../theme/colors";
-import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, getNeonFillColor, getNeonShadowColor } from "../../utils/neon";
 
 
 export function drawTreeShadow(
-  _ctx: CanvasRenderingContext2D,
-  _centerX: number,
-  _centerY: number,
-  _radius: number
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  radius: number
 ) {
+  const shadowOffsetX = -radius * 0.4;
+  const shadowOffsetY = radius * 0.4;
+  const shadowColor = getNeonShadowColor(COLORS.TERRAIN.TREE_FOLIAGE);
+  ctx.fillStyle = shadowColor;
+  ctx.beginPath();
+  ctx.arc(centerX + shadowOffsetX, centerY + shadowOffsetY, radius, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 export function drawTreeBody(
@@ -19,13 +26,30 @@ export function drawTreeBody(
   flashTimer: number
 ) {
   const outlineColor = getFlashColor(COLORS.TERRAIN.TREE_FOLIAGE, flashTimer);
+  const fillColor = getNeonFillColor(outlineColor);
 
   ctx.save();
-  
-  ctx.fillStyle = "#000000";
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  ctx.clip();
+
+  ctx.fillStyle = fillColor;
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();
+
+  setGlow(ctx, outlineColor, NEON_GLOW_BLUR_MEDIUM);
+  
+  ctx.strokeStyle = outlineColor;
+  ctx.lineWidth = 2;
+  const dividerCenterX = centerX + radius * 0.4;
+  const dividerCenterY = centerY - radius * 0.4;
+  const dividerRadius = radius * 1.3;
+  ctx.beginPath();
+  ctx.arc(dividerCenterX, dividerCenterY, dividerRadius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.restore();
 
   setGlow(ctx, outlineColor, NEON_GLOW_BLUR_MEDIUM);
   ctx.strokeStyle = outlineColor;
@@ -34,6 +58,4 @@ export function drawTreeBody(
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.stroke();
   clearGlow(ctx);
-  
-  ctx.restore();
 }

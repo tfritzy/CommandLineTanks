@@ -214,7 +214,7 @@ export class ProjectileTextureSheet {
     const centerX = x + radius + padding;
     const centerY = y + radius + padding;
 
-    drawNormalProjectileShadow(this.shadowCtx, centerX, centerY, radius);
+    drawNormalProjectileShadow(this.shadowCtx, centerX, centerY, radius, color);
     drawNormalProjectileBody(this.ctx, centerX, centerY, radius, color);
 
     const textureData = {
@@ -241,7 +241,7 @@ export class ProjectileTextureSheet {
     const centerX = x + armLength + padding;
     const centerY = y + armLength + padding;
 
-    drawBoomerangShadow(this.shadowCtx, centerX, centerY, armLength, armWidth);
+    drawBoomerangShadow(this.shadowCtx, centerX, centerY, armLength, armWidth, color);
     drawBoomerangBody(this.ctx, centerX, centerY, armLength, armWidth, color);
 
     const textureData = {
@@ -266,7 +266,7 @@ export class ProjectileTextureSheet {
     const centerX = x + radius + padding;
     const centerY = y + radius * 1.6 + padding;
 
-    drawGrenadeShadow(this.shadowCtx, centerX, centerY, radius);
+    drawGrenadeShadow(this.shadowCtx, centerX, centerY, radius, color);
     drawGrenadeBody(this.ctx, centerX, centerY, radius, color);
 
     const textureData = {
@@ -291,7 +291,7 @@ export class ProjectileTextureSheet {
     const centerX = x + radius + padding;
     const centerY = y + radius + padding;
 
-    drawMoagShadow(this.shadowCtx, centerX, centerY, 0.5);
+    drawMoagShadow(this.shadowCtx, centerX, centerY, 0.5, color === COLORS.GAME.TEAM_RED_BRIGHT ? 0 : 1);
     drawMoagBody(this.ctx, centerX, centerY, 0.5, color === COLORS.GAME.TEAM_RED_BRIGHT ? 0 : 1);
 
     const textureData = {
@@ -317,7 +317,7 @@ export class ProjectileTextureSheet {
     const centerX = x + radius * 3 + flameLength + padding;
     const centerY = y + radius * 1.2 + padding;
 
-    drawRocketShadow(this.shadowCtx, centerX, centerY, radius, 0);
+    drawRocketShadow(this.shadowCtx, centerX, centerY, radius, 0, color);
     drawRocketBody(this.ctx, centerX, centerY, radius, 0, color);
 
     const textureData = {
@@ -343,7 +343,7 @@ export class ProjectileTextureSheet {
     const centerX = x + flameLength + padding;
     const centerY = y + radius + padding;
 
-    drawMissileShadow(this.shadowCtx, centerX, centerY, radius, 0);
+    drawMissileShadow(this.shadowCtx, centerX, centerY, radius, 0, color);
     drawMissileBody(this.ctx, centerX, centerY, radius, 0, color);
 
     const textureData = {
@@ -379,7 +379,8 @@ export class ProjectileTextureSheet {
       bulletLength,
       bulletWidth,
       bulletBackRatio,
-      0
+      0,
+      color
     );
     drawSniperProjectileBody(
       this.ctx,

@@ -1,14 +1,30 @@
 import { COLORS } from "../../theme/colors";
-import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM } from "../../utils/neon";
+import { setGlow, clearGlow, NEON_GLOW_BLUR_MEDIUM, getNeonFillColor, getNeonShadowColor } from "../../utils/neon";
 
 
 export function drawMissileShadow(
-  _ctx: CanvasRenderingContext2D,
-  _centerX: number,
-  _centerY: number,
-  _radius: number,
-  _angle: number
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  radius: number,
+  angle: number,
+  color: string
 ) {
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(angle);
+  ctx.translate(-3, 3);
+  
+  const shadowColor = getNeonShadowColor(color);
+  ctx.fillStyle = shadowColor;
+  ctx.beginPath();
+  ctx.moveTo(radius * 2, 0);
+  ctx.lineTo(0, -radius * 0.8);
+  ctx.lineTo(0, radius * 0.8);
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.restore();
 }
 
 export function drawMissileBody(
@@ -34,14 +50,16 @@ export function drawMissileBody(
   ctx.fill();
   clearGlow(ctx);
 
-  setGlow(ctx, color, NEON_GLOW_BLUR_MEDIUM);
-  ctx.fillStyle = color;
+  const fillColor = getNeonFillColor(color);
+  ctx.fillStyle = fillColor;
   ctx.beginPath();
   ctx.moveTo(radius * 2, 0);
   ctx.lineTo(0, -radius * 0.8);
   ctx.lineTo(0, radius * 0.8);
   ctx.closePath();
   ctx.fill();
+
+  setGlow(ctx, color, NEON_GLOW_BLUR_MEDIUM);
   ctx.strokeStyle = color;
   ctx.lineWidth = 1;
   ctx.stroke();
