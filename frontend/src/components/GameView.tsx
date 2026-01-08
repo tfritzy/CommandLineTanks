@@ -61,6 +61,8 @@ export default function GameView() {
       .subscribe([
         `SELECT * FROM tank WHERE WorldId = '${worldId}'`,
         `SELECT * FROM tank_path WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM tank_metadata WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM tank_position WHERE WorldId = '${worldId}'`,
         `SELECT * FROM projectile WHERE WorldId = '${worldId}'`,
         `SELECT * FROM pickup WHERE WorldId = '${worldId}'`,
         `SELECT * FROM kills WHERE WorldId = '${worldId}'`,
@@ -168,7 +170,7 @@ export default function GameView() {
           onUpdate: (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
             if (newTank.worldId !== worldId) return;
             if (playerTankId !== newTank.id) return;
-            
+
             const wasDead = oldTank.health <= 0;
             const isNowDead = newTank.health <= 0;
 
