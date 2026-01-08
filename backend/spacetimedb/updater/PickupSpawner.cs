@@ -269,7 +269,7 @@ public static partial class PickupSpawner
     {
         if (pickup.Type == PickupType.Health)
         {
-            return TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup);
+            return TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup, tank.MaxHealth);
         }
 
         if (pickup.Type == PickupType.Shield)
@@ -285,11 +285,11 @@ public static partial class PickupSpawner
         return false;
     }
 
-    private static bool TryCollectHealthPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup)
+    private static bool TryCollectHealthPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup, int maxHealth)
     {
-        if (tank.Health < tank.MaxHealth)
+        if (tank.Health < maxHealth)
         {
-            tank = tank with { Health = tank.MaxHealth };
+            tank = tank with { Health = maxHealth };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
             return true;

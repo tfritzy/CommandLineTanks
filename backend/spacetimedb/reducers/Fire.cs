@@ -6,15 +6,26 @@ public static partial class Module
     [Reducer]
     public static void fire(ReducerContext ctx, string worldId)
     {
-        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (maybeTank == null) return;
-        var tank = maybeTank.Value;
+        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (tankQuery == null || tankQuery.Value.Id == null) return;
+        var tank = tankQuery.Value;
+        
+        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        if (transformQuery == null) return;
+        var transform = transformQuery.Value;
 
-        tank = FireTankWeapon(ctx, tank);
+        tank = FireTankWeapon(ctx, tank, transform);
         ctx.Db.tank.Id.Update(tank);
     }
 
     public static Tank FireTankWeapon(ReducerContext ctx, Tank tank)
+    {
+        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        if (transformQuery == null) return tank;
+        return FireTankWeapon(ctx, tank, transformQuery.Value);
+    }
+
+    public static Tank FireTankWeapon(ReducerContext ctx, Tank tank, TankTransform transform)
     {
         if (tank.Health <= 0) return tank;
 
@@ -34,30 +45,30 @@ public static partial class Module
 
         if (gun.ProjectileCount == 1)
         {
-            CreateProjectile(ctx, tank, tank.PositionX, tank.PositionY, tank.TurretRotation, gun);
+            CreateProjectile(ctx, tank, transform.PositionX, transform.PositionY, transform.TurretRotation, gun);
         }
         else
         {
             float halfSpread = gun.SpreadAngle * (gun.ProjectileCount - 1) / 2.0f;
             for (int i = 0; i < gun.ProjectileCount; i++)
             {
-                float angle = tank.TurretRotation - halfSpread + (i * gun.SpreadAngle);
-                float posX = tank.PositionX;
-                float posY = tank.PositionY;
+                float angle = transform.TurretRotation - halfSpread + (i * gun.SpreadAngle);
+                float posX = transform.PositionX;
+                float posY = transform.PositionY;
 
                 if (gun.GunType == Types.GunType.TripleShooter)
                 {
                     if (i == 1)
                     {
                         float forwardOffset = 0.2f;
-                        posX += (float)Math.Cos(tank.TurretRotation) * forwardOffset;
-                        posY += (float)Math.Sin(tank.TurretRotation) * forwardOffset;
+                        posX += (float)Math.Cos(transform.TurretRotation) * forwardOffset;
+                        posY += (float)Math.Sin(transform.TurretRotation) * forwardOffset;
                     }
                     else
                     {
                         float lateralOffset = (i - 1) * 0.25f;
-                        posX += (float)Math.Cos(tank.TurretRotation + Math.PI / 2.0) * lateralOffset;
-                        posY += (float)Math.Sin(tank.TurretRotation + Math.PI / 2.0) * lateralOffset;
+                        posX += (float)Math.Cos(transform.TurretRotation + Math.PI / 2.0) * lateralOffset;
+                        posY += (float)Math.Sin(transform.TurretRotation + Math.PI / 2.0) * lateralOffset;
                     }
                 }
 

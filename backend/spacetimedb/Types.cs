@@ -187,3 +187,52 @@ public static class AIBehaviorExtensions
         return behavior != Types.AIBehavior.None;
     }
 }
+
+public struct FullTank
+{
+    public Module.Tank Tank;
+    public Module.TankTransform Transform;
+
+    public FullTank(Module.Tank tank, Module.TankTransform transform)
+    {
+        Tank = tank;
+        Transform = transform;
+    }
+
+    public string Id => Tank.Id;
+    public string WorldId => Tank.WorldId;
+    public SpacetimeDB.Identity Owner => Tank.Owner;
+    public string Name => Tank.Name;
+    public string TargetCode => Tank.TargetCode;
+    public string? JoinCode => Tank.JoinCode;
+    public bool IsBot => Tank.IsBot;
+    public Types.AIBehavior AIBehavior => Tank.AIBehavior;
+    public Types.AiConfig? AiConfig => Tank.AiConfig;
+    public int Alliance => Tank.Alliance;
+    public int MaxHealth => Tank.MaxHealth;
+    public float TopSpeed => Tank.TopSpeed;
+    public float TurretRotationSpeed => Tank.TurretRotationSpeed;
+    public int Health => Tank.Health;
+    public int Kills => Tank.Kills;
+    public int Deaths => Tank.Deaths;
+    public int KillStreak => Tank.KillStreak;
+    public string? Target => Tank.Target;
+    public float TargetLead => Tank.TargetLead;
+    public string? Message => Tank.Message;
+    public Types.Gun[] Guns => Tank.Guns;
+    public int SelectedGunIndex => Tank.SelectedGunIndex;
+    public bool HasShield => Tank.HasShield;
+    public long RemainingImmunityMicros => Tank.RemainingImmunityMicros;
+    public ulong DeathTimestamp => Tank.DeathTimestamp;
+    public SpacetimeDB.Identity? LastDamagedBy => Tank.LastDamagedBy;
+
+    public float PositionX => Transform.PositionX;
+    public float PositionY => Transform.PositionY;
+    public Types.Vector2Float Velocity => Transform.Velocity;
+    public int CollisionRegionX => Transform.CollisionRegionX;
+    public int CollisionRegionY => Transform.CollisionRegionY;
+    public float TurretRotation => Transform.TurretRotation;
+    public float TargetTurretRotation => Transform.TargetTurretRotation;
+    public float TurretAngularVelocity => Transform.TurretAngularVelocity;
+    public ulong UpdatedAt => Transform.UpdatedAt;
+}

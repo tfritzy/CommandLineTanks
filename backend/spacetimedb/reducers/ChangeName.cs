@@ -37,8 +37,7 @@ public static partial class Module
         var tanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
         foreach (var tank in tanks)
         {
-            var updatedTank = tank;
-            updatedTank.Name = newName;
+            var updatedTank = tank with { Name = newName };
             ctx.Db.tank.Id.Update(updatedTank);
         }
 

@@ -3,9 +3,10 @@ using static Types;
 
 public static partial class Module
 {
-    public static void AddTankToWorld(ReducerContext ctx, Tank tank)
+    public static void AddTankToWorld(ReducerContext ctx, Tank tank, TankTransform transform)
     {
         ctx.Db.tank.Insert(tank);
+        ctx.Db.tank_transform.Insert(transform);
         
         if (tank.IsBot)
         {
@@ -30,6 +31,7 @@ public static partial class Module
         
         DeleteTankPathIfExists(ctx, tank.Id);
         
+        ctx.Db.tank_transform.TankId.Delete(tank.Id);
         ctx.Db.tank.Id.Delete(tank.Id);
         
         if (isBot)
@@ -117,8 +119,7 @@ public static partial class Module
             CreateHomeworld(ctx, identityString);
         }
 
-        var existingTank = ctx.Db.tank.WorldId.Filter(identityString)
-            .Where(t => t.Owner == ctx.Sender)
+        var existingTank = ctx.Db.tank.WorldId_Owner.Filter((identityString, ctx.Sender))
             .FirstOrDefault();
         
         if (existingTank.Id != null)
@@ -133,7 +134,7 @@ public static partial class Module
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
-        var tank = Tank.Build(
+        var (tank, transform) = BuildTank(
             ctx: ctx,
             worldId: identityString,
             owner: ctx.Sender,
@@ -145,7 +146,7 @@ public static partial class Module
             positionY: HOMEWORLD_HEIGHT / 2 + .5f,
             aiBehavior: AIBehavior.None);
 
-        AddTankToWorld(ctx, tank);
+        AddTankToWorld(ctx, tank, transform);
         StartWorldTickers(ctx, identityString);
         Log.Info($"Created homeworld tank for identity {identityString}");
     }

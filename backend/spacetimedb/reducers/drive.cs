@@ -17,9 +17,13 @@ public static partial class Module
             targetY = Math.Max(0, Math.Min(world.Height - 1, targetY));
         }
 
-        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (maybeTank == null) return;
-        var tank = maybeTank.Value;
+        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (tankQuery == null || tankQuery.Value.Id == null) return;
+        var tank = tankQuery.Value;
+        
+        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        if (transformQuery == null) return;
+        var transform = transformQuery.Value;
 
         if (tank.Health <= 0) return;
 
@@ -27,8 +31,8 @@ public static partial class Module
         if (maybeMap == null) return;
         var traversibilityMap = maybeMap.Value;
 
-        int startX = (int)tank.PositionX;
-        int startY = (int)tank.PositionY;
+        int startX = (int)transform.PositionX;
+        int startY = (int)transform.PositionY;
 
         var pathPoints = AStarPathfinding.FindPath(
             startX,
@@ -63,12 +67,12 @@ public static partial class Module
 
         UpsertTankPath(ctx, newPathState);
 
-        tank = tank with
+        var updatedTransform = transform with
         {
             Velocity = new Vector2Float(0, 0),
             UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
-        ctx.Db.tank.Id.Update(tank);
+        ctx.Db.tank_transform.TankId.Update(updatedTransform);
     }
 }

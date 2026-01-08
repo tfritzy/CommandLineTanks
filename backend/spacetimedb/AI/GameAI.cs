@@ -7,16 +7,17 @@ using static Module;
 
 public static partial class GameAI
 {
-    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext)
+    public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, AIContext aiContext)
     {
-        var decision = GameAILogic.EvaluateBehaviorTree(ctx, tank, aiContext);
+        var tank = fullTank.Tank;
+        var decision = GameAILogic.EvaluateBehaviorTree(ctx, fullTank, aiContext);
 
         switch (decision.Action)
         {
             case GameAILogic.AIAction.MoveTowardsPickup:
                 if (decision.TargetPickup != null && decision.Path.Count > 0)
                 {
-                    SetPath(ctx, tank, decision.Path);
+                    SetPath(ctx, fullTank, decision.Path);
                 }
                 break;
 
@@ -36,10 +37,12 @@ public static partial class GameAI
                 {
                     DeleteTankPathIfExists(ctx, tank.Id);
 
-                    tank = tank with
+                    var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+                    if (transformQuery != null)
                     {
-                        Velocity = new Vector2Float(0, 0)
-                    };
+                        var updatedTransform = transformQuery.Value with { Velocity = new Vector2Float(0, 0) };
+                        ctx.Db.tank_transform.TankId.Update(updatedTransform);
+                    }
 
                     tank = TargetTankByCode(ctx, tank, decision.TargetTank.Value.TargetCode, 0);
                     tank = FireTankWeapon(ctx, tank);
@@ -51,18 +54,18 @@ public static partial class GameAI
                 {
                     if (decision.TargetTank != null)
                     {
-                        var distanceToTarget = GameAILogic.GetDistance(tank.PositionX, tank.PositionY, decision.TargetTank.Value.PositionX, decision.TargetTank.Value.PositionY);
+                        var distanceToTarget = GameAILogic.GetDistance(fullTank.PositionX, fullTank.PositionY, decision.TargetTank.Value.PositionX, decision.TargetTank.Value.PositionY);
                         if (distanceToTarget <= MAX_TARGETING_RANGE)
                         {
                             tank = TargetTankByCode(ctx, tank, decision.TargetTank.Value.TargetCode, 0);
                         }
                     }
-                    SetPath(ctx, tank, decision.Path);
+                    SetPath(ctx, fullTank, decision.Path);
                 }
                 break;
 
             case GameAILogic.AIAction.Escape:
-                DriveTowards(ctx, tank, decision.TargetX, decision.TargetY);
+                DriveTowards(ctx, fullTank, decision.TargetX, decision.TargetY);
                 break;
 
             case GameAILogic.AIAction.None:
@@ -72,7 +75,7 @@ public static partial class GameAI
         return tank;
     }
 
-    private static void SetPath(ReducerContext ctx, Tank tank, List<(int x, int y)> path)
+    private static void SetPath(ReducerContext ctx, FullTank fullTank, List<(int x, int y)> path)
     {
         var pathEntries = path.Select(waypoint => new PathEntry
         {
@@ -83,18 +86,18 @@ public static partial class GameAI
 
         var newPathState = new Module.TankPath
         {
-            TankId = tank.Id,
-            WorldId = tank.WorldId,
+            TankId = fullTank.Id,
+            WorldId = fullTank.WorldId,
             Path = pathEntries
         };
 
         UpsertTankPath(ctx, newPathState);
     }
 
-    private static void DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
+    private static void DriveTowards(ReducerContext ctx, FullTank fullTank, int targetX, int targetY)
     {
-        int currentX = (int)tank.PositionX;
-        int currentY = (int)tank.PositionY;
+        int currentX = (int)fullTank.PositionX;
+        int currentY = (int)fullTank.PositionY;
 
         if (targetX == currentX && targetY == currentY)
         {
@@ -105,7 +108,7 @@ public static partial class GameAI
         Vector2 targetPos = new Vector2(targetX, targetY);
         Vector2 offset = new Vector2(targetPos.X - currentPos.X, targetPos.Y - currentPos.Y);
 
-        Vector2Float rootPos = new Vector2Float(tank.PositionX, tank.PositionY);
+        Vector2Float rootPos = new Vector2Float(fullTank.PositionX, fullTank.PositionY);
         Vector2Float nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
 
         PathEntry entry = new()
@@ -117,8 +120,8 @@ public static partial class GameAI
 
         var newPathState = new Module.TankPath
         {
-            TankId = tank.Id,
-            WorldId = tank.WorldId,
+            TankId = fullTank.Id,
+            WorldId = fullTank.WorldId,
             Path = [entry]
         };
 

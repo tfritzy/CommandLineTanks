@@ -5,10 +5,9 @@ using System;
 public static partial class Module
 {
     [Table(Name = "tank", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(TargetCode) })]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(Owner) })]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(IsBot) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.WorldId), nameof(Tank.Owner) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.WorldId), nameof(Tank.TargetCode) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.WorldId), nameof(Tank.IsBot) })]
     public partial struct Tank
     {
         [PrimaryKey]
@@ -34,9 +33,13 @@ public static partial class Module
 
         public int Alliance;
 
-        public int Health;
-
         public int MaxHealth;
+
+        public float TopSpeed;
+
+        public float TurretRotationSpeed;
+
+        public int Health;
 
         public int Kills;
 
@@ -44,26 +47,10 @@ public static partial class Module
 
         public int KillStreak;
 
-        public int CollisionRegionX;
-
-        public int CollisionRegionY;
-
         public string? Target;
         public float TargetLead;
 
         public string? Message;
-
-        public float TopSpeed;
-        public float TurretRotationSpeed;
-
-        public float PositionX;
-        public float PositionY;
-
-        public Vector2Float Velocity;
-        public float TurretAngularVelocity;
-
-        public float TurretRotation;
-        public float TargetTurretRotation;
 
         public Gun[] Guns;
         public int SelectedGunIndex;
@@ -75,88 +62,97 @@ public static partial class Module
         public ulong DeathTimestamp;
 
         public Identity? LastDamagedBy;
+    }
 
-        public ulong UpdatedAt;
-
-        public static Tank Build(
-            ReducerContext ctx,
-            string? id = null,
-            string? worldId = null,
-            Identity? owner = null,
-            string? name = null,
-            string? targetCode = null,
-            string? joinCode = null,
-            bool? isBot = null,
-            AIBehavior aiBehavior = AIBehavior.None,
-            AiConfig? aiConfig = null,
-            int alliance = 0,
-            int health = TANK_HEALTH,
-            int maxHealth = TANK_HEALTH,
-            int kills = 0,
-            int deaths = 0,
-            int killStreak = 0,
-            int collisionRegionX = 0,
-            int collisionRegionY = 0,
-            string? target = null,
-            float targetLead = 0.0f,
-            string? message = null,
-            float topSpeed = 3f,
-            float turretRotationSpeed = 12f,
-            float positionX = 0,
-            float positionY = 0,
-            Vector2Float? velocity = null,
-            float turretAngularVelocity = 0,
-            float turretRotation = 0.0f,
-            float targetTurretRotation = 0.0f,
-            Gun[]? guns = null,
-            int selectedGunIndex = 0,
-            bool hasShield = false,
-            long remainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
-            ulong deathTimestamp = 0,
-            Identity? lastDamagedBy = null,
-            ulong? updatedAt = null)
+    public static (Tank, TankTransform) BuildTank(
+        ReducerContext ctx,
+        string? id = null,
+        string? worldId = null,
+        Identity? owner = null,
+        string? name = null,
+        string? targetCode = null,
+        string? joinCode = null,
+        bool? isBot = null,
+        AIBehavior aiBehavior = AIBehavior.None,
+        AiConfig? aiConfig = null,
+        int alliance = 0,
+        int health = TANK_HEALTH,
+        int maxHealth = TANK_HEALTH,
+        int kills = 0,
+        int deaths = 0,
+        int killStreak = 0,
+        int collisionRegionX = 0,
+        int collisionRegionY = 0,
+        string? target = null,
+        float targetLead = 0.0f,
+        string? message = null,
+        float topSpeed = 3f,
+        float turretRotationSpeed = 12f,
+        float positionX = 0,
+        float positionY = 0,
+        Vector2Float? velocity = null,
+        float turretAngularVelocity = 0,
+        float turretRotation = 0.0f,
+        float targetTurretRotation = 0.0f,
+        Gun[]? guns = null,
+        int selectedGunIndex = 0,
+        bool hasShield = false,
+        long remainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
+        ulong deathTimestamp = 0,
+        Identity? lastDamagedBy = null,
+        ulong? updatedAt = null)
+    {
+        var timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        var computedIsBot = isBot ?? (aiBehavior != AIBehavior.None);
+        var tankId = id ?? GenerateId(ctx, "tnk");
+        var tankWorldId = worldId ?? "";
+        var computedUpdatedAt = updatedAt ?? timestamp;
+        
+        var tank = new Tank
         {
-            var timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-            var computedIsBot = isBot ?? (aiBehavior != AIBehavior.None);
-            
-            return new Tank
-            {
-                Id = id ?? GenerateId(ctx, "tnk"),
-                WorldId = worldId ?? "",
-                Owner = owner ?? Identity.From(new byte[32]),
-                Name = name ?? "",
-                TargetCode = targetCode ?? "",
-                JoinCode = joinCode,
-                IsBot = computedIsBot,
-                AIBehavior = aiBehavior,
-                AiConfig = aiConfig,
-                Alliance = alliance,
-                Health = health,
-                MaxHealth = maxHealth,
-                Kills = kills,
-                Deaths = deaths,
-                KillStreak = killStreak,
-                CollisionRegionX = collisionRegionX,
-                CollisionRegionY = collisionRegionY,
-                Target = target,
-                TargetLead = targetLead,
-                Message = message,
-                PositionX = positionX,
-                PositionY = positionY,
-                TurretRotation = turretRotation,
-                TargetTurretRotation = targetTurretRotation,
-                TopSpeed = topSpeed,
-                TurretRotationSpeed = turretRotationSpeed,
-                Guns = guns ?? [BASE_GUN],
-                SelectedGunIndex = selectedGunIndex,
-                HasShield = hasShield,
-                Velocity = velocity ?? new Vector2Float(0, 0),
-                TurretAngularVelocity = turretAngularVelocity,
-                RemainingImmunityMicros = remainingImmunityMicros,
-                DeathTimestamp = deathTimestamp,
-                LastDamagedBy = lastDamagedBy,
-                UpdatedAt = updatedAt ?? timestamp
-            };
-        }
+            Id = tankId,
+            WorldId = tankWorldId,
+            Owner = owner ?? Identity.From(new byte[32]),
+            Name = name ?? "",
+            TargetCode = targetCode ?? "",
+            JoinCode = joinCode,
+            IsBot = computedIsBot,
+            AIBehavior = aiBehavior,
+            AiConfig = aiConfig,
+            Alliance = alliance,
+            MaxHealth = maxHealth,
+            TopSpeed = topSpeed,
+            TurretRotationSpeed = turretRotationSpeed,
+            Health = health,
+            Kills = kills,
+            Deaths = deaths,
+            KillStreak = killStreak,
+            Target = target,
+            TargetLead = targetLead,
+            Message = message,
+            Guns = guns ?? [BASE_GUN],
+            SelectedGunIndex = selectedGunIndex,
+            HasShield = hasShield,
+            RemainingImmunityMicros = remainingImmunityMicros,
+            DeathTimestamp = deathTimestamp,
+            LastDamagedBy = lastDamagedBy
+        };
+
+        var transform = new TankTransform
+        {
+            TankId = tankId,
+            WorldId = tankWorldId,
+            PositionX = positionX,
+            PositionY = positionY,
+            Velocity = velocity ?? new Vector2Float(0, 0),
+            CollisionRegionX = collisionRegionX,
+            CollisionRegionY = collisionRegionY,
+            TurretRotation = turretRotation,
+            TargetTurretRotation = targetTurretRotation,
+            TurretAngularVelocity = turretAngularVelocity,
+            UpdatedAt = computedUpdatedAt
+        };
+
+        return (tank, transform);
     }
 }

@@ -9,12 +9,13 @@ public static partial class TurretAI
     private const int TILE_SIZE = 6;
     private const float AIM_TOLERANCE = 0.05f;
 
-    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext, int tickCount)
+    public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, AIContext aiContext, int tickCount)
     {
+        var tank = fullTank.Tank;
         bool targetJustSelected = false;
         if (tank.Target == null)
         {
-            tank = SelectNewTarget(ctx, tank, aiContext);
+            tank = SelectNewTarget(ctx, fullTank, tank, aiContext);
             if (tank.Target != null) targetJustSelected = true;
         }
         else
@@ -22,7 +23,7 @@ public static partial class TurretAI
             var targetTank = ctx.Db.tank.Id.Find(tank.Target);
             if (targetTank == null || targetTank.Value.Health <= 0)
             {
-                tank = SelectNewTarget(ctx, tank, aiContext);
+                tank = SelectNewTarget(ctx, fullTank, tank, aiContext);
                 if (tank.Target != null) targetJustSelected = true;
             }
         }
@@ -42,14 +43,14 @@ public static partial class TurretAI
         return tank;
     }
 
-    private static Tank SelectNewTarget(ReducerContext ctx, Tank tank, AIContext aiContext)
+    private static Tank SelectNewTarget(ReducerContext ctx, FullTank fullTank, Tank tank, AIContext aiContext)
     {
-        int turretTileX = (int)tank.PositionX / TILE_SIZE;
-        int turretTileY = (int)tank.PositionY / TILE_SIZE;
+        int turretTileX = (int)fullTank.PositionX / TILE_SIZE;
+        int turretTileY = (int)fullTank.PositionY / TILE_SIZE;
 
         var allTanks = aiContext.GetAllTanks();
         var tanksInTile = allTanks
-            .Where(t => t.Id != tank.Id && t.Health > 0 && t.Alliance != tank.Alliance)
+            .Where(t => t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
             .Where(t => {
                 int tankTileX = (int)t.PositionX / TILE_SIZE;
                 int tankTileY = (int)t.PositionY / TILE_SIZE;
@@ -61,11 +62,11 @@ public static partial class TurretAI
 
         if (tanksInTile.Count > 0)
         {
-            var targetTank = tanksInTile[aiContext.GetRandom().Next(tanksInTile.Count)];
-            updatedTank = TargetTankByCode(ctx, tank, targetTank.TargetCode, 0);
+            var targetFullTank = tanksInTile[aiContext.GetRandom().Next(tanksInTile.Count)];
+            updatedTank = TargetTankByCode(ctx, tank, targetFullTank.TargetCode, 0);
             updatedTank = updatedTank with
             {
-                Message = $"target {targetTank.TargetCode}"
+                Message = $"target {targetFullTank.TargetCode}"
             };
         }
         else
@@ -76,7 +77,7 @@ public static partial class TurretAI
         return updatedTank;
     }
 
-    private static bool IsInSameTile(Tank tank1, Tank tank2)
+    private static bool IsInSameTile(FullTank tank1, FullTank tank2)
     {
         int tank1TileX = (int)tank1.PositionX / TILE_SIZE;
         int tank1TileY = (int)tank1.PositionY / TILE_SIZE;

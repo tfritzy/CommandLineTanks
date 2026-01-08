@@ -7,6 +7,7 @@ public static partial class Module
     public static void DealDamageToTankCommand(
         ReducerContext ctx,
         Tank tank,
+        TankTransform transform,
         int damage,
         string shooterTankId,
         int attackerAlliance,
@@ -17,8 +18,8 @@ public static partial class Module
             return;
         }
 
-        var shooterTank = ctx.Db.tank.Id.Find(shooterTankId);
-        var shooterIdentity = shooterTank?.Owner;
+        var shooterTankQuery = ctx.Db.tank.Id.Find(shooterTankId);
+        var shooterIdentity = shooterTankQuery?.Owner;
 
         if (tank.HasShield)
         {
@@ -47,14 +48,14 @@ public static partial class Module
             };
             ctx.Db.tank.Id.Update(killedTank);
 
-            DropWeaponsOnDeath(ctx, tank, worldId);
+            DropWeaponsOnDeath(ctx, tank, transform, worldId);
 
-            if (shooterTank != null)
+            if (shooterTankQuery != null)
             {
-                var updatedShooterTank = shooterTank.Value with
+                var updatedShooterTank = shooterTankQuery.Value with
                 {
-                    Kills = shooterTank.Value.Kills + 1,
-                    KillStreak = shooterTank.Value.KillStreak + 1
+                    Kills = shooterTankQuery.Value.Kills + 1,
+                    KillStreak = shooterTankQuery.Value.KillStreak + 1
                 };
                 ctx.Db.tank.Id.Update(updatedShooterTank);
 
@@ -63,7 +64,7 @@ public static partial class Module
                 {
                     Id = GenerateId(ctx, "k"),
                     WorldId = worldId,
-                    Killer = shooterTank.Value.Owner,
+                    Killer = shooterTankQuery.Value.Owner,
                     KilleeName = killeeName,
                     Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
                 });
@@ -91,7 +92,7 @@ public static partial class Module
         }
     }
 
-    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, string worldId)
+    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankTransform transform, string worldId)
     {
         foreach (var gun in tank.Guns)
         {
@@ -109,8 +110,8 @@ public static partial class Module
             float offsetX = ((float)ctx.Rng.NextDouble() - 0.5f) * 1.5f;
             float offsetY = ((float)ctx.Rng.NextDouble() - 0.5f) * 1.5f;
 
-            float dropX = tank.PositionX + offsetX;
-            float dropY = tank.PositionY + offsetY;
+            float dropX = transform.PositionX + offsetX;
+            float dropY = transform.PositionY + offsetY;
 
             int gridX = (int)Math.Floor(dropX);
             int gridY = (int)Math.Floor(dropY);

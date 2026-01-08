@@ -5,8 +5,9 @@ public static partial class Module
     [Reducer]
     public static void targetTank(ReducerContext ctx, string worldId, string targetCode, float lead)
     {
-        Tank tank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (tank.Id == null) return;
+        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (tankQuery == null || tankQuery.Value.Id == null) return;
+        var tank = tankQuery.Value;
 
         tank = TargetTankByCode(ctx, tank, targetCode, lead);
         ctx.Db.tank.Id.Update(tank);

@@ -30,18 +30,22 @@ public static partial class ProjectileUpdater
                 int regionX = projectileCollisionRegionX + dx;
                 int regionY = projectileCollisionRegionY + dy;
 
-                foreach (var tank in ctx.Db.tank.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                foreach (var transform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
                 {
+                    var tankQuery = ctx.Db.tank.Id.Find(transform.TankId);
+                    if (tankQuery == null) continue;
+                    var tank = tankQuery.Value;
+                    
                     if (tank.Health > 0 && tank.Alliance != projectile.Alliance)
                     {
-                        float dx_tank = tank.PositionX - projectile.PositionX;
-                        float dy_tank = tank.PositionY - projectile.PositionY;
+                        float dx_tank = transform.PositionX - projectile.PositionX;
+                        float dy_tank = transform.PositionY - projectile.PositionY;
                         float distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
                         float explosionRadiusSquared = explosionRadius * explosionRadius;
 
                         if (distanceSquared <= explosionRadiusSquared)
                         {
-                            Module.DealDamageToTankCommand(ctx, tank, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
+                            Module.DealDamageToTankCommand(ctx, tank, transform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
                         }
                     }
                 }

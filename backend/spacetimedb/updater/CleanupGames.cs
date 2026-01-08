@@ -67,6 +67,11 @@ public static partial class Module
             ctx.Db.tank.Id.Delete(tank.Id);
         }
 
+        foreach (var transform in ctx.Db.tank_transform.WorldId.Filter(worldId))
+        {
+            ctx.Db.tank_transform.TankId.Delete(transform.TankId);
+        }
+
         foreach (var fireState in ctx.Db.tank_fire_state.WorldId.Filter(worldId))
         {
             ctx.Db.tank_fire_state.TankId.Delete(fireState.TankId);

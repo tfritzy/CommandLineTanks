@@ -109,8 +109,12 @@ import TankRow from "./tank_table";
 export { TankRow };
 import TankFireStateRow from "./tank_fire_state_table";
 export { TankFireStateRow };
+import TankMetadataRow from "./tank_metadata_table";
+export { TankMetadataRow };
 import TankPathRow from "./tank_path_table";
 export { TankPathRow };
+import TankPositionRow from "./tank_position_table";
+export { TankPositionRow };
 import TerrainDetailRow from "./terrain_detail_table";
 export { TerrainDetailRow };
 import TraversibilityMapRow from "./traversibility_map_table";
@@ -175,8 +179,12 @@ import Tank from "./tank_type";
 export { Tank };
 import TankFireState from "./tank_fire_state_type";
 export { TankFireState };
+import TankMetadata from "./tank_metadata_type";
+export { TankMetadata };
 import TankPath from "./tank_path_type";
 export { TankPath };
+import TankPosition from "./tank_position_type";
+export { TankPosition };
 import TerrainDetail from "./terrain_detail_type";
 export { TerrainDetail };
 import TerrainDetailType from "./terrain_detail_type_type";
@@ -382,26 +390,6 @@ const tablesSchema = __schema(
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
-      { name: 'Owner', algorithm: 'btree', columns: [
-        'owner',
-      ] },
-      { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
-        'worldId',
-        'collisionRegionX',
-        'collisionRegionY',
-      ] },
-      { name: 'WorldId_IsBot', algorithm: 'btree', columns: [
-        'worldId',
-        'isBot',
-      ] },
-      { name: 'WorldId_Owner', algorithm: 'btree', columns: [
-        'worldId',
-        'owner',
-      ] },
-      { name: 'WorldId_TargetCode', algorithm: 'btree', columns: [
-        'worldId',
-        'targetCode',
-      ] },
       { name: 'WorldId', algorithm: 'btree', columns: [
         'worldId',
       ] },
@@ -425,6 +413,35 @@ const tablesSchema = __schema(
     ],
   }, TankFireStateRow),
   __table({
+    name: 'tank_metadata',
+    indexes: [
+      { name: 'Owner', algorithm: 'btree', columns: [
+        'owner',
+      ] },
+      { name: 'TankId', algorithm: 'btree', columns: [
+        'tankId',
+      ] },
+      { name: 'WorldId_IsBot', algorithm: 'btree', columns: [
+        'worldId',
+        'isBot',
+      ] },
+      { name: 'WorldId_Owner', algorithm: 'btree', columns: [
+        'worldId',
+        'owner',
+      ] },
+      { name: 'WorldId_TargetCode', algorithm: 'btree', columns: [
+        'worldId',
+        'targetCode',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'tank_metadata_TankId_key', constraint: 'unique', columns: ['tankId'] },
+    ],
+  }, TankMetadataRow),
+  __table({
     name: 'tank_path',
     indexes: [
       { name: 'TankId', algorithm: 'btree', columns: [
@@ -438,6 +455,25 @@ const tablesSchema = __schema(
       { name: 'tank_path_TankId_key', constraint: 'unique', columns: ['tankId'] },
     ],
   }, TankPathRow),
+  __table({
+    name: 'tank_position',
+    indexes: [
+      { name: 'TankId', algorithm: 'btree', columns: [
+        'tankId',
+      ] },
+      { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
+        'worldId',
+        'collisionRegionX',
+        'collisionRegionY',
+      ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
+    ],
+    constraints: [
+      { name: 'tank_position_TankId_key', constraint: 'unique', columns: ['tankId'] },
+    ],
+  }, TankPositionRow),
   __table({
     name: 'terrain_detail',
     indexes: [

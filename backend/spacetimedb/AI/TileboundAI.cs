@@ -9,8 +9,10 @@ public static partial class TileboundAI
     private const int TILE_SIZE = 5;
     private const int MOVEMENT_TICK_INTERVAL = 2;
 
-    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext, int tickCount)
+    public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, AIContext aiContext, int tickCount)
     {
+        var tank = fullTank.Tank;
+        
         if (tickCount % MOVEMENT_TICK_INTERVAL != 0)
         {
             return tank;
@@ -24,21 +26,21 @@ public static partial class TileboundAI
             var traversibilityMap = aiContext.GetTraversibilityMap();
             if (traversibilityMap != null)
             {
-                var (targetX, targetY) = FindRandomPositionInTile(tank, traversibilityMap.Value, aiContext.GetRandom());
-                tank = DriveTowards(ctx, tank, targetX, targetY);
+                var (targetX, targetY) = FindRandomPositionInTile(fullTank, traversibilityMap.Value, aiContext.GetRandom());
+                tank = DriveTowards(ctx, fullTank, targetX, targetY);
             }
         }
 
         return tank;
     }
 
-    private static (int x, int y) FindRandomPositionInTile(Tank tank, Module.TraversibilityMap traversibilityMap, Random rng)
+    private static (int x, int y) FindRandomPositionInTile(FullTank fullTank, Module.TraversibilityMap traversibilityMap, Random rng)
     {
         int tileMinX, tileMaxX, tileMinY, tileMaxY;
 
-        if (tank.AiConfig.HasValue)
+        if (fullTank.AiConfig.HasValue)
         {
-            var config = tank.AiConfig.Value;
+            var config = fullTank.AiConfig.Value;
             tileMinX = config.PenMinX;
             tileMaxX = config.PenMaxX;
             tileMinY = config.PenMinY;
@@ -46,8 +48,8 @@ public static partial class TileboundAI
         }
         else
         {
-            int currentX = (int)tank.PositionX;
-            int currentY = (int)tank.PositionY;
+            int currentX = (int)fullTank.PositionX;
+            int currentY = (int)fullTank.PositionY;
 
             tileMinX = (currentX / TILE_SIZE) * TILE_SIZE;
             tileMinY = (currentY / TILE_SIZE) * TILE_SIZE;
@@ -57,7 +59,7 @@ public static partial class TileboundAI
 
         if (tileMinX > tileMaxX || tileMinY > tileMaxY)
         {
-            return ((int)tank.PositionX, (int)tank.PositionY);
+            return ((int)fullTank.PositionX, (int)fullTank.PositionY);
         }
 
         for (int attempt = 0; attempt < MAX_POSITION_SEARCH_ATTEMPTS; attempt++)
@@ -72,13 +74,14 @@ public static partial class TileboundAI
             }
         }
 
-        return ((int)tank.PositionX, (int)tank.PositionY);
+        return ((int)fullTank.PositionX, (int)fullTank.PositionY);
     }
 
-    private static Tank DriveTowards(ReducerContext ctx, Tank tank, int targetX, int targetY)
+    private static Tank DriveTowards(ReducerContext ctx, FullTank fullTank, int targetX, int targetY)
     {
-        int currentX = (int)tank.PositionX;
-        int currentY = (int)tank.PositionY;
+        var tank = fullTank.Tank;
+        int currentX = (int)fullTank.PositionX;
+        int currentY = (int)fullTank.PositionY;
 
         if (targetX == currentX && targetY == currentY)
         {
@@ -89,7 +92,7 @@ public static partial class TileboundAI
         Vector2 targetPos = new Vector2(targetX, targetY);
         Vector2 offset = new Vector2(targetPos.X - currentPos.X, targetPos.Y - currentPos.Y);
 
-        Vector2Float rootPos = new Vector2Float(tank.PositionX, tank.PositionY);
+        Vector2Float rootPos = new Vector2Float(fullTank.PositionX, fullTank.PositionY);
         Vector2Float nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
 
         PathEntry entry = new()
@@ -101,14 +104,14 @@ public static partial class TileboundAI
 
         var newPathState = new Module.TankPath
         {
-            TankId = tank.Id,
-            WorldId = tank.WorldId,
+            TankId = fullTank.Id,
+            WorldId = fullTank.WorldId,
             Path = [entry]
         };
 
         UpsertTankPath(ctx, newPathState);
 
-        if (tank.Alliance == 0)
+        if (fullTank.Alliance == 0)
         {
             var (direction, distance) = OffsetToDirectionAndDistance(offset.X, offset.Y);
             return tank with

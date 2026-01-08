@@ -22,29 +22,34 @@ public static partial class EnemyTankRespawner
         var tanks = ctx.Db.tank.WorldId.Filter(args.WorldId);
         foreach (var tank in tanks)
         {
-            if (tank.Alliance == 1 && tank.Health <= 0)
+            if (tank.Alliance == 1)
             {
-                if (tank.DeathTimestamp == 0)
+                if (tank.Health <= 0)
                 {
-                    continue;
+                    if (tank.DeathTimestamp == 0)
+                    {
+                        continue;
+                    }
+
+                    ulong currentTimestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+                    ulong timeSinceDeath = currentTimestamp - tank.DeathTimestamp;
+
+                    if (timeSinceDeath < (ulong)Module.BOT_RESPAWN_DELAY_MICROS)
+                    {
+                        continue;
+                    }
+                    
+                    var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+
+                    var respawnedTank = tank with
+                    {
+                        Health = Module.TANK_HEALTH,
+                        RemainingImmunityMicros = Module.SPAWN_IMMUNITY_DURATION_MICROS,
+                        DeathTimestamp = 0
+                    };
+                    ctx.Db.tank.Id.Update(respawnedTank);
+                    Log.Info($"Respawned enemy tank {tank.Name} at position ({transformQuery?.PositionX ?? 0}, {transformQuery?.PositionY ?? 0})");
                 }
-
-                ulong currentTimestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-                ulong timeSinceDeath = currentTimestamp - tank.DeathTimestamp;
-
-                if (timeSinceDeath < (ulong)Module.BOT_RESPAWN_DELAY_MICROS)
-                {
-                    continue;
-                }
-
-                var respawnedTank = tank with
-                {
-                    Health = Module.TANK_HEALTH,
-                    RemainingImmunityMicros = Module.SPAWN_IMMUNITY_DURATION_MICROS,
-                    DeathTimestamp = 0
-                };
-                ctx.Db.tank.Id.Update(respawnedTank);
-                Log.Info($"Respawned enemy tank {respawnedTank.Name} at position ({respawnedTank.PositionX}, {respawnedTank.PositionY})");
             }
         }
     }

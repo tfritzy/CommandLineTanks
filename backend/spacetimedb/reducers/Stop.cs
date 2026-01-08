@@ -6,17 +6,24 @@ public static partial class Module
     [Reducer]
     public static void stop(ReducerContext ctx, string worldId)
     {
-        Tank? maybeTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
-        if (maybeTank == null) return;
-        var tank = maybeTank.Value;
+        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        if (tankQuery == null || tankQuery.Value.Id == null) return;
+        var tank = tankQuery.Value;
+        
+        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        if (transformQuery == null) return;
+        var transform = transformQuery.Value;
 
         if (tank.Health <= 0) return;
 
         DeleteTankPathIfExists(ctx, tank.Id);
 
-        tank.Velocity = new Vector2Float(0, 0);
-        tank.UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        ctx.Db.tank.Id.Update(tank);
+        var updatedTransform = transform with 
+        {
+            Velocity = new Vector2Float(0, 0),
+            UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+        };
+        ctx.Db.tank_transform.TankId.Update(updatedTransform);
         Log.Info($"Tank {tank.Name} stopped");
     }
 }

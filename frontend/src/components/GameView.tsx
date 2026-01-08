@@ -14,12 +14,13 @@ import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual } 
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
+import TankMetadataRow from "../../module_bindings/tank_metadata_type";
 import { World } from "../../module_bindings";
 import {
   type EventContext,
   type SubscriptionHandle,
 } from "../../module_bindings";
-import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
+import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 
 export default function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
@@ -27,7 +28,7 @@ export default function GameView() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
-  const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
+  const tankSubscriptionRef = useRef<MultiTableSubscription | null>(null);
   const joinModalTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const worldCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDead, setIsDead] = useState(false);
@@ -60,6 +61,8 @@ export default function GameView() {
       .subscribe([
         `SELECT * FROM tank WHERE WorldId = '${worldId}'`,
         `SELECT * FROM tank_path WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM tank_metadata WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM tank_position WHERE WorldId = '${worldId}'`,
         `SELECT * FROM projectile WHERE WorldId = '${worldId}'`,
         `SELECT * FROM pickup WHERE WorldId = '${worldId}'`,
         `SELECT * FROM kills WHERE WorldId = '${worldId}'`,
@@ -97,76 +100,100 @@ export default function GameView() {
 
     let hasReceivedPlayerTankData = false;
     let firstTankDataReceived = false;
+    let playerTankId: string | null = null;
 
     const checkForTank = () => {
-      for (const tank of connection.db.tank.iter()) {
+      for (const metadata of connection.db.tankMetadata.iter()) {
         if (
-          isCurrentIdentity(tank.owner) &&
-          tank.worldId === worldId
+          isCurrentIdentity(metadata.owner) &&
+          metadata.worldId === worldId
         ) {
           hasReceivedPlayerTankData = true;
+          playerTankId = metadata.tankId;
           setShowJoinModal(false);
-          setIsDead(tank.health <= 0);
+          const tank = connection.db.tank.id.find(metadata.tankId);
+          if (tank) {
+            setIsDead(tank.health <= 0);
+          }
           return true;
         }
       }
       return false;
     };
 
-    tankSubscriptionRef.current = subscribeToTable({
-      table: connection.db.tank,
-      handlers: {
-        onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId !== worldId) return;
+    tankSubscriptionRef.current = createMultiTableSubscription()
+      .add<typeof TankMetadataRow>({
+        table: connection.db.tankMetadata,
+        handlers: {
+          onInsert: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
+            if (metadata.worldId !== worldId) return;
 
-          if (!firstTankDataReceived) {
-            firstTankDataReceived = true;
-            if (joinModalTimeoutRef.current) {
-              clearTimeout(joinModalTimeoutRef.current);
-            }
-            joinModalTimeoutRef.current = setTimeout(() => {
-              if (!hasReceivedPlayerTankData) {
-                if (!checkForTank()) {
-                  setShowJoinModal(true);
-                }
+            if (!firstTankDataReceived) {
+              firstTankDataReceived = true;
+              if (joinModalTimeoutRef.current) {
+                clearTimeout(joinModalTimeoutRef.current);
               }
-            }, 500);
-          }
+              joinModalTimeoutRef.current = setTimeout(() => {
+                if (!hasReceivedPlayerTankData) {
+                  if (!checkForTank()) {
+                    setShowJoinModal(true);
+                  }
+                }
+              }, 500);
+            }
 
-          if (isCurrentIdentity(tank.owner)) {
-            hasReceivedPlayerTankData = true;
-            setShowJoinModal(false);
-            setIsDead(tank.health <= 0);
+            if (isCurrentIdentity(metadata.owner)) {
+              hasReceivedPlayerTankData = true;
+              playerTankId = metadata.tankId;
+              setShowJoinModal(false);
+              const tank = connection.db.tank.id.find(metadata.tankId);
+              if (tank) {
+                setIsDead(tank.health <= 0);
+              }
+            }
+          },
+          onDelete: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
+            if (
+              isCurrentIdentity(metadata.owner) &&
+              metadata.worldId === worldId
+            ) {
+              setIsDead(false);
+              setShowJoinModal(true);
+              playerTankId = null;
+            }
           }
-        },
-        onUpdate: (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-          if (
-            isCurrentIdentity(newTank.owner) &&
-            newTank.worldId === worldId
-          ) {
+        }
+      })
+      .add<typeof TankRow>({
+        table: connection.db.tank,
+        handlers: {
+          onUpdate: (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+            if (newTank.worldId !== worldId) return;
+            if (playerTankId !== newTank.id) return;
+
             const wasDead = oldTank.health <= 0;
             const isNowDead = newTank.health <= 0;
 
             if (!wasDead && isNowDead && newTank.lastDamagedBy) {
-              let killerName: string | null = null;
+              let killerNameFound: string | null = null;
 
-              for (const tank of connection.db.tank.iter()) {
-                if (tank.worldId === worldId && areIdentitiesEqual(tank.owner, newTank.lastDamagedBy)) {
-                  killerName = tank.name;
+              for (const metadata of connection.db.tankMetadata.iter()) {
+                if (metadata.worldId === worldId && areIdentitiesEqual(metadata.owner, newTank.lastDamagedBy)) {
+                  killerNameFound = metadata.name;
                   break;
                 }
               }
 
-              if (!killerName) {
+              if (!killerNameFound) {
                 for (const player of connection.db.player.iter()) {
                   if (areIdentitiesEqual(player.identity, newTank.lastDamagedBy)) {
-                    killerName = player.name;
+                    killerNameFound = player.name;
                     break;
                   }
                 }
               }
 
-              setKillerName(killerName);
+              setKillerName(killerNameFound);
             } else if (!isNowDead) {
               setKillerName(null);
             }
@@ -174,23 +201,13 @@ export default function GameView() {
             setIsDead(isNowDead);
           }
         },
-        onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (
-            isCurrentIdentity(tank.owner) &&
-            tank.worldId === worldId
-          ) {
-            setIsDead(false);
-            setShowJoinModal(true);
-          }
-        }
-      },
-      loadInitialData: false
-    });
+        loadInitialData: false
+      });
 
-    const existingTanks = Array.from(connection.db.tank.iter()).filter(
-      t => t.worldId === worldId
+    const existingMetadatas = Array.from(connection.db.tankMetadata.iter()).filter(
+      m => m.worldId === worldId
     );
-    if (existingTanks.length > 0) {
+    if (existingMetadatas.length > 0) {
       firstTankDataReceived = true;
       if (joinModalTimeoutRef.current) {
         clearTimeout(joinModalTimeoutRef.current);

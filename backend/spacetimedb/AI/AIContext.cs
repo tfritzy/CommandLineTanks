@@ -8,7 +8,7 @@ public class AIContext
 {
     private readonly ReducerContext _ctx;
     private readonly string _worldId;
-    private List<Tank>? _allTanks;
+    private List<FullTank>? _allFullTanks;
     private List<Pickup>? _allPickups;
     private TraversibilityMap? _traversibilityMap;
     private bool _traversibilityMapLoaded;
@@ -25,13 +25,21 @@ public class AIContext
         return _ctx.Rng;
     }
 
-    public List<Tank> GetAllTanks()
+    public List<FullTank> GetAllTanks()
     {
-        if (_allTanks == null)
+        if (_allFullTanks == null)
         {
-            _allTanks = _ctx.Db.tank.WorldId.Filter(_worldId).ToList();
+            _allFullTanks = new List<FullTank>();
+            foreach (var tank in _ctx.Db.tank.WorldId.Filter(_worldId))
+            {
+                var transform = _ctx.Db.tank_transform.TankId.Find(tank.Id);
+                if (transform != null)
+                {
+                    _allFullTanks.Add(new FullTank(tank, transform.Value));
+                }
+            }
         }
-        return _allTanks;
+        return _allFullTanks;
     }
 
     public List<Pickup> GetAllPickups()
@@ -68,10 +76,10 @@ public class AIContext
         return _tankPaths[tankId];
     }
 
-    public Tank? GetClosestEnemyTank(Tank sourceTank)
+    public FullTank? GetClosestEnemyTank(FullTank sourceTank)
     {
         var tanks = GetAllTanks();
-        Tank? closestTank = null;
+        FullTank? closestTank = null;
         float closestDistanceSquared = float.MaxValue;
 
         foreach (var tank in tanks)

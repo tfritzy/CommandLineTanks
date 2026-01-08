@@ -15,10 +15,11 @@ public static partial class Module
 
         DeleteHomeworldIfEmpty(ctx, identityString);
 
-        var tank = CreateTankInWorld(ctx, worldId, ctx.Sender, joinCode);
-        if (tank != null)
+        var result = CreateTankInWorld(ctx, worldId, ctx.Sender, joinCode);
+        if (result != null)
         {
-            AddTankToWorld(ctx, tank.Value);
+            var (tank, transform) = result.Value;
+            AddTankToWorld(ctx, tank, transform);
         }
     }
 }

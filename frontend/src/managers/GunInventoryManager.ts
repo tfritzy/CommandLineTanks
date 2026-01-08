@@ -3,17 +3,20 @@ import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import Gun from "../../module_bindings/gun_type";
 import { type EventContext } from "../../module_bindings";
 import TankRow from "../../module_bindings/tank_type";
+import TankMetadataRow from "../../module_bindings/tank_metadata_type";
 import { redTeamPickupTextureSheet, blueTeamPickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
-import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
+import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 
 export class GunInventoryManager {
   private guns: Infer<typeof Gun>[] = [];
   private selectedGunIndex: number = 0;
   private playerTankId: string | null = null;
   private playerAlliance: number = 0;
-  private subscription: TableSubscription<typeof TankRow> | null = null;
+  private subscription: MultiTableSubscription | null = null;
+  private worldId: string;
 
   constructor(worldId: string) {
+    this.worldId = worldId;
     this.subscribeToPlayerTank(worldId);
   }
 
@@ -24,42 +27,74 @@ export class GunInventoryManager {
       return;
     }
 
-    this.subscription = subscribeToTable({
-      table: connection.db.tank,
-      handlers: {
-        onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId !== worldId) return;
-          if (isCurrentIdentity(tank.owner)) {
-            this.playerTankId = tank.id;
-            this.guns.length = 0;
-            for (let i = 0; i < tank.guns.length; i++) {
-              this.guns.push(tank.guns[i]);
+    this.subscription = createMultiTableSubscription()
+      .add<typeof TankMetadataRow>({
+        table: connection.db.tankMetadata,
+        handlers: {
+          onInsert: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
+            if (metadata.worldId !== worldId) return;
+            if (isCurrentIdentity(metadata.owner)) {
+              this.playerTankId = metadata.tankId;
+              this.playerAlliance = metadata.alliance;
+              const tank = connection.db.tank.id.find(metadata.tankId);
+              if (tank) {
+                this.guns.length = 0;
+                for (let i = 0; i < tank.guns.length; i++) {
+                  this.guns.push(tank.guns[i]);
+                }
+                this.selectedGunIndex = tank.selectedGunIndex;
+              }
             }
-            this.selectedGunIndex = tank.selectedGunIndex;
-            this.playerAlliance = tank.alliance;
-          }
-        },
-        onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-          if (newTank.worldId !== worldId) return;
-          if (isCurrentIdentity(newTank.owner)) {
-            this.guns.length = 0;
-            for (let i = 0; i < newTank.guns.length; i++) {
-              this.guns.push(newTank.guns[i]);
+          },
+          onUpdate: (_ctx: EventContext, _oldMetadata: Infer<typeof TankMetadataRow>, newMetadata: Infer<typeof TankMetadataRow>) => {
+            if (newMetadata.worldId !== worldId) return;
+            if (this.playerTankId === newMetadata.tankId) {
+              this.playerAlliance = newMetadata.alliance;
             }
-            this.selectedGunIndex = newTank.selectedGunIndex;
-            this.playerAlliance = newTank.alliance;
-          }
-        },
-        onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId !== worldId) return;
-          if (this.playerTankId === tank.id) {
-            this.playerTankId = null;
-            this.guns.length = 0;
-            this.selectedGunIndex = 0;
+          },
+          onDelete: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
+            if (metadata.worldId !== worldId) return;
+            if (this.playerTankId === metadata.tankId) {
+              this.playerTankId = null;
+              this.guns.length = 0;
+              this.selectedGunIndex = 0;
+            }
           }
         }
-      }
-    });
+      })
+      .add<typeof TankRow>({
+        table: connection.db.tank,
+        handlers: {
+          onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+            if (tank.worldId !== this.worldId) return;
+            if (this.playerTankId === tank.id) {
+              this.guns.length = 0;
+              for (let i = 0; i < tank.guns.length; i++) {
+                this.guns.push(tank.guns[i]);
+              }
+              this.selectedGunIndex = tank.selectedGunIndex;
+            }
+          },
+          onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+            if (newTank.worldId !== this.worldId) return;
+            if (this.playerTankId === newTank.id) {
+              this.guns.length = 0;
+              for (let i = 0; i < newTank.guns.length; i++) {
+                this.guns.push(newTank.guns[i]);
+              }
+              this.selectedGunIndex = newTank.selectedGunIndex;
+            }
+          },
+          onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+            if (tank.worldId !== this.worldId) return;
+            if (this.playerTankId === tank.id) {
+              this.playerTankId = null;
+              this.guns.length = 0;
+              this.selectedGunIndex = 0;
+            }
+          }
+        }
+      });
   }
 
   public destroy() {

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { getConnection, isCurrentIdentity } from '../spacetimedb-connection';
 import { type Infer } from 'spacetimedb';
 import TankRow from '../../module_bindings/tank_type';
+import TankMetadataRow from '../../module_bindings/tank_metadata_type';
 import ScoreRow from '../../module_bindings/score_type';
 import WorldRow from '../../module_bindings/world_type';
 import { type EventContext } from "../../module_bindings";
@@ -15,8 +16,16 @@ interface ResultsScreenProps {
     worldId: string;
 }
 
+interface CombinedTankData {
+    id: string;
+    name: string;
+    kills: number;
+    deaths: number;
+    alliance: number;
+}
+
 export default function ResultsScreen({ worldId }: ResultsScreenProps) {
-    const [tanks, setTanks] = useState<Infer<typeof TankRow>[]>([]);
+    const [tanks, setTanks] = useState<CombinedTankData[]>([]);
     const [team0Kills, setTeam0Kills] = useState(0);
     const [team1Kills, setTeam1Kills] = useState(0);
     const [showResults, setShowResults] = useState(false);
@@ -37,9 +46,30 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
         if (!connection) return;
 
         const updateTanks = () => {
-            const allTanks = Array.from(connection.db.tank.iter())
-                .filter(t => t.worldId === worldId);
-            setTanks(allTanks);
+            const tankMap = new Map<string, Infer<typeof TankRow>>();
+            for (const tank of connection.db.tank.iter()) {
+                if (tank.worldId === worldId) {
+                    tankMap.set(tank.id, tank);
+                }
+            }
+            
+            const metadatas = Array.from(connection.db.tankMetadata.iter())
+                .filter(m => m.worldId === worldId);
+            
+            const combinedTanks: CombinedTankData[] = [];
+            for (const metadata of metadatas) {
+                const tank = tankMap.get(metadata.tankId);
+                if (tank) {
+                    combinedTanks.push({
+                        id: metadata.tankId,
+                        name: metadata.name,
+                        kills: tank.kills,
+                        deaths: tank.deaths,
+                        alliance: metadata.alliance,
+                    });
+                }
+            }
+            setTanks(combinedTanks);
         };
 
         const updateScores = () => {
@@ -78,6 +108,21 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 },
                 loadInitialData: false
             })
+            .add<typeof TankMetadataRow>({
+                table: connection.db.tankMetadata,
+                handlers: {
+                    onInsert: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
+                        if (metadata.worldId === worldId) updateTanks();
+                    },
+                    onUpdate: (_ctx: EventContext, _oldMetadata: Infer<typeof TankMetadataRow>, newMetadata: Infer<typeof TankMetadataRow>) => {
+                        if (newMetadata.worldId === worldId) updateTanks();
+                    },
+                    onDelete: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
+                        if (metadata.worldId === worldId) updateTanks();
+                    }
+                },
+                loadInitialData: false
+            })
             .add<typeof ScoreRow>({
                 table: connection.db.score,
                 handlers: {
@@ -112,11 +157,11 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                 updateScores();
 
                                 const score = connection.db.score.WorldId.find(worldId);
-                                const myTank = Array.from(connection.db.tank.iter()).find(t =>
-                                    isCurrentIdentity(t.owner) && t.worldId === worldId
+                                const myMetadata = Array.from(connection.db.tankMetadata.iter()).find(m =>
+                                    isCurrentIdentity(m.owner) && m.worldId === worldId
                                 );
 
-                                if (score && myTank) {
+                                if (score && myMetadata) {
                                     const team0Kills = score.kills[0] || 0;
                                     const team1Kills = score.kills[1] || 0;
 
@@ -124,7 +169,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                         SoundManager.getInstance().play('loss');
                                     } else {
                                         const winningTeam = team0Kills > team1Kills ? 0 : 1;
-                                        if (myTank.alliance === winningTeam) {
+                                        if (myMetadata.alliance === winningTeam) {
                                             SoundManager.getInstance().play('win');
                                         } else {
                                             SoundManager.getInstance().play('loss');
