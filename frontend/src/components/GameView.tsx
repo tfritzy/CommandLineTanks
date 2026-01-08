@@ -8,7 +8,6 @@ import ScoreBoard from "./ScoreBoard";
 import JoinWorldModal from "./JoinWorldModal";
 import WorldNotFound from "./WorldNotFound";
 import HomeworldOverlay from "./HomeworldOverlay";
-import { COLORS, PALETTE } from "../theme/colors";
 import { motion, AnimatePresence } from "framer-motion";
 import { getConnection } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
@@ -263,31 +262,14 @@ export default function GameView() {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        width: "100vw",
-        margin: 0,
-        padding: 0,
-        overflow: "hidden",
-      }}
-    >
-      <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+    <div className="flex flex-col h-screen w-screen m-0 p-0 overflow-hidden">
+      <div className="flex-1 overflow-hidden relative">
         <GameHeader worldId={worldId} />
         <ScoreBoard worldId={worldId} />
         {isHomeworld && <HomeworldOverlay />}
         <canvas
           ref={canvasRef}
-          style={{
-            display: "block",
-            margin: 0,
-            padding: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: COLORS.TERRAIN.GROUND,
-          }}
+          className="block m-0 p-0 w-full h-full bg-palette-ground-dark"
         />
         {showJoinModal && (
           <JoinWorldModal
@@ -301,87 +283,27 @@ export default function GameView() {
               animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
               exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
               transition={{ duration: 0.2, delay: 1, ease: "easeOut" }}
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                background: `${PALETTE.PURPLE_VOID}d9`,
-                backdropFilter: "blur(12px)",
-                borderRadius: "4px",
-                border: `1px solid ${PALETTE.WHITE_PURE}14`,
-                padding: "24px 32px",
-                fontFamily: "'JetBrains Mono', monospace",
-                zIndex: 1000,
-                boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE}99`,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                minWidth: "320px",
-              }}
+              className="absolute top-1/2 left-1/2 bg-palette-purple-void/85 backdrop-blur-xl rounded border border-palette-white-pure/[0.08] py-6 px-8 font-mono z-[1000] shadow-2xl flex flex-col items-center min-w-[320px]"
             >
-              <div
-                style={{
-                  fontSize: "32px",
-                  fontWeight: "900",
-                  color: PALETTE.RED_MUTED,
-                  letterSpacing: "0.1em",
-                  marginBottom: "20px",
-                  textAlign: "center",
-                  textShadow: `0 0 20px ${PALETTE.RED_MUTED}4d`,
-                }}
-              >
+              <div className="text-[32px] font-black text-palette-red-muted tracking-[0.1em] mb-5 text-center" style={{ textShadow: '0 0 20px rgba(192, 104, 82, 0.3)' }}>
                 ELIMINATED
               </div>
 
               {killerName && (
-                <div
-                  style={{
-                    fontSize: "14px",
-                    color: COLORS.UI.TEXT_DIM,
-                    marginBottom: "20px",
-                    textAlign: "center",
-                  }}
-                >
+                <div className="text-sm text-ui-text-dim mb-5 text-center">
                   Killed by {killerName}
                 </div>
               )}
 
-              <div
-                style={{
-                  fontSize: "13px",
-                  color: COLORS.TERMINAL.TEXT_DEFAULT,
-                  marginBottom: "24px",
-                  textAlign: "center",
-                  lineHeight: 1.6,
-                }}
-              >
+              <div className="text-[13px] text-terminal-text-default mb-6 text-center leading-relaxed">
                 Run this command to rejoin:
-                <div style={{ marginTop: '12px' }}>
-                  <CopyBox text="respawn" showDollar={true} activeColor={PALETTE.ORANGE_MEDIUM} />
+                <div className="mt-3">
+                  <CopyBox text="respawn" showDollar={true} activeColor="#e39764" />
                 </div>
               </div>
 
-              <div
-                style={{
-                  width: "100%",
-                  borderTop: `1px solid ${PALETTE.WHITE_PURE}0d`,
-                  paddingTop: "20px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "9px",
-                    color: COLORS.UI.TEXT_DIM,
-                    letterSpacing: "0.1em",
-                    fontWeight: "700",
-                    textAlign: "center",
-                    opacity: 0.6,
-                    textTransform: "uppercase",
-                  }}
-                >
+              <div className="w-full border-t border-palette-white-pure/[0.05] pt-5 flex flex-col gap-3">
+                <div className="text-[9px] text-ui-text-dim tracking-[0.1em] font-bold text-center opacity-60 uppercase">
                   Invite Reinforcements
                 </div>
                 <CopyBox text={`${window.location.origin}/world/${worldId}`} label="COPY LINK" />
@@ -395,14 +317,7 @@ export default function GameView() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 2000,
-              }}
+              className="absolute inset-0 z-[2000]"
             >
               <WorldNotFound worldId={worldId} />
             </motion.div>

@@ -147,7 +147,7 @@ const TerminalMock: React.FC = () => {
     }, []);
 
     return (
-        <div className="w-full h-full relative p-2 pointer-events-none select-none" style={{ backgroundColor: '#1a1a24' }}>
+        <div className="w-full h-full relative p-2 pointer-events-none select-none bg-[#1a1a24]">
             <div ref={terminalRef} className="w-full h-full" />
         </div>
     );
@@ -189,7 +189,7 @@ const LandingPage: React.FC = () => {
             </header>
 
             <section className="relative min-h-[600px] flex items-center justify-center border-b border-border-dark overflow-hidden">
-                <div className="absolute inset-0 z-0 opacity-10" style={{ backgroundSize: '40px 40px', backgroundImage: 'linear-gradient(to right, #42425a 1px, transparent 1px), linear-gradient(to bottom, #42425a 1px, transparent 1px)' }}></div>
+                <div className="absolute inset-0 z-0 opacity-10 [background-size:40px_40px] bg-[linear-gradient(to_right,#42425a_1px,transparent_1px),linear-gradient(to_bottom,#42425a_1px,transparent_1px)]"></div>
                 <div className="absolute inset-0 z-0 bg-gradient-to-b from-background-base/0 via-background-base/80 to-background-base"></div>
                 <div className="scanline"></div>
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10 grid lg:grid-cols-2 gap-12 items-center pt-20 pb-32">
