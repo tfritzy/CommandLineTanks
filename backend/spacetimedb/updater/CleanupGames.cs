@@ -87,6 +87,11 @@ public static partial class Module
             ctx.Db.projectile.Id.Delete(projectile.Id);
         }
 
+        foreach (var projectileTransform in ctx.Db.projectile_transform.WorldId.Filter(worldId))
+        {
+            ctx.Db.projectile_transform.ProjectileId.Delete(projectileTransform.ProjectileId);
+        }
+
         foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId.Filter(worldId))
         {
             ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);

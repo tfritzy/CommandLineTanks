@@ -9,6 +9,7 @@ import { SoundManager } from "./SoundManager";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import ProjectileRow from "../../module_bindings/projectile_type";
+import ProjectileTransformRow from "../../module_bindings/projectile_transform_type";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export class ProjectileManager {
@@ -18,7 +19,8 @@ export class ProjectileManager {
   private tankManager: TankManager | null = null;
   private screenShake: ScreenShake;
   private soundManager: SoundManager;
-  private subscription: TableSubscription<typeof ProjectileRow> | null = null;
+  private projectileSubscription: TableSubscription<typeof ProjectileRow> | null = null;
+  private transformSubscription: TableSubscription<typeof ProjectileTransformRow> | null = null;
 
   constructor(worldId: string, screenShake: ScreenShake, soundManager: SoundManager) {
     this.worldId = worldId;
@@ -36,18 +38,21 @@ export class ProjectileManager {
     const connection = getConnection();
     if (!connection) return;
 
-    this.subscription = subscribeToTable({
+    this.projectileSubscription = subscribeToTable({
       table: connection.db.projectile,
       handlers: {
         onInsert: (_ctx: EventContext, newProjectile: Infer<typeof ProjectileRow>) => {
           if (newProjectile.worldId !== this.worldId) return;
 
+          const transform = connection.db.projectileTransform.projectileId.find(newProjectile.id);
+          if (!transform) return;
+
           const projectile = ProjectileFactory.create(
             newProjectile.projectileType.tag,
-            newProjectile.positionX,
-            newProjectile.positionY,
-            newProjectile.velocity.x,
-            newProjectile.velocity.y,
+            transform.positionX,
+            transform.positionY,
+            transform.velocity.x,
+            transform.velocity.y,
             newProjectile.size,
             newProjectile.alliance,
             newProjectile.shooterTankId,
@@ -62,38 +67,89 @@ export class ProjectileManager {
             this.screenShake.shake(15, 0.3);
           }
         },
-        onUpdate: (_ctx: EventContext, _oldProjectile: Infer<typeof ProjectileRow>, newProjectile: Infer<typeof ProjectileRow>) => {
-          if (newProjectile.worldId !== this.worldId) return;
-          const projectile = this.projectiles.get(newProjectile.id);
-
-          if (projectile) {
-            projectile.setPosition(
-              newProjectile.positionX,
-              newProjectile.positionY
-            );
-            projectile.setVelocity(
-              newProjectile.velocity.x,
-              newProjectile.velocity.y
-            );
-          }
-        },
+        onUpdate: () => {},
         onDelete: (_ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => {
           if (projectile.worldId !== this.worldId) return;
           const localProjectile = this.projectiles.get(projectile.id);
           if (localProjectile) {
+            const transform = connection.db.projectileTransform.projectileId.find(projectile.id);
+            const posX = transform?.positionX ?? localProjectile.getX();
+            const posY = transform?.positionY ?? localProjectile.getY();
             localProjectile.spawnDeathParticles(this.particlesManager);
-            this.soundManager.play("projectile-hit", 0.3, projectile.positionX, projectile.positionY);
+            this.soundManager.play("projectile-hit", 0.3, posX, posY);
           }
           this.projectiles.delete(projectile.id);
+        }
+      }
+    });
+
+    this.transformSubscription = subscribeToTable({
+      table: connection.db.projectileTransform,
+      handlers: {
+        onInsert: (_ctx: EventContext, newTransform: Infer<typeof ProjectileTransformRow>) => {
+          if (newTransform.worldId !== this.worldId) return;
+
+          if (this.projectiles.has(newTransform.projectileId)) return;
+
+          const projectileData = connection.db.projectile.id.find(newTransform.projectileId);
+          if (!projectileData) return;
+
+          const projectile = ProjectileFactory.create(
+            projectileData.projectileType.tag,
+            newTransform.positionX,
+            newTransform.positionY,
+            newTransform.velocity.x,
+            newTransform.velocity.y,
+            projectileData.size,
+            projectileData.alliance,
+            projectileData.shooterTankId,
+            projectileData.explosionRadius,
+            projectileData.trackingStrength,
+            projectileData.trackingRadius
+          );
+          this.projectiles.set(newTransform.projectileId, projectile);
+
+          const playerTank = this.tankManager?.getPlayerTank();
+          if (playerTank && projectileData.shooterTankId === playerTank.id && projectileData.projectileType.tag === "Moag") {
+            this.screenShake.shake(15, 0.3);
+          }
+        },
+        onUpdate: (_ctx: EventContext, _oldTransform: Infer<typeof ProjectileTransformRow>, newTransform: Infer<typeof ProjectileTransformRow>) => {
+          if (newTransform.worldId !== this.worldId) return;
+          const projectile = this.projectiles.get(newTransform.projectileId);
+
+          if (projectile) {
+            projectile.setPosition(
+              newTransform.positionX,
+              newTransform.positionY
+            );
+            projectile.setVelocity(
+              newTransform.velocity.x,
+              newTransform.velocity.y
+            );
+          }
+        },
+        onDelete: (_ctx: EventContext, transform: Infer<typeof ProjectileTransformRow>) => {
+          if (transform.worldId !== this.worldId) return;
+          const localProjectile = this.projectiles.get(transform.projectileId);
+          if (localProjectile) {
+            localProjectile.spawnDeathParticles(this.particlesManager);
+            this.soundManager.play("projectile-hit", 0.3, transform.positionX, transform.positionY);
+            this.projectiles.delete(transform.projectileId);
+          }
         }
       }
     });
   }
 
   public destroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-      this.subscription = null;
+    if (this.projectileSubscription) {
+      this.projectileSubscription.unsubscribe();
+      this.projectileSubscription = null;
+    }
+    if (this.transformSubscription) {
+      this.transformSubscription.unsubscribe();
+      this.transformSubscription = null;
     }
     this.projectiles.clear();
     this.particlesManager.destroy();

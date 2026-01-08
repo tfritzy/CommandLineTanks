@@ -44,7 +44,7 @@ public static partial class Module
 
                 var (spawnX, spawnY) = FindSpawnPosition(ctx, world, alliance, ctx.Rng);
                 var botName = $"Bot{ctx.Rng.Next(1000, 10000)}";
-                var (botTank, botMetadata, botPosition) = BuildTank(
+                var (botTank, botTransform) = BuildTank(
                     ctx: ctx,
                     worldId: worldId,
                     owner: Identity.From(new byte[32]),
@@ -55,7 +55,7 @@ public static partial class Module
                     positionX: spawnX,
                     positionY: spawnY,
                     aiBehavior: AIBehavior.GameAI);
-                AddTankToWorld(ctx, botTank, botMetadata, botPosition);
+                AddTankToWorld(ctx, botTank, botTransform);
             }
         }
 

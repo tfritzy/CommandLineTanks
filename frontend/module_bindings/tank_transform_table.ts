@@ -9,26 +9,21 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import AiBehavior from "./ai_behavior_type";
-import AiConfig from "./ai_config_type";
+import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.row({
   tankId: __t.string().primaryKey(),
   worldId: __t.string(),
-  owner: __t.identity(),
-  name: __t.string(),
-  targetCode: __t.string(),
-  joinCode: __t.option(__t.string()),
-  isBot: __t.bool(),
-  get aiBehavior() {
-    return AiBehavior;
+  positionX: __t.f32(),
+  positionY: __t.f32(),
+  get velocity() {
+    return Vector2Float;
   },
-  get aiConfig() {
-    return __t.option(AiConfig);
-  },
-  alliance: __t.i32(),
-  maxHealth: __t.i32(),
-  topSpeed: __t.f32(),
-  turretRotationSpeed: __t.f32(),
+  collisionRegionX: __t.i32(),
+  collisionRegionY: __t.i32(),
+  turretRotation: __t.f32(),
+  targetTurretRotation: __t.f32(),
+  turretAngularVelocity: __t.f32(),
+  updatedAt: __t.u64(),
 });

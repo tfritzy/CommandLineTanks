@@ -10,18 +10,27 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import Vector2Float from "./vector_2_float_type";
+import DamagedTile from "./damaged_tile_type";
+import DamagedTank from "./damaged_tank_type";
 
 
-export default __t.object("TankPosition", {
-  tankId: __t.string(),
+export default __t.object("ProjectileTransform", {
+  projectileId: __t.string(),
   worldId: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
   get velocity() {
     return Vector2Float;
   },
-  collisionRegionX: __t.i32(),
-  collisionRegionY: __t.i32(),
+  speed: __t.f32(),
+  isReturning: __t.bool(),
+  collisionCount: __t.i32(),
+  get recentlyDamagedTiles() {
+    return __t.array(DamagedTile);
+  },
+  get recentlyHitTanks() {
+    return __t.array(DamagedTank);
+  },
   updatedAt: __t.u64(),
 });
 

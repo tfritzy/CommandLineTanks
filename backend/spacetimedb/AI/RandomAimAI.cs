@@ -11,7 +11,7 @@ public static partial class RandomAimAI
     {
         var tank = fullTank.Tank;
         bool isEvenTick = tickCount % 2 == 0;
-        float angleDiff = Math.Abs(GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation));
+        float angleDiff = Math.Abs(GetNormalizedAngleDifference(fullTank.TargetTurretRotation, fullTank.TurretRotation));
 
         if (isEvenTick)
         {
@@ -29,9 +29,13 @@ public static partial class RandomAimAI
                     message = $"aim {targetAngleDegrees:F0}";
                 }
                 
+                var transform = fullTank.Transform with
+                {
+                    TargetTurretRotation = NormalizeAngleToTarget(targetAngle, fullTank.TurretRotation)
+                };
+                ctx.Db.tank_transform.TankId.Update(transform);
                 tank = tank with
                 {
-                    TargetTurretRotation = NormalizeAngleToTarget(targetAngle, tank.TurretRotation),
                     Target = null,
                     Message = message
                 };

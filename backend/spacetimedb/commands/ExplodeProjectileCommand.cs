@@ -4,7 +4,7 @@ using System;
 
 public static partial class ProjectileUpdater
 {
-    public static bool ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, string worldId, ref Module.TraversibilityMap traversibilityMap)
+    public static bool ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string worldId, ref Module.TraversibilityMap traversibilityMap)
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
         {
@@ -13,13 +13,13 @@ public static partial class ProjectileUpdater
 
         if (projectile.ProjectileType == ProjectileType.Grenade)
         {
-            SpawnGrenadeSubProjectiles(ctx, projectile);
+            SpawnGrenadeSubProjectiles(ctx, projectile, transform);
             return false;
         }
 
         float explosionRadius = projectile.ExplosionRadius.Value;
-        int projectileCollisionRegionX = (int)(projectile.PositionX / Module.COLLISION_REGION_SIZE);
-        int projectileCollisionRegionY = (int)(projectile.PositionY / Module.COLLISION_REGION_SIZE);
+        int projectileCollisionRegionX = (int)(transform.PositionX / Module.COLLISION_REGION_SIZE);
+        int projectileCollisionRegionY = (int)(transform.PositionY / Module.COLLISION_REGION_SIZE);
 
         int searchRadius = (int)Math.Ceiling(explosionRadius / Module.COLLISION_REGION_SIZE);
 
@@ -30,22 +30,22 @@ public static partial class ProjectileUpdater
                 int regionX = projectileCollisionRegionX + dx;
                 int regionY = projectileCollisionRegionY + dy;
 
-                foreach (var transform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                foreach (var tankTransform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
                 {
-                    var tankQuery = ctx.Db.tank.Id.Find(transform.TankId);
+                    var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
                     if (tankQuery == null) continue;
                     var tank = tankQuery.Value;
                     
                     if (tank.Health > 0 && tank.Alliance != projectile.Alliance)
                     {
-                        float dx_tank = transform.PositionX - projectile.PositionX;
-                        float dy_tank = transform.PositionY - projectile.PositionY;
+                        float dx_tank = tankTransform.PositionX - transform.PositionX;
+                        float dy_tank = tankTransform.PositionY - transform.PositionY;
                         float distanceSquared = dx_tank * dx_tank + dy_tank * dy_tank;
                         float explosionRadiusSquared = explosionRadius * explosionRadius;
 
                         if (distanceSquared <= explosionRadiusSquared)
                         {
-                            Module.DealDamageToTankCommand(ctx, tank, transform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
+                            Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
                         }
                     }
                 }
@@ -53,8 +53,8 @@ public static partial class ProjectileUpdater
         }
 
         int explosionTileRadius = (int)Math.Ceiling(explosionRadius);
-        int explosionTileX = (int)projectile.PositionX;
-        int explosionTileY = (int)projectile.PositionY;
+        int explosionTileX = (int)transform.PositionX;
+        int explosionTileY = (int)transform.PositionY;
 
         bool traversibilityMapChanged = false;
 
@@ -74,8 +74,8 @@ public static partial class ProjectileUpdater
                 float tileCenterX = tileX + 0.5f;
                 float tileCenterY = tileY + 0.5f;
 
-                float dx_tile = tileCenterX - projectile.PositionX;
-                float dy_tile = tileCenterY - projectile.PositionY;
+                float dx_tile = tileCenterX - transform.PositionX;
+                float dy_tile = tileCenterY - transform.PositionY;
                 float distanceSquared = dx_tile * dx_tile + dy_tile * dy_tile;
                 float explosionRadiusSquared = explosionRadius * explosionRadius;
 
@@ -90,11 +90,11 @@ public static partial class ProjectileUpdater
             }
         }
 
-        Log.Info($"Projectile exploded at ({projectile.PositionX}, {projectile.PositionY})");
+        Log.Info($"Projectile exploded at ({transform.PositionX}, {transform.PositionY})");
         return traversibilityMapChanged;
     }
 
-    private static void SpawnGrenadeSubProjectiles(ReducerContext ctx, Module.Projectile grenade)
+    private static void SpawnGrenadeSubProjectiles(ReducerContext ctx, Module.Projectile grenade, Module.ProjectileTransform grenadeTransform)
     {
         const int subProjectileCount = 24;
         const float subProjectileSpeed = Module.PROJECTILE_SPEED * 1.5f;
@@ -107,19 +107,20 @@ public static partial class ProjectileUpdater
             float velocityX = (float)Math.Cos(angle) * speed;
             float velocityY = (float)Math.Sin(angle) * speed;
 
-            var subProjectile = Module.Projectile.Build(
+            var (subProjectile, subTransform) = Module.BuildProjectile(
                 ctx: ctx,
                 worldId: grenade.WorldId,
                 shooterTankId: grenade.ShooterTankId,
                 alliance: grenade.Alliance,
-                positionX: grenade.PositionX,
-                positionY: grenade.PositionY,
+                positionX: grenadeTransform.PositionX,
+                positionY: grenadeTransform.PositionY,
                 speed: speed,
                 velocity: new Vector2Float(velocityX, velocityY),
                 lifetimeSeconds: subProjectileLifetime
             );
 
             ctx.Db.projectile.Insert(subProjectile);
+            ctx.Db.projectile_transform.Insert(subTransform);
         }
     }
 
