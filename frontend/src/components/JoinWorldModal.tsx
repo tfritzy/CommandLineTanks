@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
 import { getConnection } from '../spacetimedb-connection';
-import { COLORS, PALETTE } from '../theme/colors';
 import CopyBox from './CopyBox';
 
 interface JoinWorldModalProps {
@@ -51,54 +50,14 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
   }, [sanitizedName, worldId, hasCustomName]);
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        background: `${PALETTE.PURPLE_VOID}f2`,
-        backdropFilter: 'blur(12px)',
-        borderRadius: '4px',
-        border: `1px solid ${PALETTE.WHITE_PURE}14`,
-        padding: '40px 60px',
-        fontFamily: "'JetBrains Mono', monospace",
-        zIndex: 1000,
-        boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE}80`,
-        minWidth: '500px',
-      }}
-    >
-      <div
-        style={{
-          fontSize: '48px',
-          fontWeight: 900,
-          color: COLORS.TERMINAL.INFO,
-          letterSpacing: '0.15em',
-          textTransform: 'uppercase',
-          marginBottom: '40px',
-          textShadow: `0 2px 12px ${COLORS.TERMINAL.INFO}80`,
-          lineHeight: 1,
-          textAlign: 'center',
-        }}
-      >
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-palette-purple-void/95 backdrop-blur-xl rounded border border-palette-white-pure/[0.08] py-10 px-[60px] font-mono z-[1000] shadow-2xl min-w-[500px]">
+      <div className="text-5xl font-black text-terminal-info tracking-[0.15em] uppercase mb-10 leading-none text-center" style={{ textShadow: '0 2px 12px rgba(127, 187, 220, 0.5)' }}>
         Join Game
       </div>
 
       {!hasCustomName && (
-        <div
-          style={{
-            marginBottom: '24px',
-          }}
-        >
-          <label
-            style={{
-              display: 'block',
-              fontSize: '14px',
-              color: COLORS.TERMINAL.TEXT_DEFAULT,
-              marginBottom: '8px',
-              fontWeight: 500,
-            }}
-          >
+        <div className="mb-6">
+          <label className="block text-sm text-terminal-text-default mb-2 font-medium">
             Your Name
           </label>
           <input
@@ -107,38 +66,13 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
             onChange={(e) => setPlayerName(e.target.value)}
             placeholder="Enter your name"
             maxLength={15}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              fontSize: '14px',
-              fontFamily: "'JetBrains Mono', monospace",
-              background: `${PALETTE.SLATE_DARKEST}99`,
-              border: `1px solid ${PALETTE.SLATE_LIGHT}4d`,
-              borderRadius: '4px',
-              color: COLORS.TERMINAL.TEXT_DEFAULT,
-              outline: 'none',
-              boxSizing: 'border-box',
-              transition: 'border-color 0.2s',
-            }}
-            onFocus={(e) => e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`}
-            onBlur={(e) => e.currentTarget.style.borderColor = `${PALETTE.SLATE_LIGHT}4d`}
+            className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 placeholder:text-palette-slate-light/50"
           />
         </div>
       )}
 
-      <div
-        style={{
-          marginBottom: '16px',
-        }}
-      >
-        <div
-          style={{
-            fontSize: '14px',
-            color: COLORS.TERMINAL.TEXT_DEFAULT,
-            marginBottom: '8px',
-            fontWeight: 500,
-          }}
-        >
+      <div className="mb-4">
+        <div className="text-sm text-terminal-text-default mb-2 font-medium">
           Run this command in the terminal below to join:
         </div>
 

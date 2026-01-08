@@ -3,7 +3,6 @@ import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
-import { COLORS, PALETTE } from "../theme/colors";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { motion, AnimatePresence, animate } from "framer-motion";
 
@@ -114,8 +113,8 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
   const renderPlayerLine = (player: PlayerScore, isLast: boolean) => {
     const teamColors =
       player.alliance === 0
-        ? { label: COLORS.GAME.TEAM_RED_BRIGHT, value: PALETTE.RED_MUTED }
-        : { label: COLORS.GAME.TEAM_BLUE_BRIGHT, value: PALETTE.BLUE_INFO };
+        ? { label: '#ff5555', value: '#c06852' }
+        : { label: '#7fbbdc', value: '#7396d5' };
 
     return (
       <motion.div
@@ -124,39 +123,12 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 10 }}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          height: "24px",
-          width: "100%",
-          gap: "8px",
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: "13px",
-          fontWeight: "600",
-          marginBottom: isLast ? 0 : "2px",
-        }}
+        className={`flex items-center h-6 w-full gap-2 font-mono text-[13px] font-semibold ${!isLast ? 'mb-0.5' : ''}`}
       >
-        <span
-          style={{
-            color: COLORS.UI.TEXT_PRIMARY,
-            flex: 1,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            opacity: 0.9
-          }}
-        >
+        <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap opacity-90 text-ui-text-primary">
           {player.name}
         </span>
-        <span
-          style={{
-            color: teamColors.value,
-            fontWeight: "800",
-            minWidth: "24px",
-            textAlign: "right",
-            fontVariantNumeric: "tabular-nums"
-          }}
-        >
+        <span className="font-extrabold min-w-[24px] text-right tabular-nums" style={{ color: teamColors.value }}>
           <AnimatedScore value={player.killStreak} />
         </span>
       </motion.div>
@@ -165,48 +137,14 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
 
   return (
     <div
-      style={{
-        position: "absolute",
-        top: "5px",
-        ...(currentPlayer?.alliance === 0 ? { left: "5px" } : { right: "5px" }),
-        zIndex: 1000,
-        display: "flex",
-        flexDirection: "column",
-        width: "200px",
-      }}
+      className={`absolute top-[5px] z-[1000] flex flex-col w-[200px] ${currentPlayer?.alliance === 0 ? 'left-[5px]' : 'right-[5px]'}`}
     >
-      <div
-        style={{
-          width: "100%",
-          backgroundColor: `${PALETTE.PURPLE_VOID}d9`,
-          backdropFilter: "blur(12px)",
-          border: `1px solid ${PALETTE.WHITE_PURE}14`,
-          borderRadius: "4px",
-          padding: "12px",
-          boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE}99`,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          style={{
-            color: COLORS.UI.TEXT_DIM,
-            fontSize: "10px",
-            fontFamily: "'JetBrains Mono', monospace",
-            fontWeight: "800",
-            letterSpacing: "0.2em",
-            marginBottom: "10px",
-            textAlign: "center",
-            opacity: 0.8,
-            borderBottom: `1px solid ${PALETTE.WHITE_PURE}14`,
-            paddingBottom: "6px",
-            textTransform: "uppercase"
-          }}
-        >
+      <div className="w-full bg-palette-purple-void/85 backdrop-blur-xl border border-palette-white-pure/[0.08] rounded p-3 shadow-2xl flex flex-col">
+        <div className="text-ui-text-dim text-[10px] font-mono font-extrabold tracking-[0.2em] mb-2.5 text-center opacity-80 border-b border-palette-white-pure/[0.08] pb-1.5 uppercase">
           Top Streaks
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        <div className="flex flex-col gap-0.5">
           <AnimatePresence mode="popLayout">
             {top3.map((player, idx) => renderPlayerLine(player, idx === top3.length - 1 && !currentPlayer))}
 
@@ -217,16 +155,9 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                style={{ width: "100%" }}
+                className="w-full"
               >
-                <div
-                  style={{
-                    height: "1px",
-                    width: "100%",
-                    backgroundColor: `${PALETTE.WHITE_PURE}0d`,
-                    margin: "6px 0",
-                  }}
-                />
+                <div className="h-px w-full bg-palette-white-pure/[0.05] my-1.5" />
                 {renderPlayerLine(currentPlayer, true)}
               </motion.div>
             )}

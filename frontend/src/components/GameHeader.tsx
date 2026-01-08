@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { getConnection } from "../spacetimedb-connection";
 import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
-import { COLORS, PALETTE } from "../theme/colors";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
 import { ServerTimeSync } from "../utils/ServerTimeSync";
 
@@ -10,36 +9,14 @@ const COUNTDOWN_WARNING_SECONDS = 10;
 
 const HeaderBox = ({
   label,
-  labelColor,
   value,
-  valueColor,
 }: {
   label: string;
-  labelColor: string;
   value: string | number;
-  valueColor: string;
 }) => (
-  <div
-    style={{
-      backgroundColor: "rgba(42, 21, 45, .8)",
-      backdropFilter: "blur(8px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      borderRadius: "4px",
-      padding: "8px 14px",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      fontFamily: "'JetBrains Mono', monospace",
-      fontSize: "14px",
-      fontWeight: "600",
-      lineHeight: "1",
-      letterSpacing: "0.05em",
-      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-      height: "28px",
-    }}
-  >
-    <span style={{ color: labelColor, display: "inline-flex", alignItems: "center" }}>{label}</span>
-    <span style={{ color: valueColor, display: "inline-flex", alignItems: "center" }}>{value}</span>
+  <div className="bg-palette-slate-darkest/80 backdrop-blur-md border border-palette-white-pure/10 rounded px-3.5 py-2 flex items-center gap-2 font-mono text-sm font-semibold leading-none tracking-wide shadow-lg h-7">
+    <span className="inline-flex items-center text-palette-slate-lighter">{label}</span>
+    <span className="inline-flex items-center text-palette-white-bright">{value}</span>
   </div>
 );
 
@@ -142,56 +119,22 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
 
   return (
     <>
-      <div
-        style={
-          {
-            position: "absolute",
-            top: "5px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            gap: "4px",
-            zIndex: 1000,
-          } as React.CSSProperties
-        }
-      >
+      <div className="absolute top-[5px] left-1/2 -translate-x-1/2 flex gap-1 z-[1000]">
         <HeaderBox
           label="SCORE"
-          labelColor={PALETTE.RED_MUTED}
           value={team0Kills}
-          valueColor={PALETTE.ORANGE_MEDIUM}
         />
         <HeaderBox
           label="TIME"
-          labelColor={COLORS.UI.LABEL_YELLOW}
           value={timeString}
-          valueColor={COLORS.UI.TEXT_PRIMARY}
         />
         <HeaderBox
           label="SCORE"
-          labelColor={PALETTE.BLUE_INFO}
           value={team1Kills}
-          valueColor={PALETTE.BLUE_BRIGHT}
         />
       </div>
       {showCountdownWarning && (
-        <div
-          style={{
-            position: "absolute",
-            top: "80px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 2000,
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: "32px",
-            fontWeight: 500,
-            color: COLORS.UI.TEXT_PRIMARY,
-            textAlign: "center",
-            letterSpacing: "0.05em",
-            textTransform: "uppercase",
-            textShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
-          }}
-        >
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[2000] font-mono text-[32px] font-medium text-ui-text-primary text-center tracking-wide uppercase" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)' }}>
           Game ending in {timeRemaining}
         </div>
       )}

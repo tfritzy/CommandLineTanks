@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { COLORS, PALETTE } from "../theme/colors";
 import { AnimatePresence } from "framer-motion";
 import HostGameModal from "./HostGameModal";
 
@@ -13,89 +12,18 @@ const HomeworldOverlay: React.FC = () => {
                 <HostGameModal onClose={() => setShowHostModal(false)} />
             )}
         </AnimatePresence>
-        <div
-            style={{
-                position: "absolute",
-                top: "0px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                pointerEvents: "none",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                zIndex: 10,
-                width: "100%",
-                maxWidth: "600px",
-            }}
-        >
-            <div
-                style={{
-                    background: "rgba(46, 46, 67, 0.85)",
-                    backdropFilter: "blur(8px)",
-                    padding: "8px 20px",
-                    borderRadius: "6px",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    borderTop: "none",
-                    borderTopLeftRadius: 0,
-                    borderTopRightRadius: 0,
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-                    animation: "fadeInDown 0.6s ease-out",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                }}
-            >
-                <p
-                    style={{
-                        margin: 0,
-                        fontSize: "14px",
-                        color: COLORS.UI.TEXT_PRIMARY,
-                        fontFamily: "'JetBrains Mono', monospace",
-                        letterSpacing: "0.03em",
-                        textAlign: "center",
-                        textShadow: "0 1px 2px rgba(0,0,0,0.5)",
-                    }}
-                >
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center z-10 w-full max-w-[600px]">
+            <div className="bg-palette-ground-dark/85 backdrop-blur-md py-2 px-5 rounded-md border border-palette-white-pure/10 border-t-0 rounded-t-none shadow-lg animate-[fadeInDown_0.6s_ease-out] flex items-center gap-3">
+                <p className="m-0 text-sm text-ui-text-primary font-mono tracking-wide text-center" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                     When ready, call the{" "}
-                    <code
-                        style={{
-                            color: COLORS.TERMINAL.WARNING,
-                            background: "rgba(252, 235, 168, 0.15)",
-                            padding: "2px 6px",
-                            borderRadius: "4px",
-                            fontWeight: 600,
-                        }}
-                    >
+                    <code className="text-terminal-warning bg-palette-yellow-bright/15 px-1.5 py-0.5 rounded font-semibold">
                         join
                     </code>{" "}
                     command to find a match
                 </p>
                 <button
                     onClick={() => setShowHostModal(true)}
-                    style={{
-                        pointerEvents: "auto",
-                        background: `${PALETTE.BLUE_LIGHT}33`,
-                        border: `1px solid ${PALETTE.BLUE_LIGHT}66`,
-                        borderRadius: "4px",
-                        padding: "6px 12px",
-                        fontSize: "12px",
-                        color: PALETTE.BLUE_LIGHT,
-                        fontFamily: "'JetBrains Mono', monospace",
-                        cursor: "pointer",
-                        letterSpacing: "0.05em",
-                        fontWeight: "700",
-                        transition: "all 0.2s ease",
-                        textTransform: "uppercase",
-                        whiteSpace: "nowrap",
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = `${PALETTE.BLUE_LIGHT}66`;
-                        e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`;
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = `${PALETTE.BLUE_LIGHT}33`;
-                        e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}66`;
-                    }}
+                    className="pointer-events-auto bg-palette-blue-light/20 hover:bg-palette-blue-light/40 border border-palette-blue-light/40 hover:border-palette-blue-light/60 rounded px-3 py-1.5 text-xs text-palette-blue-light font-mono cursor-pointer tracking-wide font-bold transition-all uppercase whitespace-nowrap"
                 >
                     Host Game
                 </button>

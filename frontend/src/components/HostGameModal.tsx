@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-import { COLORS, PALETTE } from '../theme/colors';
 import { motion } from 'framer-motion';
 import { getConnection } from '../spacetimedb-connection';
 import CopyBox from './CopyBox';
@@ -68,18 +67,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
 
   return (
     <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `${PALETTE.BLACK_PURE}80`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 2000,
-      }}
+      className="absolute inset-0 bg-palette-black-pure/50 flex items-center justify-center z-[2000]"
       onClick={onClose}
     >
       <motion.div
@@ -87,86 +75,28 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        style={{
-          background: `${PALETTE.PURPLE_VOID}d9`,
-          backdropFilter: 'blur(12px)',
-          borderRadius: '4px',
-          border: `1px solid ${PALETTE.WHITE_PURE}14`,
-          padding: '32px 40px',
-          fontFamily: "'JetBrains Mono', monospace",
-          boxShadow: `0 8px 32px ${PALETTE.BLACK_PURE}99`,
-          minWidth: '500px',
-          maxWidth: '600px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-        }}
+        className="bg-palette-purple-void/85 backdrop-blur-xl rounded border border-palette-white-pure/[0.08] p-8 px-10 font-mono shadow-2xl min-w-[500px] max-w-[600px] max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          style={{
-            fontSize: '32px',
-            fontWeight: '900',
-            color: PALETTE.RED_MUTED,
-            letterSpacing: '0.1em',
-            marginBottom: '24px',
-            textAlign: 'center',
-            textShadow: `0 0 20px ${PALETTE.RED_MUTED}4d`,
-          }}
-        >
+        <div className="text-[32px] font-black text-palette-red-muted tracking-[0.1em] mb-6 text-center" style={{ textShadow: '0 0 20px rgba(192, 104, 82, 0.3)' }}>
           HOST GAME
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-          }}
-        >
+        <div className="flex flex-col gap-4">
           <div>
-            <label
-              style={{
-                display: 'block',
-                fontSize: '12px',
-                color: COLORS.TERMINAL.TEXT_DEFAULT,
-                marginBottom: '6px',
-                fontWeight: '500',
-              }}
-            >
+            <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
               World Name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                fontSize: '13px',
-                fontFamily: "'JetBrains Mono', monospace",
-                background: `${PALETTE.SLATE_DARKEST}99`,
-                border: `1px solid ${PALETTE.SLATE_LIGHT}4d`,
-                borderRadius: '4px',
-                color: COLORS.TERMINAL.TEXT_DEFAULT,
-                outline: 'none',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={(e) => e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`}
-              onBlur={(e) => e.currentTarget.style.borderColor = `${PALETTE.SLATE_LIGHT}4d`}
+              className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
             />
           </div>
 
           <div>
-            <label
-              style={{
-                display: 'block',
-                fontSize: '12px',
-                color: COLORS.TERMINAL.TEXT_DEFAULT,
-                marginBottom: '6px',
-                fontWeight: '500',
-              }}
-            >
+            <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
               Passcode (optional)
             </label>
             <input
@@ -174,41 +104,13 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
               placeholder="Leave empty for no passcode"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                fontSize: '13px',
-                fontFamily: "'JetBrains Mono', monospace",
-                background: `${PALETTE.SLATE_DARKEST}99`,
-                border: `1px solid ${PALETTE.SLATE_LIGHT}4d`,
-                borderRadius: '4px',
-                color: COLORS.TERMINAL.TEXT_DEFAULT,
-                outline: 'none',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={(e) => e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`}
-              onBlur={(e) => e.currentTarget.style.borderColor = `${PALETTE.SLATE_LIGHT}4d`}
+              className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 placeholder:text-palette-slate-light/50"
             />
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '16px',
-            }}
-          >
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '12px',
-                  color: COLORS.TERMINAL.TEXT_DEFAULT,
-                  marginBottom: '6px',
-                  fontWeight: '500',
-                }}
-              >
+              <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
                 Bots (0-10, even)
               </label>
               <input
@@ -225,34 +127,12 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 min="0"
                 max="10"
                 step="2"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  fontSize: '13px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  background: `${PALETTE.SLATE_DARKEST}99`,
-                  border: `1px solid ${PALETTE.SLATE_LIGHT}4d`,
-                  borderRadius: '4px',
-                  color: COLORS.TERMINAL.TEXT_DEFAULT,
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s',
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`}
-                onBlur={(e) => e.currentTarget.style.borderColor = `${PALETTE.SLATE_LIGHT}4d`}
+                className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
               />
             </div>
 
             <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '12px',
-                  color: COLORS.TERMINAL.TEXT_DEFAULT,
-                  marginBottom: '6px',
-                  fontWeight: '500',
-                }}
-              >
+              <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
                 Duration (1-20 min)
               </label>
               <input
@@ -264,42 +144,14 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 }}
                 min="1"
                 max="20"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  fontSize: '13px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  background: `${PALETTE.SLATE_DARKEST}99`,
-                  border: `1px solid ${PALETTE.SLATE_LIGHT}4d`,
-                  borderRadius: '4px',
-                  color: COLORS.TERMINAL.TEXT_DEFAULT,
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s',
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`}
-                onBlur={(e) => e.currentTarget.style.borderColor = `${PALETTE.SLATE_LIGHT}4d`}
+                className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
               />
             </div>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '16px',
-            }}
-          >
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '12px',
-                  color: COLORS.TERMINAL.TEXT_DEFAULT,
-                  marginBottom: '6px',
-                  fontWeight: '500',
-                }}
-              >
+              <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
                 Width (1-200)
               </label>
               <input
@@ -311,34 +163,12 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 }}
                 min="1"
                 max="200"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  fontSize: '13px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  background: `${PALETTE.SLATE_DARKEST}99`,
-                  border: `1px solid ${PALETTE.SLATE_LIGHT}4d`,
-                  borderRadius: '4px',
-                  color: COLORS.TERMINAL.TEXT_DEFAULT,
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s',
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`}
-                onBlur={(e) => e.currentTarget.style.borderColor = `${PALETTE.SLATE_LIGHT}4d`}
+                className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
               />
             </div>
 
             <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '12px',
-                  color: COLORS.TERMINAL.TEXT_DEFAULT,
-                  marginBottom: '6px',
-                  fontWeight: '500',
-                }}
-              >
+              <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
                 Height (1-200)
               </label>
               <input
@@ -350,39 +180,14 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 }}
                 min="1"
                 max="200"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  fontSize: '13px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  background: `${PALETTE.SLATE_DARKEST}99`,
-                  border: `1px solid ${PALETTE.SLATE_LIGHT}4d`,
-                  borderRadius: '4px',
-                  color: COLORS.TERMINAL.TEXT_DEFAULT,
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  transition: 'border-color 0.2s',
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = `${PALETTE.BLUE_LIGHT}99`}
-                onBlur={(e) => e.currentTarget.style.borderColor = `${PALETTE.SLATE_LIGHT}4d`}
+                className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
               />
             </div>
           </div>
         </div>
 
-        <div
-          style={{
-            marginTop: '32px',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '12px',
-              color: COLORS.TERMINAL.TEXT_DEFAULT,
-              marginBottom: '10px',
-              fontWeight: '500',
-            }}
-          >
+        <div className="mt-8">
+          <div className="text-xs text-terminal-text-default mb-2.5 font-medium">
             Copy and run this command:
           </div>
           
