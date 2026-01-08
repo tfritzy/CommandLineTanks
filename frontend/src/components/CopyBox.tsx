@@ -14,7 +14,6 @@ const CopyBox: React.FC<CopyBoxProps> = ({
     showDollar = true 
 }) => {
     const [copied, setCopied] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -41,14 +40,10 @@ const CopyBox: React.FC<CopyBoxProps> = ({
     return (
         <div
             onClick={handleCopy}
-            onMouseEnter={() => !copied && setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
             className={`relative bg-palette-black-pure/30 ${
                 copied 
                     ? 'border-palette-green-success/50' 
-                    : isHovered 
-                        ? 'border-palette-white-pure/20 bg-palette-black-pure/40' 
-                        : 'border-palette-white-pure/[0.07]'
+                    : 'border-palette-white-pure/[0.07] hover:border-palette-white-pure/20 hover:bg-palette-black-pure/40'
             } border rounded p-4 text-[13px] text-palette-white-pure font-mono cursor-pointer transition-all break-words text-left whitespace-pre-wrap leading-normal`}
         >
             {showDollar && (

@@ -9,18 +9,14 @@ const COUNTDOWN_WARNING_SECONDS = 10;
 
 const HeaderBox = ({
   label,
-  labelColor,
   value,
-  valueColor,
 }: {
   label: string;
-  labelColor: string;
   value: string | number;
-  valueColor: string;
 }) => (
   <div className="bg-palette-slate-darkest/80 backdrop-blur-md border border-palette-white-pure/10 rounded px-3.5 py-2 flex items-center gap-2 font-mono text-sm font-semibold leading-none tracking-wide shadow-lg h-7">
-    <span className="inline-flex items-center" style={{ color: labelColor }}>{label}</span>
-    <span className="inline-flex items-center" style={{ color: valueColor }}>{value}</span>
+    <span className="inline-flex items-center text-palette-slate-lighter">{label}</span>
+    <span className="inline-flex items-center text-palette-white-bright">{value}</span>
   </div>
 );
 
@@ -126,21 +122,15 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
       <div className="absolute top-[5px] left-1/2 -translate-x-1/2 flex gap-1 z-[1000]">
         <HeaderBox
           label="SCORE"
-          labelColor="#c06852"
           value={team0Kills}
-          valueColor="#e39764"
         />
         <HeaderBox
           label="TIME"
-          labelColor="#f5c47c"
           value={timeString}
-          valueColor="#fcfbf3"
         />
         <HeaderBox
           label="SCORE"
-          labelColor="#7396d5"
           value={team1Kills}
-          valueColor="#7fbbdc"
         />
       </div>
       {showCountdownWarning && (

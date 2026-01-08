@@ -23,15 +23,7 @@ const HomeworldOverlay: React.FC = () => {
                 </p>
                 <button
                     onClick={() => setShowHostModal(true)}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(90, 120, 178, 0.4)';
-                        e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.6)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(90, 120, 178, 0.2)';
-                        e.currentTarget.style.borderColor = 'rgba(90, 120, 178, 0.4)';
-                    }}
-                    className="pointer-events-auto bg-palette-blue-light/20 border border-palette-blue-light/40 rounded px-3 py-1.5 text-xs text-palette-blue-light font-mono cursor-pointer tracking-wide font-bold transition-all uppercase whitespace-nowrap"
+                    className="pointer-events-auto bg-palette-blue-light/20 hover:bg-palette-blue-light/40 border border-palette-blue-light/40 hover:border-palette-blue-light/60 rounded px-3 py-1.5 text-xs text-palette-blue-light font-mono cursor-pointer tracking-wide font-bold transition-all uppercase whitespace-nowrap"
                 >
                     Host Game
                 </button>

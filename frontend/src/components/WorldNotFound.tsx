@@ -28,9 +28,7 @@ export default function WorldNotFound({ worldId: _worldId }: WorldNotFoundProps)
 
       <button
         onClick={handleGoHome}
-        onMouseEnter={(e) => e.currentTarget.classList.replace('bg-terminal-border', 'bg-terminal-info')}
-        onMouseLeave={(e) => e.currentTarget.classList.replace('bg-terminal-info', 'bg-terminal-border')}
-        className="px-8 py-3.5 text-base font-mono font-semibold text-ui-text-primary bg-terminal-border border-none cursor-pointer transition-all tracking-wide hover:bg-terminal-info"
+        className="px-8 py-3.5 text-base font-mono font-semibold text-ui-text-primary bg-terminal-border hover:bg-terminal-info border-none cursor-pointer transition-all tracking-wide"
       >
         GO HOME
       </button>
