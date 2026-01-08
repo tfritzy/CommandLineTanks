@@ -525,6 +525,7 @@ public static partial class ProjectileUpdater
             var transformQuery = ctx.Db.projectile_transform.ProjectileId.Find(projectile.Id);
             if (transformQuery == null)
             {
+                Log.Warn($"Orphaned projectile found without transform: {projectile.Id}");
                 ctx.Db.projectile.Id.Delete(projectile.Id);
                 continue;
             }

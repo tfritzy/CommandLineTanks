@@ -44,6 +44,8 @@ export class ProjectileManager {
         onInsert: (_ctx: EventContext, newProjectile: Infer<typeof ProjectileRow>) => {
           if (newProjectile.worldId !== this.worldId) return;
 
+          if (this.projectiles.has(newProjectile.id)) return;
+
           const transform = connection.db.projectileTransform.projectileId.find(newProjectile.id);
           if (!transform) return;
 
@@ -70,14 +72,6 @@ export class ProjectileManager {
         onUpdate: () => {},
         onDelete: (_ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => {
           if (projectile.worldId !== this.worldId) return;
-          const localProjectile = this.projectiles.get(projectile.id);
-          if (localProjectile) {
-            const transform = connection.db.projectileTransform.projectileId.find(projectile.id);
-            const posX = transform?.positionX ?? localProjectile.getX();
-            const posY = transform?.positionY ?? localProjectile.getY();
-            localProjectile.spawnDeathParticles(this.particlesManager);
-            this.soundManager.play("projectile-hit", 0.3, posX, posY);
-          }
           this.projectiles.delete(projectile.id);
         }
       }
