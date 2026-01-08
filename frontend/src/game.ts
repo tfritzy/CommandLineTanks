@@ -11,6 +11,7 @@ import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
 
 const CAMERA_FOLLOW_SPEED = 15;
+const CAMERA_TELEPORT_THRESHOLD = 500;
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -119,9 +120,18 @@ export class Game {
     }
 
     const clampedDeltaTime = Math.min(deltaTime, 1 / 30);
-    const lerpFactor = Math.min(1, clampedDeltaTime * CAMERA_FOLLOW_SPEED);
-    this.currentCameraX += (targetCameraX - this.currentCameraX) * lerpFactor;
-    this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
+    const distanceX = targetCameraX - this.currentCameraX;
+    const distanceY = targetCameraY - this.currentCameraY;
+    const distanceSquared = distanceX * distanceX + distanceY * distanceY;
+
+    if (distanceSquared > CAMERA_TELEPORT_THRESHOLD * CAMERA_TELEPORT_THRESHOLD) {
+      this.currentCameraX = targetCameraX;
+      this.currentCameraY = targetCameraY;
+    } else {
+      const lerpFactor = Math.min(1, clampedDeltaTime * CAMERA_FOLLOW_SPEED);
+      this.currentCameraX += (targetCameraX - this.currentCameraX) * lerpFactor;
+      this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
+    }
 
     this.currentCameraX = Math.round(this.currentCameraX);
     this.currentCameraY = Math.round(this.currentCameraY);
@@ -229,17 +239,6 @@ export class Game {
 
   public start() {
     if (!this.animationFrameId) {
-      const dpr = window.devicePixelRatio || 1;
-      const displayWidth = this.canvas.width / dpr;
-      const displayHeight = this.canvas.height / dpr;
-
-      const playerTank = this.tankManager.getPlayerTank();
-      if (playerTank) {
-        const playerPos = playerTank.getPosition();
-        this.currentCameraX = playerPos.x * UNIT_TO_PIXEL - displayWidth / 2;
-        this.currentCameraY = playerPos.y * UNIT_TO_PIXEL - displayHeight / 2;
-      }
-
       this.lastFrameTime = 0;
       this.update();
     }
