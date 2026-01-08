@@ -7,6 +7,8 @@ public static partial class Module
     public static void DealDamageToTankCommand(
         ReducerContext ctx,
         Tank tank,
+        TankMetadata metadata,
+        TankPosition position,
         int damage,
         string shooterTankId,
         int attackerAlliance,
@@ -17,8 +19,8 @@ public static partial class Module
             return;
         }
 
-        var shooterTank = ctx.Db.tank.Id.Find(shooterTankId);
-        var shooterIdentity = shooterTank?.Owner;
+        var shooterMetadata = ctx.Db.tank_metadata.TankId.Find(shooterTankId);
+        var shooterIdentity = shooterMetadata?.Owner;
 
         if (tank.HasShield)
         {
@@ -42,31 +44,35 @@ public static partial class Module
                 Health = newHealth,
                 Deaths = tank.Deaths + 1,
                 KillStreak = 0,
-                DeathTimestamp = tank.IsBot ? (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch : 0,
+                DeathTimestamp = metadata.IsBot ? (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch : 0,
                 LastDamagedBy = shooterIdentity
             };
             ctx.Db.tank.Id.Update(killedTank);
 
-            DropWeaponsOnDeath(ctx, tank, worldId);
+            DropWeaponsOnDeath(ctx, tank, position, worldId);
 
-            if (shooterTank != null)
+            if (shooterMetadata != null)
             {
-                var updatedShooterTank = shooterTank.Value with
+                var shooterTank = ctx.Db.tank.Id.Find(shooterTankId);
+                if (shooterTank != null)
                 {
-                    Kills = shooterTank.Value.Kills + 1,
-                    KillStreak = shooterTank.Value.KillStreak + 1
-                };
-                ctx.Db.tank.Id.Update(updatedShooterTank);
+                    var updatedShooterTank = shooterTank.Value with
+                    {
+                        Kills = shooterTank.Value.Kills + 1,
+                        KillStreak = shooterTank.Value.KillStreak + 1
+                    };
+                    ctx.Db.tank.Id.Update(updatedShooterTank);
 
-                var killeeName = tank.IsBot ? $"[Bot] {tank.Name}" : tank.Name;
-                ctx.Db.kills.Insert(new Kill
-                {
-                    Id = GenerateId(ctx, "k"),
-                    WorldId = worldId,
-                    Killer = shooterTank.Value.Owner,
-                    KilleeName = killeeName,
-                    Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-                });
+                    var killeeName = metadata.IsBot ? $"[Bot] {metadata.Name}" : metadata.Name;
+                    ctx.Db.kills.Insert(new Kill
+                    {
+                        Id = GenerateId(ctx, "k"),
+                        WorldId = worldId,
+                        Killer = shooterMetadata.Value.Owner,
+                        KilleeName = killeeName,
+                        Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+                    });
+                }
             }
 
             var score = ctx.Db.score.WorldId.Find(worldId);
@@ -91,7 +97,7 @@ public static partial class Module
         }
     }
 
-    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, string worldId)
+    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankPosition position, string worldId)
     {
         foreach (var gun in tank.Guns)
         {
@@ -109,8 +115,8 @@ public static partial class Module
             float offsetX = ((float)ctx.Rng.NextDouble() - 0.5f) * 1.5f;
             float offsetY = ((float)ctx.Rng.NextDouble() - 0.5f) * 1.5f;
 
-            float dropX = tank.PositionX + offsetX;
-            float dropY = tank.PositionY + offsetY;
+            float dropX = position.PositionX + offsetX;
+            float dropY = position.PositionY + offsetY;
 
             int gridX = (int)Math.Floor(dropX);
             int gridY = (int)Math.Floor(dropY);

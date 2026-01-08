@@ -7,8 +7,9 @@ public static partial class RandomAimAI
 {
     private const float AIM_TOLERANCE = 0.05f;
 
-    public static Tank EvaluateAndMutateTank(ReducerContext ctx, Tank tank, AIContext aiContext, int tickCount)
+    public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, AIContext aiContext, int tickCount)
     {
+        var tank = fullTank.Tank;
         bool isEvenTick = tickCount % 2 == 0;
         float angleDiff = Math.Abs(GetNormalizedAngleDifference(tank.TargetTurretRotation, tank.TurretRotation));
 

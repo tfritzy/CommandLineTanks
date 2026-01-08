@@ -19,7 +19,7 @@ public static class GameAILogic
     public class AIDecision
     {
         public AIAction Action { get; set; }
-        public Module.Tank? TargetTank { get; set; }
+        public FullTank? TargetTank { get; set; }
         public Module.Pickup? TargetPickup { get; set; }
         public int TargetX { get; set; }
         public int TargetY { get; set; }
@@ -27,7 +27,7 @@ public static class GameAILogic
         public List<(int x, int y)> Path { get; set; } = new List<(int x, int y)>();
     }
 
-    public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, Module.Tank tank, AIContext context)
+    public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, FullTank tank, AIContext context)
     {
         var allTanks = context.GetAllTanks();
         var pathState = context.GetTankPath(tank.Id);
@@ -187,7 +187,7 @@ public static class GameAILogic
         return new AIDecision { Action = AIAction.None };
     }
 
-    public static bool ShouldCollectPickup(Module.Tank tank, Module.Pickup pickup)
+    public static bool ShouldCollectPickup(FullTank tank, Module.Pickup pickup)
     {
         var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
         if (distance >= 15f) return false;
@@ -202,9 +202,9 @@ public static class GameAILogic
         return true;
     }
 
-    public static Module.Tank? FindNearestEnemy(Module.Tank tank, List<Module.Tank> allTanks)
+    public static FullTank? FindNearestEnemy(FullTank tank, List<FullTank> allTanks)
     {
-        Module.Tank? nearest = null;
+        FullTank? nearest = null;
         float minDistanceToSpawn = float.MaxValue;
 
         float spawnX = tank.Alliance == 0 ? 15f : 45f;
@@ -226,9 +226,9 @@ public static class GameAILogic
         return nearest;
     }
 
-    public static Module.Tank? FindClosestEnemy(Module.Tank tank, List<Module.Tank> allTanks)
+    public static FullTank? FindClosestEnemy(FullTank tank, List<FullTank> allTanks)
     {
-        Module.Tank? nearest = null;
+        FullTank? nearest = null;
         float minDistance = float.MaxValue;
 
         foreach (var enemyTank in allTanks)
@@ -247,9 +247,9 @@ public static class GameAILogic
         return nearest;
     }
 
-    public static Module.Tank? FindNearestTank(Module.Tank tank, List<Module.Tank> allTanks)
+    public static FullTank? FindNearestTank(FullTank tank, List<FullTank> allTanks)
     {
-        Module.Tank? nearest = null;
+        FullTank? nearest = null;
         float minDistance = float.MaxValue;
 
         foreach (var otherTank in allTanks)
@@ -268,7 +268,7 @@ public static class GameAILogic
         return nearest;
     }
 
-    public static double GetAngleDifference(Module.Tank tank, Module.Tank target)
+    public static double GetAngleDifference(FullTank tank, FullTank target)
     {
         var deltaX = target.PositionX - tank.PositionX;
         var deltaY = target.PositionY - tank.PositionY;
@@ -277,7 +277,7 @@ public static class GameAILogic
         return Module.GetNormalizedAngleDifference((float)aimAngle, tank.TurretRotation);
     }
 
-    public static Module.Pickup? FindNearestHealthPickup(Module.Tank tank, List<Module.Pickup> allPickups)
+    public static Module.Pickup? FindNearestHealthPickup(FullTank tank, List<Module.Pickup> allPickups)
     {
         Module.Pickup? nearest = null;
         float minDistance = float.MaxValue;
@@ -298,7 +298,7 @@ public static class GameAILogic
         return nearest;
     }
 
-    public static Module.Pickup? FindNearestPickup(Module.Tank tank, List<Module.Pickup> allPickups)
+    public static Module.Pickup? FindNearestPickup(FullTank tank, List<Module.Pickup> allPickups)
     {
         Module.Pickup? nearest = null;
         float minDistance = float.MaxValue;
@@ -326,7 +326,7 @@ public static class GameAILogic
         return (float)Math.Sqrt(dx * dx + dy * dy);
     }
 
-    public static bool HasLineOfSight(Module.Tank tank, Module.Tank target, Module.TraversibilityMap? traversibilityMap)
+    public static bool HasLineOfSight(FullTank tank, FullTank target, Module.TraversibilityMap? traversibilityMap)
     {
         if (traversibilityMap == null) return false;
 
@@ -361,7 +361,7 @@ public static class GameAILogic
         return true;
     }
 
-    public static List<(int x, int y)> FindPathTowards(Module.Tank tank, int targetX, int targetY, Module.TraversibilityMap? traversibilityMap)
+    public static List<(int x, int y)> FindPathTowards(FullTank tank, int targetX, int targetY, Module.TraversibilityMap? traversibilityMap)
     {
         var emptyPath = new List<(int x, int y)>();
 
@@ -391,7 +391,7 @@ public static class GameAILogic
         return path;
     }
 
-    public static (int x, int y) FindRandomEscapePosition(Module.Tank tank, Module.TraversibilityMap traversibilityMap, Random rng)
+    public static (int x, int y) FindRandomEscapePosition(FullTank tank, Module.TraversibilityMap traversibilityMap, Random rng)
     {
         int currentX = GetGridPosition(tank.PositionX);
         int currentY = GetGridPosition(tank.PositionY);
@@ -429,7 +429,7 @@ public static class GameAILogic
         return (currentX, currentY);
     }
 
-    public static (int x, int y) FindEscapePosition(Module.Tank tank, Module.Tank enemy, Module.TraversibilityMap traversibilityMap)
+    public static (int x, int y) FindEscapePosition(FullTank tank, FullTank enemy, Module.TraversibilityMap traversibilityMap)
     {
         int currentX = GetGridPosition(tank.PositionX);
         int currentY = GetGridPosition(tank.PositionY);

@@ -187,3 +187,55 @@ public static class AIBehaviorExtensions
         return behavior != Types.AIBehavior.None;
     }
 }
+
+public struct FullTank
+{
+    public Module.Tank Tank;
+    public Module.TankMetadata Metadata;
+    public Module.TankPosition Position;
+
+    public FullTank(Module.Tank tank, Module.TankMetadata metadata, Module.TankPosition position)
+    {
+        Tank = tank;
+        Metadata = metadata;
+        Position = position;
+    }
+
+    public string Id => Tank.Id;
+    public string WorldId => Tank.WorldId;
+    public int Health => Tank.Health;
+    public int Kills => Tank.Kills;
+    public int Deaths => Tank.Deaths;
+    public int KillStreak => Tank.KillStreak;
+    public string? Target => Tank.Target;
+    public float TargetLead => Tank.TargetLead;
+    public string? Message => Tank.Message;
+    public float TurretAngularVelocity => Tank.TurretAngularVelocity;
+    public float TurretRotation => Tank.TurretRotation;
+    public float TargetTurretRotation => Tank.TargetTurretRotation;
+    public Types.Gun[] Guns => Tank.Guns;
+    public int SelectedGunIndex => Tank.SelectedGunIndex;
+    public bool HasShield => Tank.HasShield;
+    public long RemainingImmunityMicros => Tank.RemainingImmunityMicros;
+    public ulong DeathTimestamp => Tank.DeathTimestamp;
+    public SpacetimeDB.Identity? LastDamagedBy => Tank.LastDamagedBy;
+
+    public SpacetimeDB.Identity Owner => Metadata.Owner;
+    public string Name => Metadata.Name;
+    public string TargetCode => Metadata.TargetCode;
+    public string? JoinCode => Metadata.JoinCode;
+    public bool IsBot => Metadata.IsBot;
+    public Types.AIBehavior AIBehavior => Metadata.AIBehavior;
+    public Types.AiConfig? AiConfig => Metadata.AiConfig;
+    public int Alliance => Metadata.Alliance;
+    public int MaxHealth => Metadata.MaxHealth;
+    public float TopSpeed => Metadata.TopSpeed;
+    public float TurretRotationSpeed => Metadata.TurretRotationSpeed;
+
+    public float PositionX => Position.PositionX;
+    public float PositionY => Position.PositionY;
+    public Types.Vector2Float Velocity => Position.Velocity;
+    public int CollisionRegionX => Position.CollisionRegionX;
+    public int CollisionRegionY => Position.CollisionRegionY;
+    public ulong UpdatedAt => Position.UpdatedAt;
+}
