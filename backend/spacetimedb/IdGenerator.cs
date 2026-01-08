@@ -38,7 +38,7 @@ public static partial class Module
 
     internal static string GenerateWorldId(ReducerContext ctx)
     {
-        const string chars = "abcdefghijklmnopqrstuvwxyz";
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const int maxAttempts = 100;
         
         for (int attempt = 0; attempt < maxAttempts; attempt++)

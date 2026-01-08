@@ -484,7 +484,7 @@ const LandingPage: React.FC = () => {
                                     <div className="text-gray-500 mb-1"># Syntax</div>
                                     <div className="text-primary font-bold mb-3">join [world_id]</div>
                                     <div className="text-gray-500 mb-1"># Type this:</div>
-                                    <div className="text-white"><span className="text-secondary">$</span> join abcd</div>
+                                    <div className="text-white"><span className="text-secondary">$</span> join ABCD</div>
                                 </div>
                             </div>
                         </div>
