@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using static SpacetimeDB.Index;
 using static Types;
 
 public static partial class Module
@@ -8,6 +9,9 @@ public static partial class Module
     {
         [PrimaryKey]
         public ulong ProjectileId;
+
+        [BTree]
+        public string WorldId;
 
         public float PositionX;
 

@@ -379,6 +379,9 @@ const tablesSchema = __schema(
       { name: 'ProjectileId', algorithm: 'btree', columns: [
         'projectileId',
       ] },
+      { name: 'WorldId', algorithm: 'btree', columns: [
+        'worldId',
+      ] },
     ],
     constraints: [
       { name: 'projectile_transform_ProjectileId_key', constraint: 'unique', columns: ['projectileId'] },

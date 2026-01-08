@@ -100,6 +100,7 @@ public static partial class Module
 
         var transform = new ProjectileTransform
         {
+            WorldId = worldId ?? "",
             PositionX = positionX,
             PositionY = positionY,
             Velocity = velocity ?? new Vector2Float(0, 0),

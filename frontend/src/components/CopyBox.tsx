@@ -2,16 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 
 interface CopyBoxProps {
     text: string;
-    label?: string;
     activeColor?: string;
     showDollar?: boolean;
 }
 
-const CopyBox: React.FC<CopyBoxProps> = ({ 
-    text, 
-    label = 'CLICK TO COPY', 
+const CopyBox: React.FC<CopyBoxProps> = ({
+    text,
     activeColor = '#c06852',
-    showDollar = true 
+    showDollar = true
 }) => {
     const [copied, setCopied] = useState(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -40,26 +38,49 @@ const CopyBox: React.FC<CopyBoxProps> = ({
     return (
         <div
             onClick={handleCopy}
-            className={`relative bg-palette-black-pure/30 ${
-                copied 
-                    ? 'border-palette-green-success/50' 
-                    : 'border-palette-white-pure/[0.07] hover:border-palette-white-pure/20 hover:bg-palette-black-pure/40'
-            } border rounded p-4 text-[13px] text-palette-white-pure font-mono cursor-pointer transition-all break-words text-left whitespace-pre-wrap leading-normal`}
+            className={`relative bg-palette-black-pure/30 ${copied
+                ? 'border-palette-green-success/50'
+                : 'border-palette-white-pure/[0.07] hover:border-palette-white-pure/20 hover:bg-palette-black-pure/40'
+                } border rounded p-4 pr-12 text-[13px] text-palette-white-pure/70 font-mono cursor-pointer transition-all break-words text-left whitespace-pre-wrap leading-normal flex items-center`}
         >
-            {showDollar && (
-                <span className="mr-2 select-none" style={{ color: activeColor }}>$</span>
-            )}
-            {text}
-            
-            <div
-                className={`absolute -top-2.5 right-2.5 text-[9px] ${
-                    copied 
-                        ? 'bg-palette-green-success text-palette-slate-darkest' 
-                        : 'text-palette-white-bright'
-                } px-2 py-0.5 rounded-sm font-bold tracking-wide shadow-md z-10 pointer-events-none`}
-                style={{ backgroundColor: copied ? undefined : activeColor }}
-            >
-                {copied ? 'COPIED!' : label}
+            <div className="flex-1">
+                {showDollar && (
+                    <span className="mr-2 select-none" style={{ color: activeColor }}>$</span>
+                )}
+                {text}
+            </div>
+
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors">
+                {copied ? (
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-palette-green-success"
+                    >
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                ) : (
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-palette-white-pure/60 hover:text-palette-white-pure"
+                    >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                )}
             </div>
         </div>
     );
