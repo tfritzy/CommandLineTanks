@@ -281,16 +281,10 @@ export class AsciiRenderer {
 
     const turretScreen = this.worldToScreen(x + dx * 0.5, y + dy * 0.5);
 
-    let turretChar = "-";
-    if (Math.abs(dy) > Math.abs(dx)) {
-      turretChar = dy > 0 ? "|" : "|";
-    } else {
-      turretChar = dx > 0 ? "-" : "-";
-    }
-
     const angle = turretRotation * (180 / Math.PI);
     const normalizedAngle = ((angle % 360) + 360) % 360;
 
+    let turretChar = "-";
     if (normalizedAngle >= 22.5 && normalizedAngle < 67.5) turretChar = "\\";
     else if (normalizedAngle >= 67.5 && normalizedAngle < 112.5) turretChar = "|";
     else if (normalizedAngle >= 112.5 && normalizedAngle < 157.5) turretChar = "/";
@@ -298,7 +292,6 @@ export class AsciiRenderer {
     else if (normalizedAngle >= 202.5 && normalizedAngle < 247.5) turretChar = "\\";
     else if (normalizedAngle >= 247.5 && normalizedAngle < 292.5) turretChar = "|";
     else if (normalizedAngle >= 292.5 && normalizedAngle < 337.5) turretChar = "/";
-    else turretChar = "-";
 
     this.setCell(screen.col, screen.row, {
       char: CHARS.TANK_BODY,
