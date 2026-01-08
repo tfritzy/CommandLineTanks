@@ -8,7 +8,8 @@ public static partial class Module
     public partial struct Projectile
     {
         [PrimaryKey]
-        public string Id;
+        [AutoInc]
+        public ulong Id;
 
         [SpacetimeDB.Index.BTree]
         public string WorldId;
@@ -33,11 +34,15 @@ public static partial class Module
         public ExplosionTrigger ExplosionTrigger;
         public float? Damping;
         public bool Bounce;
+
+        public float Speed;
+        public bool IsReturning;
+        public DamagedTile[] RecentlyDamagedTiles;
+        public DamagedTank[] RecentlyHitTanks;
     }
 
     public static (Projectile, ProjectileTransform) BuildProjectile(
         ReducerContext ctx,
-        string? id = null,
         string? worldId = null,
         string? shooterTankId = null,
         int alliance = 0,
@@ -63,18 +68,13 @@ public static partial class Module
         float? damping = null,
         bool bounce = false,
         DamagedTile[]? recentlyDamagedTiles = null,
-        DamagedTank[]? recentlyHitTanks = null,
-        ulong? updatedAt = null)
+        DamagedTank[]? recentlyHitTanks = null)
     {
         var timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        var projectileId = id ?? GenerateId(ctx, "prj");
-        var projectileWorldId = worldId ?? "";
-        var computedUpdatedAt = updatedAt ?? timestamp;
 
         var projectile = new Projectile
         {
-            Id = projectileId,
-            WorldId = projectileWorldId,
+            WorldId = worldId ?? "",
             ShooterTankId = shooterTankId ?? "",
             Alliance = alliance,
             Size = size,
@@ -91,22 +91,19 @@ public static partial class Module
             ExplosionRadius = explosionRadius,
             ExplosionTrigger = explosionTrigger,
             Damping = damping,
-            Bounce = bounce
+            Bounce = bounce,
+            Speed = speed,
+            IsReturning = isReturning,
+            RecentlyDamagedTiles = recentlyDamagedTiles ?? Array.Empty<DamagedTile>(),
+            RecentlyHitTanks = recentlyHitTanks ?? Array.Empty<DamagedTank>()
         };
 
         var transform = new ProjectileTransform
         {
-            ProjectileId = projectileId,
-            WorldId = projectileWorldId,
             PositionX = positionX,
             PositionY = positionY,
             Velocity = velocity ?? new Vector2Float(0, 0),
-            Speed = speed,
-            IsReturning = isReturning,
-            CollisionCount = collisionCount,
-            RecentlyDamagedTiles = recentlyDamagedTiles ?? new DamagedTile[0],
-            RecentlyHitTanks = recentlyHitTanks ?? new DamagedTank[0],
-            UpdatedAt = computedUpdatedAt
+            CollisionCount = collisionCount
         };
 
         return (projectile, transform);

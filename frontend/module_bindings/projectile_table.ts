@@ -11,10 +11,12 @@ import {
 } from "spacetimedb";
 import ProjectileType from "./projectile_type_type";
 import ExplosionTrigger from "./explosion_trigger_type";
+import DamagedTile from "./damaged_tile_type";
+import DamagedTank from "./damaged_tank_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey(),
+  id: __t.u64().primaryKey(),
   worldId: __t.string(),
   shooterTankId: __t.string(),
   alliance: __t.i32(),
@@ -37,4 +39,12 @@ export default __t.row({
   },
   damping: __t.option(__t.f32()),
   bounce: __t.bool(),
+  speed: __t.f32(),
+  isReturning: __t.bool(),
+  get recentlyDamagedTiles() {
+    return __t.array(DamagedTile);
+  },
+  get recentlyHitTanks() {
+    return __t.array(DamagedTank);
+  },
 });

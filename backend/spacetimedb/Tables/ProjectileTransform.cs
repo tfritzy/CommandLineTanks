@@ -7,10 +7,7 @@ public static partial class Module
     public partial struct ProjectileTransform
     {
         [PrimaryKey]
-        public string ProjectileId;
-
-        [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public ulong ProjectileId;
 
         public float PositionX;
 
@@ -18,16 +15,6 @@ public static partial class Module
 
         public Vector2Float Velocity;
 
-        public float Speed;
-
-        public bool IsReturning;
-
         public int CollisionCount;
-
-        public DamagedTile[] RecentlyDamagedTiles;
-
-        public DamagedTank[] RecentlyHitTanks;
-
-        public ulong UpdatedAt;
     }
 }

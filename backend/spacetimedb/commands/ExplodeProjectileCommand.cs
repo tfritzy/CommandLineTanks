@@ -119,7 +119,8 @@ public static partial class ProjectileUpdater
                 lifetimeSeconds: subProjectileLifetime
             );
 
-            ctx.Db.projectile.Insert(subProjectile);
+            var insertedSubProjectile = ctx.Db.projectile.Insert(subProjectile);
+            subTransform = subTransform with { ProjectileId = insertedSubProjectile.Id };
             ctx.Db.projectile_transform.Insert(subTransform);
         }
     }

@@ -13,7 +13,7 @@ import ProjectileTransformRow from "../../module_bindings/projectile_transform_t
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export class ProjectileManager {
-  private projectiles: Map<string, Projectile> = new Map();
+  private projectiles: Map<bigint, Projectile> = new Map();
   private worldId: string;
   private particlesManager: ProjectileImpactParticlesManager;
   private tankManager: TankManager | null = null;
@@ -81,12 +81,11 @@ export class ProjectileManager {
       table: connection.db.projectileTransform,
       handlers: {
         onInsert: (_ctx: EventContext, newTransform: Infer<typeof ProjectileTransformRow>) => {
-          if (newTransform.worldId !== this.worldId) return;
-
           if (this.projectiles.has(newTransform.projectileId)) return;
 
           const projectileData = connection.db.projectile.id.find(newTransform.projectileId);
           if (!projectileData) return;
+          if (projectileData.worldId !== this.worldId) return;
 
           const projectile = ProjectileFactory.create(
             projectileData.projectileType.tag,
@@ -109,7 +108,6 @@ export class ProjectileManager {
           }
         },
         onUpdate: (_ctx: EventContext, _oldTransform: Infer<typeof ProjectileTransformRow>, newTransform: Infer<typeof ProjectileTransformRow>) => {
-          if (newTransform.worldId !== this.worldId) return;
           const projectile = this.projectiles.get(newTransform.projectileId);
 
           if (projectile) {
@@ -124,7 +122,6 @@ export class ProjectileManager {
           }
         },
         onDelete: (_ctx: EventContext, transform: Infer<typeof ProjectileTransformRow>) => {
-          if (transform.worldId !== this.worldId) return;
           const localProjectile = this.projectiles.get(transform.projectileId);
           if (localProjectile) {
             localProjectile.spawnDeathParticles(this.particlesManager);
