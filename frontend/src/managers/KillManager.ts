@@ -1,4 +1,4 @@
-import { getConnection } from "../spacetimedb-connection";
+import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import { SoundManager } from "./SoundManager";
 import { type Infer } from "spacetimedb";
 import KillRow from "../../module_bindings/kills_table";
@@ -39,7 +39,7 @@ export class KillManager {
       handlers: {
         onInsert: (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
           if (kill.worldId !== this.worldId) return;
-          if (connection.identity && kill.killer.isEqual(connection.identity)) {
+          if (isCurrentIdentity(kill.killer)) {
             const notification: KillNotification = {
               id: kill.id,
               killeeName: kill.killeeName,

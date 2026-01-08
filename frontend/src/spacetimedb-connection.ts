@@ -69,6 +69,7 @@ export function disconnectFromSpacetimeDB(): void {
   if (dbConnection) {
     dbConnection.disconnect();
     dbConnection = null;
+    cachedIdentityHex = null;
     console.log('Disconnected from SpacetimeDB');
   }
 }
@@ -107,3 +108,29 @@ export function getPendingJoinCode(): string | null {
 export function clearPendingJoinCode(): void {
   pendingJoinCode = null;
 }
+
+let cachedIdentityHex: string | null = null;
+
+export const getIdentityHex = (): string | null => {
+  if (!cachedIdentityHex && dbConnection?.identity) {
+    cachedIdentityHex = dbConnection.identity.toHexString();
+  }
+  return cachedIdentityHex;
+};
+
+export const isCurrentIdentity = (identity: { toHexString: () => string } | string): boolean => {
+  const myIdentity = getIdentityHex();
+  if (!myIdentity) return false;
+  
+  const identityHex = typeof identity === 'string' ? identity : identity.toHexString();
+  return identityHex === myIdentity;
+};
+
+export const areIdentitiesEqual = (
+  identity1: { toHexString: () => string } | string,
+  identity2: { toHexString: () => string } | string
+): boolean => {
+  const hex1 = typeof identity1 === 'string' ? identity1 : identity1.toHexString();
+  const hex2 = typeof identity2 === 'string' ? identity2 : identity2.toHexString();
+  return hex1 === hex2;
+};

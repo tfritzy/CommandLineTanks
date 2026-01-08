@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { getConnection } from '../spacetimedb-connection';
+import { getConnection, isCurrentIdentity } from '../spacetimedb-connection';
 import { type Infer } from 'spacetimedb';
 import TankRow from '../../module_bindings/tank_type';
 import ScoreRow from '../../module_bindings/score_type';
@@ -113,7 +113,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
 
                                 const score = connection.db.score.WorldId.find(worldId);
                                 const myTank = Array.from(connection.db.tank.iter()).find(t =>
-                                    connection.identity && t.owner.isEqual(connection.identity) && t.worldId === worldId
+                                    isCurrentIdentity(t.owner) && t.worldId === worldId
                                 );
 
                                 if (score && myTank) {

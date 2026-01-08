@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { getConnection, getPendingJoinCode, clearPendingJoinCode } from '../spacetimedb-connection';
+import { getConnection, getPendingJoinCode, clearPendingJoinCode, isCurrentIdentity } from '../spacetimedb-connection';
 import type { EventContext, SubscriptionHandle } from '../../module_bindings';
 import { type Infer } from "spacetimedb";
 import { TankRow } from '../../module_bindings';
@@ -19,7 +19,7 @@ export function useWorldSwitcher(onWorldChange: (worldId: string) => void, curre
         subscriptionHandleRef.current = subscription;
 
         const handleTankInsert = (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-            if (connection.identity && tank.owner.isEqual(connection.identity)) {
+            if (isCurrentIdentity(tank.owner)) {
                 const pendingJoinCode = getPendingJoinCode();
                 if (pendingJoinCode && tank.joinCode === pendingJoinCode) {
                     console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${tank.worldId}`);
@@ -36,7 +36,7 @@ export function useWorldSwitcher(onWorldChange: (worldId: string) => void, curre
         };
 
         const handleTankUpdate = (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-            if (connection.identity && newTank.owner.isEqual(connection.identity)) {
+            if (isCurrentIdentity(newTank.owner)) {
                 const pendingJoinCode = getPendingJoinCode();
                 if (pendingJoinCode && newTank.joinCode === pendingJoinCode) {
                     console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${newTank.worldId}`);

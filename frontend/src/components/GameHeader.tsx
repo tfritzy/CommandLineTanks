@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { getConnection } from "../spacetimedb-connection";
+import { getConnection, getIdentityHex } from "../spacetimedb-connection";
 import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
@@ -34,8 +34,7 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
   const connection = getConnection();
   const isHomeworld = useMemo(() => {
     if (!connection?.identity) return false;
-    const identityString = connection.identity.toHexString().toLowerCase();
-    return identityString === worldId;
+    return worldId === getIdentityHex();
   }, [connection, worldId]);
 
   useEffect(() => {

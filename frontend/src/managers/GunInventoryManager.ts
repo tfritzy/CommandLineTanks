@@ -1,5 +1,5 @@
 import { type Infer } from "spacetimedb";
-import { getConnection } from "../spacetimedb-connection";
+import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import Gun from "../../module_bindings/gun_type";
 import { type EventContext } from "../../module_bindings";
 import TankRow from "../../module_bindings/tank_type";
@@ -29,10 +29,7 @@ export class GunInventoryManager {
       handlers: {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (tank.worldId !== worldId) return;
-          if (
-            connection.identity &&
-            tank.owner.isEqual(connection.identity)
-          ) {
+          if (isCurrentIdentity(tank.owner)) {
             this.playerTankId = tank.id;
             this.guns.length = 0;
             for (let i = 0; i < tank.guns.length; i++) {
@@ -44,10 +41,7 @@ export class GunInventoryManager {
         },
         onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
           if (newTank.worldId !== worldId) return;
-          if (
-            connection.identity &&
-            newTank.owner.isEqual(connection.identity)
-          ) {
+          if (isCurrentIdentity(newTank.owner)) {
             this.guns.length = 0;
             for (let i = 0; i < newTank.guns.length; i++) {
               this.guns.push(newTank.guns[i]);

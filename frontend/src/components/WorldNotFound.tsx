@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { getConnection } from '../spacetimedb-connection';
+import { getIdentityHex } from '../spacetimedb-connection';
 
 interface WorldNotFoundProps {
   worldId: string;
@@ -9,9 +9,8 @@ export default function WorldNotFound({ worldId: _worldId }: WorldNotFoundProps)
   const navigate = useNavigate();
 
   const handleGoHome = () => {
-    const connection = getConnection();
-    if (connection?.identity) {
-      const homeWorldId = connection.identity.toHexString();
+    const homeWorldId = getIdentityHex();
+    if (homeWorldId) {
       navigate(`/world/${homeWorldId}`);
     }
   };

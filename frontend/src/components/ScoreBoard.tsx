@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { getConnection } from "../spacetimedb-connection";
+import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
@@ -45,10 +45,9 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
   const [players, setPlayers] = useState<PlayerScore[]>([]);
   const connection = getConnection();
   const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
+  const cachedOwnerHexStrings = useRef<Map<string, string>>(new Map());
 
-  const isHomeworld = connection?.identity
-    ? connection.identity.toHexString().toLowerCase() === worldId
-    : false;
+  const isHomeworld = isCurrentIdentity(worldId);
 
   useEffect(() => {
     if (!connection || isHomeworld) return;
@@ -58,31 +57,46 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
         .filter(t => t.worldId === worldId)
         .sort((a, b) => b.killStreak - a.killStreak);
 
-      const mapped = topTanks.map(tank => ({
-        id: tank.id,
-        name: tank.name,
-        kills: tank.kills,
-        deaths: tank.deaths,
-        killStreak: tank.killStreak,
-        alliance: tank.alliance,
-        displayScore: tank.killStreak,
-        owner: tank.owner.toString(),
-      }));
+      const newPlayers: PlayerScore[] = [];
+      for (const tank of topTanks) {
+        let ownerHex = cachedOwnerHexStrings.current.get(tank.id);
+        if (!ownerHex) {
+          ownerHex = tank.owner.toHexString();
+          cachedOwnerHexStrings.current.set(tank.id, ownerHex);
+        }
+        
+        newPlayers.push({
+          id: tank.id,
+          name: tank.name,
+          kills: tank.kills,
+          deaths: tank.deaths,
+          killStreak: tank.killStreak,
+          alliance: tank.alliance,
+          displayScore: tank.killStreak,
+          owner: ownerHex,
+        });
+      }
 
-      setPlayers(mapped);
+      setPlayers(newPlayers);
     };
 
     subscriptionRef.current = subscribeToTable({
       table: connection.db.tank,
       handlers: {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId === worldId) updatePlayerScores();
+          if (tank.worldId === worldId) {
+            cachedOwnerHexStrings.current.set(tank.id, tank.owner.toHexString());
+            updatePlayerScores();
+          }
         },
         onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
           if (newTank.worldId === worldId) updatePlayerScores();
         },
         onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId === worldId) updatePlayerScores();
+          if (tank.worldId === worldId) {
+            cachedOwnerHexStrings.current.delete(tank.id);
+            updatePlayerScores();
+          }
         }
       },
       loadInitialData: false

@@ -1,19 +1,18 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getConnection } from '../spacetimedb-connection';
+import { getIdentityHex } from '../spacetimedb-connection';
 
 const HomeWorldRedirector: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const conn = getConnection();
-        if (!conn || !conn.identity) {
+        const homeWorldId = getIdentityHex();
+        if (!homeWorldId) {
             navigate('/');
             return;
         }
 
-        const homeWorldId = conn.identity.toHexString().toLowerCase();
-        navigate(`/world/${homeWorldId}`, { replace: true });
+        navigate(`/world/${homeWorldId.toLowerCase()}`, { replace: true });
     }, [navigate]);
 
     return (

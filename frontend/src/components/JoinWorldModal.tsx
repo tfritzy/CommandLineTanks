@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { getConnection } from '../spacetimedb-connection';
+import { getConnection, isCurrentIdentity } from '../spacetimedb-connection';
 import CopyBox from './CopyBox';
 
 interface JoinWorldModalProps {
@@ -24,7 +24,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
     if (connection?.identity) {
       let player = null;
       for (const p of connection.db.player.iter()) {
-        if (p.identity.isEqual(connection.identity)) {
+        if (isCurrentIdentity(p.identity)) {
           player = p;
           break;
         }

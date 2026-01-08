@@ -1,6 +1,6 @@
 import { Tank } from "../objects/Tank";
 import { SoundManager } from "./SoundManager";
-import { getConnection } from "../spacetimedb-connection";
+import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import { DeadTankParticlesManager } from "./DeadTankParticlesManager";
 import { TankIndicatorManager } from "./TankIndicatorManager";
 import { TargetingReticle } from "../objects/TargetingReticle";
@@ -51,8 +51,7 @@ export class TankManager {
             this.buildTank(tank);
 
             if (
-              connection.identity &&
-              tank.owner.isEqual(connection.identity) &&
+              isCurrentIdentity(tank.owner) &&
               tank.worldId == this.worldId
             ) {
               this.playerTankId = tank.id;
@@ -91,9 +90,8 @@ export class TankManager {
                   const pos = tank.getPosition();
                   this.soundManager.play("self-damage", 0.5, pos.x, pos.y);
                 } else if (
-                  connection.identity &&
                   newTank.lastDamagedBy &&
-                  newTank.lastDamagedBy.isEqual(connection.identity)
+                  isCurrentIdentity(newTank.lastDamagedBy)
                 ) {
                   const pos = tank.getPosition();
                   this.soundManager.play("enemy-damage", 0.5, pos.x, pos.y);
@@ -135,8 +133,7 @@ export class TankManager {
             }
 
             if (
-              connection.identity &&
-              newTank.owner.isEqual(connection.identity) &&
+              isCurrentIdentity(newTank.owner) &&
               newTank.worldId == this.worldId
             ) {
               if (oldTank.target !== newTank.target) {

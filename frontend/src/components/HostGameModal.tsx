@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getConnection } from '../spacetimedb-connection';
+import { getConnection, isCurrentIdentity } from '../spacetimedb-connection';
 import CopyBox from './CopyBox';
 
 interface HostGameModalProps {
@@ -21,7 +21,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
     if (connection?.identity) {
       let player = null;
       for (const p of connection.db.player.iter()) {
-        if (p.identity.isEqual(connection.identity)) {
+        if (isCurrentIdentity(p.identity)) {
           player = p;
           break;
         }
@@ -190,7 +190,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
           <div className="text-xs text-terminal-text-default mb-2.5 font-medium">
             Copy and run this command:
           </div>
-          
+
           <CopyBox text={command} />
         </div>
       </motion.div>

@@ -10,7 +10,7 @@ import WorldNotFound from "./WorldNotFound";
 import EliminatedModal from "./EliminatedModal";
 import HomeworldOverlay from "./HomeworldOverlay";
 import { motion, AnimatePresence } from "framer-motion";
-import { getConnection } from "../spacetimedb-connection";
+import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
@@ -33,8 +33,8 @@ export default function GameView() {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
 
-  const connection = getConnection();
-  const isHomeworld = connection?.identity && worldId?.toLowerCase() === connection.identity.toHexString().toLowerCase();
+  const myIdentity = getIdentityHex();
+  const isHomeworld = myIdentity && worldId?.toLowerCase() === myIdentity.toLowerCase();
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -100,8 +100,7 @@ export default function GameView() {
     const checkForTank = () => {
       for (const tank of connection.db.tank.iter()) {
         if (
-          connection.identity &&
-          tank.owner.isEqual(connection.identity) &&
+          isCurrentIdentity(tank.owner) &&
           tank.worldId === worldId
         ) {
           hasReceivedPlayerTankData = true;
@@ -133,10 +132,7 @@ export default function GameView() {
             }, 500);
           }
 
-          if (
-            connection.identity &&
-            tank.owner.isEqual(connection.identity)
-          ) {
+          if (isCurrentIdentity(tank.owner)) {
             hasReceivedPlayerTankData = true;
             setShowJoinModal(false);
             setIsDead(tank.health <= 0);
@@ -144,44 +140,42 @@ export default function GameView() {
         },
         onUpdate: (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
           if (
-            connection.identity &&
-            newTank.owner.isEqual(connection.identity) &&
+            isCurrentIdentity(newTank.owner) &&
             newTank.worldId === worldId
           ) {
             const wasDead = oldTank.health <= 0;
             const isNowDead = newTank.health <= 0;
-            
+
             if (!wasDead && isNowDead && newTank.lastDamagedBy) {
               let killerName: string | null = null;
-              
+
               for (const tank of connection.db.tank.iter()) {
-                if (tank.worldId === worldId && tank.owner.isEqual(newTank.lastDamagedBy)) {
+                if (tank.worldId === worldId && areIdentitiesEqual(tank.owner, newTank.lastDamagedBy)) {
                   killerName = tank.name;
                   break;
                 }
               }
-              
+
               if (!killerName) {
                 for (const player of connection.db.player.iter()) {
-                  if (player.identity.isEqual(newTank.lastDamagedBy)) {
+                  if (areIdentitiesEqual(player.identity, newTank.lastDamagedBy)) {
                     killerName = player.name;
                     break;
                   }
                 }
               }
-              
+
               setKillerName(killerName);
             } else if (!isNowDead) {
               setKillerName(null);
             }
-            
+
             setIsDead(isNowDead);
           }
         },
         onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (
-            connection.identity &&
-            tank.owner.isEqual(connection.identity) &&
+            isCurrentIdentity(tank.owner) &&
             tank.worldId === worldId
           ) {
             setIsDead(false);
