@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { connectToSpacetimeDB } from "./spacetimedb-connection";
 import GameView from "./components/GameView";
+import TerminalGameView from "./components/TerminalGameView";
 import LandingPage from "./components/LandingPage";
 import HomeWorldRedirector from "./components/HomeWorldRedirector";
 
@@ -29,6 +30,7 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/deploy" element={isSpacetimeConnected ? <HomeWorldRedirector /> : <div className="fixed inset-0 bg-[#1a1a24]" />} />
       <Route path="/world/:worldId" element={isSpacetimeConnected ? <GameView /> : <div className="fixed inset-0 bg-[#1a1a24]" />} />
+      <Route path="/terminal/:worldId" element={isSpacetimeConnected ? <TerminalGameView /> : <div className="fixed inset-0 bg-[#1a1a24]" />} />
       <Route
         path="*"
         element={<LandingPage />}
