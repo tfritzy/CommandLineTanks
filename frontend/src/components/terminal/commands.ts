@@ -46,29 +46,27 @@ export function parseCommandInput(input: string): string[] {
   return args;
 }
 
-function findMyTankMetadata(connection: DbConnection, worldId: string) {
+function findMyTank(connection: DbConnection, worldId: string) {
   if (!connection.identity) return null;
-  for (const metadata of connection.db.tankMetadata.iter()) {
-    if (metadata.worldId === worldId && metadata.owner.isEqual(connection.identity)) {
-      return metadata;
+  for (const tank of connection.db.tank.iter()) {
+    if (tank.worldId === worldId && tank.owner.isEqual(connection.identity)) {
+      return tank;
     }
   }
   return null;
 }
 
-function findMyTankPosition(connection: DbConnection, worldId: string) {
-  const metadata = findMyTankMetadata(connection, worldId);
-  if (!metadata) return null;
-  return connection.db.tankPosition.tankId.find(metadata.tankId);
+function findMyTankTransform(connection: DbConnection, worldId: string) {
+  const tank = findMyTank(connection, worldId);
+  if (!tank) return null;
+  return connection.db.tankTransform.tankId.find(tank.id);
 }
 
 function isPlayerDead(connection: DbConnection, worldId: string): boolean {
   if (!connection.identity) {
     return false;
   }
-  const metadata = findMyTankMetadata(connection, worldId);
-  if (!metadata) return false;
-  const tank = connection.db.tank.id.find(metadata.tankId);
+  const tank = findMyTank(connection, worldId);
   return tank ? tank.health <= 0 : false;
 }
 
@@ -604,23 +602,23 @@ export function target(
     lead = parsedLead;
   }
 
-  const myMetadata = findMyTankMetadata(connection, worldId);
+  const myTank = findMyTank(connection, worldId);
 
-  if (!myMetadata) {
+  if (!myTank) {
     return [themeColors.error("target: error: no connection")];
   }
 
   const targetCodeLower = targetCode.toLowerCase();
 
-  if (targetCodeLower === myMetadata.targetCode) {
+  if (targetCodeLower === myTank.targetCode) {
     return [themeColors.error("target: error: cannot target your own tank")];
   }
 
-  const allMetadatas = Array.from(connection.db.tankMetadata.iter()).filter(
-    (m) => m.worldId === worldId
+  const allTanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.worldId === worldId
   );
-  const targetMetadata = allMetadatas.find((m) => m.targetCode === targetCodeLower);
-  if (!targetMetadata || targetMetadata.alliance === myMetadata.alliance) {
+  const targetTank = allTanks.find((t) => t.targetCode === targetCodeLower);
+  if (!targetTank || targetTank.alliance === myTank.alliance) {
     return [themeColors.error(`target: error: tank with code '${targetCode}' not found`)];
   }
 
@@ -630,8 +628,8 @@ export function target(
     lead,
   });
 
-  const tankCodeColored = themeColors.colorize(targetMetadata.targetCode, 'TANK_CODE');
-  const tankName = targetMetadata.name;
+  const tankCodeColored = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
+  const tankName = targetTank.name;
 
   if (lead > 0) {
     return [
@@ -762,13 +760,7 @@ export function switchGun(
     return [themeColors.error("switch: error: no connection")];
   }
 
-  const myMetadata = findMyTankMetadata(connection, worldId);
-  if (!myMetadata) {
-    return [themeColors.error("switch: error: tank not found")];
-  }
-  
-  const myTank = connection.db.tank.id.find(myMetadata.tankId);
-
+  const myTank = findMyTank(connection, worldId);
   if (!myTank) {
     return [themeColors.error("switch: error: tank not found")];
   }
@@ -817,9 +809,9 @@ export function drive(
     return [themeColors.error("drive: error: no connection")];
   }
 
-  const myPosition = findMyTankPosition(connection, worldId);
+  const myTransform = findMyTankTransform(connection, worldId);
 
-  if (!myPosition) {
+  if (!myTransform) {
     return [themeColors.error("drive: error: no connection")];
   }
 
@@ -861,8 +853,8 @@ export function drive(
     const relativeX = directionInfo.x * distance;
     const relativeY = directionInfo.y * distance;
 
-    const targetX = Math.floor(myPosition.positionX) + relativeX;
-    const targetY = Math.floor(myPosition.positionY) + relativeY;
+    const targetX = Math.floor(myTransform.positionX) + relativeX;
+    const targetY = Math.floor(myTransform.positionY) + relativeY;
 
     connection.reducers.drive({ worldId, targetX, targetY, throttle });
 
@@ -1182,16 +1174,8 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
     return [themeColors.error("tanks: error: no connection")];
   }
 
-  const tankMap = new Map<string, ReturnType<typeof connection.db.tank.id.find>>();
-  for (const tank of connection.db.tank.iter()) {
-    if (tank.worldId === worldId) {
-      tankMap.set(tank.id, tank);
-    }
-  }
-
-  const metadatas = Array.from(connection.db.tankMetadata.iter()).filter(
-    (m) => m.worldId === worldId
-  );
+  const tanksInWorld = Array.from(connection.db.tank.iter())
+    .filter((tank) => tank.worldId === worldId);
 
   interface CombinedTank {
     id: string;
@@ -1204,19 +1188,16 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
   }
 
   const combinedTanks: CombinedTank[] = [];
-  for (const metadata of metadatas) {
-    const tank = tankMap.get(metadata.tankId);
-    if (tank) {
-      combinedTanks.push({
-        id: metadata.tankId,
-        name: metadata.name,
-        alliance: metadata.alliance,
-        kills: tank.kills,
-        deaths: tank.deaths,
-        selectedGunIndex: tank.selectedGunIndex,
-        guns: tank.guns,
-      });
-    }
+  for (const tank of tanksInWorld) {
+    combinedTanks.push({
+      id: tank.id,
+      name: tank.name,
+      alliance: tank.alliance,
+      kills: tank.kills,
+      deaths: tank.deaths,
+      selectedGunIndex: tank.selectedGunIndex,
+      guns: tank.guns,
+    });
   }
 
   if (combinedTanks.length === 0) {

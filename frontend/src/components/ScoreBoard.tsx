@@ -2,9 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
-import TankMetadataRow from "../../module_bindings/tank_metadata_type";
 import { type EventContext } from "../../module_bindings";
-import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
+import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { motion, AnimatePresence, animate } from "framer-motion";
 
 interface PlayerScore {
@@ -45,7 +44,7 @@ function AnimatedScore({ value }: AnimatedScoreProps) {
 export default function ScoreBoard({ worldId }: ScoreBoardProps) {
   const [players, setPlayers] = useState<PlayerScore[]>([]);
   const connection = getConnection();
-  const subscriptionRef = useRef<MultiTableSubscription | null>(null);
+  const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
   const cachedOwnerHexStrings = useRef<Map<string, string>>(new Map());
 
   const isHomeworld = isCurrentIdentity(worldId);
@@ -54,38 +53,25 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
     if (!connection || isHomeworld) return;
 
     const updatePlayerScores = () => {
-      const tankMap = new Map<string, Infer<typeof TankRow>>();
-      for (const tank of connection.db.tank.iter()) {
-        if (tank.worldId === worldId) {
-          tankMap.set(tank.id, tank);
-        }
-      }
-      
-      const metadatas = Array.from(connection.db.tankMetadata.iter())
-        .filter(m => m.worldId === worldId);
-      
-      const combined = metadatas.map(metadata => {
-        const tank = tankMap.get(metadata.tankId);
-        return { metadata, tank };
-      }).filter(c => c.tank !== undefined)
-        .sort((a, b) => (b.tank?.killStreak ?? 0) - (a.tank?.killStreak ?? 0));
+      const tanks = Array.from(connection.db.tank.iter())
+        .filter(tank => tank.worldId === worldId && !tank.isBot)
+        .sort((a, b) => b.killStreak - a.killStreak);
 
       const newPlayers: PlayerScore[] = [];
-      for (const { metadata, tank } of combined) {
-        if (!tank) continue;
-        let ownerHex = cachedOwnerHexStrings.current.get(metadata.tankId);
+      for (const tank of tanks) {
+        let ownerHex = cachedOwnerHexStrings.current.get(tank.id);
         if (!ownerHex) {
-          ownerHex = metadata.owner.toHexString();
-          cachedOwnerHexStrings.current.set(metadata.tankId, ownerHex);
+          ownerHex = tank.owner.toHexString();
+          cachedOwnerHexStrings.current.set(tank.id, ownerHex);
         }
         
         newPlayers.push({
-          id: metadata.tankId,
-          name: metadata.name,
+          id: tank.id,
+          name: tank.name,
           kills: tank.kills,
           deaths: tank.deaths,
           killStreak: tank.killStreak,
-          alliance: metadata.alliance,
+          alliance: tank.alliance,
           displayScore: tank.killStreak,
           owner: ownerHex,
         });
@@ -94,42 +80,26 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
       setPlayers(newPlayers);
     };
 
-    subscriptionRef.current = createMultiTableSubscription()
-      .add<typeof TankMetadataRow>({
-        table: connection.db.tankMetadata,
-        handlers: {
-          onInsert: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
-            if (metadata.worldId === worldId) {
-              cachedOwnerHexStrings.current.set(metadata.tankId, metadata.owner.toHexString());
-              updatePlayerScores();
-            }
-          },
-          onUpdate: (_ctx: EventContext, _oldMetadata: Infer<typeof TankMetadataRow>, newMetadata: Infer<typeof TankMetadataRow>) => {
-            if (newMetadata.worldId === worldId) updatePlayerScores();
-          },
-          onDelete: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
-            if (metadata.worldId === worldId) {
-              cachedOwnerHexStrings.current.delete(metadata.tankId);
-              updatePlayerScores();
-            }
-          }
-        }
-      })
-      .add<typeof TankRow>({
-        table: connection.db.tank,
-        handlers: {
-          onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-            if (tank.worldId === worldId) updatePlayerScores();
-          },
-          onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-            if (newTank.worldId === worldId) updatePlayerScores();
-          },
-          onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-            if (tank.worldId === worldId) updatePlayerScores();
+    subscriptionRef.current = subscribeToTable({
+      table: connection.db.tank,
+      handlers: {
+        onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+          if (tank.worldId === worldId) {
+            cachedOwnerHexStrings.current.set(tank.id, tank.owner.toHexString());
+            updatePlayerScores();
           }
         },
-        loadInitialData: false
-      });
+        onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+          if (newTank.worldId === worldId) updatePlayerScores();
+        },
+        onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+          if (tank.worldId === worldId) {
+            cachedOwnerHexStrings.current.delete(tank.id);
+            updatePlayerScores();
+          }
+        }
+      }
+    });
 
     updatePlayerScores();
 

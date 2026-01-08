@@ -91,7 +91,7 @@ export function getTankTransform(tankId: string) {
 export function getTankByOwner(worldId: string, owner: Identity) {
   const connection = getConnection();
   if (!connection) return null;
-  for (const tank of connection.db.tank.worldId.filter(worldId)) {
+  for (const tank of connection.db.tank.WorldId.filter(worldId)) {
     if (tank.owner.isEqual(owner)) {
       return tank;
     }
