@@ -122,9 +122,9 @@ export class Game {
     const clampedDeltaTime = Math.min(deltaTime, 1 / 30);
     const distanceX = targetCameraX - this.currentCameraX;
     const distanceY = targetCameraY - this.currentCameraY;
-    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+    const distanceSquared = distanceX * distanceX + distanceY * distanceY;
 
-    if (distance > CAMERA_TELEPORT_THRESHOLD) {
+    if (distanceSquared > CAMERA_TELEPORT_THRESHOLD * CAMERA_TELEPORT_THRESHOLD) {
       this.currentCameraX = targetCameraX;
       this.currentCameraY = targetCameraY;
     } else {
