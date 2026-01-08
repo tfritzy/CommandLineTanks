@@ -10,6 +10,8 @@ import { GUN_BARREL_LENGTH } from "../constants";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
+import TankMetadataRow from "../../module_bindings/tank_metadata_type";
+import TankPositionRow from "../../module_bindings/tank_position_type";
 import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
@@ -48,15 +50,7 @@ export class TankManager {
         handlers: {
           onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
             if (tank.worldId !== this.worldId) return;
-            this.buildTank(tank);
-
-            if (
-              isCurrentIdentity(tank.owner) &&
-              tank.worldId == this.worldId
-            ) {
-              this.playerTankId = tank.id;
-              this.updatePlayerTarget(tank.target);
-            }
+            this.buildTank(tank.id);
           },
           onUpdate: (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
             if (newTank.worldId !== this.worldId) return;
@@ -64,7 +58,8 @@ export class TankManager {
             if (tank) {
               if (oldTank.health > 0 && newTank.health <= 0) {
                 const pos = tank.getPosition();
-                this.particlesManager.spawnParticles(pos.x, pos.y, newTank.alliance);
+                const metadata = connection.db.tankMetadata.tankId.find(newTank.id);
+                this.particlesManager.spawnParticles(pos.x, pos.y, metadata?.alliance ?? 0);
 
                 if (newTank.id === this.playerTankId) {
                   this.soundManager.play("death", 0.5, pos.x, pos.y);
@@ -112,31 +107,22 @@ export class TankManager {
                 }
               }
 
-              tank.setPosition(
-                newTank.positionX,
-                newTank.positionY,
-                newTank.updatedAt
-              );
               tank.setTargetTurretRotation(newTank.targetTurretRotation);
               tank.setTurretAngularVelocity(newTank.turretAngularVelocity);
               tank.setTurretRotation(newTank.turretRotation);
               tank.setHealth(newTank.health);
-              tank.setAlliance(newTank.alliance);
               tank.setGuns(newTank.guns);
               tank.setSelectedGunIndex(newTank.selectedGunIndex);
               tank.setHasShield(newTank.hasShield);
               tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
-              tank.setTargetCode(newTank.targetCode);
               tank.setMessage(newTank.message ?? null);
             } else {
-              this.buildTank(newTank);
+              this.buildTank(newTank.id);
             }
 
-            if (
-              isCurrentIdentity(newTank.owner) &&
-              newTank.worldId == this.worldId
-            ) {
-              if (oldTank.target !== newTank.target) {
+            if (oldTank.target !== newTank.target) {
+              const metadata = connection.db.tankMetadata.tankId.find(newTank.id);
+              if (metadata && isCurrentIdentity(metadata.owner) && newTank.worldId == this.worldId) {
                 this.updatePlayerTarget(newTank.target);
               }
             }
@@ -151,6 +137,65 @@ export class TankManager {
 
             if (this.playerTargetTankId === tank.id && tank.worldId == this.worldId) {
               this.updatePlayerTarget(null);
+            }
+          }
+        }
+      })
+      .add<typeof TankMetadataRow>({
+        table: connection.db.tankMetadata,
+        handlers: {
+          onInsert: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
+            if (metadata.worldId !== this.worldId) return;
+            
+            if (isCurrentIdentity(metadata.owner) && metadata.worldId == this.worldId) {
+              this.playerTankId = metadata.tankId;
+              const tank = connection.db.tank.id.find(metadata.tankId);
+              if (tank) {
+                this.updatePlayerTarget(tank.target);
+              }
+            }
+            
+            const existingTank = this.tanks.get(metadata.tankId);
+            if (existingTank) {
+              existingTank.setAlliance(metadata.alliance);
+              existingTank.setTargetCode(metadata.targetCode);
+              existingTank.setName(metadata.name);
+              existingTank.setMaxHealth(metadata.maxHealth);
+            }
+          },
+          onUpdate: (_ctx: EventContext, _oldMetadata: Infer<typeof TankMetadataRow>, newMetadata: Infer<typeof TankMetadataRow>) => {
+            if (newMetadata.worldId !== this.worldId) return;
+            const tank = this.tanks.get(newMetadata.tankId);
+            if (tank) {
+              tank.setAlliance(newMetadata.alliance);
+              tank.setTargetCode(newMetadata.targetCode);
+              tank.setName(newMetadata.name);
+              tank.setMaxHealth(newMetadata.maxHealth);
+            }
+          },
+          onDelete: (_ctx: EventContext, metadata: Infer<typeof TankMetadataRow>) => {
+            if (metadata.worldId !== this.worldId) return;
+            if (this.playerTankId === metadata.tankId) {
+              this.playerTankId = null;
+            }
+          }
+        }
+      })
+      .add<typeof TankPositionRow>({
+        table: connection.db.tankPosition,
+        handlers: {
+          onInsert: (_ctx: EventContext, position: Infer<typeof TankPositionRow>) => {
+            if (position.worldId !== this.worldId) return;
+            const tank = this.tanks.get(position.tankId);
+            if (tank) {
+              tank.setPosition(position.positionX, position.positionY, position.updatedAt);
+            }
+          },
+          onUpdate: (_ctx: EventContext, _oldPosition: Infer<typeof TankPositionRow>, newPosition: Infer<typeof TankPositionRow>) => {
+            if (newPosition.worldId !== this.worldId) return;
+            const tank = this.tanks.get(newPosition.tankId);
+            if (tank) {
+              tank.setPosition(newPosition.positionX, newPosition.positionY, newPosition.updatedAt);
             }
           }
         }
@@ -195,22 +240,29 @@ export class TankManager {
       });
   }
 
-  buildTank(tank: Infer<typeof TankRow>) {
+  buildTank(tankId: string) {
     const connection = getConnection();
+    if (!connection) return;
 
-    const tankPath = connection?.db.tankPath.tankId.find(tank.id);
+    const tank = connection.db.tank.id.find(tankId);
+    const metadata = connection.db.tankMetadata.tankId.find(tankId);
+    const position = connection.db.tankPosition.tankId.find(tankId);
+    
+    if (!tank || !metadata || !position) return;
+
+    const tankPath = connection.db.tankPath.tankId.find(tankId);
     const path = tankPath?.path ?? [];
 
     const newTank = new Tank(
       tank.id,
-      tank.positionX,
-      tank.positionY,
+      position.positionX,
+      position.positionY,
       tank.turretRotation,
-      tank.name,
-      tank.targetCode,
-      tank.alliance,
+      metadata.name,
+      metadata.targetCode,
+      metadata.alliance,
       tank.health,
-      tank.maxHealth,
+      metadata.maxHealth,
       tank.turretAngularVelocity,
       path,
       tank.guns,
@@ -220,6 +272,11 @@ export class TankManager {
     );
 
     this.tanks.set(tank.id, newTank);
+    
+    if (isCurrentIdentity(metadata.owner) && metadata.worldId == this.worldId) {
+      this.playerTankId = tank.id;
+      this.updatePlayerTarget(tank.target);
+    }
   }
 
   private handleTankFire(fireState: Infer<typeof TankFireStateRow>) {
@@ -227,21 +284,24 @@ export class TankManager {
     if (!connection) return;
 
     const tankRow = connection.db.tank.id.find(fireState.tankId);
-    if (tankRow && tankRow.health > 0) {
+    const position = connection.db.tankPosition.tankId.find(fireState.tankId);
+    const metadata = connection.db.tankMetadata.tankId.find(fireState.tankId);
+    
+    if (tankRow && position && metadata && tankRow.health > 0) {
       const barrelTipX =
-        tankRow.positionX +
+        position.positionX +
         Math.cos(tankRow.turretRotation) * GUN_BARREL_LENGTH;
       const barrelTipY =
-        tankRow.positionY +
+        position.positionY +
         Math.sin(tankRow.turretRotation) * GUN_BARREL_LENGTH;
 
       this.muzzleFlashManager.spawnMuzzleFlash(
         barrelTipX,
         barrelTipY,
         tankRow.turretRotation,
-        tankRow.alliance
+        metadata.alliance
       );
-      this.soundManager.play("fire", 0.4, tankRow.positionX, tankRow.positionY);
+      this.soundManager.play("fire", 0.4, position.positionX, position.positionY);
     }
   }
 

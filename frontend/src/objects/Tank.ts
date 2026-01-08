@@ -224,6 +224,14 @@ export class Tank {
     this.targetCode = targetCode;
   }
 
+  public setName(name: string) {
+    this.name = name;
+  }
+
+  public setMaxHealth(maxHealth: number) {
+    this.maxHealth = maxHealth;
+  }
+
   public setMessage(message: string | null) {
     this.message = message;
   }
