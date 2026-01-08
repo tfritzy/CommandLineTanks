@@ -43,6 +43,8 @@ export function drawMoagBody(
   setGlow(ctx, color, NEON_GLOW_BLUR_LARGE);
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.stroke();
   clearGlow(ctx);
 
