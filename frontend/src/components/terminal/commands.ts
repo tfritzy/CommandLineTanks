@@ -1059,8 +1059,7 @@ export function exitWorld(connection: DbConnection, worldId: string, args: strin
     return [themeColors.error("exit: error: no connection")];
   }
 
-  const homeworldId = connection.identity.toHexString().toLowerCase();
-  if (worldId.toLowerCase() === homeworldId) {
+  if (worldId.length > 4) {
     return [
       themeColors.error("exit: error: you are already in your homeworld"),
     ];
