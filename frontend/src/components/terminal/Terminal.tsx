@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
-import { getConnection } from "../../spacetimedb-connection";
+import { getConnection, isCurrentIdentity } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
 import { aim, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitWorld, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
 
@@ -36,6 +36,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const currentInputRef = useRef<string>("");
   const cursorPosRef = useRef<number>(0);
   const terminalOutputRef = useRef<string>("");
+  const justCreatedWorldRef = useRef<boolean>(false);
+  const previousWorldIdRef = useRef<string>(worldId);
   const getPrompt = () => {
     return `\x1b[1m${colorize('❯ ', 'PROMPT')}`;
   };
@@ -146,6 +148,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         case 'tanks':
           return tanks(connection, worldId, commandArgs);
         case 'create':
+          justCreatedWorldRef.current = true;
           return create(connection, commandArgs);
         case 'join':
           return join(connection, worldId, commandArgs);
@@ -410,6 +413,38 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       window.removeEventListener("resize", handleResize);
       term.dispose();
     };
+  }, [worldId]);
+
+  useEffect(() => {
+    const term = xtermRef.current;
+    if (!term) return;
+
+    const wasHomeworld = isCurrentIdentity(previousWorldIdRef.current);
+    const isNewWorldNotHomeworld = !isCurrentIdentity(worldId);
+
+    if (justCreatedWorldRef.current && wasHomeworld && isNewWorldNotHomeworld && worldId !== previousWorldIdRef.current) {
+      const url = `${window.location.origin}/world/${worldId}`;
+      
+      const separator = colorize('═'.repeat(80), 'SUCCESS');
+      const title = colorize('🎮 WORLD CREATED SUCCESSFULLY', 'SUCCESS');
+      const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
+      const urlText = colorize(url, 'TANK_CODE');
+      
+      let output = `\r\n${separator}\r\n`;
+      output += `${title}\r\n`;
+      output += `\r\n`;
+      output += `${urlLabel}\r\n`;
+      output += `${urlText}\r\n`;
+      output += `${separator}\r\n`;
+      output += `\r\n`;
+
+      terminalOutputRef.current += output;
+      term.write(output);
+      
+      justCreatedWorldRef.current = false;
+    }
+    
+    previousWorldIdRef.current = worldId;
   }, [worldId]);
 
   return (
