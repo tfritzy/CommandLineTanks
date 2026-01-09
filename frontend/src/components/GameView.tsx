@@ -10,7 +10,7 @@ import WorldNotFound from "./WorldNotFound";
 import EliminatedModal from "./EliminatedModal";
 import HomeworldOverlay from "./HomeworldOverlay";
 import { motion, AnimatePresence } from "framer-motion";
-import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual } from "../spacetimedb-connection";
+import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual, setPendingJoinCode } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
@@ -217,6 +217,19 @@ export default function GameView() {
       }
     };
   }, [worldId]);
+
+  useEffect(() => {
+    if (!worldId || !isHomeworld) return;
+
+    const connection = getConnection();
+    if (!connection) return;
+
+    const joinCode = `ensure_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    setPendingJoinCode(joinCode);
+    
+    connection.reducers.ensureHomeworld({ worldId, joinCode });
+    console.log(`Called ensureHomeworld for worldId: ${worldId}`);
+  }, [worldId, isHomeworld]);
 
   if (!worldId) {
     return null;

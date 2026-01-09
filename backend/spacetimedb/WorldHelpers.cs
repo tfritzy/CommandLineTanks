@@ -110,15 +110,8 @@ public static partial class Module
         Log.Info($"Deleted empty homeworld for identity {identityString}");
     }
 
-    public static void ReturnToHomeworld(ReducerContext ctx, string joinCode)
+    public static void EnsureTankInHomeworld(ReducerContext ctx, string identityString, string joinCode)
     {
-        var identityString = ctx.Sender.ToString().ToLower();
-        var homeworld = ctx.Db.world.Id.Find(identityString);
-        if (homeworld == null)
-        {
-            CreateHomeworld(ctx, identityString);
-        }
-
         var existingTank = ctx.Db.tank.WorldId_Owner.Filter((identityString, ctx.Sender))
             .FirstOrDefault();
         
@@ -149,6 +142,18 @@ public static partial class Module
         AddTankToWorld(ctx, tank, transform);
         StartWorldTickers(ctx, identityString);
         Log.Info($"Created homeworld tank for identity {identityString}");
+    }
+
+    public static void ReturnToHomeworld(ReducerContext ctx, string joinCode)
+    {
+        var identityString = ctx.Sender.ToString().ToLower();
+        var homeworld = ctx.Db.world.Id.Find(identityString);
+        if (homeworld == null)
+        {
+            CreateHomeworld(ctx, identityString);
+        }
+
+        EnsureTankInHomeworld(ctx, identityString, joinCode);
     }
 
     public static Tank TargetTankByCode(ReducerContext ctx, Tank tank, string targetCode)
