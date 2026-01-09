@@ -28,7 +28,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
       }
 
       if (player) {
-        const worldName = `${player.name}'s game`;
+        const worldName = `${player.name ?? 'Guest'}'s game`;
         setDefaultWorldName(worldName);
         setName(worldName);
       }
