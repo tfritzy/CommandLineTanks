@@ -7,6 +7,11 @@ import { ServerTimeSync } from "../utils/ServerTimeSync";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
 
+const TEAM_COLORS = {
+  0: { label: '#ff5555', value: '#c06852' },
+  1: { label: '#7fbbdc', value: '#7396d5' },
+};
+
 const HeaderBox = ({
   label,
   value,
@@ -20,18 +25,16 @@ const HeaderBox = ({
 }) => (
   <div className="bg-palette-slate-darkest/80 backdrop-blur-md border border-palette-white-pure/10 rounded px-3.5 py-2 flex items-center gap-2 font-mono text-sm font-semibold leading-none tracking-wide shadow-lg h-7">
     <span 
-      className="inline-flex items-center" 
+      className={`inline-flex items-center ${!labelColor ? 'text-palette-slate-lighter' : ''}`}
       style={labelColor ? { color: labelColor } : undefined}
     >
-      {!labelColor && <span className="text-palette-slate-lighter">{label}</span>}
-      {labelColor && label}
+      {label}
     </span>
     <span 
-      className="inline-flex items-center" 
+      className={`inline-flex items-center ${!valueColor ? 'text-palette-white-bright' : ''}`}
       style={valueColor ? { color: valueColor } : undefined}
     >
-      {!valueColor && <span className="text-palette-white-bright">{value}</span>}
-      {valueColor && value}
+      {value}
     </span>
   </div>
 );
@@ -132,17 +135,14 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
   const showCountdownWarning =
     timeRemaining <= COUNTDOWN_WARNING_SECONDS && timeRemaining > 0;
 
-  const team0Colors = { label: '#ff5555', value: '#c06852' };
-  const team1Colors = { label: '#7fbbdc', value: '#7396d5' };
-
   return (
     <>
       <div className="absolute top-[5px] left-1/2 -translate-x-1/2 flex gap-1 z-[1000]">
         <HeaderBox
           label="SCORE"
           value={team0Kills}
-          labelColor={team0Colors.label}
-          valueColor={team0Colors.value}
+          labelColor={TEAM_COLORS[0].label}
+          valueColor={TEAM_COLORS[0].value}
         />
         <HeaderBox
           label="TIME"
@@ -151,8 +151,8 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         <HeaderBox
           label="SCORE"
           value={team1Kills}
-          labelColor={team1Colors.label}
-          valueColor={team1Colors.value}
+          labelColor={TEAM_COLORS[1].label}
+          valueColor={TEAM_COLORS[1].value}
         />
       </div>
       {showCountdownWarning && (
