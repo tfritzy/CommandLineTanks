@@ -33,6 +33,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const historyIndexRef = useRef<number>(-1);
   const currentInputRef = useRef<string>("");
   const cursorPosRef = useRef<number>(0);
+  const terminalOutputRef = useRef<string>("");
   const getPrompt = () => {
     return `\x1b[1m${colorize('❯ ', 'PROMPT')}`;
   };
@@ -80,6 +81,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     xtermRef.current = term;
     fitAddonRef.current = fitAddon;
+
+    if (terminalOutputRef.current) {
+      term.write(terminalOutputRef.current);
+    }
 
     term.write(getPrompt());
     term.focus();
@@ -326,6 +331,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           if (result === 'CLEAR') {
             currentInputRef.current = "";
             cursorPosRef.current = 0;
+            terminalOutputRef.current = "";
             term.write('\x1b[2J\x1b[3J\x1b[H' + getPrompt());
             return;
           }
@@ -336,6 +342,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         currentInputRef.current = "";
         cursorPosRef.current = 0;
         finalOutput += getPrompt();
+        terminalOutputRef.current += finalOutput;
         term.write(finalOutput);
       } else if (code === KEY_BACKSPACE) {
         if (cursorPosRef.current > 0) {
