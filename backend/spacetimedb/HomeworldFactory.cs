@@ -22,6 +22,11 @@ public static partial class Module
             traversibilityMap[i] = true;
         }
 
+        CreateTargetingDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
+        CreateAimingDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
+        CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
+        CreateEmptyDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
+
         var world = new World
         {
             Id = identityString,
@@ -119,11 +124,6 @@ public static partial class Module
             Kills = new int[] { 0, 0 }
         });
 
-        CreateTargetingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
-        CreateAimingDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
-        CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
-        CreateEmptyDemonstrationArea(ctx, identityString, worldWidth, worldHeight);
-
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
             WorldId = identityString,
@@ -198,14 +198,14 @@ public static partial class Module
         ctx.Db.tank_transform.Insert(tileboundTransform);
     }
 
-    private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
+    private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
     {
         int areaX = 20;
         int areaY = 6;
         int areaWidth = 5;
         int areaHeight = 5;
 
-        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
+        CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
@@ -232,14 +232,14 @@ public static partial class Module
         SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1, pen);
     }
 
-    private static void CreateAimingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
+    private static void CreateAimingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
     {
         int areaX = 5;
         int areaY = 14;
         int areaWidth = 5;
         int areaHeight = 5;
 
-        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
+        CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
@@ -265,14 +265,14 @@ public static partial class Module
         SpawnRandomAimBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
     }
 
-    private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
+    private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
     {
         int areaX = 5;
         int areaY = 6;
         int areaWidth = 5;
         int areaHeight = 5;
 
-        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
+        CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
@@ -298,14 +298,14 @@ public static partial class Module
         SpawnTileboundBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
     }
 
-    private static void CreateEmptyDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
+    private static void CreateEmptyDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
     {
         int areaX = 20;
         int areaY = 14;
         int areaWidth = 5;
         int areaHeight = 5;
 
-        CreateFencedArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight);
+        CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
@@ -333,144 +333,19 @@ public static partial class Module
         SpawnTileboundBot(ctx, worldId, areaX + 2, areaY + 3, 1, pen);
     }
 
-    private static void CreateFencedArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, int startX, int startY, int width, int height)
+    private static void CreateCheckeredArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, int startX, int startY, int width, int height, BaseTerrain[] baseTerrain)
     {
-        for (int x = startX; x < startX + width; x++)
-        {
-            int topY = startY - 1;
-            if (topY >= 0)
-            {
-                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-                    ctx: ctx,
-                    worldId: worldId,
-                    positionX: x + 0.5f,
-                    positionY: topY + 0.5f,
-                    gridX: x,
-                    gridY: topY,
-                    type: TerrainDetailType.FenceEdge,
-                    health: 100,
-                    rotation: 0
-                ));
-            }
-
-            int bottomY = startY + height;
-            if (bottomY < worldHeight)
-            {
-                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-                    ctx: ctx,
-                    worldId: worldId,
-                    positionX: x + 0.5f,
-                    positionY: bottomY + 0.5f,
-                    gridX: x,
-                    gridY: bottomY,
-                    type: TerrainDetailType.FenceEdge,
-                    health: 100,
-                    rotation: 2
-                ));
-            }
-        }
-
         for (int y = startY; y < startY + height; y++)
         {
-            int leftX = startX - 1;
-            if (leftX >= 0)
+            for (int x = startX; x < startX + width; x++)
             {
-                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-                    ctx: ctx,
-                    worldId: worldId,
-                    positionX: leftX + 0.5f,
-                    positionY: y + 0.5f,
-                    gridX: leftX,
-                    gridY: y,
-                    type: TerrainDetailType.FenceEdge,
-                    health: 100,
-                    rotation: 3
-                ));
+                if (x >= 0 && x < worldWidth && y >= 0 && y < worldHeight)
+                {
+                    int index = y * worldWidth + x;
+                    bool isBlack = (x + y) % 2 == 0;
+                    baseTerrain[index] = isBlack ? BaseTerrain.BlackChecker : BaseTerrain.WhiteChecker;
+                }
             }
-
-            int rightX = startX + width;
-            if (rightX < worldWidth)
-            {
-                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-                    ctx: ctx,
-                    worldId: worldId,
-                    positionX: rightX + 0.5f,
-                    positionY: y + 0.5f,
-                    gridX: rightX,
-                    gridY: y,
-                    type: TerrainDetailType.FenceEdge,
-                    health: 100,
-                    rotation: 1
-                ));
-            }
-        }
-
-        int topLeftX = startX - 1;
-        int topLeftY = startY - 1;
-        if (topLeftX >= 0 && topLeftY >= 0)
-        {
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-                ctx: ctx,
-                worldId: worldId,
-                positionX: topLeftX + 0.5f,
-                positionY: topLeftY + 0.5f,
-                gridX: topLeftX,
-                gridY: topLeftY,
-                type: TerrainDetailType.FenceCorner,
-                health: 100,
-                rotation: 0
-            ));
-        }
-
-        int topRightX = startX + width;
-        int topRightY = startY - 1;
-        if (topRightX < worldWidth && topRightY >= 0)
-        {
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-                ctx: ctx,
-                worldId: worldId,
-                positionX: topRightX + 0.5f,
-                positionY: topRightY + 0.5f,
-                gridX: topRightX,
-                gridY: topRightY,
-                type: TerrainDetailType.FenceCorner,
-                health: 100,
-                rotation: 1
-            ));
-        }
-
-        int bottomLeftX = startX - 1;
-        int bottomLeftY = startY + height;
-        if (bottomLeftX >= 0 && bottomLeftY < worldHeight)
-        {
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-                ctx: ctx,
-                worldId: worldId,
-                positionX: bottomLeftX + 0.5f,
-                positionY: bottomLeftY + 0.5f,
-                gridX: bottomLeftX,
-                gridY: bottomLeftY,
-                type: TerrainDetailType.FenceCorner,
-                health: 100,
-                rotation: 3
-            ));
-        }
-
-        int bottomRightX = startX + width;
-        int bottomRightY = startY + height;
-        if (bottomRightX < worldWidth && bottomRightY < worldHeight)
-        {
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-                ctx: ctx,
-                worldId: worldId,
-                positionX: bottomRightX + 0.5f,
-                positionY: bottomRightY + 0.5f,
-                gridX: bottomRightX,
-                gridY: bottomRightY,
-                type: TerrainDetailType.FenceCorner,
-                health: 100,
-                rotation: 2
-            ));
         }
     }
 
