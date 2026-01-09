@@ -50,7 +50,7 @@ const CopyBox: React.FC<CopyBoxProps> = ({
                 {text}
             </div>
 
-            <div className="absolute right-0 top-0 bottom-0 flex items-center px-4 pointer-events-none bg-gradient-to-l from-palette-black-pure/30 via-palette-black-pure/30 to-transparent group-hover:from-palette-black-pure/40 group-hover:via-palette-black-pure/40 transition-all pl-8 rounded-r">
+            <div className="absolute right-0 top-0 bottom-0 flex items-center pr-4 pl-8 pointer-events-none bg-gradient-to-l from-palette-black-pure/30 via-palette-black-pure/30 to-transparent group-hover:from-palette-black-pure/40 group-hover:via-palette-black-pure/40 transition-all rounded-r">
                 {copied ? (
                     <svg
                         width="16"
