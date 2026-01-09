@@ -342,22 +342,12 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
         currentInputRef.current = "";
         cursorPosRef.current = 0;
-<<<<<<< HEAD
-        terminalOutputRef.current += prompt + (input || "") + finalOutput + prompt;
-
-=======
         terminalOutputRef.current += (input || "") + finalOutput + prompt;
 
->>>>>>> 0a4534e (Branding)
         const lines = terminalOutputRef.current.split('\r\n');
         if (lines.length > MAX_TERMINAL_LINES) {
           terminalOutputRef.current = lines.slice(-MAX_TERMINAL_LINES).join('\r\n');
         }
-<<<<<<< HEAD
-
-=======
-
->>>>>>> 0a4534e (Branding)
         finalOutput += prompt;
         term.write(finalOutput);
       } else if (code === KEY_BACKSPACE) {
