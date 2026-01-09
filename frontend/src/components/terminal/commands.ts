@@ -554,7 +554,7 @@ export function aim(
     );
     const targetTank = allTanks.find((t) => t.targetCode === inputLower);
     if (!targetTank || targetTank.alliance === myTank.alliance) {
-      return [themeColors.error(`aim: error: tank with code '${input}' not found`)];
+      return [themeColors.error(`aim: error: tank with code '${inputLower}' not found`)];
     }
 
     connection.reducers.aim({
