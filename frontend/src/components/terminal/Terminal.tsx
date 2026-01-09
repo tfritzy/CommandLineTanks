@@ -25,7 +25,7 @@ const VALID_COMMANDS = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'f
   'switch', 'w',
   'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
 
-const MAX_TERMINAL_OUTPUT_LENGTH = 50000;
+const MAX_TERMINAL_LINES = 1000;
 
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -345,14 +345,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         cursorPosRef.current = 0;
         terminalOutputRef.current += finalOutput;
         
-        if (terminalOutputRef.current.length > MAX_TERMINAL_OUTPUT_LENGTH) {
-          const excessLength = terminalOutputRef.current.length - MAX_TERMINAL_OUTPUT_LENGTH;
-          const truncateAt = terminalOutputRef.current.indexOf('\r\n', excessLength);
-          if (truncateAt !== -1) {
-            terminalOutputRef.current = terminalOutputRef.current.slice(truncateAt + 2);
-          } else {
-            terminalOutputRef.current = terminalOutputRef.current.slice(-MAX_TERMINAL_OUTPUT_LENGTH);
-          }
+        const lines = terminalOutputRef.current.split('\r\n');
+        if (lines.length > MAX_TERMINAL_LINES) {
+          const linesToRemove = lines.length - MAX_TERMINAL_LINES;
+          terminalOutputRef.current = lines.slice(linesToRemove).join('\r\n');
         }
         
         finalOutput += getPrompt();
