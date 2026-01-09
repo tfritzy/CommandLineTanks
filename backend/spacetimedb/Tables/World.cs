@@ -10,7 +10,6 @@ public static partial class Module
         [PrimaryKey]
         public string Id;
 
-        public string Name;
         public ulong CreatedAt;
         public int Width;
         public int Height;
@@ -21,7 +20,6 @@ public static partial class Module
         public ulong GameStartedAt;
         public long GameDurationMicros;
         public WorldVisibility Visibility;
-        public bool HasPasscode;
         public int MaxPlayers;
         public int CurrentPlayerCount;
         public int BotCount;

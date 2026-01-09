@@ -150,7 +150,7 @@ public static partial class Module
         var targetCode = AllocateTargetCode(ctx, worldId);
         if (targetCode == null)
         {
-            Log.Error($"No available target codes in world {world.Value.Name}");
+            Log.Error($"No available target codes in world {worldId}");
             return null;
         }
 

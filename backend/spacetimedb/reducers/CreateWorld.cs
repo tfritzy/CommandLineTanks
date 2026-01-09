@@ -4,9 +4,9 @@ using static Types;
 public static partial class Module
 {
     [Reducer]
-    public static void createWorld(ReducerContext ctx, string joinCode, string worldName, WorldVisibility visibility, string passcode, int botCount, long gameDurationMicros, int width, int height)
+    public static void createWorld(ReducerContext ctx, string joinCode, WorldVisibility visibility, int botCount, long gameDurationMicros, int width, int height)
     {
-        Log.Info($"{ctx.Sender} is creating a world '{worldName}' (visibility: {visibility}, bots: {botCount}, size: {width}x{height})");
+        Log.Info($"{ctx.Sender} is creating a world (visibility: {visibility}, bots: {botCount}, size: {width}x{height})");
 
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -22,14 +22,12 @@ public static partial class Module
         var world = CreateWorld(
             ctx,
             worldId,
-            worldName,
             baseTerrain,
             terrainDetails,
             traversibilityMap,
             width,
             height,
             visibility,
-            passcode,
             gameDurationMicros
         );
 
@@ -59,6 +57,6 @@ public static partial class Module
             }
         }
 
-        Log.Info($"Player {player.Value.Name} created world '{world.Name}' ({world.Id})");
+        Log.Info($"Player {player.Value.Name} created world ({world.Id})");
     }
 }

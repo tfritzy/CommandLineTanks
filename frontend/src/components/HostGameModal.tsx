@@ -1,6 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { getConnection, isCurrentIdentity } from '../spacetimedb-connection';
 import CopyBox from './CopyBox';
 
 interface HostGameModalProps {
@@ -8,43 +7,13 @@ interface HostGameModalProps {
 }
 
 export default function HostGameModal({ onClose }: HostGameModalProps) {
-  const [defaultWorldName, setDefaultWorldName] = useState('New World');
-  const [name, setName] = useState('New World');
-  const [passcode, setPasscode] = useState('');
   const [bots, setBots] = useState(0);
   const [duration, setDuration] = useState(10);
   const [width, setWidth] = useState(50);
   const [height, setHeight] = useState(50);
 
-  useEffect(() => {
-    const connection = getConnection();
-    if (connection?.identity) {
-      let player = null;
-      for (const p of connection.db.player.iter()) {
-        if (isCurrentIdentity(p.identity)) {
-          player = p;
-          break;
-        }
-      }
-
-      if (player) {
-        const worldName = `${player.name}'s game`;
-        setDefaultWorldName(worldName);
-        setName(worldName);
-      }
-    }
-  }, []);
-
   const command = useMemo(() => {
     const parts = ['create'];
-
-    if (name !== defaultWorldName) {
-      parts.push(`--name "${name}"`);
-    }
-
-    if (passcode) {
-      parts.push(`--passcode "${passcode}"`);
-    }
 
     if (bots !== 0) {
       parts.push(`--bots ${bots}`);
@@ -63,7 +32,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
     }
 
     return parts.join(' ');
-  }, [name, passcode, bots, duration, width, height, defaultWorldName]);
+  }, [bots, duration, width, height]);
 
   return (
     <div
@@ -83,35 +52,10 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div>
-            <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
-              World Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
-              Passcode (optional)
-            </label>
-            <input
-              type="text"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
-              placeholder="Leave empty for no passcode"
-              className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 placeholder:text-palette-slate-light/50"
-            />
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
-                Bots (0-10, even)
+              <label className="block text-xs text-palette-white-pure/70 mb-2 font-medium uppercase tracking-wider">
+                Bots
               </label>
               <input
                 type="number"
@@ -127,13 +71,14 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 min="0"
                 max="10"
                 step="2"
-                className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
+                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20"
               />
+              <div className="mt-1 text-xs text-palette-white-pure/40">Even number, 0-10</div>
             </div>
 
             <div>
-              <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
-                Duration (1-20 min)
+              <label className="block text-xs text-palette-white-pure/70 mb-2 font-medium uppercase tracking-wider">
+                Duration (min)
               </label>
               <input
                 type="number"
@@ -144,15 +89,16 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 }}
                 min="1"
                 max="20"
-                className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
+                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20"
               />
+              <div className="mt-1 text-xs text-palette-white-pure/40">Between 1-20 minutes</div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
-                Width (1-200)
+              <label className="block text-xs text-palette-white-pure/70 mb-2 font-medium uppercase tracking-wider">
+                Width
               </label>
               <input
                 type="number"
@@ -163,13 +109,14 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 }}
                 min="1"
                 max="200"
-                className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
+                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20"
               />
+              <div className="mt-1 text-xs text-palette-white-pure/40">Map width, 1-200</div>
             </div>
 
             <div>
-              <label className="block text-xs text-terminal-text-default mb-1.5 font-medium">
-                Height (1-200)
+              <label className="block text-xs text-palette-white-pure/70 mb-2 font-medium uppercase tracking-wider">
+                Height
               </label>
               <input
                 type="number"
@@ -180,18 +127,23 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 }}
                 min="1"
                 max="200"
-                className="w-full px-3 py-2.5 text-[13px] font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60"
+                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20"
               />
+              <div className="mt-1 text-xs text-palette-white-pure/40">Map height, 1-200</div>
             </div>
           </div>
         </div>
 
-        <div className="mt-8">
-          <div className="text-xs text-terminal-text-default mb-2.5 font-medium">
-            Copy and run this command:
+        <div className="mt-8 pt-6 border-t border-palette-white-pure/10">
+          <div className="text-xs text-palette-white-pure/70 mb-3 font-medium uppercase tracking-wider">
+            Command
           </div>
 
           <CopyBox text={command} />
+          
+          <div className="mt-2 text-xs text-palette-white-pure/40 text-center">
+            Copy this command and paste it into the terminal
+          </div>
         </div>
       </motion.div>
     </div>

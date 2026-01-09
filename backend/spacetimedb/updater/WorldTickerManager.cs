@@ -125,7 +125,7 @@ public static partial class Module
         var (baseTerrain, terrainDetails, traversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
         var newWorldId = Module.GenerateWorldId(ctx);
-        var newWorld = CreateWorld(ctx, newWorldId, oldWorld.Value.Name, baseTerrain, terrainDetails, traversibilityMap, width, height);
+        var newWorld = CreateWorld(ctx, newWorldId, baseTerrain, terrainDetails, traversibilityMap, width, height);
 
         SpawnInitialBots(ctx, newWorldId, newWorld);
         var shuffledIndices = new int[totalTanks];
