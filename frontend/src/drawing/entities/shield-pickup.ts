@@ -31,8 +31,8 @@ export function drawShieldPickupBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = COLORS.TERMINAL.INFO;
-  ctx.strokeStyle = COLORS.TERMINAL.BORDER;
+  ctx.fillStyle = COLORS.GAME.SHIELD_PRIMARY;
+  ctx.strokeStyle = COLORS.GAME.SHIELD_STROKE;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);

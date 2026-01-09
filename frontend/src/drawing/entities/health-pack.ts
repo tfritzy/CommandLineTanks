@@ -31,7 +31,7 @@ export function drawHealthPackBody(
   ctx.save();
   ctx.translate(worldX, worldY);
 
-  ctx.fillStyle = COLORS.TERMINAL.SUCCESS;
+  ctx.fillStyle = COLORS.GAME.HEALTH_PACK_PRIMARY;
   ctx.strokeStyle = COLORS.GAME.HEALTH_PACK_SECONDARY;
   ctx.lineWidth = 3;
   ctx.beginPath();
