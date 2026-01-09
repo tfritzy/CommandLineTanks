@@ -97,6 +97,8 @@ export default function GameView() {
     const connection = getConnection();
     if (!connection) return;
 
+    setShowJoinModal(false);
+
     let hasReceivedPlayerTankData = false;
     let firstTankDataReceived = false;
     let playerTankId: string | null = null;
