@@ -347,8 +347,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         
         const lines = terminalOutputRef.current.split('\r\n');
         if (lines.length > MAX_TERMINAL_LINES) {
-          const linesToRemove = lines.length - MAX_TERMINAL_LINES;
-          terminalOutputRef.current = lines.slice(linesToRemove).join('\r\n');
+          terminalOutputRef.current = lines.slice(-MAX_TERMINAL_LINES).join('\r\n');
         }
         
         finalOutput += getPrompt();
