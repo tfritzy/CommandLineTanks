@@ -331,14 +331,6 @@ export class TerrainDetailSvgSheet extends SvgTextureSheet {
     }
   }
 
-  public getCanvas(): HTMLCanvasElement | null {
-    return null;
-  }
-
-  public getShadowCanvas(): HTMLCanvasElement | null {
-    return null;
-  }
-
   public getShadowTexture(key: string) {
     if (key.includes("-shadow")) {
       return this.getTexture(key);

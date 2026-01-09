@@ -90,10 +90,9 @@ export class SvgTextureSheet {
   public async initialize(): Promise<void> {
     const entries = Array.from(this.textures.entries());
     await Promise.all(
-      entries.map(async ([key, entry]) => {
+      entries.map(async ([, entry]) => {
         const img = await svgToImageAsync(entry.svg);
         entry.image = img;
-        this.textures.set(key, entry);
       })
     );
     this.ready = true;

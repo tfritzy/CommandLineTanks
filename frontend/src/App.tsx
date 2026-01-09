@@ -9,11 +9,12 @@ function App() {
   const [isSpacetimeConnected, setIsSpacetimeConnected] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      connectToSpacetimeDB(),
-      initAllSvgSheets()
-    ])
-      .then(([conn]) => {
+    initAllSvgSheets().catch((error) => {
+      console.error("Failed to initialize SVG assets:", error);
+    });
+
+    connectToSpacetimeDB()
+      .then((conn) => {
         setIsSpacetimeConnected(true);
 
         if (conn.identity) {
