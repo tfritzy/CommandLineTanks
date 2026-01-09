@@ -10,9 +10,20 @@ export default function EliminatedModal({ killerName, worldId }: EliminatedModal
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
-      animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
-      exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
-      transition={{ duration: 0.2, delay: 1, ease: "easeOut" }}
+      animate={{ 
+        opacity: 1, 
+        scale: 1, 
+        x: "-50%", 
+        y: "-50%",
+        transition: { duration: 0.2, delay: 1, ease: "easeOut" }
+      }}
+      exit={{ 
+        opacity: 0, 
+        scale: 0.95, 
+        x: "-50%", 
+        y: "-50%",
+        transition: { duration: 0.2, delay: 0, ease: "easeOut" }
+      }}
       className="absolute top-1/2 left-1/2 bg-palette-purple-void/85 backdrop-blur-xl rounded border border-palette-white-pure/[0.08] py-6 px-8 font-mono z-[1000] shadow-2xl flex flex-col items-center min-w-[400px]"
     >
       <div className="flex flex-col items-center mb-10 select-none">
