@@ -9,6 +9,7 @@ import { KillManager } from "./managers/KillManager";
 import { UNIT_TO_PIXEL } from "./constants";
 import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
+import { ColorMapper, type ColorMapPreset } from "./utils/ColorMapper";
 
 const CAMERA_FOLLOW_SPEED = 15;
 const CAMERA_TELEPORT_THRESHOLD = 500;
@@ -33,6 +34,7 @@ export class Game {
   private resizeHandler: () => void;
   private resizeObserver: ResizeObserver | null = null;
   private fpsCounter: FpsCounter;
+  private colorMapper: ColorMapper;
 
   constructor(canvas: HTMLCanvasElement, worldId: string) {
     this.canvas = canvas;
@@ -56,6 +58,7 @@ export class Game {
     this.soundManager = SoundManager.getInstance();
     this.screenShake = new ScreenShake();
     this.fpsCounter = new FpsCounter();
+    this.colorMapper = new ColorMapper("none");
     this.tankManager = new TankManager(worldId, this.screenShake, this.soundManager);
     this.terrainManager = new TerrainManager(worldId, this.soundManager);
     this.projectileManager = new ProjectileManager(worldId, this.screenShake, this.soundManager);
@@ -234,7 +237,13 @@ export class Game {
 
     this.fpsCounter.draw(this.ctx, displayHeight);
 
+    this.colorMapper.applyToFullCanvas(this.ctx);
+
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
+  }
+
+  public setColorMapPreset(preset: ColorMapPreset): void {
+    this.colorMapper.setPreset(preset);
   }
 
   public start() {

@@ -9,6 +9,7 @@ import JoinWorldModal from "./JoinWorldModal";
 import WorldNotFound from "./WorldNotFound";
 import EliminatedModal from "./EliminatedModal";
 import HomeworldOverlay from "./HomeworldOverlay";
+import ColorMapControl from "./ColorMapControl";
 import { motion, AnimatePresence } from "framer-motion";
 import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual } from "../spacetimedb-connection";
 import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
@@ -20,6 +21,7 @@ import {
   type SubscriptionHandle,
 } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
+import { type ColorMapPreset } from "../utils/ColorMapper";
 
 export default function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
@@ -37,6 +39,10 @@ export default function GameView() {
 
   const myIdentity = getIdentityHex();
   const isHomeworld = myIdentity && worldId?.toLowerCase() === myIdentity.toLowerCase();
+
+  const handleColorMapPresetChange = (preset: ColorMapPreset) => {
+    gameRef.current?.setColorMapPreset(preset);
+  };
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -294,6 +300,7 @@ export default function GameView() {
           )}
         </AnimatePresence>
         <ResultsScreen worldId={worldId} />
+        <ColorMapControl onPresetChange={handleColorMapPresetChange} />
       </div>
       <TerminalComponent worldId={worldId} />
     </div>
