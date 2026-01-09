@@ -7,16 +7,37 @@ import { ServerTimeSync } from "../utils/ServerTimeSync";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
 
+const TEAM_COLORS = {
+  0: { label: '#ff5555', value: '#c06852' },
+  1: { label: '#7fbbdc', value: '#7396d5' },
+};
+
+const TIME_COLORS = { label: '#f5c47c', value: '#fceba8' };
+
 const HeaderBox = ({
   label,
   value,
+  labelColor,
+  valueColor,
 }: {
   label: string;
   value: string | number;
+  labelColor?: string;
+  valueColor?: string;
 }) => (
   <div className="bg-palette-slate-darkest/80 backdrop-blur-md border border-palette-white-pure/10 rounded px-3.5 py-2 flex items-center gap-2 font-mono text-sm font-semibold leading-none tracking-wide shadow-lg h-7">
-    <span className="inline-flex items-center text-palette-slate-lighter">{label}</span>
-    <span className="inline-flex items-center text-palette-white-bright">{value}</span>
+    <span 
+      className={`inline-flex items-center ${!labelColor ? 'text-palette-slate-lighter' : ''}`}
+      style={labelColor ? { color: labelColor } : undefined}
+    >
+      {label}
+    </span>
+    <span 
+      className={`inline-flex items-center ${!valueColor ? 'text-palette-white-bright' : ''}`}
+      style={valueColor ? { color: valueColor } : undefined}
+    >
+      {value}
+    </span>
   </div>
 );
 
@@ -122,14 +143,20 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         <HeaderBox
           label="SCORE"
           value={team0Kills}
+          labelColor={TEAM_COLORS[0].label}
+          valueColor={TEAM_COLORS[0].value}
         />
         <HeaderBox
           label="TIME"
           value={timeString}
+          labelColor={TIME_COLORS.label}
+          valueColor={TIME_COLORS.value}
         />
         <HeaderBox
           label="SCORE"
           value={team1Kills}
+          labelColor={TEAM_COLORS[1].label}
+          valueColor={TEAM_COLORS[1].value}
         />
       </div>
       {showCountdownWarning && (
