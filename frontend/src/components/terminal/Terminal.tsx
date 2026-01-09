@@ -25,6 +25,8 @@ const VALID_COMMANDS = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'f
   'switch', 'w',
   'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
 
+const MAX_TERMINAL_OUTPUT_LENGTH = 50000;
+
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
@@ -84,9 +86,13 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     if (terminalOutputRef.current) {
       term.write(terminalOutputRef.current);
+      if (!terminalOutputRef.current.endsWith(getPrompt())) {
+        term.write(getPrompt());
+      }
+    } else {
+      term.write(getPrompt());
     }
-
-    term.write(getPrompt());
+    
     term.focus();
 
     const handleResize = () => {
@@ -343,6 +349,11 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         cursorPosRef.current = 0;
         finalOutput += getPrompt();
         terminalOutputRef.current += finalOutput;
+        
+        if (terminalOutputRef.current.length > MAX_TERMINAL_OUTPUT_LENGTH) {
+          terminalOutputRef.current = terminalOutputRef.current.slice(-MAX_TERMINAL_OUTPUT_LENGTH);
+        }
+        
         term.write(finalOutput);
       } else if (code === KEY_BACKSPACE) {
         if (cursorPosRef.current > 0) {
