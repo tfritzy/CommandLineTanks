@@ -89,6 +89,11 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     }
     
     term.write(getPrompt());
+    
+    if (currentInputRef.current) {
+      term.write(currentInputRef.current);
+    }
+    
     term.focus();
 
     const handleResize = () => {
