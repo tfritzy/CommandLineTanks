@@ -2,6 +2,7 @@ import { UNIT_TO_PIXEL } from "../../constants";
 import { FLASH_DURATION } from "../../utils/colors";
 import { type TerrainDetailRow } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
+import { COLORS } from "../../theme/colors";
 
 export abstract class TerrainDetailObject {
   public arrayIndex: number = -1;
@@ -90,16 +91,16 @@ export abstract class TerrainDetailObject {
     ctx.save();
     const x = this.getWorldX();
     const y = this.getWorldY();
-    const labelY = y - 12;
+    const labelY = y - 24;
 
-    const fontSize = UNIT_TO_PIXEL * 0.25;
-    const normalFont = `${fontSize}px sans-serif`;
+    const fontSize = UNIT_TO_PIXEL * 0.26;
+    const normalFont = `${fontSize}px monospace`;
     const codeFont = `bold ${fontSize}px monospace`;
 
     // Calculate total width
     let totalWidth = 0;
-    const segmentSpacing = 3;
-    const codePadding = 8;
+    const segmentSpacing = 1;
+    const codePadding = 4;
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i];
       ctx.font = segment.isCode ? codeFont : normalFont;
@@ -110,9 +111,6 @@ export abstract class TerrainDetailObject {
 
     let currentX = x - totalWidth / 2;
     ctx.textBaseline = "alphabetic";
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
-    ctx.lineWidth = 2;
-    ctx.lineJoin = "round";
 
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i];
@@ -122,24 +120,38 @@ export abstract class TerrainDetailObject {
       if (segment.isCode) {
         currentX += codePadding / 2;
         ctx.save();
-        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        const paddingH = 12;
-        const paddingV = 6;
+        ctx.fillStyle = "rgba(42, 21, 45, 0.85)"; // Near-black purple
+        const paddingH = 5;
+        const paddingV = 4;
         const bgW = textWidth + paddingH;
         const bgH = fontSize + paddingV;
         const bgX = currentX - paddingH / 2;
-        // Center the background vertically around the text's visual center (approx -0.35em from baseline)
-        const bgY = labelY - (fontSize * 0.35) - (bgH / 2);
+        const bgY = labelY - (fontSize * 0.85) - (paddingV / 2);
         
         ctx.beginPath();
-        ctx.roundRect(bgX, bgY, bgW, bgH, 4);
+        ctx.roundRect(bgX, bgY, bgW, bgH, 2);
         ctx.fill();
+        
+        ctx.strokeStyle = "rgba(252, 251, 243, 0.15)"; // Muted white
+        ctx.lineWidth = 1;
+        ctx.stroke();
         ctx.restore();
       }
 
-      ctx.fillStyle = segment.color || "#fcfbf3";
-      ctx.strokeText(segment.text, currentX, labelY);
+      // Draw shadow for readability
+      ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+      ctx.shadowBlur = 2;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+
+      ctx.fillStyle = segment.color || COLORS.UI.TEXT_PRIMARY;
       ctx.fillText(segment.text, currentX, labelY);
+      
+      // Reset shadow for next segments
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
       
       currentX += textWidth + (segment.isCode ? codePadding / 2 : 0) + segmentSpacing;
     }

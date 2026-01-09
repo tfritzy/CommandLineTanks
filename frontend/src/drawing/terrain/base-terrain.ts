@@ -1,7 +1,9 @@
+import { type Infer } from "spacetimedb";
+import { BaseTerrain } from "../../../module_bindings";
 import { UNIT_TO_PIXEL } from "../../constants";
 import { COLORS } from "../../theme/colors";
 
-type BaseTerrainType = { tag: string };
+type BaseTerrainType = Infer<typeof BaseTerrain>;
 
 export function drawBaseTerrain(
   ctx: CanvasRenderingContext2D,
@@ -117,6 +119,28 @@ export function drawBaseTerrain(
             grooveHeight / 2;
           ctx.rect(worldX, grooveY, UNIT_TO_PIXEL, grooveHeight);
         }
+      }
+    }
+  }
+  ctx.fill();
+
+  ctx.fillStyle = COLORS.TERRAIN.CHECKER;
+  ctx.beginPath();
+  for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+    for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+      if (
+        tileX < 0 ||
+        tileX >= worldWidth ||
+        tileY < 0 ||
+        tileY >= worldHeight
+      ) {
+        continue;
+      }
+
+      if ((tileX + tileY) % 2 === 0) {
+        const worldX = tileX * UNIT_TO_PIXEL;
+        const worldY = tileY * UNIT_TO_PIXEL;
+        ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
       }
     }
   }

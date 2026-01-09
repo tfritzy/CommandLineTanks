@@ -4,15 +4,16 @@ import ScoreRow from "../../module_bindings/score_type";
 import WorldRow from "../../module_bindings/world_type";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
 import { ServerTimeSync } from "../utils/ServerTimeSync";
+import { PALETTE } from "../theme/colors.config";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
 
 const TEAM_COLORS = {
-  0: { label: '#ff5555', value: '#c06852' },
-  1: { label: '#7fbbdc', value: '#7396d5' },
+  0: { label: PALETTE.RED_MUTED, value: PALETTE.ORANGE_MEDIUM },
+  1: { label: PALETTE.BLUE_INFO, value: PALETTE.BLUE_BRIGHT },
 };
 
-const TIME_COLORS = { label: '#f5c47c', value: '#fceba8' };
+const TIME_COLORS = { label: PALETTE.YELLOW_MEDIUM, value: PALETTE.YELLOW_BRIGHT };
 
 const HeaderBox = ({
   label,
@@ -26,13 +27,13 @@ const HeaderBox = ({
   valueColor?: string;
 }) => (
   <div className="bg-palette-slate-darkest/80 backdrop-blur-md border border-palette-white-pure/10 rounded px-3.5 py-2 flex items-center gap-2 font-mono text-sm font-semibold leading-none tracking-wide shadow-lg h-7">
-    <span 
+    <span
       className={`inline-flex items-center ${!labelColor ? 'text-palette-slate-lighter' : ''}`}
       style={labelColor ? { color: labelColor } : undefined}
     >
       {label}
     </span>
-    <span 
+    <span
       className={`inline-flex items-center ${!valueColor ? 'text-palette-white-bright' : ''}`}
       style={valueColor ? { color: valueColor } : undefined}
     >

@@ -271,6 +271,12 @@ export default function GameView() {
           ref={canvasRef}
           className="block m-0 p-0 w-full h-full bg-palette-ground-dark"
         />
+        <div 
+          className="absolute inset-0 pointer-events-none z-10" 
+          style={{
+            background: 'radial-gradient(circle, transparent 50%, rgba(42, 21, 45, 0.4) 100%)'
+          }}
+        />
         {showJoinModal && (
           <JoinWorldModal
             worldId={worldId}
