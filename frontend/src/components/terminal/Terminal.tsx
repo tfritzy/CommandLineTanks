@@ -4,7 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
-import { aim, drive, fire, help, respawn, stop, switchGun, target, join, create, changeName, exitWorld, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
+import { aim, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitWorld, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -21,7 +21,7 @@ const ARROW_RIGHT = "\x1b[C";
 const CTRL_ARROW_LEFT = "\x1b[1;5D";
 const CTRL_ARROW_RIGHT = "\x1b[1;5C";
 
-const VALID_COMMANDS = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'fire', 'f',
+const VALID_COMMANDS = ['aim', 'a', 'drive', 'd', 'stop', 's', 'fire', 'f',
   'switch', 'w',
   'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
 
@@ -122,9 +122,6 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
         case 'aim':
         case 'a':
           return aim(connection, worldId, commandArgs);
-        case 'target':
-        case 't':
-          return target(connection, worldId, commandArgs);
         case 'drive':
         case 'd':
           return drive(connection, worldId, commandArgs);

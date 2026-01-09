@@ -150,4 +150,23 @@ public static partial class Module
         StartWorldTickers(ctx, identityString);
         Log.Info($"Created homeworld tank for identity {identityString}");
     }
+
+    public static Tank TargetTankByCode(ReducerContext ctx, Tank tank, string targetCode, float lead)
+    {
+        if (tank.Health <= 0) return tank;
+
+        var targetCodeLower = targetCode.ToLower();
+        var targetTank = ctx.Db.tank.WorldId_TargetCode.Filter((tank.WorldId, targetCodeLower)).FirstOrDefault();
+
+        if (targetTank.Id == null)
+        {
+            return tank;
+        }
+
+        return tank with
+        {
+            Target = targetTank.Id,
+            TargetLead = lead
+        };
+    }
 }

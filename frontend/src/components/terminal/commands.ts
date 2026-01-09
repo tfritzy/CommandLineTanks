@@ -144,7 +144,6 @@ const allCommands = [
   { name: 'drive', alias: 'd' },
   { name: 'stop', alias: 's' },
   { name: 'aim', alias: 'a' },
-  { name: 'target', alias: 't' },
   { name: 'fire', alias: 'f' },
   { name: 'tanks', alias: undefined }
 ];
@@ -229,8 +228,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     return [
       `  ${themeColors.command("drive")}, ${themeColors.command("d")}             Drive to a direction or coordinate using pathfinding`,
       `  ${themeColors.command("stop")}, ${themeColors.command("s")}              Stop the tank immediately`,
-      `  ${themeColors.command("aim")}, ${themeColors.command("a")}               Aim turret at an angle or direction`,
-      `  ${themeColors.command("target")}, ${themeColors.command("t")}            Target another tank by code`,
+      `  ${themeColors.command("aim")}, ${themeColors.command("a")}               Aim turret at an angle/direction or target a tank by code`,
       `  ${themeColors.command("fire")}, ${themeColors.command("f")}              Fire a projectile from your tank`,
       `  ${themeColors.command("switch")}, ${themeColors.command("w")}            Switch to a different gun`,
       `  ${themeColors.command("respawn")}              Respawn after death`,
@@ -291,9 +289,10 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "aim":
     case "a":
       return [
-        "aim, a - Aim turret at an angle or direction",
+        "aim, a - Aim turret at an angle/direction or target a tank by code",
         "",
         "Usage: aim <angle|direction>",
+        "       aim <target_code> [lead]",
         "",
         "Arguments:",
         "  <angle|direction>   Angle in degrees or direction name",
@@ -308,31 +307,19 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                        ↙: southwest, downleft, leftdown, sw, dl, ld",
         "                        ←: west, left, w, l",
         "                        ↖: northwest, upleft, leftup, nw, ul, lu",
+        "  <target_code>       Target code of the tank to track (e.g., a4, h8, z2)",
+        "                      Format: one letter + one digit",
+        "                      Your turret will automatically follow the target",
+        "  [lead]              Distance in units to lead the target (default: 0)",
+        "                      Aims ahead of the target based on their movement",
+        "                      Only used when targeting a tank",
         "",
         "Examples:",
         "  aim 90",
         "  aim -45",
         "  aim northeast",
-      ];
-
-    case "target":
-    case "t":
-      return [
-        "target, t - Target another tank by code",
-        "",
-        "Usage: target <target_code> [lead]",
-        "",
-        "Arguments:",
-        "  <target_code> Target code of the tank to target (required)",
-        "                Target codes are shown above each tank (e.g., a4, h8, z2)",
-        "                Format: one letter + one digit",
-        "  [lead]        Distance in units to lead the target (default: 0)",
-        "                Aims ahead of the target based on their body direction",
-        "",
-        "Examples:",
-        "  target a4",
-        "  target h8 3",
-        "  t z2 5",
+        "  aim a4",
+        "  aim h8 3",
       ];
 
     case "fire":
@@ -518,125 +505,105 @@ export function aim(
 
   if (args.length < 1) {
     return [
-      themeColors.error("aim: error: missing required argument '<angle|direction>'"),
+      themeColors.error("aim: error: missing required argument"),
       "",
       themeColors.dim("Usage: aim <angle|direction>"),
-      themeColors.dim("       aim 45"),
-      themeColors.dim("       aim northeast"),
+      themeColors.dim("       aim <target_code> [lead]"),
+      themeColors.dim("Examples:"),
+      themeColors.dim("  aim 45"),
+      themeColors.dim("  aim northeast"),
+      themeColors.dim("  aim a4"),
+      themeColors.dim("  aim h8 3"),
     ];
   }
 
   const input = args[0];
   const inputLower = input.toLowerCase();
 
+  const targetCodePattern = /^[a-z][0-9]$/;
+  if (targetCodePattern.test(inputLower)) {
+    if (!connection.identity) {
+      return [themeColors.error("aim: error: no connection")];
+    }
+
+    let lead = 0;
+    if (args.length > 1) {
+      const parsedLead = Number.parseFloat(args[1]);
+      if (Number.isNaN(parsedLead)) {
+        return [
+          themeColors.error(`aim: error: invalid value '${args[1]}' for '[lead]': must be a valid number`),
+          "",
+          themeColors.dim("Usage: aim <target_code> [lead]"),
+          themeColors.dim("       aim a4 3"),
+        ];
+      }
+      lead = parsedLead;
+    }
+
+    const myTank = findMyTank(connection, worldId);
+    if (!myTank) {
+      return [themeColors.error("aim: error: no connection")];
+    }
+
+    if (inputLower === myTank.targetCode) {
+      return [themeColors.error("aim: error: cannot target your own tank")];
+    }
+
+    const allTanks = Array.from(connection.db.tank.iter()).filter(
+      (t) => t.worldId === worldId
+    );
+    const targetTank = allTanks.find((t) => t.targetCode === inputLower);
+    if (!targetTank || targetTank.alliance === myTank.alliance) {
+      return [themeColors.error(`aim: error: tank with code '${input}' not found`)];
+    }
+
+    connection.reducers.aim({
+      worldId,
+      angleRadians: undefined,
+      targetCode: inputLower,
+      lead,
+    });
+
+    const tankCodeColored = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
+    const tankName = targetTank.name;
+
+    if (lead > 0) {
+      return [
+        themeColors.success(`Targeting tank ${tankCodeColored} (${tankName}) with ${themeColors.value(lead.toString())} unit${lead !== 1 ? "s" : ""} lead`),
+      ];
+    } else {
+      return [themeColors.success(`Targeting tank ${tankCodeColored} (${tankName})`)];
+    }
+  }
+
   if (validDirections.includes(inputLower)) {
     const angleRadians = directionToAngle(inputLower);
     const dirInfo = directionAliases[inputLower];
     const description = `${themeColors.colorize(dirInfo.symbol, 'DIRECTION_SYMBOL')} ${themeColors.success(dirInfo.name)}`;
 
-    connection.reducers.aim({ worldId, angleRadians });
+    connection.reducers.aim({ worldId, angleRadians, targetCode: undefined, lead: 0 });
     return [themeColors.success("Aiming turret to ") + description];
   } else {
     const degrees = Number.parseFloat(input);
     if (Number.isNaN(degrees)) {
       return [
-        themeColors.error(`aim: error: invalid value '${args[0]}' for '<angle|direction>'`),
-        themeColors.dim("Must be a number (degrees) or valid direction"),
+        themeColors.error(`aim: error: invalid value '${args[0]}'`),
+        themeColors.dim("Must be a number (degrees), valid direction, or target code (e.g., a4)"),
         themeColors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
         "",
-        themeColors.dim("To target a tank by code, use: target <target_code>"),
-        "",
         themeColors.dim("Usage: aim <angle|direction>"),
-        themeColors.dim("       aim 90"),
+        themeColors.dim("       aim <target_code> [lead]"),
+        themeColors.dim("Examples:"),
+        themeColors.dim("  aim 90"),
+        themeColors.dim("  aim a4"),
       ];
     }
 
     const angleRadians = (-degrees * Math.PI) / 180;
     const description = `${degrees}°`;
 
-    connection.reducers.aim({ worldId, angleRadians });
+    connection.reducers.aim({ worldId, angleRadians, targetCode: undefined, lead: 0 });
     return [themeColors.success(`Aiming turret to ${description}`)];
-  }
-}
-
-export function target(
-  connection: DbConnection,
-  worldId: string,
-  args: string[]
-): string[] {
-  if (isPlayerDead(connection, worldId)) {
-    return [
-      themeColors.error("target: error: cannot target while dead"),
-      "",
-      themeColors.dim("Use 'respawn' to respawn"),
-    ];
-  }
-
-  if (args.length < 1) {
-    return [
-      themeColors.error("target: error: missing required argument '<target_code>'"),
-      "",
-      themeColors.dim("Usage: target <target_code> [lead]"),
-      themeColors.dim("       target a4"),
-      themeColors.dim("       target h8 3"),
-    ];
-  }
-
-  if (!connection.identity) {
-    return [themeColors.error("target: error: no connection")];
-  }
-
-  const targetCode = args[0];
-  let lead = 0;
-
-  if (args.length > 1) {
-    const parsedLead = Number.parseFloat(args[1]);
-    if (Number.isNaN(parsedLead)) {
-      return [
-        themeColors.error(`target: error: invalid value '${args[1]}' for '[lead]': must be a valid number`),
-        "",
-        themeColors.dim("Usage: target <target_code> [lead]"),
-        themeColors.dim("       target a4 3"),
-      ];
-    }
-    lead = parsedLead;
-  }
-
-  const myTank = findMyTank(connection, worldId);
-
-  if (!myTank) {
-    return [themeColors.error("target: error: no connection")];
-  }
-
-  const targetCodeLower = targetCode.toLowerCase();
-
-  if (targetCodeLower === myTank.targetCode) {
-    return [themeColors.error("target: error: cannot target your own tank")];
-  }
-
-  const allTanks = Array.from(connection.db.tank.iter()).filter(
-    (t) => t.worldId === worldId
-  );
-  const targetTank = allTanks.find((t) => t.targetCode === targetCodeLower);
-  if (!targetTank || targetTank.alliance === myTank.alliance) {
-    return [themeColors.error(`target: error: tank with code '${targetCode}' not found`)];
-  }
-
-  connection.reducers.targetTank({
-    worldId,
-    targetCode: targetCodeLower,
-    lead,
-  });
-
-  const tankCodeColored = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
-  const tankName = targetTank.name;
-
-  if (lead > 0) {
-    return [
-      themeColors.success(`Targeting tank ${tankCodeColored} (${tankName}) with ${themeColors.value(lead.toString())} unit${lead !== 1 ? "s" : ""} lead`),
-    ];
-  } else {
-    return [themeColors.success(`Targeting tank ${tankCodeColored} (${tankName})`)];
   }
 }
 
