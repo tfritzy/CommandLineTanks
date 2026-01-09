@@ -21,7 +21,10 @@ public static partial class Module
         {
             if (world.CreatedAt + (ulong)world.GameDurationMicros + 60_000_000 < (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
             {
-                worldsToDelete.Add(world.Id);
+                if (world.CurrentPlayerCount == 0)
+                {
+                    worldsToDelete.Add(world.Id);
+                }
             }
         }
 
