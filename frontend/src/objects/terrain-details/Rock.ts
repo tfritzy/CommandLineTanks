@@ -34,4 +34,8 @@ export class Rock extends TerrainDetailObject {
   public getType(): string {
     return "Rock";
   }
+
+  public getTextureKey(): string {
+    return "rock";
+  }
 }

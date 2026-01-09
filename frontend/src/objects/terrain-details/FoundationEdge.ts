@@ -31,4 +31,8 @@ export class FoundationEdge extends TerrainDetailObject {
   public getType(): string {
     return "FoundationEdge";
   }
+
+  public getTextureKey(): string {
+    return `foundationedge-${this.rotation}`;
+  }
 }

@@ -31,4 +31,8 @@ export class FoundationCorner extends TerrainDetailObject {
   public getType(): string {
     return "FoundationCorner";
   }
+
+  public getTextureKey(): string {
+    return `foundationcorner-${this.rotation}`;
+  }
 }

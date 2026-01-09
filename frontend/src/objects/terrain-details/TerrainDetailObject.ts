@@ -12,18 +12,13 @@ export abstract class TerrainDetailObject {
   protected health: number | undefined;
   protected rotation: number;
   protected flashTimer: number = 0;
-  private textureKey: string = "";
 
   public setData(data: Infer<typeof TerrainDetailRow>): void {
     this.x = data.positionX;
     this.y = data.positionY;
     this.label = data.label;
     this.setHealth(data.health);
-    const rotationChanged = this.rotation !== data.rotation;
     this.rotation = data.rotation;
-    if (rotationChanged) {
-      this.textureKey = "";
-    }
   }
 
   protected getRadius(baseRadius: number, variation: number, seedX: number, seedY: number): number {
@@ -189,17 +184,5 @@ export abstract class TerrainDetailObject {
 
   public abstract getType(): string;
 
-  public getTextureKey(): string {
-    if (this.textureKey === "") {
-      const type = this.constructor.name.toLowerCase();
-      
-      if (type.includes("fence") || type.includes("foundation")) {
-        this.textureKey = `${type}-${this.rotation}`;
-      } else {
-        this.textureKey = type;
-      }
-    }
-    
-    return this.textureKey;
-  }
+  public abstract getTextureKey(): string;
 }

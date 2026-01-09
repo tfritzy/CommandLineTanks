@@ -34,4 +34,8 @@ export class HayBale extends TerrainDetailObject {
   public getType(): string {
     return "HayBale";
   }
+
+  public getTextureKey(): string {
+    return "haybale";
+  }
 }

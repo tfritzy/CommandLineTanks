@@ -16,4 +16,8 @@ export class Label extends TerrainDetailObject {
   public getType(): string {
     return "Label";
   }
+
+  public getTextureKey(): string {
+    return "label";
+  }
 }
