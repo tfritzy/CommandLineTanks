@@ -12,5 +12,6 @@ import {
 
 export default {
   worldId: __t.string(),
-  angleRadians: __t.f32(),
+  angleRadians: __t.option(__t.f32()),
+  targetCode: __t.option(__t.string()),
 };

@@ -76,8 +76,7 @@ const TerminalMock: React.FC = () => {
                     "Available commands:",
                     "  \x1b[36mdrive\x1b[0m      Move unit: drive <dir> [dist]",
                     "  \x1b[36mfire\x1b[0m       Fire main weapon",
-                    "  \x1b[36maim\x1b[0m        Aim turret: aim <degrees|dir>",
-                    "  \x1b[36mtarget\x1b[0m     Lock on target: target <id>",
+                    "  \x1b[36maim\x1b[0m        Aim or target: aim <deg|dir|code>",
                     "  \x1b[36mswitch\x1b[0m     Switch weapon: switch <slot>",
                 ];
 
@@ -97,8 +96,8 @@ const TerminalMock: React.FC = () => {
                 term.write(prompt);
                 await new Promise(r => setTimeout(r, 1000));
 
-                // Command 3: target
-                await typeCommand("target a4");
+                // Command 3: aim to target
+                await typeCommand("aim a4");
                 term.writeln("Targeting tank \x1b[35ma4\x1b[0m (Alpha)");
                 term.writeln("");
 
@@ -317,33 +316,14 @@ const LandingPage: React.FC = () => {
                                     <span className="text-secondary font-mono text-xl font-bold">aim</span>
                                 </div>
                                 <p className="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
-                                    Rotate your turret assembly to a specific angle or cardinal direction.
+                                    Rotate your turret to an angle or direction, or lock onto an enemy unit's code to automatically track them.
                                 </p>
                                 <div className="bg-code-bg rounded border border-white/5 p-4 font-mono text-xs text-gray-300 shadow-inner">
                                     <div className="text-gray-500 mb-1"># Syntax</div>
-                                    <div className="text-primary font-bold mb-3">aim &lt;deg|dir&gt;</div>
+                                    <div className="text-primary font-bold mb-3">aim &lt;deg|dir|code&gt;</div>
                                     <div className="text-gray-500 mb-1"># Type this:</div>
                                     <div className="text-white"><span className="text-secondary">$</span> aim 180</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
-                                <span className="material-symbols-outlined text-7xl text-white">track_changes</span>
-                            </div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="text-secondary font-mono text-xl font-bold">target</span>
-                                </div>
-                                <p className="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
-                                    Lock onto an enemy unit's ID code. Your turret will automatically track their movement.
-                                </p>
-                                <div className="bg-code-bg rounded border border-white/5 p-4 font-mono text-xs text-gray-300 shadow-inner">
-                                    <div className="text-gray-500 mb-1"># Syntax</div>
-                                    <div className="text-primary font-bold mb-3">target &lt;id_code&gt;</div>
-                                    <div className="text-gray-500 mb-1"># Type this:</div>
-                                    <div className="text-white"><span className="text-secondary">$</span> target a4</div>
+                                    <div className="text-white"><span className="text-secondary">$</span> aim a4</div>
                                 </div>
                             </div>
                         </div>
