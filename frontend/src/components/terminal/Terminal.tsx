@@ -14,9 +14,12 @@ const KEY_ENTER = 13;
 const KEY_BACKSPACE = 127;
 const KEY_CTRL_BACKSPACE = 23;
 const KEY_CTRL_H = 8;
-const KEY_ESCAPE = 27;
 const ARROW_UP = "\x1b[A";
 const ARROW_DOWN = "\x1b[B";
+const ARROW_LEFT = "\x1b[D";
+const ARROW_RIGHT = "\x1b[C";
+const CTRL_ARROW_LEFT = "\x1b[1;5D";
+const CTRL_ARROW_RIGHT = "\x1b[1;5C";
 
 const VALID_COMMANDS = ['aim', 'a', 'target', 't', 'drive', 'd', 'stop', 's', 'fire', 'f',
   'switch', 'w',
@@ -29,6 +32,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
   const commandHistoryRef = useRef<string[]>([]);
   const historyIndexRef = useRef<number>(-1);
   const currentInputRef = useRef<string>("");
+  const cursorPosRef = useRef<number>(0);
   const getPrompt = () => {
     return `\x1b[1m${colorize('❯ ', 'PROMPT')}`;
   };
@@ -185,60 +189,27 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       return output;
     };
 
+    const clearCurrentLine = () => {
+      const input = currentInputRef.current;
+      const cursorPos = cursorPosRef.current;
+      const charsAfterCursor = input.length - cursorPos;
+      if (charsAfterCursor > 0) {
+        term.write(ARROW_RIGHT.repeat(charsAfterCursor));
+      }
+      for (let i = 0; i < input.length; i++) {
+        term.write("\b \b");
+      }
+    };
+
+    const setInput = (newInput: string) => {
+      clearCurrentLine();
+      currentInputRef.current = newInput;
+      cursorPosRef.current = newInput.length;
+      term.write(newInput);
+    };
+
     const handleData = (data: string) => {
-      const code = data.charCodeAt(0);
-
-      if (code === KEY_ENTER) {
-        const input = currentInputRef.current.trim();
-        let finalOutput = "\r\n";
-
-        if (input) {
-          commandHistoryRef.current.push(input);
-          historyIndexRef.current = -1;
-
-          const commands = input.split('\n');
-          const result = executeMultipleCommands(commands);
-
-          if (result === 'CLEAR') {
-            currentInputRef.current = "";
-            term.write('\x1b[2J\x1b[3J\x1b[H' + getPrompt());
-            return;
-          }
-
-          finalOutput += result;
-        }
-
-        currentInputRef.current = "";
-        finalOutput += getPrompt();
-        term.write(finalOutput);
-      } else if (code === KEY_BACKSPACE) {
-        if (currentInputRef.current.length > 0) {
-          currentInputRef.current = currentInputRef.current.slice(0, -1);
-          term.write("\b \b");
-        }
-      } else if (code === KEY_CTRL_BACKSPACE || code === KEY_CTRL_H) {
-        if (currentInputRef.current.length > 0) {
-          const input = currentInputRef.current;
-          let deletePos = input.length - 1;
-
-          while (deletePos >= 0 && input[deletePos] === ' ') {
-            deletePos--;
-          }
-
-          while (deletePos >= 0 && input[deletePos] !== ' ') {
-            deletePos--;
-          }
-
-          const newInput = input.substring(0, deletePos + 1);
-          const charsToDelete = input.length - newInput.length;
-
-          for (let i = 0; i < charsToDelete; i++) {
-            term.write("\b \b");
-          }
-
-          currentInputRef.current = newInput;
-        }
-      } else if (code === KEY_ESCAPE) {
+      if (data.startsWith('\x1b[')) {
         if (data === ARROW_UP) {
           if (commandHistoryRef.current.length === 0) return;
 
@@ -263,13 +234,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
           historyIndexRef.current = newIndex;
           const newCommand = commandHistoryRef.current[newIndex];
-
-          for (let i = 0; i < currentInputRef.current.length; i++) {
-            term.write("\b \b");
-          }
-
-          currentInputRef.current = newCommand;
-          term.write(newCommand);
+          setInput(newCommand);
         } else if (data === ARROW_DOWN) {
           if (historyIndexRef.current === -1) return;
 
@@ -277,11 +242,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
           if (newIndex >= commandHistoryRef.current.length) {
             historyIndexRef.current = -1;
-
-            for (let i = 0; i < currentInputRef.current.length; i++) {
-              term.write("\b \b");
-            }
-            currentInputRef.current = "";
+            setInput("");
           } else {
             const currentCommand = commandHistoryRef.current[historyIndexRef.current];
             let nextIndex = newIndex;
@@ -295,27 +256,138 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
             if (nextIndex >= commandHistoryRef.current.length) {
               historyIndexRef.current = -1;
-
-              for (let i = 0; i < currentInputRef.current.length; i++) {
-                term.write("\b \b");
-              }
-              currentInputRef.current = "";
+              setInput("");
             } else {
               historyIndexRef.current = nextIndex;
               const newCommand = commandHistoryRef.current[nextIndex];
-
-              for (let i = 0; i < currentInputRef.current.length; i++) {
-                term.write("\b \b");
-              }
-
-              currentInputRef.current = newCommand;
-              term.write(newCommand);
+              setInput(newCommand);
             }
           }
+        } else if (data === ARROW_LEFT) {
+          if (cursorPosRef.current > 0) {
+            cursorPosRef.current--;
+            term.write(ARROW_LEFT);
+          }
+        } else if (data === ARROW_RIGHT) {
+          if (cursorPosRef.current < currentInputRef.current.length) {
+            cursorPosRef.current++;
+            term.write(ARROW_RIGHT);
+          }
+        } else if (data === CTRL_ARROW_LEFT) {
+          const input = currentInputRef.current;
+          let newPos = cursorPosRef.current - 1;
+
+          while (newPos >= 0 && input[newPos] === ' ') {
+            newPos--;
+          }
+          while (newPos >= 0 && input[newPos] !== ' ') {
+            newPos--;
+          }
+          newPos = Math.max(0, newPos + 1);
+
+          const moveBy = cursorPosRef.current - newPos;
+          if (moveBy > 0) {
+            term.write(ARROW_LEFT.repeat(moveBy));
+            cursorPosRef.current = newPos;
+          }
+        } else if (data === CTRL_ARROW_RIGHT) {
+          const input = currentInputRef.current;
+          let newPos = cursorPosRef.current;
+
+          while (newPos < input.length && input[newPos] !== ' ') {
+            newPos++;
+          }
+          while (newPos < input.length && input[newPos] === ' ') {
+            newPos++;
+          }
+
+          const moveBy = newPos - cursorPosRef.current;
+          if (moveBy > 0) {
+            term.write(ARROW_RIGHT.repeat(moveBy));
+            cursorPosRef.current = newPos;
+          }
+        }
+        return;
+      }
+
+      const code = data.charCodeAt(0);
+
+      if (code === KEY_ENTER) {
+        const input = currentInputRef.current.trim();
+        let finalOutput = "\r\n";
+
+        if (input) {
+          commandHistoryRef.current.push(input);
+          historyIndexRef.current = -1;
+
+          const commands = input.split(/[;\n]/);
+          const result = executeMultipleCommands(commands);
+
+          if (result === 'CLEAR') {
+            currentInputRef.current = "";
+            cursorPosRef.current = 0;
+            term.write('\x1b[2J\x1b[3J\x1b[H' + getPrompt());
+            return;
+          }
+
+          finalOutput += result;
+        }
+
+        currentInputRef.current = "";
+        cursorPosRef.current = 0;
+        finalOutput += getPrompt();
+        term.write(finalOutput);
+      } else if (code === KEY_BACKSPACE) {
+        if (cursorPosRef.current > 0) {
+          const input = currentInputRef.current;
+          const before = input.substring(0, cursorPosRef.current - 1);
+          const after = input.substring(cursorPosRef.current);
+          currentInputRef.current = before + after;
+          cursorPosRef.current--;
+
+          term.write("\b");
+          term.write(after + " ");
+          term.write(ARROW_LEFT.repeat(after.length + 1));
+        }
+      } else if (code === KEY_CTRL_BACKSPACE || code === KEY_CTRL_H) {
+        if (cursorPosRef.current > 0) {
+          const input = currentInputRef.current;
+          let deletePos = cursorPosRef.current - 1;
+
+          while (deletePos >= 0 && input[deletePos] === ' ') {
+            deletePos--;
+          }
+
+          while (deletePos >= 0 && input[deletePos] !== ' ') {
+            deletePos--;
+          }
+
+          const newCursorPos = deletePos + 1;
+          const before = input.substring(0, newCursorPos);
+          const after = input.substring(cursorPosRef.current);
+          const charsDeleted = cursorPosRef.current - newCursorPos;
+
+          currentInputRef.current = before + after;
+
+          for (let i = 0; i < charsDeleted; i++) {
+            term.write("\b");
+          }
+          term.write(after + " ".repeat(charsDeleted));
+          term.write(ARROW_LEFT.repeat(after.length + charsDeleted));
+
+          cursorPosRef.current = newCursorPos;
         }
       } else if (code >= 32) {
-        currentInputRef.current += data;
-        term.write(data);
+        const input = currentInputRef.current;
+        const before = input.substring(0, cursorPosRef.current);
+        const after = input.substring(cursorPosRef.current);
+        currentInputRef.current = before + data + after;
+        cursorPosRef.current += data.length;
+
+        term.write(data + after);
+        if (after.length > 0) {
+          term.write(ARROW_LEFT.repeat(after.length));
+        }
       }
     };
 

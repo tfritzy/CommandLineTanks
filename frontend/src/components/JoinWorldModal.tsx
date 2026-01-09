@@ -47,7 +47,6 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           worldId,
           currentWorldId: worldId,
           joinCode,
-          passcode: "",
         });
       }
     }
@@ -62,7 +61,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
       return `join ${worldId}`;
     }
     const nameToUse = sanitizedName || generateDefaultName();
-    return `name set ${nameToUse}\njoin ${worldId}`;
+    return `name set ${nameToUse}; join ${worldId}`;
   }, [sanitizedName, worldId, hasSetName]);
 
   return (

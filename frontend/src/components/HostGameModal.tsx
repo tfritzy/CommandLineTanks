@@ -7,29 +7,18 @@ interface HostGameModalProps {
 }
 
 export default function HostGameModal({ onClose }: HostGameModalProps) {
-  const [bots, setBots] = useState(0);
-  const [duration, setDuration] = useState(10);
-  const [width, setWidth] = useState(50);
-  const [height, setHeight] = useState(50);
+  const [bots, setBots] = useState<number | ''>(0);
+  const [duration, setDuration] = useState<number | ''>(10);
+  const [width, setWidth] = useState<number | ''>(50);
+  const [height, setHeight] = useState<number | ''>(50);
 
   const command = useMemo(() => {
     const parts = ['create'];
 
-    if (bots !== 0) {
-      parts.push(`--bots ${bots}`);
-    }
-
-    if (duration !== 10) {
-      parts.push(`--duration ${duration}`);
-    }
-
-    if (width !== 50) {
-      parts.push(`--width ${width}`);
-    }
-
-    if (height !== 50) {
-      parts.push(`--height ${height}`);
-    }
+    parts.push(`--bots ${bots}`);
+    parts.push(`--duration ${duration}`);
+    parts.push(`--width ${width}`);
+    parts.push(`--height ${height}`);
 
     return parts.join(' ');
   }, [bots, duration, width, height]);
@@ -61,19 +50,30 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 type="number"
                 value={bots}
                 onChange={(e) => {
-                  let val = parseInt(e.target.value) || 0;
-                  val = Math.max(0, Math.min(10, val));
-                  if (val % 2 !== 0) {
-                    val = Math.max(0, val - 1);
+                  if (e.target.value === '') {
+                    setBots('');
+                    return;
                   }
+                  let val = parseInt(e.target.value);
+                  if (isNaN(val)) return;
+                  val = Math.max(0, Math.min(10, val));
                   setBots(val);
+                }}
+                onBlur={() => {
+                  if (bots === '') setBots(0);
+                }}
+                onWheel={(e) => e.currentTarget.blur()}
+                onKeyDown={(e) => {
+                  if (e.key === '.' || e.key === 'e' || e.key === 'E' || e.key === '-' || e.key === '+') {
+                    e.preventDefault();
+                  }
                 }}
                 min="0"
                 max="10"
                 step="2"
-                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20"
+                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <div className="mt-1 text-xs text-palette-white-pure/40">Even number, 0-10</div>
+              <div className="mt-1 text-xs text-palette-white-pure/40">0-10</div>
             </div>
 
             <div>
@@ -84,12 +84,26 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 type="number"
                 value={duration}
                 onChange={(e) => {
-                  const val = parseInt(e.target.value) || 1;
+                  if (e.target.value === '') {
+                    setDuration('');
+                    return;
+                  }
+                  const val = parseInt(e.target.value);
+                  if (isNaN(val)) return;
                   setDuration(Math.max(1, Math.min(20, val)));
+                }}
+                onBlur={() => {
+                  if (duration === '') setDuration(10);
+                }}
+                onWheel={(e) => e.currentTarget.blur()}
+                onKeyDown={(e) => {
+                  if (e.key === '.' || e.key === 'e' || e.key === 'E' || e.key === '-' || e.key === '+') {
+                    e.preventDefault();
+                  }
                 }}
                 min="1"
                 max="20"
-                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20"
+                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <div className="mt-1 text-xs text-palette-white-pure/40">Between 1-20 minutes</div>
             </div>
@@ -104,12 +118,26 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 type="number"
                 value={width}
                 onChange={(e) => {
-                  const val = parseInt(e.target.value) || 1;
+                  if (e.target.value === '') {
+                    setWidth('');
+                    return;
+                  }
+                  const val = parseInt(e.target.value);
+                  if (isNaN(val)) return;
                   setWidth(Math.max(1, Math.min(200, val)));
+                }}
+                onBlur={() => {
+                  if (width === '') setWidth(50);
+                }}
+                onWheel={(e) => e.currentTarget.blur()}
+                onKeyDown={(e) => {
+                  if (e.key === '.' || e.key === 'e' || e.key === 'E' || e.key === '-' || e.key === '+') {
+                    e.preventDefault();
+                  }
                 }}
                 min="1"
                 max="200"
-                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20"
+                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <div className="mt-1 text-xs text-palette-white-pure/40">Map width, 1-200</div>
             </div>
@@ -122,12 +150,26 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 type="number"
                 value={height}
                 onChange={(e) => {
-                  const val = parseInt(e.target.value) || 1;
+                  if (e.target.value === '') {
+                    setHeight('');
+                    return;
+                  }
+                  const val = parseInt(e.target.value);
+                  if (isNaN(val)) return;
                   setHeight(Math.max(1, Math.min(200, val)));
+                }}
+                onBlur={() => {
+                  if (height === '') setHeight(50);
+                }}
+                onWheel={(e) => e.currentTarget.blur()}
+                onKeyDown={(e) => {
+                  if (e.key === '.' || e.key === 'e' || e.key === 'E' || e.key === '-' || e.key === '+') {
+                    e.preventDefault();
+                  }
                 }}
                 min="1"
                 max="200"
-                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20"
+                className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <div className="mt-1 text-xs text-palette-white-pure/40">Map height, 1-200</div>
             </div>
@@ -140,10 +182,6 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
           </div>
 
           <CopyBox text={command} />
-          
-          <div className="mt-2 text-xs text-palette-white-pure/40 text-center">
-            Copy this command and paste it into the terminal
-          </div>
         </div>
       </motion.div>
     </div>

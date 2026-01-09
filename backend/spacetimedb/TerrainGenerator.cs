@@ -664,7 +664,7 @@ public static partial class TerrainGenerator
             }
         }
 
-        int treesToRemove = (int)(treeIndices.Count * 0.5);
+        int treesToRemove = (int)(treeIndices.Count * 0.66);
 
         for (int i = treeIndices.Count - 1; i >= treeIndices.Count - treesToRemove; i--)
         {

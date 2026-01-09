@@ -180,7 +180,7 @@ const LandingPage: React.FC = () => {
                         onClick={handlePlay}
                         className="hidden md:flex items-center justify-center rounded-lg h-9 px-5 bg-secondary text-background-base text-sm font-bold hover:bg-white transition-all"
                     >
-                        <span>&gt; Play In browser</span>
+                        <span>&gt; Play now</span>
                     </button>
                     <div className="md:hidden text-white">
                         <span className="material-symbols-outlined">menu</span>
@@ -199,8 +199,7 @@ const LandingPage: React.FC = () => {
                             <span className="text-xs font-mono text-secondary font-bold tracking-wide uppercase">Browser-Based PvP typing game</span>
                         </div>
                         <h1 className="text-5xl lg:text-7xl font-black leading-tight tracking-tighter text-white">
-                            TYPE FAST OR<br />
-                            <span className="text-primary">DIE.</span>
+                            Command your tank. <span className="text-primary">Literally.</span>
                         </h1>
                         <p className="text-gray-300 text-lg lg:text-xl font-light leading-relaxed max-w-lg">
                             A competitive multiplayer tank game played entirely via the keyboard directly in your browser. Improve your typing accuracy and speed with this unconventional PvP tank typing game.
@@ -211,7 +210,7 @@ const LandingPage: React.FC = () => {
                                 className="flex h-14 px-8 items-center justify-center rounded-lg bg-primary text-white text-base font-bold hover:bg-primary-hover hover:translate-y-[-2px] transition-all shadow-xl shadow-primary/20"
                             >
                                 <span className="mr-2 material-symbols-outlined">terminal</span>
-                                Play in browser
+                                Play now
                             </button>
                             <a className="flex h-14 px-8 items-center justify-center rounded-lg border border-border-dark bg-card-dark text-white text-base font-medium hover:bg-card-dark/80 hover:translate-y-[-2px] transition-all" href="#docs">
                                 <span className="mr-2 material-symbols-outlined">code</span>
@@ -269,8 +268,8 @@ const LandingPage: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">north_east</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -289,8 +288,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">adjust</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -309,8 +308,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">rotate_right</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -329,8 +328,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">track_changes</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -349,8 +348,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">swap_horiz</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -369,8 +368,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">list</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -389,8 +388,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">front_hand</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -409,8 +408,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">restart_alt</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -429,8 +428,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">badge</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -449,8 +448,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">add_box</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -469,8 +468,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">login</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -489,8 +488,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">logout</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -509,8 +508,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">mop</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -529,8 +528,8 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors hover:border-primary/50">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="group relative rounded-xl bg-card-dark border border-border-dark overflow-hidden transition-colors">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 transition-opacity">
                                 <span className="material-symbols-outlined text-7xl text-white">help</span>
                             </div>
                             <div className="p-6 flex flex-col h-full">
@@ -560,7 +559,7 @@ const LandingPage: React.FC = () => {
                             <span className="material-symbols-outlined text-primary">terminal</span>
                             <span className="font-bold tracking-tight font-mono">CLTANKS</span>
                         </div>
-                        <p className="text-gray-500 text-sm font-mono">© 2026 CLTanks "Everyone's a tankie"</p>
+                        <p className="text-gray-500 text-sm font-mono">© 2026 CLTanks</p>
                     </div>
                     <div className="flex gap-8 text-sm font-medium text-gray-400 font-mono">
                         <a className="hover:text-primary transition-colors" href="#">Manual</a>
