@@ -27,7 +27,6 @@ public static partial class PickupSpawner
     {
         PickupType.TripleShooter,
         PickupType.MissileLauncher,
-        PickupType.Health,
         PickupType.Boomerang,
         PickupType.Grenade,
         PickupType.Rocket,
