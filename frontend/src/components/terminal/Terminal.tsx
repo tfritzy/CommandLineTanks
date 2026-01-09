@@ -26,6 +26,7 @@ const VALID_COMMANDS = ['aim', 'a', 'drive', 'd', 'stop', 's', 'fire', 'f',
   'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
 
 const MAX_TERMINAL_LINES = 1000;
+const SEPARATOR_LENGTH = 80;
 
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -421,13 +422,12 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     const wasHomeworld = isCurrentIdentity(previousWorldIdRef.current);
     const isNewWorldNotHomeworld = !isCurrentIdentity(worldId);
-    const worldChanged = worldId !== previousWorldIdRef.current;
-    const shouldDisplayWorldUrl = justCreatedWorldRef.current && wasHomeworld && isNewWorldNotHomeworld && worldChanged;
+    const shouldDisplayWorldUrl = justCreatedWorldRef.current && wasHomeworld && isNewWorldNotHomeworld;
 
     if (shouldDisplayWorldUrl) {
       const url = `${window.location.origin}/world/${worldId}`;
       
-      const separator = colorize('═'.repeat(80), 'SUCCESS');
+      const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'SUCCESS');
       const title = colorize('🎮 WORLD CREATED SUCCESSFULLY', 'SUCCESS');
       const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
       const urlText = colorize(url, 'TANK_CODE');
