@@ -92,7 +92,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     if (currentInputRef.current) {
       term.write(currentInputRef.current);
-      const charsAfterCursor = currentInputRef.current.length - cursorPosRef.current;
+      const cursorPos = Math.min(cursorPosRef.current, currentInputRef.current.length);
+      const charsAfterCursor = currentInputRef.current.length - cursorPos;
       if (charsAfterCursor > 0) {
         term.write(ARROW_LEFT.repeat(charsAfterCursor));
       }
