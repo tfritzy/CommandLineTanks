@@ -263,10 +263,9 @@ export default function GameView() {
     const connection = getConnection();
     if (!connection) return;
 
-    const joinCode = `ensure_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    setPendingJoinCode(joinCode);
+    setPendingJoinCode(worldId);
     
-    connection.reducers.ensureHomeworld({ worldId, joinCode });
+    connection.reducers.ensureHomeworld({ worldId, joinCode: worldId });
     console.log(`Called ensureHomeworld for worldId: ${worldId}`);
   }, [worldId, isHomeworld]);
 
