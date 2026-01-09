@@ -70,7 +70,6 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 }}
                 min="0"
                 max="10"
-                step="2"
                 className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <div className="mt-1 text-xs text-palette-white-pure/40">0-10</div>

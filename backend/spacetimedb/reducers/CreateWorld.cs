@@ -33,9 +33,14 @@ public static partial class Module
 
         CleanupHomeworldAndJoinCommand(ctx, world.Id, joinCode);
 
+        int botsPerAlliance = botCount / 2;
+        int extraBot = botCount % 2;
+        
         for (int alliance = 0; alliance < 2; alliance++)
         {
-            for (int i = 0; i < botCount / 2; i++)
+            int botsForThisAlliance = botsPerAlliance + (alliance == 0 ? extraBot : 0);
+            
+            for (int i = 0; i < botsForThisAlliance; i++)
             {
                 var targetCode = AllocateTargetCode(ctx, worldId);
                 if (targetCode == null) continue;
