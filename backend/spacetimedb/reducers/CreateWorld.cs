@@ -28,7 +28,8 @@ public static partial class Module
             width,
             height,
             visibility,
-            gameDurationMicros
+            gameDurationMicros,
+            ctx.Sender
         );
 
         CleanupHomeworldAndJoinCommand(ctx, world.Id, joinCode);

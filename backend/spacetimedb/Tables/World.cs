@@ -23,5 +23,6 @@ public static partial class Module
         public int MaxPlayers;
         public int CurrentPlayerCount;
         public int BotCount;
+        public Identity? Owner;
     }
 }

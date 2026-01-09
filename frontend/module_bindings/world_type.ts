@@ -34,6 +34,7 @@ export default __t.object("World", {
   maxPlayers: __t.i32(),
   currentPlayerCount: __t.i32(),
   botCount: __t.i32(),
+  owner: __t.option(__t.identity()),
 });
 
 

@@ -12,7 +12,8 @@ public static partial class Module
         int width,
         int height,
         WorldVisibility visibility = WorldVisibility.Public,
-        long? gameDurationMicros = null)
+        long? gameDurationMicros = null,
+        Identity? owner = null)
     {
         var duration = gameDurationMicros ?? GAME_DURATION_MICROS;
         
@@ -30,7 +31,8 @@ public static partial class Module
             Visibility = visibility,
             MaxPlayers = 8,
             CurrentPlayerCount = 0,
-            BotCount = 0
+            BotCount = 0,
+            Owner = owner
         };
 
         ctx.Db.world.Insert(world);
