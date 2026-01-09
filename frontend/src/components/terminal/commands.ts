@@ -1059,6 +1059,12 @@ export function exitWorld(connection: DbConnection, worldId: string, args: strin
     return [themeColors.error("exit: error: no connection")];
   }
 
+  if (worldId.length > 4) {
+    return [
+      themeColors.error("exit: error: you are already in your homeworld"),
+    ];
+  }
+
   const joinCode = `exit_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
 
