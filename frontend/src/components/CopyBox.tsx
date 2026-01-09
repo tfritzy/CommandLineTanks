@@ -38,19 +38,19 @@ const CopyBox: React.FC<CopyBoxProps> = ({
     return (
         <div
             onClick={handleCopy}
-            className={`relative bg-palette-black-pure/30 ${copied
+            className={`group relative bg-palette-black-pure/30 ${copied
                 ? 'border-palette-green-success/50'
                 : 'border-palette-white-pure/[0.07] hover:border-palette-white-pure/20 hover:bg-palette-black-pure/40'
-                } border rounded p-4 pr-12 text-[13px] text-palette-white-pure/70 font-mono cursor-pointer transition-all break-words text-left whitespace-pre-wrap leading-normal flex items-center`}
+                } border rounded p-4 pr-16 text-[13px] text-palette-white-pure/70 font-mono cursor-pointer transition-all text-left leading-normal flex items-center overflow-x-auto`}
         >
-            <div className="flex-1">
+            <div className="flex-shrink-0 whitespace-nowrap">
                 {showDollar && (
                     <span className="mr-2 select-none" style={{ color: activeColor }}>$</span>
                 )}
                 {text}
             </div>
 
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors">
+            <div className="absolute right-0 top-0 bottom-0 flex items-center pr-4 pl-8 pointer-events-none bg-gradient-to-l from-palette-black-pure/30 via-palette-black-pure/30 to-transparent group-hover:from-palette-black-pure/40 group-hover:via-palette-black-pure/40 transition-all rounded-r">
                 {copied ? (
                     <svg
                         width="16"

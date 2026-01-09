@@ -33,7 +33,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="bg-palette-purple-void/85 backdrop-blur-xl rounded border border-palette-white-pure/[0.08] p-8 px-10 font-mono shadow-2xl min-w-[500px] max-w-[600px] max-h-[90vh] overflow-y-auto"
+        className="bg-palette-purple-void/85 backdrop-blur-xl rounded border border-palette-white-pure/[0.08] p-8 px-10 font-mono shadow-2xl w-[550px] max-w-[90vw] max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-[32px] font-black text-palette-red-muted tracking-[0.1em] mb-6 text-center" style={{ textShadow: '0 0 20px rgba(192, 104, 82, 0.3)' }}>
