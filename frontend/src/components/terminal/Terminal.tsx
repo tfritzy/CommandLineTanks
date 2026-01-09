@@ -421,8 +421,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     const wasHomeworld = isCurrentIdentity(previousWorldIdRef.current);
     const isNewWorldNotHomeworld = !isCurrentIdentity(worldId);
+    const worldChanged = worldId !== previousWorldIdRef.current;
+    const shouldDisplayWorldUrl = justCreatedWorldRef.current && wasHomeworld && isNewWorldNotHomeworld && worldChanged;
 
-    if (justCreatedWorldRef.current && wasHomeworld && isNewWorldNotHomeworld && worldId !== previousWorldIdRef.current) {
+    if (shouldDisplayWorldUrl) {
       const url = `${window.location.origin}/world/${worldId}`;
       
       const separator = colorize('═'.repeat(80), 'SUCCESS');
