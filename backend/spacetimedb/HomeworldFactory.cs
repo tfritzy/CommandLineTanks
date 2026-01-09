@@ -351,14 +351,6 @@ public static partial class Module
 
     private static bool IsInsideAnyPen(int x, int y)
     {
-        if (x >= 19 && x <= 25 && y >= 5 && y <= 11) return true;
-
-        if (x >= 4 && x <= 10 && y >= 13 && y <= 19) return true;
-
-        if (x >= 4 && x <= 10 && y >= 5 && y <= 11) return true;
-
-        if (x >= 19 && x <= 25 && y >= 13 && y <= 19) return true;
-
-        return false;
+        return x >= 4 && x <= 25 && y >= 5 && y <= 19;
     }
 }
