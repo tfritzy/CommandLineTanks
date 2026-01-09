@@ -97,7 +97,7 @@ public static partial class Module
         Gun[]? guns = null,
         int selectedGunIndex = 0,
         bool hasShield = false,
-        long remainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
+        long remainingImmunityMicros = 0,
         ulong deathTimestamp = 0,
         Identity? lastDamagedBy = null,
         ulong? updatedAt = null)
