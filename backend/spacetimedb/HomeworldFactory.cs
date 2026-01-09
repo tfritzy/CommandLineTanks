@@ -201,7 +201,7 @@ public static partial class Module
     private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
         int areaX = 20;
-        int areaY = 5;
+        int areaY = 6;
         int areaWidth = 5;
         int areaHeight = 5;
 
@@ -235,7 +235,7 @@ public static partial class Module
     private static void CreateAimingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
         int areaX = 5;
-        int areaY = 13;
+        int areaY = 14;
         int areaWidth = 5;
         int areaHeight = 5;
 
@@ -268,7 +268,7 @@ public static partial class Module
     private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
         int areaX = 5;
-        int areaY = 5;
+        int areaY = 6;
         int areaWidth = 5;
         int areaHeight = 5;
 
@@ -301,7 +301,7 @@ public static partial class Module
     private static void CreateEmptyDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight)
     {
         int areaX = 20;
-        int areaY = 13;
+        int areaY = 14;
         int areaWidth = 5;
         int areaHeight = 5;
 
@@ -476,21 +476,13 @@ public static partial class Module
 
     private static bool IsInsideAnyPen(int x, int y)
     {
-        // Targeting Area: areaX = 20, areaY = 5, areaWidth = 5, areaHeight = 5
-        // Fences are at x=19, x=25, y=4, y=10
-        if (x >= 19 && x <= 25 && y >= 4 && y <= 10) return true;
+        if (x >= 19 && x <= 25 && y >= 5 && y <= 11) return true;
 
-        // Aiming Area: areaX = 5, areaY = 13, areaWidth = 5, areaHeight = 5
-        // Fences are at x=4, x=10, y=12, y=18
-        if (x >= 4 && x <= 10 && y >= 12 && y <= 18) return true;
+        if (x >= 4 && x <= 10 && y >= 13 && y <= 19) return true;
 
-        // Movement Area: areaX = 5, areaY = 5, areaWidth = 5, areaHeight = 5
-        // Fences are at x=4, x=10, y=4, y=10
-        if (x >= 4 && x <= 10 && y >= 4 && y <= 10) return true;
+        if (x >= 4 && x <= 10 && y >= 5 && y <= 11) return true;
 
-        // Empty Area: areaX = 20, areaY = 13, areaWidth = 5, areaHeight = 5
-        // Fences are at x=19, x=25, y=12, y=18
-        if (x >= 19 && x <= 25 && y >= 12 && y <= 18) return true;
+        if (x >= 19 && x <= 25 && y >= 13 && y <= 19) return true;
 
         return false;
     }
