@@ -408,8 +408,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  --passcode, -p      Passcode for private worlds (default: '')",
         "  --bots, -b          Number of AI bots, must be even, 0-10 (default: 0)",
         "  --duration, -d      Game duration in minutes, 1-20 (default: 10)",
-        "  --width, -w         Map width, 1-200 (default: 50)",
-        "  --height, -h        Map height, 1-200 (default: 50)",
+        "  --width, -w         Map width, 10-200 (default: 50)",
+        "  --height, -h        Map height, 10-200 (default: 50)",
         "",
         "All worlds are created as private.",
         "After creation, you'll be automatically joined to the new game.",
@@ -942,9 +942,9 @@ export function create(
         ];
       }
       const width = parseInt(args[i + 1]);
-      if (isNaN(width) || width < 1 || width > 200) {
+      if (isNaN(width) || width < 10 || width > 200) {
         return [
-          themeColors.error(`create: error: invalid width '${args[i + 1]}', must be between 1 and 200`),
+          themeColors.error(`create: error: invalid width '${args[i + 1]}', must be between 10 and 200`),
           "",
           usage
         ];
@@ -960,9 +960,9 @@ export function create(
         ];
       }
       const height = parseInt(args[i + 1]);
-      if (isNaN(height) || height < 1 || height > 200) {
+      if (isNaN(height) || height < 10 || height > 200) {
         return [
-          themeColors.error(`create: error: invalid height '${args[i + 1]}', must be between 1 and 200`),
+          themeColors.error(`create: error: invalid height '${args[i + 1]}', must be between 10 and 200`),
           "",
           usage
         ];

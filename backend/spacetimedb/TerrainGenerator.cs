@@ -7,6 +7,8 @@ public static partial class TerrainGenerator
 {
     private const int DEFAULT_WORLD_WIDTH = 64;
     private const int DEFAULT_WORLD_HEIGHT = 64;
+    private const int MIN_WORLD_WIDTH = 10;
+    private const int MIN_WORLD_HEIGHT = 10;
     private const int MAX_WORLD_WIDTH = 200;
     private const int MAX_WORLD_HEIGHT = 200;
     private const int FIELD_MIN_SIZE = 3;
@@ -23,8 +25,8 @@ public static partial class TerrainGenerator
 
     public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random, int width = DEFAULT_WORLD_WIDTH, int height = DEFAULT_WORLD_HEIGHT)
     {
-        width = Math.Clamp(width, 1, MAX_WORLD_WIDTH);
-        height = Math.Clamp(height, 1, MAX_WORLD_HEIGHT);
+        width = Math.Clamp(width, MIN_WORLD_WIDTH, MAX_WORLD_WIDTH);
+        height = Math.Clamp(height, MIN_WORLD_HEIGHT, MAX_WORLD_HEIGHT);
 
         InitPerlin(random);
         var baseTerrain = new BaseTerrain[width * height];
