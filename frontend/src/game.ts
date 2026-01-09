@@ -11,7 +11,7 @@ import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
 
 const CAMERA_FOLLOW_SPEED = 15;
-const CAMERA_TELEPORT_THRESHOLD = 500;
+const CAMERA_TELEPORT_THRESHOLD = 50;
 
 export class Game {
   private canvas: HTMLCanvasElement;
