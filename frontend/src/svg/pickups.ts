@@ -119,18 +119,18 @@ function createRocketPickupSvg(color: string): string {
   const cx = size / 2;
   const cy = size / 2;
   const radius = 0.1 * UNIT_TO_PIXEL;
-  const angle = -Math.PI / 4;
-  const cos = Math.cos(angle);
-  const sin = Math.sin(angle);
+  const angleDeg = -45;
   const flameLength = radius * 2;
+  const rx = radius * 3;
+  const ry = radius * 1.2;
   
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-    <g transform="translate(${cx}, ${cy})">
+    <g transform="translate(${cx}, ${cy}) rotate(${angleDeg})">
       <g transform="translate(-4, 4)">
-        <ellipse cx="0" cy="0" rx="${radius * 3}" ry="${radius * 1.2}" transform="rotate(${angle * 180 / Math.PI})" fill="rgba(0,0,0,0.3)"/>
+        <path d="M 0 ${-ry} A ${rx} ${ry} 0 0 1 0 ${ry} L 0 ${ry} L 0 ${-ry} Z" fill="rgba(0,0,0,0.3)"/>
       </g>
-      <polygon points="${-flameLength * cos},${-flameLength * sin} ${-radius * 0.4 * sin},${radius * 0.4 * cos} ${radius * 0.4 * sin},${-radius * 0.4 * cos}" fill="${COLORS.EFFECTS.FIRE_YELLOW}"/>
-      <ellipse cx="0" cy="0" rx="${radius * 3}" ry="${radius * 1.2}" transform="rotate(${angle * 180 / Math.PI})" fill="${color}"/>
+      <polygon points="${-flameLength},0 0,${-radius * 0.4} 0,${radius * 0.4}" fill="${COLORS.EFFECTS.FIRE_YELLOW}"/>
+      <path d="M 0 ${-ry} A ${rx} ${ry} 0 0 1 0 ${ry} L 0 ${ry} L 0 ${-ry} Z" fill="${color}"/>
     </g>
   </svg>`;
 }

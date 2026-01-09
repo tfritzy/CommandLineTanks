@@ -120,19 +120,27 @@ export class SvgTextureSheet {
     const width = texture.width * scale;
     const height = texture.height * scale;
 
-    ctx.save();
-    ctx.translate(x, y);
-    if (rotation !== 0) {
+    if (rotation === 0) {
+      ctx.drawImage(
+        texture.image,
+        x - width / 2,
+        y - height / 2,
+        width,
+        height
+      );
+    } else {
+      ctx.save();
+      ctx.translate(x, y);
       ctx.rotate(rotation);
+      ctx.drawImage(
+        texture.image,
+        -width / 2,
+        -height / 2,
+        width,
+        height
+      );
+      ctx.restore();
     }
-    ctx.drawImage(
-      texture.image,
-      -width / 2,
-      -height / 2,
-      width,
-      height
-    );
-    ctx.restore();
   }
 
   public drawWithOffset(

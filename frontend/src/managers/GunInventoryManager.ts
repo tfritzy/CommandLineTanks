@@ -78,17 +78,12 @@ export class GunInventoryManager {
     gun: Infer<typeof Gun>,
     x: number,
     y: number,
-    size: number
+    size: number,
+    svgSheet: ReturnType<typeof getRedTeamPickupSvgSheet>
   ) {
-    ctx.save();
     const centerX = x + size / 2;
     const centerY = y + size / 2;
-
-    const svgSheet = this.playerAlliance === 0 ? getRedTeamPickupSvgSheet() : getBlueTeamPickupSvgSheet();
-
     svgSheet.draw(ctx, gun.gunType.tag, centerX, centerY);
-
-    ctx.restore();
   }
 
   private drawSlot(
@@ -97,7 +92,8 @@ export class GunInventoryManager {
     slotIndex: number,
     x: number,
     y: number,
-    slotSize: number
+    slotSize: number,
+    svgSheet: ReturnType<typeof getRedTeamPickupSvgSheet>
   ) {
     const isSelected = this.selectedGunIndex === slotIndex && gun !== null;
 
@@ -131,7 +127,7 @@ export class GunInventoryManager {
     ctx.stroke();
 
     if (gun) {
-      this.drawGunGraphic(ctx, gun, x, y, slotSize);
+      this.drawGunGraphic(ctx, gun, x, y, slotSize, svgSheet);
 
       ctx.fillStyle = "#fcfbf3";
       ctx.font = "bold 10px monospace";
@@ -174,11 +170,13 @@ export class GunInventoryManager {
     const startX = canvasWidth - miniMapMaxSize - miniMapMargin - slotSize - 12;
     const startY = canvasHeight - totalHeight - miniMapMargin;
 
+    const svgSheet = this.playerAlliance === 0 ? getRedTeamPickupSvgSheet() : getBlueTeamPickupSvgSheet();
+
     for (let i = 0; i < maxSlots; i++) {
       const slotX = startX;
       const slotY = startY + i * (slotSize + gap);
       const gun = i < this.guns.length ? this.guns[i] : null;
-      this.drawSlot(ctx, gun, i, slotX, slotY, slotSize);
+      this.drawSlot(ctx, gun, i, slotX, slotY, slotSize, svgSheet);
     }
 
     ctx.restore();

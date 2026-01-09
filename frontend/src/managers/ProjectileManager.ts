@@ -182,6 +182,7 @@ export class ProjectileManager {
     const viewportWorldWidth = viewportWidth / UNIT_TO_PIXEL;
     const viewportWorldHeight = viewportHeight / UNIT_TO_PIXEL;
 
+    const svgSheet = getProjectileSvgSheet();
     for (const projectile of this.projectiles.values()) {
       const x = projectile.getX();
       const y = projectile.getY();
@@ -201,7 +202,7 @@ export class ProjectileManager {
         continue;
       }
 
-      projectile.drawShadow(ctx, getProjectileSvgSheet());
+      projectile.drawShadow(ctx, svgSheet);
     }
   }
 
@@ -217,6 +218,7 @@ export class ProjectileManager {
     const viewportWorldWidth = viewportWidth / UNIT_TO_PIXEL;
     const viewportWorldHeight = viewportHeight / UNIT_TO_PIXEL;
 
+    const svgSheet = getProjectileSvgSheet();
     for (const projectile of this.projectiles.values()) {
       const x = projectile.getX();
       const y = projectile.getY();
@@ -236,7 +238,7 @@ export class ProjectileManager {
         continue;
       }
 
-      projectile.drawBody(ctx, getProjectileSvgSheet());
+      projectile.drawBody(ctx, svgSheet);
     }
     this.particlesManager.draw(
       ctx,

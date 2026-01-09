@@ -83,6 +83,8 @@ export class PickupManager {
     const startTileY = Math.floor(cameraY / UNIT_TO_PIXEL);
     const endTileY = Math.ceil((cameraY + canvasHeight) / UNIT_TO_PIXEL);
 
+    const svgSheet = this.playerAlliance === 0 ? getRedTeamPickupSvgSheet() : getBlueTeamPickupSvgSheet();
+
     for (const pickup of this.pickups.values()) {
       if (
         pickup.positionX >= startTileX &&
@@ -90,17 +92,10 @@ export class PickupManager {
         pickup.positionY >= startTileY &&
         pickup.positionY <= endTileY
       ) {
-        this.drawPickup(ctx, pickup);
+        const worldX = pickup.positionX * UNIT_TO_PIXEL;
+        const worldY = pickup.positionY * UNIT_TO_PIXEL;
+        svgSheet.draw(ctx, pickup.type.tag, worldX, worldY);
       }
     }
-  }
-
-  private drawPickup(ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    const worldX = pickup.positionX * UNIT_TO_PIXEL;
-    const worldY = pickup.positionY * UNIT_TO_PIXEL;
-
-    const svgSheet = this.playerAlliance === 0 ? getRedTeamPickupSvgSheet() : getBlueTeamPickupSvgSheet();
-
-    svgSheet.draw(ctx, pickup.type.tag, worldX, worldY);
   }
 }

@@ -182,10 +182,9 @@ export class TerrainDetailManager {
     endX: number,
     startY: number,
     endY: number,
-    isTree: boolean
+    isTree: boolean,
+    svgSheet: ReturnType<typeof getTerrainDetailSvgSheet>
   ) {
-    const svgSheet = getTerrainDetailSvgSheet();
-    
     for (const obj of this.detailObjects.values()) {
       if ((obj instanceof Tree) !== isTree) continue;
 
@@ -233,7 +232,8 @@ export class TerrainDetailManager {
 
     ctx.imageSmoothingEnabled = false;
 
-    this.renderShadowPass(ctx, startX, endX, startY, endY, false);
+    const svgSheet = getTerrainDetailSvgSheet();
+    this.renderShadowPass(ctx, startX, endX, startY, endY, false, svgSheet);
   }
 
   private renderBodyPass(
@@ -242,10 +242,9 @@ export class TerrainDetailManager {
     endX: number,
     startY: number,
     endY: number,
-    isTree: boolean
+    isTree: boolean,
+    svgSheet: ReturnType<typeof getTerrainDetailSvgSheet>
   ) {
-    const svgSheet = getTerrainDetailSvgSheet();
-    
     for (const obj of this.detailObjects.values()) {
       if ((obj instanceof Tree) !== isTree) continue;
 
@@ -307,9 +306,10 @@ export class TerrainDetailManager {
 
     ctx.imageSmoothingEnabled = false;
 
-    this.renderBodyPass(ctx, startX, endX, startY, endY, false);
-    this.renderShadowPass(ctx, startX, endX, startY, endY, true);
-    this.renderBodyPass(ctx, startX, endX, startY, endY, true);
+    const svgSheet = getTerrainDetailSvgSheet();
+    this.renderBodyPass(ctx, startX, endX, startY, endY, false, svgSheet);
+    this.renderShadowPass(ctx, startX, endX, startY, endY, true, svgSheet);
+    this.renderBodyPass(ctx, startX, endX, startY, endY, true, svgSheet);
   }
 
   public drawParticles(
