@@ -86,13 +86,9 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     if (terminalOutputRef.current) {
       term.write(terminalOutputRef.current);
-      if (!terminalOutputRef.current.endsWith(getPrompt())) {
-        term.write(getPrompt());
-      }
-    } else {
-      term.write(getPrompt());
     }
     
+    term.write(getPrompt());
     term.focus();
 
     const handleResize = () => {
@@ -347,13 +343,19 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
         currentInputRef.current = "";
         cursorPosRef.current = 0;
-        finalOutput += getPrompt();
         terminalOutputRef.current += finalOutput;
         
         if (terminalOutputRef.current.length > MAX_TERMINAL_OUTPUT_LENGTH) {
-          terminalOutputRef.current = terminalOutputRef.current.slice(-MAX_TERMINAL_OUTPUT_LENGTH);
+          const excessLength = terminalOutputRef.current.length - MAX_TERMINAL_OUTPUT_LENGTH;
+          const truncateAt = terminalOutputRef.current.indexOf('\r\n', excessLength);
+          if (truncateAt !== -1) {
+            terminalOutputRef.current = terminalOutputRef.current.slice(truncateAt + 2);
+          } else {
+            terminalOutputRef.current = terminalOutputRef.current.slice(-MAX_TERMINAL_OUTPUT_LENGTH);
+          }
         }
         
+        finalOutput += getPrompt();
         term.write(finalOutput);
       } else if (code === KEY_BACKSPACE) {
         if (cursorPosRef.current > 0) {
