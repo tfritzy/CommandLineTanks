@@ -427,7 +427,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     if (shouldDisplayWorldUrl) {
       const url = `${window.location.origin}/world/${worldId}`;
       
-      const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'SUCCESS');
+      const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'BORDER');
       const title = colorize('🎮 WORLD CREATED SUCCESSFULLY', 'SUCCESS');
       const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
       const urlText = colorize(url, 'TANK_CODE');
