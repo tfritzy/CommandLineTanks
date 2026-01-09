@@ -406,7 +406,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Flags:",
         "  --name, -n          World name (default: 'New World')",
         "  --passcode, -p      Passcode for private worlds (default: '')",
-        "  --bots, -b          Number of AI bots, must be even, 0-10 (default: 0)",
+        "  --bots, -b          Number of AI bots, 0-10 (default: 0)",
         "  --duration, -d      Game duration in minutes, 1-20 (default: 10)",
         "  --width, -w         Map width, 1-200 (default: 50)",
         "  --height, -h        Map height, 1-200 (default: 50)",
@@ -906,9 +906,9 @@ export function create(
         ];
       }
       const bots = parseInt(args[i + 1]);
-      if (isNaN(bots) || bots < 0 || bots > 10 || bots % 2 !== 0) {
+      if (isNaN(bots) || bots < 0 || bots > 10) {
         return [
-          themeColors.error(`create: error: invalid bot count '${args[i + 1]}', must be an even number between 0 and 10`),
+          themeColors.error(`create: error: invalid bot count '${args[i + 1]}', must be between 0 and 10`),
           "",
           usage
         ];
