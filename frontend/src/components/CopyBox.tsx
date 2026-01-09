@@ -41,9 +41,9 @@ const CopyBox: React.FC<CopyBoxProps> = ({
             className={`relative bg-palette-black-pure/30 ${copied
                 ? 'border-palette-green-success/50'
                 : 'border-palette-white-pure/[0.07] hover:border-palette-white-pure/20 hover:bg-palette-black-pure/40'
-                } border rounded p-4 pr-12 text-[13px] text-palette-white-pure/70 font-mono cursor-pointer transition-all break-words text-left whitespace-pre-wrap leading-normal flex items-center`}
+                } border rounded p-4 pr-12 text-[13px] text-palette-white-pure/70 font-mono cursor-pointer transition-all text-left leading-normal flex items-center overflow-x-auto`}
         >
-            <div className="flex-1">
+            <div className="flex-shrink-0 whitespace-nowrap">
                 {showDollar && (
                     <span className="mr-2 select-none" style={{ color: activeColor }}>$</span>
                 )}
