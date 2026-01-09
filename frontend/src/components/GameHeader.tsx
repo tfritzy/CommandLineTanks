@@ -12,6 +12,8 @@ const TEAM_COLORS = {
   1: { label: '#7fbbdc', value: '#7396d5' },
 };
 
+const TIME_COLORS = { label: '#f5c47c', value: '#fceba8' };
+
 const HeaderBox = ({
   label,
   value,
@@ -147,6 +149,8 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         <HeaderBox
           label="TIME"
           value={timeString}
+          labelColor={TIME_COLORS.label}
+          valueColor={TIME_COLORS.value}
         />
         <HeaderBox
           label="SCORE"
