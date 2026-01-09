@@ -14,11 +14,9 @@ import WorldVisibility from "./world_visibility_type";
 
 export default {
   joinCode: __t.string(),
-  worldName: __t.string(),
   get visibility() {
     return WorldVisibility;
   },
-  passcode: __t.string(),
   botCount: __t.i32(),
   gameDurationMicros: __t.i64(),
   width: __t.i32(),

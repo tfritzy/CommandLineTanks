@@ -25,7 +25,6 @@ public static partial class Module
         var world = new World
         {
             Id = identityString,
-            Name = $"Homeworld",
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             Width = worldWidth,
             Height = worldHeight,

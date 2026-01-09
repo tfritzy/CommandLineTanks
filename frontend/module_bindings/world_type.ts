@@ -16,7 +16,6 @@ import GameState from "./game_state_type";
 
 export default __t.object("World", {
   id: __t.string(),
-  name: __t.string(),
   createdAt: __t.u64(),
   width: __t.i32(),
   height: __t.i32(),
@@ -32,7 +31,6 @@ export default __t.object("World", {
   get visibility() {
     return WorldVisibility;
   },
-  hasPasscode: __t.bool(),
   maxPlayers: __t.i32(),
   currentPlayerCount: __t.i32(),
   botCount: __t.i32(),

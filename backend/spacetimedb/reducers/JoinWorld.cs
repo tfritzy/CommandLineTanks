@@ -5,7 +5,7 @@ using static Types;
 public static partial class Module
 {
     [Reducer]
-    public static void joinWorld(ReducerContext ctx, string? worldId, string? currentWorldId, string joinCode, string passcode)
+    public static void joinWorld(ReducerContext ctx, string? worldId, string? currentWorldId, string joinCode)
     {
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -32,14 +32,12 @@ public static partial class Module
                 world = CreateWorld(
                     ctx,
                     newWorldId,
-                    "Public Game",
                     baseTerrain,
                     terrainDetails,
                     traversibilityMap,
                     width,
                     height,
-                    WorldVisibility.Public,
-                    ""
+                    WorldVisibility.Public
                 );
 
                 SpawnInitialBots(ctx, newWorldId, world.Value);
@@ -52,22 +50,6 @@ public static partial class Module
             {
                 Log.Error($"World {worldId} not found");
                 return;
-            }
-
-            if (world.Value.HasPasscode)
-            {
-                if (string.IsNullOrEmpty(passcode))
-                {
-                    Log.Error($"World {worldId} requires a passcode");
-                    return;
-                }
-                
-                var worldPasscode = ctx.Db.world_passcode.WorldId.Find(worldId);
-                if (worldPasscode == null || worldPasscode.Value.Passcode != passcode)
-                {
-                    Log.Error($"Invalid passcode for world {worldId}");
-                    return;
-                }
             }
         }
 

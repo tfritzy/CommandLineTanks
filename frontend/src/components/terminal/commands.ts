@@ -882,11 +882,9 @@ export function create(
   connection: DbConnection,
   args: string[]
 ): string[] {
-  const usage = themeColors.dim("Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]");
+  const usage = themeColors.dim("Usage: create [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]");
 
   const defaults = {
-    name: 'New World',
-    passcode: '',
     bots: 0,
     duration: 10,
     width: 50,
@@ -899,35 +897,7 @@ export function create(
   while (i < args.length) {
     const arg = args[i];
 
-    if (arg === '--name' || arg === '-n') {
-      if (i + 1 >= args.length) {
-        return [
-          themeColors.error(`create: error: ${arg} requires a value`),
-          "",
-          usage
-        ];
-      }
-      const name = args[i + 1].trim();
-      if (!name) {
-        return [
-          themeColors.error("create: error: world name cannot be empty"),
-          "",
-          usage
-        ];
-      }
-      state.name = name;
-      i += 2;
-    } else if (arg === '--passcode' || arg === '-p') {
-      if (i + 1 >= args.length) {
-        return [
-          themeColors.error(`create: error: ${arg} requires a value`),
-          "",
-          usage
-        ];
-      }
-      state.passcode = args[i + 1];
-      i += 2;
-    } else if (arg === '--bots' || arg === '-b') {
+    if (arg === '--bots' || arg === '-b') {
       if (i + 1 >= args.length) {
         return [
           themeColors.error(`create: error: ${arg} requires a value`),
@@ -1005,7 +975,7 @@ export function create(
         "",
         usage,
         "",
-        themeColors.dim("Defaults: name='New World', passcode='', bots=0, duration=10, width=50, height=50")
+        themeColors.dim("Defaults: bots=0, duration=10, width=50, height=50")
       ];
     }
   }
@@ -1018,9 +988,7 @@ export function create(
 
   connection.reducers.createWorld({
     joinCode,
-    worldName: state.name,
     visibility,
-    passcode: state.passcode,
     botCount: state.bots,
     gameDurationMicros,
     width: state.width,
@@ -1028,7 +996,7 @@ export function create(
   });
 
   return [
-    themeColors.success(`Creating private world "${state.name}"...`),
+    themeColors.success(`Creating private world...`),
     themeColors.dim(`Bots: ${themeColors.value(state.bots.toString())}, Duration: ${themeColors.value(state.duration.toString())} min, Size: ${themeColors.value(`${state.width}x${state.height}`)}`),
     "",
     themeColors.dim("World creation initiated. You'll be automatically joined.")
@@ -1043,7 +1011,6 @@ export function join(
   const firstArg = args.length > 0 ? args[0] : "random";
   const isRandom = firstArg.toLowerCase() === "random";
   const worldId = isRandom ? undefined : firstArg;
-  const passcode = args.length > 1 ? args.slice(1).join(" ") : "";
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
@@ -1052,7 +1019,6 @@ export function join(
     worldId,
     currentWorldId,
     joinCode,
-    passcode,
   });
 
   if (isRandom) {
