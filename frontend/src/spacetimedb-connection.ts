@@ -1,9 +1,8 @@
 import { DbConnection, type ErrorContext } from '../module_bindings';
 import { Identity } from 'spacetimedb';
 
-// SpacetimeDB configuration
-const SPACETIMEDB_HOST = 'ws://localhost:3000';
-const MODULE_NAME = 'clt';
+const SPACETIMEDB_HOST = import.meta.env.VITE_SPACETIMEDB_HOST || 'ws://localhost:3000';
+const MODULE_NAME = import.meta.env.VITE_SPACETIMEDB_MODULE || 'clt';
 const CREDS_KEY = 'spacetimedb_token';
 
 // Store the connection instance

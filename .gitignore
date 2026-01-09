@@ -30,3 +30,7 @@ spacetimedb-standalone
 frontend/node_modules/
 frontend/package-lock.json
 wget-log
+
+# Firebase
+.firebase/
+firebase-debug.log

@@ -198,7 +198,7 @@ const LandingPage: React.FC = () => {
                             <span className="text-xs font-mono text-secondary font-bold tracking-wide uppercase">Browser-Based PvP typing game</span>
                         </div>
                         <h1 className="text-5xl lg:text-7xl font-black leading-tight tracking-tighter text-white">
-                            Command your tank. <span className="text-primary">Literally.</span>
+                            Command your tank… <span className="text-primary">Literally</span>
                         </h1>
                         <p className="text-gray-300 text-lg lg:text-xl font-light leading-relaxed max-w-lg">
                             A competitive multiplayer tank game played entirely via the keyboard directly in your browser. Improve your typing accuracy and speed with this unconventional PvP tank typing game.
@@ -441,7 +441,7 @@ const LandingPage: React.FC = () => {
                                 </p>
                                 <div className="bg-code-bg rounded border border-white/5 p-4 font-mono text-xs text-gray-300 shadow-inner">
                                     <div className="text-gray-500 mb-1"># Syntax</div>
-                                    <div className="text-primary font-bold mb-3">create [-n name] [-b bots] [-w width] [-h height] [-d mins] [-p pass]</div>
+                                    <div className="text-primary font-bold mb-3">create [-n name] [-b bots] [-w width] [-h height] [-d mins]</div>
                                     <div className="text-gray-500 mb-1"># Type this:</div>
                                     <div className="text-white"><span className="text-secondary">$</span> create -n "Battle" -b 4 -w 100</div>
                                 </div>
