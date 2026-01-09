@@ -91,7 +91,7 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
           Run this command in the terminal below to join:
         </div>
 
-        <CopyBox text={commands} showDollar={true} />
+        <CopyBox text={commands} showPrompt={true} />
       </div>
     </div>
   );

@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { COLORS } from '../theme/colors';
 
 interface CopyBoxProps {
     text: string;
     activeColor?: string;
-    showDollar?: boolean;
+    showPrompt?: boolean;
 }
 
 const CopyBox: React.FC<CopyBoxProps> = ({
     text,
-    activeColor = '#c06852',
-    showDollar = true
+    activeColor = COLORS.TERMINAL.PROMPT,
+    showPrompt = true
 }) => {
     const [copied, setCopied] = useState(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -41,16 +42,16 @@ const CopyBox: React.FC<CopyBoxProps> = ({
             className={`group relative bg-palette-black-pure/30 ${copied
                 ? 'border-palette-green-success/50'
                 : 'border-palette-white-pure/[0.07] hover:border-palette-white-pure/20 hover:bg-palette-black-pure/40'
-                } border rounded p-4 pr-16 text-[13px] text-palette-white-pure/70 font-mono cursor-pointer transition-all text-left leading-normal flex items-center overflow-x-auto`}
+                } border rounded text-[13px] text-palette-white-pure/70 font-mono cursor-pointer transition-all text-left leading-normal flex items-center overflow-hidden`}
         >
-            <div className="flex-shrink-0 whitespace-nowrap">
-                {showDollar && (
-                    <span className="mr-2 select-none" style={{ color: activeColor }}>$</span>
+            <div className="flex-1 overflow-x-auto p-4 whitespace-nowrap">
+                {showPrompt && (
+                    <span className="mr-2 select-none" style={{ color: activeColor }}>❯</span>
                 )}
                 {text}
             </div>
 
-            <div className="absolute right-0 top-0 bottom-0 flex items-center pr-4 pl-8 pointer-events-none bg-gradient-to-l from-palette-black-pure/30 via-palette-black-pure/30 to-transparent group-hover:from-palette-black-pure/40 group-hover:via-palette-black-pure/40 transition-all rounded-r">
+            <div className="absolute right-0 top-0 bottom-0 flex items-center pr-4 pl-12 pointer-events-none bg-gradient-to-l from-[#190d1b] via-[#190d1b] to-transparent transition-all rounded-r">
                 {copied ? (
                     <svg
                         width="16"

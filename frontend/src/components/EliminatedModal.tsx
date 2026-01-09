@@ -47,14 +47,14 @@ export default function EliminatedModal({ killerName, worldId }: EliminatedModal
             rejoin the battle
           </div>
         </div>
-        <CopyBox text="respawn" showDollar={true} activeColor="#e39764" />
+        <CopyBox text="respawn" showPrompt={true} />
       </div>
 
       <div className="w-full border-t border-palette-white-pure/[0.08] pt-6 flex flex-col gap-2">
         <div className="text-[10px] text-palette-white-pure/30 tracking-[0.25em] px-1 font-bold text-left uppercase">
           Invite reinforcements
         </div>
-        <CopyBox text={`${window.location.origin}/world/${worldId}`} showDollar={false} />
+        <CopyBox text={`${window.location.origin}/world/${worldId}`} showPrompt={false} />
       </div>
     </motion.div>
   );
