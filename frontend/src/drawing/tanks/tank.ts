@@ -66,7 +66,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
 
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
-  ctx.roundRect(-16, -16, 32, 32, 5);
+  ctx.roundRect(-15, -15, 30, 30, 5);
   ctx.fill();
   ctx.strokeStyle = borderColor;
   ctx.lineWidth = 1;

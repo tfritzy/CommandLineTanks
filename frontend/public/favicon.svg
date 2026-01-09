@@ -1,12 +1,24 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="2" width="28" height="28" rx="4" fill="#241227"/>
+<svg width="64" height="64" viewBox="-19 -22 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Ground Shadow (Offset -2, 2 from world center 0,0) -->
+  <rect x="-18" y="-14" width="32" height="32" rx="5" fill="rgba(0,0,0,0.4)"/>
   
-  <rect x="2" y="2" width="28" height="28" rx="4" stroke="#3d2a41" stroke-width="1"/>
+  <!-- Tank Body (Centered at 0,0) -->
+  <rect x="-15" y="-15" width="30" height="30" rx="6" fill="#7fbbdc" stroke="#000033" stroke-width="1"/>
 
-  <g transform="translate(1, 0)">
-    <path d="M9 12.5L13 16L9 19.5" stroke="#96dc7f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    
-    <rect x="15" y="18.5" width="7" height="2" fill="#96dc7f" />
+  <!-- Barrel Shadow (Offset -2, 2) -->
+  <g transform="translate(-2, 2)">
+    <rect x="0" y="-5" width="24" height="10" rx="3" fill="rgba(0,0,0,0.35)"/>
   </g>
+
+  <!-- Turret Shadow (Offset -1.5, 1.5) -->
+  <g transform="translate(-1.5, 1.5)">
+    <rect x="-12" y="-12" width="24" height="24" rx="10" fill="rgba(0,0,0,0.35)"/>
+  </g>
+
+  <!-- Barrel -->
+  <rect x="0" y="-5" width="24" height="10" rx="3" fill="#7fbbdc" stroke="#000033" stroke-width="1"/>
+  
+  <!-- Turret -->
+  <rect x="-12" y="-12" width="24" height="24" rx="10" fill="#7fbbdc" stroke="#000033" stroke-width="1"/>
 </svg>
 

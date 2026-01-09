@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLTanks</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>CLTANKS</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.svg" />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -115,18 +116,17 @@
         }
 
         .logo-icon {
-            width: 2rem;
-            height: 2rem;
-            background-color: #7fbbdc;
-            border-radius: 0.25rem;
+            width: 2.25rem;
+            height: 2.25rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
         }
 
-        .logo-icon .material-symbols-outlined {
-            font-size: 20px;
+        .logo-icon img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
         }
 
         .logo-text {
@@ -735,8 +735,10 @@
             }
         }
 
-        .footer-logo-main .material-symbols-outlined {
-            color: #7fbbdc;
+        .footer-logo-main img {
+            width: 1.5rem;
+            height: 1.5rem;
+            object-fit: contain;
         }
 
         .footer-logo-main span:last-child {
@@ -763,6 +765,10 @@
         .footer-link:hover {
             color: #7fbbdc;
         }
+
+        .terminal-input {
+            color: #7fbbdc;
+        }
     </style>
 </head>
 <body>
@@ -771,7 +777,7 @@
             <div class="header-inner">
                 <div class="logo-container">
                     <div class="logo-icon">
-                        <span class="material-symbols-outlined">terminal</span>
+                        <img src="/favicon.svg" alt="CLTanks Logo" />
                     </div>
                     <h2 class="logo-text">CL<span class="primary">TANKS</span></h2>
                 </div>
@@ -800,10 +806,10 @@
                         <span>Browser-Based PvP typing game</span>
                     </div>
                     <h1 class="hero-title">
-                        Command your tank… <span class="primary">Literally</span>
+                        Be a tank commander… <span class="primary">Literally</span>
                     </h1>
                     <p class="hero-description">
-                        A competitive multiplayer tank game played entirely via the keyboard directly in your browser. Improve your typing accuracy and speed with this unconventional PvP tank typing game.
+                        A competitive multiplayer tank game played entirely via the keyboard directly in your browser. Improve your typing accuracy and speed with this unconventional PvP typing game.
                     </p>
                     <div class="hero-buttons">
                         <a href="/deploy" class="hero-play-btn">
@@ -1125,7 +1131,7 @@
             <div class="footer-inner">
                 <div class="footer-logo">
                     <div class="footer-logo-main">
-                        <span class="material-symbols-outlined">terminal</span>
+                        <img src="/favicon.svg" alt="CLTanks Logo" />
                         <span>CLTANKS</span>
                     </div>
                     <p class="footer-copyright">© 2026 CLTanks</p>
@@ -1167,8 +1173,11 @@
             }
 
             async function typeText(text) {
+                const promptHtml = prompt();
+                let typed = '';
                 for (const char of text) {
-                    currentLine += escapeHtml(char);
+                    typed += escapeHtml(char);
+                    currentLine = promptHtml + '<span class="terminal-input">' + typed + '</span>';
                     render();
                     await sleep(Math.random() * 50 + 30);
                 }
@@ -1200,13 +1209,15 @@
                 lines.push('  <span class="terminal-cyan">aim</span>        Aim or target: aim &lt;deg|dir|code&gt;');
                 lines.push('  <span class="terminal-cyan">switch</span>     Switch weapon: switch &lt;slot&gt;');
                 lines.push('');
+                lines.push('');
                 currentLine = prompt();
                 render();
                 await sleep(1000);
 
                 await typeText('drive northeast 20');
                 await newLine();
-                lines.push('Driving 20 units <span class="terminal-cyan">↗</span> northeast at full throttle');
+                lines.push('Driving <span class="terminal-cyan">20</span> units <span class="terminal-cyan">northeast</span> at full throttle');
+                lines.push('');
                 lines.push('');
                 currentLine = prompt();
                 render();
@@ -1216,6 +1227,7 @@
                 await newLine();
                 lines.push('Targeting tank <span class="terminal-magenta">a4</span> (Alpha)');
                 lines.push('');
+                lines.push('');
                 currentLine = prompt();
                 render();
                 await sleep(1000);
@@ -1223,6 +1235,7 @@
                 await typeText('stop');
                 await newLine();
                 lines.push('Tank stopped.');
+                lines.push('');
                 lines.push('');
                 currentLine = prompt();
                 render();
@@ -1232,6 +1245,7 @@
                     await typeText('fire');
                     await newLine();
                     lines.push('Projectile fired.');
+                    lines.push('');
                     lines.push('');
                     currentLine = prompt();
                     render();
