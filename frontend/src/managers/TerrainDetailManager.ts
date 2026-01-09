@@ -200,6 +200,7 @@ export class TerrainDetailManager {
         );
 
         if (!texture) {
+          console.warn(`Missing shadow texture for key: ${obj.getTextureKey()}`);
         } else {
           const scale = obj.getSizeScale();
           const scaledSize = renderSize * scale;
@@ -300,6 +301,8 @@ export class TerrainDetailManager {
             );
             ctx.restore();
           }
+        } else {
+          console.warn(`Missing body texture for key: ${obj.getTextureKey()}`);
         }
 
         obj.drawLabel(ctx);
