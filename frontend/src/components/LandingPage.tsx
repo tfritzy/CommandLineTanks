@@ -320,7 +320,7 @@ const LandingPage: React.FC = () => {
                                 </p>
                                 <div className="bg-code-bg rounded border border-white/5 p-4 font-mono text-xs text-gray-300 shadow-inner">
                                     <div className="text-gray-500 mb-1"># Syntax</div>
-                                    <div className="text-primary font-bold mb-3">aim &lt;deg|dir|code&gt; [lead]</div>
+                                    <div className="text-primary font-bold mb-3">aim &lt;deg|dir|code&gt;</div>
                                     <div className="text-gray-500 mb-1"># Type this:</div>
                                     <div className="text-white"><span className="text-secondary">$</span> aim 180</div>
                                     <div className="text-white"><span className="text-secondary">$</span> aim a4</div>

@@ -292,7 +292,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "aim, a - Aim turret at an angle/direction or target a tank by code",
         "",
         "Usage: aim <angle|direction>",
-        "       aim <target_code> [lead]",
+        "       aim <target_code>",
         "",
         "Arguments:",
         "  <angle|direction>   Angle in degrees or direction name",
@@ -310,16 +310,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  <target_code>       Target code of the tank to track (e.g., a4, h8, z2)",
         "                      Format: one letter + one digit",
         "                      Your turret will automatically follow the target",
-        "  [lead]              Distance in units to lead the target (default: 0)",
-        "                      Aims ahead of the target based on their movement",
-        "                      Only used when targeting a tank",
         "",
         "Examples:",
         "  aim 90",
         "  aim -45",
         "  aim northeast",
         "  aim a4",
-        "  aim h8 3",
       ];
 
     case "fire":
@@ -508,12 +504,11 @@ export function aim(
       themeColors.error("aim: error: missing required argument"),
       "",
       themeColors.dim("Usage: aim <angle|direction>"),
-      themeColors.dim("       aim <target_code> [lead]"),
+      themeColors.dim("       aim <target_code>"),
       themeColors.dim("Examples:"),
       themeColors.dim("  aim 45"),
       themeColors.dim("  aim northeast"),
       themeColors.dim("  aim a4"),
-      themeColors.dim("  aim h8 3"),
     ];
   }
 
@@ -524,20 +519,6 @@ export function aim(
   if (targetCodePattern.test(inputLower)) {
     if (!connection.identity) {
       return [themeColors.error("aim: error: no connection")];
-    }
-
-    let lead = 0;
-    if (args.length > 1) {
-      const parsedLead = Number.parseFloat(args[1]);
-      if (Number.isNaN(parsedLead)) {
-        return [
-          themeColors.error(`aim: error: invalid value '${args[1]}' for '[lead]': must be a valid number`),
-          "",
-          themeColors.dim("Usage: aim <target_code> [lead]"),
-          themeColors.dim("       aim a4 3"),
-        ];
-      }
-      lead = parsedLead;
     }
 
     const myTank = findMyTank(connection, worldId);
@@ -561,19 +542,12 @@ export function aim(
       worldId,
       angleRadians: undefined,
       targetCode: inputLower,
-      lead,
     });
 
     const tankCodeColored = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
     const tankName = targetTank.name;
 
-    if (lead > 0) {
-      return [
-        themeColors.success(`Targeting tank ${tankCodeColored} (${tankName}) with ${themeColors.value(lead.toString())} unit${lead !== 1 ? "s" : ""} lead`),
-      ];
-    } else {
-      return [themeColors.success(`Targeting tank ${tankCodeColored} (${tankName})`)];
-    }
+    return [themeColors.success(`Targeting tank ${tankCodeColored} (${tankName})`)];
   }
 
   if (validDirections.includes(inputLower)) {
@@ -581,7 +555,7 @@ export function aim(
     const dirInfo = directionAliases[inputLower];
     const description = `${themeColors.colorize(dirInfo.symbol, 'DIRECTION_SYMBOL')} ${themeColors.success(dirInfo.name)}`;
 
-    connection.reducers.aim({ worldId, angleRadians, targetCode: undefined, lead: 0 });
+    connection.reducers.aim({ worldId, angleRadians, targetCode: undefined });
     return [themeColors.success("Aiming turret to ") + description];
   } else {
     const degrees = Number.parseFloat(input);
@@ -592,7 +566,7 @@ export function aim(
         themeColors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
         "",
         themeColors.dim("Usage: aim <angle|direction>"),
-        themeColors.dim("       aim <target_code> [lead]"),
+        themeColors.dim("       aim <target_code>"),
         themeColors.dim("Examples:"),
         themeColors.dim("  aim 90"),
         themeColors.dim("  aim a4"),
@@ -602,7 +576,7 @@ export function aim(
     const angleRadians = (-degrees * Math.PI) / 180;
     const description = `${degrees}°`;
 
-    connection.reducers.aim({ worldId, angleRadians, targetCode: undefined, lead: 0 });
+    connection.reducers.aim({ worldId, angleRadians, targetCode: undefined });
     return [themeColors.success(`Aiming turret to ${description}`)];
   }
 }

@@ -3,7 +3,7 @@ using SpacetimeDB;
 public static partial class Module
 {
     [Reducer]
-    public static void aim(ReducerContext ctx, string worldId, float? angleRadians, string? targetCode, float lead)
+    public static void aim(ReducerContext ctx, string worldId, float? angleRadians, string? targetCode)
     {
         Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
@@ -13,7 +13,7 @@ public static partial class Module
 
         if (targetCode != null)
         {
-            tank = TargetTankByCode(ctx, tank, targetCode, lead);
+            tank = TargetTankByCode(ctx, tank, targetCode);
             ctx.Db.tank.Id.Update(tank);
         }
         else if (angleRadians != null)

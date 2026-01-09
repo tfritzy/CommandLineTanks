@@ -14,5 +14,4 @@ export default {
   worldId: __t.string(),
   angleRadians: __t.option(__t.f32()),
   targetCode: __t.option(__t.string()),
-  lead: __t.f32(),
 };

@@ -151,7 +151,7 @@ public static partial class Module
         Log.Info($"Created homeworld tank for identity {identityString}");
     }
 
-    public static Tank TargetTankByCode(ReducerContext ctx, Tank tank, string targetCode, float lead)
+    public static Tank TargetTankByCode(ReducerContext ctx, Tank tank, string targetCode)
     {
         if (tank.Health <= 0) return tank;
 
@@ -166,7 +166,7 @@ public static partial class Module
         return tank with
         {
             Target = targetTank.Id,
-            TargetLead = lead
+            TargetLead = 0
         };
     }
 }
