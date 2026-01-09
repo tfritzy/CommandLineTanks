@@ -18,26 +18,26 @@ const TerminalMock: React.FC = () => {
                 allowTransparency: false,
                 disableStdin: true,
                 theme: {
-                    background: '#1a1a24',
-                    foreground: '#D4D4D4',
-                    cursor: '#ff0099',
-                    selectionBackground: '#ff009940',
+                    background: '#241227',
+                    foreground: '#e6eeed',
+                    cursor: '#7fbbdc',
+                    selectionBackground: '#7fbbdc40',
                     black: '#000000',
-                    red: '#EF4444',
-                    green: '#22C55E',
-                    yellow: '#EAB308',
-                    blue: '#00f0ff',
-                    magenta: '#ff0099',
-                    cyan: '#00f0ff',
-                    white: '#F9FAFB',
-                    brightBlack: '#6B7280',
-                    brightRed: '#EF4444',
-                    brightGreen: '#22C55E',
-                    brightYellow: '#EAB308',
-                    brightBlue: '#00f0ff',
-                    brightMagenta: '#ff0099',
-                    brightCyan: '#00f0ff',
-                    brightWhite: '#F9FAFB',
+                    red: '#c06852',
+                    green: '#96dc7f',
+                    yellow: '#fceba8',
+                    blue: '#7fbbdc',
+                    magenta: '#794e6d',
+                    cyan: '#aaeeea',
+                    white: '#fcfbf3',
+                    brightBlack: '#707b89',
+                    brightRed: '#c06852',
+                    brightGreen: '#96dc7f',
+                    brightYellow: '#fceba8',
+                    brightBlue: '#7fbbdc',
+                    brightMagenta: '#794e6d',
+                    brightCyan: '#aaeeea',
+                    brightWhite: '#fcfbf3',
                 },
             });
 
@@ -147,7 +147,7 @@ const TerminalMock: React.FC = () => {
     }, []);
 
     return (
-        <div className="w-full h-full relative p-2 pointer-events-none select-none bg-[#1a1a24]">
+        <div className="w-full h-full relative p-2 pointer-events-none select-none bg-terminal-bg">
             <div ref={terminalRef} className="w-full h-full" />
         </div>
     );
@@ -226,7 +226,7 @@ const LandingPage: React.FC = () => {
                             <div className="absolute -inset-0.5 bg-gradient-to-b from-white/10 to-transparent rounded-xl blur-sm opacity-50"></div>
 
                             {/* Main Window Container */}
-                            <div className="relative rounded-xl bg-[#1a1a24] border border-white/10 shadow-2xl overflow-hidden ring-1 ring-black/5">
+                            <div className="relative rounded-xl bg-terminal-bg border border-white/10 shadow-2xl overflow-hidden ring-1 ring-black/5">
                                 {/* Window Header */}
                                 <div className="flex items-center px-4 py-3 bg-white/5 border-b border-white/5 gap-4">
                                     <div className="flex gap-2">
@@ -253,7 +253,7 @@ const LandingPage: React.FC = () => {
                 </div>
             </section>
 
-            <section className="py-24 bg-[#1a1a24] relative border-t border-border-dark" id="docs">
+            <section className="py-24 bg-terminal-bg relative border-t border-border-dark" id="docs">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col items-center">
                     <div className="text-center mb-16 max-w-2xl">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 mb-4">
@@ -553,7 +553,7 @@ const LandingPage: React.FC = () => {
             </section>
 
 
-            <footer className="bg-[#1a1a24] py-10 border-t border-border-dark text-center md:text-left">
+            <footer className="bg-terminal-bg py-10 border-t border-border-dark text-center md:text-left">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-center md:justify-start gap-2 text-white">
