@@ -129,7 +129,7 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
         ? { label: '#ff5555', value: '#c06852' }
         : { label: '#7fbbdc', value: '#7396d5' };
 
-    const isScoreboardOnLeft = currentPlayer?.alliance === 0;
+    const isScoreboardOnLeft = currentPlayer !== undefined && currentPlayer.alliance === 0;
     const animationOffset = isScoreboardOnLeft ? -10 : 10;
 
     return (
