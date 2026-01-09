@@ -20,6 +20,7 @@ import {
   type SubscriptionHandle,
 } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
+import { useJoinModalStatus } from "../hooks/useJoinModalStatus";
 
 export default function GameView() {
   const { worldId } = useParams<{ worldId: string }>();
@@ -28,15 +29,16 @@ export default function GameView() {
   const gameRef = useRef<Game | null>(null);
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
   const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
-  const joinModalTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const worldCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDead, setIsDead] = useState(false);
   const [killerName, setKillerName] = useState<string | null>(null);
-  const [showJoinModal, setShowJoinModal] = useState(false);
   const [worldNotFound, setWorldNotFound] = useState(false);
 
   const myIdentity = getIdentityHex();
   const isHomeworld = myIdentity && worldId?.toLowerCase() === myIdentity.toLowerCase();
+
+  const joinModalStatus = useJoinModalStatus(worldId);
+  const showJoinModal = joinModalStatus === "no_tank";
 
   const handleWorldChange = (newWorldId: string) => {
     if (newWorldId !== worldId) {
@@ -97,8 +99,6 @@ export default function GameView() {
     const connection = getConnection();
     if (!connection) return;
 
-    let hasReceivedPlayerTankData = false;
-    let firstTankDataReceived = false;
     let playerTankId: string | null = null;
 
     const checkForTank = () => {
@@ -107,9 +107,7 @@ export default function GameView() {
           isCurrentIdentity(tank.owner) &&
           tank.worldId === worldId
         ) {
-          hasReceivedPlayerTankData = true;
           playerTankId = tank.id;
-          setShowJoinModal(false);
           setIsDead(tank.health <= 0);
           return true;
         }
@@ -123,24 +121,8 @@ export default function GameView() {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (tank.worldId !== worldId) return;
 
-          if (!firstTankDataReceived) {
-            firstTankDataReceived = true;
-            if (joinModalTimeoutRef.current) {
-              clearTimeout(joinModalTimeoutRef.current);
-            }
-            joinModalTimeoutRef.current = setTimeout(() => {
-              if (!hasReceivedPlayerTankData) {
-                if (!checkForTank()) {
-                  setShowJoinModal(true);
-                }
-              }
-            }, 500);
-          }
-
           if (isCurrentIdentity(tank.owner)) {
-            hasReceivedPlayerTankData = true;
             playerTankId = tank.id;
-            setShowJoinModal(false);
             setIsDead(tank.health <= 0);
           }
         },
@@ -183,36 +165,15 @@ export default function GameView() {
             tank.worldId === worldId
           ) {
             setIsDead(false);
-            setShowJoinModal(true);
             playerTankId = null;
           }
         }
       }
     });
 
-    const existingTanks = Array.from(connection.db.tank.iter()).filter(
-      t => t.worldId === worldId
-    );
-    if (existingTanks.length > 0) {
-      firstTankDataReceived = true;
-      if (joinModalTimeoutRef.current) {
-        clearTimeout(joinModalTimeoutRef.current);
-      }
-      joinModalTimeoutRef.current = setTimeout(() => {
-        if (!hasReceivedPlayerTankData) {
-          if (!checkForTank()) {
-            setShowJoinModal(true);
-          }
-        }
-      }, 500);
-    }
-
     checkForTank();
 
     return () => {
-      if (joinModalTimeoutRef.current) {
-        clearTimeout(joinModalTimeoutRef.current);
-      }
       if (tankSubscriptionRef.current) {
         tankSubscriptionRef.current.unsubscribe();
         tankSubscriptionRef.current = null;
@@ -277,11 +238,20 @@ export default function GameView() {
             background: 'radial-gradient(circle, transparent 50%, rgba(42, 21, 45, 0.2) 100%)'
           }}
         />
-        {showJoinModal && (
-          <JoinWorldModal
-            worldId={worldId}
-          />
-        )}
+        <AnimatePresence>
+          {showJoinModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <JoinWorldModal
+                worldId={worldId}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <AnimatePresence>
           {!showJoinModal && isDead && (
             <EliminatedModal killerName={killerName} worldId={worldId} />
