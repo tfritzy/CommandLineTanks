@@ -106,6 +106,7 @@ public static partial class TileboundAI
         {
             TankId = fullTank.Id,
             WorldId = fullTank.WorldId,
+            Owner = fullTank.Owner,
             Path = [entry]
         };
 

@@ -12,6 +12,9 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public string WorldId;
 
+        [SpacetimeDB.Index.BTree]
+        public Identity Owner;
+
         public PathEntry[] Path;
     }
 }
