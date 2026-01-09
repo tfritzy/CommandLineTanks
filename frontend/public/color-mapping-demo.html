@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Color Mapping Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 30px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .canvas-container {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .canvas-wrapper {
+      text-align: center;
+    }
+    canvas {
+      border: 2px solid #333;
+      border-radius: 8px;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .label {
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    .description {
+      font-size: 14px;
+      color: #888;
+    }
+    .controls {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #4a9eff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #357abd;
+    }
+    button.active {
+      background: #2a5a8d;
+    }
+    .info {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 8px;
+      line-height: 1.6;
+    }
+    .code {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 10px 0;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Canvas Color Mapping Demo</h1>
+    <p class="subtitle">Post-processing effects for HTML5 Canvas, similar to video game color grading</p>
+    
+    <div class="controls">
+      <p><strong>Select a color filter preset:</strong></p>
+      <button onclick="applyPreset('none')" class="active" id="btn-none">None</button>
+      <button onclick="applyPreset('vintage')" id="btn-vintage">Vintage</button>
+      <button onclick="applyPreset('noir')" id="btn-noir">Noir</button>
+      <button onclick="applyPreset('warm')" id="btn-warm">Warm</button>
+      <button onclick="applyPreset('cool')" id="btn-cool">Cool</button>
+      <button onclick="applyPreset('vibrant')" id="btn-vibrant">Vibrant</button>
+      <button onclick="applyPreset('muted')" id="btn-muted">Muted</button>
+    </div>
+
+    <div class="canvas-container">
+      <div class="canvas-wrapper">
+        <div class="label">Original Scene</div>
+        <canvas id="originalCanvas" width="400" height="300"></canvas>
+        <div class="description">Base rendering without any filters</div>
+      </div>
+      <div class="canvas-wrapper">
+        <div class="label">With Color Mapping</div>
+        <canvas id="filteredCanvas" width="400" height="300"></canvas>
+        <div class="description">Same scene with selected filter applied</div>
+      </div>
+    </div>
+
+    <div class="info">
+      <h2>What is Canvas Color Mapping?</h2>
+      <p>
+        Yes! Canvas color mapping (also called post-processing or color grading) is definitely possible in HTML5 Canvas,
+        just like post-processing effects in video games. It works by manipulating the pixel data of the rendered image
+        using <code>getImageData()</code> and <code>putImageData()</code>.
+      </p>
+
+      <h3>How It Works:</h3>
+      <ol>
+        <li><strong>Render the scene normally</strong> - Draw all your game objects to the canvas</li>
+        <li><strong>Extract pixel data</strong> - Use <code>ctx.getImageData()</code> to read the RGBA values</li>
+        <li><strong>Transform colors</strong> - Modify RGB values based on your desired effect (brightness, contrast, saturation, hue shift, vignette, etc.)</li>
+        <li><strong>Put pixels back</strong> - Use <code>ctx.putImageData()</code> to write the modified pixels</li>
+      </ol>
+
+      <h3>Common Effects:</h3>
+      <ul>
+        <li><strong>Brightness:</strong> Add/subtract a constant value to all RGB channels</li>
+        <li><strong>Contrast:</strong> Scale RGB values around a midpoint (128)</li>
+        <li><strong>Saturation:</strong> Convert to HSV, adjust the S component, convert back to RGB</li>
+        <li><strong>Hue Shift:</strong> Modify the H component in HSV color space</li>
+        <li><strong>Vignette:</strong> Darken pixels based on distance from center</li>
+        <li><strong>Color Curves/LUTs:</strong> Apply custom transformation functions to color channels</li>
+      </ul>
+
+      <h3>Example Code:</h3>
+      <div class="code">
+// Get image data from canvas
+const imageData = ctx.getImageData(0, 0, width, height);
+const data = imageData.data;
+
+// Modify pixels (example: increase brightness)
+for (let i = 0; i < data.length; i += 4) {
+  data[i]     += 20; // Red
+  data[i + 1] += 20; // Green
+  data[i + 2] += 20; // Blue
+  // data[i + 3] is Alpha (usually unchanged)
+}
+
+// Put the modified pixels back
+ctx.putImageData(imageData, 0, 0);
+      </div>
+
+      <h3>Performance Considerations:</h3>
+      <ul>
+        <li>Processing every pixel can be expensive - optimize by only applying to visible areas</li>
+        <li>Consider using WebGL for more complex effects or better performance</li>
+        <li>Cache effects when possible or apply only when needed</li>
+        <li>For real-time games, profile to ensure effects don't drop frame rate</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const presets = {
+      none: {},
+      vintage: {
+        brightness: 0.1,
+        contrast: 1.1,
+        saturation: 0.8,
+        hueShift: 10,
+        vignette: 0.3,
+      },
+      noir: {
+        brightness: -0.1,
+        contrast: 1.4,
+        saturation: 0,
+        vignette: 0.5,
+      },
+      warm: {
+        brightness: 0.05,
+        saturation: 1.1,
+        hueShift: 15,
+      },
+      cool: {
+        brightness: -0.05,
+        saturation: 1.05,
+        hueShift: -15,
+      },
+      vibrant: {
+        contrast: 1.2,
+        saturation: 1.4,
+      },
+      muted: {
+        saturation: 0.6,
+        contrast: 0.9,
+      },
+    };
+
+    let currentPreset = 'none';
+
+    function drawScene(ctx) {
+      ctx.fillStyle = '#4a9eff';
+      ctx.fillRect(0, 0, 400, 300);
+
+      ctx.fillStyle = '#2d5a3d';
+      ctx.fillRect(0, 200, 400, 100);
+
+      ctx.fillStyle = '#8b5a2b';
+      ctx.fillRect(50, 150, 40, 50);
+      ctx.fillStyle = '#2d5a3d';
+      ctx.beginPath();
+      ctx.moveTo(70, 150);
+      ctx.lineTo(40, 120);
+      ctx.lineTo(100, 120);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.arc(320, 60, 30, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(150, 80);
+      ctx.bezierCurveTo(130, 70, 130, 90, 150, 80);
+      ctx.moveTo(200, 90);
+      ctx.bezierCurveTo(180, 80, 180, 100, 200, 90);
+      ctx.moveTo(250, 85);
+      ctx.bezierCurveTo(230, 75, 230, 95, 250, 85);
+      ctx.fill();
+
+      ctx.fillStyle = '#c44569';
+      ctx.fillRect(250, 180, 60, 40);
+      ctx.fillStyle = '#f19066';
+      ctx.fillRect(260, 185, 15, 20);
+      ctx.fillRect(285, 185, 15, 20);
+    }
+
+    function clamp(value) {
+      return Math.max(0, Math.min(255, Math.round(value)));
+    }
+
+    function rgbToHsv(r, g, b) {
+      r /= 255;
+      g /= 255;
+      b /= 255;
+
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      const diff = max - min;
+
+      let h = 0;
+      const s = max === 0 ? 0 : diff / max;
+      const v = max;
+
+      if (diff !== 0) {
+        if (max === r) {
+          h = ((g - b) / diff + (g < b ? 6 : 0)) * 60;
+        } else if (max === g) {
+          h = ((b - r) / diff + 2) * 60;
+        } else {
+          h = ((r - g) / diff + 4) * 60;
+        }
+      }
+
+      return { h, s, v };
+    }
+
+    function hsvToRgb(h, s, v) {
+      const c = v * s;
+      const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+      const m = v - c;
+
+      let r = 0, g = 0, b = 0;
+
+      if (h < 60) {
+        r = c; g = x; b = 0;
+      } else if (h < 120) {
+        r = x; g = c; b = 0;
+      } else if (h < 180) {
+        r = 0; g = c; b = x;
+      } else if (h < 240) {
+        r = 0; g = x; b = c;
+      } else if (h < 300) {
+        r = x; g = 0; b = c;
+      } else {
+        r = c; g = 0; b = x;
+      }
+
+      return {
+        r: (r + m) * 255,
+        g: (g + m) * 255,
+        b: (b + m) * 255,
+      };
+    }
+
+    function applyColorMapping(ctx, config, width, height) {
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const data = imageData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        let r = data[i];
+        let g = data[i + 1];
+        let b = data[i + 2];
+
+        if (config.brightness !== undefined) {
+          const brightness = config.brightness * 255;
+          r = clamp(r + brightness);
+          g = clamp(g + brightness);
+          b = clamp(b + brightness);
+        }
+
+        if (config.contrast !== undefined) {
+          const contrast = config.contrast;
+          r = clamp((r - 128) * contrast + 128);
+          g = clamp((g - 128) * contrast + 128);
+          b = clamp((b - 128) * contrast + 128);
+        }
+
+        if (config.saturation !== undefined || config.hueShift !== undefined) {
+          const hsv = rgbToHsv(r, g, b);
+
+          if (config.saturation !== undefined) {
+            hsv.s *= config.saturation;
+            hsv.s = Math.max(0, Math.min(1, hsv.s));
+          }
+
+          if (config.hueShift !== undefined) {
+            hsv.h += config.hueShift;
+            while (hsv.h < 0) hsv.h += 360;
+            while (hsv.h >= 360) hsv.h -= 360;
+          }
+
+          const rgb = hsvToRgb(hsv.h, hsv.s, hsv.v);
+          r = rgb.r;
+          g = rgb.g;
+          b = rgb.b;
+        }
+
+        if (config.vignette !== undefined && config.vignette > 0) {
+          const px = (i / 4) % width;
+          const py = Math.floor(i / 4 / width);
+          const centerX = width / 2;
+          const centerY = height / 2;
+          const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
+          const dist = Math.sqrt((px - centerX) * (px - centerX) + (py - centerY) * (py - centerY));
+          const vignetteFactor = 1 - (dist / maxDist) * config.vignette;
+          r *= vignetteFactor;
+          g *= vignetteFactor;
+          b *= vignetteFactor;
+        }
+
+        data[i] = clamp(r);
+        data[i + 1] = clamp(g);
+        data[i + 2] = clamp(b);
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    function applyPreset(presetName) {
+      currentPreset = presetName;
+      
+      document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('btn-' + presetName).classList.add('active');
+
+      const originalCanvas = document.getElementById('originalCanvas');
+      const filteredCanvas = document.getElementById('filteredCanvas');
+      const originalCtx = originalCanvas.getContext('2d');
+      const filteredCtx = filteredCanvas.getContext('2d');
+
+      drawScene(originalCtx);
+      drawScene(filteredCtx);
+
+      const config = presets[presetName];
+      if (Object.keys(config).length > 0) {
+        applyColorMapping(filteredCtx, config, 400, 300);
+      }
+    }
+
+    window.onload = function() {
+      applyPreset('none');
+    };
+  </script>
+</body>
+</html>
