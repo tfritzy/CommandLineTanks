@@ -86,9 +86,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
     if (terminalOutputRef.current) {
       term.write(terminalOutputRef.current);
+    } else {
+      term.write(getPrompt());
     }
     
-    term.write(getPrompt());
     term.focus();
 
     const handleResize = () => {
@@ -318,6 +319,7 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
       if (code === KEY_ENTER) {
         const input = currentInputRef.current.trim();
+        const prompt = getPrompt();
         let finalOutput = "\r\n";
 
         if (input) {
@@ -330,8 +332,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           if (result === 'CLEAR') {
             currentInputRef.current = "";
             cursorPosRef.current = 0;
-            terminalOutputRef.current = "";
-            term.write('\x1b[2J\x1b[3J\x1b[H' + getPrompt());
+            terminalOutputRef.current = prompt;
+            term.write('\x1b[2J\x1b[3J\x1b[H' + prompt);
             return;
           }
 
@@ -340,14 +342,14 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
 
         currentInputRef.current = "";
         cursorPosRef.current = 0;
-        terminalOutputRef.current += finalOutput;
+        terminalOutputRef.current += prompt + (input || "") + finalOutput + prompt;
         
         const lines = terminalOutputRef.current.split('\r\n');
         if (lines.length > MAX_TERMINAL_LINES) {
           terminalOutputRef.current = lines.slice(-MAX_TERMINAL_LINES).join('\r\n');
         }
         
-        finalOutput += getPrompt();
+        finalOutput += prompt;
         term.write(finalOutput);
       } else if (code === KEY_BACKSPACE) {
         if (cursorPosRef.current > 0) {
