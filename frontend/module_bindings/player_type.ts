@@ -13,7 +13,7 @@ import {
 export default __t.object("Player", {
   id: __t.string(),
   identity: __t.identity(),
-  name: __t.string(),
+  name: __t.option(__t.string()),
   createdAt: __t.u64(),
 });
 

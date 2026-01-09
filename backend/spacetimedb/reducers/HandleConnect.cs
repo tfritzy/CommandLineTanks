@@ -14,12 +14,11 @@ public static partial class Module
         else
         {
             var playerId = GenerateId(ctx, "plr");
-            var randomSuffix = ctx.Rng.Next(1000, 9999);
             var player = new Player
             {
                 Id = playerId,
                 Identity = ctx.Sender,
-                Name = $"Guest{randomSuffix}",
+                Name = null,
                 CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             };
 

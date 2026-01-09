@@ -164,7 +164,7 @@ export default function GameView() {
             if (!killerNameFound) {
               for (const player of connection.db.player.iter()) {
                 if (areIdentitiesEqual(player.identity, newTank.lastDamagedBy)) {
-                  killerNameFound = player.name;
+                  killerNameFound = player.name ?? null;
                   break;
                 }
               }

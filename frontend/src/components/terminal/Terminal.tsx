@@ -157,6 +157,34 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       }
     };
 
+    const executeMultipleCommands = (commands: string[]): string => {
+      let output = "";
+      for (const command of commands) {
+        const trimmedCommand = command.trim();
+        if (!trimmedCommand) continue;
+
+        const parsedArgs = parseCommandInput(trimmedCommand);
+        const [cmd, ...args] = parsedArgs;
+        const resolvedCmd = resolveCommand(cmd);
+
+        if (resolvedCmd !== cmd.toLowerCase()) {
+          output += `${colorize('Assuming you meant', 'TEXT_DIM')} ${colorize(`'${resolvedCmd}'`, 'COMMAND')}\r\n\r\n`;
+        }
+
+        const commandOutput = executeCommand(resolvedCmd, args);
+
+        if (commandOutput === 'CLEAR') {
+          return 'CLEAR';
+        }
+
+        for (const line of commandOutput) {
+          output += line + "\r\n";
+        }
+        output += "\r\n";
+      }
+      return output;
+    };
+
     const handleData = (data: string) => {
       const code = data.charCodeAt(0);
 
@@ -168,26 +196,16 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
           commandHistoryRef.current.push(input);
           historyIndexRef.current = -1;
 
-          const parsedArgs = parseCommandInput(input);
-          const [cmd, ...args] = parsedArgs;
-          const resolvedCmd = resolveCommand(cmd);
+          const commands = input.split('\n');
+          const result = executeMultipleCommands(commands);
 
-          if (resolvedCmd !== cmd.toLowerCase()) {
-            finalOutput += `${colorize('Assuming you meant', 'TEXT_DIM')} ${colorize(`'${resolvedCmd}'`, 'COMMAND')}\r\n\r\n`;
-          }
-
-          const commandOutput = executeCommand(resolvedCmd, args);
-
-          if (commandOutput === 'CLEAR') {
+          if (result === 'CLEAR') {
             currentInputRef.current = "";
             term.write('\x1b[2J\x1b[3J\x1b[H' + getPrompt());
             return;
           }
 
-          for (const line of commandOutput) {
-            finalOutput += line + "\r\n";
-          }
-          finalOutput += "\r\n";
+          finalOutput += result;
         }
 
         currentInputRef.current = "";

@@ -1082,8 +1082,9 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
   }
 
   if (args.length === 0) {
+    const currentName = player.name ?? "not set";
     return [
-      `Your current name: ${themeColors.value(player.name)}`,
+      `Your current name: ${themeColors.value(currentName)}`,
       "",
       themeColors.dim("To change your name, use: name set <new_name>"),
     ];
