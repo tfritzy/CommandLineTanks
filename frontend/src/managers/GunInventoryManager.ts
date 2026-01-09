@@ -3,7 +3,7 @@ import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import Gun from "../../module_bindings/gun_type";
 import { type EventContext } from "../../module_bindings";
 import TankRow from "../../module_bindings/tank_type";
-import { redTeamPickupTextureSheet, blueTeamPickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
+import { getRedTeamPickupSvgSheet, getBlueTeamPickupSvgSheet } from "../svg/pickups";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export class GunInventoryManager {
@@ -84,9 +84,9 @@ export class GunInventoryManager {
     const centerX = x + size / 2;
     const centerY = y + size / 2;
 
-    const textureSheet = this.playerAlliance === 0 ? redTeamPickupTextureSheet : blueTeamPickupTextureSheet;
+    const svgSheet = this.playerAlliance === 0 ? getRedTeamPickupSvgSheet() : getBlueTeamPickupSvgSheet();
 
-    textureSheet.draw(ctx, gun.gunType.tag, centerX, centerY);
+    svgSheet.draw(ctx, gun.gunType.tag, centerX, centerY);
 
     ctx.restore();
   }

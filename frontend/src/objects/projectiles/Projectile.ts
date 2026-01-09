@@ -1,4 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
+import type { ProjectileSvgSheet } from "../../svg/projectiles";
 
 export abstract class Projectile {
   public static readonly SHADOW_OFFSET = 4;
@@ -40,16 +41,16 @@ export abstract class Projectile {
     this.trackingRadius = trackingRadius || 0;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, textureSheet: any) {
+  public draw(ctx: CanvasRenderingContext2D, textureSheet: ProjectileSvgSheet) {
     this.drawShadow(ctx, textureSheet);
     this.drawBody(ctx, textureSheet);
   }
 
-  public drawShadow(_ctx: CanvasRenderingContext2D, _textureSheet: any) {}
+  public drawShadow(_ctx: CanvasRenderingContext2D, _textureSheet: ProjectileSvgSheet) {}
 
   public abstract drawBody(
     ctx: CanvasRenderingContext2D,
-    textureSheet: any
+    textureSheet: ProjectileSvgSheet
   ): void;
 
   public setPosition(x: number, y: number) {

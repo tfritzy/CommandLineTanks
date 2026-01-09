@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { connectToSpacetimeDB } from "./spacetimedb-connection";
+import { initAllSvgSheets } from "./svg";
 import GameView from "./components/GameView";
 import HomeWorldRedirector from "./components/HomeWorldRedirector";
 
@@ -8,8 +9,11 @@ function App() {
   const [isSpacetimeConnected, setIsSpacetimeConnected] = useState(false);
 
   useEffect(() => {
-    connectToSpacetimeDB()
-      .then((conn) => {
+    Promise.all([
+      connectToSpacetimeDB(),
+      initAllSvgSheets()
+    ])
+      .then(([conn]) => {
         setIsSpacetimeConnected(true);
 
         if (conn.identity) {

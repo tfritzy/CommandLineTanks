@@ -1,7 +1,7 @@
 import { Projectile, ProjectileFactory } from "../objects/projectiles";
 import { getConnection } from "../spacetimedb-connection";
 import { ProjectileImpactParticlesManager } from "./ProjectileImpactParticlesManager";
-import { projectileTextureSheet } from "../texture-sheets/ProjectileTextureSheet";
+import { getProjectileSvgSheet } from "../svg/projectiles";
 import { UNIT_TO_PIXEL } from "../constants";
 import type { TankManager } from "./TankManager";
 import { ScreenShake } from "../utils/ScreenShake";
@@ -201,7 +201,7 @@ export class ProjectileManager {
         continue;
       }
 
-      projectile.drawShadow(ctx, projectileTextureSheet);
+      projectile.drawShadow(ctx, getProjectileSvgSheet());
     }
   }
 
@@ -236,7 +236,7 @@ export class ProjectileManager {
         continue;
       }
 
-      projectile.drawBody(ctx, projectileTextureSheet);
+      projectile.drawBody(ctx, getProjectileSvgSheet());
     }
     this.particlesManager.draw(
       ctx,

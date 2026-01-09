@@ -1,16 +1,16 @@
 import { Projectile } from "./Projectile";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
-import { ProjectileTextureSheet } from "../../texture-sheets/ProjectileTextureSheet";
+import type { ProjectileSvgSheet } from "../../svg/projectiles";
 
 export class RocketProjectile extends Projectile {
-  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileSvgSheet) {
     const { x: centerX, y: centerY } = this.getShadowScreenPosition();
     const angle = Math.atan2(this.velocityY, this.velocityX);
     const key = this.getTextureKey('rocket');
     textureSheet.drawShadow(ctx, key, centerX, centerY, this.size, angle);
   }
 
-  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileSvgSheet) {
     const { x: centerX, y: centerY } = this.getScreenPosition();
     const angle = Math.atan2(this.velocityY, this.velocityX);
     const key = this.getTextureKey('rocket');
