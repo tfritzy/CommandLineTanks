@@ -444,6 +444,9 @@ const tablesSchema = __schema(
   __table({
     name: 'tank_path',
     indexes: [
+      { name: 'Owner', algorithm: 'btree', columns: [
+        'owner',
+      ] },
       { name: 'TankId', algorithm: 'btree', columns: [
         'tankId',
       ] },

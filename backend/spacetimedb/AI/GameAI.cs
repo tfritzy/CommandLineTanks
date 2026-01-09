@@ -88,6 +88,7 @@ public static partial class GameAI
         {
             TankId = fullTank.Id,
             WorldId = fullTank.WorldId,
+            Owner = fullTank.Owner,
             Path = pathEntries
         };
 
@@ -122,6 +123,7 @@ public static partial class GameAI
         {
             TankId = fullTank.Id,
             WorldId = fullTank.WorldId,
+            Owner = fullTank.Owner,
             Path = [entry]
         };
 

@@ -62,6 +62,7 @@ public static partial class Module
         {
             TankId = tank.Id,
             WorldId = tank.WorldId,
+            Owner = tank.Owner,
             Path = pathEntries.ToArray()
         };
 
