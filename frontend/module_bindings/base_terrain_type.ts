@@ -13,6 +13,8 @@ import {
 // The tagged union or sum type for the algebraic type `BaseTerrain`.
 const BaseTerrain = __t.enum("BaseTerrain", {Ground: __t.unit(),
   Farm: __t.unit(),
+  BlackChecker: __t.unit(),
+  WhiteChecker: __t.unit(),
 });
 
 export default BaseTerrain;

@@ -25,12 +25,67 @@ export function drawBaseTerrain(
         continue;
       }
 
-      const worldX = tileX * UNIT_TO_PIXEL;
-      const worldY = tileY * UNIT_TO_PIXEL;
-      ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
+      const index = tileY * worldWidth + tileX;
+      const terrain = baseTerrainLayer[index];
+
+      if (terrain.tag !== "BlackChecker" && terrain.tag !== "WhiteChecker") {
+        const worldX = tileX * UNIT_TO_PIXEL;
+        const worldY = tileY * UNIT_TO_PIXEL;
+        ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
+      }
     }
   }
   ctx.fillStyle = COLORS.TERRAIN.GROUND;
+  ctx.fill();
+
+  ctx.beginPath();
+  for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+    for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+      if (
+        tileX < 0 ||
+        tileX >= worldWidth ||
+        tileY < 0 ||
+        tileY >= worldHeight
+      ) {
+        continue;
+      }
+
+      const index = tileY * worldWidth + tileX;
+      const terrain = baseTerrainLayer[index];
+
+      if (terrain.tag === "BlackChecker") {
+        const worldX = tileX * UNIT_TO_PIXEL;
+        const worldY = tileY * UNIT_TO_PIXEL;
+        ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
+      }
+    }
+  }
+  ctx.fillStyle = COLORS.TERRAIN.BLACK_CHECKER;
+  ctx.fill();
+
+  ctx.beginPath();
+  for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+    for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+      if (
+        tileX < 0 ||
+        tileX >= worldWidth ||
+        tileY < 0 ||
+        tileY >= worldHeight
+      ) {
+        continue;
+      }
+
+      const index = tileY * worldWidth + tileX;
+      const terrain = baseTerrainLayer[index];
+
+      if (terrain.tag === "WhiteChecker") {
+        const worldX = tileX * UNIT_TO_PIXEL;
+        const worldY = tileY * UNIT_TO_PIXEL;
+        ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
+      }
+    }
+  }
+  ctx.fillStyle = COLORS.TERRAIN.WHITE_CHECKER;
   ctx.fill();
 
   ctx.fillStyle = COLORS.TERRAIN.FARM_GROOVE;
