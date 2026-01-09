@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import CopyBox from './CopyBox';
 
 interface HostGameModalProps {
   onClose: () => void;
@@ -138,17 +139,8 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
             Command
           </div>
 
-          <div className="relative">
-            <div className="px-4 py-3 text-sm font-mono bg-palette-slate-darkest/80 border border-palette-slate-light/30 rounded text-terminal-text-default break-all">
-              {command}
-            </div>
-            <button
-              onClick={() => navigator.clipboard.writeText(command)}
-              className="absolute top-2 right-2 px-3 py-1.5 text-xs font-medium bg-palette-blue-light/20 hover:bg-palette-blue-light/30 text-palette-blue-light border border-palette-blue-light/30 rounded transition-colors"
-            >
-              Copy
-            </button>
-          </div>
+          <CopyBox text={command} />
+          
           <div className="mt-2 text-xs text-palette-white-pure/40 text-center">
             Copy this command and paste it into the terminal
           </div>
