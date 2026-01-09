@@ -13,6 +13,6 @@ import {
 export default __t.row({
   id: __t.string().primaryKey(),
   identity: __t.identity(),
-  name: __t.string(),
+  name: __t.option(__t.string()),
   createdAt: __t.u64(),
 });

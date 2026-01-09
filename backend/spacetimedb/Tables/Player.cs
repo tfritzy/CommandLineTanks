@@ -12,7 +12,7 @@ public static partial class Module
         [Unique]
         public Identity Identity;
 
-        public string Name;
+        public string? Name;
         public ulong CreatedAt;
     }
 }
