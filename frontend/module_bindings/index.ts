@@ -47,6 +47,8 @@ import Drive from "./drive_reducer";
 export { Drive };
 import EndGame from "./end_game_reducer";
 export { EndGame };
+import EnsureHomeworld from "./ensure_homeworld_reducer";
+export { EnsureHomeworld };
 import ExitWorld from "./exit_world_reducer";
 export { ExitWorld };
 import Fire from "./fire_reducer";
@@ -532,6 +534,7 @@ const reducersSchema = __reducers(
   __reducerSchema("delete_kill", DeleteKill),
   __reducerSchema("drive", Drive),
   __reducerSchema("EndGame", EndGame),
+  __reducerSchema("ensureHomeworld", EnsureHomeworld),
   __reducerSchema("exitWorld", ExitWorld),
   __reducerSchema("fire", Fire),
   __reducerSchema("joinWorld", JoinWorld),

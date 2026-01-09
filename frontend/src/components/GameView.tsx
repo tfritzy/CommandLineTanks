@@ -257,6 +257,18 @@ export default function GameView() {
     };
   }, [worldId]);
 
+  useEffect(() => {
+    if (!worldId || !isHomeworld) return;
+
+    const connection = getConnection();
+    if (!connection) return;
+
+    const joinCode = `ensure_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    
+    connection.reducers.ensureHomeworld({ worldId, joinCode });
+    console.log(`Called ensureHomeworld for worldId: ${worldId}`);
+  }, [worldId, isHomeworld]);
+
   if (!worldId) {
     return null;
   }
