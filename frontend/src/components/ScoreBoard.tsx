@@ -129,16 +129,12 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
         ? { label: '#ff5555', value: '#c06852' }
         : { label: '#7fbbdc', value: '#7396d5' };
 
-    const isScoreboardOnLeft = currentPlayer !== undefined && currentPlayer.alliance === 0;
-    const animationOffset = isScoreboardOnLeft ? -10 : 10;
-
     return (
       <motion.div
         key={player.id}
         layout
-        initial={{ opacity: 0, x: animationOffset }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -animationOffset }}
+        initial={false}
+        exit={{ opacity: 0 }}
         className={`flex items-center h-6 w-full gap-2 font-mono text-[13px] font-semibold ${!isLast ? 'mb-0.5' : ''}`}
       >
         <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap opacity-90 text-ui-text-primary">
