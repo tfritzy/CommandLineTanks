@@ -1,12 +1,12 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="4" fill="#ff0099"/>
-  <!-- Terminal window -->
-  <rect x="5" y="7" width="22" height="18" rx="2" stroke="white" stroke-width="1.5" fill="none"/>
-  <!-- Prompt symbol (>) -->
-  <path d="M 8 12 L 11 14.5 L 8 17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <!-- Cursor/underscore -->
-  <rect x="13" y="16" width="4" height="1.5" fill="white"/>
-  <!-- Text lines in background -->
-  <rect x="8" y="19.5" width="6" height="1" fill="white" opacity="0.6"/>
-  <rect x="15" y="19.5" width="8" height="1" fill="white" opacity="0.6"/>
+  <rect x="2" y="2" width="28" height="28" rx="4" fill="#241227"/>
+  
+  <rect x="2" y="2" width="28" height="28" rx="4" stroke="#3d2a41" stroke-width="1"/>
+
+  <g transform="translate(1, 0)">
+    <path d="M9 12.5L13 16L9 19.5" stroke="#7fbbdc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <rect x="15" y="18.5" width="7" height="2" fill="#7fbbdc" />
+  </g>
 </svg>
+
