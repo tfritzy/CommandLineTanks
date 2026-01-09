@@ -26,35 +26,6 @@ public static partial class Module
             Log.Info($"ensureHomeworld: Homeworld already exists for identity {identityString}");
         }
 
-        var existingTank = ctx.Db.tank.WorldId_Owner.Filter((identityString, ctx.Sender))
-            .FirstOrDefault();
-        
-        if (existingTank.Id != null)
-        {
-            var updatedTank = existingTank with { JoinCode = joinCode };
-            ctx.Db.tank.Id.Update(updatedTank);
-            StartWorldTickers(ctx, identityString);
-            Log.Info($"ensureHomeworld: Updated existing tank with new join code");
-            return;
-        }
-
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
-        var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
-
-        var (tank, transform) = BuildTank(
-            ctx: ctx,
-            worldId: identityString,
-            owner: ctx.Sender,
-            name: playerName,
-            targetCode: "",
-            joinCode: joinCode,
-            alliance: 0,
-            positionX: HOMEWORLD_WIDTH / 2 + .5f,
-            positionY: HOMEWORLD_HEIGHT / 2 + .5f,
-            aiBehavior: AIBehavior.None);
-
-        AddTankToWorld(ctx, tank, transform);
-        StartWorldTickers(ctx, identityString);
-        Log.Info($"ensureHomeworld: Created tank for identity {identityString}");
+        EnsureTankInHomeworld(ctx, identityString, joinCode);
     }
 }
