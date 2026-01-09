@@ -31,4 +31,8 @@ export class TargetDummy extends TerrainDetailObject {
   public getType(): string {
     return "TargetDummy";
   }
+
+  public getTextureKey(): string {
+    return "targetdummy";
+  }
 }

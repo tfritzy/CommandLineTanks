@@ -31,4 +31,8 @@ export class FenceEdge extends TerrainDetailObject {
   public getType(): string {
     return "FenceEdge";
   }
+
+  public getTextureKey(): string {
+    return `fenceedge-${this.rotation}`;
+  }
 }

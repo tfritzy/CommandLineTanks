@@ -31,4 +31,8 @@ export class FenceCorner extends TerrainDetailObject {
   public getType(): string {
     return "FenceCorner";
   }
+
+  public getTextureKey(): string {
+    return `fencecorner-${this.rotation}`;
+  }
 }
