@@ -384,11 +384,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "create - Create a new game world",
         "",
-        "Usage: create [--name <name>] [--passcode <pass>] [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]",
+        "Usage: create [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]",
         "",
         "Flags:",
-        "  --name, -n          World name (default: 'New World')",
-        "  --passcode, -p      Passcode for private worlds (default: '')",
         "  --bots, -b          Number of AI bots, 0-10 (default: 0)",
         "  --duration, -d      Game duration in minutes, 1-20 (default: 10)",
         "  --width, -w         Map width, 10-200 (default: 50)",
@@ -399,8 +397,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  create",
-        "  create --name 'Battle Arena' --bots 4",
-        "  create -n 'My Game' -p secret123 -d 15",
+        "  create --bots 4",
+        "  create -b 2 -d 15",
         "  create --width 100 --height 100 --duration 20",
       ];
 
