@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../constants";
+import { UNIT_TO_PIXEL, TWO_PI } from "../../constants";
 import { getFlashColor, lerpColor } from "../../utils/colors";
 import { COLORS, PALETTE } from "../../theme/colors";
 
@@ -86,7 +86,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.translate(-1.5, 1.5);
   ctx.rotate(params.turretRotation);
   ctx.beginPath();
-  ctx.arc(0, 0, 12, 0, Math.PI * 2);
+  ctx.arc(0, 0, 12, 0, TWO_PI);
   ctx.fill();
   ctx.restore();
 
@@ -101,7 +101,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
 
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
-  ctx.arc(0, 0, 12, 0, Math.PI * 2);
+  ctx.arc(0, 0, 12, 0, TWO_PI);
   ctx.fill();
   ctx.stroke();
   ctx.restore();
@@ -243,7 +243,7 @@ export function drawTankPath(
 
   ctx.fillStyle = dotColor;
   ctx.beginPath();
-  ctx.arc(endX, endY, dotRadius, 0, Math.PI * 2);
+  ctx.arc(endX, endY, dotRadius, 0, TWO_PI);
   ctx.fill();
 
   ctx.restore();
