@@ -767,7 +767,7 @@
         }
 
         .terminal-input {
-            color: #7fbbdc;
+            color: #e6eeed;
         }
     </style>
 </head>
@@ -1209,7 +1209,6 @@
                 lines.push('  <span class="terminal-cyan">aim</span>        Aim or target: aim &lt;deg|dir|code&gt;');
                 lines.push('  <span class="terminal-cyan">switch</span>     Switch weapon: switch &lt;slot&gt;');
                 lines.push('');
-                lines.push('');
                 currentLine = prompt();
                 render();
                 await sleep(1000);
@@ -1217,7 +1216,6 @@
                 await typeText('drive northeast 20');
                 await newLine();
                 lines.push('Driving <span class="terminal-cyan">20</span> units <span class="terminal-cyan">northeast</span> at full throttle');
-                lines.push('');
                 lines.push('');
                 currentLine = prompt();
                 render();
@@ -1227,7 +1225,6 @@
                 await newLine();
                 lines.push('Targeting tank <span class="terminal-magenta">a4</span> (Alpha)');
                 lines.push('');
-                lines.push('');
                 currentLine = prompt();
                 render();
                 await sleep(1000);
@@ -1235,7 +1232,6 @@
                 await typeText('stop');
                 await newLine();
                 lines.push('Tank stopped.');
-                lines.push('');
                 lines.push('');
                 currentLine = prompt();
                 render();
@@ -1245,7 +1241,6 @@
                     await typeText('fire');
                     await newLine();
                     lines.push('Projectile fired.');
-                    lines.push('');
                     lines.push('');
                     currentLine = prompt();
                     render();
