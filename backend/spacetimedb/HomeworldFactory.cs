@@ -214,9 +214,7 @@ public static partial class Module
             positionY: areaY,
             gridX: areaX,
             gridY: areaY,
-            type: TerrainDetailType.PenBorder,
-            width: areaWidth,
-            height: areaHeight
+            type: TerrainDetailType.PenBorder
         ));
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
@@ -260,9 +258,7 @@ public static partial class Module
             positionY: areaY,
             gridX: areaX,
             gridY: areaY,
-            type: TerrainDetailType.PenBorder,
-            width: areaWidth,
-            height: areaHeight
+            type: TerrainDetailType.PenBorder
         ));
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
@@ -305,9 +301,7 @@ public static partial class Module
             positionY: areaY,
             gridX: areaX,
             gridY: areaY,
-            type: TerrainDetailType.PenBorder,
-            width: areaWidth,
-            height: areaHeight
+            type: TerrainDetailType.PenBorder
         ));
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
@@ -350,9 +344,7 @@ public static partial class Module
             positionY: areaY,
             gridX: areaX,
             gridY: areaY,
-            type: TerrainDetailType.PenBorder,
-            width: areaWidth,
-            height: areaHeight
+            type: TerrainDetailType.PenBorder
         ));
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(

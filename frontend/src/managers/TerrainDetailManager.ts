@@ -135,8 +135,6 @@ export class TerrainDetailManager {
       health,
       rotation,
       type,
-      width,
-      height,
     } = detail;
 
     switch (type.tag) {
@@ -169,7 +167,7 @@ export class TerrainDetailManager {
         obj = new TargetDummy(x, y, label, health, rotation);
         break;
       case "PenBorder":
-        obj = new PenBorder(x, y, label, health, rotation, width ?? 1, height ?? 1);
+        obj = new PenBorder(x, y, label, health, rotation);
         break;
     }
 

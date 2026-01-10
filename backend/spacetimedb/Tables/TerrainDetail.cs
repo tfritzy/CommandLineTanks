@@ -27,9 +27,6 @@ public static partial class Module
 
         public int Rotation;
 
-        public int? Width;
-        public int? Height;
-
         public static TerrainDetail Build(
             ReducerContext ctx,
             string? id = null,
@@ -41,9 +38,7 @@ public static partial class Module
             TerrainDetailType type = TerrainDetailType.None,
             int? health = null,
             string? label = null,
-            int rotation = 0,
-            int? width = null,
-            int? height = null)
+            int rotation = 0)
         {
             return new TerrainDetail
             {
@@ -56,9 +51,7 @@ public static partial class Module
                 Type = type,
                 Health = health,
                 Label = label,
-                Rotation = rotation,
-                Width = width,
-                Height = height
+                Rotation = rotation
             };
         }
     }
