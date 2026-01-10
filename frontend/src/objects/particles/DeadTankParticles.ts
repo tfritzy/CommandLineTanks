@@ -62,8 +62,8 @@ export class DeadTankParticles {
   private isDead = false;
 
   constructor(x: number, y: number, alliance: number) {
-    const teamColor = alliance === 0 ? COLORS.UI.TEAM_RED_MEDIUM : COLORS.UI.TEAM_BLUE_MEDIUM;
-    const darkTeamColor = alliance === 0 ? COLORS.UI.TEAM_RED_DARK : COLORS.UI.TEAM_BLUE_DARK;
+    const teamColor = alliance === 0 ? COLORS.UI.TEAM_RED_MEDIUM : COLORS.GAME.TEAM_BLUE_BRIGHT;
+    const darkTeamColor = alliance === 0 ? COLORS.UI.TEAM_RED_DARK : COLORS.UI.TEAM_BLUE_MEDIUM;
 
     // 1. Debris (Tank parts) - Reduced count
     const debrisCount = 6 + Math.floor(Math.random() * 4);
