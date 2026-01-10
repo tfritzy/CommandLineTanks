@@ -5,6 +5,9 @@ import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
 import { aim, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitWorld, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
+import { type EventContext } from "../../../module_bindings";
+import { type Infer } from "spacetimedb";
+import WorldRow from "../../../module_bindings/world_type";
 
 interface TerminalComponentProps {
   worldId: string;
@@ -26,6 +29,7 @@ const VALID_COMMANDS = ['aim', 'a', 'drive', 'd', 'stop', 's', 'fire', 'f',
   'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
 
 const MAX_TERMINAL_LINES = 1000;
+const SEPARATOR_LENGTH = 80;
 
 function TerminalComponent({ worldId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -421,6 +425,40 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       term.dispose();
     };
   }, [worldId]);
+
+  useEffect(() => {
+    const connection = getConnection();
+    const term = xtermRef.current;
+    if (!connection || !term) return;
+
+    const handleWorldInsert = (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
+      if (world.owner && connection.identity && world.owner.isEqual(connection.identity)) {
+        const url = `${window.location.origin}/world/${world.id}`;
+        
+        const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'BORDER');
+        const title = colorize('🎮 WORLD CREATED SUCCESSFULLY', 'SUCCESS');
+        const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
+        const urlText = colorize(url, 'TANK_CODE');
+        
+        let output = `\r\n${separator}\r\n`;
+        output += `${title}\r\n`;
+        output += `\r\n`;
+        output += `${urlLabel}\r\n`;
+        output += `${urlText}\r\n`;
+        output += `${separator}\r\n`;
+        output += `\r\n`;
+
+        terminalOutputRef.current += output;
+        term.write(output);
+      }
+    };
+
+    connection.db.world.onInsert(handleWorldInsert);
+
+    return () => {
+      connection.db.world.removeOnInsert(handleWorldInsert);
+    };
+  }, []);
 
   return (
     <div
