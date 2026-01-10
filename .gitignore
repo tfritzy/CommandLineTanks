@@ -34,3 +34,6 @@ wget-log
 # Firebase
 .firebase/
 firebase-debug.log
+
+# Frontend build files
+frontend/landing.html

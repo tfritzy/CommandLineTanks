@@ -90,6 +90,15 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       term.write(getPrompt());
     }
 
+    if (currentInputRef.current) {
+      term.write(currentInputRef.current);
+      const cursorPos = Math.min(cursorPosRef.current, currentInputRef.current.length);
+      const charsAfterCursor = currentInputRef.current.length - cursorPos;
+      if (charsAfterCursor > 0) {
+        term.write(ARROW_LEFT.repeat(charsAfterCursor));
+      }
+    }
+
     term.focus();
 
     const handleResize = () => {
