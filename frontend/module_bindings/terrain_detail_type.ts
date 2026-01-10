@@ -25,6 +25,8 @@ export default __t.object("TerrainDetail", {
   health: __t.option(__t.i32()),
   label: __t.option(__t.string()),
   rotation: __t.i32(),
+  width: __t.option(__t.i32()),
+  height: __t.option(__t.i32()),
 });
 
 

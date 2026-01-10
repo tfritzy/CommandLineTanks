@@ -210,6 +210,18 @@ public static partial class Module
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             worldId: worldId,
+            positionX: areaX,
+            positionY: areaY,
+            gridX: areaX,
+            gridY: areaY,
+            type: TerrainDetailType.PenBorder,
+            width: areaWidth,
+            height: areaHeight
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            worldId: worldId,
             positionX: areaX + areaWidth / 2.0f + 0.5f,
             positionY: areaY + 0.2f,
             gridX: areaX + areaWidth / 2,
@@ -240,6 +252,18 @@ public static partial class Module
         int areaHeight = 5;
 
         CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            worldId: worldId,
+            positionX: areaX,
+            positionY: areaY,
+            gridX: areaX,
+            gridY: areaY,
+            type: TerrainDetailType.PenBorder,
+            width: areaWidth,
+            height: areaHeight
+        ));
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
@@ -277,6 +301,18 @@ public static partial class Module
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             worldId: worldId,
+            positionX: areaX,
+            positionY: areaY,
+            gridX: areaX,
+            gridY: areaY,
+            type: TerrainDetailType.PenBorder,
+            width: areaWidth,
+            height: areaHeight
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            worldId: worldId,
             positionX: areaX + areaWidth / 2.0f + 0.5f,
             positionY: areaY + 0.2f,
             gridX: areaX + areaWidth / 2,
@@ -306,6 +342,18 @@ public static partial class Module
         int areaHeight = 5;
 
         CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            worldId: worldId,
+            positionX: areaX,
+            positionY: areaY,
+            gridX: areaX,
+            gridY: areaY,
+            type: TerrainDetailType.PenBorder,
+            width: areaWidth,
+            height: areaHeight
+        ));
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,

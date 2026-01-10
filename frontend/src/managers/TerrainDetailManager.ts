@@ -16,6 +16,7 @@ import { FoundationCorner } from "../objects/terrain-details/FoundationCorner";
 import { FenceEdge } from "../objects/terrain-details/FenceEdge";
 import { FenceCorner } from "../objects/terrain-details/FenceCorner";
 import { TargetDummy } from "../objects/terrain-details/TargetDummy";
+import { PenBorder } from "../objects/terrain-details/PenBorder";
 import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
 import { MushroomDecorationsManager } from "./MushroomDecorationsManager";
 import { terrainDetailTextureSheet } from "../texture-sheets/TerrainDetailTextureSheet";
@@ -134,6 +135,8 @@ export class TerrainDetailManager {
       health,
       rotation,
       type,
+      width,
+      height,
     } = detail;
 
     switch (type.tag) {
@@ -164,6 +167,9 @@ export class TerrainDetailManager {
         break;
       case "TargetDummy":
         obj = new TargetDummy(x, y, label, health, rotation);
+        break;
+      case "PenBorder":
+        obj = new PenBorder(x, y, label, health, rotation, width ?? 1, height ?? 1);
         break;
     }
 
@@ -302,7 +308,7 @@ export class TerrainDetailManager {
             ctx.restore();
           }
         } else {
-          console.warn(`Missing body texture for key: ${obj.getTextureKey()}`);
+          obj.drawBody(ctx);
         }
 
         obj.drawLabel(ctx);
