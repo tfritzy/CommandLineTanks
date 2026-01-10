@@ -5,6 +5,7 @@ import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { motion, AnimatePresence, animate } from "framer-motion";
+import { PALETTE } from "../theme/colors.config";
 
 interface PlayerScore {
   id: string;
@@ -126,8 +127,8 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
   const renderPlayerLine = (player: PlayerScore, isLast: boolean) => {
     const teamColors =
       player.alliance === 0
-        ? { label: '#ff5555', value: '#c06852' }
-        : { label: '#7fbbdc', value: '#7396d5' };
+        ? { label: PALETTE.RED_MUTED, value: PALETTE.ORANGE_MEDIUM }
+        : { label: PALETTE.BLUE_INFO, value: PALETTE.BLUE_BRIGHT };
 
     return (
       <motion.div
@@ -135,11 +136,12 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
         layout
         initial={false}
         exit={{ opacity: 0 }}
-        className={`flex items-center h-6 w-full gap-2 font-mono text-[13px] font-semibold ${!isLast ? 'mb-0.5' : ''}`}
+        className={`flex items-center h-6 w-full gap-1 font-mono text-[13px] font-semibold ${!isLast ? 'mb-0.5' : ''}`}
       >
-        <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap opacity-90 text-ui-text-primary">
+        <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap" style={{ color: teamColors.label }}>
           {player.name}
         </span>
+        <span className="text-palette-slate-medium opacity-50 px-0.5">-</span>
         <span className="font-extrabold min-w-[24px] text-right tabular-nums" style={{ color: teamColors.value }}>
           <AnimatedScore value={player.killStreak} />
         </span>
@@ -151,8 +153,8 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
     <div
       className={`absolute top-[5px] z-[1000] flex flex-col w-[200px] ${currentPlayer?.alliance === 0 ? 'left-[5px]' : 'right-[5px]'}`}
     >
-      <div className="w-full bg-palette-purple-void/85 backdrop-blur-xl border border-palette-white-pure/[0.08] rounded p-3 shadow-2xl flex flex-col">
-        <div className="text-ui-text-dim text-[10px] font-mono font-extrabold tracking-[0.2em] mb-2.5 text-center opacity-80 border-b border-palette-white-pure/[0.08] pb-1.5 uppercase">
+      <div className="w-full bg-palette-purple-void/85 backdrop-blur-xl border border-palette-white-pure/[0.08] rounded p-2 shadow-2xl flex flex-col">
+        <div className="text-ui-text-dim text-[10px] font-mono font-extrabold tracking-[0.2em] mb-1.5 text-center opacity-80 border-b border-palette-white-pure/[0.08] pb-1 uppercase">
           Top Streaks
         </div>
 

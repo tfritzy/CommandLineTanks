@@ -177,6 +177,7 @@ export class MiniMapManager {
 
     let redIndex = 0;
     let blueIndex = 0;
+    let playerIconInfo: { x: number; y: number; size: number; color: string; rotation: number } | null = null;
 
     for (const tank of this.tankManager.getAllTanks()) {
       if (tank.getHealth() <= 0) continue;
@@ -192,6 +193,17 @@ export class MiniMapManager {
 
       const x = miniMapX + tankX - size / 2;
       const y = miniMapY + tankY - size / 2;
+
+      if (isPlayerTank) {
+        playerIconInfo = {
+          x,
+          y,
+          size,
+          color: tank.getAlliance() === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT,
+          rotation: tank.getTurretRotation()
+        };
+        continue;
+      }
 
       if (tank.getAlliance() === 0) {
         if (redIndex >= this.redTanksBuffer.length) {
@@ -227,6 +239,34 @@ export class MiniMapManager {
     ctx.fillStyle = COLORS.GAME.TEAM_BLUE_BRIGHT;
     for (const tank of this.blueTanksBuffer) {
       ctx.fillRect(tank.x, tank.y, tank.size, tank.size);
+    }
+
+    if (playerIconInfo) {
+      const { size, color, rotation } = playerIconInfo;
+      const centerX = playerIconInfo.x + size / 2;
+      const centerY = playerIconInfo.y + size / 2;
+      
+      // Large dark outline square for contrast
+      const outlineSize = size * 1.8;
+      ctx.fillStyle = COLORS.TERRAIN.GROUND;
+      ctx.fillRect(centerX - outlineSize / 2, centerY - outlineSize / 2, outlineSize, outlineSize);
+
+      // Main player square (team colored)
+      const bodySize = size * 1.4;
+      ctx.fillStyle = color;
+      ctx.fillRect(centerX - bodySize / 2, centerY - bodySize / 2, bodySize, bodySize);
+
+      // Thicker, shorter red gun
+      ctx.beginPath();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = COLORS.GAME.TEAM_RED_BRIGHT;
+      const pointerLength = size * 1.1;
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(
+        centerX + Math.cos(rotation) * pointerLength,
+        centerY + Math.sin(rotation) * pointerLength
+      );
+      ctx.stroke();
     }
 
     ctx.restore();
