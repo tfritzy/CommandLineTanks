@@ -11,7 +11,7 @@ public static partial class Module
         public ulong ProjectileId;
 
         [BTree]
-        public string WorldId;
+        public string GameId;
 
         public float PositionX;
 

@@ -3,9 +3,9 @@ using static Types;
 
 public static partial class Module
 {
-    [Table(Name = "world", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameState), nameof(IsHomeWorld), nameof(Visibility) })]
-    public partial struct World
+    [Table(Name = "game", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameState), nameof(IsHomeGame), nameof(Visibility) })]
+    public partial struct Game
     {
         [PrimaryKey]
         public string Id;
@@ -16,10 +16,10 @@ public static partial class Module
         public BaseTerrain[] BaseTerrainLayer;
         [SpacetimeDB.Index.BTree]
         public GameState GameState;
-        public bool IsHomeWorld;
+        public bool IsHomeGame;
         public ulong GameStartedAt;
         public long GameDurationMicros;
-        public WorldVisibility Visibility;
+        public GameVisibility Visibility;
         public int MaxPlayers;
         public int CurrentPlayerCount;
         public int BotCount;

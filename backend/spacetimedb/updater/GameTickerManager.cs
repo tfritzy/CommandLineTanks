@@ -5,104 +5,104 @@ using static Types;
 
 public static partial class Module
 {
-    [Table(Scheduled = nameof(ResetWorld))]
-    public partial struct ScheduledWorldReset
+    [Table(Scheduled = nameof(ResetGame))]
+    public partial struct ScheduledGameReset
     {
         [AutoInc]
         [PrimaryKey]
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
     }
 
-    public static bool HasAnyTanksInWorld(ReducerContext ctx, string worldId)
+    public static bool HasAnyTanksInGame(ReducerContext ctx, string gameId)
     {
-        return ctx.Db.tank.WorldId.Filter(worldId).Any();
+        return ctx.Db.tank.GameId.Filter(gameId).Any();
     }
 
-    public static void StopWorldTickers(ReducerContext ctx, string worldId)
+    public static void StopGameTickers(ReducerContext ctx, string gameId)
     {
-        foreach (var tankUpdater in ctx.Db.ScheduledTankUpdates.WorldId.Filter(worldId))
+        foreach (var tankUpdater in ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledTankUpdates.ScheduledId.Delete(tankUpdater.ScheduledId);
         }
 
-        foreach (var projectileUpdater in ctx.Db.ScheduledProjectileUpdates.WorldId.Filter(worldId))
+        foreach (var projectileUpdater in ctx.Db.ScheduledProjectileUpdates.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledProjectileUpdates.ScheduledId.Delete(projectileUpdater.ScheduledId);
         }
 
-        foreach (var pickupSpawn in ctx.Db.ScheduledPickupSpawn.WorldId.Filter(worldId))
+        foreach (var pickupSpawn in ctx.Db.ScheduledPickupSpawn.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledPickupSpawn.ScheduledId.Delete(pickupSpawn.ScheduledId);
         }
 
-        foreach (var enemyTankRespawnCheck in ctx.Db.ScheduledEnemyTankRespawnCheck.WorldId.Filter(worldId))
+        foreach (var enemyTankRespawnCheck in ctx.Db.ScheduledEnemyTankRespawnCheck.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
         }
 
-        foreach (var worldReset in ctx.Db.ScheduledWorldReset.WorldId.Filter(worldId))
+        foreach (var gameReset in ctx.Db.ScheduledGameReset.GameId.Filter(gameId))
         {
-            ctx.Db.ScheduledWorldReset.ScheduledId.Delete(worldReset.ScheduledId);
+            ctx.Db.ScheduledGameReset.ScheduledId.Delete(gameReset.ScheduledId);
         }
 
-        foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.WorldId.Filter(worldId))
+        foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
         }
 
-        Log.Info($"Stopped tickers for world {worldId}");
+        Log.Info($"Stopped tickers for game {gameId}");
     }
 
-    public static void StartWorldTickers(ReducerContext ctx, string worldId)
+    public static void StartGameTickers(ReducerContext ctx, string gameId)
     {
-        if (!ctx.Db.ScheduledTankUpdates.WorldId.Filter(worldId).Any())
+        if (!ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId).Any())
         {
             ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
             {
                 ScheduledId = 0,
                 ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-                WorldId = worldId,
+                GameId = gameId,
                 LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
                 TickCount = 0
             });
         }
 
-        if (!ctx.Db.ScheduledProjectileUpdates.WorldId.Filter(worldId).Any())
+        if (!ctx.Db.ScheduledProjectileUpdates.GameId.Filter(gameId).Any())
         {
             ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
             {
                 ScheduledId = 0,
                 ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-                WorldId = worldId,
+                GameId = gameId,
                 LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             });
         }
 
-        if (!ctx.Db.ScheduledAIUpdate.WorldId.Filter(worldId).Any())
+        if (!ctx.Db.ScheduledAIUpdate.GameId.Filter(gameId).Any())
         {
             ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
             {
                 ScheduledId = 0,
                 ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
-                WorldId = worldId,
+                GameId = gameId,
                 TickCount = 0
             });
         }
 
-        Log.Info($"Started tickers for world {worldId}");
+        Log.Info($"Started tickers for game {gameId}");
     }
 
     [Reducer]
-    public static void ResetWorld(ReducerContext ctx, ScheduledWorldReset args)
+    public static void ResetGame(ReducerContext ctx, ScheduledGameReset args)
     {
-        var oldWorld = ctx.Db.world.Id.Find(args.WorldId);
-        if (oldWorld == null) return;
+        var oldGame = ctx.Db.game.Id.Find(args.GameId);
+        if (oldGame == null) return;
 
         var playerMetadatas = new List<Module.Tank>();
-        foreach (var metadata in ctx.Db.tank.WorldId.Filter(args.WorldId))
+        foreach (var metadata in ctx.Db.tank.GameId.Filter(args.GameId))
         {
             if (!metadata.IsBot)
             {
@@ -114,20 +114,20 @@ public static partial class Module
         
         if (totalTanks == 0)
         {
-            Log.Info($"No real players left in world {args.WorldId}, not creating new world");
+            Log.Info($"No real players left in game {args.GameId}, not creating new game");
             return;
         }
 
-        Log.Info($"Resetting world {args.WorldId} by creating new world...");
+        Log.Info($"Resetting game {args.GameId} by creating new game...");
 
-        var width = TerrainGenerator.GetWorldWidth();
-        var height = TerrainGenerator.GetWorldHeight();
+        var width = TerrainGenerator.GetGameWidth();
+        var height = TerrainGenerator.GetGameHeight();
         var (baseTerrain, terrainDetails, traversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
-        var newWorldId = Module.GenerateWorldId(ctx);
-        var newWorld = CreateWorld(ctx, newWorldId, baseTerrain, terrainDetails, traversibilityMap, width, height);
+        var newGameId = Module.GenerateGameId(ctx);
+        var newGame = CreateGame(ctx, newGameId, baseTerrain, terrainDetails, traversibilityMap, width, height);
 
-        SpawnInitialBots(ctx, newWorldId, newWorld);
+        SpawnInitialBots(ctx, newGameId, newGame);
         var shuffledIndices = new int[totalTanks];
         for (int i = 0; i < totalTanks; i++)
         {
@@ -149,22 +149,22 @@ public static partial class Module
 
             int newAlliance = i < (totalTanks + 1) / 2 ? 0 : 1;
 
-            var (spawnX, spawnY) = FindSpawnPosition(ctx, newWorld, newAlliance, ctx.Rng);
+            var (spawnX, spawnY) = FindSpawnPosition(ctx, newGame, newAlliance, ctx.Rng);
 
             var (newTank, newTransform) = BuildTank(
                 ctx: ctx,
-                worldId: newWorldId,
+                gameId: newGameId,
                 owner: oldMetadata.Owner,
                 name: oldMetadata.Name,
                 targetCode: oldMetadata.TargetCode,
-                joinCode: args.WorldId,
+                joinCode: args.GameId,
                 alliance: newAlliance,
                 positionX: spawnX,
                 positionY: spawnY,
                 aiBehavior: AIBehavior.None);
-            AddTankToWorld(ctx, newTank, newTransform);
+            AddTankToGame(ctx, newTank, newTransform);
         }
 
-        Log.Info($"Created new world {newWorldId} from {args.WorldId}. Teams randomized, {totalTanks} tanks created.");
+        Log.Info($"Created new game {newGameId} from {args.GameId}. Teams randomized, {totalTanks} tanks created.");
     }
 }

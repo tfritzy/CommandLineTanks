@@ -85,7 +85,7 @@ public static partial class Types
     }
 
     [Type]
-    public enum WorldVisibility : byte
+    public enum GameVisibility : byte
     {
         Public,
         Private,
@@ -203,7 +203,7 @@ public struct FullTank
     }
 
     public string Id => Tank.Id;
-    public string WorldId => Tank.WorldId;
+    public string GameId => Tank.GameId;
     public SpacetimeDB.Identity Owner => Tank.Owner;
     public string Name => Tank.Name;
     public string TargetCode => Tank.TargetCode;

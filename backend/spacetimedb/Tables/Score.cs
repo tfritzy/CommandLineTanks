@@ -7,7 +7,7 @@ public static partial class Module
     public partial struct Score
     {
         [PrimaryKey]
-        public string WorldId;
+        public string GameId;
 
         public int[] Kills;
     }

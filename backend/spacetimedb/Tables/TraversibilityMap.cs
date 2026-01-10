@@ -7,7 +7,7 @@ public static partial class Module
     public partial struct TraversibilityMap
     {
         [PrimaryKey]
-        public string WorldId;
+        public string GameId;
 
         public bool[] Map;
         public int Width;

@@ -4,14 +4,14 @@ using static Types;
 public static partial class Module
 {
     [Table(Name = "pickup", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(WorldId), nameof(GridX), nameof(GridY) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameId), nameof(GridX), nameof(GridY) })]
     public partial struct Pickup
     {
         [PrimaryKey]
         public string Id;
 
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
 
         public float PositionX;
         public float PositionY;
@@ -26,7 +26,7 @@ public static partial class Module
         public static Pickup Build(
             ReducerContext ctx,
             string? id = null,
-            string? worldId = null,
+            string? gameId = null,
             float positionX = 0,
             float positionY = 0,
             int gridX = 0,
@@ -37,7 +37,7 @@ public static partial class Module
             return new Pickup
             {
                 Id = id ?? GenerateId(ctx, "pickup"),
-                WorldId = worldId ?? "",
+                GameId = gameId ?? "",
                 PositionX = positionX,
                 PositionY = positionY,
                 GridX = gridX,

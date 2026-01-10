@@ -10,7 +10,7 @@ public static partial class Module
         public string TankId;
 
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
 
         public ulong LastFireTime;
     }
