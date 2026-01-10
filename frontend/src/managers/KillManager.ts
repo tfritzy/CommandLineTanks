@@ -15,14 +15,14 @@ interface KillNotification {
 
 export class KillManager {
   private kills: Map<string, KillNotification> = new Map();
-  private worldId: string;
+  private gameId: string;
   private soundManager: SoundManager;
   private deletedKills: Set<string> = new Set();
   private sortedNotifications: KillNotification[] = [];
   private subscription: TableSubscription<typeof KillRow> | null = null;
 
-  constructor(worldId: string, soundManager: SoundManager) {
-    this.worldId = worldId;
+  constructor(gameId: string, soundManager: SoundManager) {
+    this.gameId = gameId;
     this.soundManager = soundManager;
     this.subscribeToKills();
   }
@@ -38,7 +38,7 @@ export class KillManager {
       table: connection.db.kills,
       handlers: {
         onInsert: (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
-          if (kill.worldId !== this.worldId) return;
+          if (kill.gameId !== this.gameId) return;
           if (isCurrentIdentity(kill.killer)) {
             const notification: KillNotification = {
               id: kill.id,
@@ -51,7 +51,7 @@ export class KillManager {
           }
         },
         onDelete: (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
-          if (kill.worldId !== this.worldId) return;
+          if (kill.gameId !== this.gameId) return;
           this.kills.delete(kill.id);
           this.deletedKills.delete(kill.id);
         }

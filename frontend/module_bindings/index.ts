@@ -39,28 +39,28 @@ import CheckAndRespawnEnemyTanks from "./check_and_respawn_enemy_tanks_reducer";
 export { CheckAndRespawnEnemyTanks };
 import CleanupResultsGames from "./cleanup_results_games_reducer";
 export { CleanupResultsGames };
-import CreateWorld from "./create_world_reducer";
-export { CreateWorld };
+import CreateGame from "./create_game_reducer";
+export { CreateGame };
 import DeleteKill from "./delete_kill_reducer";
 export { DeleteKill };
 import Drive from "./drive_reducer";
 export { Drive };
 import EndGame from "./end_game_reducer";
 export { EndGame };
-import EnsureHomeworld from "./ensure_homeworld_reducer";
-export { EnsureHomeworld };
-import ExitWorld from "./exit_world_reducer";
-export { ExitWorld };
+import EnsureHomegame from "./ensure_homegame_reducer";
+export { EnsureHomegame };
+import ExitGame from "./exit_game_reducer";
+export { ExitGame };
 import Fire from "./fire_reducer";
 export { Fire };
 import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
 import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
-import JoinWorld from "./join_world_reducer";
-export { JoinWorld };
-import ResetWorld from "./reset_world_reducer";
-export { ResetWorld };
+import JoinGame from "./join_game_reducer";
+export { JoinGame };
+import ResetGame from "./reset_game_reducer";
+export { ResetGame };
 import Respawn from "./respawn_reducer";
 export { Respawn };
 import SpawnPickup from "./spawn_pickup_reducer";
@@ -87,14 +87,16 @@ import ScheduledGameCleanupRow from "./scheduled_game_cleanup_table";
 export { ScheduledGameCleanupRow };
 import ScheduledGameEndRow from "./scheduled_game_end_table";
 export { ScheduledGameEndRow };
+import ScheduledGameResetRow from "./scheduled_game_reset_table";
+export { ScheduledGameResetRow };
 import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
 export { ScheduledProjectileUpdatesRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
-import ScheduledWorldResetRow from "./scheduled_world_reset_table";
-export { ScheduledWorldResetRow };
+import GameRow from "./game_table";
+export { GameRow };
 import KillsRow from "./kills_table";
 export { KillsRow };
 import PickupRow from "./pickup_table";
@@ -119,8 +121,6 @@ import TerrainDetailRow from "./terrain_detail_table";
 export { TerrainDetailRow };
 import TraversibilityMapRow from "./traversibility_map_table";
 export { TraversibilityMapRow };
-import WorldRow from "./world_table";
-export { WorldRow };
 
 // Import and reexport all types
 import AiBehavior from "./ai_behavior_type";
@@ -135,8 +135,12 @@ import DamagedTile from "./damaged_tile_type";
 export { DamagedTile };
 import ExplosionTrigger from "./explosion_trigger_type";
 export { ExplosionTrigger };
+import Game from "./game_type";
+export { Game };
 import GameState from "./game_state_type";
 export { GameState };
+import GameVisibility from "./game_visibility_type";
+export { GameVisibility };
 import Gun from "./gun_type";
 export { Gun };
 import GunType from "./gun_type_type";
@@ -165,14 +169,14 @@ import ScheduledGameCleanup from "./scheduled_game_cleanup_type";
 export { ScheduledGameCleanup };
 import ScheduledGameEnd from "./scheduled_game_end_type";
 export { ScheduledGameEnd };
+import ScheduledGameReset from "./scheduled_game_reset_type";
+export { ScheduledGameReset };
 import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 export { ScheduledTankUpdates };
-import ScheduledWorldReset from "./scheduled_world_reset_type";
-export { ScheduledWorldReset };
 import Score from "./score_type";
 export { Score };
 import Tank from "./tank_type";
@@ -191,21 +195,17 @@ import TraversibilityMap from "./traversibility_map_type";
 export { TraversibilityMap };
 import Vector2Float from "./vector_2_float_type";
 export { Vector2Float };
-import World from "./world_type";
-export { World };
-import WorldVisibility from "./world_visibility_type";
-export { WorldVisibility };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
   __table({
     name: 'ScheduledAIUpdate',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -215,11 +215,11 @@ const tablesSchema = __schema(
   __table({
     name: 'ScheduledEnemyTankRespawnCheck',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -240,11 +240,11 @@ const tablesSchema = __schema(
   __table({
     name: 'ScheduledGameEnd',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -252,13 +252,27 @@ const tablesSchema = __schema(
     ],
   }, ScheduledGameEndRow),
   __table({
-    name: 'ScheduledPickupSpawn',
+    name: 'ScheduledGameReset',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
       ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
+    ],
+    constraints: [
+      { name: 'ScheduledGameReset_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledGameResetRow),
+  __table({
+    name: 'ScheduledPickupSpawn',
+    indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
       ] },
     ],
     constraints: [
@@ -268,11 +282,11 @@ const tablesSchema = __schema(
   __table({
     name: 'ScheduledProjectileUpdates',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -282,11 +296,11 @@ const tablesSchema = __schema(
   __table({
     name: 'ScheduledTankUpdates',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -294,27 +308,32 @@ const tablesSchema = __schema(
     ],
   }, ScheduledTankUpdatesRow),
   __table({
-    name: 'ScheduledWorldReset',
+    name: 'game',
     indexes: [
-      { name: 'ScheduledId', algorithm: 'btree', columns: [
-        'scheduledId',
+      { name: 'GameState_IsHomeGame_Visibility', algorithm: 'btree', columns: [
+        'gameState',
+        'isHomeGame',
+        'visibility',
       ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
+      { name: 'GameState', algorithm: 'btree', columns: [
+        'gameState',
       ] },
-    ],
-    constraints: [
-      { name: 'ScheduledWorldReset_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
-    ],
-  }, ScheduledWorldResetRow),
-  __table({
-    name: 'kills',
-    indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
+    ],
+    constraints: [
+      { name: 'game_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, GameRow),
+  __table({
+    name: 'kills',
+    indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
       ] },
     ],
     constraints: [
@@ -324,16 +343,16 @@ const tablesSchema = __schema(
   __table({
     name: 'pickup',
     indexes: [
-      { name: 'Id', algorithm: 'btree', columns: [
-        'id',
-      ] },
-      { name: 'WorldId_GridX_GridY', algorithm: 'btree', columns: [
-        'worldId',
+      { name: 'GameId_GridX_GridY', algorithm: 'btree', columns: [
+        'gameId',
         'gridX',
         'gridY',
       ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
       ] },
     ],
     constraints: [
@@ -358,11 +377,11 @@ const tablesSchema = __schema(
   __table({
     name: 'projectile',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -372,11 +391,11 @@ const tablesSchema = __schema(
   __table({
     name: 'projectile_transform',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'ProjectileId', algorithm: 'btree', columns: [
         'projectileId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -386,37 +405,37 @@ const tablesSchema = __schema(
   __table({
     name: 'score',
     indexes: [
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
       ] },
     ],
     constraints: [
-      { name: 'score_WorldId_key', constraint: 'unique', columns: ['worldId'] },
+      { name: 'score_GameId_key', constraint: 'unique', columns: ['gameId'] },
     ],
   }, ScoreRow),
   __table({
     name: 'tank',
     indexes: [
+      { name: 'GameId_IsBot', algorithm: 'btree', columns: [
+        'gameId',
+        'isBot',
+      ] },
+      { name: 'GameId_Owner', algorithm: 'btree', columns: [
+        'gameId',
+        'owner',
+      ] },
+      { name: 'GameId_TargetCode', algorithm: 'btree', columns: [
+        'gameId',
+        'targetCode',
+      ] },
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
       { name: 'Owner', algorithm: 'btree', columns: [
         'owner',
-      ] },
-      { name: 'WorldId_IsBot', algorithm: 'btree', columns: [
-        'worldId',
-        'isBot',
-      ] },
-      { name: 'WorldId_Owner', algorithm: 'btree', columns: [
-        'worldId',
-        'owner',
-      ] },
-      { name: 'WorldId_TargetCode', algorithm: 'btree', columns: [
-        'worldId',
-        'targetCode',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -426,11 +445,11 @@ const tablesSchema = __schema(
   __table({
     name: 'tank_fire_state',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'TankId', algorithm: 'btree', columns: [
         'tankId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -440,14 +459,14 @@ const tablesSchema = __schema(
   __table({
     name: 'tank_path',
     indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
       { name: 'Owner', algorithm: 'btree', columns: [
         'owner',
       ] },
       { name: 'TankId', algorithm: 'btree', columns: [
         'tankId',
-      ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
       ] },
     ],
     constraints: [
@@ -457,16 +476,16 @@ const tablesSchema = __schema(
   __table({
     name: 'tank_transform',
     indexes: [
-      { name: 'TankId', algorithm: 'btree', columns: [
-        'tankId',
-      ] },
-      { name: 'WorldId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
-        'worldId',
+      { name: 'GameId_CollisionRegionX_CollisionRegionY', algorithm: 'btree', columns: [
+        'gameId',
         'collisionRegionX',
         'collisionRegionY',
       ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'TankId', algorithm: 'btree', columns: [
+        'tankId',
       ] },
     ],
     constraints: [
@@ -476,16 +495,16 @@ const tablesSchema = __schema(
   __table({
     name: 'terrain_detail',
     indexes: [
-      { name: 'Id', algorithm: 'btree', columns: [
-        'id',
-      ] },
-      { name: 'WorldId_GridX_GridY', algorithm: 'btree', columns: [
-        'worldId',
+      { name: 'GameId_GridX_GridY', algorithm: 'btree', columns: [
+        'gameId',
         'gridX',
         'gridY',
       ] },
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
       ] },
     ],
     constraints: [
@@ -495,33 +514,14 @@ const tablesSchema = __schema(
   __table({
     name: 'traversibility_map',
     indexes: [
-      { name: 'WorldId', algorithm: 'btree', columns: [
-        'worldId',
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
       ] },
     ],
     constraints: [
-      { name: 'traversibility_map_WorldId_key', constraint: 'unique', columns: ['worldId'] },
+      { name: 'traversibility_map_GameId_key', constraint: 'unique', columns: ['gameId'] },
     ],
   }, TraversibilityMapRow),
-  __table({
-    name: 'world',
-    indexes: [
-      { name: 'GameState_IsHomeWorld_Visibility', algorithm: 'btree', columns: [
-        'gameState',
-        'isHomeWorld',
-        'visibility',
-      ] },
-      { name: 'GameState', algorithm: 'btree', columns: [
-        'gameState',
-      ] },
-      { name: 'Id', algorithm: 'btree', columns: [
-        'id',
-      ] },
-    ],
-    constraints: [
-      { name: 'world_Id_key', constraint: 'unique', columns: ['id'] },
-    ],
-  }, WorldRow),
 );
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
@@ -530,15 +530,15 @@ const reducersSchema = __reducers(
   __reducerSchema("changeName", ChangeName),
   __reducerSchema("CheckAndRespawnEnemyTanks", CheckAndRespawnEnemyTanks),
   __reducerSchema("CleanupResultsGames", CleanupResultsGames),
-  __reducerSchema("createWorld", CreateWorld),
+  __reducerSchema("createGame", CreateGame),
   __reducerSchema("delete_kill", DeleteKill),
   __reducerSchema("drive", Drive),
   __reducerSchema("EndGame", EndGame),
-  __reducerSchema("ensureHomeworld", EnsureHomeworld),
-  __reducerSchema("exitWorld", ExitWorld),
+  __reducerSchema("ensureHomegame", EnsureHomegame),
+  __reducerSchema("exitGame", ExitGame),
   __reducerSchema("fire", Fire),
-  __reducerSchema("joinWorld", JoinWorld),
-  __reducerSchema("ResetWorld", ResetWorld),
+  __reducerSchema("joinGame", JoinGame),
+  __reducerSchema("ResetGame", ResetGame),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("SpawnPickup", SpawnPickup),
   __reducerSchema("stop", Stop),

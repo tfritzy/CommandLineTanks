@@ -7,10 +7,10 @@ import { COLORS, PALETTE, colorize } from "../../theme/colors";
 import { aim, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitWorld, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
 import { type EventContext } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
-import WorldRow from "../../../module_bindings/world_type";
+import GameRow from "../../../module_bindings/game_type";
 
 interface TerminalComponentProps {
-  worldId: string;
+  gameId: string;
 }
 
 const KEY_ENTER = 13;
@@ -31,7 +31,7 @@ const VALID_COMMANDS = ['aim', 'a', 'drive', 'd', 'stop', 's', 'fire', 'f',
 const MAX_TERMINAL_LINES = 1000;
 const SEPARATOR_LENGTH = 80;
 
-function TerminalComponent({ worldId }: TerminalComponentProps) {
+function TerminalComponent({ gameId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -142,30 +142,30 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       switch (commandName.toLowerCase()) {
         case 'aim':
         case 'a':
-          return aim(connection, worldId, commandArgs);
+          return aim(connection, gameId, commandArgs);
         case 'drive':
         case 'd':
-          return drive(connection, worldId, commandArgs);
+          return drive(connection, gameId, commandArgs);
         case 'stop':
         case 's':
-          return stop(connection, worldId, commandArgs);
+          return stop(connection, gameId, commandArgs);
         case 'fire':
         case 'f':
-          return fire(connection, worldId, commandArgs);
+          return fire(connection, gameId, commandArgs);
         case 'switch':
         case 'w':
-          return switchGun(connection, worldId, commandArgs);
+          return switchGun(connection, gameId, commandArgs);
         case 'respawn':
-          return respawn(connection, worldId, commandArgs);
+          return respawn(connection, gameId, commandArgs);
         case 'tanks':
-          return tanks(connection, worldId, commandArgs);
+          return tanks(connection, gameId, commandArgs);
         case 'create':
           return create(connection, commandArgs);
         case 'join':
-          return join(connection, worldId, commandArgs);
+          return join(connection, gameId, commandArgs);
         case 'exit':
         case 'e':
-          return exitWorld(connection, worldId, commandArgs);
+          return exitWorld(connection, gameId, commandArgs);
         case 'name':
           return changeName(connection, commandArgs);
         case 'help':
@@ -424,16 +424,16 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       window.removeEventListener("resize", handleResize);
       term.dispose();
     };
-  }, [worldId]);
+  }, [gameId]);
 
   useEffect(() => {
     const connection = getConnection();
     const term = xtermRef.current;
     if (!connection || !term) return;
 
-    const handleWorldInsert = (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
-      if (world.owner && connection.identity && world.owner.isEqual(connection.identity)) {
-        const url = `${window.location.origin}/world/${world.id}`;
+    const handleWorldInsert = (_ctx: EventContext, game: Infer<typeof GameRow>) => {
+      if (game.owner && connection.identity && game.owner.isEqual(connection.identity)) {
+        const url = `${window.location.origin}/game/${game.id}`;
         
         const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'BORDER');
         const title = colorize('🎮 WORLD CREATED SUCCESSFULLY', 'SUCCESS');
@@ -453,10 +453,10 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
       }
     };
 
-    connection.db.world.onInsert(handleWorldInsert);
+    connection.db.game.onInsert(handleWorldInsert);
 
     return () => {
-      connection.db.world.removeOnInsert(handleWorldInsert);
+      connection.db.game.removeOnInsert(handleWorldInsert);
     };
   }, []);
 

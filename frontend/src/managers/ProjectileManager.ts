@@ -14,7 +14,7 @@ import { subscribeToTable, type TableSubscription } from "../utils/tableSubscrip
 
 export class ProjectileManager {
   private projectiles: Map<bigint, Projectile> = new Map();
-  private worldId: string;
+  private gameId: string;
   private particlesManager: ProjectileImpactParticlesManager;
   private tankManager: TankManager | null = null;
   private screenShake: ScreenShake;
@@ -22,8 +22,8 @@ export class ProjectileManager {
   private projectileSubscription: TableSubscription<typeof ProjectileRow> | null = null;
   private transformSubscription: TableSubscription<typeof ProjectileTransformRow> | null = null;
 
-  constructor(worldId: string, screenShake: ScreenShake, soundManager: SoundManager) {
-    this.worldId = worldId;
+  constructor(gameId: string, screenShake: ScreenShake, soundManager: SoundManager) {
+    this.gameId = gameId;
     this.particlesManager = new ProjectileImpactParticlesManager();
     this.screenShake = screenShake;
     this.soundManager = soundManager;
@@ -42,7 +42,7 @@ export class ProjectileManager {
       table: connection.db.projectile,
       handlers: {
         onInsert: (_ctx: EventContext, newProjectile: Infer<typeof ProjectileRow>) => {
-          if (newProjectile.worldId !== this.worldId) return;
+          if (newProjectile.gameId !== this.gameId) return;
 
           if (this.projectiles.has(newProjectile.id)) return;
 
@@ -71,7 +71,7 @@ export class ProjectileManager {
         },
         onUpdate: () => {},
         onDelete: (_ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => {
-          if (projectile.worldId !== this.worldId) return;
+          if (projectile.gameId !== this.gameId) return;
           this.projectiles.delete(projectile.id);
         }
       }
@@ -85,7 +85,7 @@ export class ProjectileManager {
 
           const projectileData = connection.db.projectile.id.find(newTransform.projectileId);
           if (!projectileData) return;
-          if (projectileData.worldId !== this.worldId) return;
+          if (projectileData.gameId !== this.gameId) return;
 
           const projectile = ProjectileFactory.create(
             projectileData.projectileType.tag,

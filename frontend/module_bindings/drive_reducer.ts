@@ -11,7 +11,7 @@ import {
 } from "spacetimedb";
 
 export default {
-  worldId: __t.string(),
+  gameId: __t.string(),
   targetX: __t.i32(),
   targetY: __t.i32(),
   throttle: __t.f32(),

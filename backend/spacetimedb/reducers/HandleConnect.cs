@@ -27,7 +27,7 @@ public static partial class Module
         }
 
         var identityString = ctx.Sender.ToString().ToLower();
-        var existingTank = ctx.Db.tank.WorldId_Owner.Filter((identityString, ctx.Sender))
+        var existingTank = ctx.Db.tank.GameId_Owner.Filter((identityString, ctx.Sender))
             .FirstOrDefault();
         if (existingTank.Id == null)
         {

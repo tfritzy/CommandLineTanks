@@ -12,7 +12,7 @@ import {
 
 export default __t.row({
   id: __t.string().primaryKey(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   killer: __t.identity(),
   killeeName: __t.string(),
   timestamp: __t.u64(),

@@ -15,15 +15,15 @@ public static partial class BehaviorTreeAI
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
         public int TickCount;
     }
 
     [Reducer]
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
-        var aiContext = new AIContext(ctx, args.WorldId);
-        var aiTanks = ctx.Db.tank.WorldId_IsBot.Filter((args.WorldId, true)).ToList();
+        var aiContext = new AIContext(ctx, args.GameId);
+        var aiTanks = ctx.Db.tank.GameId_IsBot.Filter((args.GameId, true)).ToList();
 
         foreach (var tank in aiTanks)
         {
@@ -53,7 +53,7 @@ public static partial class BehaviorTreeAI
                 {
                     spawnPosition = (transform.PositionX, transform.PositionY);
                 }
-                RespawnTank(ctx, tank, transform, args.WorldId, tank.Alliance, false, spawnPosition);
+                RespawnTank(ctx, tank, transform, args.GameId, tank.Alliance, false, spawnPosition);
                 continue;
             }
 

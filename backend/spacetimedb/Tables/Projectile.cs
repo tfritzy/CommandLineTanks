@@ -12,7 +12,7 @@ public static partial class Module
         public ulong Id;
 
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
 
         public string ShooterTankId;
 
@@ -43,7 +43,7 @@ public static partial class Module
 
     public static (Projectile, ProjectileTransform) BuildProjectile(
         ReducerContext ctx,
-        string? worldId = null,
+        string? gameId = null,
         string? shooterTankId = null,
         int alliance = 0,
         float positionX = 0,
@@ -74,7 +74,7 @@ public static partial class Module
 
         var projectile = new Projectile
         {
-            WorldId = worldId ?? "",
+            GameId = gameId ?? "",
             ShooterTankId = shooterTankId ?? "",
             Alliance = alliance,
             Size = size,
@@ -100,7 +100,7 @@ public static partial class Module
 
         var transform = new ProjectileTransform
         {
-            WorldId = worldId ?? "",
+            GameId = gameId ?? "",
             PositionX = positionX,
             PositionY = positionY,
             Velocity = velocity ?? new Vector2Float(0, 0),

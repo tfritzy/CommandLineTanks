@@ -10,7 +10,7 @@ public static partial class Module
         public string Id;
 
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
 
         public Identity Killer;
 

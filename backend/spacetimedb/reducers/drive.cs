@@ -7,17 +7,17 @@ using System.Linq;
 public static partial class Module
 {
     [Reducer]
-    public static void drive(ReducerContext ctx, string worldId, int targetX, int targetY, float throttle)
+    public static void drive(ReducerContext ctx, string gameId, int targetX, int targetY, float throttle)
     {
-        World? maybeWorld = ctx.Db.world.Id.Find(worldId);
-        if (maybeWorld != null)
+        Game? maybeGame = ctx.Db.game.Id.Find(gameId);
+        if (maybeGame != null)
         {
-            var world = maybeWorld.Value;
-            targetX = Math.Max(0, Math.Min(world.Width - 1, targetX));
-            targetY = Math.Max(0, Math.Min(world.Height - 1, targetY));
+            var game = maybeGame.Value;
+            targetX = Math.Max(0, Math.Min(game.Width - 1, targetX));
+            targetY = Math.Max(0, Math.Min(game.Height - 1, targetY));
         }
 
-        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        Tank? tankQuery = ctx.Db.tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
         
@@ -27,7 +27,7 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        TraversibilityMap? maybeMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
+        TraversibilityMap? maybeMap = ctx.Db.traversibility_map.GameId.Find(gameId);
         if (maybeMap == null) return;
         var traversibilityMap = maybeMap.Value;
 
@@ -61,7 +61,7 @@ public static partial class Module
         var newPathState = new TankPath
         {
             TankId = tank.Id,
-            WorldId = tank.WorldId,
+            GameId = tank.GameId,
             Owner = tank.Owner,
             Path = pathEntries.ToArray()
         };

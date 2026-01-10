@@ -11,7 +11,7 @@ public static partial class Module
 
         var (projectile, transform) = BuildProjectile(
             ctx: ctx,
-            worldId: tank.WorldId,
+            gameId: tank.GameId,
             shooterTankId: tank.Id,
             alliance: tank.Alliance,
             positionX: startX,

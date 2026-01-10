@@ -10,15 +10,8 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-import WorldVisibility from "./world_visibility_type";
-
 export default {
+  gameId: __t.option(__t.string()),
+  currentGameId: __t.option(__t.string()),
   joinCode: __t.string(),
-  get visibility() {
-    return WorldVisibility;
-  },
-  botCount: __t.i32(),
-  gameDurationMicros: __t.i64(),
-  width: __t.i32(),
-  height: __t.i32(),
 };

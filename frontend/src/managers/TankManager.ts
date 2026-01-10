@@ -20,7 +20,7 @@ export class TankManager {
   private playerTankId: string | null = null;
   private playerTargetTankId: string | null = null;
   private targetingReticle: TargetingReticle;
-  private worldId: string;
+  private gameId: string;
   private particlesManager: DeadTankParticlesManager;
   private indicatorManager: TankIndicatorManager;
   private screenShake: ScreenShake;
@@ -28,8 +28,8 @@ export class TankManager {
   private soundManager: SoundManager;
   private subscription: MultiTableSubscription | null = null;
 
-  constructor(worldId: string, screenShake: ScreenShake, soundManager: SoundManager) {
-    this.worldId = worldId;
+  constructor(gameId: string, screenShake: ScreenShake, soundManager: SoundManager) {
+    this.gameId = gameId;
     this.soundManager = soundManager;
     this.particlesManager = new DeadTankParticlesManager();
     this.indicatorManager = new TankIndicatorManager();
@@ -48,11 +48,11 @@ export class TankManager {
         table: connection.db.tank,
         handlers: {
           onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-            if (tank.worldId !== this.worldId) return;
+            if (tank.gameId !== this.gameId) return;
             this.buildTank(tank.id);
           },
           onUpdate: (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-            if (newTank.worldId !== this.worldId) return;
+            if (newTank.gameId !== this.gameId) return;
             const tank = this.tanks.get(newTank.id);
             if (tank) {
               if (oldTank.health > 0 && newTank.health <= 0) {
@@ -120,20 +120,20 @@ export class TankManager {
             }
 
             if (oldTank.target !== newTank.target) {
-              if (isCurrentIdentity(newTank.owner) && newTank.worldId == this.worldId) {
+              if (isCurrentIdentity(newTank.owner) && newTank.gameId == this.gameId) {
                 this.updatePlayerTarget(newTank.target);
               }
             }
           },
           onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-            if (tank.worldId !== this.worldId) return;
+            if (tank.gameId !== this.gameId) return;
             this.tanks.delete(tank.id);
 
-            if (this.playerTankId === tank.id && tank.worldId == this.worldId) {
+            if (this.playerTankId === tank.id && tank.gameId == this.gameId) {
               this.playerTankId = null;
             }
 
-            if (this.playerTargetTankId === tank.id && tank.worldId == this.worldId) {
+            if (this.playerTargetTankId === tank.id && tank.gameId == this.gameId) {
               this.updatePlayerTarget(null);
             }
           }
@@ -143,10 +143,10 @@ export class TankManager {
         table: connection.db.tankTransform,
         handlers: {
           onInsert: (_ctx: EventContext, transform: Infer<typeof TankTransformRow>) => {
-            if (transform.worldId !== this.worldId) return;
+            if (transform.gameId !== this.gameId) return;
             
             const tankData = connection.db.tank.id.find(transform.tankId);
-            if (tankData && isCurrentIdentity(tankData.owner) && tankData.worldId == this.worldId) {
+            if (tankData && isCurrentIdentity(tankData.owner) && tankData.gameId == this.gameId) {
               this.playerTankId = transform.tankId;
               this.updatePlayerTarget(tankData.target);
             }
@@ -162,7 +162,7 @@ export class TankManager {
             }
           },
           onUpdate: (_ctx: EventContext, _oldTransform: Infer<typeof TankTransformRow>, newTransform: Infer<typeof TankTransformRow>) => {
-            if (newTransform.worldId !== this.worldId) return;
+            if (newTransform.gameId !== this.gameId) return;
             const tank = this.tanks.get(newTransform.tankId);
             if (tank) {
               tank.setPosition(newTransform.positionX, newTransform.positionY, newTransform.updatedAt);
@@ -172,7 +172,7 @@ export class TankManager {
             }
           },
           onDelete: (_ctx: EventContext, transform: Infer<typeof TankTransformRow>) => {
-            if (transform.worldId !== this.worldId) return;
+            if (transform.gameId !== this.gameId) return;
             if (this.playerTankId === transform.tankId) {
               this.playerTankId = null;
             }
@@ -183,21 +183,21 @@ export class TankManager {
         table: connection.db.tankPath,
         handlers: {
           onInsert: (_ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => {
-            if (tankPath.worldId !== this.worldId) return;
+            if (tankPath.gameId !== this.gameId) return;
             const tank = this.tanks.get(tankPath.tankId);
             if (tank) {
               tank.setPath(tankPath.path);
             }
           },
           onUpdate: (_ctx: EventContext, _oldPath: Infer<typeof TankPathRow>, newPath: Infer<typeof TankPathRow>) => {
-            if (newPath.worldId !== this.worldId) return;
+            if (newPath.gameId !== this.gameId) return;
             const tank = this.tanks.get(newPath.tankId);
             if (tank) {
               tank.setPath(newPath.path);
             }
           },
           onDelete: (_ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => {
-            if (tankPath.worldId !== this.worldId) return;
+            if (tankPath.gameId !== this.gameId) return;
             const tank = this.tanks.get(tankPath.tankId);
             if (tank) {
               tank.setPath([]);
@@ -251,7 +251,7 @@ export class TankManager {
 
     this.tanks.set(tank.id, newTank);
     
-    if (isCurrentIdentity(tank.owner) && tank.worldId == this.worldId) {
+    if (isCurrentIdentity(tank.owner) && tank.gameId == this.gameId) {
       this.playerTankId = tank.id;
       this.updatePlayerTarget(tank.target);
     }

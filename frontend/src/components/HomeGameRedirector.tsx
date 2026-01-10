@@ -2,17 +2,17 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getIdentityHex } from '../spacetimedb-connection';
 
-const HomeWorldRedirector: React.FC = () => {
+const HomeGameRedirector: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const homeWorldId = getIdentityHex();
-        if (!homeWorldId) {
+        const homeGameId = getIdentityHex();
+        if (!homeGameId) {
             navigate('/');
             return;
         }
 
-        navigate(`/world/${homeWorldId.toLowerCase()}`, { replace: true });
+        navigate(`/game/${homeGameId.toLowerCase()}`, { replace: true });
     }, [navigate]);
 
     return (
@@ -22,4 +22,4 @@ const HomeWorldRedirector: React.FC = () => {
     );
 };
 
-export default HomeWorldRedirector;
+export default HomeGameRedirector;

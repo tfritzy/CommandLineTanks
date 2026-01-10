@@ -14,7 +14,7 @@ import Vector2Float from "./vector_2_float_type";
 
 export default __t.object("ProjectileTransform", {
   projectileId: __t.u64(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
   get velocity() {

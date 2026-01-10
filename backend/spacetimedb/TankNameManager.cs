@@ -9,12 +9,12 @@ public static partial class Module
         'u', 'v', 'w', 'x', 'y', 'z'
     ];
 
-    public static string? AllocateTargetCode(ReducerContext ctx, string worldId)
+    public static string? AllocateTargetCode(ReducerContext ctx, string gameId)
     {
-        var tanksInWorld = ctx.Db.tank.WorldId.Filter(worldId);
+        var tanksInGame = ctx.Db.tank.GameId.Filter(gameId);
         var usedCodes = new HashSet<string>();
         
-        foreach (var tank in tanksInWorld)
+        foreach (var tank in tanksInGame)
         {
             if (tank.TargetCode != null)
             {

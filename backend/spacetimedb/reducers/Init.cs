@@ -13,20 +13,20 @@ public static partial class Module
         });
     }
 
-    public static void SpawnInitialBots(ReducerContext ctx, string worldId, World world)
+    public static void SpawnInitialBots(ReducerContext ctx, string gameId, Game game)
     {
         for (int alliance = 0; alliance < 2; alliance++)
         {
             for (int i = 0; i < 2; i++)
             {
-                var targetCode = AllocateTargetCode(ctx, worldId);
+                var targetCode = AllocateTargetCode(ctx, gameId);
                 if (targetCode == null) continue;
 
-                var (spawnX, spawnY) = FindSpawnPosition(ctx, world, alliance, ctx.Rng);
+                var (spawnX, spawnY) = FindSpawnPosition(ctx, game, alliance, ctx.Rng);
                 var botName = $"Bot{ctx.Rng.Next(1000, 10000)}";
                 var (botTank, botTransform) = BuildTank(
                     ctx: ctx,
-                    worldId: worldId,
+                    gameId: gameId,
                     owner: Identity.From(new byte[32]),
                     name: botName,
                     targetCode: targetCode,
@@ -35,10 +35,10 @@ public static partial class Module
                     positionX: spawnX,
                     positionY: spawnY,
                     aiBehavior: AIBehavior.GameAI);
-                AddTankToWorld(ctx, botTank, botTransform);
+                AddTankToGame(ctx, botTank, botTransform);
             }
         }
 
-        Log.Info($"Spawned initial bot tanks for world {worldId}");
+        Log.Info($"Spawned initial bot tanks for game {gameId}");
     }
 }

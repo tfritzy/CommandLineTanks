@@ -3,29 +3,29 @@ using static Types;
 
 public static partial class Module
 {
-    public static World CreateWorld(
+    public static Game CreateGame(
         ReducerContext ctx,
-        string worldId,
+        string gameId,
         BaseTerrain[] baseTerrain,
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
         bool[] traversibilityMap,
         int width,
         int height,
-        WorldVisibility visibility = WorldVisibility.Public,
+        GameVisibility visibility = GameVisibility.Public,
         long? gameDurationMicros = null,
         Identity? owner = null)
     {
         var duration = gameDurationMicros ?? GAME_DURATION_MICROS;
         
-        var world = new World
+        var game = new Game
         {
-            Id = worldId,
+            Id = gameId,
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             Width = width,
             Height = height,
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
-            IsHomeWorld = false,
+            IsHomeGame = false,
             GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             GameDurationMicros = duration,
             Visibility = visibility,
@@ -35,7 +35,7 @@ public static partial class Module
             Owner = owner
         };
 
-        ctx.Db.world.Insert(world);
+        ctx.Db.game.Insert(game);
 
         foreach (var detail in terrainDetails)
         {
@@ -53,7 +53,7 @@ public static partial class Module
             ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 id: terrainDetailId,
-                worldId: worldId,
+                gameId: gameId,
                 positionX: posX,
                 positionY: posY,
                 gridX: detail.x,
@@ -67,7 +67,7 @@ public static partial class Module
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
-            WorldId = worldId,
+            GameId = gameId,
             Map = traversibilityMap,
             Width = width,
             Height = height
@@ -75,21 +75,21 @@ public static partial class Module
 
         ctx.Db.score.Insert(new Score
         {
-            WorldId = worldId,
+            GameId = gameId,
             Kills = new int[] { 0, 0 }
         });
 
-        StartWorldTickers(ctx, worldId);
+        StartGameTickers(ctx, gameId);
 
-        PickupSpawner.InitializePickupSpawner(ctx, worldId, 5);
+        PickupSpawner.InitializePickupSpawner(ctx, gameId, 5);
 
         ctx.Db.ScheduledGameEnd.Insert(new GameTimer.ScheduledGameEnd
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = GAME_DURATION_MICROS }),
-            WorldId = worldId
+            GameId = gameId
         });
 
-        return world;
+        return game;
     }
 }

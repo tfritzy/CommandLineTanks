@@ -7,9 +7,9 @@ public static partial class Module
     private const int MAX_SPAWN_ATTEMPTS = 100;
     private const int SPAWN_ZONE_WIDTH = 5;
 
-    public static void RespawnTank(ReducerContext ctx, Tank tank, TankTransform transform, string worldId, int alliance, bool resetKills = false, (float, float)? spawnPosition = null)
+    public static void RespawnTank(ReducerContext ctx, Tank tank, TankTransform transform, string gameId, int alliance, bool resetKills = false, (float, float)? spawnPosition = null)
     {
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
+        var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(gameId);
         if (traversibilityMap == null)
         {
             return;
@@ -17,7 +17,7 @@ public static partial class Module
 
         var (spawnX, spawnY) = spawnPosition ?? FindSpawnPosition(ctx, traversibilityMap.Value, alliance, ctx.Rng);
 
-        var newTargetCode = AllocateTargetCode(ctx, worldId) ?? tank.TargetCode;
+        var newTargetCode = AllocateTargetCode(ctx, gameId) ?? tank.TargetCode;
 
         var respawnedTank = tank with
         {
@@ -52,9 +52,9 @@ public static partial class Module
         ctx.Db.tank_transform.TankId.Update(respawnedTransform);
     }
 
-    public static (float, float) FindSpawnPosition(ReducerContext ctx, World world, int alliance, Random random)
+    public static (float, float) FindSpawnPosition(ReducerContext ctx, Game game, int alliance, Random random)
     {
-        var traversibilityMapQuery = ctx.Db.traversibility_map.WorldId.Find(world.Id);
+        var traversibilityMapQuery = ctx.Db.traversibility_map.GameId.Find(game.Id);
         if (traversibilityMapQuery == null) return (0, 0);
         return FindSpawnPosition(ctx, traversibilityMapQuery.Value, alliance, random);
     }
@@ -112,11 +112,11 @@ public static partial class Module
         return (centerX, centerY);
     }
 
-    public static int GetBalancedAlliance(ReducerContext ctx, string worldId)
+    public static int GetBalancedAlliance(ReducerContext ctx, string gameId)
     {
         int alliance0Count = 0;
         int alliance1Count = 0;
-        foreach (var t in ctx.Db.tank.WorldId.Filter(worldId))
+        foreach (var t in ctx.Db.tank.GameId.Filter(gameId))
         {
             if (t.Alliance == 0)
             {
@@ -131,38 +131,38 @@ public static partial class Module
         return alliance0Count <= alliance1Count ? 0 : 1;
     }
 
-    public static (Tank, TankTransform)? CreateTankInWorld(ReducerContext ctx, string worldId, Identity owner, string joinCode)
+    public static (Tank, TankTransform)? CreateTankInGame(ReducerContext ctx, string gameId, Identity owner, string joinCode)
     {
-        Tank? existingTank = ctx.Db.tank.WorldId_Owner.Filter((worldId, owner)).FirstOrDefault();
+        Tank? existingTank = ctx.Db.tank.GameId_Owner.Filter((gameId, owner)).FirstOrDefault();
         if (existingTank != null && !string.IsNullOrEmpty(existingTank.Value.Id))
         {
-            Log.Info($"Player already has tank in world {worldId}, removing before creating new one");
-            RemoveTankFromWorld(ctx, existingTank.Value);
+            Log.Info($"Player already has tank in game {gameId}, removing before creating new one");
+            RemoveTankFromGame(ctx, existingTank.Value);
         }
 
-        var world = ctx.Db.world.Id.Find(worldId);
-        if (world == null)
+        var game = ctx.Db.game.Id.Find(gameId);
+        if (game == null)
         {
-            Log.Error($"World {worldId} not found");
+            Log.Error($"Game {gameId} not found");
             return null;
         }
 
-        var targetCode = AllocateTargetCode(ctx, worldId);
+        var targetCode = AllocateTargetCode(ctx, gameId);
         if (targetCode == null)
         {
-            Log.Error($"No available target codes in world {worldId}");
+            Log.Error($"No available target codes in game {gameId}");
             return null;
         }
 
         var player = ctx.Db.player.Identity.Find(owner);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
-        int assignedAlliance = GetBalancedAlliance(ctx, worldId);
-        var (spawnX, spawnY) = FindSpawnPosition(ctx, world.Value, assignedAlliance, ctx.Rng);
+        int assignedAlliance = GetBalancedAlliance(ctx, gameId);
+        var (spawnX, spawnY) = FindSpawnPosition(ctx, game.Value, assignedAlliance, ctx.Rng);
 
         var (tank, transform) = BuildTank(
             ctx: ctx,
-            worldId: worldId,
+            gameId: gameId,
             owner: owner,
             name: playerName,
             targetCode: targetCode,

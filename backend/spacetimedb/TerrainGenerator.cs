@@ -305,12 +305,12 @@ public static partial class TerrainGenerator
         RemoveNeighboringTrees(terrainDetail, random, width, height);
     }
 
-    public static int GetWorldWidth()
+    public static int GetGameWidth()
     {
         return DEFAULT_WORLD_WIDTH;
     }
 
-    public static int GetWorldHeight()
+    public static int GetGameHeight()
     {
         return DEFAULT_WORLD_HEIGHT;
     }

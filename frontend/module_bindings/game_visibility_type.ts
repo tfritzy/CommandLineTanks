@@ -10,7 +10,12 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  worldId: __t.string(),
-  joinCode: __t.string(),
-};
+// The tagged union or sum type for the algebraic type `GameVisibility`.
+const GameVisibility = __t.enum("GameVisibility", {Public: __t.unit(),
+  Private: __t.unit(),
+  CustomPublic: __t.unit(),
+});
+
+export default GameVisibility;
+
+

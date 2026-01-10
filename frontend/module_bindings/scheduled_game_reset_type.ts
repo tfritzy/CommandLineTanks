@@ -10,8 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  worldId: __t.option(__t.string()),
-  currentWorldId: __t.option(__t.string()),
-  joinCode: __t.string(),
-};
+export default __t.object("ScheduledGameReset", {
+  scheduledId: __t.u64(),
+  scheduledAt: __t.scheduleAt(),
+  gameId: __t.string(),
+});
+
+

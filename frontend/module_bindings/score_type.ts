@@ -11,7 +11,7 @@ import {
 } from "spacetimedb";
 
 export default __t.object("Score", {
-  worldId: __t.string(),
+  gameId: __t.string(),
   kills: __t.array(__t.i32()),
 });
 

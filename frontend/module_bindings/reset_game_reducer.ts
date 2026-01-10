@@ -10,12 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-// The tagged union or sum type for the algebraic type `WorldVisibility`.
-const WorldVisibility = __t.enum("WorldVisibility", {Public: __t.unit(),
-  Private: __t.unit(),
-  CustomPublic: __t.unit(),
-});
+import ScheduledGameReset from "./scheduled_game_reset_type";
 
-export default WorldVisibility;
-
-
+export default {
+  get args() {
+    return ScheduledGameReset;
+  },
+};

@@ -34,7 +34,7 @@ export class Game {
   private resizeObserver: ResizeObserver | null = null;
   private fpsCounter: FpsCounter;
 
-  constructor(canvas: HTMLCanvasElement, worldId: string) {
+  constructor(canvas: HTMLCanvasElement, gameId: string) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
@@ -56,14 +56,14 @@ export class Game {
     this.soundManager = SoundManager.getInstance();
     this.screenShake = new ScreenShake();
     this.fpsCounter = new FpsCounter();
-    this.tankManager = new TankManager(worldId, this.screenShake, this.soundManager);
-    this.terrainManager = new TerrainManager(worldId, this.soundManager);
-    this.projectileManager = new ProjectileManager(worldId, this.screenShake, this.soundManager);
+    this.tankManager = new TankManager(gameId, this.screenShake, this.soundManager);
+    this.terrainManager = new TerrainManager(gameId, this.soundManager);
+    this.projectileManager = new ProjectileManager(gameId, this.screenShake, this.soundManager);
     this.projectileManager.setTankManager(this.tankManager);
-    this.gunInventoryManager = new GunInventoryManager(worldId);
-    this.pickupManager = new PickupManager(worldId, this.soundManager);
-    this.miniMapManager = new MiniMapManager(this.tankManager, worldId);
-    this.killManager = new KillManager(worldId, this.soundManager);
+    this.gunInventoryManager = new GunInventoryManager(gameId);
+    this.pickupManager = new PickupManager(gameId, this.soundManager);
+    this.miniMapManager = new MiniMapManager(this.tankManager, gameId);
+    this.killManager = new KillManager(gameId, this.soundManager);
   }
 
   private resizeCanvas() {

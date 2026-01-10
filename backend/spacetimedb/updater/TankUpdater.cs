@@ -9,15 +9,15 @@ public static partial class TankUpdater
     public class TankUpdateContext
     {
         private readonly ReducerContext _ctx;
-        private readonly string _worldId;
+        private readonly string _gameId;
         private Dictionary<string, (Module.Tank, Module.TankTransform)?>? _fullTanksById;
         private Dictionary<(int, int), List<Module.Pickup>>? _pickupsByTile;
         private Dictionary<(int, int), List<Module.TerrainDetail>>? _terrainDetailsByTile;
 
-        public TankUpdateContext(ReducerContext ctx, string worldId)
+        public TankUpdateContext(ReducerContext ctx, string gameId)
         {
             _ctx = ctx;
-            _worldId = worldId;
+            _gameId = gameId;
         }
 
         public (Module.Tank, Module.TankTransform)? GetFullTankById(string tankId)
@@ -56,7 +56,7 @@ public static partial class TankUpdater
             if (!_pickupsByTile.ContainsKey(key))
             {
                 var pickups = new List<Module.Pickup>();
-                foreach (var pickup in _ctx.Db.pickup.WorldId_GridX_GridY.Filter((_worldId, tileX, tileY)))
+                foreach (var pickup in _ctx.Db.pickup.GameId_GridX_GridY.Filter((_gameId, tileX, tileY)))
                 {
                     pickups.Add(pickup);
                 }
@@ -77,7 +77,7 @@ public static partial class TankUpdater
             if (!_terrainDetailsByTile.ContainsKey(key))
             {
                 var details = new List<Module.TerrainDetail>();
-                foreach (var detail in _ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((_worldId, tileX, tileY)))
+                foreach (var detail in _ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((_gameId, tileX, tileY)))
                 {
                     details.Add(detail);
                 }
@@ -96,7 +96,7 @@ public static partial class TankUpdater
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
         public ulong LastTickAt;
         public ulong TickCount;
     }
@@ -116,9 +116,9 @@ public static partial class TankUpdater
             TickCount = newTickCount
         });
 
-        var updateContext = new TankUpdateContext(ctx, args.WorldId);
+        var updateContext = new TankUpdateContext(ctx, args.GameId);
 
-        foreach (var iTank in ctx.Db.tank.WorldId.Filter(args.WorldId))
+        foreach (var iTank in ctx.Db.tank.GameId.Filter(args.GameId))
         {
             bool needsTankUpdate = false;
             bool needsTransformUpdate = false;

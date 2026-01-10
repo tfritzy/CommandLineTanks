@@ -23,7 +23,7 @@ public static partial class PickupSpawner
         .Where(t => t != PickupType.Health)
         .ToArray();
 
-    public static readonly PickupType[] HOMEWORLD_PICKUP_TYPES = new PickupType[]
+    public static readonly PickupType[] HOMEGAME_PICKUP_TYPES = new PickupType[]
     {
         PickupType.TripleShooter,
         PickupType.MissileLauncher,
@@ -74,22 +74,22 @@ public static partial class PickupSpawner
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
     }
 
     [Reducer]
     public static void SpawnPickup(ReducerContext ctx, ScheduledPickupSpawn args)
     {
-        var world = ctx.Db.world.Id.Find(args.WorldId);
-        if (world == null) return;
+        var game = ctx.Db.game.Id.Find(args.GameId);
+        if (game == null) return;
 
-        if (world.Value.IsHomeWorld)
+        if (game.Value.IsHomeGame)
         {
-            SpawnHomeworldPickups(ctx, args.WorldId);
+            SpawnHomeworldPickups(ctx, args.GameId);
         }
         else
         {
-            var existingPickups = ctx.Db.pickup.WorldId.Filter(args.WorldId);
+            var existingPickups = ctx.Db.pickup.GameId.Filter(args.GameId);
             int pickupCount = 0;
             foreach (var pickup in existingPickups)
             {
@@ -101,13 +101,13 @@ public static partial class PickupSpawner
                 return;
             }
 
-            var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(args.WorldId);
+            var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(args.GameId);
             if (traversibilityMap == null) return;
 
             int maxAttempts = 100;
             for (int attempt = 0; attempt < maxAttempts; attempt++)
             {
-                if (TrySpawnPickup(ctx, args.WorldId, traversibilityMap.Value))
+                if (TrySpawnPickup(ctx, args.GameId, traversibilityMap.Value))
                 {
                     break;
                 }
@@ -115,9 +115,9 @@ public static partial class PickupSpawner
         }
     }
 
-    public static void SpawnHomeworldPickups(ReducerContext ctx, string worldId)
+    public static void SpawnHomeworldPickups(ReducerContext ctx, string gameId)
     {
-        foreach (var pickupType in HOMEWORLD_PICKUP_TYPES)
+        foreach (var pickupType in HOMEGAME_PICKUP_TYPES)
         {
             var (gridX, gridY) = GetHomeworldPickupPosition(pickupType);
             
@@ -126,7 +126,7 @@ public static partial class PickupSpawner
                 continue;
             }
 
-            var existingPickup = ctx.Db.pickup.WorldId_GridX_GridY.Filter((worldId, gridX, gridY));
+            var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, gridX, gridY));
             
             if (existingPickup.Any())
             {
@@ -138,7 +138,7 @@ public static partial class PickupSpawner
             ctx.Db.pickup.Insert(Module.Pickup.Build(
                 ctx: ctx,
                 id: pickupId,
-                worldId: worldId,
+                gameId: gameId,
                 positionX: gridX + 0.5f,
                 positionY: gridY + 0.5f,
                 gridX: gridX,
@@ -149,16 +149,16 @@ public static partial class PickupSpawner
         }
     }
 
-    public static void InitializePickupSpawner(ReducerContext ctx, string worldId, int initialPickupCount)
+    public static void InitializePickupSpawner(ReducerContext ctx, string gameId, int initialPickupCount)
     {
         ctx.Db.ScheduledPickupSpawn.Insert(new ScheduledPickupSpawn
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 8_000_000 }),
-            WorldId = worldId
+            GameId = gameId
         });
 
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
+        var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(gameId);
         if (traversibilityMap == null) return;
 
         int spawnedCount = 0;
@@ -166,16 +166,16 @@ public static partial class PickupSpawner
 
         for (int attempt = 0; attempt < maxAttempts && spawnedCount < initialPickupCount; attempt++)
         {
-            if (TrySpawnPickup(ctx, worldId, traversibilityMap.Value))
+            if (TrySpawnPickup(ctx, gameId, traversibilityMap.Value))
             {
                 spawnedCount++;
             }
         }
 
-        Log.Info($"Initialized {spawnedCount} pickups for world {worldId}");
+        Log.Info($"Initialized {spawnedCount} pickups for game {gameId}");
     }
 
-    public static bool TrySpawnPickup(ReducerContext ctx, string worldId, Module.TraversibilityMap traversibilityMap)
+    public static bool TrySpawnPickup(ReducerContext ctx, string gameId, Module.TraversibilityMap traversibilityMap)
     {
         var (spawnX, spawnY) = GenerateNormalDistributedPosition(
             ctx.Rng,
@@ -193,13 +193,13 @@ public static partial class PickupSpawner
         float centerX = spawnX + 0.5f;
         float centerY = spawnY + 0.5f;
 
-        var existingDetail = ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((worldId, spawnX, spawnY));
+        var existingDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
         foreach (var detail in existingDetail)
         {
             return false;
         }
 
-        var existingPickup = ctx.Db.pickup.WorldId_GridX_GridY.Filter((worldId, spawnX, spawnY));
+        var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
         foreach (var p in existingPickup)
         {
             return false;
@@ -221,7 +221,7 @@ public static partial class PickupSpawner
         ctx.Db.pickup.Insert(Module.Pickup.Build(
             ctx: ctx,
             id: pickupId,
-            worldId: worldId,
+            gameId: gameId,
             positionX: centerX,
             positionY: centerY,
             gridX: spawnX,
@@ -230,20 +230,20 @@ public static partial class PickupSpawner
             ammo: GetAmmoForPickupType(pickupType)
         ));
 
-        Log.Info($"Spawned {pickupType} at ({centerX}, {centerY}) in world {worldId}");
+        Log.Info($"Spawned {pickupType} at ({centerX}, {centerY}) in game {gameId}");
         return true;
     }
 
     public static (int gridX, int gridY) GetHomeworldPickupPosition(PickupType pickupType)
     {
-        int index = Array.IndexOf(HOMEWORLD_PICKUP_TYPES, pickupType);
+        int index = Array.IndexOf(HOMEGAME_PICKUP_TYPES, pickupType);
 
         if (index < 0)
         {
             return (-1, -1);
         }
 
-        int halfCount = HOMEWORLD_PICKUP_TYPES.Length / 2;
+        int halfCount = HOMEGAME_PICKUP_TYPES.Length / 2;
         int column = index < halfCount ? 0 : 1;
         int rowInColumn = index < halfCount ? index : index - halfCount;
         

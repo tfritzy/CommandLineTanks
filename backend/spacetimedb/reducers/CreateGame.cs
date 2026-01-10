@@ -4,9 +4,9 @@ using static Types;
 public static partial class Module
 {
     [Reducer]
-    public static void createWorld(ReducerContext ctx, string joinCode, WorldVisibility visibility, int botCount, long gameDurationMicros, int width, int height)
+    public static void createGame(ReducerContext ctx, string joinCode, GameVisibility visibility, int botCount, long gameDurationMicros, int width, int height)
     {
-        Log.Info($"{ctx.Sender} is creating a world (visibility: {visibility}, bots: {botCount}, size: {width}x{height})");
+        Log.Info($"{ctx.Sender} is creating a game (visibility: {visibility}, bots: {botCount}, size: {width}x{height})");
 
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         if (player == null)
@@ -15,13 +15,13 @@ public static partial class Module
             return;
         }
 
-        var worldId = GenerateWorldId(ctx);
+        var gameId = GenerateGameId(ctx);
 
         var (baseTerrain, terrainDetails, traversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
-        var world = CreateWorld(
+        var game = CreateGame(
             ctx,
-            worldId,
+            gameId,
             baseTerrain,
             terrainDetails,
             traversibilityMap,
@@ -32,7 +32,7 @@ public static partial class Module
             ctx.Sender
         );
 
-        CleanupHomeworldAndJoinCommand(ctx, world.Id, joinCode);
+        CleanupHomegameAndJoinCommand(ctx, game.Id, joinCode);
 
         int botsPerAlliance = botCount / 2;
         int extraBot = botCount % 2;
@@ -43,14 +43,14 @@ public static partial class Module
             
             for (int i = 0; i < botsForThisAlliance; i++)
             {
-                var targetCode = AllocateTargetCode(ctx, worldId);
+                var targetCode = AllocateTargetCode(ctx, gameId);
                 if (targetCode == null) continue;
 
-                var (spawnX, spawnY) = FindSpawnPosition(ctx, world, alliance, ctx.Rng);
+                var (spawnX, spawnY) = FindSpawnPosition(ctx, game, alliance, ctx.Rng);
                 var botName = $"Bot{ctx.Rng.Next(1000, 10000)}";
                 var (botTank, botTransform) = BuildTank(
                     ctx: ctx,
-                    worldId: worldId,
+                    gameId: gameId,
                     owner: Identity.From(new byte[32]),
                     name: botName,
                     targetCode: targetCode,
@@ -59,10 +59,10 @@ public static partial class Module
                     positionX: spawnX,
                     positionY: spawnY,
                     aiBehavior: AIBehavior.GameAI);
-                AddTankToWorld(ctx, botTank, botTransform);
+                AddTankToGame(ctx, botTank, botTransform);
             }
         }
 
-        Log.Info($"Player {player.Value.Name} created world ({world.Id})");
+        Log.Info($"Player {player.Value.Name} created game ({game.Id})");
     }
 }

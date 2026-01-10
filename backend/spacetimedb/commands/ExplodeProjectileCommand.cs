@@ -4,7 +4,7 @@ using System;
 
 public static partial class ProjectileUpdater
 {
-    public static bool ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string worldId, ref Module.TraversibilityMap traversibilityMap)
+    public static bool ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string gameId, ref Module.TraversibilityMap traversibilityMap)
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
         {
@@ -30,7 +30,7 @@ public static partial class ProjectileUpdater
                 int regionX = projectileCollisionRegionX + dx;
                 int regionY = projectileCollisionRegionY + dy;
 
-                foreach (var tankTransform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((worldId, regionX, regionY)))
+                foreach (var tankTransform in ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY)))
                 {
                     var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
                     if (tankQuery == null) continue;
@@ -45,7 +45,7 @@ public static partial class ProjectileUpdater
 
                         if (distanceSquared <= explosionRadiusSquared)
                         {
-                            Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, worldId);
+                            Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId);
                         }
                     }
                 }
@@ -82,7 +82,7 @@ public static partial class ProjectileUpdater
                 if (distanceSquared <= explosionRadiusSquared)
                 {
                     int tileIndex = tileY * traversibilityMap.Width + tileX;
-                    if (DamageTerrainAtTile(ctx, worldId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap))
+                    if (DamageTerrainAtTile(ctx, gameId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap))
                     {
                         traversibilityMapChanged = true;
                     }
@@ -109,7 +109,7 @@ public static partial class ProjectileUpdater
 
             var (subProjectile, subTransform) = Module.BuildProjectile(
                 ctx: ctx,
-                worldId: grenade.WorldId,
+                gameId: grenade.GameId,
                 shooterTankId: grenade.ShooterTankId,
                 alliance: grenade.Alliance,
                 positionX: grenadeTransform.PositionX,
@@ -127,14 +127,14 @@ public static partial class ProjectileUpdater
 
     private static bool DamageTerrainAtTile(
         ReducerContext ctx,
-        string worldId,
+        string gameId,
         int gridX,
         int gridY,
         int tileIndex,
         int damage,
         ref Module.TraversibilityMap traversibilityMap)
     {
-        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((worldId, gridX, gridY)))
+        foreach (var terrainDetail in ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
         {
             if (terrainDetail.Health == null)
             {

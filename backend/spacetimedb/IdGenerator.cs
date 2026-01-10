@@ -36,7 +36,7 @@ public static partial class Module
         return $"{prefix}_{new string(result)}";
     }
 
-    internal static string GenerateWorldId(ReducerContext ctx)
+    internal static string GenerateGameId(ReducerContext ctx)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const int maxAttempts = 100;
@@ -49,15 +49,15 @@ public static partial class Module
                 result[i] = chars[ctx.Rng.Next(chars.Length)];
             }
             
-            var worldId = new string(result);
-            var existing = ctx.Db.world.Id.Find(worldId);
+            var gameId = new string(result);
+            var existing = ctx.Db.game.Id.Find(gameId);
             if (existing == null)
             {
-                return worldId;
+                return gameId;
             }
         }
         
-        Log.Error("Failed to generate unique world ID after 100 attempts");
+        Log.Error("Failed to generate unique game ID after 100 attempts");
         return new string(chars[ctx.Rng.Next(chars.Length)], 4);
     }
 }

@@ -1,5 +1,5 @@
 import { type DbConnection } from "../../../module_bindings";
-import WorldVisibility from "../../../module_bindings/world_visibility_type";
+import GameVisibility from "../../../module_bindings/game_visibility_type";
 import Gun from "../../../module_bindings/gun_type";
 import { type Infer } from "spacetimedb";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
@@ -46,27 +46,27 @@ export function parseCommandInput(input: string): string[] {
   return args;
 }
 
-function findMyTank(connection: DbConnection, worldId: string) {
+function findMyTank(connection: DbConnection, gameId: string) {
   if (!connection.identity) return null;
   for (const tank of connection.db.tank.iter()) {
-    if (tank.worldId === worldId && tank.owner.isEqual(connection.identity)) {
+    if (tank.gameId === gameId && tank.owner.isEqual(connection.identity)) {
       return tank;
     }
   }
   return null;
 }
 
-function findMyTankTransform(connection: DbConnection, worldId: string) {
-  const tank = findMyTank(connection, worldId);
+function findMyTankTransform(connection: DbConnection, gameId: string) {
+  const tank = findMyTank(connection, gameId);
   if (!tank) return null;
   return connection.db.tankTransform.tankId.find(tank.id);
 }
 
-function isPlayerDead(connection: DbConnection, worldId: string): boolean {
+function isPlayerDead(connection: DbConnection, gameId: string): boolean {
   if (!connection.identity) {
     return false;
   }
-  const tank = findMyTank(connection, worldId);
+  const tank = findMyTank(connection, gameId);
   return tank ? tank.health <= 0 : false;
 }
 
@@ -232,11 +232,11 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       `  ${themeColors.command("fire")}, ${themeColors.command("f")}              Fire a projectile from your tank`,
       `  ${themeColors.command("switch")}, ${themeColors.command("w")}            Switch to a different gun`,
       `  ${themeColors.command("respawn")}              Respawn after death`,
-      `  ${themeColors.command("tanks")}                Display all tanks in the world with statistics`,
+      `  ${themeColors.command("tanks")}                Display all tanks in the game with statistics`,
       `  ${themeColors.command("name")}                 View or change your player name`,
-      `  ${themeColors.command("create")}               Create a new game world with optional flags`,
-      `  ${themeColors.command("join")}                 Join or create a game world (default: random)`,
-      `  ${themeColors.command("exit")}, ${themeColors.command("e")}              Return to your homeworld`,
+      `  ${themeColors.command("create")}               Create a new game game with optional flags`,
+      `  ${themeColors.command("join")}                 Join or create a game game (default: random)`,
+      `  ${themeColors.command("exit")}, ${themeColors.command("e")}              Return to your homegame`,
       `  ${themeColors.command("clear")}, ${themeColors.command("c")}             Clear the terminal output`,
       `  ${themeColors.command("help")}, ${themeColors.command("h")}              Display help information`,
     ];
@@ -382,7 +382,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 
     case "create":
       return [
-        "create - Create a new game world",
+        "create - Create a new game",
         "",
         "Usage: create [--bots <count>] [--duration <mins>] [--width <w>] [--height <h>]",
         "",
@@ -404,16 +404,16 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 
     case "join":
       return [
-        "join - Join or create a game world",
+        "join - Join or create a game",
         "",
         "Usage: join [world_id|random] [passcode]",
         "",
         "Arguments:",
-        "  [world_id|random]  The 4-letter ID of the world to join, or 'random' (default: random)",
+        "  [world_id|random]  The 4-letter ID of the game to join, or 'random' (default: random)",
         "  [passcode]         The passcode for private worlds (optional)",
         "",
         "With no arguments or 'random', finds an available public game or creates one.",
-        "With a world ID, joins that specific world.",
+        "With a game ID, joins that specific game.",
         "Private worlds require a passcode. Use quotes for passcodes with spaces.",
         "",
         "Examples:",
@@ -427,12 +427,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "exit":
     case "e":
       return [
-        "exit, e - Return to your homeworld",
+        "exit, e - Return to your homegame",
         "",
         "Usage: exit",
         "",
-        "Removes your tank from the current game world and places it back",
-        "in your personal homeworld.",
+        "Removes your tank from the current game game and places it back",
+        "in your personal homegame.",
         "",
         "Examples:",
         "  exit",
@@ -457,7 +457,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 
     case "tanks":
       return [
-        "tanks - Display all tanks in the world with statistics",
+        "tanks - Display all tanks in the game with statistics",
         "",
         "Usage: tanks",
         "",
@@ -486,10 +486,10 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 
 export function aim(
   connection: DbConnection,
-  worldId: string,
+  gameId: string,
   args: string[]
 ): string[] {
-  if (isPlayerDead(connection, worldId)) {
+  if (isPlayerDead(connection, gameId)) {
     return [
       themeColors.error("aim: error: cannot aim while dead"),
       "",
@@ -519,7 +519,7 @@ export function aim(
       return [themeColors.error("aim: error: no connection")];
     }
 
-    const myTank = findMyTank(connection, worldId);
+    const myTank = findMyTank(connection, gameId);
     if (!myTank) {
       return [themeColors.error("aim: error: no connection")];
     }
@@ -529,7 +529,7 @@ export function aim(
     }
 
     const allTanks = Array.from(connection.db.tank.iter()).filter(
-      (t) => t.worldId === worldId
+      (t) => t.gameId === gameId
     );
     const targetTank = allTanks.find((t) => t.targetCode === inputLower);
     if (!targetTank || targetTank.alliance === myTank.alliance) {
@@ -537,7 +537,7 @@ export function aim(
     }
 
     connection.reducers.aim({
-      worldId,
+      gameId,
       angleRadians: undefined,
       targetCode: inputLower,
     });
@@ -553,7 +553,7 @@ export function aim(
     const dirInfo = directionAliases[inputLower];
     const description = themeColors.value(dirInfo.name);
 
-    connection.reducers.aim({ worldId, angleRadians, targetCode: undefined });
+    connection.reducers.aim({ gameId, angleRadians, targetCode: undefined });
     return [themeColors.success("Aiming turret ") + description];
   } else {
     const degrees = Number.parseFloat(input);
@@ -574,17 +574,17 @@ export function aim(
     const angleRadians = (-degrees * Math.PI) / 180;
     const description = `${degrees}°`;
 
-    connection.reducers.aim({ worldId, angleRadians, targetCode: undefined });
+    connection.reducers.aim({ gameId, angleRadians, targetCode: undefined });
     return [themeColors.success(`Aiming turret to ${description}`)];
   }
 }
 
 export function stop(
   connection: DbConnection,
-  worldId: string,
+  gameId: string,
   args: string[]
 ): string[] {
-  if (isPlayerDead(connection, worldId)) {
+  if (isPlayerDead(connection, gameId)) {
     return [
       themeColors.error("stop: error: cannot stop while dead"),
       "",
@@ -601,17 +601,17 @@ export function stop(
     ];
   }
 
-  connection.reducers.stop({ worldId });
+  connection.reducers.stop({ gameId });
 
   return [themeColors.success("Tank stopped")];
 }
 
 export function fire(
   connection: DbConnection,
-  worldId: string,
+  gameId: string,
   args: string[]
 ): string[] {
-  if (isPlayerDead(connection, worldId)) {
+  if (isPlayerDead(connection, gameId)) {
     return [
       themeColors.error("fire: error: cannot fire while dead"),
       "",
@@ -628,17 +628,17 @@ export function fire(
     ];
   }
 
-  connection.reducers.fire({ worldId });
+  connection.reducers.fire({ gameId });
 
   return [themeColors.success("Projectile fired")];
 }
 
 export function respawn(
   connection: DbConnection,
-  worldId: string,
+  gameId: string,
   args: string[]
 ): string[] {
-  if (!isPlayerDead(connection, worldId)) {
+  if (!isPlayerDead(connection, gameId)) {
     return [
       themeColors.error("respawn: error: cannot respawn while alive"),
       "",
@@ -654,17 +654,17 @@ export function respawn(
     ];
   }
 
-  connection.reducers.respawn({ worldId });
+  connection.reducers.respawn({ gameId });
 
   return [themeColors.success("Respawning...")];
 }
 
 export function switchGun(
   connection: DbConnection,
-  worldId: string,
+  gameId: string,
   args: string[]
 ): string[] {
-  if (isPlayerDead(connection, worldId)) {
+  if (isPlayerDead(connection, gameId)) {
     return [
       themeColors.error("switch: error: cannot switch guns while dead"),
       "",
@@ -699,7 +699,7 @@ export function switchGun(
     return [themeColors.error("switch: error: no connection")];
   }
 
-  const myTank = findMyTank(connection, worldId);
+  const myTank = findMyTank(connection, gameId);
   if (!myTank) {
     return [themeColors.error("switch: error: tank not found")];
   }
@@ -712,17 +712,17 @@ export function switchGun(
     ];
   }
 
-  connection.reducers.switchGun({ worldId, gunIndex });
+  connection.reducers.switchGun({ gameId, gunIndex });
 
   return [themeColors.success(`Switched to gun ${themeColors.value(parsed.toString())}`)];
 }
 
 export function drive(
   connection: DbConnection,
-  worldId: string,
+  gameId: string,
   args: string[]
 ): string[] {
-  if (isPlayerDead(connection, worldId)) {
+  if (isPlayerDead(connection, gameId)) {
     return [
       themeColors.error("drive: error: cannot drive while dead"),
       "",
@@ -748,7 +748,7 @@ export function drive(
     return [themeColors.error("drive: error: no connection")];
   }
 
-  const myTransform = findMyTankTransform(connection, worldId);
+  const myTransform = findMyTankTransform(connection, gameId);
 
   if (!myTransform) {
     return [themeColors.error("drive: error: no connection")];
@@ -795,7 +795,7 @@ export function drive(
     const targetX = Math.floor(myTransform.positionX) + relativeX;
     const targetY = Math.floor(myTransform.positionY) + relativeY;
 
-    connection.reducers.drive({ worldId, targetX, targetY, throttle });
+    connection.reducers.drive({ gameId, targetX, targetY, throttle });
 
     const distanceText = themeColors.value(distance.toString());
     const dirName = themeColors.value(directionInfo.name);
@@ -923,9 +923,9 @@ export function create(
   setPendingJoinCode(joinCode);
 
   const gameDurationMicros = BigInt(state.duration * 60 * 1000000);
-  const visibility = WorldVisibility.Private;
+  const visibility = GameVisibility.Private;
 
-  connection.reducers.createWorld({
+  connection.reducers.createGame({
     joinCode,
     visibility,
     botCount: state.bots,
@@ -935,33 +935,33 @@ export function create(
   });
 
   return [
-    themeColors.success(`Creating private world...`),
+    themeColors.success(`Creating private game...`),
     themeColors.dim(`Bots: ${themeColors.value(state.bots.toString())}, Duration: ${themeColors.value(state.duration.toString())} min, Size: ${themeColors.value(`${state.width}x${state.height}`)}`),
     "",
-    themeColors.dim("World creation initiated. You'll be automatically joined.")
+    themeColors.dim("Game creation initiated. You'll be automatically joined.")
   ];
 }
 
 export function join(
   connection: DbConnection,
-  currentWorldId: string,
+  currentGameId: string,
   args: string[]
 ): string[] {
   const firstArg = args.length > 0 ? args[0] : "random";
   const isRandom = firstArg.toLowerCase() === "random";
-  const worldId = isRandom ? undefined : firstArg;
+  const gameId = isRandom ? undefined : firstArg;
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
 
-  connection.reducers.joinWorld({
-    worldId,
-    currentWorldId,
+  connection.reducers.joinGame({
+    gameId,
+    currentGameId,
     joinCode,
   });
 
   if (isRandom) {
-    const output = [themeColors.success("Finding or creating a game world...")];
+    const output = [themeColors.success("Finding or creating a game game...")];
     if (args.length === 0) {
       output.unshift("", themeColors.dim("join random"));
     }
@@ -969,7 +969,7 @@ export function join(
   }
 
   return [
-    themeColors.success(`Joining world ${themeColors.value(worldId!)}...`),
+    themeColors.success(`Joining game ${themeColors.value(gameId!)}...`),
   ];
 }
 
@@ -1043,7 +1043,7 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
   return [themeColors.success(`Name changed to: ${themeColors.value(newName)}`)];
 }
 
-export function exitWorld(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function exitWorld(connection: DbConnection, gameId: string, args: string[]): string[] {
   if (args.length > 0) {
     return [
       themeColors.error("exit: error: exit command takes no arguments"),
@@ -1057,23 +1057,23 @@ export function exitWorld(connection: DbConnection, worldId: string, args: strin
     return [themeColors.error("exit: error: no connection")];
   }
 
-  if (worldId.length > 4) {
+  if (gameId.length > 4) {
     return [
-      themeColors.error("exit: error: you are already in your homeworld"),
+      themeColors.error("exit: error: you are already in your homegame"),
     ];
   }
 
   const joinCode = `exit_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
 
-  connection.reducers.exitWorld({ worldId, joinCode });
+  connection.reducers.exitGame({ gameId, joinCode });
 
   return [
-    themeColors.success("Returning to homeworld..."),
+    themeColors.success("Returning to homegame..."),
   ];
 }
 
-export function tanks(connection: DbConnection, worldId: string, args: string[]): string[] {
+export function tanks(connection: DbConnection, gameId: string, args: string[]): string[] {
   if (args.length > 0) {
     return [
       themeColors.error("tanks: error: tanks command takes no arguments"),
@@ -1086,8 +1086,8 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
     return [themeColors.error("tanks: error: no connection")];
   }
 
-  const tanksInWorld = Array.from(connection.db.tank.iter())
-    .filter((tank) => tank.worldId === worldId);
+  const tanksInGame = Array.from(connection.db.tank.iter())
+    .filter((tank) => tank.gameId === gameId);
 
   interface CombinedTank {
     id: string;
@@ -1100,7 +1100,7 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
   }
 
   const combinedTanks: CombinedTank[] = [];
-  for (const tank of tanksInWorld) {
+  for (const tank of tanksInGame) {
     combinedTanks.push({
       id: tank.id,
       name: tank.name,
@@ -1113,7 +1113,7 @@ export function tanks(connection: DbConnection, worldId: string, args: string[])
   }
 
   if (combinedTanks.length === 0) {
-    return [themeColors.dim("No tanks found in this world")];
+    return [themeColors.dim("No tanks found in this game")];
   }
 
   combinedTanks.sort((a, b) => {

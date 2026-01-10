@@ -13,7 +13,7 @@ import {
 export default __t.object("ScheduledGameEnd", {
   scheduledId: __t.u64(),
   scheduledAt: __t.scheduleAt(),
-  worldId: __t.string(),
+  gameId: __t.string(),
 });
 
 

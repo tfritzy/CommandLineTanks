@@ -4,9 +4,9 @@ using static Types;
 public static partial class Module
 {
     [Reducer]
-    public static void stop(ReducerContext ctx, string worldId)
+    public static void stop(ReducerContext ctx, string gameId)
     {
-        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        Tank? tankQuery = ctx.Db.tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
         

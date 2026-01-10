@@ -5,16 +5,16 @@ using System;
 public static partial class Module
 {
     [Table(Name = "tank", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.WorldId), nameof(Tank.Owner) })]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.WorldId), nameof(Tank.TargetCode) })]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.WorldId), nameof(Tank.IsBot) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.GameId), nameof(Tank.Owner) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.GameId), nameof(Tank.TargetCode) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Tank.GameId), nameof(Tank.IsBot) })]
     public partial struct Tank
     {
         [PrimaryKey]
         public string Id;
 
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
 
         [SpacetimeDB.Index.BTree]
         public Identity Owner;
@@ -67,7 +67,7 @@ public static partial class Module
     public static (Tank, TankTransform) BuildTank(
         ReducerContext ctx,
         string? id = null,
-        string? worldId = null,
+        string? gameId = null,
         Identity? owner = null,
         string? name = null,
         string? targetCode = null,
@@ -105,13 +105,13 @@ public static partial class Module
         var timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var computedIsBot = isBot ?? (aiBehavior != AIBehavior.None);
         var tankId = id ?? GenerateId(ctx, "tnk");
-        var tankWorldId = worldId ?? "";
+        var tankGameId = gameId ?? "";
         var computedUpdatedAt = updatedAt ?? timestamp;
         
         var tank = new Tank
         {
             Id = tankId,
-            WorldId = tankWorldId,
+            GameId = tankGameId,
             Owner = owner ?? Identity.From(new byte[32]),
             Name = name ?? "",
             TargetCode = targetCode ?? "",
@@ -141,7 +141,7 @@ public static partial class Module
         var transform = new TankTransform
         {
             TankId = tankId,
-            WorldId = tankWorldId,
+            GameId = tankGameId,
             PositionX = positionX,
             PositionY = positionY,
             Velocity = velocity ?? new Vector2Float(0, 0),

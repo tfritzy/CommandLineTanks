@@ -4,7 +4,7 @@ import type { EventContext, SubscriptionHandle } from '../../module_bindings';
 import { type Infer } from "spacetimedb";
 import TankRow from '../../module_bindings/tank_type';
 
-export function useWorldSwitcher(onWorldChange: (worldId: string) => void, currentWorldId: string | null) {
+export function useGameSwitcher(onWorldChange: (gameId: string) => void, currentWorldId: string | null) {
     const subscriptionHandleRef = useRef<SubscriptionHandle | null>(null);
 
     useEffect(() => {
@@ -22,15 +22,15 @@ export function useWorldSwitcher(onWorldChange: (worldId: string) => void, curre
             if (isCurrentIdentity(tank.owner)) {
                 const pendingJoinCode = getPendingJoinCode();
                 if (pendingJoinCode && tank.joinCode === pendingJoinCode) {
-                    console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${tank.worldId}`);
-                    console.log(`Switching to world: ${tank.worldId}`);
-                    onWorldChange(tank.worldId);
+                    console.log(`Found tank with joinCode ${pendingJoinCode}, gameId: ${tank.gameId}`);
+                    console.log(`Switching to game: ${tank.gameId}`);
+                    onWorldChange(tank.gameId);
                     clearPendingJoinCode();
                 }
-                else if (currentWorldId && tank.joinCode === currentWorldId && tank.worldId !== currentWorldId) {
-                    console.log(`World reset detected: tank has joinCode ${tank.joinCode} matching current world, but is in new world ${tank.worldId}`);
-                    console.log(`Switching to new world: ${tank.worldId}`);
-                    onWorldChange(tank.worldId);
+                else if (currentWorldId && tank.joinCode === currentWorldId && tank.gameId !== currentWorldId) {
+                    console.log(`Game reset detected: tank has joinCode ${tank.joinCode} matching current game, but is in new game ${tank.gameId}`);
+                    console.log(`Switching to new game: ${tank.gameId}`);
+                    onWorldChange(tank.gameId);
                 }
             }
         };
@@ -39,15 +39,15 @@ export function useWorldSwitcher(onWorldChange: (worldId: string) => void, curre
             if (isCurrentIdentity(newTank.owner)) {
                 const pendingJoinCode = getPendingJoinCode();
                 if (pendingJoinCode && newTank.joinCode === pendingJoinCode) {
-                    console.log(`Found tank with joinCode ${pendingJoinCode}, worldId: ${newTank.worldId}`);
-                    console.log(`Switching to world: ${newTank.worldId}`);
-                    onWorldChange(newTank.worldId);
+                    console.log(`Found tank with joinCode ${pendingJoinCode}, gameId: ${newTank.gameId}`);
+                    console.log(`Switching to game: ${newTank.gameId}`);
+                    onWorldChange(newTank.gameId);
                     clearPendingJoinCode();
                 }
-                else if (currentWorldId && newTank.joinCode === currentWorldId && newTank.worldId !== currentWorldId) {
-                    console.log(`World reset detected: tank has joinCode ${newTank.joinCode} matching current world, but is in new world ${newTank.worldId}`);
-                    console.log(`Switching to new world: ${newTank.worldId}`);
-                    onWorldChange(newTank.worldId);
+                else if (currentWorldId && newTank.joinCode === currentWorldId && newTank.gameId !== currentWorldId) {
+                    console.log(`Game reset detected: tank has joinCode ${newTank.joinCode} matching current game, but is in new game ${newTank.gameId}`);
+                    console.log(`Switching to new game: ${newTank.gameId}`);
+                    onWorldChange(newTank.gameId);
                 }
             }
         };

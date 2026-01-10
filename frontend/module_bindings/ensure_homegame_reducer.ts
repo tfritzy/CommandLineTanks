@@ -10,10 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-import ScheduledWorldReset from "./scheduled_world_reset_type";
-
 export default {
-  get args() {
-    return ScheduledWorldReset;
-  },
+  gameId: __t.string(),
+  joinCode: __t.string(),
 };

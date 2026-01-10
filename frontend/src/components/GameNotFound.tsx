@@ -1,28 +1,28 @@
 import { useNavigate } from 'react-router-dom';
 import { getIdentityHex } from '../spacetimedb-connection';
 
-interface WorldNotFoundProps {
-  worldId: string;
+interface GameNotFoundProps {
+  gameId: string;
 }
 
-export default function WorldNotFound({ worldId: _worldId }: WorldNotFoundProps) {
+export default function GameNotFound({ gameId: _gameId }: GameNotFoundProps) {
   const navigate = useNavigate();
 
   const handleGoHome = () => {
-    const homeWorldId = getIdentityHex();
-    if (homeWorldId) {
-      navigate(`/world/${homeWorldId}`);
+    const homeGameId = getIdentityHex();
+    if (homeGameId) {
+      navigate(`/game/${homeGameId}`);
     }
   };
 
   return (
     <div className="absolute inset-0 bg-palette-ground-dark flex flex-col items-center justify-center font-mono z-[2000]">
       <div className="text-5xl font-bold text-palette-red-muted tracking-wide mb-6 uppercase">
-        World Not Found
+        Game Not Found
       </div>
 
       <div className="text-base text-palette-slate-lighter mb-[26px] max-w-[500px] text-center leading-relaxed">
-        The world you're trying to access doesn't exist.
+        The game you're trying to access doesn't exist.
       </div>
 
       <button

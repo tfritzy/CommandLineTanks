@@ -14,7 +14,7 @@ import Vector2Float from "./vector_2_float_type";
 
 export default __t.row({
   tankId: __t.string().primaryKey(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
   get velocity() {

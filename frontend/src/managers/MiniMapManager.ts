@@ -2,7 +2,7 @@ import { TankManager } from "./TankManager";
 
 import { getConnection } from "../spacetimedb-connection";
 import { type EventContext, type TerrainDetailRow, type PickupRow } from "../../module_bindings";
-import WorldRow from "../../module_bindings/world_type";
+import GameRow from "../../module_bindings/game_type";
 import { type Infer } from "spacetimedb";
 import { BaseTerrain } from "../../module_bindings";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
@@ -12,7 +12,7 @@ type BaseTerrainType = Infer<typeof BaseTerrain>;
 
 export class MiniMapManager {
   private tankManager: TankManager;
-  private worldId: string;
+  private gameId: string;
   private miniMapMaxSize: number = 150;
   private margin: number = 20;
   private tankIndicatorSize: number = 3;
@@ -33,9 +33,9 @@ export class MiniMapManager {
   private redTanksBuffer: Array<{ x: number; y: number; size: number }> = [];
   private blueTanksBuffer: Array<{ x: number; y: number; size: number }> = [];
 
-  constructor(tankManager: TankManager, worldId: string) {
+  constructor(tankManager: TankManager, gameId: string) {
     this.tankManager = tankManager;
-    this.worldId = worldId;
+    this.gameId = gameId;
     this.subscribeToTables();
   }
 
@@ -47,22 +47,22 @@ export class MiniMapManager {
     const connection = getConnection();
     if (!connection) return;
 
-    const handleWorldChange = (world: Infer<typeof WorldRow>) => {
-      if (world.id !== this.worldId) return;
-      this.worldWidth = world.width;
-      this.worldHeight = world.height;
-      this.baseTerrainLayer = world.baseTerrainLayer;
+    const handleWorldChange = (game: Infer<typeof GameRow>) => {
+      if (game.id !== this.gameId) return;
+      this.worldWidth = game.width;
+      this.worldHeight = game.height;
+      this.baseTerrainLayer = game.baseTerrainLayer;
       this.markForRedraw();
     };
 
     this.subscription = createMultiTableSubscription()
-      .add<typeof WorldRow>({
-        table: connection.db.world,
+      .add<typeof GameRow>({
+        table: connection.db.game,
         handlers: {
-          onInsert: (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
-            handleWorldChange(world);
+          onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
+            handleWorldChange(game);
           },
-          onUpdate: (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
+          onUpdate: (_ctx: EventContext, _oldWorld: Infer<typeof GameRow>, newWorld: Infer<typeof GameRow>) => {
             handleWorldChange(newWorld);
           }
         },
@@ -72,13 +72,13 @@ export class MiniMapManager {
         table: connection.db.terrainDetail,
         handlers: {
           onInsert: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
-            if (detail.worldId !== this.worldId) return;
+            if (detail.gameId !== this.gameId) return;
             const key = this.getPositionKey(detail.positionX, detail.positionY);
             this.terrainDetailsByPosition.set(key, detail);
             this.markForRedraw();
           },
           onDelete: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
-            if (detail.worldId !== this.worldId) return;
+            if (detail.gameId !== this.gameId) return;
             const key = this.getPositionKey(detail.positionX, detail.positionY);
             this.terrainDetailsByPosition.delete(key);
             this.markForRedraw();
@@ -89,13 +89,13 @@ export class MiniMapManager {
         table: connection.db.pickup,
         handlers: {
           onInsert: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-            if (pickup.worldId !== this.worldId) return;
+            if (pickup.gameId !== this.gameId) return;
             const key = this.getPositionKey(pickup.gridX, pickup.gridY);
             this.pickupsByPosition.set(key, pickup);
             this.markForRedraw();
           },
           onDelete: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-            if (pickup.worldId !== this.worldId) return;
+            if (pickup.gameId !== this.gameId) return;
             const key = this.getPositionKey(pickup.gridX, pickup.gridY);
             this.pickupsByPosition.delete(key);
             this.markForRedraw();
@@ -103,9 +103,9 @@ export class MiniMapManager {
         }
       });
 
-    const cachedWorld = connection.db.world.Id.find(this.worldId);
-    if (cachedWorld) {
-      handleWorldChange(cachedWorld);
+    const cachedGame = connection.db.game.Id.find(this.gameId);
+    if (cachedGame) {
+      handleWorldChange(cachedGame);
     }
   }
 
