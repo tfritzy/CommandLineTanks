@@ -426,8 +426,8 @@ function TerminalComponent({ worldId }: TerminalComponentProps) {
     <div
       style={{
         width: "100%",
-        height: "500px",
-        maxHeight: "50vh",
+        height: "350px",
+        maxHeight: "35vh",
         background: COLORS.TERMINAL.BACKGROUND,
         borderTop: `1px solid ${COLORS.TERMINAL.BORDER}`,
         display: "flex",
