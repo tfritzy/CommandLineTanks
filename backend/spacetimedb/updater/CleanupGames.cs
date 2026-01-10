@@ -130,9 +130,9 @@ public static partial class Module
             ctx.Db.ScheduledPickupSpawn.ScheduledId.Delete(pickupSpawn.ScheduledId);
         }
 
-        foreach (var worldReset in ctx.Db.ScheduledWorldReset.GameId.Filter(gameId))
+        foreach (var worldReset in ctx.Db.ScheduledGameReset.GameId.Filter(gameId))
         {
-            ctx.Db.ScheduledWorldReset.ScheduledId.Delete(worldReset.ScheduledId);
+            ctx.Db.ScheduledGameReset.ScheduledId.Delete(worldReset.ScheduledId);
         }
 
         foreach (var gameEnd in ctx.Db.ScheduledGameEnd.GameId.Filter(gameId))

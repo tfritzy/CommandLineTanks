@@ -12,14 +12,14 @@ export class GunInventoryManager {
   private playerTankId: string | null = null;
   private playerAlliance: number = 0;
   private subscription: TableSubscription<typeof TankRow> | null = null;
-  private worldId: string;
+  private gameId: string;
 
-  constructor(worldId: string) {
-    this.worldId = worldId;
-    this.subscribeToPlayerTank(worldId);
+  constructor(gameId: string) {
+    this.gameId = gameId;
+    this.subscribeToPlayerTank(gameId);
   }
 
-  private subscribeToPlayerTank(worldId: string) {
+  private subscribeToPlayerTank(gameId: string) {
     const connection = getConnection();
     if (!connection) {
       console.warn("Cannot subscribe to tank: connection not available");
@@ -30,7 +30,7 @@ export class GunInventoryManager {
       table: connection.db.tank,
       handlers: {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId !== worldId) return;
+          if (tank.gameId !== gameId) return;
           if (isCurrentIdentity(tank.owner)) {
             this.playerTankId = tank.id;
             this.playerAlliance = tank.alliance;
@@ -42,7 +42,7 @@ export class GunInventoryManager {
           }
         },
         onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-          if (newTank.worldId !== this.worldId) return;
+          if (newTank.gameId !== this.gameId) return;
           if (this.playerTankId === newTank.id) {
             this.playerAlliance = newTank.alliance;
             this.guns.length = 0;
@@ -53,7 +53,7 @@ export class GunInventoryManager {
           }
         },
         onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId !== this.worldId) return;
+          if (tank.gameId !== this.gameId) return;
           if (this.playerTankId === tank.id) {
             this.playerTankId = null;
             this.guns.length = 0;

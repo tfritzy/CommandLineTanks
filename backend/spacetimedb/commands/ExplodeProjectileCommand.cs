@@ -30,7 +30,7 @@ public static partial class ProjectileUpdater
                 int regionX = projectileCollisionRegionX + dx;
                 int regionY = projectileCollisionRegionY + dy;
 
-                foreach (var tankTransform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY)))
+                foreach (var tankTransform in ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY)))
                 {
                     var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
                     if (tankQuery == null) continue;
@@ -134,7 +134,7 @@ public static partial class ProjectileUpdater
         int damage,
         ref Module.TraversibilityMap traversibilityMap)
     {
-        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((gameId, gridX, gridY)))
+        foreach (var terrainDetail in ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
         {
             if (terrainDetail.Health == null)
             {

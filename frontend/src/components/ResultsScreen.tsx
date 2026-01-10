@@ -3,7 +3,7 @@ import { getConnection, isCurrentIdentity } from '../spacetimedb-connection';
 import { type Infer } from 'spacetimedb';
 import TankRow from '../../module_bindings/tank_type';
 import ScoreRow from '../../module_bindings/score_type';
-import WorldRow from '../../module_bindings/world_type';
+import GameRow from '../../module_bindings/world_type';
 import { type EventContext } from "../../module_bindings";
 import { ServerTimeSync } from '../utils/ServerTimeSync';
 import { SoundManager } from '../managers/SoundManager';
@@ -12,7 +12,7 @@ import { createMultiTableSubscription, type MultiTableSubscription } from '../ut
 const WORLD_RESET_DELAY_MICROS = 15_000_000;
 
 interface ResultsScreenProps {
-    worldId: string;
+    gameId: string;
 }
 
 interface CombinedTankData {
@@ -23,7 +23,7 @@ interface CombinedTankData {
     alliance: number;
 }
 
-export default function ResultsScreen({ worldId }: ResultsScreenProps) {
+export default function ResultsScreen({ gameId }: ResultsScreenProps) {
     const [tanks, setTanks] = useState<CombinedTankData[]>([]);
     const [team0Kills, setTeam0Kills] = useState(0);
     const [team1Kills, setTeam1Kills] = useState(0);
@@ -45,8 +45,8 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
         if (!connection) return;
 
         const updateTanks = () => {
-            const tanksInWorld = Array.from(connection.db.tank.iter())
-                .filter(tank => tank.worldId === worldId);
+            const tanksInGame = Array.from(connection.db.tank.iter())
+                .filter(tank => tank.gameId === gameId);
             
             const combinedTanks: CombinedTankData[] = [];
             for (const tank of tanksInWorld) {
@@ -62,7 +62,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
         };
 
         const updateScores = () => {
-            const score = connection.db.score.WorldId.find(worldId);
+            const score = connection.db.score.GameId.find(gameId);
             if (score) {
                 setTeam0Kills(score.kills[0] || 0);
                 setTeam1Kills(score.kills[1] || 0);
@@ -70,10 +70,10 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
         };
 
         const updateVisibility = () => {
-            const world = connection.db.world.Id.find(worldId);
-            if (world && world.gameState.tag === 'Results') {
+            const game = connection.db.game.Id.find(gameId);
+            if (game && game.gameState.tag === 'Results') {
                 setShowResults(true);
-                const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
+                const endTime = game.gameStartedAt + BigInt(game.gameDurationMicros);
                 setGameEndTime(endTime);
             } else {
                 setShowResults(false);
@@ -86,13 +86,13 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 table: connection.db.tank,
                 handlers: {
                     onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-                        if (tank.worldId === worldId) updateTanks();
+                        if (tank.gameId === gameId) updateTanks();
                     },
                     onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-                        if (newTank.worldId === worldId) updateTanks();
+                        if (newTank.gameId === gameId) updateTanks();
                     },
                     onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-                        if (tank.worldId === worldId) updateTanks();
+                        if (tank.gameId === gameId) updateTanks();
                     }
                 },
                 loadInitialData: false
@@ -101,28 +101,28 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                 table: connection.db.score,
                 handlers: {
                     onInsert: (_ctx: EventContext, score: Infer<typeof ScoreRow>) => {
-                        if (score.worldId === worldId) updateScores();
+                        if (score.gameId === gameId) updateScores();
                     },
                     onUpdate: (_ctx: EventContext, _oldScore: Infer<typeof ScoreRow>, newScore: Infer<typeof ScoreRow>) => {
-                        if (newScore.worldId === worldId) updateScores();
+                        if (newScore.gameId === gameId) updateScores();
                     }
                 },
                 loadInitialData: false
             })
-            .add<typeof WorldRow>({
-                table: connection.db.world,
+            .add<typeof GameRow>({
+                table: connection.db.game,
                 handlers: {
-                    onInsert: (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
-                        if (world.id === worldId && world.gameState.tag === 'Results') {
+                    onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
+                        if (game.id === gameId && game.gameState.tag === 'Results') {
                             setShowResults(true);
-                            const endTime = world.gameStartedAt + BigInt(world.gameDurationMicros);
+                            const endTime = game.gameStartedAt + BigInt(game.gameDurationMicros);
                             setGameEndTime(endTime);
                             updateTanks();
                             updateScores();
                         }
                     },
-                    onUpdate: (_ctx: EventContext, oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
-                        if (newWorld.id === worldId) {
+                    onUpdate: (_ctx: EventContext, oldWorld: Infer<typeof GameRow>, newWorld: Infer<typeof GameRow>) => {
+                        if (newWorld.id === gameId) {
                             if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
                                 setShowResults(true);
                                 const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros);
@@ -130,9 +130,9 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
                                 updateTanks();
                                 updateScores();
 
-                                const score = connection.db.score.WorldId.find(worldId);
+                                const score = connection.db.score.GameId.find(gameId);
                                 const myTank = Array.from(connection.db.tank.iter()).find(t =>
-                                    isCurrentIdentity(t.owner) && t.worldId === worldId
+                                    isCurrentIdentity(t.owner) && t.gameId === gameId
                                 );
 
                                 if (score && myTank) {
@@ -168,7 +168,7 @@ export default function ResultsScreen({ worldId }: ResultsScreenProps) {
             subscriptionRef.current?.unsubscribe();
             subscriptionRef.current = null;
         };
-    }, [worldId]);
+    }, [gameId]);
 
     if (!showResults) {
         return null;

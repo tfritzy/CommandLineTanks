@@ -14,7 +14,7 @@ import PickupType from "./pickup_type_type";
 
 export default __t.object("Pickup", {
   id: __t.string(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
   gridX: __t.i32(),

@@ -80,7 +80,7 @@ public static partial class ProjectileUpdater
                 int regionX = projectileCollisionRegionX + deltaX;
                 int regionY = projectileCollisionRegionY + deltaY;
 
-                foreach (var tankTransform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY)))
+                foreach (var tankTransform in ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY)))
                 {
                     var tank = ctx.Db.tank.Id.Find(tankTransform.TankId);
                     if (tank == null) continue;
@@ -421,7 +421,7 @@ public static partial class ProjectileUpdater
             {
                 if (regionY < 0) continue;
 
-                foreach (var tankTransform in ctx.Db.tank_transform.WorldId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY)))
+                foreach (var tankTransform in ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY)))
                 {
                     float dx = tankTransform.PositionX - transform.PositionX;
                     float dy = tankTransform.PositionY - transform.PositionY;

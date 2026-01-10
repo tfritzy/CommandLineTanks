@@ -12,7 +12,7 @@ import {
 
 export default __t.object("TankFireState", {
   tankId: __t.string(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   lastFireTime: __t.u64(),
 });
 

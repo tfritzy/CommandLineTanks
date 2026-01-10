@@ -9,16 +9,13 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2Float from "./vector_2_float_type";
 
-
-export default __t.row({
-  projectileId: __t.u64().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  get velocity() {
-    return Vector2Float;
-  },
-  collisionCount: __t.i32(),
+// The tagged union or sum type for the algebraic type `GameVisibility`.
+const GameVisibility = __t.enum("GameVisibility", {Public: __t.unit(),
+  Private: __t.unit(),
+  CustomPublic: __t.unit(),
 });
+
+export default GameVisibility;
+
+

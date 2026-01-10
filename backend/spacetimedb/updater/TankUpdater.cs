@@ -56,7 +56,7 @@ public static partial class TankUpdater
             if (!_pickupsByTile.ContainsKey(key))
             {
                 var pickups = new List<Module.Pickup>();
-                foreach (var pickup in _ctx.Db.pickup.WorldId_GridX_GridY.Filter((_gameId, tileX, tileY)))
+                foreach (var pickup in _ctx.Db.pickup.GameId_GridX_GridY.Filter((_gameId, tileX, tileY)))
                 {
                     pickups.Add(pickup);
                 }
@@ -77,7 +77,7 @@ public static partial class TankUpdater
             if (!_terrainDetailsByTile.ContainsKey(key))
             {
                 var details = new List<Module.TerrainDetail>();
-                foreach (var detail in _ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((_gameId, tileX, tileY)))
+                foreach (var detail in _ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((_gameId, tileX, tileY)))
                 {
                     details.Add(detail);
                 }

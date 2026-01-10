@@ -17,7 +17,7 @@ public static partial class Module
     {
         var duration = gameDurationMicros ?? GAME_DURATION_MICROS;
         
-        var game = new World
+        var game = new Game
         {
             Id = gameId,
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
@@ -79,7 +79,7 @@ public static partial class Module
             Kills = new int[] { 0, 0 }
         });
 
-        StartWorldTickers(ctx, gameId);
+        StartGameTickers(ctx, gameId);
 
         PickupSpawner.InitializePickupSpawner(ctx, gameId, 5);
 
@@ -90,6 +90,6 @@ public static partial class Module
             GameId = gameId
         });
 
-        return world;
+        return game;
     }
 }

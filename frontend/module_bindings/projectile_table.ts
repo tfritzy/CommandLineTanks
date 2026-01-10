@@ -17,7 +17,7 @@ import DamagedTank from "./damaged_tank_type";
 
 export default __t.row({
   id: __t.u64().primaryKey(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   shooterTankId: __t.string(),
   alliance: __t.i32(),
   size: __t.f32(),

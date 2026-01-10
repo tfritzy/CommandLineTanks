@@ -53,7 +53,7 @@ public static partial class Module
         {
             CurrentPlayerCount = game.Value.CurrentPlayerCount + 1
         };
-        ctx.Db.game.Id.Update(updatedWorld);
+        ctx.Db.game.Id.Update(updatedGame);
     }
 
     public static void DecrementPlayerCount(ReducerContext ctx, string gameId)
@@ -65,7 +65,7 @@ public static partial class Module
         {
             CurrentPlayerCount = Math.Max(0, game.Value.CurrentPlayerCount - 1)
         };
-        ctx.Db.game.Id.Update(updatedWorld);
+        ctx.Db.game.Id.Update(updatedGame);
     }
 
     public static void IncrementBotCount(ReducerContext ctx, string gameId)
@@ -77,7 +77,7 @@ public static partial class Module
         {
             BotCount = game.Value.BotCount + 1
         };
-        ctx.Db.game.Id.Update(updatedWorld);
+        ctx.Db.game.Id.Update(updatedGame);
     }
 
     public static void DecrementBotCount(ReducerContext ctx, string gameId)
@@ -89,7 +89,7 @@ public static partial class Module
         {
             BotCount = Math.Max(0, game.Value.BotCount - 1)
         };
-        ctx.Db.game.Id.Update(updatedWorld);
+        ctx.Db.game.Id.Update(updatedGame);
     }
 
     public static void DeleteHomeworldIfEmpty(ReducerContext ctx, string identityString)
@@ -112,14 +112,14 @@ public static partial class Module
 
     public static void EnsureTankInHomeworld(ReducerContext ctx, string identityString, string joinCode)
     {
-        var existingTank = ctx.Db.tank.WorldId_Owner.Filter((identityString, ctx.Sender))
+        var existingTank = ctx.Db.tank.GameId_Owner.Filter((identityString, ctx.Sender))
             .FirstOrDefault();
         
         if (existingTank.Id != null)
         {
             var updatedTank = existingTank with { JoinCode = joinCode };
             ctx.Db.tank.Id.Update(updatedTank);
-            StartWorldTickers(ctx, identityString);
+            StartGameTickers(ctx, identityString);
             Log.Info($"Updated existing homegame tank with new join code");
             return;
         }
@@ -140,7 +140,7 @@ public static partial class Module
             aiBehavior: AIBehavior.None);
 
         AddTankToGame(ctx, tank, transform);
-        StartWorldTickers(ctx, identityString);
+        StartGameTickers(ctx, identityString);
         Log.Info($"Created homegame tank for identity {identityString}");
     }
 
@@ -161,7 +161,7 @@ public static partial class Module
         if (tank.Health <= 0) return tank;
 
         var targetCodeLower = targetCode.ToLower();
-        var targetTank = ctx.Db.tank.WorldId_TargetCode.Filter((tank.GameId, targetCodeLower)).FirstOrDefault();
+        var targetTank = ctx.Db.tank.GameId_TargetCode.Filter((tank.GameId, targetCodeLower)).FirstOrDefault();
 
         if (targetTank.Id == null)
         {

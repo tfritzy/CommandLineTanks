@@ -9,15 +9,15 @@ public static partial class Module
     [Reducer]
     public static void drive(ReducerContext ctx, string gameId, int targetX, int targetY, float throttle)
     {
-        World? maybeGame = ctx.Db.game.Id.Find(gameId);
+        Game? maybeGame = ctx.Db.game.Id.Find(gameId);
         if (maybeGame != null)
         {
-            var game = maybeWorld.Value;
+            var game = maybeGame.Value;
             targetX = Math.Max(0, Math.Min(game.Width - 1, targetX));
             targetY = Math.Max(0, Math.Min(game.Height - 1, targetY));
         }
 
-        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
+        Tank? tankQuery = ctx.Db.tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
         

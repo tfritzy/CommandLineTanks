@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import HostGameModal from "./HostGameModal";
 
-const HomeworldOverlay: React.FC = () => {
+const HomegameOverlay: React.FC = () => {
     const [showHostModal, setShowHostModal] = useState(false);
 
     return (
@@ -46,4 +46,4 @@ const HomeworldOverlay: React.FC = () => {
     );
 };
 
-export default HomeworldOverlay;
+export default HomegameOverlay;

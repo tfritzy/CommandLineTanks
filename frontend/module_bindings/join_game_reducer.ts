@@ -9,16 +9,9 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2Float from "./vector_2_float_type";
 
-
-export default __t.row({
-  projectileId: __t.u64().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  get velocity() {
-    return Vector2Float;
-  },
-  collisionCount: __t.i32(),
-});
+export default {
+  gameId: __t.option(__t.string()),
+  currentGameId: __t.option(__t.string()),
+  joinCode: __t.string(),
+};

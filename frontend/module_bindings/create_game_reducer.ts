@@ -9,16 +9,16 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2Float from "./vector_2_float_type";
 
+import GameVisibility from "./game_visibility_type";
 
-export default __t.row({
-  projectileId: __t.u64().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  get velocity() {
-    return Vector2Float;
+export default {
+  joinCode: __t.string(),
+  get visibility() {
+    return GameVisibility;
   },
-  collisionCount: __t.i32(),
-});
+  botCount: __t.i32(),
+  gameDurationMicros: __t.i64(),
+  width: __t.i32(),
+  height: __t.i32(),
+};

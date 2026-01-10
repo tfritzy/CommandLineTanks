@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public static void CleanupHomeworldAndJoinCommand(ReducerContext ctx, string gameId, string joinCode)
+    public static void CleanupHomegameAndJoinCommand(ReducerContext ctx, string gameId, string joinCode)
     {
         var identityString = ctx.Sender.ToString().ToLower();
         var existingTanks = ctx.Db.tank.Owner.Filter(ctx.Sender);

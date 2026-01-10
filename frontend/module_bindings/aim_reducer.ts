@@ -11,7 +11,7 @@ import {
 } from "spacetimedb";
 
 export default {
-  worldId: __t.string(),
+  gameId: __t.string(),
   angleRadians: __t.option(__t.f32()),
   targetCode: __t.option(__t.string()),
 };

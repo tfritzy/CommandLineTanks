@@ -3,7 +3,7 @@ import { TerrainDetailManager } from "./TerrainDetailManager";
 import { SoundManager } from "./SoundManager";
 import { type EventContext, BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
-import WorldRow from "../../module_bindings/world_type";
+import GameRow from "../../module_bindings/world_type";
 import { UNIT_TO_PIXEL } from "../constants";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { drawBaseTerrain } from "../drawing/terrain/base-terrain";
@@ -12,15 +12,15 @@ type BaseTerrainType = Infer<typeof BaseTerrain>;
 
 export class TerrainManager {
   private detailManager: TerrainDetailManager | null = null;
-  private worldId: string;
+  private gameId: string;
   private worldWidth: number = 0;
   private worldHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
   private soundManager: SoundManager;
-  private subscription: TableSubscription<typeof WorldRow> | null = null;
+  private subscription: TableSubscription<typeof GameRow> | null = null;
 
-  constructor(worldId: string, soundManager: SoundManager) {
-    this.worldId = worldId;
+  constructor(gameId: string, soundManager: SoundManager) {
+    this.gameId = gameId;
     this.soundManager = soundManager;
     this.subscribeToWorldForDetails();
   }
@@ -29,38 +29,38 @@ export class TerrainManager {
     const connection = getConnection();
     if (!connection) return;
 
-    const handleWorldChange = (world: Infer<typeof WorldRow>) => {
-      if (world.id !== this.worldId) return;
-      this.worldWidth = world.width;
-      this.worldHeight = world.height;
-      this.baseTerrainLayer = world.baseTerrainLayer;
+    const handleWorldChange = (game: Infer<typeof GameRow>) => {
+      if (game.id !== this.gameId) return;
+      this.worldWidth = game.width;
+      this.worldHeight = game.height;
+      this.baseTerrainLayer = game.baseTerrainLayer;
 
       if (!this.detailManager) {
         this.detailManager = new TerrainDetailManager(
-          this.worldId,
-          world.width,
-          world.height,
+          this.gameId,
+          game.width,
+          game.height,
           this.soundManager
         );
       } else {
-        this.detailManager.updateWorldDimensions(world.width, world.height);
+        this.detailManager.updateWorldDimensions(game.width, game.height);
       }
     };
 
     this.subscription = subscribeToTable({
-      table: connection.db.world,
+      table: connection.db.game,
       handlers: {
-        onInsert: (_ctx: EventContext, world: Infer<typeof WorldRow>) => {
-          handleWorldChange(world);
+        onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
+          handleWorldChange(game);
         },
-        onUpdate: (_ctx: EventContext, _oldWorld: Infer<typeof WorldRow>, newWorld: Infer<typeof WorldRow>) => {
+        onUpdate: (_ctx: EventContext, _oldWorld: Infer<typeof GameRow>, newWorld: Infer<typeof GameRow>) => {
           handleWorldChange(newWorld);
         }
       },
       loadInitialData: false
     });
 
-    const cachedWorld = connection.db.world.Id.find(this.worldId);
+    const cachedGame = connection.db.game.Id.find(this.gameId);
     if (cachedWorld) {
       handleWorldChange(cachedWorld);
     }

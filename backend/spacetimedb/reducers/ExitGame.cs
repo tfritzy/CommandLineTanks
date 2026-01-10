@@ -12,7 +12,7 @@ public static partial class Module
             return;
         }
 
-        var currentTank = ctx.Db.tank.WorldId_Owner.Filter((gameId, ctx.Sender))
+        var currentTank = ctx.Db.tank.GameId_Owner.Filter((gameId, ctx.Sender))
             .FirstOrDefault();
 
         if (currentTank.Id != null)

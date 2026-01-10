@@ -19,7 +19,7 @@ interface PlayerScore {
 }
 
 interface ScoreBoardProps {
-  worldId: string;
+  gameId: string;
 }
 
 interface AnimatedScoreProps {
@@ -42,20 +42,20 @@ function AnimatedScore({ value }: AnimatedScoreProps) {
   return <span>{displayValue}</span>;
 }
 
-export default function ScoreBoard({ worldId }: ScoreBoardProps) {
+export default function ScoreBoard({ gameId }: ScoreBoardProps) {
   const [players, setPlayers] = useState<PlayerScore[]>([]);
   const connection = getConnection();
   const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
   const cachedOwnerHexStrings = useRef<Map<string, string>>(new Map());
 
-  const isHomeworld = isCurrentIdentity(worldId);
+  const isHomegame = isCurrentIdentity(gameId);
 
   useEffect(() => {
-    if (!connection || isHomeworld) return;
+    if (!connection || isHomegame) return;
 
     const updatePlayerScores = () => {
       const tanks = Array.from(connection.db.tank.iter())
-        .filter(tank => tank.worldId === worldId)
+        .filter(tank => tank.gameId === gameId)
         .sort((a, b) => b.killStreak - a.killStreak);
 
       const newPlayers: PlayerScore[] = [];
@@ -85,16 +85,16 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
       table: connection.db.tank,
       handlers: {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId === worldId) {
+          if (tank.gameId === gameId) {
             cachedOwnerHexStrings.current.set(tank.id, tank.owner.toHexString());
             updatePlayerScores();
           }
         },
         onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-          if (newTank.worldId === worldId) updatePlayerScores();
+          if (newTank.gameId === gameId) updatePlayerScores();
         },
         onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId === worldId) {
+          if (tank.gameId === gameId) {
             cachedOwnerHexStrings.current.delete(tank.id);
             updatePlayerScores();
           }
@@ -110,10 +110,10 @@ export default function ScoreBoard({ worldId }: ScoreBoardProps) {
         subscriptionRef.current = null;
       }
     };
-  }, [worldId, connection, isHomeworld]);
+  }, [gameId, connection, isHomegame]);
 
 
-  if (isHomeworld || players.length === 0) {
+  if (isHomegame || players.length === 0) {
     return null;
   }
 

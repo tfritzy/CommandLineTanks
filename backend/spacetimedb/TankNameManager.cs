@@ -14,7 +14,7 @@ public static partial class Module
         var tanksInGame = ctx.Db.tank.GameId.Filter(gameId);
         var usedCodes = new HashSet<string>();
         
-        foreach (var tank in tanksInWorld)
+        foreach (var tank in tanksInGame)
         {
             if (tank.TargetCode != null)
             {

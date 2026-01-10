@@ -3,10 +3,10 @@ import CopyBox from "./CopyBox";
 
 interface EliminatedModalProps {
   killerName: string | null;
-  worldId: string;
+  gameId: string;
 }
 
-export default function EliminatedModal({ killerName, worldId }: EliminatedModalProps) {
+export default function EliminatedModal({ killerName, gameId }: EliminatedModalProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
@@ -54,7 +54,7 @@ export default function EliminatedModal({ killerName, worldId }: EliminatedModal
         <div className="text-[10px] text-palette-white-pure/30 tracking-[0.25em] px-1 font-bold text-left uppercase">
           Invite reinforcements
         </div>
-        <CopyBox text={`${window.location.origin}/world/${worldId}`} showPrompt={false} />
+        <CopyBox text={`${window.location.origin}/game/${gameId}`} showPrompt={false} />
       </div>
     </motion.div>
   );

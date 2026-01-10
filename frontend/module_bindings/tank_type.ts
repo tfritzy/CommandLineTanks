@@ -16,7 +16,7 @@ import Gun from "./gun_type";
 
 export default __t.object("Tank", {
   id: __t.string(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   owner: __t.identity(),
   name: __t.string(),
   targetCode: __t.string(),

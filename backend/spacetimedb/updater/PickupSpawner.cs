@@ -126,7 +126,7 @@ public static partial class PickupSpawner
                 continue;
             }
 
-            var existingPickup = ctx.Db.pickup.WorldId_GridX_GridY.Filter((gameId, gridX, gridY));
+            var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, gridX, gridY));
             
             if (existingPickup.Any())
             {
@@ -193,13 +193,13 @@ public static partial class PickupSpawner
         float centerX = spawnX + 0.5f;
         float centerY = spawnY + 0.5f;
 
-        var existingDetail = ctx.Db.terrain_detail.WorldId_GridX_GridY.Filter((gameId, spawnX, spawnY));
+        var existingDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
         foreach (var detail in existingDetail)
         {
             return false;
         }
 
-        var existingPickup = ctx.Db.pickup.WorldId_GridX_GridY.Filter((gameId, spawnX, spawnY));
+        var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
         foreach (var p in existingPickup)
         {
             return false;

@@ -11,6 +11,6 @@ import {
 } from "spacetimedb";
 
 export default {
-  worldId: __t.string(),
+  gameId: __t.string(),
   gunIndex: __t.i32(),
 };

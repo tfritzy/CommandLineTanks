@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { getConnection, getIdentityHex } from "../spacetimedb-connection";
 import ScoreRow from "../../module_bindings/score_type";
-import WorldRow from "../../module_bindings/world_type";
+import GameRow from "../../module_bindings/world_type";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
 import { ServerTimeSync } from "../utils/ServerTimeSync";
 import { PALETTE } from "../theme/colors.config";
@@ -43,10 +43,10 @@ const HeaderBox = ({
 );
 
 interface GameHeaderProps {
-  worldId: string;
+  gameId: string;
 }
 
-export default function GameHeader({ worldId }: GameHeaderProps) {
+export default function GameHeader({ gameId }: GameHeaderProps) {
   const [team0Kills, setTeam0Kills] = useState(0);
   const [team1Kills, setTeam1Kills] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
@@ -54,10 +54,10 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
   const subscription = useRef<MultiTableSubscription>(null);
 
   const connection = getConnection();
-  const isHomeworld = useMemo(() => {
+  const isHomegame = useMemo(() => {
     if (!connection?.identity) return false;
-    return worldId === getIdentityHex();
-  }, [connection, worldId]);
+    return gameId === getIdentityHex();
+  }, [connection, gameId]);
 
   useEffect(() => {
     setTeam0Kills(0);
@@ -65,10 +65,10 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
     setTimeRemaining(null);
     setIsVisible(false);
 
-    if (!connection || isHomeworld) return;
+    if (!connection || isHomegame) return;
 
     const updateScores = () => {
-      const score = connection.db.score.WorldId.find(worldId);
+      const score = connection.db.score.GameId.find(gameId);
       if (score) {
         setTeam0Kills(score.kills[0] || 0);
         setTeam1Kills(score.kills[1] || 0);
@@ -76,12 +76,12 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
     };
 
     const updateTimer = () => {
-      const world = connection.db.world.Id.find(worldId);
-      if (world && world.gameState.tag === "Playing") {
+      const game = connection.db.game.Id.find(gameId);
+      if (game && game.gameState.tag === "Playing") {
         setIsVisible(true);
         const currentTime = BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000));
-        const gameElapsedMicros = Number(currentTime - world.gameStartedAt);
-        const gameDurationMicros = Number(world.gameDurationMicros);
+        const gameElapsedMicros = Number(currentTime - game.gameStartedAt);
+        const gameDurationMicros = Number(game.gameDurationMicros);
         const remainingMicros = Math.max(
           0,
           gameDurationMicros - gameElapsedMicros
@@ -98,17 +98,17 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
         table: connection.db.score,
         handlers: {
           onUpdate: (_ctx, _oldScore, newScore) => {
-            if (newScore.worldId === worldId) {
+            if (newScore.gameId === gameId) {
               updateScores();
             }
           }
         }
       })
-      .add<typeof WorldRow>({
-        table: connection.db.world,
+      .add<typeof GameRow>({
+        table: connection.db.game,
         handlers: {
           onUpdate: (_ctx, _oldWorld, newWorld) => {
-            if (newWorld.id === worldId) {
+            if (newWorld.id === gameId) {
               updateTimer();
             }
           }
@@ -126,9 +126,9 @@ export default function GameHeader({ worldId }: GameHeaderProps) {
       clearInterval(interval);
       subscription.current?.unsubscribe();
     };
-  }, [worldId, connection, isHomeworld]);
+  }, [gameId, connection, isHomegame]);
 
-  if (!isVisible || timeRemaining === null || isHomeworld) {
+  if (!isVisible || timeRemaining === null || isHomegame) {
     return null;
   }
 

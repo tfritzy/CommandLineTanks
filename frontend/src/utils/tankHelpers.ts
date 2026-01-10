@@ -4,7 +4,7 @@ import Gun from "../../module_bindings/gun_type";
 
 export interface FullTankData {
   id: string;
-  worldId: string;
+  gameId: string;
   health: number;
   kills: number;
   deaths: number;
@@ -45,7 +45,7 @@ export function getFullTank(tankId: string): FullTankData | null {
 
   return {
     id: tank.id,
-    worldId: tank.worldId,
+    gameId: tank.gameId,
     health: tank.health,
     kills: tank.kills,
     deaths: tank.deaths,
@@ -88,10 +88,10 @@ export function getTankTransform(tankId: string) {
   return connection.db.tankTransform.tankId.find(tankId);
 }
 
-export function getTankByOwner(worldId: string, owner: Identity) {
+export function getTankByOwner(gameId: string, owner: Identity) {
   const connection = getConnection();
   if (!connection) return null;
-  for (const tank of connection.db.tank.WorldId.filter(worldId)) {
+  for (const tank of connection.db.tank.GameId.filter(gameId)) {
     if (tank.owner.isEqual(owner)) {
       return tank;
     }

@@ -9,16 +9,11 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2Float from "./vector_2_float_type";
 
+import ScheduledGameReset from "./scheduled_game_reset_type";
 
-export default __t.row({
-  projectileId: __t.u64().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  get velocity() {
-    return Vector2Float;
+export default {
+  get args() {
+    return ScheduledGameReset;
   },
-  collisionCount: __t.i32(),
-});
+};

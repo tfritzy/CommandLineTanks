@@ -27,7 +27,7 @@ public static partial class Module
         CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
         CreateEmptyDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
 
-        var game = new World
+        var game = new Game
         {
             Id = identityString,
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,

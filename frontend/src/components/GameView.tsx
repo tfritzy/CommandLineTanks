@@ -5,16 +5,16 @@ import TerminalComponent from "./terminal/Terminal";
 import ResultsScreen from "./ResultsScreen";
 import GameHeader from "./GameHeader";
 import ScoreBoard from "./ScoreBoard";
-import JoinWorldModal from "./JoinWorldModal";
-import WorldNotFound from "./WorldNotFound";
+import JoinGameModal from "./JoinGameModal";
+import GameNotFound from "./GameNotFound";
 import EliminatedModal from "./EliminatedModal";
-import HomeworldOverlay from "./HomeworldOverlay";
+import HomegameOverlay from "./HomegameOverlay";
 import { motion, AnimatePresence } from "framer-motion";
 import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual, setPendingJoinCode } from "../spacetimedb-connection";
-import { useWorldSwitcher } from "../hooks/useWorldSwitcher";
+import { useGameSwitcher } from "../hooks/useGameSwitcher";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
-import { World } from "../../module_bindings";
+import { Game } from "../../module_bindings";
 import {
   type EventContext,
   type SubscriptionHandle,
@@ -23,7 +23,7 @@ import { subscribeToTable, type TableSubscription } from "../utils/tableSubscrip
 import { useJoinModalStatus } from "../hooks/useJoinModalStatus";
 
 export default function GameView() {
-  const { worldId } = useParams<{ worldId: string }>();
+  const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
@@ -32,25 +32,25 @@ export default function GameView() {
   const worldCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDead, setIsDead] = useState(false);
   const [killerName, setKillerName] = useState<string | null>(null);
-  const [worldNotFound, setWorldNotFound] = useState(false);
+  const [worldNotFound, setGameNotFound] = useState(false);
 
   const myIdentity = getIdentityHex();
-  const isHomeworld = myIdentity && worldId?.toLowerCase() === myIdentity.toLowerCase();
+  const isHomegame = myIdentity && gameId?.toLowerCase() === myIdentity.toLowerCase();
 
-  const joinModalStatus = useJoinModalStatus(worldId);
+  const joinModalStatus = useJoinModalStatus(gameId);
   const showJoinModal = joinModalStatus === "no_tank";
 
-  const handleWorldChange = (newWorldId: string) => {
-    if (newWorldId !== worldId) {
-      console.log("Switch to", newWorldId);
-      navigate(`/world/${newWorldId}`);
+  const handleWorldChange = (newGameId: string) => {
+    if (newGameId !== gameId) {
+      console.log("Switch to", newGameId);
+      navigate(`/game/${newGameId}`);
     }
   };
 
-  useWorldSwitcher(handleWorldChange, worldId || null);
+  useGameSwitcher(handleWorldChange, gameId || null);
 
   useEffect(() => {
-    if (!worldId) return;
+    if (!gameId) return;
 
     const connection = getConnection();
     if (!connection) return;
@@ -60,17 +60,17 @@ export default function GameView() {
       .subscriptionBuilder()
       .onError((e) => console.error("Subscription error", e))
       .subscribe([
-        `SELECT * FROM tank WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM tank_path WHERE WorldId = '${worldId}' AND Owner = '${connection.identity}'`,
-        `SELECT * FROM tank_transform WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM projectile WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM projectile_transform WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM pickup WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM kills WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM tank_fire_state WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM terrain_detail WHERE WorldId = '${worldId}'`,
-        `SELECT * FROM world WHERE Id = '${worldId}'`,
-        `SELECT * FROM score WHERE WorldId = '${worldId}'`,
+        `SELECT * FROM tank WHERE GameId = '${gameId}'`,
+        `SELECT * FROM tank_path WHERE GameId = '${gameId}' AND Owner = '${connection.identity}'`,
+        `SELECT * FROM tank_transform WHERE GameId = '${gameId}'`,
+        `SELECT * FROM projectile WHERE GameId = '${gameId}'`,
+        `SELECT * FROM projectile_transform WHERE GameId = '${gameId}'`,
+        `SELECT * FROM pickup WHERE GameId = '${gameId}'`,
+        `SELECT * FROM kills WHERE GameId = '${gameId}'`,
+        `SELECT * FROM tank_fire_state WHERE GameId = '${gameId}'`,
+        `SELECT * FROM terrain_detail WHERE GameId = '${gameId}'`,
+        `SELECT * FROM game WHERE Id = '${gameId}'`,
+        `SELECT * FROM score WHERE GameId = '${gameId}'`,
         `SELECT * FROM player WHERE Identity = '${connection.identity}'`,
       ]);
 
@@ -78,23 +78,23 @@ export default function GameView() {
       subscriptionRef.current?.unsubscribe();
       subscriptionRef.current = null;
     };
-  }, [worldId]);
+  }, [gameId]);
 
   useEffect(() => {
-    if (!canvasRef.current || !worldId) return;
+    if (!canvasRef.current || !gameId) return;
 
     gameRef.current?.destroy();
-    gameRef.current = new Game(canvasRef.current, worldId);
+    gameRef.current = new Game(canvasRef.current, gameId);
     gameRef.current.start();
 
     return () => {
       gameRef.current?.destroy();
       gameRef.current = null;
     };
-  }, [worldId]);
+  }, [gameId]);
 
   useEffect(() => {
-    if (!worldId) return;
+    if (!gameId) return;
 
     const connection = getConnection();
     if (!connection) return;
@@ -105,7 +105,7 @@ export default function GameView() {
       for (const tank of connection.db.tank.iter()) {
         if (
           isCurrentIdentity(tank.owner) &&
-          tank.worldId === worldId
+          tank.gameId === gameId
         ) {
           playerTankId = tank.id;
           setIsDead(tank.health <= 0);
@@ -119,7 +119,7 @@ export default function GameView() {
       table: connection.db.tank,
       handlers: {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.worldId !== worldId) return;
+          if (tank.gameId !== gameId) return;
 
           if (isCurrentIdentity(tank.owner)) {
             playerTankId = tank.id;
@@ -127,7 +127,7 @@ export default function GameView() {
           }
         },
         onUpdate: (_ctx: EventContext, oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-          if (newTank.worldId !== worldId) return;
+          if (newTank.gameId !== gameId) return;
           if (playerTankId !== newTank.id) return;
 
           const wasDead = oldTank.health <= 0;
@@ -137,7 +137,7 @@ export default function GameView() {
             let killerNameFound: string | null = null;
 
             for (const t of connection.db.tank.iter()) {
-              if (t.worldId === worldId && areIdentitiesEqual(t.owner, newTank.lastDamagedBy)) {
+              if (t.gameId === gameId && areIdentitiesEqual(t.owner, newTank.lastDamagedBy)) {
                 killerNameFound = t.name;
                 break;
               }
@@ -162,7 +162,7 @@ export default function GameView() {
         onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (
             isCurrentIdentity(tank.owner) &&
-            tank.worldId === worldId
+            tank.gameId === gameId
           ) {
             setIsDead(false);
             playerTankId = null;
@@ -179,47 +179,47 @@ export default function GameView() {
         tankSubscriptionRef.current = null;
       }
     };
-  }, [worldId]);
+  }, [gameId]);
 
   useEffect(() => {
-    if (!worldId) return;
+    if (!gameId) return;
 
     const connection = getConnection();
     if (!connection) return;
 
-    setWorldNotFound(false);
+    setGameNotFound(false);
 
     const check = () => {
-      const world = connection.db.world.Id.find(worldId);
-      if (world) {
-        setWorldNotFound(false);
+      const game = connection.db.game.Id.find(gameId);
+      if (game) {
+        setGameNotFound(false);
       } else {
-        setWorldNotFound(true);
+        setGameNotFound(true);
       }
     };
 
     worldCheckTimeoutRef.current = setTimeout(check, 1500);
 
-    const handleWorldInsert = (_ctx: EventContext, world: Infer<typeof World>) => {
-      if (world.id === worldId) {
-        setWorldNotFound(false);
+    const handleWorldInsert = (_ctx: EventContext, game: Infer<typeof World>) => {
+      if (game.id === gameId) {
+        setGameNotFound(false);
       }
     };
 
-    connection.db.world.onInsert(handleWorldInsert);
+    connection.db.game.onInsert(handleWorldInsert);
 
     return () => {
       if (worldCheckTimeoutRef.current) {
         clearTimeout(worldCheckTimeoutRef.current);
       }
       if (connection) {
-        connection.db.world.removeOnInsert(handleWorldInsert);
+        connection.db.game.removeOnInsert(handleWorldInsert);
       }
     };
-  }, [worldId]);
+  }, [gameId]);
 
   useEffect(() => {
-    if (!worldId || !isHomeworld) return;
+    if (!gameId || !isHomegame) return;
 
     const connection = getConnection();
     if (!connection) return;
@@ -227,20 +227,20 @@ export default function GameView() {
     const joinCode = `ensure_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     setPendingJoinCode(joinCode);
     
-    connection.reducers.ensureHomeworld({ worldId, joinCode });
-    console.log(`Called ensureHomeworld for worldId: ${worldId}`);
-  }, [worldId, isHomeworld]);
+    connection.reducers.ensureHomegame({ gameId, joinCode });
+    console.log(`Called ensureHomegame for gameId: ${gameId}`);
+  }, [gameId, isHomegame]);
 
-  if (!worldId) {
+  if (!gameId) {
     return null;
   }
 
   return (
     <div className="flex flex-col h-screen w-screen m-0 p-0 overflow-hidden">
       <div className="flex-1 overflow-hidden relative">
-        <GameHeader worldId={worldId} />
-        <ScoreBoard worldId={worldId} />
-        {isHomeworld && <HomeworldOverlay />}
+        <GameHeader gameId={gameId} />
+        <ScoreBoard gameId={gameId} />
+        {isHomegame && <HomegameOverlay />}
         <canvas
           ref={canvasRef}
           className="block m-0 p-0 w-full h-full bg-palette-ground-dark"
@@ -259,15 +259,15 @@ export default function GameView() {
               exit={{ opacity: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <JoinWorldModal
-                worldId={worldId}
+              <JoinGameModal
+                gameId={gameId}
               />
             </motion.div>
           )}
         </AnimatePresence>
         <AnimatePresence>
           {!showJoinModal && isDead && (
-            <EliminatedModal killerName={killerName} worldId={worldId} />
+            <EliminatedModal killerName={killerName} gameId={gameId} />
           )}
         </AnimatePresence>
         <AnimatePresence>
@@ -278,13 +278,13 @@ export default function GameView() {
               exit={{ opacity: 0 }}
               className="absolute inset-0 z-[2000]"
             >
-              <WorldNotFound worldId={worldId} />
+              <GameNotFound gameId={gameId} />
             </motion.div>
           )}
         </AnimatePresence>
-        <ResultsScreen worldId={worldId} />
+        <ResultsScreen gameId={gameId} />
       </div>
-      <TerminalComponent worldId={worldId} />
+      <TerminalComponent gameId={gameId} />
     </div>
   );
 }

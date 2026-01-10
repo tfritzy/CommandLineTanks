@@ -2,8 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { getConnection, isCurrentIdentity, setPendingJoinCode } from '../spacetimedb-connection';
 import CopyBox from './CopyBox';
 
-interface JoinWorldModalProps {
-  worldId: string;
+interface JoinGameModalProps {
+  gameId: string;
 }
 
 const generateDefaultName = () => {
@@ -11,7 +11,7 @@ const generateDefaultName = () => {
   return `guest${randomNumbers}`;
 };
 
-export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
+export default function JoinGameModal({ gameId }: JoinGameModalProps) {
   const [playerName, setPlayerName] = useState(() => generateDefaultName());
   const [hasSetName, setHasSetName] = useState(false);
   const [shouldAutoJoin, setShouldAutoJoin] = useState(false);
@@ -44,13 +44,13 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
         const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
         setPendingJoinCode(joinCode);
         connection.reducers.joinWorld({
-          worldId,
-          currentWorldId: worldId,
+          gameId,
+          currentWorldId: gameId,
           joinCode,
         });
       }
     }
-  }, [shouldAutoJoin, worldId]);
+  }, [shouldAutoJoin, gameId]);
 
   const sanitizedName = useMemo(() => {
     return playerName.replace(/[^\w\s-]/g, '').trim();
@@ -58,11 +58,11 @@ export default function JoinWorldModal({ worldId }: JoinWorldModalProps) {
 
   const commands = useMemo(() => {
     if (hasSetName) {
-      return `join ${worldId}`;
+      return `join ${gameId}`;
     }
     const nameToUse = sanitizedName || generateDefaultName();
-    return `name set ${nameToUse}; join ${worldId}`;
-  }, [sanitizedName, worldId, hasSetName]);
+    return `name set ${nameToUse}; join ${gameId}`;
+  }, [sanitizedName, gameId, hasSetName]);
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-palette-purple-void/95 backdrop-blur-xl rounded border border-palette-white-pure/[0.08] py-10 px-[60px] font-mono z-[1000] shadow-2xl min-w-[500px]">

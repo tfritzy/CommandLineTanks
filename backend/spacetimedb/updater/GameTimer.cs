@@ -25,11 +25,11 @@ public static partial class GameTimer
         }
 
         var updatedGame = game.Value with { GameState = GameState.Results };
-        ctx.Db.game.Id.Update(updatedWorld);
+        ctx.Db.game.Id.Update(updatedGame);
 
-        StopWorldTickers(ctx, args.GameId);
+        StopGameTickers(ctx, args.GameId);
 
-        ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
+        ctx.Db.ScheduledGameReset.Insert(new ScheduledGameReset
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),

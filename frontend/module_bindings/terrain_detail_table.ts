@@ -14,7 +14,7 @@ import TerrainDetailType from "./terrain_detail_type_type";
 
 export default __t.row({
   id: __t.string().primaryKey(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
   gridX: __t.i32(),

@@ -14,7 +14,7 @@ import PathEntry from "./path_entry_type";
 
 export default __t.row({
   tankId: __t.string().primaryKey(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   owner: __t.identity(),
   get path() {
     return __t.array(PathEntry);

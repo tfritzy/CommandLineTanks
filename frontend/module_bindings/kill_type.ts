@@ -12,7 +12,7 @@ import {
 
 export default __t.object("Kill", {
   id: __t.string(),
-  worldId: __t.string(),
+  gameId: __t.string(),
   killer: __t.identity(),
   killeeName: __t.string(),
   timestamp: __t.u64(),

@@ -133,7 +133,7 @@ public static partial class Module
 
     public static (Tank, TankTransform)? CreateTankInGame(ReducerContext ctx, string gameId, Identity owner, string joinCode)
     {
-        Tank? existingTank = ctx.Db.tank.WorldId_Owner.Filter((gameId, owner)).FirstOrDefault();
+        Tank? existingTank = ctx.Db.tank.GameId_Owner.Filter((gameId, owner)).FirstOrDefault();
         if (existingTank != null && !string.IsNullOrEmpty(existingTank.Value.Id))
         {
             Log.Info($"Player already has tank in game {gameId}, removing before creating new one");

@@ -23,7 +23,7 @@ public static partial class BehaviorTreeAI
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
         var aiContext = new AIContext(ctx, args.GameId);
-        var aiTanks = ctx.Db.tank.WorldId_IsBot.Filter((args.GameId, true)).ToList();
+        var aiTanks = ctx.Db.tank.GameId_IsBot.Filter((args.GameId, true)).ToList();
 
         foreach (var tank in aiTanks)
         {

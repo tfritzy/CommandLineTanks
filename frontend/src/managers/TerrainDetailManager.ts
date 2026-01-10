@@ -26,7 +26,7 @@ import { subscribeToTable, type TableSubscription } from "../utils/tableSubscrip
 export class TerrainDetailManager {
   private worldWidth: number = 0;
   private worldHeight: number = 0;
-  private worldId: string;
+  private gameId: string;
   private detailObjects: Map<string, TerrainDetailObject> = new Map();
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
   private terrainDebrisParticles: TerrainDebrisParticlesManager =
@@ -37,8 +37,8 @@ export class TerrainDetailManager {
   private soundManager: SoundManager;
   private subscription: TableSubscription<typeof TerrainDetailRow> | null = null;
 
-  constructor(worldId: string, worldWidth: number, worldHeight: number, soundManager: SoundManager) {
-    this.worldId = worldId;
+  constructor(gameId: string, worldWidth: number, worldHeight: number, soundManager: SoundManager) {
+    this.gameId = gameId;
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
     this.soundManager = soundManager;
@@ -67,11 +67,11 @@ export class TerrainDetailManager {
       table: connection.db.terrainDetail,
       handlers: {
         onInsert: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
-          if (detail.worldId !== this.worldId) return;
+          if (detail.gameId !== this.gameId) return;
           this.createDetailObject(detail);
         },
         onUpdate: (_ctx: EventContext, _oldDetail: Infer<typeof TerrainDetailRow>, newDetail: Infer<typeof TerrainDetailRow>) => {
-          if (newDetail.worldId !== this.worldId) return;
+          if (newDetail.gameId !== this.gameId) return;
           const existingObj = this.detailObjects.get(newDetail.id);
           if (existingObj) {
             existingObj.setData(newDetail);
@@ -80,7 +80,7 @@ export class TerrainDetailManager {
           }
         },
         onDelete: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
-          if (detail.worldId !== this.worldId) return;
+          if (detail.gameId !== this.gameId) return;
           const obj = this.detailObjects.get(detail.id);
           if (obj) {
             const x = Math.floor(obj.getX());

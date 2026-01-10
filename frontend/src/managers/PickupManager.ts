@@ -16,13 +16,13 @@ interface PickupData {
 
 export class PickupManager {
   private pickups: Map<string, PickupData> = new Map();
-  private worldId: string;
+  private gameId: string;
   private subscription: TableSubscription<typeof PickupRow> | null = null;
   private soundManager: SoundManager;
   private playerAlliance: number | null = null;
 
-  constructor(worldId: string, soundManager: SoundManager) {
-    this.worldId = worldId;
+  constructor(gameId: string, soundManager: SoundManager) {
+    this.gameId = gameId;
     this.soundManager = soundManager;
     this.subscribeToPickups();
   }
@@ -39,7 +39,7 @@ export class PickupManager {
       table: connection.db.pickup,
       handlers: {
         onInsert: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-          if (pickup.worldId !== this.worldId) return;
+          if (pickup.gameId !== this.gameId) return;
           this.pickups.set(pickup.id, {
             id: pickup.id,
             positionX: pickup.positionX,
@@ -48,7 +48,7 @@ export class PickupManager {
           });
         },
         onDelete: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
-          if (pickup.worldId !== this.worldId) return;
+          if (pickup.gameId !== this.gameId) return;
           this.pickups.delete(pickup.id);
 
           if (pickup.type.tag === "Health") {
