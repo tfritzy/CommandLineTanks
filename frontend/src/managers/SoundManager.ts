@@ -1,34 +1,4 @@
-import { toAudio } from 'jsfxr';
-
-type JsfxrParams = {
-    oldParams: boolean;
-    wave_type: number;
-    p_env_attack: number;
-    p_env_sustain: number;
-    p_env_punch: number;
-    p_env_decay: number;
-    p_base_freq: number;
-    p_freq_limit: number;
-    p_freq_ramp: number;
-    p_freq_dramp: number;
-    p_vib_strength: number;
-    p_vib_speed: number;
-    p_arp_mod: number;
-    p_arp_speed: number;
-    p_duty: number;
-    p_duty_ramp: number;
-    p_repeat_speed: number;
-    p_pha_offset: number;
-    p_pha_ramp: number;
-    p_lpf_freq: number;
-    p_lpf_ramp: number;
-    p_lpf_resonance: number;
-    p_hpf_freq: number;
-    p_hpf_ramp: number;
-    sound_vol: number;
-    sample_rate: number;
-    sample_size: number;
-};
+import { toAudio, type JsfxrParams } from 'jsfxr';
 
 export class SoundManager {
     private audioContext: AudioContext | null = null;
@@ -37,6 +7,7 @@ export class SoundManager {
     private listenerX: number = 0;
     private listenerY: number = 0;
     private readonly MAX_DISTANCE = 15;
+    private preGeneratedBuffers: Map<string, AudioBuffer> = new Map();
 
     private soundParams: Record<string, { params: JsfxrParams, volume?: number }> = {
         'self-damage': {
@@ -493,8 +464,31 @@ export class SoundManager {
     private initAudioContext() {
         try {
             this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            this.preGenerateSounds();
         } catch (e) {
             console.error('Web Audio API not supported', e);
+        }
+    }
+
+    private preGenerateSounds() {
+        if (!this.audioContext) return;
+
+        for (const [key, config] of Object.entries(this.soundParams)) {
+            try {
+                const audio = toAudio(config.params);
+                const audioBuffer = this.audioContext.createBuffer(
+                    1,
+                    audio.buffer.length,
+                    config.params.sample_rate || 44100
+                );
+                const channelData = audioBuffer.getChannelData(0);
+                for (let i = 0; i < audio.buffer.length; i++) {
+                    channelData[i] = audio.buffer[i] / 255 * 2 - 1;
+                }
+                this.preGeneratedBuffers.set(key, audioBuffer);
+            } catch (e) {
+                console.error(`Failed to generate sound: ${key}`, e);
+            }
         }
     }
 
@@ -512,6 +506,9 @@ export class SoundManager {
 
         const config = this.soundParams[key];
         if (!config) return;
+
+        const baseBuffer = this.preGeneratedBuffers.get(key);
+        if (!baseBuffer) return;
 
         let active = this.activeSources.get(key);
         if (!active) {
@@ -538,27 +535,13 @@ export class SoundManager {
         const volumeVar = 0.95 + Math.random() * 0.1;
         const pitchVar = 0.9 + Math.random() * 0.2;
 
-        const adjustedParams = { ...config.params };
-        adjustedParams.sound_vol = Math.max(0, Math.min(1, finalVolume * volumeVar)) * adjustedParams.sound_vol;
-        adjustedParams.p_base_freq *= pitchVar;
-
         try {
-            const audio = toAudio(adjustedParams);
-            const audioBuffer = this.audioContext.createBuffer(
-                1,
-                audio.buffer.length,
-                adjustedParams.sample_rate
-            );
-            const channelData = audioBuffer.getChannelData(0);
-            for (let i = 0; i < audio.buffer.length; i++) {
-                channelData[i] = audio.buffer[i] / 255 * 2 - 1;
-            }
-
             const source = this.audioContext.createBufferSource();
-            source.buffer = audioBuffer;
+            source.buffer = baseBuffer;
+            source.playbackRate.value = pitchVar;
 
             const gainNode = this.audioContext.createGain();
-            gainNode.gain.value = 1.0;
+            gainNode.gain.value = Math.max(0, Math.min(1, finalVolume * volumeVar));
 
             source.connect(gainNode);
             gainNode.connect(this.audioContext.destination);
