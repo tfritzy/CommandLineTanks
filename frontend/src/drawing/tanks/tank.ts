@@ -86,7 +86,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.translate(-1.5, 1.5);
   ctx.rotate(params.turretRotation);
   ctx.beginPath();
-  ctx.roundRect(-12, -12, 24, 24, 10);
+  ctx.arc(0, 0, 12, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
@@ -101,7 +101,7 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
 
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
-  ctx.roundRect(-12, -12, 24, 24, 10);
+  ctx.arc(0, 0, 12, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
   ctx.restore();
