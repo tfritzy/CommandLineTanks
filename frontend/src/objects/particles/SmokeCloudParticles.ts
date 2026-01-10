@@ -103,7 +103,8 @@ export class SmokeCloudParticles {
     viewportWidth: number,
     viewportHeight: number
   ): void {
-    ctx.save();
+    const prevAlpha = ctx.globalAlpha;
+    const TWO_PI = Math.PI * 2;
 
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
@@ -127,7 +128,6 @@ export class SmokeCloudParticles {
       }
 
       const progress = p.lifetime / p.maxLifetime;
-      // Fade in more slowly from 0, then fade out
       const fadeIn = Math.min(1, progress / 0.4);
       const fadeOut = Math.max(0, 1 - progress);
       const alpha = fadeIn * fadeOut * 0.3;
@@ -135,10 +135,10 @@ export class SmokeCloudParticles {
       ctx.globalAlpha = alpha;
       ctx.fillStyle = p.color;
       ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, Math.PI * 2);
+      ctx.arc(px, py, pSize, 0, TWO_PI);
       ctx.fill();
     }
-    ctx.restore();
+    ctx.globalAlpha = prevAlpha;
   }
 
   public getIsDead(): boolean {

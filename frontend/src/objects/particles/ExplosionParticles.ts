@@ -1,6 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
-import { drawExplosionParticles } from "../../drawing";
 import { COLORS } from "../../theme/colors";
 
 interface Particle {
@@ -69,6 +68,9 @@ export class ExplosionParticles {
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    const TWO_PI = Math.PI * 2;
+    
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -80,8 +82,16 @@ export class ExplosionParticles {
         continue;
       }
 
-      drawExplosionParticles(ctx, p);
+      const progress = p.lifetime / p.maxLifetime;
+      ctx.globalAlpha = 1 - progress;
+      
+      ctx.beginPath();
+      ctx.arc(px, py, pSize, 0, TWO_PI);
+      ctx.fillStyle = p.color;
+      ctx.fill();
     }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   public getIsDead(): boolean {

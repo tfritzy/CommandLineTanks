@@ -1,6 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
-import { drawMuzzleFlashParticles } from "../../drawing";
 import { COLORS } from "../../theme/colors";
 
 const ANGLE_SPREAD_RADIANS = 0.8;
@@ -61,6 +60,9 @@ export class MuzzleFlashParticles {
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    const TWO_PI = Math.PI * 2;
+    
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -72,8 +74,16 @@ export class MuzzleFlashParticles {
         continue;
       }
 
-      drawMuzzleFlashParticles(ctx, p);
+      const alpha = 1 - p.lifetime / p.maxLifetime;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.color;
+      
+      ctx.beginPath();
+      ctx.arc(px, py, pSize, 0, TWO_PI);
+      ctx.fill();
     }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   public getIsDead(): boolean {

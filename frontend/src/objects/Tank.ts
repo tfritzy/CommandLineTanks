@@ -48,6 +48,8 @@ export class Tank {
     serverTimestampMs: number;
   }> = [];
   private cachedPosition: { x: number; y: number } = { x: 0, y: 0 };
+  private lineColor: string;
+  private dotColor: string;
 
   constructor(
     id: string,
@@ -82,6 +84,8 @@ export class Tank {
     this.selectedGunIndex = selectedGunIndex;
     this.hasShield = hasShield;
     this.remainingImmunityMicros = remainingImmunityMicros;
+    this.lineColor = this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "66" : COLORS.GAME.TEAM_BLUE_BRIGHT + "66";
+    this.dotColor = this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "ff" : COLORS.GAME.TEAM_BLUE_BRIGHT + "ff";
   }
 
   public getAllianceColor(): string {
@@ -142,11 +146,7 @@ export class Tank {
   }
 
   public drawPath(ctx: CanvasRenderingContext2D) {
-    const lineColor =
-      this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "66" : COLORS.GAME.TEAM_BLUE_BRIGHT + "66";
-    const dotColor =
-      this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "ff" : COLORS.GAME.TEAM_BLUE_BRIGHT + "ff";
-    drawTankPath(ctx, this.x, this.y, this.path, lineColor, dotColor);
+    drawTankPath(ctx, this.x, this.y, this.path, this.lineColor, this.dotColor);
   }
 
   public setPosition(x: number, y: number, serverTimestampMicros: bigint) {

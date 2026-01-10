@@ -9,23 +9,24 @@ interface Particle {
   color: string;
 }
 
+const TWO_PI = Math.PI * 2;
+
 export function drawExplosionParticles(
   ctx: CanvasRenderingContext2D,
   particle: Particle
 ) {
-  ctx.save();
-
   const px = particle.x * UNIT_TO_PIXEL;
   const py = particle.y * UNIT_TO_PIXEL;
   const pSize = particle.size * UNIT_TO_PIXEL;
 
   const progress = particle.lifetime / particle.maxLifetime;
+  const prevAlpha = ctx.globalAlpha;
   ctx.globalAlpha = 1 - progress;
   
   ctx.beginPath();
-  ctx.arc(px, py, pSize, 0, Math.PI * 2);
+  ctx.arc(px, py, pSize, 0, TWO_PI);
   ctx.fillStyle = particle.color;
   ctx.fill();
 
-  ctx.restore();
+  ctx.globalAlpha = prevAlpha;
 }

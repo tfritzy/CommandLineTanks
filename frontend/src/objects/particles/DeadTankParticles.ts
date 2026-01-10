@@ -211,6 +211,9 @@ export class DeadTankParticles {
   }
 
   private drawSmoke(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    const TWO_PI = Math.PI * 2;
+    
     for (const particle of this.smokeParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -224,18 +227,19 @@ export class DeadTankParticles {
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
 
-      ctx.save();
-      ctx.translate(particleX, particleY);
       ctx.globalAlpha = alpha;
       ctx.fillStyle = particle.color;
       ctx.beginPath();
-      ctx.arc(0, 0, halfSize, 0, Math.PI * 2);
+      ctx.arc(particleX, particleY, halfSize, 0, TWO_PI);
       ctx.fill();
-      ctx.restore();
     }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   private drawDebris(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    
     for (const particle of this.debrisParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -270,9 +274,13 @@ export class DeadTankParticles {
       );
       ctx.restore();
     }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   private drawFire(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    
     for (const particle of this.fireParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -299,9 +307,13 @@ export class DeadTankParticles {
       );
       ctx.restore();
     }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   private drawSparks(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    
     for (const particle of this.sparkParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -323,6 +335,8 @@ export class DeadTankParticles {
       ctx.fillRect(0, -0.5, particle.width, particle.height);
       ctx.restore();
     }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   public getIsDead(): boolean {

@@ -50,7 +50,8 @@ export class TerrainDebrisParticles {
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    ctx.save();
+    const prevAlpha = ctx.globalAlpha;
+    const TWO_PI = Math.PI * 2;
 
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
@@ -68,10 +69,10 @@ export class TerrainDebrisParticles {
       ctx.fillStyle = p.color;
       
       ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, Math.PI * 2);
+      ctx.arc(px, py, pSize, 0, TWO_PI);
       ctx.fill();
     }
-    ctx.restore();
+    ctx.globalAlpha = prevAlpha;
   }
 
   public getIsDead(): boolean {
