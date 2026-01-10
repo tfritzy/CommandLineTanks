@@ -214,6 +214,8 @@ export class DeadTankParticles {
     const prevAlpha = ctx.globalAlpha;
     const TWO_PI = Math.PI * 2;
     
+    const particlesByColor = new Map<string, typeof this.smokeParticles>();
+    
     for (const particle of this.smokeParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -225,13 +227,25 @@ export class DeadTankParticles {
         continue;
       }
 
-      const alpha = 1 - particle.lifetime / particle.maxLifetime;
+      if (!particlesByColor.has(particle.color)) {
+        particlesByColor.set(particle.color, []);
+      }
+      particlesByColor.get(particle.color)!.push(particle);
+    }
 
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = particle.color;
-      ctx.beginPath();
-      ctx.arc(particleX, particleY, halfSize, 0, TWO_PI);
-      ctx.fill();
+    for (const [color, particles] of particlesByColor) {
+      ctx.fillStyle = color;
+      for (const particle of particles) {
+        const particleX = particle.x * UNIT_TO_PIXEL;
+        const particleY = particle.y * UNIT_TO_PIXEL;
+        const halfSize = particle.size / 2;
+        
+        const alpha = 1 - particle.lifetime / particle.maxLifetime;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(particleX, particleY, halfSize, 0, TWO_PI);
+        ctx.fill();
+      }
     }
     
     ctx.globalAlpha = prevAlpha;
@@ -239,6 +253,8 @@ export class DeadTankParticles {
 
   private drawDebris(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
     const prevAlpha = ctx.globalAlpha;
+    
+    const particlesByColor = new Map<string, typeof this.debrisParticles>();
     
     for (const particle of this.debrisParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
@@ -251,28 +267,41 @@ export class DeadTankParticles {
         continue;
       }
 
-      const alpha = 1 - particle.lifetime / particle.maxLifetime;
+      if (!particlesByColor.has(particle.color)) {
+        particlesByColor.set(particle.color, []);
+      }
+      particlesByColor.get(particle.color)!.push(particle);
+    }
 
-      ctx.save();
-      ctx.translate(particleX, particleY);
-      ctx.rotate(particle.rotation);
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = particle.color;
-      ctx.fillRect(
-        -particle.width / 2,
-        -particle.height / 2,
-        particle.width,
-        particle.height
-      );
+    for (const [color, particles] of particlesByColor) {
+      ctx.fillStyle = color;
       ctx.strokeStyle = "rgba(0,0,0,0.5)";
       ctx.lineWidth = 1;
-      ctx.strokeRect(
-        -particle.width / 2,
-        -particle.height / 2,
-        particle.width,
-        particle.height
-      );
-      ctx.restore();
+      
+      for (const particle of particles) {
+        const particleX = particle.x * UNIT_TO_PIXEL;
+        const particleY = particle.y * UNIT_TO_PIXEL;
+        
+        const alpha = 1 - particle.lifetime / particle.maxLifetime;
+
+        ctx.save();
+        ctx.translate(particleX, particleY);
+        ctx.rotate(particle.rotation);
+        ctx.globalAlpha = alpha;
+        ctx.fillRect(
+          -particle.width / 2,
+          -particle.height / 2,
+          particle.width,
+          particle.height
+        );
+        ctx.strokeRect(
+          -particle.width / 2,
+          -particle.height / 2,
+          particle.width,
+          particle.height
+        );
+        ctx.restore();
+      }
     }
     
     ctx.globalAlpha = prevAlpha;
@@ -280,6 +309,8 @@ export class DeadTankParticles {
 
   private drawFire(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
     const prevAlpha = ctx.globalAlpha;
+    
+    const particlesByColor = new Map<string, typeof this.fireParticles>();
     
     for (const particle of this.fireParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
@@ -292,20 +323,34 @@ export class DeadTankParticles {
         continue;
       }
 
-      const alpha = 1 - particle.lifetime / particle.maxLifetime;
+      if (!particlesByColor.has(particle.color)) {
+        particlesByColor.set(particle.color, []);
+      }
+      particlesByColor.get(particle.color)!.push(particle);
+    }
 
-      ctx.save();
-      ctx.translate(particleX, particleY);
-      ctx.rotate(particle.rotation);
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = particle.color;
-      ctx.fillRect(
-        -halfSize,
-        -halfSize,
-        particle.size,
-        particle.size
-      );
-      ctx.restore();
+    for (const [color, particles] of particlesByColor) {
+      ctx.fillStyle = color;
+      
+      for (const particle of particles) {
+        const particleX = particle.x * UNIT_TO_PIXEL;
+        const particleY = particle.y * UNIT_TO_PIXEL;
+        const halfSize = particle.size / 2;
+        
+        const alpha = 1 - particle.lifetime / particle.maxLifetime;
+
+        ctx.save();
+        ctx.translate(particleX, particleY);
+        ctx.rotate(particle.rotation);
+        ctx.globalAlpha = alpha;
+        ctx.fillRect(
+          -halfSize,
+          -halfSize,
+          particle.size,
+          particle.size
+        );
+        ctx.restore();
+      }
     }
     
     ctx.globalAlpha = prevAlpha;
@@ -313,6 +358,8 @@ export class DeadTankParticles {
 
   private drawSparks(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
     const prevAlpha = ctx.globalAlpha;
+    
+    ctx.fillStyle = COLORS.TERMINAL.WARNING;
     
     for (const particle of this.sparkParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
@@ -331,7 +378,6 @@ export class DeadTankParticles {
       ctx.translate(particleX, particleY);
       ctx.rotate(particle.rotation);
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = COLORS.TERMINAL.WARNING;
       ctx.fillRect(0, -0.5, particle.width, particle.height);
       ctx.restore();
     }
