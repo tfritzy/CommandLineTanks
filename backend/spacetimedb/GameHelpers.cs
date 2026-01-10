@@ -3,25 +3,25 @@ using static Types;
 
 public static partial class Module
 {
-    public static void AddTankToWorld(ReducerContext ctx, Tank tank, TankTransform transform)
+    public static void AddTankToGame(ReducerContext ctx, Tank tank, TankTransform transform)
     {
         ctx.Db.tank.Insert(tank);
         ctx.Db.tank_transform.Insert(transform);
         
         if (tank.IsBot)
         {
-            IncrementBotCount(ctx, tank.WorldId);
+            IncrementBotCount(ctx, tank.GameId);
         }
         else
         {
-            IncrementPlayerCount(ctx, tank.WorldId);
+            IncrementPlayerCount(ctx, tank.GameId);
         }
     }
 
-    public static void RemoveTankFromWorld(ReducerContext ctx, Tank tank)
+    public static void RemoveTankFromGame(ReducerContext ctx, Tank tank)
     {
         var isBot = tank.IsBot;
-        var worldId = tank.WorldId;
+        var gameId = tank.GameId;
         
         var fireState = ctx.Db.tank_fire_state.TankId.Find(tank.Id);
         if (fireState != null)
@@ -36,78 +36,78 @@ public static partial class Module
         
         if (isBot)
         {
-            DecrementBotCount(ctx, worldId);
+            DecrementBotCount(ctx, gameId);
         }
         else
         {
-            DecrementPlayerCount(ctx, worldId);
+            DecrementPlayerCount(ctx, gameId);
         }
     }
 
-    public static void IncrementPlayerCount(ReducerContext ctx, string worldId)
+    public static void IncrementPlayerCount(ReducerContext ctx, string gameId)
     {
-        var world = ctx.Db.world.Id.Find(worldId);
-        if (world == null) return;
+        var game = ctx.Db.game.Id.Find(gameId);
+        if (game == null) return;
 
-        var updatedWorld = world.Value with
+        var updatedGame = game.Value with
         {
-            CurrentPlayerCount = world.Value.CurrentPlayerCount + 1
+            CurrentPlayerCount = game.Value.CurrentPlayerCount + 1
         };
-        ctx.Db.world.Id.Update(updatedWorld);
+        ctx.Db.game.Id.Update(updatedWorld);
     }
 
-    public static void DecrementPlayerCount(ReducerContext ctx, string worldId)
+    public static void DecrementPlayerCount(ReducerContext ctx, string gameId)
     {
-        var world = ctx.Db.world.Id.Find(worldId);
-        if (world == null) return;
+        var game = ctx.Db.game.Id.Find(gameId);
+        if (game == null) return;
 
-        var updatedWorld = world.Value with
+        var updatedGame = game.Value with
         {
-            CurrentPlayerCount = Math.Max(0, world.Value.CurrentPlayerCount - 1)
+            CurrentPlayerCount = Math.Max(0, game.Value.CurrentPlayerCount - 1)
         };
-        ctx.Db.world.Id.Update(updatedWorld);
+        ctx.Db.game.Id.Update(updatedWorld);
     }
 
-    public static void IncrementBotCount(ReducerContext ctx, string worldId)
+    public static void IncrementBotCount(ReducerContext ctx, string gameId)
     {
-        var world = ctx.Db.world.Id.Find(worldId);
-        if (world == null) return;
+        var game = ctx.Db.game.Id.Find(gameId);
+        if (game == null) return;
 
-        var updatedWorld = world.Value with
+        var updatedGame = game.Value with
         {
-            BotCount = world.Value.BotCount + 1
+            BotCount = game.Value.BotCount + 1
         };
-        ctx.Db.world.Id.Update(updatedWorld);
+        ctx.Db.game.Id.Update(updatedWorld);
     }
 
-    public static void DecrementBotCount(ReducerContext ctx, string worldId)
+    public static void DecrementBotCount(ReducerContext ctx, string gameId)
     {
-        var world = ctx.Db.world.Id.Find(worldId);
-        if (world == null) return;
+        var game = ctx.Db.game.Id.Find(gameId);
+        if (game == null) return;
 
-        var updatedWorld = world.Value with
+        var updatedGame = game.Value with
         {
-            BotCount = Math.Max(0, world.Value.BotCount - 1)
+            BotCount = Math.Max(0, game.Value.BotCount - 1)
         };
-        ctx.Db.world.Id.Update(updatedWorld);
+        ctx.Db.game.Id.Update(updatedWorld);
     }
 
     public static void DeleteHomeworldIfEmpty(ReducerContext ctx, string identityString)
     {
-        var homeworld = ctx.Db.world.Id.Find(identityString);
-        if (homeworld == null || !homeworld.Value.IsHomeWorld)
+        var homegame = ctx.Db.game.Id.Find(identityString);
+        if (homegame == null || !homegame.Value.IsHomeGame)
         {
             return;
         }
 
-        var hasHumanPlayers = ctx.Db.tank.WorldId.Filter(identityString).Any(t => !t.IsBot);
+        var hasHumanPlayers = ctx.Db.tank.GameId.Filter(identityString).Any(t => !t.IsBot);
         if (hasHumanPlayers)
         {
             return;
         }
 
-        DeleteWorld(ctx, identityString);
-        Log.Info($"Deleted empty homeworld for identity {identityString}");
+        DeleteGame(ctx, identityString);
+        Log.Info($"Deleted empty homegame for identity {identityString}");
     }
 
     public static void EnsureTankInHomeworld(ReducerContext ctx, string identityString, string joinCode)
@@ -120,7 +120,7 @@ public static partial class Module
             var updatedTank = existingTank with { JoinCode = joinCode };
             ctx.Db.tank.Id.Update(updatedTank);
             StartWorldTickers(ctx, identityString);
-            Log.Info($"Updated existing homeworld tank with new join code");
+            Log.Info($"Updated existing homegame tank with new join code");
             return;
         }
 
@@ -129,7 +129,7 @@ public static partial class Module
 
         var (tank, transform) = BuildTank(
             ctx: ctx,
-            worldId: identityString,
+            gameId: identityString,
             owner: ctx.Sender,
             name: playerName,
             targetCode: "",
@@ -139,16 +139,16 @@ public static partial class Module
             positionY: HOMEWORLD_HEIGHT / 2 + .5f,
             aiBehavior: AIBehavior.None);
 
-        AddTankToWorld(ctx, tank, transform);
+        AddTankToGame(ctx, tank, transform);
         StartWorldTickers(ctx, identityString);
-        Log.Info($"Created homeworld tank for identity {identityString}");
+        Log.Info($"Created homegame tank for identity {identityString}");
     }
 
     public static void ReturnToHomeworld(ReducerContext ctx, string joinCode)
     {
         var identityString = ctx.Sender.ToString().ToLower();
-        var homeworld = ctx.Db.world.Id.Find(identityString);
-        if (homeworld == null)
+        var homegame = ctx.Db.game.Id.Find(identityString);
+        if (homegame == null)
         {
             CreateHomeworld(ctx, identityString);
         }
@@ -161,7 +161,7 @@ public static partial class Module
         if (tank.Health <= 0) return tank;
 
         var targetCodeLower = targetCode.ToLower();
-        var targetTank = ctx.Db.tank.WorldId_TargetCode.Filter((tank.WorldId, targetCodeLower)).FirstOrDefault();
+        var targetTank = ctx.Db.tank.WorldId_TargetCode.Filter((tank.GameId, targetCodeLower)).FirstOrDefault();
 
         if (targetTank.Id == null)
         {

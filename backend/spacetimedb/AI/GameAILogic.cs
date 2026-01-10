@@ -284,7 +284,7 @@ public static class GameAILogic
 
         foreach (var pickup in allPickups)
         {
-            if (pickup.WorldId != tank.WorldId || pickup.Type != PickupType.Health)
+            if (pickup.GameId != tank.GameId || pickup.Type != PickupType.Health)
                 continue;
 
             var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
@@ -305,7 +305,7 @@ public static class GameAILogic
 
         foreach (var pickup in allPickups)
         {
-            if (pickup.WorldId != tank.WorldId)
+            if (pickup.GameId != tank.GameId)
                 continue;
 
             var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);

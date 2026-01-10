@@ -87,7 +87,7 @@ public static partial class GameAI
         var newPathState = new Module.TankPath
         {
             TankId = fullTank.Id,
-            WorldId = fullTank.WorldId,
+            GameId = fullTank.GameId,
             Owner = fullTank.Owner,
             Path = pathEntries
         };
@@ -122,7 +122,7 @@ public static partial class GameAI
         var newPathState = new Module.TankPath
         {
             TankId = fullTank.Id,
-            WorldId = fullTank.WorldId,
+            GameId = fullTank.GameId,
             Owner = fullTank.Owner,
             Path = [entry]
         };

@@ -17,17 +17,17 @@ public static partial class Module
     {
         var worldsToDelete = new System.Collections.Generic.List<string>();
 
-        foreach (var world in ctx.Db.world.GameState.Filter(GameState.Results))
+        foreach (var game in ctx.Db.game.GameState.Filter(GameState.Results))
         {
-            if (world.CreatedAt + (ulong)world.GameDurationMicros + 60_000_000 < (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
+            if (game.CreatedAt + (ulong)game.GameDurationMicros + 60_000_000 < (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
             {
-                worldsToDelete.Add(world.Id);
+                worldsToDelete.Add(game.Id);
             }
         }
 
-        foreach (var worldId in worldsToDelete)
+        foreach (var gameId in worldsToDelete)
         {
-            DeleteWorld(ctx, worldId);
+            DeleteGame(ctx, gameId);
         }
 
         if (worldsToDelete.Count > 0)
@@ -37,125 +37,125 @@ public static partial class Module
 
         var homeworldsToDelete = new System.Collections.Generic.List<string>();
 
-        foreach (var world in ctx.Db.world.Iter())
+        foreach (var game in ctx.Db.game.Iter())
         {
-            if (world.IsHomeWorld)
+            if (game.IsHomeGame)
             {
-                var hasHumanPlayers = ctx.Db.tank.WorldId.Filter(world.Id).Any(t => !t.IsBot);
+                var hasHumanPlayers = ctx.Db.tank.GameId.Filter(game.Id).Any(t => !t.IsBot);
                 if (!hasHumanPlayers)
                 {
-                    homeworldsToDelete.Add(world.Id);
+                    homeworldsToDelete.Add(game.Id);
                 }
             }
         }
 
-        foreach (var worldId in homeworldsToDelete)
+        foreach (var gameId in homeworldsToDelete)
         {
-            DeleteWorld(ctx, worldId);
+            DeleteGame(ctx, gameId);
         }
 
         if (homeworldsToDelete.Count > 0)
         {
-            Log.Info($"Cleaned up {homeworldsToDelete.Count} empty homeworld(s)");
+            Log.Info($"Cleaned up {homeworldsToDelete.Count} empty homegame(s)");
         }
     }
 
-    private static void DeleteWorld(ReducerContext ctx, string worldId)
+    private static void DeleteGame(ReducerContext ctx, string gameId)
     {
-        foreach (var tank in ctx.Db.tank.WorldId.Filter(worldId))
+        foreach (var tank in ctx.Db.tank.GameId.Filter(gameId))
         {
             ctx.Db.tank.Id.Delete(tank.Id);
         }
 
-        foreach (var transform in ctx.Db.tank_transform.WorldId.Filter(worldId))
+        foreach (var transform in ctx.Db.tank_transform.GameId.Filter(gameId))
         {
             ctx.Db.tank_transform.TankId.Delete(transform.TankId);
         }
 
-        foreach (var fireState in ctx.Db.tank_fire_state.WorldId.Filter(worldId))
+        foreach (var fireState in ctx.Db.tank_fire_state.GameId.Filter(gameId))
         {
             ctx.Db.tank_fire_state.TankId.Delete(fireState.TankId);
         }
 
-        foreach (var pathState in ctx.Db.tank_path.WorldId.Filter(worldId))
+        foreach (var pathState in ctx.Db.tank_path.GameId.Filter(gameId))
         {
             ctx.Db.tank_path.TankId.Delete(pathState.TankId);
         }
 
-        foreach (var projectile in ctx.Db.projectile.WorldId.Filter(worldId))
+        foreach (var projectile in ctx.Db.projectile.GameId.Filter(gameId))
         {
             ctx.Db.projectile_transform.ProjectileId.Delete(projectile.Id);
             ctx.Db.projectile.Id.Delete(projectile.Id);
         }
 
-        foreach (var terrainDetail in ctx.Db.terrain_detail.WorldId.Filter(worldId))
+        foreach (var terrainDetail in ctx.Db.terrain_detail.GameId.Filter(gameId))
         {
             ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
         }
 
-        foreach (var pickup in ctx.Db.pickup.WorldId.Filter(worldId))
+        foreach (var pickup in ctx.Db.pickup.GameId.Filter(gameId))
         {
             ctx.Db.pickup.Id.Delete(pickup.Id);
         }
 
-        foreach (var kill in ctx.Db.kills.WorldId.Filter(worldId))
+        foreach (var kill in ctx.Db.kills.GameId.Filter(gameId))
         {
             ctx.Db.kills.Id.Delete(kill.Id);
         }
 
-        var score = ctx.Db.score.WorldId.Find(worldId);
+        var score = ctx.Db.score.GameId.Find(gameId);
         if (score != null)
         {
-            ctx.Db.score.WorldId.Delete(worldId);
+            ctx.Db.score.GameId.Delete(gameId);
         }
 
-        var traversibilityMap = ctx.Db.traversibility_map.WorldId.Find(worldId);
+        var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(gameId);
         if (traversibilityMap != null)
         {
-            ctx.Db.traversibility_map.WorldId.Delete(worldId);
+            ctx.Db.traversibility_map.GameId.Delete(gameId);
         }
 
-        foreach (var tankUpdater in ctx.Db.ScheduledTankUpdates.WorldId.Filter(worldId))
+        foreach (var tankUpdater in ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledTankUpdates.ScheduledId.Delete(tankUpdater.ScheduledId);
         }
 
-        foreach (var projectileUpdater in ctx.Db.ScheduledProjectileUpdates.WorldId.Filter(worldId))
+        foreach (var projectileUpdater in ctx.Db.ScheduledProjectileUpdates.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledProjectileUpdates.ScheduledId.Delete(projectileUpdater.ScheduledId);
         }
 
-        foreach (var pickupSpawn in ctx.Db.ScheduledPickupSpawn.WorldId.Filter(worldId))
+        foreach (var pickupSpawn in ctx.Db.ScheduledPickupSpawn.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledPickupSpawn.ScheduledId.Delete(pickupSpawn.ScheduledId);
         }
 
-        foreach (var worldReset in ctx.Db.ScheduledWorldReset.WorldId.Filter(worldId))
+        foreach (var worldReset in ctx.Db.ScheduledWorldReset.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledWorldReset.ScheduledId.Delete(worldReset.ScheduledId);
         }
 
-        foreach (var gameEnd in ctx.Db.ScheduledGameEnd.WorldId.Filter(worldId))
+        foreach (var gameEnd in ctx.Db.ScheduledGameEnd.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledGameEnd.ScheduledId.Delete(gameEnd.ScheduledId);
         }
 
-        foreach (var enemyTankRespawnCheck in ctx.Db.ScheduledEnemyTankRespawnCheck.WorldId.Filter(worldId))
+        foreach (var enemyTankRespawnCheck in ctx.Db.ScheduledEnemyTankRespawnCheck.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
         }
 
-        foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.WorldId.Filter(worldId))
+        foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
         }
 
-        var worldToDelete = ctx.Db.world.Id.Find(worldId);
+        var worldToDelete = ctx.Db.game.Id.Find(gameId);
         if (worldToDelete != null)
         {
-            ctx.Db.world.Id.Delete(worldId);
+            ctx.Db.game.Id.Delete(gameId);
         }
 
-        Log.Info($"Deleted world {worldId} and all related objects");
+        Log.Info($"Deleted game {gameId} and all related objects");
     }
 }

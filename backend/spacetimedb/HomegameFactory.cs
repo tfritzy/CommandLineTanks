@@ -27,7 +27,7 @@ public static partial class Module
         CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
         CreateEmptyDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
 
-        var world = new World
+        var game = new World
         {
             Id = identityString,
             CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
@@ -35,14 +35,14 @@ public static partial class Module
             Height = worldHeight,
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
-            IsHomeWorld = true
+            IsHomeGame = true
         };
 
         ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            WorldId = identityString,
+            GameId = identityString,
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             TickCount = 0
         });
@@ -51,7 +51,7 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            WorldId = identityString,
+            GameId = identityString,
             LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
 
@@ -59,7 +59,7 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
-            WorldId = identityString,
+            GameId = identityString,
             TickCount = 0
         });
 
@@ -67,10 +67,10 @@ public static partial class Module
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 8_000_000 }),
-            WorldId = identityString
+            GameId = identityString
         });
 
-        ctx.Db.world.Insert(world);
+        ctx.Db.game.Insert(game);
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
 
@@ -84,7 +84,7 @@ public static partial class Module
                 traversibilityMap[rIndex] = false;
                 ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
-                    worldId: identityString,
+                    gameId: identityString,
                     positionX: rx + 0.5f,
                     positionY: ry + 0.5f,
                     gridX: rx,
@@ -106,7 +106,7 @@ public static partial class Module
                 traversibilityMap[tIndex] = false;
                 ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
-                    worldId: identityString,
+                    gameId: identityString,
                     positionX: tx + 0.5f,
                     positionY: ty + 0.5f,
                     gridX: tx,
@@ -120,28 +120,28 @@ public static partial class Module
 
         ctx.Db.score.Insert(new Score
         {
-            WorldId = identityString,
+            GameId = identityString,
             Kills = new int[] { 0, 0 }
         });
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
-            WorldId = identityString,
+            GameId = identityString,
             Map = traversibilityMap,
             Width = worldWidth,
             Height = worldHeight
         });
 
-        Log.Info($"Created homeworld for identity {identityString}");
+        Log.Info($"Created homegame for identity {identityString}");
     }
 
-    private static void SpawnTurretBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
+    private static void SpawnTurretBot(ReducerContext ctx, string gameId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
-        var targetCode = AllocateTargetCode(ctx, worldId) ?? "Turret";
+        var targetCode = AllocateTargetCode(ctx, gameId) ?? "Turret";
         var (turretBot, turretTransform) = BuildTank(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
-            worldId: worldId,
+            gameId: gameId,
             owner: Identity.From(new byte[32]),
             name: "",
             targetCode: targetCode,
@@ -156,13 +156,13 @@ public static partial class Module
         ctx.Db.tank_transform.Insert(turretTransform);
     }
 
-    private static void SpawnRandomAimBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
+    private static void SpawnRandomAimBot(ReducerContext ctx, string gameId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
-        var targetCode = AllocateTargetCode(ctx, worldId) ?? "AimBot";
+        var targetCode = AllocateTargetCode(ctx, gameId) ?? "AimBot";
         var (aimBot, aimTransform) = BuildTank(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
-            worldId: worldId,
+            gameId: gameId,
             owner: Identity.From(new byte[32]),
             name: "",
             targetCode: targetCode,
@@ -177,13 +177,13 @@ public static partial class Module
         ctx.Db.tank_transform.Insert(aimTransform);
     }
 
-    private static void SpawnTileboundBot(ReducerContext ctx, string worldId, int x, int y, int alliance, AiConfig? aiConfig = null)
+    private static void SpawnTileboundBot(ReducerContext ctx, string gameId, int x, int y, int alliance, AiConfig? aiConfig = null)
     {
-        var targetCode = AllocateTargetCode(ctx, worldId) ?? "TileBot";
+        var targetCode = AllocateTargetCode(ctx, gameId) ?? "TileBot";
         var (tileboundBot, tileboundTransform) = BuildTank(
             ctx: ctx,
             id: GenerateId(ctx, "enmy"),
-            worldId: worldId,
+            gameId: gameId,
             owner: Identity.From(new byte[32]),
             name: "",
             targetCode: targetCode,
@@ -198,18 +198,18 @@ public static partial class Module
         ctx.Db.tank_transform.Insert(tileboundTransform);
     }
 
-    private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
+    private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string gameId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
     {
         int areaX = 20;
         int areaY = 6;
         int areaWidth = 5;
         int areaHeight = 5;
 
-        CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
+        CreateCheckeredArea(ctx, gameId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
-            worldId: worldId,
+            gameId: gameId,
             positionX: areaX,
             positionY: areaY,
             gridX: areaX,
@@ -219,7 +219,7 @@ public static partial class Module
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
-            worldId: worldId,
+            gameId: gameId,
             positionX: areaX + areaWidth / 2.0f + 0.5f,
             positionY: areaY + 0.2f,
             gridX: areaX + areaWidth / 2,
@@ -238,22 +238,22 @@ public static partial class Module
             PenMaxY = areaY + areaHeight - 1
         };
 
-        SpawnTurretBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
-        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1, pen);
+        SpawnTurretBot(ctx, gameId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
+        SpawnTileboundBot(ctx, gameId, areaX + 1, areaY + 1, 1, pen);
     }
 
-    private static void CreateAimingDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
+    private static void CreateAimingDemonstrationArea(ReducerContext ctx, string gameId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
     {
         int areaX = 5;
         int areaY = 14;
         int areaWidth = 5;
         int areaHeight = 5;
 
-        CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
+        CreateCheckeredArea(ctx, gameId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
-            worldId: worldId,
+            gameId: gameId,
             positionX: areaX,
             positionY: areaY,
             gridX: areaX,
@@ -263,7 +263,7 @@ public static partial class Module
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
-            worldId: worldId,
+            gameId: gameId,
             positionX: areaX + areaWidth / 2.0f + 0.5f,
             positionY: areaY + 0.2f,
             gridX: areaX + areaWidth / 2,
@@ -282,21 +282,21 @@ public static partial class Module
             PenMaxY = areaY + areaHeight - 1
         };
 
-        SpawnRandomAimBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
+        SpawnRandomAimBot(ctx, gameId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
     }
 
-    private static void CreateMovementDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
+    private static void CreateMovementDemonstrationArea(ReducerContext ctx, string gameId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
     {
         int areaX = 5;
         int areaY = 6;
         int areaWidth = 5;
         int areaHeight = 5;
 
-        CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
+        CreateCheckeredArea(ctx, gameId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
-            worldId: worldId,
+            gameId: gameId,
             positionX: areaX,
             positionY: areaY,
             gridX: areaX,
@@ -306,7 +306,7 @@ public static partial class Module
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
-            worldId: worldId,
+            gameId: gameId,
             positionX: areaX + areaWidth / 2.0f + 0.5f,
             positionY: areaY + 0.2f,
             gridX: areaX + areaWidth / 2,
@@ -325,21 +325,21 @@ public static partial class Module
             PenMaxY = areaY + areaHeight - 1
         };
 
-        SpawnTileboundBot(ctx, worldId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
+        SpawnTileboundBot(ctx, gameId, areaX + areaWidth / 2, areaY + areaHeight / 2, 0, pen);
     }
 
-    private static void CreateEmptyDemonstrationArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
+    private static void CreateEmptyDemonstrationArea(ReducerContext ctx, string gameId, int worldWidth, int worldHeight, BaseTerrain[] baseTerrain)
     {
         int areaX = 20;
         int areaY = 14;
         int areaWidth = 5;
         int areaHeight = 5;
 
-        CreateCheckeredArea(ctx, worldId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
+        CreateCheckeredArea(ctx, gameId, worldWidth, worldHeight, areaX, areaY, areaWidth, areaHeight, baseTerrain);
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
-            worldId: worldId,
+            gameId: gameId,
             positionX: areaX,
             positionY: areaY,
             gridX: areaX,
@@ -349,7 +349,7 @@ public static partial class Module
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
-            worldId: worldId,
+            gameId: gameId,
             positionX: areaX + areaWidth / 2.0f + 0.5f,
             positionY: areaY + 0.2f,
             gridX: areaX + areaWidth / 2,
@@ -368,12 +368,12 @@ public static partial class Module
             PenMaxY = areaY + areaHeight - 1
         };
 
-        SpawnTileboundBot(ctx, worldId, areaX + 1, areaY + 1, 1, pen);
-        SpawnTileboundBot(ctx, worldId, areaX + 3, areaY + 1, 1, pen);
-        SpawnTileboundBot(ctx, worldId, areaX + 2, areaY + 3, 1, pen);
+        SpawnTileboundBot(ctx, gameId, areaX + 1, areaY + 1, 1, pen);
+        SpawnTileboundBot(ctx, gameId, areaX + 3, areaY + 1, 1, pen);
+        SpawnTileboundBot(ctx, gameId, areaX + 2, areaY + 3, 1, pen);
     }
 
-    private static void CreateCheckeredArea(ReducerContext ctx, string worldId, int worldWidth, int worldHeight, int startX, int startY, int width, int height, BaseTerrain[] baseTerrain)
+    private static void CreateCheckeredArea(ReducerContext ctx, string gameId, int worldWidth, int worldHeight, int startX, int startY, int width, int height, BaseTerrain[] baseTerrain)
     {
         for (int y = startY; y < startY + height; y++)
         {

@@ -7,17 +7,17 @@ using static Module;
 public class AIContext
 {
     private readonly ReducerContext _ctx;
-    private readonly string _worldId;
+    private readonly string _gameId;
     private List<FullTank>? _allFullTanks;
     private List<Pickup>? _allPickups;
     private TraversibilityMap? _traversibilityMap;
     private bool _traversibilityMapLoaded;
     private Dictionary<string, Module.TankPath?>? _tankPaths;
 
-    public AIContext(ReducerContext ctx, string worldId)
+    public AIContext(ReducerContext ctx, string gameId)
     {
         _ctx = ctx;
-        _worldId = worldId;
+        _gameId = gameId;
     }
 
     public Random GetRandom()
@@ -30,7 +30,7 @@ public class AIContext
         if (_allFullTanks == null)
         {
             _allFullTanks = new List<FullTank>();
-            foreach (var tank in _ctx.Db.tank.WorldId.Filter(_worldId))
+            foreach (var tank in _ctx.Db.tank.GameId.Filter(_gameId))
             {
                 var transform = _ctx.Db.tank_transform.TankId.Find(tank.Id);
                 if (transform != null)
@@ -46,7 +46,7 @@ public class AIContext
     {
         if (_allPickups == null)
         {
-            _allPickups = _ctx.Db.pickup.WorldId.Filter(_worldId).ToList();
+            _allPickups = _ctx.Db.pickup.GameId.Filter(_gameId).ToList();
         }
         return _allPickups;
     }
@@ -55,7 +55,7 @@ public class AIContext
     {
         if (!_traversibilityMapLoaded)
         {
-            _traversibilityMap = _ctx.Db.traversibility_map.WorldId.Find(_worldId);
+            _traversibilityMap = _ctx.Db.traversibility_map.GameId.Find(_gameId);
             _traversibilityMapLoaded = true;
         }
         return _traversibilityMap;

@@ -11,7 +11,7 @@ public static partial class Module
         int damage,
         string shooterTankId,
         int attackerAlliance,
-        string worldId)
+        string gameId)
     {
         if (tank.RemainingImmunityMicros > 0)
         {
@@ -48,7 +48,7 @@ public static partial class Module
             };
             ctx.Db.tank.Id.Update(killedTank);
 
-            DropWeaponsOnDeath(ctx, tank, transform, worldId);
+            DropWeaponsOnDeath(ctx, tank, transform, gameId);
 
             if (shooterTankQuery != null)
             {
@@ -63,21 +63,21 @@ public static partial class Module
                 ctx.Db.kills.Insert(new Kill
                 {
                     Id = GenerateId(ctx, "k"),
-                    WorldId = worldId,
+                    GameId = gameId,
                     Killer = shooterTankQuery.Value.Owner,
                     KilleeName = killeeName,
                     Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
                 });
             }
 
-            var score = ctx.Db.score.WorldId.Find(worldId);
+            var score = ctx.Db.score.GameId.Find(gameId);
             if (score != null)
             {
                 var updatedScore = score.Value;
                 if (attackerAlliance >= 0 && attackerAlliance < updatedScore.Kills.Length)
                 {
                     updatedScore.Kills[attackerAlliance]++;
-                    ctx.Db.score.WorldId.Update(updatedScore);
+                    ctx.Db.score.GameId.Update(updatedScore);
                 }
             }
         }
@@ -92,7 +92,7 @@ public static partial class Module
         }
     }
 
-    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankTransform transform, string worldId)
+    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankTransform transform, string gameId)
     {
         foreach (var gun in tank.Guns)
         {
@@ -118,7 +118,7 @@ public static partial class Module
 
             ctx.Db.pickup.Insert(Pickup.Build(
                 ctx: ctx,
-                worldId: worldId,
+                gameId: gameId,
                 positionX: dropX,
                 positionY: dropY,
                 gridX: gridX,

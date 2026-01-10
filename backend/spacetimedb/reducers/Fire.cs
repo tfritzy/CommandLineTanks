@@ -4,9 +4,9 @@ using System;
 public static partial class Module
 {
     [Reducer]
-    public static void fire(ReducerContext ctx, string worldId)
+    public static void fire(ReducerContext ctx, string gameId)
     {
-        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((worldId, ctx.Sender)).FirstOrDefault();
+        Tank? tankQuery = ctx.Db.tank.WorldId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
         
@@ -112,7 +112,7 @@ public static partial class Module
         var newFireState = new TankFireState
         {
             TankId = tank.Id,
-            WorldId = tank.WorldId,
+            GameId = tank.GameId,
             LastFireTime = currentTime
         };
         if (fireState != null)

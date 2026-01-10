@@ -12,28 +12,28 @@ public static partial class GameTimer
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
     }
 
     [Reducer]
     public static void EndGame(ReducerContext ctx, ScheduledGameEnd args)
     {
-        var world = ctx.Db.world.Id.Find(args.WorldId);
-        if (world == null || world.Value.GameState != GameState.Playing)
+        var game = ctx.Db.game.Id.Find(args.GameId);
+        if (game == null || game.Value.GameState != GameState.Playing)
         {
             return;
         }
 
-        var updatedWorld = world.Value with { GameState = GameState.Results };
-        ctx.Db.world.Id.Update(updatedWorld);
+        var updatedGame = game.Value with { GameState = GameState.Results };
+        ctx.Db.game.Id.Update(updatedWorld);
 
-        StopWorldTickers(ctx, args.WorldId);
+        StopWorldTickers(ctx, args.GameId);
 
         ctx.Db.ScheduledWorldReset.Insert(new ScheduledWorldReset
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
-            WorldId = args.WorldId
+            GameId = args.GameId
         });
     }
 }

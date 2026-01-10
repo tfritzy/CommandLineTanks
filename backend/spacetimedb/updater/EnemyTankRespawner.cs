@@ -13,13 +13,13 @@ public static partial class EnemyTankRespawner
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
-        public string WorldId;
+        public string GameId;
     }
 
     [Reducer]
     public static void CheckAndRespawnEnemyTanks(ReducerContext ctx, ScheduledEnemyTankRespawnCheck args)
     {
-        var tanks = ctx.Db.tank.WorldId.Filter(args.WorldId);
+        var tanks = ctx.Db.tank.GameId.Filter(args.GameId);
         foreach (var tank in tanks)
         {
             if (tank.Alliance == 1)
@@ -54,13 +54,13 @@ public static partial class EnemyTankRespawner
         }
     }
 
-    public static void InitializeEnemyTankRespawner(ReducerContext ctx, string worldId)
+    public static void InitializeEnemyTankRespawner(ReducerContext ctx, string gameId)
     {
         ctx.Db.ScheduledEnemyTankRespawnCheck.Insert(new ScheduledEnemyTankRespawnCheck
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = ENEMY_TANK_RESPAWN_CHECK_INTERVAL_MICROS }),
-            WorldId = worldId
+            GameId = gameId
         });
     }
 }
