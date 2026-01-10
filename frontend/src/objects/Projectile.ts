@@ -1,4 +1,4 @@
-import { UNIT_TO_PIXEL } from "../constants";
+import { UNIT_TO_PIXEL, TWO_PI } from "../constants";
 import { COLORS } from "../theme/colors";
 
 
@@ -44,7 +44,7 @@ export class Projectile {
     
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.beginPath();
-    ctx.arc(centerX - 4, centerY + 4, radius, 0, Math.PI * 2);
+    ctx.arc(centerX - 4, centerY + 4, radius, 0, TWO_PI);
     ctx.fill();
     
     ctx.restore();
@@ -59,7 +59,7 @@ export class Projectile {
     
     ctx.fillStyle = this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, radius, 0, TWO_PI);
     ctx.fill();
     
     ctx.strokeStyle = '#000000';

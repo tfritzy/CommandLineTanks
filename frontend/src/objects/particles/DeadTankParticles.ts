@@ -211,6 +211,12 @@ export class DeadTankParticles {
   }
 
   private drawSmoke(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    const TWO_PI = Math.PI * 2;
+    
+    // Group particles by color and alpha bucket
+    const particlesByColorAndAlpha = new Map<string, typeof this.smokeParticles>();
+    
     for (const particle of this.smokeParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -223,19 +229,44 @@ export class DeadTankParticles {
       }
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
-
-      ctx.save();
-      ctx.translate(particleX, particleY);
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = particle.color;
-      ctx.beginPath();
-      ctx.arc(0, 0, halfSize, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      const alphaKey = Math.round(alpha * 20) / 20; // Bucket alphas to nearest 0.05
+      const key = `${particle.color}_${alphaKey}`;
+      
+      if (!particlesByColorAndAlpha.has(key)) {
+        particlesByColorAndAlpha.set(key, []);
+      }
+      particlesByColorAndAlpha.get(key)!.push(particle);
     }
+
+    for (const [key, particles] of particlesByColorAndAlpha) {
+      const [color, alphaStr] = key.split('_');
+      const alpha = parseFloat(alphaStr);
+      
+      ctx.fillStyle = color;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      
+      for (const particle of particles) {
+        const particleX = particle.x * UNIT_TO_PIXEL;
+        const particleY = particle.y * UNIT_TO_PIXEL;
+        const halfSize = particle.size / 2;
+        
+        ctx.moveTo(particleX + halfSize, particleY);
+        ctx.arc(particleX, particleY, halfSize, 0, TWO_PI);
+      }
+      
+      ctx.fill();
+    }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   private drawDebris(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    
+    // Group particles by color and alpha bucket
+    const particlesByColorAndAlpha = new Map<string, typeof this.debrisParticles>();
+    
     for (const particle of this.debrisParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -248,31 +279,70 @@ export class DeadTankParticles {
       }
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
+      const alphaKey = Math.round(alpha * 20) / 20; // Bucket alphas to nearest 0.05
+      const key = `${particle.color}_${alphaKey}`;
+      
+      if (!particlesByColorAndAlpha.has(key)) {
+        particlesByColorAndAlpha.set(key, []);
+      }
+      particlesByColorAndAlpha.get(key)!.push(particle);
+    }
 
-      ctx.save();
-      ctx.translate(particleX, particleY);
-      ctx.rotate(particle.rotation);
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = particle.color;
-      ctx.fillRect(
-        -particle.width / 2,
-        -particle.height / 2,
-        particle.width,
-        particle.height
-      );
+    for (const [key, particles] of particlesByColorAndAlpha) {
+      const [color, alphaStr] = key.split('_');
+      const alpha = parseFloat(alphaStr);
+      
+      ctx.fillStyle = color;
       ctx.strokeStyle = "rgba(0,0,0,0.5)";
       ctx.lineWidth = 1;
-      ctx.strokeRect(
-        -particle.width / 2,
-        -particle.height / 2,
-        particle.width,
-        particle.height
-      );
-      ctx.restore();
+      ctx.globalAlpha = alpha;
+      
+      ctx.beginPath();
+      for (const particle of particles) {
+        const particleX = particle.x * UNIT_TO_PIXEL;
+        const particleY = particle.y * UNIT_TO_PIXEL;
+        
+        ctx.save();
+        ctx.translate(particleX, particleY);
+        ctx.rotate(particle.rotation);
+        ctx.rect(
+          -particle.width / 2,
+          -particle.height / 2,
+          particle.width,
+          particle.height
+        );
+        ctx.restore();
+      }
+      ctx.fill();
+      
+      ctx.beginPath();
+      for (const particle of particles) {
+        const particleX = particle.x * UNIT_TO_PIXEL;
+        const particleY = particle.y * UNIT_TO_PIXEL;
+        
+        ctx.save();
+        ctx.translate(particleX, particleY);
+        ctx.rotate(particle.rotation);
+        ctx.rect(
+          -particle.width / 2,
+          -particle.height / 2,
+          particle.width,
+          particle.height
+        );
+        ctx.restore();
+      }
+      ctx.stroke();
     }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   private drawFire(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    
+    // Group particles by color and alpha bucket
+    const particlesByColorAndAlpha = new Map<string, typeof this.fireParticles>();
+    
     for (const particle of this.fireParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -285,23 +355,54 @@ export class DeadTankParticles {
       }
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
-
-      ctx.save();
-      ctx.translate(particleX, particleY);
-      ctx.rotate(particle.rotation);
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = particle.color;
-      ctx.fillRect(
-        -halfSize,
-        -halfSize,
-        particle.size,
-        particle.size
-      );
-      ctx.restore();
+      const alphaKey = Math.round(alpha * 20) / 20; // Bucket alphas to nearest 0.05
+      const key = `${particle.color}_${alphaKey}`;
+      
+      if (!particlesByColorAndAlpha.has(key)) {
+        particlesByColorAndAlpha.set(key, []);
+      }
+      particlesByColorAndAlpha.get(key)!.push(particle);
     }
+
+    for (const [key, particles] of particlesByColorAndAlpha) {
+      const [color, alphaStr] = key.split('_');
+      const alpha = parseFloat(alphaStr);
+      
+      ctx.fillStyle = color;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      
+      for (const particle of particles) {
+        const particleX = particle.x * UNIT_TO_PIXEL;
+        const particleY = particle.y * UNIT_TO_PIXEL;
+        const halfSize = particle.size / 2;
+        
+        ctx.save();
+        ctx.translate(particleX, particleY);
+        ctx.rotate(particle.rotation);
+        ctx.rect(
+          -halfSize,
+          -halfSize,
+          particle.size,
+          particle.size
+        );
+        ctx.restore();
+      }
+      
+      ctx.fill();
+    }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   private drawSparks(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    
+    ctx.fillStyle = COLORS.TERMINAL.WARNING;
+    
+    // Group particles by alpha bucket
+    const particlesByAlpha = new Map<number, typeof this.sparkParticles>();
+    
     for (const particle of this.sparkParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -314,15 +415,33 @@ export class DeadTankParticles {
       }
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
-
-      ctx.save();
-      ctx.translate(particleX, particleY);
-      ctx.rotate(particle.rotation);
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = COLORS.TERMINAL.WARNING;
-      ctx.fillRect(0, -0.5, particle.width, particle.height);
-      ctx.restore();
+      const alphaKey = Math.round(alpha * 20) / 20; // Bucket alphas to nearest 0.05
+      
+      if (!particlesByAlpha.has(alphaKey)) {
+        particlesByAlpha.set(alphaKey, []);
+      }
+      particlesByAlpha.get(alphaKey)!.push(particle);
     }
+
+    for (const [alpha, particles] of particlesByAlpha) {
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      
+      for (const particle of particles) {
+        const particleX = particle.x * UNIT_TO_PIXEL;
+        const particleY = particle.y * UNIT_TO_PIXEL;
+        
+        ctx.save();
+        ctx.translate(particleX, particleY);
+        ctx.rotate(particle.rotation);
+        ctx.rect(0, -0.5, particle.width, particle.height);
+        ctx.restore();
+      }
+      
+      ctx.fill();
+    }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   public getIsDead(): boolean {

@@ -1,3 +1,4 @@
+import { TWO_PI } from "../../constants";
 import { COLORS } from "../../theme/colors";
 
 
@@ -16,7 +17,7 @@ export function drawGrenadeShadow(
   ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
 
   ctx.beginPath();
-  ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, TWO_PI);
   ctx.fill();
 
   ctx.fillRect(
@@ -32,7 +33,7 @@ export function drawGrenadeShadow(
     pinY - pinHeight / 2,
     ringRadius,
     0,
-    Math.PI * 2
+    TWO_PI
   );
   ctx.fill();
 
@@ -49,10 +50,9 @@ export function drawGrenadeBody(
   ctx.save();
 
   ctx.beginPath();
-  ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, TWO_PI);
   ctx.clip();
 
-  // Base color (Primary Color)
   ctx.fillStyle = color;
   ctx.fill();
 
@@ -62,7 +62,7 @@ export function drawGrenadeBody(
   ctx.strokeStyle = COLORS.GAME.PROJECTILE_OUTLINE;
   ctx.lineWidth = Math.max(1, radius * 0.15);
   ctx.beginPath();
-  ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, TWO_PI);
   ctx.stroke();
 
   ctx.beginPath();
@@ -80,13 +80,13 @@ export function drawGrenadeBody(
   ctx.fillStyle = COLORS.GAME.PROJECTILE_METAL;
   const ringRadius = radius * 0.25;
   ctx.beginPath();
-  ctx.arc(centerX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, Math.PI * 2);
+  ctx.arc(centerX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, TWO_PI);
   ctx.fill();
 
   ctx.strokeStyle = COLORS.GAME.PROJECTILE_OUTLINE;
   ctx.lineWidth = Math.max(0.5, radius * 0.1);
   ctx.beginPath();
-  ctx.arc(centerX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, Math.PI * 2);
+  ctx.arc(centerX + pinWidth / 2, pinY - pinHeight / 2, ringRadius, 0, TWO_PI);
   ctx.stroke();
 
   ctx.restore();

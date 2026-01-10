@@ -66,7 +66,13 @@ export class ProjectileImpactParticles {
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    ctx.save();
+    const prevAlpha = ctx.globalAlpha;
+    const TWO_PI = Math.PI * 2;
+
+    ctx.fillStyle = this.particles[0]?.color || '';
+
+    // Group particles by alpha bucket
+    const particlesByAlpha = new Map<number, typeof this.particles>();
 
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
@@ -80,14 +86,31 @@ export class ProjectileImpactParticles {
       }
 
       const alpha = 1 - p.lifetime / p.maxLifetime;
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = p.color;
+      const alphaKey = Math.round(alpha * 20) / 20; // Bucket alphas to nearest 0.05
       
+      if (!particlesByAlpha.has(alphaKey)) {
+        particlesByAlpha.set(alphaKey, []);
+      }
+      particlesByAlpha.get(alphaKey)!.push(p);
+    }
+
+    for (const [alpha, particles] of particlesByAlpha) {
+      ctx.globalAlpha = alpha;
       ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, Math.PI * 2);
+      
+      for (const p of particles) {
+        const px = p.x * UNIT_TO_PIXEL;
+        const py = p.y * UNIT_TO_PIXEL;
+        const pSize = p.size * UNIT_TO_PIXEL;
+        
+        ctx.moveTo(px + pSize, py);
+        ctx.arc(px, py, pSize, 0, TWO_PI);
+      }
+      
       ctx.fill();
     }
-    ctx.restore();
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   public getIsDead(): boolean {

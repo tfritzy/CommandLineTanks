@@ -15,13 +15,12 @@ export function drawMuzzleFlashParticles(
   ctx: CanvasRenderingContext2D,
   particle: Particle
 ): void {
-  ctx.save();
-
   const px = particle.x * UNIT_TO_PIXEL;
   const py = particle.y * UNIT_TO_PIXEL;
   const pSize = particle.size * UNIT_TO_PIXEL;
 
   const alpha = 1 - particle.lifetime / particle.maxLifetime;
+  const prevAlpha = ctx.globalAlpha;
   ctx.globalAlpha = alpha;
   ctx.fillStyle = particle.color;
   
@@ -29,5 +28,5 @@ export function drawMuzzleFlashParticles(
   ctx.arc(px, py, pSize, 0, TWO_PI);
   ctx.fill();
 
-  ctx.restore();
+  ctx.globalAlpha = prevAlpha;
 }

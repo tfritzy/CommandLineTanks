@@ -1,6 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { isPointInViewport } from "../../utils/viewport";
-import { drawExplosionParticles } from "../../drawing";
 import { COLORS } from "../../theme/colors";
 
 interface Particle {
@@ -69,6 +68,12 @@ export class ExplosionParticles {
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const prevAlpha = ctx.globalAlpha;
+    const TWO_PI = Math.PI * 2;
+    
+    // Group particles by color and alpha bucket
+    const particlesByColorAndAlpha = new Map<string, typeof this.particles>();
+    
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -80,8 +85,38 @@ export class ExplosionParticles {
         continue;
       }
 
-      drawExplosionParticles(ctx, p);
+      const progress = p.lifetime / p.maxLifetime;
+      const alpha = 1 - progress;
+      const alphaKey = Math.round(alpha * 20) / 20; // Bucket alphas to nearest 0.05
+      const key = `${p.color}_${alphaKey}`;
+      
+      if (!particlesByColorAndAlpha.has(key)) {
+        particlesByColorAndAlpha.set(key, []);
+      }
+      particlesByColorAndAlpha.get(key)!.push(p);
     }
+
+    for (const [key, particles] of particlesByColorAndAlpha) {
+      const [color, alphaStr] = key.split('_');
+      const alpha = parseFloat(alphaStr);
+      
+      ctx.fillStyle = color;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      
+      for (const p of particles) {
+        const px = p.x * UNIT_TO_PIXEL;
+        const py = p.y * UNIT_TO_PIXEL;
+        const pSize = p.size * UNIT_TO_PIXEL;
+        
+        ctx.moveTo(px + pSize, py);
+        ctx.arc(px, py, pSize, 0, TWO_PI);
+      }
+      
+      ctx.fill();
+    }
+    
+    ctx.globalAlpha = prevAlpha;
   }
 
   public getIsDead(): boolean {
