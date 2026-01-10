@@ -106,6 +106,8 @@ export class SmokeCloudParticles {
     const prevAlpha = ctx.globalAlpha;
     const TWO_PI = Math.PI * 2;
 
+    ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
+
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -133,7 +135,6 @@ export class SmokeCloudParticles {
       const alpha = fadeIn * fadeOut * 0.3;
 
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = p.color;
       ctx.beginPath();
       ctx.arc(px, py, pSize, 0, TWO_PI);
       ctx.fill();

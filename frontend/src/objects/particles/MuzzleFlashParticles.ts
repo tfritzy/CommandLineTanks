@@ -63,6 +63,8 @@ export class MuzzleFlashParticles {
     const prevAlpha = ctx.globalAlpha;
     const TWO_PI = Math.PI * 2;
     
+    ctx.fillStyle = this.particles[0]?.color || '';
+    
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -76,7 +78,6 @@ export class MuzzleFlashParticles {
 
       const alpha = 1 - p.lifetime / p.maxLifetime;
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = p.color;
       
       ctx.beginPath();
       ctx.arc(px, py, pSize, 0, TWO_PI);

@@ -53,6 +53,8 @@ export class TerrainDebrisParticles {
     const prevAlpha = ctx.globalAlpha;
     const TWO_PI = Math.PI * 2;
 
+    const particlesByColor = new Map<string, typeof this.particles>();
+    
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -64,14 +66,28 @@ export class TerrainDebrisParticles {
         continue;
       }
 
-      const alpha = 1 - p.lifetime / p.maxLifetime;
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = p.color;
-      
-      ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, TWO_PI);
-      ctx.fill();
+      if (!particlesByColor.has(p.color)) {
+        particlesByColor.set(p.color, []);
+      }
+      particlesByColor.get(p.color)!.push(p);
     }
+
+    for (const [color, particles] of particlesByColor) {
+      ctx.fillStyle = color;
+      for (const p of particles) {
+        const px = p.x * UNIT_TO_PIXEL;
+        const py = p.y * UNIT_TO_PIXEL;
+        const pSize = p.size * UNIT_TO_PIXEL;
+        
+        const alpha = 1 - p.lifetime / p.maxLifetime;
+        ctx.globalAlpha = alpha;
+        
+        ctx.beginPath();
+        ctx.arc(px, py, pSize, 0, TWO_PI);
+        ctx.fill();
+      }
+    }
+    
     ctx.globalAlpha = prevAlpha;
   }
 
