@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { getConnection, getIdentityHex } from "../spacetimedb-connection";
 import ScoreRow from "../../module_bindings/score_type";
-import GameRow from "../../module_bindings/world_type";
+import GameRow from "../../module_bindings/game_type";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
 import { ServerTimeSync } from "../utils/ServerTimeSync";
 import { PALETTE } from "../theme/colors.config";

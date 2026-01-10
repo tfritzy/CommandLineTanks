@@ -2,7 +2,7 @@ import { TankManager } from "./TankManager";
 
 import { getConnection } from "../spacetimedb-connection";
 import { type EventContext, type TerrainDetailRow, type PickupRow } from "../../module_bindings";
-import GameRow from "../../module_bindings/world_type";
+import GameRow from "../../module_bindings/game_type";
 import { type Infer } from "spacetimedb";
 import { BaseTerrain } from "../../module_bindings";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
@@ -104,8 +104,8 @@ export class MiniMapManager {
       });
 
     const cachedGame = connection.db.game.Id.find(this.gameId);
-    if (cachedWorld) {
-      handleWorldChange(cachedWorld);
+    if (cachedGame) {
+      handleWorldChange(cachedGame);
     }
   }
 

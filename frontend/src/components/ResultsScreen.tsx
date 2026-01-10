@@ -3,7 +3,7 @@ import { getConnection, isCurrentIdentity } from '../spacetimedb-connection';
 import { type Infer } from 'spacetimedb';
 import TankRow from '../../module_bindings/tank_type';
 import ScoreRow from '../../module_bindings/score_type';
-import GameRow from '../../module_bindings/world_type';
+import GameRow from '../../module_bindings/game_type';
 import { type EventContext } from "../../module_bindings";
 import { ServerTimeSync } from '../utils/ServerTimeSync';
 import { SoundManager } from '../managers/SoundManager';
@@ -49,7 +49,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                 .filter(tank => tank.gameId === gameId);
             
             const combinedTanks: CombinedTankData[] = [];
-            for (const tank of tanksInWorld) {
+            for (const tank of tanksInGame) {
                 combinedTanks.push({
                     id: tank.id,
                     name: tank.name,

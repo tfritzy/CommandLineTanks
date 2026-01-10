@@ -55,7 +55,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
           if (tank.gameId !== gameId) return;
 
           if (isCurrentIdentity(tank.owner)) {
-            setStatusIfCurrentWorld("has_tank");
+            setStatusIfCurrentGame("has_tank");
           }
         },
         onUpdate: (
@@ -66,13 +66,13 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
           if (newTank.gameId !== gameId) return;
           if (!isCurrentIdentity(newTank.owner)) return;
 
-          setStatusIfCurrentWorld("has_tank");
+          setStatusIfCurrentGame("has_tank");
         },
         onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (tank.gameId !== gameId) return;
           if (!isCurrentIdentity(tank.owner)) return;
 
-          setStatusIfCurrentWorld("no_tank");
+          setStatusIfCurrentGame("no_tank");
         },
       },
     });

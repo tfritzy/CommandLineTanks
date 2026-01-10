@@ -7,7 +7,7 @@ import { COLORS, PALETTE, colorize } from "../../theme/colors";
 import { aim, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitWorld, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
 import { type EventContext } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
-import GameRow from "../../../module_bindings/world_type";
+import GameRow from "../../../module_bindings/game_type";
 
 interface TerminalComponentProps {
   gameId: string;

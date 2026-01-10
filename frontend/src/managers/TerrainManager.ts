@@ -3,7 +3,7 @@ import { TerrainDetailManager } from "./TerrainDetailManager";
 import { SoundManager } from "./SoundManager";
 import { type EventContext, BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
-import GameRow from "../../module_bindings/world_type";
+import GameRow from "../../module_bindings/game_type";
 import { UNIT_TO_PIXEL } from "../constants";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { drawBaseTerrain } from "../drawing/terrain/base-terrain";
@@ -61,8 +61,8 @@ export class TerrainManager {
     });
 
     const cachedGame = connection.db.game.Id.find(this.gameId);
-    if (cachedWorld) {
-      handleWorldChange(cachedWorld);
+    if (cachedGame) {
+      handleWorldChange(cachedGame);
     }
   }
 

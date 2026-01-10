@@ -43,9 +43,9 @@ export default function JoinGameModal({ gameId }: JoinGameModalProps) {
       if (connection) {
         const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
         setPendingJoinCode(joinCode);
-        connection.reducers.joinWorld({
+        connection.reducers.joinGame({
           gameId,
-          currentWorldId: gameId,
+          currentGameId: gameId,
           joinCode,
         });
       }

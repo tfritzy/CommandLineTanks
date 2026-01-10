@@ -1,5 +1,5 @@
 import { type DbConnection } from "../../../module_bindings";
-import WorldVisibility from "../../../module_bindings/world_visibility_type";
+import GameVisibility from "../../../module_bindings/game_visibility_type";
 import Gun from "../../../module_bindings/gun_type";
 import { type Infer } from "spacetimedb";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
@@ -923,9 +923,9 @@ export function create(
   setPendingJoinCode(joinCode);
 
   const gameDurationMicros = BigInt(state.duration * 60 * 1000000);
-  const visibility = WorldVisibility.Private;
+  const visibility = GameVisibility.Private;
 
-  connection.reducers.createWorld({
+  connection.reducers.createGame({
     joinCode,
     visibility,
     botCount: state.bots,
@@ -944,7 +944,7 @@ export function create(
 
 export function join(
   connection: DbConnection,
-  currentWorldId: string,
+  currentGameId: string,
   args: string[]
 ): string[] {
   const firstArg = args.length > 0 ? args[0] : "random";
@@ -954,9 +954,9 @@ export function join(
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
 
-  connection.reducers.joinWorld({
+  connection.reducers.joinGame({
     gameId,
-    currentWorldId,
+    currentGameId,
     joinCode,
   });
 
@@ -1066,7 +1066,7 @@ export function exitWorld(connection: DbConnection, gameId: string, args: string
   const joinCode = `exit_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   setPendingJoinCode(joinCode);
 
-  connection.reducers.exitWorld({ gameId, joinCode });
+  connection.reducers.exitGame({ gameId, joinCode });
 
   return [
     themeColors.success("Returning to homegame..."),
@@ -1100,7 +1100,7 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
   }
 
   const combinedTanks: CombinedTank[] = [];
-  for (const tank of tanksInWorld) {
+  for (const tank of tanksInGame) {
     combinedTanks.push({
       id: tank.id,
       name: tank.name,

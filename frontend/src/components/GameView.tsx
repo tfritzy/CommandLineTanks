@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Game } from "../game";
+import { Game as GameEngine } from "../game";
 import TerminalComponent from "./terminal/Terminal";
 import ResultsScreen from "./ResultsScreen";
 import GameHeader from "./GameHeader";
@@ -26,7 +26,7 @@ export default function GameView() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const gameRef = useRef<Game | null>(null);
+  const gameRef = useRef<GameEngine | null>(null);
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
   const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
   const worldCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -84,7 +84,7 @@ export default function GameView() {
     if (!canvasRef.current || !gameId) return;
 
     gameRef.current?.destroy();
-    gameRef.current = new Game(canvasRef.current, gameId);
+    gameRef.current = new GameEngine(canvasRef.current, gameId);
     gameRef.current.start();
 
     return () => {
@@ -200,7 +200,7 @@ export default function GameView() {
 
     worldCheckTimeoutRef.current = setTimeout(check, 1500);
 
-    const handleWorldInsert = (_ctx: EventContext, game: Infer<typeof World>) => {
+    const handleWorldInsert = (_ctx: EventContext, game: Infer<typeof Game>) => {
       if (game.id === gameId) {
         setGameNotFound(false);
       }
