@@ -65,6 +65,9 @@ export class MuzzleFlashParticles {
     
     ctx.fillStyle = this.particles[0]?.color || '';
     
+    // Group particles by alpha (rounded to reduce draw calls)
+    const particlesByAlpha = new Map<number, typeof this.particles>();
+    
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -77,10 +80,27 @@ export class MuzzleFlashParticles {
       }
 
       const alpha = 1 - p.lifetime / p.maxLifetime;
-      ctx.globalAlpha = alpha;
+      const alphaKey = Math.round(alpha * 20) / 20; // Bucket alphas to nearest 0.05
       
+      if (!particlesByAlpha.has(alphaKey)) {
+        particlesByAlpha.set(alphaKey, []);
+      }
+      particlesByAlpha.get(alphaKey)!.push(p);
+    }
+    
+    for (const [alpha, particles] of particlesByAlpha) {
+      ctx.globalAlpha = alpha;
       ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, TWO_PI);
+      
+      for (const p of particles) {
+        const px = p.x * UNIT_TO_PIXEL;
+        const py = p.y * UNIT_TO_PIXEL;
+        const pSize = p.size * UNIT_TO_PIXEL;
+        
+        ctx.moveTo(px + pSize, py);
+        ctx.arc(px, py, pSize, 0, TWO_PI);
+      }
+      
       ctx.fill();
     }
     

@@ -71,7 +71,8 @@ export class ExplosionParticles {
     const prevAlpha = ctx.globalAlpha;
     const TWO_PI = Math.PI * 2;
     
-    const particlesByColor = new Map<string, typeof this.particles>();
+    // Group particles by color and alpha bucket
+    const particlesByColorAndAlpha = new Map<string, typeof this.particles>();
     
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
@@ -84,26 +85,35 @@ export class ExplosionParticles {
         continue;
       }
 
-      if (!particlesByColor.has(p.color)) {
-        particlesByColor.set(p.color, []);
+      const progress = p.lifetime / p.maxLifetime;
+      const alpha = 1 - progress;
+      const alphaKey = Math.round(alpha * 20) / 20; // Bucket alphas to nearest 0.05
+      const key = `${p.color}_${alphaKey}`;
+      
+      if (!particlesByColorAndAlpha.has(key)) {
+        particlesByColorAndAlpha.set(key, []);
       }
-      particlesByColor.get(p.color)!.push(p);
+      particlesByColorAndAlpha.get(key)!.push(p);
     }
 
-    for (const [color, particles] of particlesByColor) {
+    for (const [key, particles] of particlesByColorAndAlpha) {
+      const [color, alphaStr] = key.split('_');
+      const alpha = parseFloat(alphaStr);
+      
       ctx.fillStyle = color;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      
       for (const p of particles) {
         const px = p.x * UNIT_TO_PIXEL;
         const py = p.y * UNIT_TO_PIXEL;
         const pSize = p.size * UNIT_TO_PIXEL;
         
-        const progress = p.lifetime / p.maxLifetime;
-        ctx.globalAlpha = 1 - progress;
-        
-        ctx.beginPath();
+        ctx.moveTo(px + pSize, py);
         ctx.arc(px, py, pSize, 0, TWO_PI);
-        ctx.fill();
       }
+      
+      ctx.fill();
     }
     
     ctx.globalAlpha = prevAlpha;

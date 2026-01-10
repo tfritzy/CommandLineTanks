@@ -108,6 +108,9 @@ export class SmokeCloudParticles {
 
     ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
 
+    // Group particles by alpha bucket
+    const particlesByAlpha = new Map<number, typeof this.particles>();
+
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -133,12 +136,30 @@ export class SmokeCloudParticles {
       const fadeIn = Math.min(1, progress / 0.4);
       const fadeOut = Math.max(0, 1 - progress);
       const alpha = fadeIn * fadeOut * 0.3;
+      const alphaKey = Math.round(alpha * 20) / 20; // Bucket alphas to nearest 0.05
 
+      if (!particlesByAlpha.has(alphaKey)) {
+        particlesByAlpha.set(alphaKey, []);
+      }
+      particlesByAlpha.get(alphaKey)!.push(p);
+    }
+
+    for (const [alpha, particles] of particlesByAlpha) {
       ctx.globalAlpha = alpha;
       ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, TWO_PI);
+
+      for (const p of particles) {
+        const px = p.x * UNIT_TO_PIXEL;
+        const py = p.y * UNIT_TO_PIXEL;
+        const pSize = p.size * UNIT_TO_PIXEL;
+
+        ctx.moveTo(px + pSize, py);
+        ctx.arc(px, py, pSize, 0, TWO_PI);
+      }
+
       ctx.fill();
     }
+
     ctx.globalAlpha = prevAlpha;
   }
 
