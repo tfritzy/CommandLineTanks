@@ -1,20 +1,20 @@
 import { Projectile } from "./Projectile";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
-import { ProjectileTextureSheet } from "../../texture-sheets/ProjectileTextureSheet";
+import type { IProjectileTextureCache } from "../../textures/ProjectileTextureCache";
 
 export class MissileProjectile extends Projectile {
-  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawShadow(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
     const { x: centerX, y: centerY } = this.getShadowScreenPosition();
     const angle = Math.atan2(this.velocityY, this.velocityX);
     const key = this.getTextureKey('missile');
-    textureSheet.drawShadow(ctx, key, centerX, centerY, this.size, angle);
+    textureCache.drawShadow(ctx, key, centerX, centerY, this.size, angle);
   }
 
-  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawBody(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
     const { x: centerX, y: centerY } = this.getScreenPosition();
     const angle = Math.atan2(this.velocityY, this.velocityX);
     const key = this.getTextureKey('missile');
-    textureSheet.drawProjectile(ctx, key, centerX, centerY, this.size, angle);
+    textureCache.drawProjectile(ctx, key, centerX, centerY, this.size, angle);
   }
 
   public spawnDeathParticles(particlesManager: ProjectileImpactParticlesManager): void {

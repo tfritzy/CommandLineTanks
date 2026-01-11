@@ -1,5 +1,5 @@
 import { Projectile } from "./Projectile";
-import { ProjectileTextureSheet } from "../../texture-sheets/ProjectileTextureSheet";
+import type { IProjectileTextureCache } from "../../textures/ProjectileTextureCache";
 
 export class BoomerangProjectile extends Projectile {
   private rotation: number = 0;
@@ -9,15 +9,15 @@ export class BoomerangProjectile extends Projectile {
     this.rotation += deltaTime * 15;
   }
 
-  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawShadow(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
     const { x: centerX, y: centerY } = this.getShadowScreenPosition();
     const key = this.getTextureKey('boomerang');
-    textureSheet.drawShadow(ctx, key, centerX, centerY, this.size, this.rotation);
+    textureCache.drawShadow(ctx, key, centerX, centerY, this.size, this.rotation);
   }
 
-  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawBody(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
     const { x: centerX, y: centerY } = this.getScreenPosition();
     const key = this.getTextureKey('boomerang');
-    textureSheet.drawProjectile(ctx, key, centerX, centerY, this.size, this.rotation);
+    textureCache.drawProjectile(ctx, key, centerX, centerY, this.size, this.rotation);
   }
 }

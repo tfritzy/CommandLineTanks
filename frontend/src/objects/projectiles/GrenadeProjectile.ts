@@ -1,18 +1,18 @@
 import { Projectile } from "./Projectile";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
-import { ProjectileTextureSheet } from "../../texture-sheets/ProjectileTextureSheet";
+import type { IProjectileTextureCache } from "../../textures/ProjectileTextureCache";
 
 export class GrenadeProjectile extends Projectile {
-  public drawShadow(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawShadow(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
     const { x: centerX, y: centerY } = this.getShadowScreenPosition();
     const key = this.getTextureKey('grenade');
-    textureSheet.drawShadow(ctx, key, centerX, centerY, this.size);
+    textureCache.drawShadow(ctx, key, centerX, centerY, this.size);
   }
 
-  public drawBody(ctx: CanvasRenderingContext2D, textureSheet: ProjectileTextureSheet) {
+  public drawBody(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
     const { x: centerX, y: centerY } = this.getScreenPosition();
     const key = this.getTextureKey('grenade');
-    textureSheet.drawProjectile(ctx, key, centerX, centerY, this.size);
+    textureCache.drawProjectile(ctx, key, centerX, centerY, this.size);
   }
 
   public isExplosive(): boolean {
