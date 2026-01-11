@@ -24,16 +24,17 @@ export class ExplosionParticles {
       const angle = Math.random() * Math.PI * 2;
       const dist = Math.random() * explosionRadius * 0.5;
       const speed = 0.3 + Math.random() * 1.5;
+      const maxSize = explosionRadius * (0.2 + Math.random() * 0.3);
       
       this.particles.push({
         x: x + Math.cos(angle) * dist,
         y: y + Math.sin(angle) * dist,
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
-        size: explosionRadius * 0.5,
-        maxSize: explosionRadius * (0.5 + Math.random() * 1.0),
+        size: maxSize * 0.2,
+        maxSize: maxSize,
         lifetime: 0,
-        maxLifetime: 2.0 + Math.random() * 1.0,
+        maxLifetime: 0.2 + Math.random() * 0.4,
         color: colors[i % colors.length]
       });
     }

@@ -76,9 +76,12 @@ export class ProjectileImpactParticlesManager {
         const px = p.x * UNIT_TO_PIXEL;
         const py = p.y * UNIT_TO_PIXEL;
         const pSize = p.size * UNIT_TO_PIXEL;
+        if (px + pSize < paddedLeft || px - pSize > paddedRight || 
+            py + pSize < paddedTop || py - pSize > paddedBottom) continue;
 
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = "#FF00FF";
+        const alpha = 1 - p.lifetime / p.maxLifetime;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(px, py, pSize, 0, TWO_PI);
         ctx.fill();
