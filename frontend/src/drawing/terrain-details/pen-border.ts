@@ -1,5 +1,4 @@
 import { UNIT_TO_PIXEL } from "../../constants";
-import { COLORS } from "../../theme/colors";
 import { PALETTE } from "../../theme/colors.config";
 
 export function drawPenBorderBody(

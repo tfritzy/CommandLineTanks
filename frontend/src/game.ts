@@ -9,6 +9,7 @@ import { KillManager } from "./managers/KillManager";
 import { UNIT_TO_PIXEL } from "./constants";
 import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
+import { Profiler } from "./utils/Profiler";
 
 const CAMERA_FOLLOW_SPEED = 15;
 const CAMERA_TELEPORT_THRESHOLD = 50;
@@ -33,6 +34,7 @@ export class Game {
   private resizeHandler: () => void;
   private resizeObserver: ResizeObserver | null = null;
   private fpsCounter: FpsCounter;
+  private profiler: Profiler;
 
   constructor(canvas: HTMLCanvasElement, gameId: string) {
     this.canvas = canvas;
@@ -56,6 +58,7 @@ export class Game {
     this.soundManager = SoundManager.getInstance();
     this.screenShake = new ScreenShake();
     this.fpsCounter = new FpsCounter();
+    this.profiler = new Profiler();
     this.tankManager = new TankManager(gameId, this.screenShake, this.soundManager);
     this.terrainManager = new TerrainManager(gameId, this.soundManager);
     this.projectileManager = new ProjectileManager(gameId, this.screenShake, this.soundManager);
@@ -148,91 +151,111 @@ export class Game {
     const listenerY = centerY / UNIT_TO_PIXEL;
     this.soundManager.setListenerPosition(listenerX, listenerY);
 
-    this.terrainManager.draw(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
+    this.profiler.profile("terrain_draw", () =>
+      this.terrainManager.draw(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
 
-    this.terrainManager.drawDecorations(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
+    this.profiler.profile("terrain_decorations", () =>
+      this.terrainManager.drawDecorations(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
 
-    this.pickupManager.draw(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
+    this.profiler.profile("pickup_draw", () =>
+      this.pickupManager.draw(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
 
-    this.tankManager.drawPaths(this.ctx);
-    this.tankManager.drawShadows(this.ctx);
+    this.profiler.profile("tank_paths", () => this.tankManager.drawPaths(this.ctx));
+    this.profiler.profile("tank_shadows", () => this.tankManager.drawShadows(this.ctx));
+    this.profiler.profile("tank_bodies", () => this.tankManager.drawBodies(this.ctx));
 
-    this.tankManager.drawBodies(this.ctx);
-    this.tankManager.drawParticles(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
+    this.profiler.profile("tank_particles", () =>
+      this.tankManager.drawParticles(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
 
-    this.terrainManager.drawShadows(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
+    this.profiler.profile("terrain_shadows", () =>
+      this.terrainManager.drawShadows(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
 
-    this.terrainManager.drawBodies(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
+    this.profiler.profile("terrain_bodies", () =>
+      this.terrainManager.drawBodies(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
-    this.tankManager.drawNameLabels(this.ctx);
-    this.tankManager.drawHealthBars(this.ctx);
-    this.tankManager.drawTankIndicators(this.ctx);
+    this.profiler.profile("tank_labels", () => this.tankManager.drawNameLabels(this.ctx));
+    this.profiler.profile("tank_health", () => this.tankManager.drawHealthBars(this.ctx));
+    this.profiler.profile("tank_indicators", () => this.tankManager.drawTankIndicators(this.ctx));
 
-    this.terrainManager.drawParticles(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
+    this.profiler.profile("terrain_particles", () =>
+      this.terrainManager.drawParticles(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
 
-    this.projectileManager.drawShadows(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
+    this.profiler.profile("projectile_shadows", () =>
+      this.projectileManager.drawShadows(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
-    this.projectileManager.drawBodies(
-      this.ctx,
-      this.currentCameraX,
-      this.currentCameraY,
-      displayWidth,
-      displayHeight
+    this.profiler.profile("projectile_bodies", () =>
+      this.projectileManager.drawBodies(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
 
     this.ctx.restore();
 
-    this.miniMapManager.draw(this.ctx, displayWidth, displayHeight);
-    this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight);
-    this.killManager.draw(this.ctx, displayWidth);
+    this.profiler.profile("minimap", () => this.miniMapManager.draw(this.ctx, displayWidth, displayHeight));
+    this.profiler.profile("gun_inventory", () => this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight));
+    this.profiler.profile("kill_manager", () => this.killManager.draw(this.ctx, displayWidth));
 
     this.fpsCounter.draw(this.ctx, displayHeight);
+
+    this.profiler.update();
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }
