@@ -20,6 +20,9 @@ public static partial class TerrainGenerator
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
     private const int ROTATION_WEST = 3;
+    private const int LAKE_MIN_SIZE = 4;
+    private const int LAKE_MAX_SIZE = 8;
+    private const int NUM_LAKES = 2;
 
     private static readonly int[] p = new int[512];
 
@@ -40,6 +43,8 @@ public static partial class TerrainGenerator
             terrainDetailArray[i] = TerrainDetailType.None;
             rotationArray[i] = 0;
         }
+
+        GenerateLakes(baseTerrain, random, width, height);
 
         GenerateRocks(terrainDetailArray, baseTerrain, random, width, height);
 
@@ -80,6 +85,79 @@ public static partial class TerrainGenerator
             if (baseTerrain[index] == BaseTerrain.Ground && terrainDetail[index] == TerrainDetailType.None)
             {
                 terrainDetail[index] = TerrainDetailType.Rock;
+            }
+        }
+    }
+
+    private static void GenerateLakes(BaseTerrain[] baseTerrain, Random random, int width, int height)
+    {
+        const int SPAWN_ZONE_WIDTH = 6;
+
+        for (int lakeIdx = 0; lakeIdx < NUM_LAKES; lakeIdx++)
+        {
+            int attempts = 0;
+            bool placed = false;
+
+            while (!placed && attempts < 100)
+            {
+                attempts++;
+
+                int lakeWidth = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
+                int lakeHeight = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
+                int startX = SPAWN_ZONE_WIDTH + random.Next(width - lakeWidth - SPAWN_ZONE_WIDTH * 2);
+                int startY = 2 + random.Next(height - lakeHeight - 4);
+
+                bool validLocation = true;
+
+                for (int y = startY - 1; y <= startY + lakeHeight; y++)
+                {
+                    for (int x = startX - 1; x <= startX + lakeWidth; x++)
+                    {
+                        if (x < 0 || x >= width || y < 0 || y >= height)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+
+                        int index = y * width + x;
+                        if (baseTerrain[index] != BaseTerrain.Ground)
+                        {
+                            validLocation = false;
+                            break;
+                        }
+                    }
+
+                    if (!validLocation) break;
+                }
+
+                if (validLocation)
+                {
+                    float centerX = startX + lakeWidth / 2.0f;
+                    float centerY = startY + lakeHeight / 2.0f;
+                    float radiusX = lakeWidth / 2.0f;
+                    float radiusY = lakeHeight / 2.0f;
+
+                    for (int y = startY; y < startY + lakeHeight; y++)
+                    {
+                        for (int x = startX; x < startX + lakeWidth; x++)
+                        {
+                            float dx = (x + 0.5f - centerX) / radiusX;
+                            float dy = (y + 0.5f - centerY) / radiusY;
+                            float distSq = dx * dx + dy * dy;
+
+                            float noiseValue = Noise((x + 50) * 0.2f, (y + 50) * 0.2f) * 0.3f;
+                            float threshold = 0.8f + noiseValue;
+
+                            if (distSq < threshold)
+                            {
+                                int index = y * width + x;
+                                baseTerrain[index] = BaseTerrain.Water;
+                            }
+                        }
+                    }
+
+                    placed = true;
+                }
             }
         }
     }
@@ -509,6 +587,7 @@ public static partial class TerrainGenerator
             {
                 BaseTerrain.Ground => true,
                 BaseTerrain.Farm => true,
+                BaseTerrain.Water => false,
                 _ => true
             };
 
