@@ -30,31 +30,6 @@ export function drawBaseTerrain(
       const index = tileY * worldWidth + tileX;
       const terrain = baseTerrainLayer[index];
 
-      if (terrain.tag !== "BlackChecker" && terrain.tag !== "WhiteChecker") {
-        const worldX = tileX * UNIT_TO_PIXEL;
-        const worldY = tileY * UNIT_TO_PIXEL;
-        ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
-      }
-    }
-  }
-  ctx.fillStyle = COLORS.TERRAIN.GROUND;
-  ctx.fill();
-
-  ctx.beginPath();
-  for (let tileY = startTileY; tileY <= endTileY; tileY++) {
-    for (let tileX = startTileX; tileX <= endTileX; tileX++) {
-      if (
-        tileX < 0 ||
-        tileX >= worldWidth ||
-        tileY < 0 ||
-        tileY >= worldHeight
-      ) {
-        continue;
-      }
-
-      const index = tileY * worldWidth + tileX;
-      const terrain = baseTerrainLayer[index];
-
       if (terrain.tag === "BlackChecker") {
         const worldX = tileX * UNIT_TO_PIXEL;
         const worldY = tileY * UNIT_TO_PIXEL;
@@ -90,9 +65,9 @@ export function drawBaseTerrain(
   ctx.fillStyle = COLORS.TERRAIN.WHITE_CHECKER;
   ctx.fill();
 
-  ctx.fillStyle = COLORS.TERRAIN.FARM_GROOVE;
   const numGrooves = 2;
   const grooveHeight = UNIT_TO_PIXEL * 0.15;
+  ctx.fillStyle = COLORS.TERRAIN.FARM_GROOVE;
   ctx.beginPath();
   for (let tileY = startTileY; tileY <= endTileY; tileY++) {
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
@@ -149,21 +124,39 @@ export function drawBaseTerrain(
   ctx.strokeStyle = COLORS.TERRAIN.GRID;
   ctx.lineWidth = 1;
   ctx.beginPath();
-  for (let tileY = startTileY; tileY <= endTileY; tileY++) {
-    for (let tileX = startTileX; tileX <= endTileX; tileX++) {
-      if (
-        tileX < 0 ||
-        tileX >= worldWidth ||
-        tileY < 0 ||
-        tileY >= worldHeight
-      ) {
-        continue;
-      }
-
-      const worldX = tileX * UNIT_TO_PIXEL;
-      const worldY = tileY * UNIT_TO_PIXEL;
-      ctx.rect(worldX, worldY, UNIT_TO_PIXEL, UNIT_TO_PIXEL);
+  for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+    if (tileX < 0 || tileX >= worldWidth) {
+      continue;
     }
+    const worldX = tileX * UNIT_TO_PIXEL;
+    const topY = Math.max(startTileY, 0) * UNIT_TO_PIXEL;
+    const bottomY = Math.min(endTileY + 1, worldHeight) * UNIT_TO_PIXEL;
+    ctx.moveTo(worldX, topY);
+    ctx.lineTo(worldX, bottomY);
+  }
+  if (endTileX + 1 <= worldWidth) {
+    const worldX = (endTileX + 1) * UNIT_TO_PIXEL;
+    const topY = Math.max(startTileY, 0) * UNIT_TO_PIXEL;
+    const bottomY = Math.min(endTileY + 1, worldHeight) * UNIT_TO_PIXEL;
+    ctx.moveTo(worldX, topY);
+    ctx.lineTo(worldX, bottomY);
+  }
+  for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+    if (tileY < 0 || tileY >= worldHeight) {
+      continue;
+    }
+    const worldY = tileY * UNIT_TO_PIXEL;
+    const leftX = Math.max(startTileX, 0) * UNIT_TO_PIXEL;
+    const rightX = Math.min(endTileX + 1, worldWidth) * UNIT_TO_PIXEL;
+    ctx.moveTo(leftX, worldY);
+    ctx.lineTo(rightX, worldY);
+  }
+  if (endTileY + 1 <= worldHeight) {
+    const worldY = (endTileY + 1) * UNIT_TO_PIXEL;
+    const leftX = Math.max(startTileX, 0) * UNIT_TO_PIXEL;
+    const rightX = Math.min(endTileX + 1, worldWidth) * UNIT_TO_PIXEL;
+    ctx.moveTo(leftX, worldY);
+    ctx.lineTo(rightX, worldY);
   }
   ctx.stroke();
 }
