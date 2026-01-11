@@ -76,8 +76,6 @@ export class ProjectileImpactParticlesManager {
         const px = p.x * UNIT_TO_PIXEL;
         const py = p.y * UNIT_TO_PIXEL;
         const pSize = p.size * UNIT_TO_PIXEL;
-        if (px + pSize < paddedLeft || px - pSize > paddedRight || 
-            py + pSize < paddedTop || py - pSize > paddedBottom) continue;
 
         ctx.globalAlpha = 1;
         ctx.fillStyle = "#FF00FF";
