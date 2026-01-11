@@ -1,6 +1,5 @@
 import { MuzzleFlashParticles } from "../objects/particles/MuzzleFlashParticles";
 import { UNIT_TO_PIXEL } from "../constants";
-import { COLORS } from "../theme/colors";
 
 const TWO_PI = Math.PI * 2;
 const VIEWPORT_PADDING = 100;
@@ -35,49 +34,25 @@ export class MuzzleFlashParticlesManager {
     const paddedTop = cameraY - VIEWPORT_PADDING;
     const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
 
-    ctx.save();
-
-    ctx.fillStyle = COLORS.GAME.TEAM_RED_BRIGHT;
-    ctx.beginPath();
     for (const system of this.particleSystems) {
-      const particles = system.getParticles();
       const color = system.getColor();
-      if (color !== COLORS.GAME.TEAM_RED_BRIGHT) continue;
-
-      for (const p of particles) {
+      for (const p of system.getParticles()) {
         if (p.lifetime >= p.maxLifetime) continue;
         const px = p.x * UNIT_TO_PIXEL;
         const py = p.y * UNIT_TO_PIXEL;
         const pSize = p.size * UNIT_TO_PIXEL;
         if (px + pSize < paddedLeft || px - pSize > paddedRight || 
             py + pSize < paddedTop || py - pSize > paddedBottom) continue;
-        ctx.moveTo(px + pSize, py);
+
+        const alpha = 1 - p.lifetime / p.maxLifetime;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+        ctx.beginPath();
         ctx.arc(px, py, pSize, 0, TWO_PI);
+        ctx.fill();
       }
     }
-    ctx.fill();
-
-    ctx.fillStyle = COLORS.GAME.TEAM_BLUE_BRIGHT;
-    ctx.beginPath();
-    for (const system of this.particleSystems) {
-      const particles = system.getParticles();
-      const color = system.getColor();
-      if (color !== COLORS.GAME.TEAM_BLUE_BRIGHT) continue;
-
-      for (const p of particles) {
-        if (p.lifetime >= p.maxLifetime) continue;
-        const px = p.x * UNIT_TO_PIXEL;
-        const py = p.y * UNIT_TO_PIXEL;
-        const pSize = p.size * UNIT_TO_PIXEL;
-        if (px + pSize < paddedLeft || px - pSize > paddedRight || 
-            py + pSize < paddedTop || py - pSize > paddedBottom) continue;
-        ctx.moveTo(px + pSize, py);
-        ctx.arc(px, py, pSize, 0, TWO_PI);
-      }
-    }
-    ctx.fill();
-
-    ctx.restore();
+    ctx.globalAlpha = 1;
   }
 
   public destroy(): void {

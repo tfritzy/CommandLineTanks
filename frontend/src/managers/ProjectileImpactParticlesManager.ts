@@ -1,7 +1,6 @@
 import { ProjectileImpactParticles } from "../objects/particles/ProjectileImpactParticles";
 import { ExplosionParticles } from "../objects/particles/ExplosionParticles";
 import { UNIT_TO_PIXEL } from "../constants";
-import { COLORS } from "../theme/colors";
 
 const TWO_PI = Math.PI * 2;
 const VIEWPORT_PADDING = 100;
@@ -52,106 +51,43 @@ export class ProjectileImpactParticlesManager {
     const paddedTop = cameraY - VIEWPORT_PADDING;
     const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
 
-    if (this.impactSystems.length > 0) {
-      ctx.save();
-      
-      ctx.fillStyle = COLORS.GAME.TEAM_RED_BRIGHT;
-      ctx.beginPath();
-      for (const system of this.impactSystems) {
-        if (system.getColor() !== COLORS.GAME.TEAM_RED_BRIGHT) continue;
-        for (const p of system.getParticles()) {
-          if (p.lifetime >= p.maxLifetime) continue;
-          const px = p.x * UNIT_TO_PIXEL;
-          const py = p.y * UNIT_TO_PIXEL;
-          const pSize = p.size * UNIT_TO_PIXEL;
-          if (px + pSize < paddedLeft || px - pSize > paddedRight || 
-              py + pSize < paddedTop || py - pSize > paddedBottom) continue;
-          ctx.moveTo(px + pSize, py);
-          ctx.arc(px, py, pSize, 0, TWO_PI);
-        }
-      }
-      ctx.fill();
-
-      ctx.fillStyle = COLORS.GAME.TEAM_BLUE_BRIGHT;
-      ctx.beginPath();
-      for (const system of this.impactSystems) {
-        if (system.getColor() !== COLORS.GAME.TEAM_BLUE_BRIGHT) continue;
-        for (const p of system.getParticles()) {
-          if (p.lifetime >= p.maxLifetime) continue;
-          const px = p.x * UNIT_TO_PIXEL;
-          const py = p.y * UNIT_TO_PIXEL;
-          const pSize = p.size * UNIT_TO_PIXEL;
-          if (px + pSize < paddedLeft || px - pSize > paddedRight || 
-              py + pSize < paddedTop || py - pSize > paddedBottom) continue;
-          ctx.moveTo(px + pSize, py);
-          ctx.arc(px, py, pSize, 0, TWO_PI);
-        }
-      }
-      ctx.fill();
-
-      ctx.restore();
-    }
-
-    this.drawExplosions(ctx, paddedLeft, paddedRight, paddedTop, paddedBottom);
-  }
-
-  private drawExplosions(ctx: CanvasRenderingContext2D, paddedLeft: number, paddedRight: number, paddedTop: number, paddedBottom: number): void {
-    if (this.explosionSystems.length === 0) return;
-
-    ctx.save();
-
-    ctx.fillStyle = COLORS.EFFECTS.FIRE_BRIGHT;
-    ctx.beginPath();
-    for (const system of this.explosionSystems) {
+    for (const system of this.impactSystems) {
+      const color = system.getColor();
       for (const p of system.getParticles()) {
         if (p.lifetime >= p.maxLifetime) continue;
-        if (p.color !== COLORS.EFFECTS.FIRE_BRIGHT) continue;
         const px = p.x * UNIT_TO_PIXEL;
         const py = p.y * UNIT_TO_PIXEL;
         const pSize = p.size * UNIT_TO_PIXEL;
         if (px + pSize < paddedLeft || px - pSize > paddedRight || 
             py + pSize < paddedTop || py - pSize > paddedBottom) continue;
-        ctx.moveTo(px + pSize, py);
+
+        const alpha = 1 - p.lifetime / p.maxLifetime;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+        ctx.beginPath();
         ctx.arc(px, py, pSize, 0, TWO_PI);
+        ctx.fill();
       }
     }
-    ctx.fill();
 
-    ctx.fillStyle = COLORS.EFFECTS.FIRE_YELLOW;
-    ctx.beginPath();
     for (const system of this.explosionSystems) {
       for (const p of system.getParticles()) {
         if (p.lifetime >= p.maxLifetime) continue;
-        if (p.color !== COLORS.EFFECTS.FIRE_YELLOW) continue;
         const px = p.x * UNIT_TO_PIXEL;
         const py = p.y * UNIT_TO_PIXEL;
         const pSize = p.size * UNIT_TO_PIXEL;
         if (px + pSize < paddedLeft || px - pSize > paddedRight || 
             py + pSize < paddedTop || py - pSize > paddedBottom) continue;
-        ctx.moveTo(px + pSize, py);
+
+        const alpha = 1 - p.lifetime / p.maxLifetime;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
         ctx.arc(px, py, pSize, 0, TWO_PI);
+        ctx.fill();
       }
     }
-    ctx.fill();
-
-    ctx.fillStyle = COLORS.EFFECTS.FIRE_ORANGE;
-    ctx.beginPath();
-    for (const system of this.explosionSystems) {
-      for (const p of system.getParticles()) {
-        if (p.lifetime >= p.maxLifetime) continue;
-        if (p.color !== COLORS.EFFECTS.FIRE_ORANGE) continue;
-        const px = p.x * UNIT_TO_PIXEL;
-        const py = p.y * UNIT_TO_PIXEL;
-        const pSize = p.size * UNIT_TO_PIXEL;
-        if (px + pSize < paddedLeft || px - pSize > paddedRight || 
-            py + pSize < paddedTop || py - pSize > paddedBottom) continue;
-        ctx.moveTo(px + pSize, py);
-        ctx.arc(px, py, pSize, 0, TWO_PI);
-      }
-    }
-    ctx.fill();
-
-    ctx.restore();
+    ctx.globalAlpha = 1;
   }
 
   public destroy(): void {
