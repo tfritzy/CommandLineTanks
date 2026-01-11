@@ -7,6 +7,17 @@ NO COMMENTS. EVER. NOT EVEN XML DOCUMENTATION COMMENTS.
 DO NOT CREATE DOCUMENTATION FILES (like README.md, FEATURE.md, HOWTO.md, etc.) TO EXPLAIN YOUR CHANGES.
 Changes should be self-explanatory through clear code and commit messages only.
 
+## Full Project Setup
+
+For complete instructions on setting up and running the full project (including SpacetimeDB backend and frontend), see: [full-project-setup.md](copilot-instructions/full-project-setup.md)
+
+This includes:
+- Installing SpacetimeDB CLI v1.10.0
+- Starting the SpacetimeDB server
+- Building and publishing the backend
+- Running the frontend development server
+- Verification steps and troubleshooting
+
 ## Pre-Release Checklist
 
 **CRITICAL: Before releasing any change for review, you MUST verify that both builds succeed:**
