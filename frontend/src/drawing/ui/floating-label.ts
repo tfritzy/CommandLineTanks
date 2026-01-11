@@ -10,13 +10,12 @@ export function drawFloatingLabel(
   text: string,
   alpha: number
 ) {
-  ctx.save();
-  ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
+  const savedAlpha = ctx.globalAlpha;
   ctx.globalAlpha = alpha;
   ctx.font = "12px monospace";
   ctx.fillStyle = LABEL_COLOR;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(text, 0, 0);
-  ctx.restore();
+  ctx.fillText(text, x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
+  ctx.globalAlpha = savedAlpha;
 }

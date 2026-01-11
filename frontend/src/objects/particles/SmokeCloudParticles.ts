@@ -1,8 +1,9 @@
 import { UNIT_TO_PIXEL } from "../../constants";
-import { isPointInViewport } from "../../utils/viewport";
 import { COLORS } from "../../theme/colors";
 
-interface Particle {
+const TWO_PI = Math.PI * 2;
+
+export interface SmokeParticle {
   x: number;
   y: number;
   velocityX: number;
@@ -17,7 +18,7 @@ interface Particle {
 }
 
 export class SmokeCloudParticles {
-  private particles: Particle[] = [];
+  private particles: SmokeParticle[] = [];
   private isDead = false;
   private isEmitting = true;
   private timeSinceLastEmit = 0;
@@ -37,7 +38,7 @@ export class SmokeCloudParticles {
   }
 
   private emitParticle(): void {
-    const angle = Math.random() * Math.PI * 2;
+    const angle = Math.random() * TWO_PI;
     const dist = Math.random() * this.radius * 0.6;
 
     const speed = 0.1 + Math.random() * 0.3;
@@ -53,7 +54,7 @@ export class SmokeCloudParticles {
       lifetime: 0,
       maxLifetime: 3.0 + Math.random() * 1.5,
       rotationSpeed: (Math.random() - 0.5) * 0.5,
-      rotation: Math.random() * Math.PI * 2,
+      rotation: Math.random() * TWO_PI,
       color: color,
     });
   }
@@ -86,7 +87,6 @@ export class SmokeCloudParticles {
         p.rotation += p.rotationSpeed * deltaTime;
 
         const progress = p.lifetime / p.maxLifetime;
-        // Start closer to full size and expand less
         p.size = p.maxSize * (0.7 + 0.3 * Math.min(1, progress * 2));
       }
     }
@@ -96,6 +96,10 @@ export class SmokeCloudParticles {
     }
   }
 
+  public getParticles(): SmokeParticle[] {
+    return this.particles;
+  }
+
   public draw(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
@@ -103,8 +107,14 @@ export class SmokeCloudParticles {
     viewportWidth: number,
     viewportHeight: number
   ): void {
-    ctx.save();
+    const paddedLeft = cameraX - 100;
+    const paddedRight = cameraX + viewportWidth + 100;
+    const paddedTop = cameraY - 100;
+    const paddedBottom = cameraY + viewportHeight + 100;
 
+    ctx.save();
+    ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
+    
     for (const p of this.particles) {
       if (p.lifetime >= p.maxLifetime) continue;
 
@@ -112,30 +122,17 @@ export class SmokeCloudParticles {
       const py = p.y * UNIT_TO_PIXEL;
       const pSize = p.size * UNIT_TO_PIXEL;
 
-      if (
-        !isPointInViewport(
-          px,
-          py,
-          pSize,
-          cameraX,
-          cameraY,
-          viewportWidth,
-          viewportHeight
-        )
-      ) {
-        continue;
-      }
+      if (px + pSize < paddedLeft || px - pSize > paddedRight ||
+          py + pSize < paddedTop || py - pSize > paddedBottom) continue;
 
       const progress = p.lifetime / p.maxLifetime;
-      // Fade in more slowly from 0, then fade out
       const fadeIn = Math.min(1, progress / 0.4);
       const fadeOut = Math.max(0, 1 - progress);
       const alpha = fadeIn * fadeOut * 0.3;
 
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = p.color;
       ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, Math.PI * 2);
+      ctx.arc(px, py, pSize, 0, TWO_PI);
       ctx.fill();
     }
     ctx.restore();

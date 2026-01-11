@@ -1,12 +1,9 @@
-import { UNIT_TO_PIXEL } from "../../constants";
-import { isPointInViewport } from "../../utils/viewport";
-import { drawMuzzleFlashParticles } from "../../drawing";
 import { COLORS } from "../../theme/colors";
 
 const ANGLE_SPREAD_RADIANS = 0.8;
 const FRICTION_FACTOR = 0.92;
 
-interface Particle {
+export interface MuzzleFlashParticle {
   x: number;
   y: number;
   velocityX: number;
@@ -14,15 +11,15 @@ interface Particle {
   size: number;
   lifetime: number;
   maxLifetime: number;
-  color: string;
 }
 
 export class MuzzleFlashParticles {
-  private particles: Particle[] = [];
+  private particles: MuzzleFlashParticle[] = [];
   private isDead = false;
+  private color: string;
 
   constructor(x: number, y: number, angle: number, alliance: number) {
-    const color = alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
+    this.color = alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
     
     const particleCount = 8 + Math.floor(Math.random() * 5);
     for (let i = 0; i < particleCount; i++) {
@@ -38,8 +35,7 @@ export class MuzzleFlashParticles {
         velocityY: Math.sin(particleAngle) * speed,
         size: 0.03 + Math.random() * 0.04,
         lifetime: 0,
-        maxLifetime: 0.06 + Math.random() * 0.06,
-        color: color
+        maxLifetime: 0.06 + Math.random() * 0.06
       });
     }
   }
@@ -60,20 +56,12 @@ export class MuzzleFlashParticles {
     this.isDead = allDead;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    for (const p of this.particles) {
-      if (p.lifetime >= p.maxLifetime) continue;
+  public getParticles(): MuzzleFlashParticle[] {
+    return this.particles;
+  }
 
-      const px = p.x * UNIT_TO_PIXEL;
-      const py = p.y * UNIT_TO_PIXEL;
-      const pSize = p.size * UNIT_TO_PIXEL;
-
-      if (!isPointInViewport(px, py, pSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
-        continue;
-      }
-
-      drawMuzzleFlashParticles(ctx, p);
-    }
+  public getColor(): string {
+    return this.color;
   }
 
   public getIsDead(): boolean {

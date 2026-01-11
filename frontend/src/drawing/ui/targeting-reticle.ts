@@ -15,7 +15,6 @@ export function drawTargetingReticle(
   const pixelX = x * UNIT_TO_PIXEL;
   const pixelY = y * UNIT_TO_PIXEL;
 
-  ctx.save();
   ctx.strokeStyle = RETICLE_COLOR;
   ctx.lineWidth = RETICLE_LINE_WIDTH;
 
@@ -40,6 +39,4 @@ export function drawTargetingReticle(
   ctx.moveTo(pixelX + RETICLE_SIZE + RETICLE_GAP, pixelY + RETICLE_SIZE + RETICLE_GAP);
   ctx.lineTo(pixelX + RETICLE_SIZE + RETICLE_GAP, pixelY + RETICLE_SIZE + RETICLE_GAP - RETICLE_CORNER_LENGTH);
   ctx.stroke();
-
-  ctx.restore();
 }

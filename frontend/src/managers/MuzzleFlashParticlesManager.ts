@@ -1,4 +1,8 @@
 import { MuzzleFlashParticles } from "../objects/particles/MuzzleFlashParticles";
+import { UNIT_TO_PIXEL } from "../constants";
+
+const TWO_PI = Math.PI * 2;
+const VIEWPORT_PADDING = 100;
 
 export class MuzzleFlashParticlesManager {
   private particleSystems: MuzzleFlashParticles[] = [];
@@ -23,9 +27,32 @@ export class MuzzleFlashParticlesManager {
   }
 
   public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    if (this.particleSystems.length === 0) return;
+
+    const paddedLeft = cameraX - VIEWPORT_PADDING;
+    const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
+    const paddedTop = cameraY - VIEWPORT_PADDING;
+    const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
+
     for (const system of this.particleSystems) {
-      system.draw(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+      const color = system.getColor();
+      for (const p of system.getParticles()) {
+        if (p.lifetime >= p.maxLifetime) continue;
+        const px = p.x * UNIT_TO_PIXEL;
+        const py = p.y * UNIT_TO_PIXEL;
+        const pSize = p.size * UNIT_TO_PIXEL;
+        if (px + pSize < paddedLeft || px - pSize > paddedRight || 
+            py + pSize < paddedTop || py - pSize > paddedBottom) continue;
+
+        const alpha = 1 - p.lifetime / p.maxLifetime;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(px, py, pSize, 0, TWO_PI);
+        ctx.fill();
+      }
     }
+    ctx.globalAlpha = 1;
   }
 
   public destroy(): void {
