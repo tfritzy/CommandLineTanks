@@ -1,4 +1,4 @@
-import { toAudio, type JsfxrParams } from 'jsfxr';
+import { toAudio, type JsfxrParams } from '../lib/jsfxr/sfxr';
 
 export class SoundManager {
     private audioContext: AudioContext | null = null;
@@ -71,7 +71,7 @@ export class SoundManager {
                 sample_rate: 44100,
                 sample_size: 8
             },
-            volume: 0.2,
+            volume: 1,
         },
         'projectile-hit': {
             params: {
@@ -444,7 +444,7 @@ export class SoundManager {
                 sample_rate: 44100,
                 sample_size: 8
             },
-            volume: .7
+            volume: 1
         },
     };
 

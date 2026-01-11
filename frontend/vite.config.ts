@@ -4,24 +4,24 @@ import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [
+    react(),
     {
-      name: 'redirect-root',
+      name: 'rewrite-middleware',
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
-          if (req.url === '/') {
-            req.url = '/landing.html'
+          if (req.url === '/deploy' || req.url?.startsWith('/game/')) {
+            req.url = '/app.html';
           }
-          next()
-        })
-      },
-    },
-    react(),
+          next();
+        });
+      }
+    }
   ],
   build: {
     rollupOptions: {
       input: {
-        landing: resolve(__dirname, 'public/landing.html'),
-        app: resolve(__dirname, 'index.html'),
+        landing: resolve(__dirname, 'index.html'),
+        app: resolve(__dirname, 'app.html'),
       },
     },
   },

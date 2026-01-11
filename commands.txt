@@ -10,9 +10,3 @@ spacetime publish -s maincloud --project-path backend/spacetimedb clt
 
 # Deploy frontend to Firebase
 cd /home/tfritzy/Dev/clt/frontend && npm run deploy
-
-# Local development (uses local SpacetimeDB instance)
-cd /home/tfritzy/Dev/clt/frontend && npm run dev
-
-# Production build (uses maincloud SpacetimeDB)
-cd /home/tfritzy/Dev/clt/frontend && npm run build

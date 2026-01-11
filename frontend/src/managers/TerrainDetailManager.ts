@@ -204,7 +204,9 @@ export class TerrainDetailManager {
         );
 
         if (!texture) {
-          console.warn(`Missing shadow texture for key: ${obj.getTextureKey()}`);
+          if (!(obj instanceof Label)) {
+            console.warn(`Missing shadow texture for key: ${obj.getTextureKey()}`);
+          }
         } else {
           const scale = obj.getSizeScale();
           const scaledSize = renderSize * scale;
