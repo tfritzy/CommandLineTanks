@@ -60,37 +60,27 @@ class WaterTextureCache {
     } else {
       ctx.lineTo(0, half);
       ctx.arcTo(0, 0, half, 0, half);
-      ctx.lineTo(half, 0);
     }
 
     if (tr) {
-      ctx.lineTo(half, 0);
       ctx.lineTo(size, 0);
       ctx.lineTo(size, half);
     } else {
-      ctx.lineTo(half, 0);
       ctx.arcTo(size, 0, size, half, half);
-      ctx.lineTo(size, half);
     }
 
     if (br) {
-      ctx.lineTo(size, half);
       ctx.lineTo(size, size);
       ctx.lineTo(half, size);
     } else {
-      ctx.lineTo(size, half);
       ctx.arcTo(size, size, half, size, half);
-      ctx.lineTo(half, size);
     }
 
     if (bl) {
-      ctx.lineTo(half, size);
       ctx.lineTo(0, size);
       ctx.lineTo(0, half);
     } else {
-      ctx.lineTo(half, size);
       ctx.arcTo(0, size, 0, half, half);
-      ctx.lineTo(0, half);
     }
 
     ctx.closePath();
