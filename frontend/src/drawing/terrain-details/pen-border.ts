@@ -1,5 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { COLORS } from "../../theme/colors";
+import { PALETTE } from "../../theme/colors.config";
 
 export function drawPenBorderBody(
   ctx: CanvasRenderingContext2D,
@@ -8,25 +9,21 @@ export function drawPenBorderBody(
   width: number,
   height: number
 ) {
-  const borderWidth = UNIT_TO_PIXEL * 0.12;
-  const cornerRadius = UNIT_TO_PIXEL * 0.15;
+  const borderWidth = UNIT_TO_PIXEL * 0.07;
   const rectWidth = width * UNIT_TO_PIXEL;
   const rectHeight = height * UNIT_TO_PIXEL;
 
   ctx.save();
 
-  ctx.strokeStyle = COLORS.TERRAIN.BLACK_CHECKER;
+  ctx.strokeStyle = PALETTE.BLUE_INFO;
   ctx.lineWidth = borderWidth;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
 
   ctx.beginPath();
-  ctx.roundRect(
+  ctx.rect(
     x + borderWidth / 2,
     y + borderWidth / 2,
     rectWidth - borderWidth,
     rectHeight - borderWidth,
-    cornerRadius
   );
   ctx.stroke();
 
