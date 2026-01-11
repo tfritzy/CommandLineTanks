@@ -1,8 +1,9 @@
 import { UNIT_TO_PIXEL } from "../../constants";
-import { isPointInViewport } from "../../utils/viewport";
 import { COLORS } from "../../theme/colors";
 
-interface DebrisParticle {
+const TWO_PI = Math.PI * 2;
+
+export interface DebrisParticle {
   x: number;
   y: number;
   velocityX: number;
@@ -16,7 +17,7 @@ interface DebrisParticle {
   color: string;
 }
 
-interface FireParticle {
+export interface FireParticle {
   x: number;
   y: number;
   velocityX: number;
@@ -29,7 +30,7 @@ interface FireParticle {
   color: string;
 }
 
-interface SmokeParticle {
+export interface SmokeParticle {
   x: number;
   y: number;
   velocityX: number;
@@ -42,7 +43,7 @@ interface SmokeParticle {
   color: string;
 }
 
-interface SparkParticle {
+export interface SparkParticle {
   x: number;
   y: number;
   velocityX: number;
@@ -65,10 +66,9 @@ export class DeadTankParticles {
     const teamColor = alliance === 0 ? COLORS.UI.TEAM_RED_MEDIUM : COLORS.GAME.TEAM_BLUE_BRIGHT;
     const darkTeamColor = alliance === 0 ? COLORS.UI.TEAM_RED_DARK : COLORS.UI.TEAM_BLUE_MEDIUM;
 
-    // 1. Debris (Tank parts) - Reduced count
     const debrisCount = 6 + Math.floor(Math.random() * 4);
     for (let i = 0; i < debrisCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
+      const angle = Math.random() * TWO_PI;
       const speed = 1.5 + Math.random() * 3.5;
       const width = 6 + Math.random() * 10;
       const height = 4 + Math.random() * 8;
@@ -83,7 +83,7 @@ export class DeadTankParticles {
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
         angularVelocity: (Math.random() - 0.5) * 15,
-        rotation: Math.random() * Math.PI * 2,
+        rotation: Math.random() * TWO_PI,
         width, height,
         lifetime: 0,
         maxLifetime: 0.8 + Math.random() * 0.6,
@@ -91,10 +91,9 @@ export class DeadTankParticles {
       });
     }
 
-    // 2. Fire/Explosion Flash - Reduced count
     const fireCount = 10 + Math.floor(Math.random() * 6);
     for (let i = 0; i < fireCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
+      const angle = Math.random() * TWO_PI;
       const speed = 3 + Math.random() * 5;
       const size = 5 + Math.random() * 8;
       const colors = [COLORS.EFFECTS.FIRE_RED, COLORS.EFFECTS.FIRE_ORANGE, COLORS.EFFECTS.FIRE_YELLOW, COLORS.EFFECTS.FIRE_BRIGHT];
@@ -103,7 +102,7 @@ export class DeadTankParticles {
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
         angularVelocity: (Math.random() - 0.5) * 5,
-        rotation: Math.random() * Math.PI * 2,
+        rotation: Math.random() * TWO_PI,
         size,
         lifetime: 0,
         maxLifetime: 0.2 + Math.random() * 0.3,
@@ -111,10 +110,9 @@ export class DeadTankParticles {
       });
     }
 
-    // 3. Smoke - Minimal count
     const smokeCount = 2 + Math.floor(Math.random() * 2);
     for (let i = 0; i < smokeCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
+      const angle = Math.random() * TWO_PI;
       const speed = 0.4 + Math.random() * 1.0;
       const size = 10 + Math.random() * 15;
       const colors = [COLORS.TERMINAL.SEPARATOR, COLORS.TERMINAL.TEXT_DIM];
@@ -123,7 +121,7 @@ export class DeadTankParticles {
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
         angularVelocity: (Math.random() - 0.5) * 2,
-        rotation: Math.random() * Math.PI * 2,
+        rotation: Math.random() * TWO_PI,
         size,
         lifetime: 0,
         maxLifetime: 0.5 + Math.random() * 0.5,
@@ -131,10 +129,9 @@ export class DeadTankParticles {
       });
     }
 
-    // 4. Sparks - Reduced count
     const sparkCount = 10;
     for (let i = 0; i < sparkCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
+      const angle = Math.random() * TWO_PI;
       const speed = 5 + Math.random() * 8;
       this.sparkParticles.push({
         x, y,
@@ -203,14 +200,35 @@ export class DeadTankParticles {
     this.isDead = allDead;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    this.drawSmoke(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
-    this.drawDebris(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
-    this.drawFire(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
-    this.drawSparks(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+  public getDebrisParticles(): DebrisParticle[] {
+    return this.debrisParticles;
   }
 
-  private drawSmoke(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+  public getFireParticles(): FireParticle[] {
+    return this.fireParticles;
+  }
+
+  public getSmokeParticles(): SmokeParticle[] {
+    return this.smokeParticles;
+  }
+
+  public getSparkParticles(): SparkParticle[] {
+    return this.sparkParticles;
+  }
+
+  public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+    const paddedLeft = cameraX - 100;
+    const paddedRight = cameraX + viewportWidth + 100;
+    const paddedTop = cameraY - 100;
+    const paddedBottom = cameraY + viewportHeight + 100;
+
+    this.drawSmoke(ctx, paddedLeft, paddedRight, paddedTop, paddedBottom);
+    this.drawDebris(ctx, paddedLeft, paddedRight, paddedTop, paddedBottom);
+    this.drawFire(ctx, paddedLeft, paddedRight, paddedTop, paddedBottom);
+    this.drawSparks(ctx, paddedLeft, paddedRight, paddedTop, paddedBottom);
+  }
+
+  private drawSmoke(ctx: CanvasRenderingContext2D, paddedLeft: number, paddedRight: number, paddedTop: number, paddedBottom: number): void {
     for (const particle of this.smokeParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -218,9 +236,8 @@ export class DeadTankParticles {
       const particleY = particle.y * UNIT_TO_PIXEL;
       const halfSize = particle.size / 2;
       
-      if (!isPointInViewport(particleX, particleY, halfSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
-        continue;
-      }
+      if (particleX + halfSize < paddedLeft || particleX - halfSize > paddedRight ||
+          particleY + halfSize < paddedTop || particleY - halfSize > paddedBottom) continue;
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
 
@@ -229,13 +246,13 @@ export class DeadTankParticles {
       ctx.globalAlpha = alpha;
       ctx.fillStyle = particle.color;
       ctx.beginPath();
-      ctx.arc(0, 0, halfSize, 0, Math.PI * 2);
+      ctx.arc(0, 0, halfSize, 0, TWO_PI);
       ctx.fill();
       ctx.restore();
     }
   }
 
-  private drawDebris(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+  private drawDebris(ctx: CanvasRenderingContext2D, paddedLeft: number, paddedRight: number, paddedTop: number, paddedBottom: number): void {
     for (const particle of this.debrisParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -243,9 +260,8 @@ export class DeadTankParticles {
       const particleY = particle.y * UNIT_TO_PIXEL;
       const halfMaxSize = Math.max(particle.width, particle.height) / 2;
       
-      if (!isPointInViewport(particleX, particleY, halfMaxSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
-        continue;
-      }
+      if (particleX + halfMaxSize < paddedLeft || particleX - halfMaxSize > paddedRight ||
+          particleY + halfMaxSize < paddedTop || particleY - halfMaxSize > paddedBottom) continue;
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
 
@@ -272,7 +288,7 @@ export class DeadTankParticles {
     }
   }
 
-  private drawFire(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+  private drawFire(ctx: CanvasRenderingContext2D, paddedLeft: number, paddedRight: number, paddedTop: number, paddedBottom: number): void {
     for (const particle of this.fireParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -280,9 +296,8 @@ export class DeadTankParticles {
       const particleY = particle.y * UNIT_TO_PIXEL;
       const halfSize = particle.size / 2;
       
-      if (!isPointInViewport(particleX, particleY, halfSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
-        continue;
-      }
+      if (particleX + halfSize < paddedLeft || particleX - halfSize > paddedRight ||
+          particleY + halfSize < paddedTop || particleY - halfSize > paddedBottom) continue;
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
 
@@ -301,7 +316,8 @@ export class DeadTankParticles {
     }
   }
 
-  private drawSparks(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
+  private drawSparks(ctx: CanvasRenderingContext2D, paddedLeft: number, paddedRight: number, paddedTop: number, paddedBottom: number): void {
+    ctx.fillStyle = COLORS.TERMINAL.WARNING;
     for (const particle of this.sparkParticles) {
       if (particle.lifetime >= particle.maxLifetime) continue;
 
@@ -309,9 +325,8 @@ export class DeadTankParticles {
       const particleY = particle.y * UNIT_TO_PIXEL;
       const halfMaxSize = Math.max(particle.width, particle.height) / 2;
       
-      if (!isPointInViewport(particleX, particleY, halfMaxSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
-        continue;
-      }
+      if (particleX + halfMaxSize < paddedLeft || particleX - halfMaxSize > paddedRight ||
+          particleY + halfMaxSize < paddedTop || particleY - halfMaxSize > paddedBottom) continue;
 
       const alpha = 1 - particle.lifetime / particle.maxLifetime;
 
@@ -319,7 +334,6 @@ export class DeadTankParticles {
       ctx.translate(particleX, particleY);
       ctx.rotate(particle.rotation);
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = COLORS.TERMINAL.WARNING;
       ctx.fillRect(0, -0.5, particle.width, particle.height);
       ctx.restore();
     }

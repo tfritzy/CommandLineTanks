@@ -1,7 +1,4 @@
-import { UNIT_TO_PIXEL } from "../../constants";
-import { isPointInViewport } from "../../utils/viewport";
-
-interface Particle {
+export interface ProjectileImpactParticle {
   x: number;
   y: number;
   velocityX: number;
@@ -9,26 +6,24 @@ interface Particle {
   size: number;
   lifetime: number;
   maxLifetime: number;
-  color: string;
 }
 
 export class ProjectileImpactParticles {
-  private particles: Particle[] = [];
+  private particles: ProjectileImpactParticle[] = [];
   private isDead = false;
+  private color: string;
 
   constructor(x: number, y: number, velocityX: number, velocityY: number, color: string) {
-    // Splatter in opposite direction
+    this.color = color;
     const oppositeX = -velocityX;
     const oppositeY = -velocityY;
     
-    // Normalize opposite velocity for direction
     const speed = Math.sqrt(oppositeX * oppositeX + oppositeY * oppositeY);
     const dirX = speed > 0 ? oppositeX / speed : 0;
     const dirY = speed > 0 ? oppositeY / speed : 0;
 
     const particleCount = 7 + Math.floor(Math.random() * 6);
     for (let i = 0; i < particleCount; i++) {
-      // Add some randomness to the direction
       const angleOffset = (Math.random() - 0.5) * 1.3; 
       const cos = Math.cos(angleOffset);
       const sin = Math.sin(angleOffset);
@@ -44,8 +39,7 @@ export class ProjectileImpactParticles {
         velocityY: pDirY * pSpeed,
         size: 0.02 + Math.random() * .03,
         lifetime: 0,
-        maxLifetime: 0.2 + Math.random() * 0.2,
-        color: color
+        maxLifetime: 0.2 + Math.random() * 0.2
       });
     }
   }
@@ -65,29 +59,12 @@ export class ProjectileImpactParticles {
     this.isDead = allDead;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    ctx.save();
+  public getParticles(): ProjectileImpactParticle[] {
+    return this.particles;
+  }
 
-    for (const p of this.particles) {
-      if (p.lifetime >= p.maxLifetime) continue;
-
-      const px = p.x * UNIT_TO_PIXEL;
-      const py = p.y * UNIT_TO_PIXEL;
-      const pSize = p.size * UNIT_TO_PIXEL;
-      
-      if (!isPointInViewport(px, py, pSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
-        continue;
-      }
-
-      const alpha = 1 - p.lifetime / p.maxLifetime;
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = p.color;
-      
-      ctx.beginPath();
-      ctx.arc(px, py, pSize, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
+  public getColor(): string {
+    return this.color;
   }
 
   public getIsDead(): boolean {

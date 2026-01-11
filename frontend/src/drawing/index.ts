@@ -3,8 +3,6 @@ export * from "./projectiles/missile";
 export * from "./projectiles/rocket";
 export * from "./projectiles/grenade";
 export * from "./projectiles/moag";
-export * from "./particles/explosion";
-export * from "./particles/muzzle-flash";
 export * from "./terrain-details/rock";
 export * from "./terrain-details/tree";
 export * from "./terrain-details/hay-bale";

@@ -1,9 +1,6 @@
-import { UNIT_TO_PIXEL } from "../../constants";
-import { isPointInViewport } from "../../utils/viewport";
-import { drawExplosionParticles } from "../../drawing";
 import { COLORS } from "../../theme/colors";
 
-interface Particle {
+export interface ExplosionParticle {
   x: number;
   y: number;
   velocityX: number;
@@ -16,7 +13,7 @@ interface Particle {
 }
 
 export class ExplosionParticles {
-  private particles: Particle[] = [];
+  private particles: ExplosionParticle[] = [];
   private isDead = false;
 
   constructor(x: number, y: number, explosionRadius: number) {
@@ -25,10 +22,7 @@ export class ExplosionParticles {
     const count = 20;
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      // Spread them out more from the center
       const dist = Math.random() * explosionRadius * 0.5;
-      
-      // Add some outward velocity
       const speed = 0.3 + Math.random() * 1.5;
       
       this.particles.push({
@@ -51,37 +45,20 @@ export class ExplosionParticles {
       p.lifetime += deltaTime;
       if (p.lifetime < p.maxLifetime) {
         allDead = false;
-        
-        // Move particles outward
         p.x += p.velocityX * deltaTime;
         p.y += p.velocityY * deltaTime;
-        
-        // Apply some friction
         p.velocityX *= Math.pow(0.1, deltaTime);
         p.velocityY *= Math.pow(0.1, deltaTime);
 
         const progress = p.lifetime / p.maxLifetime;
-        // Expand quickly to max size
         p.size = p.maxSize * Math.min(1, progress * 5);
       }
     }
     this.isDead = allDead;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, cameraX: number, cameraY: number, viewportWidth: number, viewportHeight: number): void {
-    for (const p of this.particles) {
-      if (p.lifetime >= p.maxLifetime) continue;
-
-      const px = p.x * UNIT_TO_PIXEL;
-      const py = p.y * UNIT_TO_PIXEL;
-      const pSize = p.size * UNIT_TO_PIXEL;
-      
-      if (!isPointInViewport(px, py, pSize, cameraX, cameraY, viewportWidth, viewportHeight)) {
-        continue;
-      }
-
-      drawExplosionParticles(ctx, p);
-    }
+  public getParticles(): ExplosionParticle[] {
+    return this.particles;
   }
 
   public getIsDead(): boolean {

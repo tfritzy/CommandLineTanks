@@ -9,6 +9,7 @@ const HEALTH_BAR_PADDING = 1;
 const HEALTH_BAR_BORDER_RADIUS = 2;
 const IMMUNITY_FLASH_RATE_SECONDS = 0.2;
 const IMMUNITY_MIN_OPACITY = 0.5;
+const TWO_PI = Math.PI * 2;
 
 interface TankDrawParams {
   x: number;
@@ -23,25 +24,18 @@ interface TankDrawParams {
 }
 
 export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  ctx.save();
-  ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
-
-  const shadowColor = PALETTE.TRANSPARENT_SHADOW;
-  ctx.fillStyle = shadowColor;
-
-  ctx.save();
-  ctx.translate(-2, 2);
+  const px = x * UNIT_TO_PIXEL - 2;
+  const py = y * UNIT_TO_PIXEL + 2;
+  
+  ctx.fillStyle = PALETTE.TRANSPARENT_SHADOW;
   ctx.beginPath();
-  ctx.roundRect(-16, -16, 32, 32, 5);
+  ctx.roundRect(px - 16, py - 16, 32, 32, 5);
   ctx.fill();
-  ctx.restore();
-
-  ctx.restore();
 }
 
 export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawParams) {
-  ctx.save();
-  ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
+  const centerX = params.x * UNIT_TO_PIXEL;
+  const centerY = params.y * UNIT_TO_PIXEL;
 
   const allianceColor = params.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
   const baseBorderColor = params.alliance === 0 ? "#330000" : "#000033";
@@ -61,21 +55,19 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     bodyColor = lerpColor(groundColor, bodyColor, lerpAmount);
     borderColor = lerpColor(groundColor, borderColor, lerpAmount);
   }
-  
-  const selfShadowColor = "rgba(0, 0, 0, 0.35)";
 
   ctx.fillStyle = bodyColor;
   ctx.beginPath();
-  ctx.roundRect(-15, -15, 30, 30, 5);
+  ctx.roundRect(centerX - 15, centerY - 15, 30, 30, 5);
   ctx.fill();
   ctx.strokeStyle = borderColor;
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  ctx.fillStyle = selfShadowColor;
-
+  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+  
   ctx.save();
-  ctx.translate(-2, 2);
+  ctx.translate(centerX - 2, centerY + 2);
   ctx.rotate(params.turretRotation);
   ctx.beginPath();
   ctx.roundRect(0, -5, 24, 10, 3);
@@ -83,35 +75,31 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
   ctx.restore();
 
   ctx.save();
-  ctx.translate(-1.5, 1.5);
+  ctx.translate(centerX - 1.5, centerY + 1.5);
   ctx.rotate(params.turretRotation);
   ctx.beginPath();
-  ctx.arc(0, 0, 12, 0, Math.PI * 2);
+  ctx.arc(0, 0, 12, 0, TWO_PI);
   ctx.fill();
   ctx.restore();
 
   ctx.save();
+  ctx.translate(centerX, centerY);
   ctx.rotate(params.turretRotation);
 
   ctx.fillStyle = bodyColor;
+  ctx.strokeStyle = borderColor;
   ctx.beginPath();
   ctx.roundRect(0, -5, 24, 10, 3);
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = bodyColor;
   ctx.beginPath();
-  ctx.arc(0, 0, 12, 0, Math.PI * 2);
+  ctx.arc(0, 0, 12, 0, TWO_PI);
   ctx.fill();
   ctx.stroke();
-  ctx.restore();
-
   ctx.restore();
 
   if (params.hasShield) {
-    ctx.save();
-    ctx.translate(params.x * UNIT_TO_PIXEL, params.y * UNIT_TO_PIXEL);
-
     const shieldSize = 40;
     const shieldHalfSize = shieldSize / 2;
 
@@ -119,11 +107,9 @@ export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawPara
     ctx.lineWidth = 2;
     ctx.fillStyle = "rgba(115, 150, 213, 0.25)";
     ctx.beginPath();
-    ctx.roundRect(-shieldHalfSize, -shieldHalfSize, shieldSize, shieldSize, 5);
+    ctx.roundRect(centerX - shieldHalfSize, centerY - shieldHalfSize, shieldSize, shieldSize, 5);
     ctx.fill();
     ctx.stroke();
-
-    ctx.restore();
   }
 }
 
@@ -134,26 +120,24 @@ export function drawTankNameLabel(
   targetCode: string,
   name: string
 ) {
-  ctx.save();
-  ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
+  const px = x * UNIT_TO_PIXEL;
+  const py = y * UNIT_TO_PIXEL;
+  
+  ctx.textAlign = "center";
 
   if (targetCode) {
     ctx.font = "bold 16px monospace";
     ctx.fillStyle = COLORS.TERMINAL.WARNING;
-    ctx.textAlign = "center";
-    ctx.fillText(targetCode, 0, -34);
+    ctx.fillText(targetCode, px, py - 34);
 
     ctx.font = "12px monospace";
     ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
-    ctx.fillText(name, 0, -20);
+    ctx.fillText(name, px, py - 20);
   } else {
     ctx.font = "12px monospace";
     ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
-    ctx.textAlign = "center";
-    ctx.fillText(name, 0, -27);
+    ctx.fillText(name, px, py - 27);
   }
-
-  ctx.restore();
 }
 
 export function drawTankTextLabel(
@@ -162,13 +146,12 @@ export function drawTankTextLabel(
   y: number,
   text: string
 ) {
-  ctx.save();
-  ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
+  const px = x * UNIT_TO_PIXEL;
+  const py = y * UNIT_TO_PIXEL;
   ctx.font = "14px monospace";
   ctx.fillStyle = "#f5c47c";
   ctx.textAlign = "center";
-  ctx.fillText(text, 0, -26);
-  ctx.restore();
+  ctx.fillText(text, px, py - 26);
 }
 
 export function drawTankHealthBar(
@@ -181,12 +164,12 @@ export function drawTankHealthBar(
 ) {
   if (health <= 0 || health >= maxHealth) return;
 
-  ctx.save();
-  ctx.translate(x * UNIT_TO_PIXEL, y * UNIT_TO_PIXEL);
+  const px = x * UNIT_TO_PIXEL;
+  const py = y * UNIT_TO_PIXEL;
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.beginPath();
-  ctx.roundRect(-HEALTH_BAR_WIDTH / 2, HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT, HEALTH_BAR_BORDER_RADIUS);
+  ctx.roundRect(px - HEALTH_BAR_WIDTH / 2, py + HEALTH_BAR_Y_OFFSET, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT, HEALTH_BAR_BORDER_RADIUS);
   ctx.fill();
 
   const healthPercent = health / maxHealth;
@@ -196,15 +179,13 @@ export function drawTankHealthBar(
   ctx.fillStyle = allianceColor;
   ctx.beginPath();
   ctx.roundRect(
-    -HEALTH_BAR_WIDTH / 2 + HEALTH_BAR_PADDING,
-    HEALTH_BAR_Y_OFFSET + HEALTH_BAR_PADDING,
+    px - HEALTH_BAR_WIDTH / 2 + HEALTH_BAR_PADDING,
+    py + HEALTH_BAR_Y_OFFSET + HEALTH_BAR_PADDING,
     healthBarWidth,
     HEALTH_BAR_HEIGHT - HEALTH_BAR_PADDING * 2,
     HEALTH_BAR_BORDER_RADIUS
   );
   ctx.fill();
-
-  ctx.restore();
 }
 
 export function drawTankPath(
@@ -218,8 +199,6 @@ export function drawTankPath(
   if (path.length === 0) return;
 
   const dotRadius = 5;
-
-  ctx.save();
 
   ctx.strokeStyle = lineColor;
   ctx.lineWidth = 2;
@@ -243,8 +222,6 @@ export function drawTankPath(
 
   ctx.fillStyle = dotColor;
   ctx.beginPath();
-  ctx.arc(endX, endY, dotRadius, 0, Math.PI * 2);
+  ctx.arc(endX, endY, dotRadius, 0, TWO_PI);
   ctx.fill();
-
-  ctx.restore();
 }
