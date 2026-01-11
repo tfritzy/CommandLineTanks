@@ -124,37 +124,35 @@ export function drawBaseTerrain(
   ctx.strokeStyle = COLORS.TERRAIN.GRID;
   ctx.lineWidth = 1;
   ctx.beginPath();
+  
+  const topY = Math.max(startTileY, 0) * UNIT_TO_PIXEL;
+  const bottomY = Math.min(endTileY + 1, worldHeight) * UNIT_TO_PIXEL;
   for (let tileX = startTileX; tileX <= endTileX; tileX++) {
     if (tileX < 0 || tileX >= worldWidth) {
       continue;
     }
     const worldX = tileX * UNIT_TO_PIXEL;
-    const topY = Math.max(startTileY, 0) * UNIT_TO_PIXEL;
-    const bottomY = Math.min(endTileY + 1, worldHeight) * UNIT_TO_PIXEL;
     ctx.moveTo(worldX, topY);
     ctx.lineTo(worldX, bottomY);
   }
   if (endTileX + 1 <= worldWidth) {
     const worldX = (endTileX + 1) * UNIT_TO_PIXEL;
-    const topY = Math.max(startTileY, 0) * UNIT_TO_PIXEL;
-    const bottomY = Math.min(endTileY + 1, worldHeight) * UNIT_TO_PIXEL;
     ctx.moveTo(worldX, topY);
     ctx.lineTo(worldX, bottomY);
   }
+  
+  const leftX = Math.max(startTileX, 0) * UNIT_TO_PIXEL;
+  const rightX = Math.min(endTileX + 1, worldWidth) * UNIT_TO_PIXEL;
   for (let tileY = startTileY; tileY <= endTileY; tileY++) {
     if (tileY < 0 || tileY >= worldHeight) {
       continue;
     }
     const worldY = tileY * UNIT_TO_PIXEL;
-    const leftX = Math.max(startTileX, 0) * UNIT_TO_PIXEL;
-    const rightX = Math.min(endTileX + 1, worldWidth) * UNIT_TO_PIXEL;
     ctx.moveTo(leftX, worldY);
     ctx.lineTo(rightX, worldY);
   }
   if (endTileY + 1 <= worldHeight) {
     const worldY = (endTileY + 1) * UNIT_TO_PIXEL;
-    const leftX = Math.max(startTileX, 0) * UNIT_TO_PIXEL;
-    const rightX = Math.min(endTileX + 1, worldWidth) * UNIT_TO_PIXEL;
     ctx.moveTo(leftX, worldY);
     ctx.lineTo(rightX, worldY);
   }
