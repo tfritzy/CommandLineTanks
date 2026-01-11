@@ -30,10 +30,10 @@ export class ExplosionParticles {
         y: y + Math.sin(angle) * dist,
         velocityX: Math.cos(angle) * speed,
         velocityY: Math.sin(angle) * speed,
-        size: 0,
-        maxSize: explosionRadius * (0.2 + Math.random() * 0.3),
+        size: explosionRadius * 0.5,
+        maxSize: explosionRadius * (0.5 + Math.random() * 1.0),
         lifetime: 0,
-        maxLifetime: 0.2 + Math.random() * 0.4,
+        maxLifetime: 2.0 + Math.random() * 1.0,
         color: colors[i % colors.length]
       });
     }
