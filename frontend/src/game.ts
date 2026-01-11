@@ -40,6 +40,8 @@ export class Game {
   private fpsCounter: FpsCounter;
   private profiler: Profiler;
 
+  private texturesReady: boolean = false;
+
   constructor(canvas: HTMLCanvasElement, gameId: string) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
@@ -265,26 +267,29 @@ export class Game {
   }
 
   public start() {
-    if (!this.animationFrameId) {
-      this.lastFrameTime = 0;
-      
-      if (texturesInitialized) {
-        this.update();
-      } else if (!textureInitPromise) {
-        textureInitPromise = initializeAllTextures().then(() => {
-          texturesInitialized = true;
-          if (!this.animationFrameId) {
-            this.update();
-          }
-        });
-      } else {
-        textureInitPromise.then(() => {
-          if (!this.animationFrameId) {
-            this.update();
-          }
-        });
-      }
+    if (this.animationFrameId) return;
+    
+    this.lastFrameTime = 0;
+    
+    if (texturesInitialized) {
+      this.texturesReady = true;
+      this.update();
+      return;
     }
+    
+    if (!textureInitPromise) {
+      textureInitPromise = initializeAllTextures().then(() => {
+        texturesInitialized = true;
+      });
+    }
+    
+    textureInitPromise.then(() => {
+      if (this.texturesReady) return;
+      this.texturesReady = true;
+      if (!this.animationFrameId) {
+        this.update();
+      }
+    });
   }
 
   public stop() {

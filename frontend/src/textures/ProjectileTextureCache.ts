@@ -228,6 +228,23 @@ class ProjectileTextureCache {
   }
 }
 
-export type { ProjectileTextureCache };
+export interface IProjectileTextureCache {
+  drawProjectile(
+    ctx: CanvasRenderingContext2D,
+    key: string,
+    x: number,
+    y: number,
+    scale?: number,
+    rotation?: number
+  ): void;
+  drawShadow(
+    ctx: CanvasRenderingContext2D,
+    key: string,
+    x: number,
+    y: number,
+    scale?: number,
+    rotation?: number
+  ): void;
+}
 
 export const projectileTextureCache = new ProjectileTextureCache();

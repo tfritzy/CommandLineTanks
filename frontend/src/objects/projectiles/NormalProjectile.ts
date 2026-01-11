@@ -1,17 +1,17 @@
 import { Projectile } from "./Projectile";
 import { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
-import type { ProjectileTextureCache } from "../../textures/ProjectileTextureCache";
+import type { IProjectileTextureCache } from "../../textures/ProjectileTextureCache";
 import { COLORS } from "../../theme/colors";
 
 
 export class NormalProjectile extends Projectile {
-  public drawShadow(ctx: CanvasRenderingContext2D, textureCache: ProjectileTextureCache) {
+  public drawShadow(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
     const { x: centerX, y: centerY } = this.getShadowScreenPosition();
     const key = this.getTextureKey('normal');
     textureCache.drawShadow(ctx, key, centerX, centerY, this.size);
   }
 
-  public drawBody(ctx: CanvasRenderingContext2D, textureCache: ProjectileTextureCache) {
+  public drawBody(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
     const { x: centerX, y: centerY } = this.getScreenPosition();
     const key = this.getTextureKey('normal');
     textureCache.drawProjectile(ctx, key, centerX, centerY, this.size);

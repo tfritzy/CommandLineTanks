@@ -1,5 +1,5 @@
 import { UNIT_TO_PIXEL } from "../../constants";
-import type { ProjectileTextureCache } from "../../textures/ProjectileTextureCache";
+import type { IProjectileTextureCache } from "../../textures/ProjectileTextureCache";
 import type { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
 
 export abstract class Projectile {
@@ -42,16 +42,16 @@ export abstract class Projectile {
     this.trackingRadius = trackingRadius || 0;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, textureCache: ProjectileTextureCache) {
+  public draw(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
     this.drawShadow(ctx, textureCache);
     this.drawBody(ctx, textureCache);
   }
 
-  public drawShadow(_ctx: CanvasRenderingContext2D, _textureCache: ProjectileTextureCache) {}
+  public drawShadow(_ctx: CanvasRenderingContext2D, _textureCache: IProjectileTextureCache) {}
 
   public abstract drawBody(
     ctx: CanvasRenderingContext2D,
-    textureCache: ProjectileTextureCache
+    textureCache: IProjectileTextureCache
   ): void;
 
   public setPosition(x: number, y: number) {
