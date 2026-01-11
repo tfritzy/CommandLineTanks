@@ -4,7 +4,7 @@ import { type PickupRow, type EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import PickupType from "../../module_bindings/pickup_type_type";
 import { UNIT_TO_PIXEL } from "../constants";
-import { redTeamPickupTextureSheet, blueTeamPickupTextureSheet } from "../texture-sheets/PickupTextureSheet";
+import { redTeamPickupTextureCache, blueTeamPickupTextureCache } from "../textures";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 interface PickupData {
@@ -99,8 +99,8 @@ export class PickupManager {
     const worldX = pickup.positionX * UNIT_TO_PIXEL;
     const worldY = pickup.positionY * UNIT_TO_PIXEL;
 
-    const textureSheet = this.playerAlliance === 0 ? redTeamPickupTextureSheet : blueTeamPickupTextureSheet;
+    const textureCache = this.playerAlliance === 0 ? redTeamPickupTextureCache : blueTeamPickupTextureCache;
 
-    textureSheet.draw(ctx, pickup.type.tag, worldX, worldY);
+    textureCache.draw(ctx, pickup.type.tag, worldX, worldY);
   }
 }

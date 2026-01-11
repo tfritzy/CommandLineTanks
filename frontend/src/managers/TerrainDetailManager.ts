@@ -19,8 +19,7 @@ import { TargetDummy } from "../objects/terrain-details/TargetDummy";
 import { PenBorder } from "../objects/terrain-details/PenBorder";
 import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
 import { MushroomDecorationsManager } from "./MushroomDecorationsManager";
-import { terrainDetailTextureSheet } from "../texture-sheets/TerrainDetailTextureSheet";
-import { getNormalizedDPR } from "../utils/dpr";
+import { terrainDetailTextureCache } from "../textures";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export class TerrainDetailManager {
@@ -187,9 +186,6 @@ export class TerrainDetailManager {
     endX: number,
     startY: number,
     endY: number,
-    renderSize: number,
-    dpr: number,
-    shadowCanvas: HTMLCanvasElement,
     isTree: boolean
   ) {
     for (const obj of this.detailObjects.values()) {
@@ -199,31 +195,8 @@ export class TerrainDetailManager {
       const objY = obj.getY();
 
       if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
-        const texture = terrainDetailTextureSheet.getShadowTexture(
-          obj.getTextureKey()
-        );
-
-        if (!texture) {
-          if (!(obj instanceof Label)) {
-            console.warn(`Missing shadow texture for key: ${obj.getTextureKey()}`);
-          }
-        } else {
-          const scale = obj.getSizeScale();
-          const scaledSize = renderSize * scale;
-          const offset = -UNIT_TO_PIXEL * scale;
-
-          ctx.drawImage(
-            shadowCanvas,
-            texture.x * dpr,
-            texture.y * dpr,
-            texture.width * dpr,
-            texture.height * dpr,
-            objX * UNIT_TO_PIXEL + offset,
-            objY * UNIT_TO_PIXEL + offset,
-            scaledSize,
-            scaledSize
-          );
-        }
+        const scale = obj.getSizeScale();
+        terrainDetailTextureCache.drawShadow(ctx, obj.getTextureKey(), objX, objY, scale);
       }
     }
   }
@@ -241,13 +214,9 @@ export class TerrainDetailManager {
     const startY = cameraY / UNIT_TO_PIXEL - padding;
     const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
-    const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
-    const renderSize = UNIT_TO_PIXEL * 2;
-    const dpr = getNormalizedDPR();
-
     ctx.imageSmoothingEnabled = false;
 
-    this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, false);
+    this.renderShadowPass(ctx, startX, endX, startY, endY, false);
   }
 
   private renderBodyPass(
@@ -256,9 +225,6 @@ export class TerrainDetailManager {
     endX: number,
     startY: number,
     endY: number,
-    renderSize: number,
-    dpr: number,
-    bodyCanvas: HTMLCanvasElement,
     isTree: boolean
   ) {
     for (const obj of this.detailObjects.values()) {
@@ -268,43 +234,19 @@ export class TerrainDetailManager {
       const objY = obj.getY();
 
       if (objX >= startX && objX <= endX && objY >= startY && objY <= endY) {
-        const texture = terrainDetailTextureSheet.getTexture(
-          obj.getTextureKey()
-        );
+        const scale = obj.getSizeScale();
+        const textureKey = obj.getTextureKey();
+        const texture = terrainDetailTextureCache.getTexture(textureKey);
 
         if (texture) {
-          const scale = obj.getSizeScale();
-          const scaledSize = renderSize * scale;
-          const offset = -UNIT_TO_PIXEL * scale;
-
-          ctx.drawImage(
-            bodyCanvas,
-            texture.x * dpr,
-            texture.y * dpr,
-            texture.width * dpr,
-            texture.height * dpr,
-            objX * UNIT_TO_PIXEL + offset,
-            objY * UNIT_TO_PIXEL + offset,
-            scaledSize,
-            scaledSize
-          );
+          terrainDetailTextureCache.drawBody(ctx, textureKey, objX, objY, scale);
 
           if (obj.getFlashTimer() > 0) {
             const flashAlpha = obj.getFlashTimer() / 0.1;
             ctx.save();
             ctx.globalCompositeOperation = "lighter";
             ctx.globalAlpha = flashAlpha;
-            ctx.drawImage(
-              bodyCanvas,
-              texture.x * dpr,
-              texture.y * dpr,
-              texture.width * dpr,
-              texture.height * dpr,
-              objX * UNIT_TO_PIXEL + offset,
-              objY * UNIT_TO_PIXEL + offset,
-              scaledSize,
-              scaledSize
-            );
+            terrainDetailTextureCache.drawBody(ctx, textureKey, objX, objY, scale);
             ctx.restore();
           }
         } else {
@@ -329,16 +271,11 @@ export class TerrainDetailManager {
     const startY = cameraY / UNIT_TO_PIXEL - padding;
     const endY = (cameraY + canvasHeight) / UNIT_TO_PIXEL + padding;
 
-    const bodyCanvas = terrainDetailTextureSheet.getCanvas();
-    const shadowCanvas = terrainDetailTextureSheet.getShadowCanvas();
-    const renderSize = UNIT_TO_PIXEL * 2;
-    const dpr = getNormalizedDPR();
-
     ctx.imageSmoothingEnabled = false;
 
-    this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, false);
-    this.renderShadowPass(ctx, startX, endX, startY, endY, renderSize, dpr, shadowCanvas, true);
-    this.renderBodyPass(ctx, startX, endX, startY, endY, renderSize, dpr, bodyCanvas, true);
+    this.renderBodyPass(ctx, startX, endX, startY, endY, false);
+    this.renderShadowPass(ctx, startX, endX, startY, endY, true);
+    this.renderBodyPass(ctx, startX, endX, startY, endY, true);
   }
 
   public drawParticles(

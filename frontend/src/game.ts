@@ -10,9 +10,13 @@ import { UNIT_TO_PIXEL } from "./constants";
 import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
 import { Profiler } from "./utils/Profiler";
+import { initializeAllTextures } from "./textures";
 
 const CAMERA_FOLLOW_SPEED = 15;
 const CAMERA_TELEPORT_THRESHOLD = 50;
+
+let texturesInitialized = false;
+let textureInitPromise: Promise<void> | null = null;
 
 export class Game {
   private canvas: HTMLCanvasElement;
@@ -263,7 +267,23 @@ export class Game {
   public start() {
     if (!this.animationFrameId) {
       this.lastFrameTime = 0;
-      this.update();
+      
+      if (texturesInitialized) {
+        this.update();
+      } else if (!textureInitPromise) {
+        textureInitPromise = initializeAllTextures().then(() => {
+          texturesInitialized = true;
+          if (!this.animationFrameId) {
+            this.update();
+          }
+        });
+      } else {
+        textureInitPromise.then(() => {
+          if (!this.animationFrameId) {
+            this.update();
+          }
+        });
+      }
     }
   }
 

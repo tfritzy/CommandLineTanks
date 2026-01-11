@@ -1,4 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
+import type { ProjectileTextureCache } from "../../textures/ProjectileTextureCache";
+import type { ProjectileImpactParticlesManager } from "../../managers/ProjectileImpactParticlesManager";
 
 export abstract class Projectile {
   public static readonly SHADOW_OFFSET = 4;
@@ -40,16 +42,16 @@ export abstract class Projectile {
     this.trackingRadius = trackingRadius || 0;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, textureSheet: any) {
-    this.drawShadow(ctx, textureSheet);
-    this.drawBody(ctx, textureSheet);
+  public draw(ctx: CanvasRenderingContext2D, textureCache: ProjectileTextureCache) {
+    this.drawShadow(ctx, textureCache);
+    this.drawBody(ctx, textureCache);
   }
 
-  public drawShadow(_ctx: CanvasRenderingContext2D, _textureSheet: any) {}
+  public drawShadow(_ctx: CanvasRenderingContext2D, _textureCache: ProjectileTextureCache) {}
 
   public abstract drawBody(
     ctx: CanvasRenderingContext2D,
-    textureSheet: any
+    textureCache: ProjectileTextureCache
   ): void;
 
   public setPosition(x: number, y: number) {
@@ -112,7 +114,6 @@ export abstract class Projectile {
     return false;
   }
 
-  public spawnDeathParticles(_particlesManager: any): void {
-    // Default implementation - override in subclasses for custom behavior
+  public spawnDeathParticles(_particlesManager: ProjectileImpactParticlesManager): void {
   }
 }
