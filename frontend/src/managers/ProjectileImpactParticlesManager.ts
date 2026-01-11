@@ -79,9 +79,8 @@ export class ProjectileImpactParticlesManager {
         if (px + pSize < paddedLeft || px - pSize > paddedRight || 
             py + pSize < paddedTop || py - pSize > paddedBottom) continue;
 
-        const alpha = 1 - p.lifetime / p.maxLifetime;
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "#FF00FF";
         ctx.beginPath();
         ctx.arc(px, py, pSize, 0, TWO_PI);
         ctx.fill();
