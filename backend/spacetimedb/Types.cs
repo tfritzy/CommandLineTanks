@@ -43,7 +43,8 @@ public static partial class Types
         Ground,
         Farm,
         BlackChecker,
-        WhiteChecker
+        WhiteChecker,
+        Water
     }
 
     [Type]

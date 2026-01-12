@@ -2,6 +2,7 @@ import { type Infer } from "spacetimedb";
 import { BaseTerrain } from "../../../module_bindings";
 import { UNIT_TO_PIXEL } from "../../constants";
 import { COLORS } from "../../theme/colors";
+import { waterTextureCache } from "../../textures";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
@@ -157,4 +158,51 @@ export function drawBaseTerrain(
     ctx.lineTo(rightX, worldY);
   }
   ctx.stroke();
+
+  drawWaterDualGrid(
+    ctx,
+    baseTerrainLayer,
+    worldWidth,
+    worldHeight,
+    startTileX,
+    endTileX,
+    startTileY,
+    endTileY
+  );
+}
+
+function drawWaterDualGrid(
+  ctx: CanvasRenderingContext2D,
+  baseTerrainLayer: BaseTerrainType[],
+  worldWidth: number,
+  worldHeight: number,
+  startTileX: number,
+  endTileX: number,
+  startTileY: number,
+  endTileY: number
+) {
+  const halfTile = UNIT_TO_PIXEL / 2;
+  const dualStartX = startTileX - 1;
+  const dualEndX = endTileX;
+  const dualStartY = startTileY - 1;
+  const dualEndY = endTileY;
+
+  for (let dualY = dualStartY; dualY <= dualEndY; dualY++) {
+    for (let dualX = dualStartX; dualX <= dualEndX; dualX++) {
+      const tileIndex = waterTextureCache.computeTileIndex(
+        baseTerrainLayer,
+        worldWidth,
+        worldHeight,
+        dualX,
+        dualY
+      );
+
+      if (tileIndex === 0) continue;
+
+      const screenX = dualX * UNIT_TO_PIXEL + halfTile;
+      const screenY = dualY * UNIT_TO_PIXEL + halfTile;
+
+      waterTextureCache.draw(ctx, tileIndex, screenX, screenY);
+    }
+  }
 }
