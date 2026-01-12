@@ -66,78 +66,107 @@ class WaterTextureCache {
     if (count === 1) {
       ctx.beginPath();
       if (tl) {
-        ctx.moveTo(half, half);
+        ctx.moveTo(0, 0);
         ctx.lineTo(half, 0);
         ctx.arc(0, 0, half, 0, Math.PI / 2, false);
-        ctx.lineTo(half, half);
+        ctx.closePath();
       } else if (tr) {
-        ctx.moveTo(half, half);
+        ctx.moveTo(size, 0);
         ctx.lineTo(size, half);
         ctx.arc(size, 0, half, Math.PI / 2, Math.PI, false);
-        ctx.lineTo(half, half);
+        ctx.closePath();
       } else if (bl) {
-        ctx.moveTo(half, half);
+        ctx.moveTo(0, size);
         ctx.lineTo(0, half);
         ctx.arc(0, size, half, -Math.PI / 2, 0, false);
-        ctx.lineTo(half, half);
+        ctx.closePath();
       } else if (br) {
-        ctx.moveTo(half, half);
+        ctx.moveTo(size, size);
         ctx.lineTo(half, size);
-        ctx.arc(size, size, half, Math.PI, -Math.PI / 2, false);
-        ctx.lineTo(half, half);
+        ctx.arc(size, size, half, Math.PI, Math.PI * 1.5, false);
+        ctx.closePath();
       }
-      ctx.closePath();
       ctx.fill();
       return;
     }
 
-    if (tl) {
-      ctx.beginPath();
-      ctx.rect(0, 0, half, half);
-      ctx.fill();
-    }
-
-    if (tr) {
-      ctx.beginPath();
-      ctx.rect(half, 0, half, half);
-      ctx.fill();
-    }
-
-    if (bl) {
-      ctx.beginPath();
-      ctx.rect(0, half, half, half);
-      ctx.fill();
-    }
-
-    if (br) {
-      ctx.beginPath();
-      ctx.rect(half, half, half, half);
-      ctx.fill();
+    if (count === 2) {
+      if (tl && tr) {
+        ctx.beginPath();
+        ctx.rect(0, 0, size, half);
+        ctx.fill();
+      } else if (bl && br) {
+        ctx.beginPath();
+        ctx.rect(0, half, size, half);
+        ctx.fill();
+      } else if (tl && bl) {
+        ctx.beginPath();
+        ctx.rect(0, 0, half, size);
+        ctx.fill();
+      } else if (tr && br) {
+        ctx.beginPath();
+        ctx.rect(half, 0, half, size);
+        ctx.fill();
+      } else if (tl && br) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(half, 0);
+        ctx.arc(0, 0, half, 0, Math.PI / 2, false);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(size, size);
+        ctx.lineTo(half, size);
+        ctx.arc(size, size, half, Math.PI, Math.PI * 1.5, false);
+        ctx.closePath();
+        ctx.fill();
+      } else if (tr && bl) {
+        ctx.beginPath();
+        ctx.moveTo(size, 0);
+        ctx.lineTo(size, half);
+        ctx.arc(size, 0, half, Math.PI / 2, Math.PI, false);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(0, size);
+        ctx.lineTo(0, half);
+        ctx.arc(0, size, half, -Math.PI / 2, 0, false);
+        ctx.closePath();
+        ctx.fill();
+      }
+      return;
     }
 
     if (count === 3) {
       ctx.beginPath();
-      if (!tl && tr && bl && br) {
+      if (!tl) {
         ctx.moveTo(half, 0);
-        ctx.arc(0, 0, half, 0, Math.PI / 2, false);
-        ctx.lineTo(half, half);
-        ctx.closePath();
-      } else if (tl && !tr && bl && br) {
-        ctx.moveTo(size, half);
-        ctx.arc(size, 0, half, Math.PI / 2, Math.PI, false);
-        ctx.lineTo(half, half);
-        ctx.closePath();
-      } else if (tl && tr && !bl && br) {
-        ctx.moveTo(0, half);
-        ctx.arc(0, size, half, -Math.PI / 2, 0, false);
-        ctx.lineTo(half, half);
-        ctx.closePath();
-      } else if (tl && tr && bl && !br) {
-        ctx.moveTo(half, size);
-        ctx.arc(size, size, half, Math.PI, -Math.PI / 2, false);
-        ctx.lineTo(half, half);
-        ctx.closePath();
+        ctx.lineTo(size, 0);
+        ctx.lineTo(size, size);
+        ctx.lineTo(0, size);
+        ctx.lineTo(0, half);
+        ctx.arc(0, 0, half, Math.PI / 2, 0, true);
+      } else if (!tr) {
+        ctx.moveTo(0, 0);
+        ctx.lineTo(half, 0);
+        ctx.arc(size, 0, half, Math.PI, Math.PI / 2, true);
+        ctx.lineTo(size, size);
+        ctx.lineTo(0, size);
+      } else if (!bl) {
+        ctx.moveTo(0, 0);
+        ctx.lineTo(size, 0);
+        ctx.lineTo(size, size);
+        ctx.lineTo(half, size);
+        ctx.arc(0, size, half, 0, -Math.PI / 2, true);
+        ctx.lineTo(0, 0);
+      } else if (!br) {
+        ctx.moveTo(0, 0);
+        ctx.lineTo(size, 0);
+        ctx.lineTo(size, half);
+        ctx.arc(size, size, half, -Math.PI / 2, Math.PI, true);
+        ctx.lineTo(0, size);
       }
+      ctx.closePath();
       ctx.fill();
     }
   }

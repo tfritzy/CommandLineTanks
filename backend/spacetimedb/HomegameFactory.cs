@@ -394,16 +394,29 @@ public static partial class Module
     {
         int centerX = worldWidth / 2;
         int centerY = worldHeight / 2;
-        int lakeWidth = 5;
-        int lakeHeight = 3;
-        int startX = centerX - lakeWidth / 2;
-        int startY = centerY - lakeHeight / 2;
 
-        for (int y = startY; y < startY + lakeHeight; y++)
+        int[,] pattern = new int[,]
         {
-            for (int x = startX; x < startX + lakeWidth; x++)
+            { 0, 0, 1, 0, 0 },
+            { 0, 1, 1, 1, 0 },
+            { 1, 1, 1, 1, 1 },
+            { 0, 1, 1, 1, 0 },
+            { 0, 0, 1, 0, 0 },
+            { 0, 1, 0, 1, 0 }
+        };
+
+        int patternHeight = pattern.GetLength(0);
+        int patternWidth = pattern.GetLength(1);
+        int startX = centerX - patternWidth / 2;
+        int startY = centerY - patternHeight / 2;
+
+        for (int py = 0; py < patternHeight; py++)
+        {
+            for (int px = 0; px < patternWidth; px++)
             {
-                if (x >= 0 && x < worldWidth && y >= 0 && y < worldHeight)
+                int x = startX + px;
+                int y = startY + py;
+                if (x >= 0 && x < worldWidth && y >= 0 && y < worldHeight && pattern[py, px] == 1)
                 {
                     int index = y * worldWidth + x;
                     baseTerrain[index] = BaseTerrain.Water;
