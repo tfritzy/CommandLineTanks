@@ -50,41 +50,96 @@ class WaterTextureCache {
 
     ctx.fillStyle = COLORS.TERRAIN.WATER_DEEP;
 
-    ctx.beginPath();
-    ctx.moveTo(half, half);
+    const count = (tl ? 1 : 0) + (tr ? 1 : 0) + (bl ? 1 : 0) + (br ? 1 : 0);
+
+    if (count === 4) {
+      ctx.beginPath();
+      ctx.rect(0, 0, size, size);
+      ctx.fill();
+      return;
+    }
+
+    if (count === 0) {
+      return;
+    }
+
+    if (count === 1) {
+      ctx.beginPath();
+      if (tl) {
+        ctx.moveTo(half, half);
+        ctx.lineTo(half, 0);
+        ctx.arc(0, 0, half, 0, Math.PI / 2, false);
+        ctx.lineTo(half, half);
+      } else if (tr) {
+        ctx.moveTo(half, half);
+        ctx.lineTo(size, half);
+        ctx.arc(size, 0, half, Math.PI / 2, Math.PI, false);
+        ctx.lineTo(half, half);
+      } else if (bl) {
+        ctx.moveTo(half, half);
+        ctx.lineTo(0, half);
+        ctx.arc(0, size, half, -Math.PI / 2, 0, false);
+        ctx.lineTo(half, half);
+      } else if (br) {
+        ctx.moveTo(half, half);
+        ctx.lineTo(half, size);
+        ctx.arc(size, size, half, Math.PI, -Math.PI / 2, false);
+        ctx.lineTo(half, half);
+      }
+      ctx.closePath();
+      ctx.fill();
+      return;
+    }
 
     if (tl) {
-      ctx.lineTo(0, half);
-      ctx.lineTo(0, 0);
-      ctx.lineTo(half, 0);
-    } else {
-      ctx.lineTo(0, half);
-      ctx.arcTo(0, 0, half, 0, half);
+      ctx.beginPath();
+      ctx.rect(0, 0, half, half);
+      ctx.fill();
     }
 
     if (tr) {
-      ctx.lineTo(size, 0);
-      ctx.lineTo(size, half);
-    } else {
-      ctx.arcTo(size, 0, size, half, half);
-    }
-
-    if (br) {
-      ctx.lineTo(size, size);
-      ctx.lineTo(half, size);
-    } else {
-      ctx.arcTo(size, size, half, size, half);
+      ctx.beginPath();
+      ctx.rect(half, 0, half, half);
+      ctx.fill();
     }
 
     if (bl) {
-      ctx.lineTo(0, size);
-      ctx.lineTo(0, half);
-    } else {
-      ctx.arcTo(0, size, 0, half, half);
+      ctx.beginPath();
+      ctx.rect(0, half, half, half);
+      ctx.fill();
     }
 
-    ctx.closePath();
-    ctx.fill();
+    if (br) {
+      ctx.beginPath();
+      ctx.rect(half, half, half, half);
+      ctx.fill();
+    }
+
+    if (count === 3) {
+      ctx.beginPath();
+      if (!tl && tr && bl && br) {
+        ctx.moveTo(half, 0);
+        ctx.arc(0, 0, half, 0, Math.PI / 2, false);
+        ctx.lineTo(half, half);
+        ctx.closePath();
+      } else if (tl && !tr && bl && br) {
+        ctx.moveTo(size, half);
+        ctx.arc(size, 0, half, Math.PI / 2, Math.PI, false);
+        ctx.lineTo(half, half);
+        ctx.closePath();
+      } else if (tl && tr && !bl && br) {
+        ctx.moveTo(0, half);
+        ctx.arc(0, size, half, -Math.PI / 2, 0, false);
+        ctx.lineTo(half, half);
+        ctx.closePath();
+      } else if (tl && tr && bl && !br) {
+        ctx.moveTo(half, size);
+        ctx.arc(size, size, half, Math.PI, -Math.PI / 2, false);
+        ctx.lineTo(half, half);
+        ctx.closePath();
+      }
+      ctx.fill();
+    }
   }
 
   public getTexture(index: number): TextureImage | null {

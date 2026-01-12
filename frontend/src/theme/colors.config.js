@@ -27,9 +27,6 @@ export const PALETTE = {
   GREEN_HEALTH: "#6ec077",
   GREEN_LIME: "#d5f893",
 
-  TEAL_DARK: "#2c5049",
-  TEAL_MEDIUM: "#3c6c54",
-
   YELLOW_BRIGHT: "#fceba8",
   YELLOW_MEDIUM: "#f5c47c",
 

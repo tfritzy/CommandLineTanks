@@ -26,6 +26,7 @@ public static partial class Module
         CreateAimingDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
         CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
         CreateEmptyDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
+        CreateTestLake(worldWidth, worldHeight, baseTerrain, traversibilityMap);
 
         var game = new Game
         {
@@ -384,6 +385,29 @@ public static partial class Module
                     int index = y * worldWidth + x;
                     bool isBlack = (x + y) % 2 == 0;
                     baseTerrain[index] = isBlack ? BaseTerrain.BlackChecker : BaseTerrain.WhiteChecker;
+                }
+            }
+        }
+    }
+
+    private static void CreateTestLake(int worldWidth, int worldHeight, BaseTerrain[] baseTerrain, bool[] traversibilityMap)
+    {
+        int centerX = worldWidth / 2;
+        int centerY = worldHeight / 2;
+        int lakeWidth = 5;
+        int lakeHeight = 3;
+        int startX = centerX - lakeWidth / 2;
+        int startY = centerY - lakeHeight / 2;
+
+        for (int y = startY; y < startY + lakeHeight; y++)
+        {
+            for (int x = startX; x < startX + lakeWidth; x++)
+            {
+                if (x >= 0 && x < worldWidth && y >= 0 && y < worldHeight)
+                {
+                    int index = y * worldWidth + x;
+                    baseTerrain[index] = BaseTerrain.Water;
+                    traversibilityMap[index] = false;
                 }
             }
         }

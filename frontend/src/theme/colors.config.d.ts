@@ -22,8 +22,6 @@ export declare const PALETTE: {
   readonly GREEN_SUCCESS: string;
   readonly GREEN_HEALTH: string;
   readonly GREEN_LIME: string;
-  readonly TEAL_DARK: string;
-  readonly TEAL_MEDIUM: string;
   readonly YELLOW_BRIGHT: string;
   readonly YELLOW_MEDIUM: string;
   readonly ORANGE_MEDIUM: string;
