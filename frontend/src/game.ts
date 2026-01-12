@@ -12,9 +12,6 @@ import { FpsCounter } from "./utils/FpsCounter";
 import { Profiler } from "./utils/Profiler";
 import { initializeAllTextures } from "./textures";
 
-const CAMERA_FOLLOW_SPEED = 15;
-const CAMERA_TELEPORT_THRESHOLD = 50;
-
 let texturesInitialized = false;
 let textureInitPromise: Promise<void> | null = null;
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Module;
+using System.Diagnostics;
 
 public static partial class BehaviorTreeAI
 {
@@ -22,6 +23,7 @@ public static partial class BehaviorTreeAI
     [Reducer]
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
+        var stopwatch = new LogStopwatch("update ai");
         var aiContext = new AIContext(ctx, args.GameId);
         var aiTanks = ctx.Db.tank.GameId_IsBot.Filter((args.GameId, true)).ToList();
 
@@ -29,7 +31,7 @@ public static partial class BehaviorTreeAI
         {
             var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
             if (transformQuery == null) continue;
-            
+
             var transform = transformQuery.Value;
             var fullTank = new FullTank(tank, transform);
 
@@ -79,5 +81,7 @@ public static partial class BehaviorTreeAI
 
         var updatedArgs = args with { TickCount = args.TickCount + 1 };
         ctx.Db.ScheduledAIUpdate.ScheduledId.Update(updatedArgs);
+
+        stopwatch.End();
     }
 }

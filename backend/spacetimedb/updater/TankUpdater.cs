@@ -1,6 +1,7 @@
 using SpacetimeDB;
 using static Types;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public static partial class TankUpdater
 {
@@ -104,7 +105,7 @@ public static partial class TankUpdater
     [Reducer]
     public static void UpdateTanks(ReducerContext ctx, ScheduledTankUpdates args)
     {
-        Log.Info("Tank update start");
+        var stopwatch = new LogStopwatch("Tank update");
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
@@ -355,6 +356,6 @@ public static partial class TankUpdater
             }
         }
 
-        Log.Info("Tank update end");
+        stopwatch.End();
     }
 }

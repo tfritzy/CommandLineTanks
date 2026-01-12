@@ -598,7 +598,7 @@ public static partial class ProjectileUpdater
     [Reducer]
     public static void UpdateProjectiles(ReducerContext ctx, ScheduledProjectileUpdates args)
     {
-        Log.Info("Projectile update start");
+        var stopwatch = new LogStopwatch("update projectiles");
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
@@ -699,6 +699,6 @@ public static partial class ProjectileUpdater
             ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
         }
 
-        Log.Info("Projectile update end");
+        stopwatch.End();
     }
 }

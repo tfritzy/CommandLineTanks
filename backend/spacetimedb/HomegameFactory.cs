@@ -26,7 +26,6 @@ public static partial class Module
         CreateAimingDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
         CreateMovementDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
         CreateEmptyDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
-        CreateTestLake(worldWidth, worldHeight, baseTerrain, traversibilityMap);
 
         var game = new Game
         {
@@ -383,42 +382,6 @@ public static partial class Module
                     int index = y * worldWidth + x;
                     bool isBlack = (x + y) % 2 == 0;
                     baseTerrain[index] = isBlack ? BaseTerrain.BlackChecker : BaseTerrain.WhiteChecker;
-                }
-            }
-        }
-    }
-
-    private static void CreateTestLake(int worldWidth, int worldHeight, BaseTerrain[] baseTerrain, bool[] traversibilityMap)
-    {
-        int centerX = worldWidth / 2;
-        int centerY = worldHeight / 2;
-
-        int[,] pattern = new int[,]
-        {
-            { 0, 0, 1, 0, 0 },
-            { 0, 1, 1, 1, 0 },
-            { 1, 1, 1, 1, 1 },
-            { 0, 1, 1, 1, 0 },
-            { 0, 0, 1, 0, 0 },
-            { 0, 1, 0, 1, 0 }
-        };
-
-        int patternHeight = pattern.GetLength(0);
-        int patternWidth = pattern.GetLength(1);
-        int startX = centerX - patternWidth / 2;
-        int startY = centerY - patternHeight / 2;
-
-        for (int py = 0; py < patternHeight; py++)
-        {
-            for (int px = 0; px < patternWidth; px++)
-            {
-                int x = startX + px;
-                int y = startY + py;
-                if (x >= 0 && x < worldWidth && y >= 0 && y < worldHeight && pattern[py, px] == 1)
-                {
-                    int index = y * worldWidth + x;
-                    baseTerrain[index] = BaseTerrain.Water;
-                    traversibilityMap[index] = false;
                 }
             }
         }
