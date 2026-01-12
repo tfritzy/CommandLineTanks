@@ -5,6 +5,8 @@ using static Module;
 
 public static partial class ProjectileUpdater
 {
+    private const int INITIAL_HIT_BUFFER_SIZE = 8;
+
     public class ProjectileUpdateContext
     {
         private ReducerContext _ctx;
@@ -582,7 +584,7 @@ public static partial class ProjectileUpdater
             }
         }
 
-        var newHits = new DamagedTank[8];
+        var newHits = new DamagedTank[INITIAL_HIT_BUFFER_SIZE];
         int newHitCount = 0;
 
         for (int regionX = minRegionX; regionX <= maxRegionX; regionX++)
