@@ -1,7 +1,6 @@
 using SpacetimeDB;
 using static Types;
 using System;
-using System.Linq;
 using static Module;
 
 public static partial class TurretAI
@@ -49,24 +48,38 @@ public static partial class TurretAI
         int turretTileY = (int)fullTank.PositionY / TILE_SIZE;
 
         var allTanks = aiContext.GetAllTanks();
-        var tanksInTile = allTanks
-            .Where(t => t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
-            .Where(t => {
-                int tankTileX = (int)t.PositionX / TILE_SIZE;
-                int tankTileY = (int)t.PositionY / TILE_SIZE;
-                return tankTileX == turretTileX && tankTileY == turretTileY;
-            })
-            .ToList();
+        int tanksInTileCount = 0;
+        FullTank? selectedTarget = null;
+        var rng = aiContext.GetRandom();
+        
+        foreach (var t in allTanks)
+        {
+            if (t.Id == fullTank.Id || t.Health <= 0 || t.Alliance == fullTank.Alliance)
+            {
+                continue;
+            }
+            
+            int tankTileX = (int)t.PositionX / TILE_SIZE;
+            int tankTileY = (int)t.PositionY / TILE_SIZE;
+            
+            if (tankTileX == turretTileX && tankTileY == turretTileY)
+            {
+                tanksInTileCount++;
+                if (rng.Next(tanksInTileCount) == 0)
+                {
+                    selectedTarget = t;
+                }
+            }
+        }
 
         Tank updatedTank = tank;
 
-        if (tanksInTile.Count > 0)
+        if (selectedTarget != null)
         {
-            var targetFullTank = tanksInTile[aiContext.GetRandom().Next(tanksInTile.Count)];
-            updatedTank = TargetTankByCode(ctx, tank, targetFullTank.TargetCode);
+            updatedTank = TargetTankByCode(ctx, tank, selectedTarget.Value.TargetCode);
             updatedTank = updatedTank with
             {
-                Message = $"target {targetFullTank.TargetCode}"
+                Message = $"target {selectedTarget.Value.TargetCode}"
             };
         }
         else

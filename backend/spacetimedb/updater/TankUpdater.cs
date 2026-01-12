@@ -9,54 +9,93 @@ public static partial class TankUpdater
 
     public class TankUpdateContext
     {
-        private readonly ReducerContext _ctx;
-        private readonly string _gameId;
-        private Dictionary<string, (Module.Tank, Module.TankTransform)?>? _fullTanksById;
-        private Dictionary<(int, int), List<Module.Pickup>>? _pickupsByTile;
-        private Dictionary<(int, int), List<Module.TerrainDetail>>? _terrainDetailsByTile;
+        private ReducerContext _ctx;
+        private string _gameId;
+        private Dictionary<string, (Module.Tank, Module.TankTransform)?> _fullTanksById;
+        private Dictionary<(int, int), List<Module.Pickup>> _pickupsByTile;
+        private Dictionary<(int, int), List<Module.TerrainDetail>> _terrainDetailsByTile;
+        private List<List<Module.Pickup>> _pickupListPool;
+        private List<List<Module.TerrainDetail>> _terrainDetailListPool;
 
         public TankUpdateContext(ReducerContext ctx, string gameId)
         {
             _ctx = ctx;
             _gameId = gameId;
+            _fullTanksById = new Dictionary<string, (Module.Tank, Module.TankTransform)?>();
+            _pickupsByTile = new Dictionary<(int, int), List<Module.Pickup>>();
+            _terrainDetailsByTile = new Dictionary<(int, int), List<Module.TerrainDetail>>();
+            _pickupListPool = new List<List<Module.Pickup>>();
+            _terrainDetailListPool = new List<List<Module.TerrainDetail>>();
+        }
+
+        public void Reset(ReducerContext ctx, string gameId)
+        {
+            _ctx = ctx;
+            _gameId = gameId;
+            _fullTanksById.Clear();
+            foreach (var kvp in _pickupsByTile)
+            {
+                kvp.Value.Clear();
+                _pickupListPool.Add(kvp.Value);
+            }
+            _pickupsByTile.Clear();
+            foreach (var kvp in _terrainDetailsByTile)
+            {
+                kvp.Value.Clear();
+                _terrainDetailListPool.Add(kvp.Value);
+            }
+            _terrainDetailsByTile.Clear();
+        }
+
+        private List<Module.Pickup> GetPooledPickupList()
+        {
+            if (_pickupListPool.Count > 0)
+            {
+                var list = _pickupListPool[_pickupListPool.Count - 1];
+                _pickupListPool.RemoveAt(_pickupListPool.Count - 1);
+                return list;
+            }
+            return new List<Module.Pickup>();
+        }
+
+        private List<Module.TerrainDetail> GetPooledTerrainDetailList()
+        {
+            if (_terrainDetailListPool.Count > 0)
+            {
+                var list = _terrainDetailListPool[_terrainDetailListPool.Count - 1];
+                _terrainDetailListPool.RemoveAt(_terrainDetailListPool.Count - 1);
+                return list;
+            }
+            return new List<Module.TerrainDetail>();
         }
 
         public (Module.Tank, Module.TankTransform)? GetFullTankById(string tankId)
         {
-            if (_fullTanksById == null)
-            {
-                _fullTanksById = new Dictionary<string, (Module.Tank, Module.TankTransform)?>();
-            }
-
-            if (!_fullTanksById.ContainsKey(tankId))
+            if (!_fullTanksById.TryGetValue(tankId, out var result))
             {
                 var tank = _ctx.Db.tank.Id.Find(tankId);
                 var transform = _ctx.Db.tank_transform.TankId.Find(tankId);
 
                 if (tank != null && transform != null)
                 {
-                    _fullTanksById[tankId] = (tank.Value, transform.Value);
+                    result = (tank.Value, transform.Value);
                 }
                 else
                 {
-                    _fullTanksById[tankId] = null;
+                    result = null;
                 }
+                _fullTanksById[tankId] = result;
             }
 
-            return _fullTanksById[tankId];
+            return result;
         }
 
         public List<Module.Pickup> GetPickupsByTile(int tileX, int tileY)
         {
-            if (_pickupsByTile == null)
-            {
-                _pickupsByTile = new Dictionary<(int, int), List<Module.Pickup>>();
-            }
-
             var key = (tileX, tileY);
-            if (!_pickupsByTile.ContainsKey(key))
+            if (!_pickupsByTile.TryGetValue(key, out var pickups))
             {
-                var pickups = new List<Module.Pickup>();
+                pickups = GetPooledPickupList();
                 foreach (var pickup in _ctx.Db.pickup.GameId_GridX_GridY.Filter((_gameId, tileX, tileY)))
                 {
                     pickups.Add(pickup);
@@ -64,20 +103,15 @@ public static partial class TankUpdater
                 _pickupsByTile[key] = pickups;
             }
 
-            return _pickupsByTile[key];
+            return pickups;
         }
 
         public List<Module.TerrainDetail> GetTerrainDetailsByTile(int tileX, int tileY)
         {
-            if (_terrainDetailsByTile == null)
-            {
-                _terrainDetailsByTile = new Dictionary<(int, int), List<Module.TerrainDetail>>();
-            }
-
             var key = (tileX, tileY);
-            if (!_terrainDetailsByTile.ContainsKey(key))
+            if (!_terrainDetailsByTile.TryGetValue(key, out var details))
             {
-                var details = new List<Module.TerrainDetail>();
+                details = GetPooledTerrainDetailList();
                 foreach (var detail in _ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((_gameId, tileX, tileY)))
                 {
                     details.Add(detail);
@@ -85,7 +119,7 @@ public static partial class TankUpdater
                 _terrainDetailsByTile[key] = details;
             }
 
-            return _terrainDetailsByTile[key];
+            return details;
         }
     }
 
@@ -118,7 +152,7 @@ public static partial class TankUpdater
             TickCount = newTickCount
         });
 
-        var updateContext = new TankUpdateContext(ctx, args.GameId);
+        var updateContext = ContextPools.GetTankContext(ctx, args.GameId);
 
         foreach (var iTank in ctx.Db.tank.GameId.Filter(args.GameId))
         {

@@ -150,6 +150,8 @@ public static partial class Module
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
         }
 
+        ContextPools.RemoveGameContexts(gameId);
+
         var worldToDelete = ctx.Db.game.Id.Find(gameId);
         if (worldToDelete != null)
         {
