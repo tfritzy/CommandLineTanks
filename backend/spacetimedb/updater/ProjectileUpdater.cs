@@ -4,6 +4,8 @@ using static Module;
 
 public static partial class ProjectileUpdater
 {
+    private const int MAX_TANKS_PER_COLLISION_REGION = 8;
+
     [Table(Scheduled = nameof(UpdateProjectiles))]
     public partial struct ScheduledProjectileUpdates
     {
@@ -435,7 +437,7 @@ public static partial class ProjectileUpdater
 
         int regionWidth = maxRegionX - minRegionX + 1;
         int regionHeight = maxRegionY - minRegionY + 1;
-        int maxNewHits = regionWidth * regionHeight * 4;
+        int maxNewHits = regionWidth * regionHeight * MAX_TANKS_PER_COLLISION_REGION;
         int maxTotalSize = validCount + maxNewHits;
         var tempHits = new DamagedTank[maxTotalSize];
         int hitCount = 0;
@@ -501,14 +503,11 @@ public static partial class ProjectileUpdater
                                     Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId);
                                 }
 
-                                if (hitCount < tempHits.Length)
+                                tempHits[hitCount++] = new DamagedTank
                                 {
-                                    tempHits[hitCount++] = new DamagedTank
-                                    {
-                                        TankId = tank.Id,
-                                        DamagedAt = currentTime
-                                    };
-                                }
+                                    TankId = tank.Id,
+                                    DamagedAt = currentTime
+                                };
 
                                 bool shouldDelete;
                                 (shouldDelete, transform) = Module.IncrementProjectileCollision(ctx, projectile, transform);
