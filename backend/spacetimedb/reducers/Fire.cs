@@ -79,11 +79,19 @@ public static partial class Module
         if (gun.Ammo != null)
         {
             gun.Ammo = gun.Ammo.Value - 1;
-            var updatedGuns = tank.Guns.ToArray();
 
             if (gun.Ammo <= 0)
             {
-                tank.Guns = tank.Guns.Where((_, index) => index != tank.SelectedGunIndex).ToArray();
+                var newGuns = new Types.Gun[tank.Guns.Length - 1];
+                int newIndex = 0;
+                for (int i = 0; i < tank.Guns.Length; i++)
+                {
+                    if (i != tank.SelectedGunIndex)
+                    {
+                        newGuns[newIndex++] = tank.Guns[i];
+                    }
+                }
+                tank.Guns = newGuns;
                 if (tank.Guns.Length > 0)
                 {
                     int firstNonBaseGunIndex = -1;
@@ -104,6 +112,8 @@ public static partial class Module
             }
             else
             {
+                var updatedGuns = new Types.Gun[tank.Guns.Length];
+                Array.Copy(tank.Guns, updatedGuns, tank.Guns.Length);
                 updatedGuns[tank.SelectedGunIndex] = gun;
                 tank.Guns = updatedGuns;
             }

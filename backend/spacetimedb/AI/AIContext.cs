@@ -1,7 +1,6 @@
 using SpacetimeDB;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using static Module;
 
 public class AIContext
@@ -46,7 +45,11 @@ public class AIContext
     {
         if (_allPickups == null)
         {
-            _allPickups = _ctx.Db.pickup.GameId.Filter(_gameId).ToList();
+            _allPickups = new List<Pickup>();
+            foreach (var pickup in _ctx.Db.pickup.GameId.Filter(_gameId))
+            {
+                _allPickups.Add(pickup);
+            }
         }
         return _allPickups;
     }

@@ -2,7 +2,6 @@ using SpacetimeDB;
 using static Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using static Module;
 
 public static partial class BehaviorTreeAI
@@ -23,9 +22,8 @@ public static partial class BehaviorTreeAI
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
         var aiContext = new AIContext(ctx, args.GameId);
-        var aiTanks = ctx.Db.tank.GameId_IsBot.Filter((args.GameId, true)).ToList();
 
-        foreach (var tank in aiTanks)
+        foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((args.GameId, true)))
         {
             var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
             if (transformQuery == null) continue;

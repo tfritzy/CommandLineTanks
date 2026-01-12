@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using SpacetimeDB;
 using static Types;
 
@@ -374,7 +373,11 @@ public static class GameAILogic
         int currentY = GetGridPosition(tank.PositionY);
 
         var floatPath = AStarPathfinding.FindPath(currentX, currentY, targetX, targetY, traversibilityMap.Value);
-        var path = floatPath.Select(p => ((int)p.x, (int)p.y)).ToList();
+        var path = new List<(int x, int y)>(floatPath.Count);
+        for (int i = 0; i < floatPath.Count; i++)
+        {
+            path.Add(((int)floatPath[i].x, (int)floatPath[i].y));
+        }
 
         return path;
     }

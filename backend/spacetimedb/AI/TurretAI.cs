@@ -1,7 +1,6 @@
 using SpacetimeDB;
 using static Types;
 using System;
-using System.Linq;
 using static Module;
 
 public static partial class TurretAI
@@ -49,25 +48,56 @@ public static partial class TurretAI
         int turretTileY = (int)fullTank.PositionY / TILE_SIZE;
 
         var allTanks = aiContext.GetAllTanks();
-        var tanksInTile = allTanks
-            .Where(t => t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
-            .Where(t => {
+        int validCount = 0;
+        for (int i = 0; i < allTanks.Count; i++)
+        {
+            var t = allTanks[i];
+            if (t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
+            {
                 int tankTileX = (int)t.PositionX / TILE_SIZE;
                 int tankTileY = (int)t.PositionY / TILE_SIZE;
-                return tankTileX == turretTileX && tankTileY == turretTileY;
-            })
-            .ToList();
+                if (tankTileX == turretTileX && tankTileY == turretTileY)
+                {
+                    validCount++;
+                }
+            }
+        }
 
         Tank updatedTank = tank;
 
-        if (tanksInTile.Count > 0)
+        if (validCount > 0)
         {
-            var targetFullTank = tanksInTile[aiContext.GetRandom().Next(tanksInTile.Count)];
-            updatedTank = TargetTankByCode(ctx, tank, targetFullTank.TargetCode);
-            updatedTank = updatedTank with
+            int targetIndex = aiContext.GetRandom().Next(validCount);
+            int currentIndex = 0;
+            FullTank? targetFullTank = null;
+            
+            for (int i = 0; i < allTanks.Count; i++)
             {
-                Message = $"target {targetFullTank.TargetCode}"
-            };
+                var t = allTanks[i];
+                if (t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
+                {
+                    int tankTileX = (int)t.PositionX / TILE_SIZE;
+                    int tankTileY = (int)t.PositionY / TILE_SIZE;
+                    if (tankTileX == turretTileX && tankTileY == turretTileY)
+                    {
+                        if (currentIndex == targetIndex)
+                        {
+                            targetFullTank = t;
+                            break;
+                        }
+                        currentIndex++;
+                    }
+                }
+            }
+
+            if (targetFullTank != null)
+            {
+                updatedTank = TargetTankByCode(ctx, tank, targetFullTank.Value.TargetCode);
+                updatedTank = updatedTank with
+                {
+                    Message = $"target {targetFullTank.Value.TargetCode}"
+                };
+            }
         }
         else
         {
