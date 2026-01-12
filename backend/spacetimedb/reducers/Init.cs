@@ -38,7 +38,5 @@ public static partial class Module
                 AddTankToGame(ctx, botTank, botTransform);
             }
         }
-
-        Log.Info($"Spawned initial bot tanks for game {gameId}");
     }
 }

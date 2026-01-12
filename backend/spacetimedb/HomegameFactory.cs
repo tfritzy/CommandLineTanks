@@ -132,8 +132,6 @@ public static partial class Module
             Width = worldWidth,
             Height = worldHeight
         });
-
-        Log.Info($"Created homegame for identity {identityString}");
     }
 
     private static void SpawnTurretBot(ReducerContext ctx, string gameId, int x, int y, int alliance, AiConfig? aiConfig = null)

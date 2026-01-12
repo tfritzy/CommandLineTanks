@@ -1,20 +1,18 @@
 using SpacetimeDB;
+using static SpacetimeDB.Index;
 using static Types;
 
 public static partial class Module
 {
     [Table(Name = "tank_path", Public = true)]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameId), nameof(Owner) })]
     public partial struct TankPath
     {
         [PrimaryKey]
         public string TankId;
-
-        [SpacetimeDB.Index.BTree]
+        [BTree]
         public string GameId;
-
-        [SpacetimeDB.Index.BTree]
         public Identity Owner;
-
         public PathEntry[] Path;
     }
 }

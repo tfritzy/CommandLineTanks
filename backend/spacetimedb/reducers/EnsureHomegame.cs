@@ -11,7 +11,6 @@ public static partial class Module
         
         if (gameId.ToLower() != identityString)
         {
-            Log.Info($"ensureHomegame: gameId {gameId} does not match identity {identityString}, ignoring");
             return;
         }
 
@@ -19,11 +18,6 @@ public static partial class Module
         if (homegame == null)
         {
             CreateHomeworld(ctx, identityString);
-            Log.Info($"ensureHomegame: Created homegame for identity {identityString}");
-        }
-        else
-        {
-            Log.Info($"ensureHomegame: Homegame already exists for identity {identityString}");
         }
 
         EnsureTankInHomeworld(ctx, identityString, joinCode);

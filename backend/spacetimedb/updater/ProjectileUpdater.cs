@@ -84,7 +84,7 @@ public static partial class ProjectileUpdater
                 {
                     var tank = ctx.Db.tank.Id.Find(tankTransform.TankId);
                     if (tank == null) continue;
-                    
+
                     if (tank.Value.Alliance != projectile.Alliance && tank.Value.Health > 0)
                     {
                         var dx_tank = tankTransform.PositionX - transform.PositionX;
@@ -363,7 +363,6 @@ public static partial class ProjectileUpdater
                 gun.Ammo = gun.Ammo.Value + 1;
                 tank.Guns[existingGunIndex] = gun;
                 ctx.Db.tank.Id.Update(tank);
-                Log.Info($"Tank {tank.Name} caught the boomerang! Ammo: {gun.Ammo}");
             }
         }
         else if (tank.Guns.Length < 3)
@@ -376,11 +375,6 @@ public static partial class ProjectileUpdater
                 SelectedGunIndex = newGunIndex
             };
             ctx.Db.tank.Id.Update(tank);
-            Log.Info($"Tank {tank.Name} caught the boomerang! New gun added with 1 ammo.");
-        }
-        else
-        {
-            Log.Info($"Tank {tank.Name} inventory full - boomerang lost!");
         }
 
         DeleteProjectile(ctx, projectile.Id);
@@ -432,7 +426,7 @@ public static partial class ProjectileUpdater
                         var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
                         if (tankQuery == null) continue;
                         var tank = tankQuery.Value;
-                        
+
                         if (HandleBoomerangReturn(ctx, projectile, tank))
                         {
                             return (true, projectile, transform, false);
@@ -503,6 +497,7 @@ public static partial class ProjectileUpdater
     [Reducer]
     public static void UpdateProjectiles(ReducerContext ctx, ScheduledProjectileUpdates args)
     {
+        Log.Info("Projectile update start");
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
@@ -600,5 +595,7 @@ public static partial class ProjectileUpdater
         {
             ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
         }
+
+        Log.Info("Projectile update end");
     }
 }

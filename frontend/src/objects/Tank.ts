@@ -1,7 +1,7 @@
 import { type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
-import { INTERPOLATION_DELAY, BUFFER_DURATION, UNIT_TO_PIXEL,  } from "../constants";
+import { INTERPOLATION_DELAY, BUFFER_DURATION,  } from "../constants";
 import {
   drawTankShadow,
   drawTankBody,
@@ -17,10 +17,6 @@ type PathEntry = {
   position: { x: number; y: number };
   throttlePercent: number;
 };
-
-function snapToPixel(value: number): number {
-  return Math.round(value * UNIT_TO_PIXEL) / UNIT_TO_PIXEL;
-}
 
 export class Tank {
   public arrayIndex: number = -1;
@@ -267,8 +263,8 @@ export class Tank {
     if (this.positionBuffer.length === 0) return;
 
     if (this.positionBuffer.length === 1) {
-      this.x = snapToPixel(this.positionBuffer[0].x);
-      this.y = snapToPixel(this.positionBuffer[0].y);
+      this.x = this.positionBuffer[0].x;
+      this.y = this.positionBuffer[0].y;
       return;
     }
 
@@ -291,8 +287,8 @@ export class Tank {
       this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs
     ) {
       const last = this.positionBuffer[this.positionBuffer.length - 1];
-      this.x = snapToPixel(last.x);
-      this.y = snapToPixel(last.y);
+      this.x = last.x;
+      this.y = last.y;
       return;
     }
 
@@ -300,8 +296,8 @@ export class Tank {
     const elapsed = renderTime - prev.serverTimestampMs;
     const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
 
-    this.x = snapToPixel(prev.x + (next.x - prev.x) * t);
-    this.y = snapToPixel(prev.y + (next.y - prev.y) * t);
+    this.x = prev.x + (next.x - prev.x) * t;
+    this.y = prev.y + (next.y - prev.y) * t;
   }
 
   // Getters

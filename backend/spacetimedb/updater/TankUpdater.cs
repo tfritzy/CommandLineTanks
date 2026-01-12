@@ -104,6 +104,7 @@ public static partial class TankUpdater
     [Reducer]
     public static void UpdateTanks(ReducerContext ctx, ScheduledTankUpdates args)
     {
+        Log.Info("Tank update start");
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
@@ -353,7 +354,7 @@ public static partial class TankUpdater
                 ctx.Db.tank_transform.TankId.Update(transform);
             }
         }
+
+        Log.Info("Tank update end");
     }
-
-
 }

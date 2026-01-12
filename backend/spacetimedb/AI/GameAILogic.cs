@@ -367,26 +367,14 @@ public static class GameAILogic
 
         if (traversibilityMap == null)
         {
-            Log.Info($"[FindPathTowards] Tank {tank.Id}: traversibilityMap is null");
             return emptyPath;
         }
 
         int currentX = GetGridPosition(tank.PositionX);
         int currentY = GetGridPosition(tank.PositionY);
 
-        Log.Info($"[FindPathTowards] Tank {tank.Id}: current=({currentX},{currentY}), target=({targetX},{targetY})");
-
         var floatPath = AStarPathfinding.FindPath(currentX, currentY, targetX, targetY, traversibilityMap.Value);
         var path = floatPath.Select(p => ((int)p.x, (int)p.y)).ToList();
-
-        if (path.Count > 0)
-        {
-            Log.Info($"[FindPathTowards] Tank {tank.Id}: Found path with {path.Count} waypoints");
-        }
-        else
-        {
-            Log.Info($"[FindPathTowards] Tank {tank.Id}: No path found");
-        }
 
         return path;
     }

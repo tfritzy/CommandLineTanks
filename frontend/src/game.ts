@@ -137,22 +137,8 @@ export class Game {
       this.pickupManager.setPlayerAlliance(null);
     }
 
-    const clampedDeltaTime = Math.min(deltaTime, 1 / 30);
-    const distanceX = targetCameraX - this.currentCameraX;
-    const distanceY = targetCameraY - this.currentCameraY;
-    const distanceSquared = distanceX * distanceX + distanceY * distanceY;
-
-    if (
-      distanceSquared >
-      CAMERA_TELEPORT_THRESHOLD * CAMERA_TELEPORT_THRESHOLD
-    ) {
-      this.currentCameraX = targetCameraX;
-      this.currentCameraY = targetCameraY;
-    } else {
-      const lerpFactor = Math.min(1, clampedDeltaTime * CAMERA_FOLLOW_SPEED);
-      this.currentCameraX += (targetCameraX - this.currentCameraX) * lerpFactor;
-      this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
-    }
+    this.currentCameraX = targetCameraX;
+    this.currentCameraY = targetCameraY;
 
     this.currentCameraX = Math.floor(this.currentCameraX);
     this.currentCameraY = Math.floor(this.currentCameraY);

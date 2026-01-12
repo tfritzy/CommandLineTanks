@@ -120,21 +120,21 @@ public static partial class PickupSpawner
         foreach (var pickupType in HOMEGAME_PICKUP_TYPES)
         {
             var (gridX, gridY) = GetHomeworldPickupPosition(pickupType);
-            
+
             if (gridX < 0 || gridY < 0)
             {
                 continue;
             }
 
             var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, gridX, gridY));
-            
+
             if (existingPickup.Any())
             {
                 continue;
             }
 
             var pickupId = Module.GenerateId(ctx, "pickup");
-            
+
             ctx.Db.pickup.Insert(Module.Pickup.Build(
                 ctx: ctx,
                 id: pickupId,
@@ -171,8 +171,6 @@ public static partial class PickupSpawner
                 spawnedCount++;
             }
         }
-
-        Log.Info($"Initialized {spawnedCount} pickups for game {gameId}");
     }
 
     public static bool TrySpawnPickup(ReducerContext ctx, string gameId, Module.TraversibilityMap traversibilityMap)
@@ -217,7 +215,7 @@ public static partial class PickupSpawner
         }
 
         var pickupId = Module.GenerateId(ctx, "pickup");
-        
+
         ctx.Db.pickup.Insert(Module.Pickup.Build(
             ctx: ctx,
             id: pickupId,
@@ -230,7 +228,6 @@ public static partial class PickupSpawner
             ammo: GetAmmoForPickupType(pickupType)
         ));
 
-        Log.Info($"Spawned {pickupType} at ({centerX}, {centerY}) in game {gameId}");
         return true;
     }
 
@@ -246,7 +243,7 @@ public static partial class PickupSpawner
         int halfCount = HOMEGAME_PICKUP_TYPES.Length / 2;
         int column = index < halfCount ? 0 : 1;
         int rowInColumn = index < halfCount ? index : index - halfCount;
-        
+
         int gridX = column == 0 ? 12 : 17;
         int gridY = 11 + (rowInColumn * 2);
         return (gridX, gridY);
@@ -323,7 +320,7 @@ public static partial class PickupSpawner
         if (existingGunIndex >= 0)
         {
             var existingGun = tank.Guns[existingGunIndex];
-            
+
             if (pickup.Ammo != null)
             {
                 if (existingGun.Ammo != null)
@@ -342,10 +339,10 @@ public static partial class PickupSpawner
         }
         else if (tank.Guns.Length < 3)
         {
-            var gunWithAmmo = pickup.Ammo.HasValue 
+            var gunWithAmmo = pickup.Ammo.HasValue
                 ? gunToAdd with { Ammo = pickup.Ammo }
                 : gunToAdd;
-            
+
             tank = tank with
             {
                 Guns = [.. tank.Guns, gunWithAmmo],

@@ -16,6 +16,5 @@ public static partial class Module
         var selectedGun = tank.Guns[gunIndex];
         var updatedTank = tank with { SelectedGunIndex = gunIndex };
         ctx.Db.tank.Id.Update(updatedTank);
-        Log.Info($"Tank {tank.Name} switched to gun at index {gunIndex} ({selectedGun.GunType})");
     }
 }
