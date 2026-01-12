@@ -58,7 +58,10 @@ public static partial class Module
 
     public static void StartGameTickers(ReducerContext ctx, string gameId)
     {
-        if (!ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId).Any())
+        var game = ctx.Db.game.Id.Find(gameId);
+        bool isHomeGame = game != null && game.Value.IsHomeGame;
+
+        if (!isHomeGame && !ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId).Any())
         {
             ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
             {
@@ -70,7 +73,7 @@ public static partial class Module
             });
         }
 
-        if (!ctx.Db.ScheduledProjectileUpdates.GameId.Filter(gameId).Any())
+        if (!isHomeGame && !ctx.Db.ScheduledProjectileUpdates.GameId.Filter(gameId).Any())
         {
             ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
             {

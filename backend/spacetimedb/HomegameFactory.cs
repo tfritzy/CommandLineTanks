@@ -38,23 +38,6 @@ public static partial class Module
             IsHomeGame = true
         };
 
-        ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            GameId = identityString,
-            LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            TickCount = 0
-        });
-
-        ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            GameId = identityString,
-            LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-        });
-
         ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
         {
             ScheduledId = 0,
