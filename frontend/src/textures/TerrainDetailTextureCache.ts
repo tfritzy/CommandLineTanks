@@ -1,5 +1,5 @@
 import { UNIT_TO_PIXEL, TERRAIN_DETAIL_RADIUS } from "../constants";
-import { renderToImageBitmap, type TextureImage } from "./TextureRenderer";
+import { renderToImageBitmap, type TextureImage, TEXTURE_DPR } from "./TextureRenderer";
 import { drawRockShadow, drawRockBody } from "../drawing/terrain-details/rock";
 import { drawTreeShadow, drawTreeBody } from "../drawing/terrain-details/tree";
 import {
@@ -26,7 +26,6 @@ import {
   drawTargetDummyShadow,
   drawTargetDummyBody,
 } from "../drawing/terrain-details/target-dummy";
-import { getNormalizedDPR } from "../utils/dpr";
 
 interface TerrainTexturePair {
   body: TextureImage | null;
@@ -202,7 +201,6 @@ class TerrainDetailTextureCache {
     const pair = this.textures.get(key);
     if (!pair?.body) return;
 
-    const dpr = getNormalizedDPR();
     const texture = pair.body;
     const offset = -UNIT_TO_PIXEL * scale;
 
@@ -210,8 +208,8 @@ class TerrainDetailTextureCache {
       texture.image,
       0,
       0,
-      texture.width * dpr,
-      texture.height * dpr,
+      texture.width * TEXTURE_DPR,
+      texture.height * TEXTURE_DPR,
       x * UNIT_TO_PIXEL + offset,
       y * UNIT_TO_PIXEL + offset,
       texture.width * scale,
@@ -229,7 +227,6 @@ class TerrainDetailTextureCache {
     const pair = this.textures.get(key);
     if (!pair?.shadow) return;
 
-    const dpr = getNormalizedDPR();
     const texture = pair.shadow;
     const offset = -UNIT_TO_PIXEL * scale;
 
@@ -237,8 +234,8 @@ class TerrainDetailTextureCache {
       texture.image,
       0,
       0,
-      texture.width * dpr,
-      texture.height * dpr,
+      texture.width * TEXTURE_DPR,
+      texture.height * TEXTURE_DPR,
       x * UNIT_TO_PIXEL + offset,
       y * UNIT_TO_PIXEL + offset,
       texture.width * scale,

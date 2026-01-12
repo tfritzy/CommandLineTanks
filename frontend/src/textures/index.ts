@@ -1,8 +1,8 @@
 export { projectileTextureCache } from "./ProjectileTextureCache";
 export { redTeamPickupTextureCache, blueTeamPickupTextureCache, initializePickupTextures } from "./PickupTextureCache";
 export { terrainDetailTextureCache } from "./TerrainDetailTextureCache";
+export { renderToImageBitmap, drawTexture, type TextureImage, TEXTURE_DPR } from "./TextureRenderer";
 export { waterTextureCache } from "./WaterTextureCache";
-export { renderToImageBitmap, drawTexture, type TextureImage } from "./TextureRenderer";
 
 import { projectileTextureCache } from "./ProjectileTextureCache";
 import { initializePickupTextures } from "./PickupTextureCache";

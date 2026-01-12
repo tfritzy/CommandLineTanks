@@ -1,4 +1,4 @@
-import { getNormalizedDPR } from "../utils/dpr";
+export const TEXTURE_DPR = 4;
 
 export interface TextureImage {
   image: ImageBitmap;
@@ -15,18 +15,16 @@ export async function renderToImageBitmap(
   anchorY: number,
   drawFn: (ctx: CanvasRenderingContext2D) => void
 ): Promise<TextureImage> {
-  const dpr = getNormalizedDPR();
-  
   const canvas = document.createElement("canvas");
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
+  canvas.width = width * TEXTURE_DPR;
+  canvas.height = height * TEXTURE_DPR;
   
   const ctx = canvas.getContext("2d");
   if (!ctx) {
     throw new Error("Failed to get 2D context for texture rendering");
   }
   
-  ctx.scale(dpr, dpr);
+  ctx.scale(TEXTURE_DPR, TEXTURE_DPR);
   ctx.imageSmoothingEnabled = false;
   
   drawFn(ctx);
@@ -50,8 +48,6 @@ export function drawTexture(
   scale: number = 1.0,
   rotation: number = 0
 ) {
-  const dpr = getNormalizedDPR();
-  
   ctx.save();
   ctx.translate(x, y);
   
@@ -66,8 +62,8 @@ export function drawTexture(
     texture.image,
     0,
     0,
-    texture.width * dpr,
-    texture.height * dpr,
+    texture.width * TEXTURE_DPR,
+    texture.height * TEXTURE_DPR,
     -texture.anchorX,
     -texture.anchorY,
     texture.width,
