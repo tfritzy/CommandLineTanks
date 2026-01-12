@@ -26,12 +26,13 @@ public static partial class ProjectileUpdater
                 _tanksById = new Dictionary<string, Module.Tank?>();
             }
 
-            if (!_tanksById.ContainsKey(tankId))
+            if (!_tanksById.TryGetValue(tankId, out var tank))
             {
-                _tanksById[tankId] = _ctx.Db.tank.Id.Find(tankId);
+                tank = _ctx.Db.tank.Id.Find(tankId);
+                _tanksById[tankId] = tank;
             }
 
-            return _tanksById[tankId];
+            return tank;
         }
     }
 
