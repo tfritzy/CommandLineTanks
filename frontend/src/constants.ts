@@ -9,6 +9,8 @@ export const BUFFER_DURATION = 200;
 
 export const PEN_SIZE = 5;
 
+export const TANK_COLLISION_RADIUS = 0.5;
+
 export const TERRAIN_DETAIL_RADIUS = {
   ROCK: 0.38,
   TREE: 0.648,
