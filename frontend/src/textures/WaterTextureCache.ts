@@ -1,7 +1,6 @@
 import { UNIT_TO_PIXEL } from "../constants";
-import { renderToImageBitmap, type TextureImage } from "./TextureRenderer";
+import { renderToImageBitmap, type TextureImage, drawTexture } from "./TextureRenderer";
 import { COLORS } from "../theme/colors";
-import { getNormalizedDPR } from "../utils/dpr";
 
 class WaterTextureCache {
   private textures: Map<number, TextureImage> = new Map();
@@ -206,19 +205,7 @@ class WaterTextureCache {
     const texture = this.textures.get(textureIndex);
     if (!texture) return;
 
-    const dpr = getNormalizedDPR();
-
-    ctx.drawImage(
-      texture.image,
-      0,
-      0,
-      texture.width * dpr,
-      texture.height * dpr,
-      x,
-      y,
-      texture.width,
-      texture.height
-    );
+    drawTexture(ctx, texture, x, y);
   }
 }
 

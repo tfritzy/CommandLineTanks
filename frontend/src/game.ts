@@ -90,7 +90,6 @@ export class Game {
 
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.ctx.imageSmoothingEnabled = true;
-      this.ctx.imageSmoothingQuality = "high";
     }
   }
 

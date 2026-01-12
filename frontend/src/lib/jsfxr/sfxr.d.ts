@@ -11,6 +11,7 @@ export interface JsfxrParams {
     p_freq_dramp?: number;
     p_vib_strength?: number;
     p_vib_speed?: number;
+    p_vib_delay?: number;
     p_arp_mod?: number;
     p_arp_speed?: number;
     p_duty?: number;
