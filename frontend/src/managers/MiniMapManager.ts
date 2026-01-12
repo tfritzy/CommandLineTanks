@@ -334,14 +334,47 @@ export class MiniMapManager {
       }
     }
 
+    // Draw Water/Lakes
+    ctx.fillStyle = COLORS.TERRAIN.WATER_DEEP;
+    for (let i = 0; i < this.baseTerrainLayer.length; i++) {
+      if (this.baseTerrainLayer[i].tag === "Water") {
+        const tileX = i % worldWidth;
+        const tileY = Math.floor(i / worldWidth);
+        ctx.fillRect(
+          miniMapX + tileX * pixelWidth,
+          miniMapY + tileY * pixelHeight,
+          Math.ceil(pixelWidth),
+          Math.ceil(pixelHeight)
+        );
+      }
+    }
+
+    // Draw Checkers
+    for (let i = 0; i < this.baseTerrainLayer.length; i++) {
+      const tag = this.baseTerrainLayer[i].tag;
+      if (tag === "BlackChecker" || tag === "WhiteChecker") {
+        ctx.fillStyle = tag === "BlackChecker" ? COLORS.TERRAIN.BLACK_CHECKER : COLORS.TERRAIN.WHITE_CHECKER;
+        const tileX = i % worldWidth;
+        const tileY = Math.floor(i / worldWidth);
+        ctx.fillRect(
+          miniMapX + tileX * pixelWidth,
+          miniMapY + tileY * pixelHeight,
+          Math.ceil(pixelWidth),
+          Math.ceil(pixelHeight)
+        );
+      }
+    }
+
     const detailColorMap: Record<string, string> = {
       Tree: COLORS.TERRAIN.TREE_BASE,
+      DeadTree: COLORS.TERRAIN.DEAD_TREE_BASE,
       Rock: COLORS.TERRAIN.ROCK_BODY,
       HayBale: COLORS.TERRAIN.HAY_BALE_BODY,
       FoundationEdge: COLORS.TERRAIN.FOUNDATION_BASE,
       FoundationCorner: COLORS.TERRAIN.FOUNDATION_BASE,
       FenceEdge: COLORS.TERRAIN.FENCE_RAIL,
       FenceCorner: COLORS.TERRAIN.FENCE_RAIL,
+      PenBorder: COLORS.TERRAIN.FENCE_RAIL,
       TargetDummy: COLORS.TERRAIN.TARGET_DUMMY_BODY,
       Label: COLORS.TERRAIN.GROUND,
       None: COLORS.TERRAIN.GROUND
