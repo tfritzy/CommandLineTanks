@@ -141,8 +141,8 @@ export class Game {
       this.currentCameraY += (targetCameraY - this.currentCameraY) * lerpFactor;
     }
 
-    this.currentCameraX = Math.round(this.currentCameraX);
-    this.currentCameraY = Math.round(this.currentCameraY);
+    this.currentCameraX = Math.floor(this.currentCameraX);
+    this.currentCameraY = Math.floor(this.currentCameraY);
 
     const shakeOffset = this.screenShake.update(deltaTime);
     const finalCameraX = this.currentCameraX + shakeOffset.x;

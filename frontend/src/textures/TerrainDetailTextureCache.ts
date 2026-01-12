@@ -212,8 +212,8 @@ class TerrainDetailTextureCache {
       texture.height * TEXTURE_DPR,
       x * UNIT_TO_PIXEL + offset,
       y * UNIT_TO_PIXEL + offset,
-      texture.width * scale,
-      texture.height * scale
+      texture.width * scale + 1,
+      texture.height * scale + 1
     );
   }
 
