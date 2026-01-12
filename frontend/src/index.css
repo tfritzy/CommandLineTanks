@@ -81,6 +81,10 @@ pre,
   }
 }
 
+canvas {
+  will-change: transform;
+}
+
 .terminal-cursor {
   display: inline-block;
   width: 8px;

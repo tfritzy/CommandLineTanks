@@ -6,7 +6,7 @@ import { GunInventoryManager } from "./managers/GunInventoryManager";
 import { PickupManager } from "./managers/PickupManager";
 import { MiniMapManager } from "./managers/MiniMapManager";
 import { KillManager } from "./managers/KillManager";
-import { UNIT_TO_PIXEL } from "./constants";
+import { COLORS, UNIT_TO_PIXEL } from "./constants";
 import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
 import { Profiler } from "./utils/Profiler";
@@ -44,7 +44,7 @@ export class Game {
 
   constructor(canvas: HTMLCanvasElement, gameId: string) {
     this.canvas = canvas;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) {
       throw new Error("Failed to get 2D context");
     }
@@ -65,9 +65,17 @@ export class Game {
     this.screenShake = new ScreenShake();
     this.fpsCounter = new FpsCounter();
     this.profiler = new Profiler();
-    this.tankManager = new TankManager(gameId, this.screenShake, this.soundManager);
+    this.tankManager = new TankManager(
+      gameId,
+      this.screenShake,
+      this.soundManager
+    );
     this.terrainManager = new TerrainManager(gameId, this.soundManager);
-    this.projectileManager = new ProjectileManager(gameId, this.screenShake, this.soundManager);
+    this.projectileManager = new ProjectileManager(
+      gameId,
+      this.screenShake,
+      this.soundManager
+    );
     this.projectileManager.setTankManager(this.tankManager);
     this.gunInventoryManager = new GunInventoryManager(gameId);
     this.pickupManager = new PickupManager(gameId, this.soundManager);
@@ -89,7 +97,7 @@ export class Game {
       this.canvas.style.height = `${displayHeight}px`;
 
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      this.ctx.imageSmoothingEnabled = true;
+      this.ctx.imageSmoothingEnabled = false;
     }
   }
 
@@ -111,6 +119,8 @@ export class Game {
     const displayHeight = this.canvas.height / dpr;
 
     this.ctx.clearRect(0, 0, displayWidth, displayHeight);
+    this.ctx.fillStyle = COLORS.TERRAIN.GROUND;
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.save();
 
@@ -132,7 +142,10 @@ export class Game {
     const distanceY = targetCameraY - this.currentCameraY;
     const distanceSquared = distanceX * distanceX + distanceY * distanceY;
 
-    if (distanceSquared > CAMERA_TELEPORT_THRESHOLD * CAMERA_TELEPORT_THRESHOLD) {
+    if (
+      distanceSquared >
+      CAMERA_TELEPORT_THRESHOLD * CAMERA_TELEPORT_THRESHOLD
+    ) {
       this.currentCameraX = targetCameraX;
       this.currentCameraY = targetCameraY;
     } else {
@@ -186,9 +199,15 @@ export class Game {
       )
     );
 
-    this.profiler.profile("tank_paths", () => this.tankManager.drawPaths(this.ctx));
-    this.profiler.profile("tank_shadows", () => this.tankManager.drawShadows(this.ctx));
-    this.profiler.profile("tank_bodies", () => this.tankManager.drawBodies(this.ctx));
+    this.profiler.profile("tank_paths", () =>
+      this.tankManager.drawPaths(this.ctx)
+    );
+    this.profiler.profile("tank_shadows", () =>
+      this.tankManager.drawShadows(this.ctx)
+    );
+    this.profiler.profile("tank_bodies", () =>
+      this.tankManager.drawBodies(this.ctx)
+    );
 
     this.profiler.profile("tank_particles", () =>
       this.tankManager.drawParticles(
@@ -219,9 +238,15 @@ export class Game {
         displayHeight
       )
     );
-    this.profiler.profile("tank_labels", () => this.tankManager.drawNameLabels(this.ctx));
-    this.profiler.profile("tank_health", () => this.tankManager.drawHealthBars(this.ctx));
-    this.profiler.profile("tank_indicators", () => this.tankManager.drawTankIndicators(this.ctx));
+    this.profiler.profile("tank_labels", () =>
+      this.tankManager.drawNameLabels(this.ctx)
+    );
+    this.profiler.profile("tank_health", () =>
+      this.tankManager.drawHealthBars(this.ctx)
+    );
+    this.profiler.profile("tank_indicators", () =>
+      this.tankManager.drawTankIndicators(this.ctx)
+    );
 
     this.profiler.profile("terrain_particles", () =>
       this.terrainManager.drawParticles(
@@ -254,9 +279,15 @@ export class Game {
 
     this.ctx.restore();
 
-    this.profiler.profile("minimap", () => this.miniMapManager.draw(this.ctx, displayWidth, displayHeight));
-    this.profiler.profile("gun_inventory", () => this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight));
-    this.profiler.profile("kill_manager", () => this.killManager.draw(this.ctx, displayWidth));
+    this.profiler.profile("minimap", () =>
+      this.miniMapManager.draw(this.ctx, displayWidth, displayHeight)
+    );
+    this.profiler.profile("gun_inventory", () =>
+      this.gunInventoryManager.draw(this.ctx, displayWidth, displayHeight)
+    );
+    this.profiler.profile("kill_manager", () =>
+      this.killManager.draw(this.ctx, displayWidth)
+    );
 
     this.fpsCounter.draw(this.ctx, displayHeight);
 
@@ -267,21 +298,21 @@ export class Game {
 
   public start() {
     if (this.animationFrameId) return;
-    
+
     this.lastFrameTime = 0;
-    
+
     if (texturesInitialized) {
       this.texturesReady = true;
       this.update();
       return;
     }
-    
+
     if (!textureInitPromise) {
       textureInitPromise = initializeAllTextures().then(() => {
         texturesInitialized = true;
       });
     }
-    
+
     textureInitPromise.then(() => {
       if (this.texturesReady) return;
       this.texturesReady = true;

@@ -6,6 +6,8 @@ export abstract class Projectile {
   public static readonly SHADOW_OFFSET = 4;
   protected x: number;
   protected y: number;
+  protected targetX: number;
+  protected targetY: number;
   protected velocityX: number;
   protected velocityY: number;
   protected size: number;
@@ -17,6 +19,8 @@ export abstract class Projectile {
   private cachedScreenPosition: { x: number; y: number } = { x: 0, y: 0 };
   private cachedShadowPosition: { x: number; y: number } = { x: 0, y: 0 };
   private textureKeyCache: Map<string, string> = new Map();
+
+  private static readonly LERP_SPEED = 15;
 
   constructor(
     x: number,
@@ -32,6 +36,8 @@ export abstract class Projectile {
   ) {
     this.x = x;
     this.y = y;
+    this.targetX = x;
+    this.targetY = y;
     this.velocityX = velocityX;
     this.velocityY = velocityY;
     this.size = size;
@@ -42,12 +48,18 @@ export abstract class Projectile {
     this.trackingRadius = trackingRadius || 0;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, textureCache: IProjectileTextureCache) {
+  public draw(
+    ctx: CanvasRenderingContext2D,
+    textureCache: IProjectileTextureCache
+  ) {
     this.drawShadow(ctx, textureCache);
     this.drawBody(ctx, textureCache);
   }
 
-  public drawShadow(_ctx: CanvasRenderingContext2D, _textureCache: IProjectileTextureCache) {}
+  public drawShadow(
+    _ctx: CanvasRenderingContext2D,
+    _textureCache: IProjectileTextureCache
+  ) {}
 
   public abstract drawBody(
     ctx: CanvasRenderingContext2D,
@@ -55,8 +67,8 @@ export abstract class Projectile {
   ): void;
 
   public setPosition(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+    this.targetX = x;
+    this.targetY = y;
   }
 
   public setVelocity(velocityX: number, velocityY: number) {
@@ -64,9 +76,22 @@ export abstract class Projectile {
     this.velocityY = velocityY;
   }
 
-  public update(deltaTime: number, _tankManager?: { getAllTanks(): IterableIterator<{ getPosition(): { x: number; y: number }; getAlliance(): number; getHealth(): number }> }) {
-    this.x += this.velocityX * deltaTime;
-    this.y += this.velocityY * deltaTime;
+  public update(
+    deltaTime: number,
+    _tankManager?: {
+      getAllTanks(): IterableIterator<{
+        getPosition(): { x: number; y: number };
+        getAlliance(): number;
+        getHealth(): number;
+      }>;
+    }
+  ) {
+    this.targetX += this.velocityX * deltaTime;
+    this.targetY += this.velocityY * deltaTime;
+
+    const lerpFactor = Math.min(1, deltaTime * Projectile.LERP_SPEED);
+    this.x += (this.targetX - this.x) * lerpFactor;
+    this.y += (this.targetY - this.y) * lerpFactor;
   }
 
   public getX(): number {
@@ -96,8 +121,10 @@ export abstract class Projectile {
   }
 
   protected getShadowScreenPosition(): { x: number; y: number } {
-    this.cachedShadowPosition.x = this.x * UNIT_TO_PIXEL - Projectile.SHADOW_OFFSET;
-    this.cachedShadowPosition.y = this.y * UNIT_TO_PIXEL + Projectile.SHADOW_OFFSET;
+    this.cachedShadowPosition.x =
+      this.x * UNIT_TO_PIXEL - Projectile.SHADOW_OFFSET;
+    this.cachedShadowPosition.y =
+      this.y * UNIT_TO_PIXEL + Projectile.SHADOW_OFFSET;
     return this.cachedShadowPosition;
   }
 
@@ -114,6 +141,7 @@ export abstract class Projectile {
     return false;
   }
 
-  public spawnDeathParticles(_particlesManager: ProjectileImpactParticlesManager): void {
-  }
+  public spawnDeathParticles(
+    _particlesManager: ProjectileImpactParticlesManager
+  ): void {}
 }
