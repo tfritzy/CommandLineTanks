@@ -1,10 +1,15 @@
 using SpacetimeDB;
 using static Types;
+using System.Collections.Generic;
 using static Module;
 
 public static partial class ProjectileUpdater
 {
-    private const int MAX_TANKS_PER_COLLISION_REGION = 8;
+    private const int MAX_DAMAGED_TILES_BUFFER = 64;
+    private const int MAX_DAMAGED_TANKS_BUFFER = 32;
+    
+    private static DamagedTile[] _damagedTilesBuffer = new DamagedTile[MAX_DAMAGED_TILES_BUFFER];
+    private static DamagedTank[] _damagedTanksBuffer = new DamagedTank[MAX_DAMAGED_TANKS_BUFFER];
 
     [Table(Scheduled = nameof(UpdateProjectiles))]
     public partial struct ScheduledProjectileUpdates
@@ -198,27 +203,15 @@ public static partial class ProjectileUpdater
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         ulong expirationThreshold = 500_000;
 
-        var existingDamagedTiles = projectile.RecentlyDamagedTiles;
-        int validCount = 0;
-        for (int i = 0; i < existingDamagedTiles.Length; i++)
-        {
-            if (currentTime - existingDamagedTiles[i].DamagedAt < expirationThreshold)
-            {
-                validCount++;
-            }
-        }
-
-        int diameter = collisionTileRadius * 2 + 1;
-        int maxNewTiles = diameter * diameter;
-        int maxTotalSize = validCount + maxNewTiles;
-        var tempTiles = new DamagedTile[maxTotalSize];
         int tileCount = 0;
-
-        for (int i = 0; i < existingDamagedTiles.Length; i++)
+        foreach (var damagedTile in projectile.RecentlyDamagedTiles)
         {
-            if (currentTime - existingDamagedTiles[i].DamagedAt < expirationThreshold)
+            if (currentTime - damagedTile.DamagedAt < expirationThreshold)
             {
-                tempTiles[tileCount++] = existingDamagedTiles[i];
+                if (tileCount < MAX_DAMAGED_TILES_BUFFER)
+                {
+                    _damagedTilesBuffer[tileCount++] = damagedTile;
+                }
             }
         }
 
@@ -248,7 +241,7 @@ public static partial class ProjectileUpdater
                     bool alreadyDamaged = false;
                     for (int i = 0; i < tileCount; i++)
                     {
-                        if (tempTiles[i].X == tileX && tempTiles[i].Y == tileY)
+                        if (_damagedTilesBuffer[i].X == tileX && _damagedTilesBuffer[i].Y == tileY)
                         {
                             alreadyDamaged = true;
                             break;
@@ -263,27 +256,22 @@ public static partial class ProjectileUpdater
                             traversibilityMapChanged = true;
                         }
 
-                        tempTiles[tileCount++] = new DamagedTile
+                        if (tileCount < MAX_DAMAGED_TILES_BUFFER)
                         {
-                            X = tileX,
-                            Y = tileY,
-                            DamagedAt = currentTime
-                        };
+                            _damagedTilesBuffer[tileCount++] = new DamagedTile
+                            {
+                                X = tileX,
+                                Y = tileY,
+                                DamagedAt = currentTime
+                            };
+                        }
                     }
                 }
             }
         }
 
-        DamagedTile[] finalTiles;
-        if (tileCount == tempTiles.Length)
-        {
-            finalTiles = tempTiles;
-        }
-        else
-        {
-            finalTiles = new DamagedTile[tileCount];
-            Array.Copy(tempTiles, finalTiles, tileCount);
-        }
+        var finalTiles = new DamagedTile[tileCount];
+        Array.Copy(_damagedTilesBuffer, finalTiles, tileCount);
 
         projectile = projectile with
         {
@@ -425,28 +413,15 @@ public static partial class ProjectileUpdater
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         ulong expirationThreshold = 500_000;
 
-        var existingHitTanks = projectile.RecentlyHitTanks;
-        int validCount = 0;
-        for (int i = 0; i < existingHitTanks.Length; i++)
-        {
-            if (currentTime - existingHitTanks[i].DamagedAt < expirationThreshold)
-            {
-                validCount++;
-            }
-        }
-
-        int regionWidth = maxRegionX - minRegionX + 1;
-        int regionHeight = maxRegionY - minRegionY + 1;
-        int maxNewHits = regionWidth * regionHeight * MAX_TANKS_PER_COLLISION_REGION;
-        int maxTotalSize = validCount + maxNewHits;
-        var tempHits = new DamagedTank[maxTotalSize];
         int hitCount = 0;
-
-        for (int i = 0; i < existingHitTanks.Length; i++)
+        foreach (var hitTank in projectile.RecentlyHitTanks)
         {
-            if (currentTime - existingHitTanks[i].DamagedAt < expirationThreshold)
+            if (currentTime - hitTank.DamagedAt < expirationThreshold)
             {
-                tempHits[hitCount++] = existingHitTanks[i];
+                if (hitCount < MAX_DAMAGED_TANKS_BUFFER)
+                {
+                    _damagedTanksBuffer[hitCount++] = hitTank;
+                }
             }
         }
 
@@ -480,7 +455,7 @@ public static partial class ProjectileUpdater
                             bool alreadyHit = false;
                             for (int i = 0; i < hitCount; i++)
                             {
-                                if (tempHits[i].TankId == tank.Id)
+                                if (_damagedTanksBuffer[i].TankId == tank.Id)
                                 {
                                     alreadyHit = true;
                                     break;
@@ -503,11 +478,14 @@ public static partial class ProjectileUpdater
                                     Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId);
                                 }
 
-                                tempHits[hitCount++] = new DamagedTank
+                                if (hitCount < MAX_DAMAGED_TANKS_BUFFER)
                                 {
-                                    TankId = tank.Id,
-                                    DamagedAt = currentTime
-                                };
+                                    _damagedTanksBuffer[hitCount++] = new DamagedTank
+                                    {
+                                        TankId = tank.Id,
+                                        DamagedAt = currentTime
+                                    };
+                                }
 
                                 bool shouldDelete;
                                 (shouldDelete, transform) = Module.IncrementProjectileCollision(ctx, projectile, transform);
@@ -523,16 +501,8 @@ public static partial class ProjectileUpdater
             }
         }
 
-        DamagedTank[] finalHits;
-        if (hitCount == tempHits.Length)
-        {
-            finalHits = tempHits;
-        }
-        else
-        {
-            finalHits = new DamagedTank[hitCount];
-            Array.Copy(tempHits, finalHits, hitCount);
-        }
+        var finalHits = new DamagedTank[hitCount];
+        Array.Copy(_damagedTanksBuffer, finalHits, hitCount);
 
         projectile = projectile with
         {

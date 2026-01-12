@@ -2,6 +2,7 @@ using SpacetimeDB;
 using static Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static Module;
 
 public static partial class GameAI
@@ -76,16 +77,12 @@ public static partial class GameAI
 
     private static void SetPath(ReducerContext ctx, FullTank fullTank, List<(int x, int y)> path)
     {
-        var pathEntries = new PathEntry[path.Count];
-        for (int i = 0; i < path.Count; i++)
+        var pathEntries = path.Select(waypoint => new PathEntry
         {
-            pathEntries[i] = new PathEntry
-            {
-                Position = new Vector2Float(path[i].x, path[i].y),
-                ThrottlePercent = 1.0f,
-                Reverse = false
-            };
-        }
+            Position = new Vector2Float(waypoint.x, waypoint.y),
+            ThrottlePercent = 1.0f,
+            Reverse = false
+        }).ToArray();
 
         var newPathState = new Module.TankPath
         {

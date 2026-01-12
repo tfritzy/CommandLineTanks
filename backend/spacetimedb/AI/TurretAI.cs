@@ -1,6 +1,7 @@
 using SpacetimeDB;
 using static Types;
 using System;
+using System.Linq;
 using static Module;
 
 public static partial class TurretAI
@@ -48,56 +49,25 @@ public static partial class TurretAI
         int turretTileY = (int)fullTank.PositionY / TILE_SIZE;
 
         var allTanks = aiContext.GetAllTanks();
-        int validCount = 0;
-        for (int i = 0; i < allTanks.Count; i++)
-        {
-            var t = allTanks[i];
-            if (t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
-            {
+        var tanksInTile = allTanks
+            .Where(t => t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
+            .Where(t => {
                 int tankTileX = (int)t.PositionX / TILE_SIZE;
                 int tankTileY = (int)t.PositionY / TILE_SIZE;
-                if (tankTileX == turretTileX && tankTileY == turretTileY)
-                {
-                    validCount++;
-                }
-            }
-        }
+                return tankTileX == turretTileX && tankTileY == turretTileY;
+            })
+            .ToList();
 
         Tank updatedTank = tank;
 
-        if (validCount > 0)
+        if (tanksInTile.Count > 0)
         {
-            int targetIndex = aiContext.GetRandom().Next(validCount);
-            int currentIndex = 0;
-            FullTank? targetFullTank = null;
-            
-            for (int i = 0; i < allTanks.Count; i++)
+            var targetFullTank = tanksInTile[aiContext.GetRandom().Next(tanksInTile.Count)];
+            updatedTank = TargetTankByCode(ctx, tank, targetFullTank.TargetCode);
+            updatedTank = updatedTank with
             {
-                var t = allTanks[i];
-                if (t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
-                {
-                    int tankTileX = (int)t.PositionX / TILE_SIZE;
-                    int tankTileY = (int)t.PositionY / TILE_SIZE;
-                    if (tankTileX == turretTileX && tankTileY == turretTileY)
-                    {
-                        if (currentIndex == targetIndex)
-                        {
-                            targetFullTank = t;
-                            break;
-                        }
-                        currentIndex++;
-                    }
-                }
-            }
-
-            if (targetFullTank != null)
-            {
-                updatedTank = TargetTankByCode(ctx, tank, targetFullTank.Value.TargetCode);
-                updatedTank = updatedTank with
-                {
-                    Message = $"target {targetFullTank.Value.TargetCode}"
-                };
-            }
+                Message = $"target {targetFullTank.TargetCode}"
+            };
         }
         else
         {

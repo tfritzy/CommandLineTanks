@@ -1,6 +1,7 @@
 using SpacetimeDB;
 using static Types;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 public static partial class Module
@@ -46,15 +47,15 @@ public static partial class Module
             return;
         }
 
-        var pathEntries = new PathEntry[pathPoints.Count];
-        for (int i = 0; i < pathPoints.Count; i++)
+        List<PathEntry> pathEntries = new List<PathEntry>();
+        foreach (var point in pathPoints)
         {
-            pathEntries[i] = new PathEntry
+            pathEntries.Add(new PathEntry
             {
-                Position = new Vector2Float(pathPoints[i].x, pathPoints[i].y),
+                Position = new Vector2Float(point.x, point.y),
                 ThrottlePercent = throttle,
                 Reverse = false
-            };
+            });
         }
 
         var newPathState = new TankPath
@@ -62,7 +63,7 @@ public static partial class Module
             TankId = tank.Id,
             GameId = tank.GameId,
             Owner = tank.Owner,
-            Path = pathEntries
+            Path = pathEntries.ToArray()
         };
 
         UpsertTankPath(ctx, newPathState);
