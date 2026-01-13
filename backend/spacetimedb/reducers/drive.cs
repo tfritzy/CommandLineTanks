@@ -47,13 +47,10 @@ public static partial class Module
             return;
         }
 
-        List<PathEntry> pathEntries = new List<PathEntry>();
+        List<Vector2Float> pathEntries = new List<Vector2Float>();
         foreach (var point in pathPoints)
         {
-            pathEntries.Add(new PathEntry
-            {
-                Position = new Vector2Float(point.x, point.y)
-            });
+            pathEntries.Add(new Vector2Float(point.x, point.y));
         }
 
         var newPathState = new TankPath

@@ -17,12 +17,6 @@ public static partial class Types
     }
 
     [Type]
-    public partial struct PathEntry
-    {
-        public Vector2Float Position;
-    }
-
-    [Type]
     public enum Direction
     {
         North,

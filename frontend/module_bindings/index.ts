@@ -147,8 +147,6 @@ import GunType from "./gun_type_type";
 export { GunType };
 import Kill from "./kill_type";
 export { Kill };
-import PathEntry from "./path_entry_type";
-export { PathEntry };
 import Pickup from "./pickup_type";
 export { Pickup };
 import PickupType from "./pickup_type_type";

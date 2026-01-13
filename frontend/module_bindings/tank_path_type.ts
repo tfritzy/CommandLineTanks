@@ -9,7 +9,7 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import PathEntry from "./path_entry_type";
+import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.object("TankPath", {
@@ -17,7 +17,7 @@ export default __t.object("TankPath", {
   gameId: __t.string(),
   owner: __t.identity(),
   get path() {
-    return __t.array(PathEntry);
+    return __t.array(Vector2Float);
   },
 });
 

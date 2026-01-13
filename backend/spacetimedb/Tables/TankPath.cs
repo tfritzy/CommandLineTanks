@@ -13,6 +13,6 @@ public static partial class Module
         [BTree]
         public string GameId;
         public Identity Owner;
-        public PathEntry[] Path;
+        public Vector2Float[] Path;
     }
 }
