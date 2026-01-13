@@ -8,6 +8,7 @@ import GameRow from "../../module_bindings/game_type";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import type { Projectile } from "../objects/projectiles";
 import type { TankManager } from "./TankManager";
+import { byteArrayToBoolArray } from "../utils/bitPacking";
 
 export class HomeWorldCollisionHandler {
   private gameId: string;
@@ -84,13 +85,13 @@ export class HomeWorldCollisionHandler {
       handlers: {
         onInsert: (_ctx: EventContext, map: Infer<typeof TraversibilityMapRow>) => {
           if (map.gameId !== this.gameId) return;
-          this.traversibilityMap = [...map.map];
+          this.traversibilityMap = byteArrayToBoolArray(new Uint8Array(map.map), map.width * map.height);
           this.worldWidth = map.width;
           this.worldHeight = map.height;
         },
         onUpdate: (_ctx: EventContext, _oldMap: Infer<typeof TraversibilityMapRow>, newMap: Infer<typeof TraversibilityMapRow>) => {
           if (newMap.gameId !== this.gameId) return;
-          this.traversibilityMap = [...newMap.map];
+          this.traversibilityMap = byteArrayToBoolArray(new Uint8Array(newMap.map), newMap.width * newMap.height);
           this.worldWidth = newMap.width;
           this.worldHeight = newMap.height;
         }
@@ -100,7 +101,7 @@ export class HomeWorldCollisionHandler {
 
     const cachedMap = connection.db.traversibilityMap.gameId.find(this.gameId);
     if (cachedMap) {
-      this.traversibilityMap = [...cachedMap.map];
+      this.traversibilityMap = byteArrayToBoolArray(new Uint8Array(cachedMap.map), cachedMap.width * cachedMap.height);
       this.worldWidth = cachedMap.width;
       this.worldHeight = cachedMap.height;
     }

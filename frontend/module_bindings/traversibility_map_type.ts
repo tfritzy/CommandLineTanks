@@ -12,7 +12,7 @@ import {
 
 export default __t.object("TraversibilityMap", {
   gameId: __t.string(),
-  map: __t.array(__t.bool()),
+  map: __t.array(__t.u8()),
   width: __t.i32(),
   height: __t.i32(),
 });
