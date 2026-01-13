@@ -419,10 +419,7 @@ public static partial class ProjectileUpdater
             {
                 if (currentTime - hitTank.DamagedAt < expirationThreshold)
                 {
-                    if (recentlyHitBuffer == null)
-                    {
-                        recentlyHitBuffer = new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];
-                    }
+                    recentlyHitBuffer ??= new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];
                     if (recentlyHitCount < recentlyHitBuffer.Length)
                     {
                         recentlyHitBuffer[recentlyHitCount++] = hitTank;
@@ -488,10 +485,7 @@ public static partial class ProjectileUpdater
                                     Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId);
                                 }
 
-                                if (recentlyHitBuffer == null)
-                                {
-                                    recentlyHitBuffer = new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];
-                                }
+                                recentlyHitBuffer ??= new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];
                                 if (recentlyHitCount < recentlyHitBuffer.Length)
                                 {
                                     recentlyHitBuffer[recentlyHitCount++] = new DamagedTank
