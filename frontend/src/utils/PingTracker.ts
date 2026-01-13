@@ -16,8 +16,14 @@ export class PingTracker {
   private intervalId: number | null = null;
   private connection: DbConnection | null = null;
   private currentPing: number = 0;
+  private started: boolean = false;
 
   public start(connection: DbConnection): void {
+    if (this.started) {
+      return;
+    }
+    this.started = true;
+    
     this.connection = connection;
     
     this.connection.db.player.onUpdate((_ctx: EventContext, _oldRow: Infer<typeof PlayerRow>, newRow: Infer<typeof PlayerRow>) => {
@@ -25,8 +31,8 @@ export class PingTracker {
       if (!newRow.identity.isEqual(this.connection.identity)) return;
       if (!this.waitingForResponse) return;
       
-      const serverTimestamp = Number(newRow.ping);
-      if (serverTimestamp === Math.floor(this.lastPingSentAt)) {
+      const sentTimestamp = BigInt(Math.floor(this.lastPingSentAt));
+      if (newRow.ping === sentTimestamp) {
         const receivedAt = performance.now();
         this.measurements.push({
           sentAt: this.lastPingSentAt,
@@ -52,6 +58,8 @@ export class PingTracker {
       window.clearInterval(this.intervalId);
       this.intervalId = null;
     }
+    this.started = false;
+    this.waitingForResponse = false;
   }
 
   private sendPing(): void {
