@@ -457,15 +457,12 @@ public static partial class ProjectileUpdater
                         if (tank.Alliance != projectile.Alliance && tank.Health > 0 && tank.RemainingImmunityMicros <= 0)
                         {
                             bool alreadyHit = false;
-                            if (recentlyHitBuffer != null)
+                            for (int i = 0; i < recentlyHitCount; i++)
                             {
-                                for (int i = 0; i < recentlyHitCount; i++)
+                                if (recentlyHitBuffer![i].TankId == tank.Id)
                                 {
-                                    if (recentlyHitBuffer[i].TankId == tank.Id)
-                                    {
-                                        alreadyHit = true;
-                                        break;
-                                    }
+                                    alreadyHit = true;
+                                    break;
                                 }
                             }
 
@@ -511,7 +508,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyHitTanks = recentlyHitCount > 0 && recentlyHitBuffer != null ? recentlyHitBuffer.AsSpan(0, recentlyHitCount).ToArray() : null
+            RecentlyHitTanks = recentlyHitCount > 0 ? recentlyHitBuffer!.AsSpan(0, recentlyHitCount).ToArray() : null
         };
 
         return (false, projectile, transform, false);
