@@ -65,6 +65,8 @@ import HomeWorldProjectileTerrainHit from "./home_world_projectile_terrain_hit_r
 export { HomeWorldProjectileTerrainHit };
 import JoinGame from "./join_game_reducer";
 export { JoinGame };
+import Ping from "./ping_reducer";
+export { Ping };
 import ResetGame from "./reset_game_reducer";
 export { ResetGame };
 import Respawn from "./respawn_reducer";
@@ -546,6 +548,7 @@ const reducersSchema = __reducers(
   __reducerSchema("homeWorldProjectileTankHit", HomeWorldProjectileTankHit),
   __reducerSchema("homeWorldProjectileTerrainHit", HomeWorldProjectileTerrainHit),
   __reducerSchema("joinGame", JoinGame),
+  __reducerSchema("ping", Ping),
   __reducerSchema("ResetGame", ResetGame),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("SpawnPickup", SpawnPickup),

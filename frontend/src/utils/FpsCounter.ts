@@ -6,6 +6,11 @@ export class FpsCounter {
   private frameCount: number = 0;
   private lastUpdate: number = 0;
   private initialized: boolean = false;
+  private pingGetter: (() => number) | null = null;
+
+  public setPingGetter(getter: () => number): void {
+    this.pingGetter = getter;
+  }
 
   public update(currentTime: number): void {
     if (!this.initialized) {
@@ -30,9 +35,17 @@ export class FpsCounter {
       ctx.strokeStyle = COLORS.TERRAIN.GROUND;
       ctx.lineWidth = 3;
       const x = 10;
-      const y = displayHeight - 10;
-      ctx.strokeText(`FPS: ${this.fps}`, x, y);
-      ctx.fillText(`FPS: ${this.fps}`, x, y);
+      
+      if (this.pingGetter) {
+        const ping = this.pingGetter();
+        const pingY = displayHeight - 30;
+        ctx.strokeText(`Ping: ${ping}ms`, x, pingY);
+        ctx.fillText(`Ping: ${ping}ms`, x, pingY);
+      }
+      
+      const fpsY = displayHeight - 10;
+      ctx.strokeText(`FPS: ${this.fps}`, x, fpsY);
+      ctx.fillText(`FPS: ${this.fps}`, x, fpsY);
       ctx.restore();
     }
   }

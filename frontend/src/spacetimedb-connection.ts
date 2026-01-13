@@ -1,17 +1,18 @@
 import { DbConnection, type ErrorContext } from '../module_bindings';
 import { Identity } from 'spacetimedb';
+import { PingTracker } from './utils/PingTracker';
 
 const SPACETIMEDB_HOST = import.meta.env.VITE_SPACETIMEDB_HOST || 'ws://localhost:3000';
 const MODULE_NAME = import.meta.env.VITE_SPACETIMEDB_MODULE || 'clt';
 const CREDS_KEY = 'spacetimedb_token';
 
-// Store the connection instance
 let dbConnection: DbConnection | null = null;
 let connectingPromise: Promise<DbConnection> | null = null;
 let disconnectCallback: (() => void) | null = null;
 
-// Store pending join code for game switching
 let pendingJoinCode: string | null = null;
+
+let pingTracker: PingTracker | null = null;
 
 /**
  * Register a callback for when the connection is lost
@@ -51,11 +52,14 @@ export async function connectToSpacetimeDB(): Promise<DbConnection> {
           console.log('✓ Connected to SpacetimeDB');
           console.log('  Identity:', identity.toHexString());
           
-          // Save the token for future connections
           localStorage.setItem(CREDS_KEY, authToken);
           
           dbConnection = conn;
           connectingPromise = null;
+          
+          pingTracker = new PingTracker();
+          pingTracker.start(conn);
+          
           resolve(conn);
         })
         .onConnectError((_ctx: ErrorContext, error: Error) => {
@@ -87,6 +91,11 @@ export async function connectToSpacetimeDB(): Promise<DbConnection> {
  * Disconnect from SpacetimeDB
  */
 export function disconnectFromSpacetimeDB(): void {
+  if (pingTracker) {
+    pingTracker.stop();
+    pingTracker = null;
+  }
+  
   if (dbConnection) {
     dbConnection.disconnect();
     dbConnection = null;
@@ -154,4 +163,8 @@ export const areIdentitiesEqual = (
   const hex1 = typeof identity1 === 'string' ? identity1 : identity1.toHexString();
   const hex2 = typeof identity2 === 'string' ? identity2 : identity2.toHexString();
   return hex1 === hex2;
+};
+
+export const getPing = (): number => {
+  return pingTracker?.getPing() ?? 0;
 };

@@ -19,7 +19,8 @@ public static partial class Module
                 Id = playerId,
                 Identity = ctx.Sender,
                 Name = null,
-                CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+                CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+                Ping = 0
             };
 
             ctx.Db.player.Insert(player);
