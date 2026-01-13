@@ -77,7 +77,11 @@ public static partial class GameAI
 
     private static void SetPath(ReducerContext ctx, FullTank fullTank, List<(int x, int y)> path)
     {
-        var pathEntries = path.Select(waypoint => new Vector2Float(waypoint.x, waypoint.y)).ToArray();
+        var pathEntries = new Vector2Float[path.Count];
+        for (int i = 0; i < path.Count; i++)
+        {
+            pathEntries[i] = new Vector2Float(path[i].x, path[i].y);
+        }
 
         var newPathState = new Module.TankPath
         {

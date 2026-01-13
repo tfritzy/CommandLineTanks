@@ -374,7 +374,11 @@ public static class GameAILogic
         int currentY = GetGridPosition(tank.PositionY);
 
         var floatPath = AStarPathfinding.FindPath(currentX, currentY, targetX, targetY, traversibilityMap.Value);
-        var path = floatPath.Select(p => ((int)p.x, (int)p.y)).ToList();
+        var path = new List<(int x, int y)>(floatPath.Count);
+        foreach (var p in floatPath)
+        {
+            path.Add(((int)p.x, (int)p.y));
+        }
 
         return path;
     }
@@ -392,7 +396,8 @@ public static class GameAILogic
             (1, 2), (1, -2), (-1, 2), (-1, -2),
         };
 
-        var validMoves = new List<(int x, int y)>();
+        System.Span<(int x, int y)> validMoves = stackalloc (int, int)[16];
+        int validMoveCount = 0;
 
         foreach (var (moveX, moveY) in escapeMoves)
         {
@@ -405,13 +410,13 @@ public static class GameAILogic
             int index = checkY * traversibilityMap.Width + checkX;
             if (index >= 0 && index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
             {
-                validMoves.Add((checkX, checkY));
+                validMoves[validMoveCount++] = (checkX, checkY);
             }
         }
 
-        if (validMoves.Count > 0)
+        if (validMoveCount > 0)
         {
-            return validMoves[rng.Next(validMoves.Count)];
+            return validMoves[rng.Next(validMoveCount)];
         }
 
         return (currentX, currentY);

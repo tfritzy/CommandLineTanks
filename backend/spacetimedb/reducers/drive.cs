@@ -47,10 +47,10 @@ public static partial class Module
             return;
         }
 
-        List<Vector2Float> pathEntries = new List<Vector2Float>();
-        foreach (var point in pathPoints)
+        var pathEntries = new Vector2Float[pathPoints.Count];
+        for (int i = 0; i < pathPoints.Count; i++)
         {
-            pathEntries.Add(new Vector2Float(point.x, point.y));
+            pathEntries[i] = new Vector2Float(pathPoints[i].x, pathPoints[i].y);
         }
 
         var newPathState = new TankPath
@@ -58,7 +58,7 @@ public static partial class Module
             TankId = tank.Id,
             GameId = tank.GameId,
             Owner = tank.Owner,
-            Path = pathEntries.ToArray()
+            Path = pathEntries
         };
 
         UpsertTankPath(ctx, newPathState);

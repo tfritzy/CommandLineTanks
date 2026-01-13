@@ -49,21 +49,63 @@ public static partial class TurretAI
         int turretTileY = (int)fullTank.PositionY / TILE_SIZE;
 
         var allTanks = aiContext.GetAllTanks();
-        var tanksInTile = allTanks
-            .Where(t => t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
-            .Where(t =>
+        
+        int validTargetCount = 0;
+        FullTank? firstValidTarget = null;
+        
+        foreach (var t in allTanks)
+        {
+            if (t.Id == fullTank.Id || t.Health <= 0 || t.Alliance == fullTank.Alliance)
+                continue;
+                
+            int tankTileX = (int)t.PositionX / TILE_SIZE;
+            int tankTileY = (int)t.PositionY / TILE_SIZE;
+            
+            if (tankTileX == turretTileX && tankTileY == turretTileY)
             {
-                int tankTileX = (int)t.PositionX / TILE_SIZE;
-                int tankTileY = (int)t.PositionY / TILE_SIZE;
-                return tankTileX == turretTileX && tankTileY == turretTileY;
-            })
-            .ToList();
+                validTargetCount++;
+                if (firstValidTarget == null)
+                {
+                    firstValidTarget = t;
+                }
+            }
+        }
 
         Tank updatedTank = tank;
 
-        if (tanksInTile.Count > 0)
+        if (validTargetCount > 0)
         {
-            var targetFullTank = tanksInTile[aiContext.GetRandom().Next(tanksInTile.Count)];
+            FullTank targetFullTank;
+            if (validTargetCount == 1)
+            {
+                targetFullTank = firstValidTarget.Value;
+            }
+            else
+            {
+                int targetIndex = aiContext.GetRandom().Next(validTargetCount);
+                int currentIndex = 0;
+                targetFullTank = firstValidTarget.Value;
+                
+                foreach (var t in allTanks)
+                {
+                    if (t.Id == fullTank.Id || t.Health <= 0 || t.Alliance == fullTank.Alliance)
+                        continue;
+                        
+                    int tankTileX = (int)t.PositionX / TILE_SIZE;
+                    int tankTileY = (int)t.PositionY / TILE_SIZE;
+                    
+                    if (tankTileX == turretTileX && tankTileY == turretTileY)
+                    {
+                        if (currentIndex == targetIndex)
+                        {
+                            targetFullTank = t;
+                            break;
+                        }
+                        currentIndex++;
+                    }
+                }
+            }
+            
             updatedTank = TargetTankByCode(ctx, tank, targetFullTank.TargetCode);
             updatedTank = updatedTank with
             {
