@@ -14,12 +14,12 @@ public static partial class Module
         int totalTiles = worldWidth * worldHeight;
 
         var baseTerrain = new BaseTerrain[totalTiles];
-        var traversibilityMap = new bool[totalTiles];
+        var traversibilityBoolMap = new bool[totalTiles];
 
         for (int i = 0; i < totalTiles; i++)
         {
             baseTerrain[i] = BaseTerrain.Ground;
-            traversibilityMap[i] = true;
+            traversibilityBoolMap[i] = true;
         }
 
         CreateTargetingDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
@@ -48,9 +48,9 @@ public static partial class Module
             int rx = random.Next(worldWidth);
             int ry = random.Next(worldHeight);
             int rIndex = ry * worldWidth + rx;
-            if (traversibilityMap[rIndex] && (Math.Abs(rx - worldWidth / 2) > 5 || Math.Abs(ry - worldHeight / 2) > 5) && !IsInsideAnyPen(rx, ry))
+            if (traversibilityBoolMap[rIndex] && (Math.Abs(rx - worldWidth / 2) > 5 || Math.Abs(ry - worldHeight / 2) > 5) && !IsInsideAnyPen(rx, ry))
             {
-                traversibilityMap[rIndex] = false;
+                traversibilityBoolMap[rIndex] = false;
                 ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     gameId: identityString,
@@ -70,9 +70,9 @@ public static partial class Module
             int tx = random.Next(worldWidth);
             int ty = random.Next(worldHeight);
             int tIndex = ty * worldWidth + tx;
-            if (traversibilityMap[tIndex] && (Math.Abs(tx - worldWidth / 2) > 5 || Math.Abs(ty - worldHeight / 2) > 5) && !IsInsideAnyPen(tx, ty))
+            if (traversibilityBoolMap[tIndex] && (Math.Abs(tx - worldWidth / 2) > 5 || Math.Abs(ty - worldHeight / 2) > 5) && !IsInsideAnyPen(tx, ty))
             {
-                traversibilityMap[tIndex] = false;
+                traversibilityBoolMap[tIndex] = false;
                 ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     gameId: identityString,
@@ -96,7 +96,7 @@ public static partial class Module
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
             GameId = identityString,
-            Map = traversibilityMap,
+            Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
             Width = worldWidth,
             Height = worldHeight
         });

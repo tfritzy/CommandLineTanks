@@ -87,7 +87,7 @@ public static class AStarPathfinding
                     if (closedSet.Contains(neighborIndex))
                         continue;
 
-                    if (!traversibilityMap.Map[neighborIndex])
+                    if (!traversibilityMap.IsTraversable(neighborIndex))
                         continue;
 
                     bool isDiagonal = dx != 0 && dy != 0;
@@ -95,7 +95,7 @@ public static class AStarPathfinding
                     {
                         int adjacentH = currentY * width + neighborX;
                         int adjacentV = neighborY * width + currentX;
-                        if (!traversibilityMap.Map[adjacentH] || !traversibilityMap.Map[adjacentV])
+                        if (!traversibilityMap.IsTraversable(adjacentH) || !traversibilityMap.IsTraversable(adjacentV))
                             continue;
                     }
 

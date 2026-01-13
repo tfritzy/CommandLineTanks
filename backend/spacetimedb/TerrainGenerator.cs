@@ -577,7 +577,7 @@ public static partial class TerrainGenerator
         return terrainDetailArray;
     }
 
-    public static bool[] CalculateTraversibility(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail)
+    public static byte[] CalculateTraversibility(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail)
     {
         var traversibility = new bool[baseTerrain.Length];
 
@@ -609,7 +609,7 @@ public static partial class TerrainGenerator
             traversibility[i] = baseTraversible && detailTraversible;
         }
 
-        return traversibility;
+        return BitPackingUtils.BoolArrayToByteArray(traversibility);
     }
 
     private static void InitPerlin(Random random)

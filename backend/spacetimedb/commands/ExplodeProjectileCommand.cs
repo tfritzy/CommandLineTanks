@@ -146,7 +146,7 @@ public static partial class ProjectileUpdater
         if (newHealth <= 0)
         {
             ctx.Db.terrain_detail.Id.Delete(detail.Id);
-            traversibilityMap.Map[tileIndex] = true;
+            traversibilityMap.SetTraversable(tileIndex, true);
             return true;
         }
         else

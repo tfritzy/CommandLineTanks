@@ -9,8 +9,18 @@ public static partial class Module
         [PrimaryKey]
         public string GameId;
 
-        public bool[] Map;
+        public byte[] Map;
         public int Width;
         public int Height;
+
+        public bool IsTraversable(int index)
+        {
+            return BitPackingUtils.GetBit(Map, index);
+        }
+
+        public void SetTraversable(int index, bool value)
+        {
+            BitPackingUtils.SetBit(Map, index, value);
+        }
     }
 }
