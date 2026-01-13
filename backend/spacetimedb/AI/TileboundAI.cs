@@ -12,7 +12,7 @@ public static partial class TileboundAI
     public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, AIContext aiContext, int tickCount)
     {
         var tank = fullTank.Tank;
-        
+
         if (tickCount % MOVEMENT_TICK_INTERVAL != 0)
         {
             return tank;

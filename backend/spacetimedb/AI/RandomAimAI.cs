@@ -28,7 +28,7 @@ public static partial class RandomAimAI
                     float targetAngleDegrees = (float)(-targetAngle * 180.0 / Math.PI);
                     message = $"aim {targetAngleDegrees:F0}";
                 }
-                
+
                 var transform = fullTank.Transform with
                 {
                     TargetTurretRotation = NormalizeAngleToTarget(targetAngle, fullTank.TurretRotation)

@@ -7,88 +7,6 @@ public static partial class TankUpdater
 {
     private const double ARRIVAL_THRESHOLD = 0.1;
 
-    public class TankUpdateContext
-    {
-        private readonly ReducerContext _ctx;
-        private readonly string _gameId;
-        private Dictionary<string, (Module.Tank, Module.TankTransform)?>? _fullTanksById;
-        private Dictionary<(int, int), List<Module.Pickup>>? _pickupsByTile;
-        private Dictionary<(int, int), List<Module.TerrainDetail>>? _terrainDetailsByTile;
-
-        public TankUpdateContext(ReducerContext ctx, string gameId)
-        {
-            _ctx = ctx;
-            _gameId = gameId;
-        }
-
-        public (Module.Tank, Module.TankTransform)? GetFullTankById(string tankId)
-        {
-            if (_fullTanksById == null)
-            {
-                _fullTanksById = new Dictionary<string, (Module.Tank, Module.TankTransform)?>();
-            }
-
-            if (!_fullTanksById.ContainsKey(tankId))
-            {
-                var tank = _ctx.Db.tank.Id.Find(tankId);
-                var transform = _ctx.Db.tank_transform.TankId.Find(tankId);
-
-                if (tank != null && transform != null)
-                {
-                    _fullTanksById[tankId] = (tank.Value, transform.Value);
-                }
-                else
-                {
-                    _fullTanksById[tankId] = null;
-                }
-            }
-
-            return _fullTanksById[tankId];
-        }
-
-        public List<Module.Pickup> GetPickupsByTile(int tileX, int tileY)
-        {
-            if (_pickupsByTile == null)
-            {
-                _pickupsByTile = new Dictionary<(int, int), List<Module.Pickup>>();
-            }
-
-            var key = (tileX, tileY);
-            if (!_pickupsByTile.ContainsKey(key))
-            {
-                var pickups = new List<Module.Pickup>();
-                foreach (var pickup in _ctx.Db.pickup.GameId_GridX_GridY.Filter((_gameId, tileX, tileY)))
-                {
-                    pickups.Add(pickup);
-                }
-                _pickupsByTile[key] = pickups;
-            }
-
-            return _pickupsByTile[key];
-        }
-
-        public List<Module.TerrainDetail> GetTerrainDetailsByTile(int tileX, int tileY)
-        {
-            if (_terrainDetailsByTile == null)
-            {
-                _terrainDetailsByTile = new Dictionary<(int, int), List<Module.TerrainDetail>>();
-            }
-
-            var key = (tileX, tileY);
-            if (!_terrainDetailsByTile.ContainsKey(key))
-            {
-                var details = new List<Module.TerrainDetail>();
-                foreach (var detail in _ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((_gameId, tileX, tileY)))
-                {
-                    details.Add(detail);
-                }
-                _terrainDetailsByTile[key] = details;
-            }
-
-            return _terrainDetailsByTile[key];
-        }
-    }
-
     [Table(Scheduled = nameof(UpdateTanks))]
     public partial struct ScheduledTankUpdates
     {
@@ -105,7 +23,6 @@ public static partial class TankUpdater
     [Reducer]
     public static void UpdateTanks(ReducerContext ctx, ScheduledTankUpdates args)
     {
-        var stopwatch = new LogStopwatch("Tank update");
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
@@ -117,8 +34,6 @@ public static partial class TankUpdater
             LastTickAt = currentTime,
             TickCount = newTickCount
         });
-
-        var updateContext = new TankUpdateContext(ctx, args.GameId);
 
         foreach (var iTank in ctx.Db.tank.GameId.Filter(args.GameId))
         {
@@ -241,10 +156,12 @@ public static partial class TankUpdater
 
             if (tank.Target != null)
             {
-                var targetFullTank = updateContext.GetFullTankById(tank.Target);
-                if (targetFullTank != null && targetFullTank.Value.Item1.Health > 0)
+                var targetTankQuery = ctx.Db.tank.Id.Find(tank.Target);
+                var targetTransformQuery = ctx.Db.tank_transform.TankId.Find(tank.Target);
+
+                if (targetTankQuery != null && targetTransformQuery != null && targetTankQuery.Value.Health > 0)
                 {
-                    var (_, targetTransform) = targetFullTank.Value;
+                    var targetTransform = targetTransformQuery.Value;
                     var targetX = targetTransform.PositionX;
                     var targetY = targetTransform.PositionY;
 
@@ -328,7 +245,7 @@ public static partial class TankUpdater
             int tankTileX = (int)transform.PositionX;
             int tankTileY = (int)transform.PositionY;
 
-            foreach (var pickup in updateContext.GetPickupsByTile(tankTileX, tankTileY))
+            foreach (var pickup in ctx.Db.pickup.GameId_GridX_GridY.Filter((args.GameId, tankTileX, tankTileY)))
             {
                 if (PickupSpawner.TryCollectPickup(ctx, ref tank, ref needsTankUpdate, pickup))
                 {
@@ -336,7 +253,7 @@ public static partial class TankUpdater
                 }
             }
 
-            foreach (var terrainDetail in updateContext.GetTerrainDetailsByTile(tankTileX, tankTileY))
+            foreach (var terrainDetail in ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((args.GameId, tankTileX, tankTileY)))
             {
                 if (terrainDetail.Type == TerrainDetailType.FenceEdge || terrainDetail.Type == TerrainDetailType.FenceCorner)
                 {
@@ -355,7 +272,5 @@ public static partial class TankUpdater
                 ctx.Db.tank_transform.TankId.Update(transform);
             }
         }
-
-        stopwatch.End();
     }
 }

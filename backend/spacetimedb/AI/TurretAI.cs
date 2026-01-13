@@ -51,7 +51,8 @@ public static partial class TurretAI
         var allTanks = aiContext.GetAllTanks();
         var tanksInTile = allTanks
             .Where(t => t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
-            .Where(t => {
+            .Where(t =>
+            {
                 int tankTileX = (int)t.PositionX / TILE_SIZE;
                 int tankTileY = (int)t.PositionY / TILE_SIZE;
                 return tankTileX == turretTileX && tankTileY == turretTileY;
