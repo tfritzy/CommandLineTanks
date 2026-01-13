@@ -43,27 +43,64 @@ public static partial class TurretAI
         return tank;
     }
 
+    private static bool IsValidTarget(FullTank candidate, FullTank fullTank, int turretTileX, int turretTileY)
+    {
+        if (candidate.Id == fullTank.Id || candidate.Health <= 0 || candidate.Alliance == fullTank.Alliance)
+            return false;
+            
+        int tankTileX = (int)candidate.PositionX / TILE_SIZE;
+        int tankTileY = (int)candidate.PositionY / TILE_SIZE;
+        
+        return tankTileX == turretTileX && tankTileY == turretTileY;
+    }
+
     private static Tank SelectNewTarget(ReducerContext ctx, FullTank fullTank, Tank tank, AIContext aiContext)
     {
         int turretTileX = (int)fullTank.PositionX / TILE_SIZE;
         int turretTileY = (int)fullTank.PositionY / TILE_SIZE;
 
         var allTanks = aiContext.GetAllTanks();
-        var tanksInTile = allTanks
-            .Where(t => t.Id != fullTank.Id && t.Health > 0 && t.Alliance != fullTank.Alliance)
-            .Where(t =>
+        
+        int validTargetCount = 0;
+        FullTank? firstValidTarget = null;
+        
+        foreach (var t in allTanks)
+        {
+            if (IsValidTarget(t, fullTank, turretTileX, turretTileY))
             {
-                int tankTileX = (int)t.PositionX / TILE_SIZE;
-                int tankTileY = (int)t.PositionY / TILE_SIZE;
-                return tankTileX == turretTileX && tankTileY == turretTileY;
-            })
-            .ToList();
+                validTargetCount++;
+                if (firstValidTarget == null)
+                {
+                    firstValidTarget = t;
+                }
+            }
+        }
 
         Tank updatedTank = tank;
 
-        if (tanksInTile.Count > 0)
+        if (validTargetCount > 0)
         {
-            var targetFullTank = tanksInTile[aiContext.GetRandom().Next(tanksInTile.Count)];
+            FullTank targetFullTank = firstValidTarget.Value;
+            
+            if (validTargetCount > 1)
+            {
+                int targetIndex = aiContext.GetRandom().Next(validTargetCount);
+                int currentIndex = 0;
+                
+                foreach (var t in allTanks)
+                {
+                    if (IsValidTarget(t, fullTank, turretTileX, turretTileY))
+                    {
+                        if (currentIndex == targetIndex)
+                        {
+                            targetFullTank = t;
+                            break;
+                        }
+                        currentIndex++;
+                    }
+                }
+            }
+            
             updatedTank = TargetTankByCode(ctx, tank, targetFullTank.TargetCode);
             updatedTank = updatedTank with
             {
