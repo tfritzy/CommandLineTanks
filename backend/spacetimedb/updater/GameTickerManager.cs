@@ -142,10 +142,10 @@ public static partial class Module
 
         var width = TerrainGenerator.GetGameWidth();
         var height = TerrainGenerator.GetGameHeight();
-        var (baseTerrain, terrainDetails, traversibilityMap) = GenerateTerrainCommand(ctx, width, height);
+        var (baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
         var newGameId = Module.GenerateGameId(ctx);
-        var newGame = CreateGame(ctx, newGameId, baseTerrain, terrainDetails, traversibilityMap, width, height);
+        var newGame = CreateGame(ctx, newGameId, baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap, width, height);
 
         SpawnInitialBots(ctx, newGameId, newGame);
         var shuffledIndices = new int[totalTanks];
