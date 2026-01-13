@@ -5,6 +5,7 @@ public static class AStarPathfinding
 {
     private const int STRAIGHT_COST = 10;
     private const int DIAGONAL_COST = 14;
+    private static readonly List<(float x, float y)> EmptyPath = new List<(float x, float y)>();
 
     public static List<(float x, float y)> FindPath(
         int startX,
@@ -13,18 +14,16 @@ public static class AStarPathfinding
         int targetY,
         Module.TraversibilityMap traversibilityMap)
     {
-        var emptyPath = new List<(float x, float y)>();
-
         int width = traversibilityMap.Width;
         int height = traversibilityMap.Height;
 
         if (startX < 0 || startX >= width || startY < 0 || startY >= height)
-            return emptyPath;
+            return EmptyPath;
         if (targetX < 0 || targetX >= width || targetY < 0 || targetY >= height)
-            return emptyPath;
+            return EmptyPath;
 
         if (startX == targetX && startY == targetY)
-            return emptyPath;
+            return EmptyPath;
 
         var gCost = new Dictionary<int, int>();
         var fCost = new Dictionary<int, int>();
@@ -119,7 +118,7 @@ public static class AStarPathfinding
             return ReconstructPath(cameFrom, closestNode, width);
         }
 
-        return emptyPath;
+        return EmptyPath;
     }
 
     private static int Heuristic(int fromX, int fromY, int toX, int toY)

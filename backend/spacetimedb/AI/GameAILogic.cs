@@ -6,6 +6,8 @@ using static Types;
 
 public static class GameAILogic
 {
+    private static readonly List<(int x, int y)> EmptyIntPath = new List<(int x, int y)>();
+
     public enum AIAction
     {
         None,
@@ -24,7 +26,7 @@ public static class GameAILogic
         public int TargetX { get; set; }
         public int TargetY { get; set; }
         public bool ShouldFire { get; set; }
-        public List<(int x, int y)> Path { get; set; } = new List<(int x, int y)>();
+        public List<(int x, int y)>? Path { get; set; }
     }
 
     public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, FullTank tank, AIContext context)
@@ -363,11 +365,9 @@ public static class GameAILogic
 
     public static List<(int x, int y)> FindPathTowards(FullTank tank, int targetX, int targetY, Module.TraversibilityMap? traversibilityMap)
     {
-        var emptyPath = new List<(int x, int y)>();
-
         if (traversibilityMap == null)
         {
-            return emptyPath;
+            return EmptyIntPath;
         }
 
         int currentX = GetGridPosition(tank.PositionX);

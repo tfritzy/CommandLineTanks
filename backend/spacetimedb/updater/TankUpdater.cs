@@ -88,11 +88,10 @@ public static partial class TankUpdater
                 if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
                 {
                     var overshoot = moveDistance - distance;
-                    var newPath = currentPath.AsSpan(1).ToArray();
 
-                    if (newPath.Length > 0)
+                    if (currentPath.Length > 1)
                     {
-                        var nextTarget = newPath[0];
+                        var nextTarget = currentPath[1];
                         var nextDeltaX = nextTarget.X - targetPos.X;
                         var nextDeltaY = nextTarget.Y - targetPos.Y;
                         var nextDistance = Math.Sqrt(nextDeltaX * nextDeltaX + nextDeltaY * nextDeltaY);
@@ -123,6 +122,8 @@ public static partial class TankUpdater
                             };
                         }
 
+                        var newPath = new Vector2Float[currentPath.Length - 1];
+                        Array.Copy(currentPath, 1, newPath, 0, currentPath.Length - 1);
                         ctx.Db.tank_path.TankId.Update(pathState.Value with { Path = newPath });
                     }
                     else

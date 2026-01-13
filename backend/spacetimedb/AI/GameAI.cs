@@ -15,7 +15,7 @@ public static partial class GameAI
         switch (decision.Action)
         {
             case GameAILogic.AIAction.MoveTowardsPickup:
-                if (decision.TargetPickup != null && decision.Path.Count > 0)
+                if (decision.TargetPickup != null && decision.Path != null && decision.Path.Count > 0)
                 {
                     SetPath(ctx, fullTank, decision.Path);
                 }
@@ -50,7 +50,7 @@ public static partial class GameAI
                 break;
 
             case GameAILogic.AIAction.MoveTowardsEnemy:
-                if (decision.Path.Count > 0)
+                if (decision.Path != null && decision.Path.Count > 0)
                 {
                     if (decision.TargetTank != null)
                     {

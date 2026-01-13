@@ -406,7 +406,7 @@ public static partial class ProjectileUpdater
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         ulong expirationThreshold = 500_000;
 
-        System.Span<DamagedTank> recentlyHitBuffer = stackalloc DamagedTank[128];
+        DamagedTank[] recentlyHitBuffer = new DamagedTank[128];
         int recentlyHitCount = 0;
         foreach (var hitTank in projectile.RecentlyHitTanks)
         {
@@ -496,9 +496,11 @@ public static partial class ProjectileUpdater
             }
         }
 
+        var recentlyHitArray = new DamagedTank[recentlyHitCount];
+        Array.Copy(recentlyHitBuffer, recentlyHitArray, recentlyHitCount);
         projectile = projectile with
         {
-            RecentlyHitTanks = recentlyHitBuffer.AsSpan(0, recentlyHitCount).ToArray()
+            RecentlyHitTanks = recentlyHitArray
         };
 
         return (false, projectile, transform, false);
