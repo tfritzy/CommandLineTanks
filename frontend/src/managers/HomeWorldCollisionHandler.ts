@@ -1,6 +1,5 @@
 import { getConnection } from "../spacetimedb-connection";
 import { TANK_COLLISION_RADIUS } from "../constants";
-import { ServerTimeSync } from "../utils/ServerTimeSync";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import ProjectileRow from "../../module_bindings/projectile_type";
@@ -18,6 +17,7 @@ export class HomeWorldCollisionHandler {
   private worldWidth: number = 0;
   private worldHeight: number = 0;
   private pendingCollisions: Set<bigint> = new Set();
+  private clientSpawnTimes: Map<bigint, number> = new Map();
   private traversibilityMapSubscription: TableSubscription<typeof TraversibilityMapRow> | null = null;
   private gameSubscription: TableSubscription<typeof GameRow> | null = null;
 
@@ -40,6 +40,13 @@ export class HomeWorldCollisionHandler {
 
   public clearPendingCollision(projectileId: bigint) {
     this.pendingCollisions.delete(projectileId);
+    this.clientSpawnTimes.delete(projectileId);
+  }
+
+  public registerProjectile(projectileId: bigint) {
+    if (this.isHomeWorld && !this.clientSpawnTimes.has(projectileId)) {
+      this.clientSpawnTimes.set(projectileId, performance.now());
+    }
   }
 
   private subscribeToGameAndTraversibility() {
@@ -99,20 +106,24 @@ export class HomeWorldCollisionHandler {
     }
   }
 
-  public checkCollisions(projectileId: bigint, projectile: Projectile, projectileData: Infer<typeof ProjectileRow>) {
+  public checkCollisions(projectileId: bigint, projectile: Projectile) {
     if (!this.isHomeWorld) return;
     if (this.pendingCollisions.has(projectileId)) return;
 
+    const projectileData = getConnection()?.db.projectile.id.find(projectileId);
+    if (!projectileData) return;
+
+    const spawnTimeMs = this.clientSpawnTimes.get(projectileId);
+    if (spawnTimeMs !== undefined) {
+      const projectileAgeSeconds = (performance.now() - spawnTimeMs) / 1000;
+      if (projectileAgeSeconds >= projectileData.lifetimeSeconds) {
+        this.handleProjectileExpire(projectileId);
+        return;
+      }
+    }
+
     const x = projectile.getX();
     const y = projectile.getY();
-    const currentTimeMs = ServerTimeSync.getInstance().getServerTime();
-    const spawnedAtMs = Number(projectileData.spawnedAt) / 1000;
-    const projectileAgeSeconds = (currentTimeMs - spawnedAtMs) / 1000;
-
-    if (projectileAgeSeconds >= projectileData.lifetimeSeconds) {
-      this.handleProjectileExpire(projectileId);
-      return;
-    }
 
     if (!projectileData.passThroughTerrain) {
       const terrainCollision = this.checkTerrainCollision(x, y, projectileData);
@@ -209,5 +220,6 @@ export class HomeWorldCollisionHandler {
       this.gameSubscription = null;
     }
     this.pendingCollisions.clear();
+    this.clientSpawnTimes.clear();
   }
 }

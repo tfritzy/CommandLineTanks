@@ -67,6 +67,7 @@ export class ProjectileManager {
             newProjectile.trackingRadius
           );
           this.projectiles.set(newProjectile.id, projectile);
+          this.homeWorldCollisionHandler.registerProjectile(newProjectile.id);
 
           const playerTank = this.tankManager?.getPlayerTank();
           if (playerTank && newProjectile.shooterTankId === playerTank.id && newProjectile.projectileType.tag === "Moag") {
@@ -106,6 +107,7 @@ export class ProjectileManager {
             projectileData.trackingRadius
           );
           this.projectiles.set(newTransform.projectileId, projectile);
+          this.homeWorldCollisionHandler.registerProjectile(newTransform.projectileId);
 
           const playerTank = this.tankManager?.getPlayerTank();
           if (playerTank && projectileData.shooterTankId === playerTank.id && projectileData.projectileType.tag === "Moag") {
@@ -154,18 +156,9 @@ export class ProjectileManager {
   }
 
   public update(deltaTime: number) {
-    const isHomeWorld = this.homeWorldCollisionHandler.isEnabled();
-    const connection = isHomeWorld ? getConnection() : null;
-    
     for (const [projectileId, projectile] of this.projectiles.entries()) {
       projectile.update(deltaTime, this.tankManager ?? undefined);
-      
-      if (isHomeWorld && connection) {
-        const projectileData = connection.db.projectile.id.find(projectileId);
-        if (projectileData) {
-          this.homeWorldCollisionHandler.checkCollisions(projectileId, projectile, projectileData);
-        }
-      }
+      this.homeWorldCollisionHandler.checkCollisions(projectileId, projectile);
     }
     this.particlesManager.update(deltaTime);
   }
