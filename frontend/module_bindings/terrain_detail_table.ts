@@ -13,16 +13,16 @@ import TerrainDetailType from "./terrain_detail_type_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  gridX: __t.i32(),
-  gridY: __t.i32(),
+  id: __t.string().primaryKey().name("Id"),
+  gameId: __t.string().name("GameId"),
+  positionX: __t.f32().name("PositionX"),
+  positionY: __t.f32().name("PositionY"),
+  gridX: __t.i32().name("GridX"),
+  gridY: __t.i32().name("GridY"),
   get type() {
-    return TerrainDetailType;
+    return TerrainDetailType.name("Type");
   },
-  health: __t.option(__t.i32()),
-  label: __t.option(__t.string()),
-  rotation: __t.i32(),
+  health: __t.option(__t.i32()).name("Health"),
+  label: __t.option(__t.string()).name("Label"),
+  rotation: __t.i32().name("Rotation"),
 });

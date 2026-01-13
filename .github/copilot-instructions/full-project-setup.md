@@ -6,14 +6,14 @@ This document provides complete instructions for setting up and running the Comm
 
 - .NET 8.0 SDK
 - Node.js 18+ and npm
-- SpacetimeDB CLI version 1.10.0 (CRITICAL: Must be exactly this version)
+- SpacetimeDB CLI (latest stable version)
 
-## Step 1: Install SpacetimeDB CLI v1.10.0
+## Step 1: Install SpacetimeDB CLI
 
-**IMPORTANT:** The project requires SpacetimeDB CLI version 1.10.0 exactly. Other versions (including 1.11.x) are NOT compatible.
+Install the latest stable version of SpacetimeDB CLI:
 
 ```bash
-curl -sSL "https://github.com/clockworklabs/SpacetimeDB/releases/download/v1.10.0/spacetime-x86_64-unknown-linux-gnu.tar.gz" -o spacetime.tar.gz
+curl -sSL "https://github.com/clockworklabs/SpacetimeDB/releases/latest/download/spacetime-x86_64-unknown-linux-gnu.tar.gz" -o spacetime.tar.gz
 tar -xzf spacetime.tar.gz
 mkdir -p ~/.local/bin
 cp spacetimedb-cli ~/.local/bin/spacetime
@@ -24,7 +24,7 @@ Verify installation:
 ```bash
 spacetime --version
 ```
-Should output: `spacetimedb tool version 1.10.0; spacetimedb-lib version 1.10.0;`
+Should output the current stable version (e.g., `spacetimedb tool version 1.11.2; spacetimedb-lib version 1.11.2;`)
 
 ## Step 2: Start SpacetimeDB Server
 
@@ -109,7 +109,7 @@ The game should:
 
 ## Verification Checklist
 
-- [ ] SpacetimeDB CLI version 1.10.0 installed
+- [ ] SpacetimeDB CLI (latest stable version) installed
 - [ ] SpacetimeDB server running (`spacetime start`)
 - [ ] Backend builds successfully (`dotnet build`)
 - [ ] Backend published to SpacetimeDB (`spacetime publish`)
@@ -151,7 +151,7 @@ If the frontend shows connection errors:
 
 If frontend build fails:
 1. Check that frontend dependencies are installed: `npm install`
-2. Verify SpacetimeDB SDK version matches CLI version (1.10.0) in `package.json`
+2. Verify SpacetimeDB SDK version is compatible with CLI version in `package.json`
 3. If schema changed, regenerate TypeScript bindings
 
 ### Backend Build Errors
@@ -164,9 +164,9 @@ If backend build fails:
 ### Version Mismatch Issues
 
 If you get type compatibility errors:
-1. Verify CLI version is exactly 1.10.0: `spacetime --version`
-2. Check SDK version in `frontend/package.json` is 1.10.0
-3. Regenerate TypeScript bindings with correct CLI version
+1. Verify CLI, SDK, and Runtime versions are all compatible
+2. Check SDK version in `frontend/package.json` and Runtime version in backend `.csproj`
+3. Regenerate TypeScript bindings with matching CLI version
 
 ## Stopping Services
 
@@ -187,7 +187,7 @@ To stop the development environment:
 
 ## Notes for AI Agents
 
-- Always use SpacetimeDB CLI version 1.10.0 exactly
+- Always use the latest stable SpacetimeDB version for CLI, SDK, and Runtime
 - The backend must be rebuilt and republished after C# code changes
 - TypeScript bindings must be regenerated after backend schema changes
 - Both backend and frontend builds must succeed before testing changes

@@ -13,12 +13,12 @@ import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.row({
-  projectileId: __t.u64().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
+  projectileId: __t.u64().primaryKey().name("ProjectileId"),
+  gameId: __t.string().name("GameId"),
+  positionX: __t.f32().name("PositionX"),
+  positionY: __t.f32().name("PositionY"),
   get velocity() {
-    return Vector2Float;
+    return Vector2Float.name("Velocity");
   },
-  collisionCount: __t.i32(),
+  collisionCount: __t.i32().name("CollisionCount"),
 });

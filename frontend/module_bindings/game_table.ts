@@ -15,24 +15,24 @@ import GameState from "./game_state_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  createdAt: __t.u64(),
-  width: __t.i32(),
-  height: __t.i32(),
+  id: __t.string().primaryKey().name("Id"),
+  createdAt: __t.u64().name("CreatedAt"),
+  width: __t.i32().name("Width"),
+  height: __t.i32().name("Height"),
   get baseTerrainLayer() {
-    return __t.array(BaseTerrain);
+    return __t.array(BaseTerrain).name("BaseTerrainLayer");
   },
   get gameState() {
-    return GameState;
+    return GameState.name("GameState");
   },
-  isHomeGame: __t.bool(),
-  gameStartedAt: __t.u64(),
-  gameDurationMicros: __t.i64(),
+  isHomeGame: __t.bool().name("IsHomeGame"),
+  gameStartedAt: __t.u64().name("GameStartedAt"),
+  gameDurationMicros: __t.i64().name("GameDurationMicros"),
   get visibility() {
-    return GameVisibility;
+    return GameVisibility.name("Visibility");
   },
-  maxPlayers: __t.i32(),
-  currentPlayerCount: __t.i32(),
-  botCount: __t.i32(),
-  owner: __t.option(__t.identity()),
+  maxPlayers: __t.i32().name("MaxPlayers"),
+  currentPlayerCount: __t.i32().name("CurrentPlayerCount"),
+  botCount: __t.i32().name("BotCount"),
+  owner: __t.option(__t.identity()).name("Owner"),
 });

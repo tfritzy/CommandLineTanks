@@ -13,10 +13,10 @@ import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.row({
-  tankId: __t.string().primaryKey(),
-  gameId: __t.string(),
-  owner: __t.identity(),
+  tankId: __t.string().primaryKey().name("TankId"),
+  gameId: __t.string().name("GameId"),
+  owner: __t.identity().name("Owner"),
   get path() {
-    return __t.array(Vector2Float);
+    return __t.array(Vector2Float).name("Path");
   },
 });

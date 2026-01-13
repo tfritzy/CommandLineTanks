@@ -1,5 +1,6 @@
 using SpacetimeDB;
 using System;
+using static Types;
 
 public static partial class Module
 {

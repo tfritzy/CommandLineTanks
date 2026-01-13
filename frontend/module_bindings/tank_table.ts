@@ -15,36 +15,36 @@ import Gun from "./gun_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  gameId: __t.string(),
-  owner: __t.identity(),
-  name: __t.string(),
-  targetCode: __t.string(),
-  joinCode: __t.option(__t.string()),
-  isBot: __t.bool(),
+  id: __t.string().primaryKey().name("Id"),
+  gameId: __t.string().name("GameId"),
+  owner: __t.identity().name("Owner"),
+  name: __t.string().name("Name"),
+  targetCode: __t.string().name("TargetCode"),
+  joinCode: __t.option(__t.string()).name("JoinCode"),
+  isBot: __t.bool().name("IsBot"),
   get aiBehavior() {
-    return AiBehavior;
+    return AiBehavior.name("AIBehavior");
   },
   get aiConfig() {
-    return __t.option(AiConfig);
+    return __t.option(AiConfig).name("AiConfig");
   },
-  alliance: __t.i32(),
-  maxHealth: __t.i32(),
-  topSpeed: __t.f32(),
-  turretRotationSpeed: __t.f32(),
-  health: __t.i32(),
-  kills: __t.i32(),
-  deaths: __t.i32(),
-  killStreak: __t.i32(),
-  target: __t.option(__t.string()),
-  targetLead: __t.f32(),
-  message: __t.option(__t.string()),
+  alliance: __t.i32().name("Alliance"),
+  maxHealth: __t.i32().name("MaxHealth"),
+  topSpeed: __t.f32().name("TopSpeed"),
+  turretRotationSpeed: __t.f32().name("TurretRotationSpeed"),
+  health: __t.i32().name("Health"),
+  kills: __t.i32().name("Kills"),
+  deaths: __t.i32().name("Deaths"),
+  killStreak: __t.i32().name("KillStreak"),
+  target: __t.option(__t.string()).name("Target"),
+  targetLead: __t.f32().name("TargetLead"),
+  message: __t.option(__t.string()).name("Message"),
   get guns() {
-    return __t.array(Gun);
+    return __t.array(Gun).name("Guns");
   },
-  selectedGunIndex: __t.i32(),
-  hasShield: __t.bool(),
-  remainingImmunityMicros: __t.i64(),
-  deathTimestamp: __t.u64(),
-  lastDamagedBy: __t.option(__t.identity()),
+  selectedGunIndex: __t.i32().name("SelectedGunIndex"),
+  hasShield: __t.bool().name("HasShield"),
+  remainingImmunityMicros: __t.i64().name("RemainingImmunityMicros"),
+  deathTimestamp: __t.u64().name("DeathTimestamp"),
+  lastDamagedBy: __t.option(__t.identity()).name("LastDamagedBy"),
 });

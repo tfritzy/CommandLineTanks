@@ -16,35 +16,35 @@ import DamagedTank from "./damaged_tank_type";
 
 
 export default __t.row({
-  id: __t.u64().primaryKey(),
-  gameId: __t.string(),
-  shooterTankId: __t.string(),
-  alliance: __t.i32(),
-  size: __t.f32(),
-  damage: __t.i32(),
-  trackingStrength: __t.f32(),
-  trackingRadius: __t.f32(),
+  id: __t.u64().primaryKey().name("Id"),
+  gameId: __t.string().name("GameId"),
+  shooterTankId: __t.string().name("ShooterTankId"),
+  alliance: __t.i32().name("Alliance"),
+  size: __t.f32().name("Size"),
+  damage: __t.i32().name("Damage"),
+  trackingStrength: __t.f32().name("TrackingStrength"),
+  trackingRadius: __t.f32().name("TrackingRadius"),
   get projectileType() {
-    return ProjectileType;
+    return ProjectileType.name("ProjectileType");
   },
-  spawnedAt: __t.u64(),
-  lifetimeSeconds: __t.f32(),
-  returnsToShooter: __t.bool(),
-  maxCollisions: __t.i32(),
-  passThroughTerrain: __t.bool(),
-  collisionRadius: __t.f32(),
-  explosionRadius: __t.option(__t.f32()),
+  spawnedAt: __t.u64().name("SpawnedAt"),
+  lifetimeSeconds: __t.f32().name("LifetimeSeconds"),
+  returnsToShooter: __t.bool().name("ReturnsToShooter"),
+  maxCollisions: __t.i32().name("MaxCollisions"),
+  passThroughTerrain: __t.bool().name("PassThroughTerrain"),
+  collisionRadius: __t.f32().name("CollisionRadius"),
+  explosionRadius: __t.option(__t.f32()).name("ExplosionRadius"),
   get explosionTrigger() {
-    return ExplosionTrigger;
+    return ExplosionTrigger.name("ExplosionTrigger");
   },
-  damping: __t.option(__t.f32()),
-  bounce: __t.bool(),
-  speed: __t.f32(),
-  isReturning: __t.bool(),
+  damping: __t.option(__t.f32()).name("Damping"),
+  bounce: __t.bool().name("Bounce"),
+  speed: __t.f32().name("Speed"),
+  isReturning: __t.bool().name("IsReturning"),
   get recentlyDamagedTiles() {
-    return __t.array(DamagedTile);
+    return __t.array(DamagedTile).name("RecentlyDamagedTiles");
   },
   get recentlyHitTanks() {
-    return __t.array(DamagedTank);
+    return __t.array(DamagedTank).name("RecentlyHitTanks");
   },
 });

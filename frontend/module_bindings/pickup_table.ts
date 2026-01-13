@@ -13,14 +13,14 @@ import PickupType from "./pickup_type_type";
 
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  gridX: __t.i32(),
-  gridY: __t.i32(),
+  id: __t.string().primaryKey().name("Id"),
+  gameId: __t.string().name("GameId"),
+  positionX: __t.f32().name("PositionX"),
+  positionY: __t.f32().name("PositionY"),
+  gridX: __t.i32().name("GridX"),
+  gridY: __t.i32().name("GridY"),
   get type() {
-    return PickupType;
+    return PickupType.name("Type");
   },
-  ammo: __t.option(__t.i32()),
+  ammo: __t.option(__t.i32()).name("Ammo"),
 });

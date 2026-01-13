@@ -13,17 +13,17 @@ import Vector2Float from "./vector_2_float_type";
 
 
 export default __t.row({
-  tankId: __t.string().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
+  tankId: __t.string().primaryKey().name("TankId"),
+  gameId: __t.string().name("GameId"),
+  positionX: __t.f32().name("PositionX"),
+  positionY: __t.f32().name("PositionY"),
   get velocity() {
-    return Vector2Float;
+    return Vector2Float.name("Velocity");
   },
-  collisionRegionX: __t.i32(),
-  collisionRegionY: __t.i32(),
-  turretRotation: __t.f32(),
-  targetTurretRotation: __t.f32(),
-  turretAngularVelocity: __t.f32(),
-  updatedAt: __t.u64(),
+  collisionRegionX: __t.i32().name("CollisionRegionX"),
+  collisionRegionY: __t.i32().name("CollisionRegionY"),
+  turretRotation: __t.f32().name("TurretRotation"),
+  targetTurretRotation: __t.f32().name("TargetTurretRotation"),
+  turretAngularVelocity: __t.f32().name("TurretAngularVelocity"),
+  updatedAt: __t.u64().name("UpdatedAt"),
 });

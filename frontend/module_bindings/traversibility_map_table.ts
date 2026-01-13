@@ -11,8 +11,8 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  gameId: __t.string().primaryKey(),
-  map: __t.array(__t.bool()),
-  width: __t.i32(),
-  height: __t.i32(),
+  gameId: __t.string().primaryKey().name("GameId"),
+  map: __t.byteArray().name("Map"),
+  width: __t.i32().name("Width"),
+  height: __t.i32().name("Height"),
 });
