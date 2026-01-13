@@ -9,53 +9,27 @@ public static partial class ProjectileUpdater
 
     public class ProjectileUpdateContext
     {
-        private ReducerContext _ctx;
-        private string _gameId;
-        private Dictionary<string, Module.Tank?> _tanksById;
-        private Dictionary<(int regionX, int regionY), List<Module.TankTransform>> _tankTransformsByRegion;
-        private Dictionary<(int gridX, int gridY), Module.TerrainDetail?> _terrainDetailByPosition;
-        private List<List<Module.TankTransform>> _transformListPool;
-        public ulong CurrentTime;
+        private readonly ReducerContext _ctx;
+        private readonly string _gameId;
+        private Dictionary<string, Module.Tank?>? _tanksById;
+        private Dictionary<(int regionX, int regionY), List<Module.TankTransform>>? _tankTransformsByRegion;
+        private Dictionary<(int gridX, int gridY), Module.TerrainDetail?>? _terrainDetailByPosition;
+        public readonly ulong CurrentTime;
 
         public ProjectileUpdateContext(ReducerContext ctx, string gameId, ulong currentTime)
         {
             _ctx = ctx;
             _gameId = gameId;
             CurrentTime = currentTime;
-            _tanksById = new Dictionary<string, Module.Tank?>();
-            _tankTransformsByRegion = new Dictionary<(int, int), List<Module.TankTransform>>();
-            _terrainDetailByPosition = new Dictionary<(int, int), Module.TerrainDetail?>();
-            _transformListPool = new List<List<Module.TankTransform>>();
-        }
-
-        public void Reset(ReducerContext ctx, string gameId, ulong currentTime)
-        {
-            _ctx = ctx;
-            _gameId = gameId;
-            CurrentTime = currentTime;
-            _tanksById.Clear();
-            foreach (var kvp in _tankTransformsByRegion)
-            {
-                kvp.Value.Clear();
-                _transformListPool.Add(kvp.Value);
-            }
-            _tankTransformsByRegion.Clear();
-            _terrainDetailByPosition.Clear();
-        }
-
-        private List<Module.TankTransform> GetPooledTransformList()
-        {
-            if (_transformListPool.Count > 0)
-            {
-                var list = _transformListPool[_transformListPool.Count - 1];
-                _transformListPool.RemoveAt(_transformListPool.Count - 1);
-                return list;
-            }
-            return new List<Module.TankTransform>();
         }
 
         public Module.Tank? GetTankById(string tankId)
         {
+            if (_tanksById == null)
+            {
+                _tanksById = new Dictionary<string, Module.Tank?>();
+            }
+
             if (!_tanksById.TryGetValue(tankId, out var tank))
             {
                 tank = _ctx.Db.tank.Id.Find(tankId);
@@ -67,10 +41,15 @@ public static partial class ProjectileUpdater
 
         public List<Module.TankTransform> GetTankTransformsByRegion(int regionX, int regionY)
         {
+            if (_tankTransformsByRegion == null)
+            {
+                _tankTransformsByRegion = new Dictionary<(int, int), List<Module.TankTransform>>();
+            }
+
             var key = (regionX, regionY);
             if (!_tankTransformsByRegion.TryGetValue(key, out var transforms))
             {
-                transforms = GetPooledTransformList();
+                transforms = new List<Module.TankTransform>();
                 foreach (var transform in _ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((_gameId, regionX, regionY)))
                 {
                     transforms.Add(transform);
@@ -83,6 +62,11 @@ public static partial class ProjectileUpdater
 
         public Module.TerrainDetail? GetTerrainDetailAt(int gridX, int gridY)
         {
+            if (_terrainDetailByPosition == null)
+            {
+                _terrainDetailByPosition = new Dictionary<(int, int), Module.TerrainDetail?>();
+            }
+
             var key = (gridX, gridY);
             if (!_terrainDetailByPosition.TryGetValue(key, out var detail))
             {
@@ -100,15 +84,21 @@ public static partial class ProjectileUpdater
 
         public void UpdateTerrainDetail(Module.TerrainDetail detail)
         {
-            var key = (detail.GridX, detail.GridY);
-            _terrainDetailByPosition[key] = detail;
+            if (_terrainDetailByPosition != null)
+            {
+                var key = (detail.GridX, detail.GridY);
+                _terrainDetailByPosition[key] = detail;
+            }
             _ctx.Db.terrain_detail.Id.Update(detail);
         }
 
         public void DeleteTerrainDetail(Module.TerrainDetail detail)
         {
-            var key = (detail.GridX, detail.GridY);
-            _terrainDetailByPosition[key] = null;
+            if (_terrainDetailByPosition != null)
+            {
+                var key = (detail.GridX, detail.GridY);
+                _terrainDetailByPosition[key] = null;
+            }
             _ctx.Db.terrain_detail.Id.Delete(detail.Id);
         }
     }
@@ -729,7 +719,7 @@ public static partial class ProjectileUpdater
 
         bool traversibilityMapChanged = false;
 
-        var updateContext = ContextPools.GetProjectileContext(ctx, args.GameId, currentTime);
+        var updateContext = new ProjectileUpdateContext(ctx, args.GameId, currentTime);
 
         foreach (var iProjectile in ctx.Db.projectile.GameId.Filter(args.GameId))
         {
