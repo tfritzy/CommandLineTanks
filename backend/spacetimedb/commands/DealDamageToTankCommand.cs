@@ -94,7 +94,8 @@ public static partial class Module
 
     private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankTransform transform, string gameId)
     {
-        foreach (var gun in tank.Guns)
+        var guns = GetTankGuns(ctx, tank.Id);
+        foreach (var gun in guns)
         {
             if (gun.GunType == GunType.Base)
             {

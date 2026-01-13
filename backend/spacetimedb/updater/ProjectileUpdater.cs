@@ -354,9 +354,10 @@ public static partial class ProjectileUpdater
         }
 
         int existingGunIndex = -1;
-        for (int i = 0; i < tank.Guns.Length; i++)
+        var guns = Module.GetTankGuns(ctx, tank.Id);
+        for (int i = 0; i < guns.Length; i++)
         {
-            if (tank.Guns[i].GunType == GunType.Boomerang)
+            if (guns[i].GunType == GunType.Boomerang)
             {
                 existingGunIndex = i;
                 break;
@@ -365,23 +366,18 @@ public static partial class ProjectileUpdater
 
         if (existingGunIndex >= 0)
         {
-            var gun = tank.Guns[existingGunIndex];
+            var gun = guns[existingGunIndex];
             if (gun.Ammo != null)
             {
                 gun.Ammo = gun.Ammo.Value + 1;
-                tank.Guns[existingGunIndex] = gun;
-                ctx.Db.tank.Id.Update(tank);
+                Module.UpdateTankGunAtIndex(ctx, tank.Id, existingGunIndex, gun);
             }
         }
-        else if (tank.Guns.Length < 3)
+        else if (guns.Length < 3)
         {
             var boomerangGun = Module.BOOMERANG_GUN with { Ammo = 1 };
-            var newGunIndex = tank.Guns.Length;
-            tank = tank with
-            {
-                Guns = [.. tank.Guns, boomerangGun],
-                SelectedGunIndex = newGunIndex
-            };
+            Module.AddTankGun(ctx, tank.Id, tank.GameId, boomerangGun);
+            tank = tank with { SelectedGunIndex = guns.Length };
             ctx.Db.tank.Id.Update(tank);
         }
 

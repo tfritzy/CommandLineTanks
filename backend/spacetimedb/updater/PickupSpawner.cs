@@ -308,9 +308,10 @@ public static partial class PickupSpawner
     private static bool TryCollectGunPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup, Gun gunToAdd)
     {
         int existingGunIndex = -1;
-        for (int i = 0; i < tank.Guns.Length; i++)
+        var guns = Module.GetTankGuns(ctx, tank.Id);
+        for (int i = 0; i < guns.Length; i++)
         {
-            if (tank.Guns[i].GunType == gunToAdd.GunType)
+            if (guns[i].GunType == gunToAdd.GunType)
             {
                 existingGunIndex = i;
                 break;
@@ -319,7 +320,7 @@ public static partial class PickupSpawner
 
         if (existingGunIndex >= 0)
         {
-            var existingGun = tank.Guns[existingGunIndex];
+            var existingGun = guns[existingGunIndex];
 
             if (pickup.Ammo != null)
             {
@@ -331,23 +332,20 @@ public static partial class PickupSpawner
                 {
                     existingGun.Ammo = pickup.Ammo;
                 }
-                tank.Guns[existingGunIndex] = existingGun;
+                Module.UpdateTankGunAtIndex(ctx, tank.Id, existingGunIndex, existingGun);
                 needsUpdate = true;
                 ctx.Db.pickup.Id.Delete(pickup.Id);
                 return true;
             }
         }
-        else if (tank.Guns.Length < 3)
+        else if (guns.Length < 3)
         {
             var gunWithAmmo = pickup.Ammo.HasValue
                 ? gunToAdd with { Ammo = pickup.Ammo }
                 : gunToAdd;
 
-            tank = tank with
-            {
-                Guns = [.. tank.Guns, gunWithAmmo],
-                SelectedGunIndex = tank.Guns.Length
-            };
+            Module.AddTankGun(ctx, tank.Id, tank.GameId, gunWithAmmo);
+            tank = tank with { SelectedGunIndex = guns.Length };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
             return true;

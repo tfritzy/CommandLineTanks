@@ -37,9 +37,9 @@ public static partial class Module
             if (timeSinceLastFire < FIRE_RATE_LIMIT_MICROS) return tank;
         }
 
-        if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return tank;
-
-        var gun = tank.Guns[tank.SelectedGunIndex];
+        var gunQuery = GetTankGunAtIndex(ctx, tank.Id, tank.SelectedGunIndex);
+        if (gunQuery == null) return tank;
+        var gun = gunQuery.Value;
 
         if (gun.Ammo != null && gun.Ammo <= 0) return tank;
 
@@ -82,38 +82,31 @@ public static partial class Module
 
             if (gun.Ammo <= 0)
             {
-                var newGuns = new Gun[tank.Guns.Length - 1];
-                int newIndex = 0;
-                for (int i = 0; i < tank.Guns.Length; i++)
-                {
-                    if (i != tank.SelectedGunIndex)
-                    {
-                        newGuns[newIndex++] = tank.Guns[i];
-                    }
-                }
-                tank.Guns = newGuns;
+                DeleteTankGunAtIndex(ctx, tank.Id, tank.SelectedGunIndex);
                 
-                if (tank.Guns.Length > 0)
+                int gunCount = GetTankGunCount(ctx, tank.Id);
+                if (gunCount > 0)
                 {
                     int firstNonBaseGunIndex = -1;
-                    for (int i = 0; i < tank.Guns.Length; i++)
+                    var guns = GetTankGuns(ctx, tank.Id);
+                    for (int i = 0; i < guns.Length; i++)
                     {
-                        if (tank.Guns[i].GunType != Types.GunType.Base)
+                        if (guns[i].GunType != Types.GunType.Base)
                         {
                             firstNonBaseGunIndex = i;
                             break;
                         }
                     }
-                    tank.SelectedGunIndex = firstNonBaseGunIndex >= 0 ? firstNonBaseGunIndex : 0;
+                    tank = tank with { SelectedGunIndex = firstNonBaseGunIndex >= 0 ? firstNonBaseGunIndex : 0 };
                 }
                 else
                 {
-                    tank.SelectedGunIndex = -1;
+                    tank = tank with { SelectedGunIndex = -1 };
                 }
             }
             else
             {
-                tank.Guns[tank.SelectedGunIndex] = gun;
+                UpdateTankGunAtIndex(ctx, tank.Id, tank.SelectedGunIndex, gun);
             }
         }
 

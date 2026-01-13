@@ -11,9 +11,9 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        if (gunIndex < 0 || gunIndex >= tank.Guns.Length) return;
+        var gunQuery = GetTankGunAtIndex(ctx, tank.Id, gunIndex);
+        if (gunQuery == null) return;
 
-        var selectedGun = tank.Guns[gunIndex];
         var updatedTank = tank with { SelectedGunIndex = gunIndex };
         ctx.Db.tank.Id.Update(updatedTank);
     }
