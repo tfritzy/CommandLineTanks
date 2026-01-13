@@ -16,6 +16,8 @@ import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 
+const VIEWPORT_CULLING_PADDING = 50;
+
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
   private playerTankId: string | null = null;
@@ -361,11 +363,10 @@ export class TankManager {
     viewportWidth: number,
     viewportHeight: number
   ) {
-    const padding = 50;
-    const left = cameraX - padding;
-    const right = cameraX + viewportWidth + padding;
-    const top = cameraY - padding;
-    const bottom = cameraY + viewportHeight + padding;
+    const left = cameraX - VIEWPORT_CULLING_PADDING;
+    const right = cameraX + viewportWidth + VIEWPORT_CULLING_PADDING;
+    const top = cameraY - VIEWPORT_CULLING_PADDING;
+    const bottom = cameraY + viewportHeight + VIEWPORT_CULLING_PADDING;
 
     for (const tank of this.tanks.values()) {
       const pos = tank.getPosition();
@@ -388,11 +389,10 @@ export class TankManager {
     const playerTank = this.playerTankId ? this.tanks.get(this.playerTankId) : null;
     const playerAlliance = playerTank ? playerTank.getAlliance() : null;
 
-    const padding = 50;
-    const left = cameraX - padding;
-    const right = cameraX + viewportWidth + padding;
-    const top = cameraY - padding;
-    const bottom = cameraY + viewportHeight + padding;
+    const left = cameraX - VIEWPORT_CULLING_PADDING;
+    const right = cameraX + viewportWidth + VIEWPORT_CULLING_PADDING;
+    const top = cameraY - VIEWPORT_CULLING_PADDING;
+    const bottom = cameraY + viewportHeight + VIEWPORT_CULLING_PADDING;
 
     ctx.textAlign = "center";
 
