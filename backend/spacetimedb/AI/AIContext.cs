@@ -1,36 +1,23 @@
 using SpacetimeDB;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static Module;
 
 public class AIContext
 {
-    private ReducerContext _ctx;
-    private string _gameId;
-    private List<FullTank> _allFullTanks;
-    private List<Pickup> _allPickups;
+    private readonly ReducerContext _ctx;
+    private readonly string _gameId;
+    private List<FullTank>? _allFullTanks;
+    private List<Pickup>? _allPickups;
     private TraversibilityMap? _traversibilityMap;
     private bool _traversibilityMapLoaded;
-    private Dictionary<string, Module.TankPath?> _tankPaths;
+    private Dictionary<string, Module.TankPath?>? _tankPaths;
 
     public AIContext(ReducerContext ctx, string gameId)
     {
         _ctx = ctx;
         _gameId = gameId;
-        _allFullTanks = new List<FullTank>();
-        _allPickups = new List<Pickup>();
-        _tankPaths = new Dictionary<string, Module.TankPath?>();
-    }
-
-    public void Reset(ReducerContext ctx, string gameId)
-    {
-        _ctx = ctx;
-        _gameId = gameId;
-        _allFullTanks.Clear();
-        _allPickups.Clear();
-        _traversibilityMap = null;
-        _traversibilityMapLoaded = false;
-        _tankPaths.Clear();
     }
 
     public Random GetRandom()
@@ -40,8 +27,9 @@ public class AIContext
 
     public List<FullTank> GetAllTanks()
     {
-        if (_allFullTanks.Count == 0)
+        if (_allFullTanks == null)
         {
+            _allFullTanks = new List<FullTank>();
             foreach (var tank in _ctx.Db.tank.GameId.Filter(_gameId))
             {
                 var transform = _ctx.Db.tank_transform.TankId.Find(tank.Id);
@@ -56,12 +44,9 @@ public class AIContext
 
     public List<Pickup> GetAllPickups()
     {
-        if (_allPickups.Count == 0)
+        if (_allPickups == null)
         {
-            foreach (var pickup in _ctx.Db.pickup.GameId.Filter(_gameId))
-            {
-                _allPickups.Add(pickup);
-            }
+            _allPickups = _ctx.Db.pickup.GameId.Filter(_gameId).ToList();
         }
         return _allPickups;
     }
@@ -78,13 +63,17 @@ public class AIContext
 
     public Module.TankPath? GetTankPath(string tankId)
     {
-        if (!_tankPaths.TryGetValue(tankId, out var path))
+        if (_tankPaths == null)
         {
-            path = _ctx.Db.tank_path.TankId.Find(tankId);
-            _tankPaths[tankId] = path;
+            _tankPaths = new Dictionary<string, Module.TankPath?>();
         }
 
-        return path;
+        if (!_tankPaths.ContainsKey(tankId))
+        {
+            _tankPaths[tankId] = _ctx.Db.tank_path.TankId.Find(tankId);
+        }
+
+        return _tankPaths[tankId];
     }
 
     public FullTank? GetClosestEnemyTank(FullTank sourceTank)

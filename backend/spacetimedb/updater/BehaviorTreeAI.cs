@@ -23,7 +23,7 @@ public static partial class BehaviorTreeAI
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
         var stopwatch = new LogStopwatch("update ai");
-        var aiContext = ContextPools.GetAIContext(ctx, args.GameId);
+        var aiContext = new AIContext(ctx, args.GameId);
 
         foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((args.GameId, true)))
         {
