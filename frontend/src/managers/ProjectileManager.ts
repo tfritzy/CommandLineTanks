@@ -6,6 +6,7 @@ import { UNIT_TO_PIXEL, TANK_COLLISION_RADIUS } from "../constants";
 import type { TankManager } from "./TankManager";
 import { ScreenShake } from "../utils/ScreenShake";
 import { SoundManager } from "./SoundManager";
+import { ServerTimeSync } from "../utils/ServerTimeSync";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import ProjectileRow from "../../module_bindings/projectile_type";
@@ -287,9 +288,9 @@ export class ProjectileManager {
 
     const x = projectile.getX();
     const y = projectile.getY();
-    const currentTime = Date.now() * 1000;
-    const projectileAgeMicros = currentTime - Number(data.spawnedAt);
-    const projectileAgeSeconds = projectileAgeMicros / 1_000_000;
+    const currentTimeMs = ServerTimeSync.getInstance().getServerTime();
+    const spawnedAtMs = Number(data.spawnedAt) / 1000;
+    const projectileAgeSeconds = (currentTimeMs - spawnedAtMs) / 1000;
 
     if (projectileAgeSeconds >= data.lifetimeSeconds) {
       this.handleProjectileExpire(projectileId);
