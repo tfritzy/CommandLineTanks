@@ -504,7 +504,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyHitTanks = recentlyHitCount > 0 ? recentlyHitBuffer.AsSpan(0, recentlyHitCount).ToArray() : null
+            RecentlyHitTanks = recentlyHitCount > 0 ? recentlyHitBuffer.Slice(0, recentlyHitCount).ToArray() : null
         };
 
         return (false, projectile, transform, false);
