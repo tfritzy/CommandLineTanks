@@ -1,57 +1,45 @@
-using System.Collections.Generic;
-
 public static class ContextPools
 {
-    private static readonly Dictionary<string, ProjectileUpdater.ProjectileUpdateContext> _projectileContexts = new Dictionary<string, ProjectileUpdater.ProjectileUpdateContext>();
-    private static readonly Dictionary<string, TankUpdater.TankUpdateContext> _tankContexts = new Dictionary<string, TankUpdater.TankUpdateContext>();
-    private static readonly Dictionary<string, AIContext> _aiContexts = new Dictionary<string, AIContext>();
+    private static ProjectileUpdater.ProjectileUpdateContext? _projectileContext;
+    private static TankUpdater.TankUpdateContext? _tankContext;
+    private static AIContext? _aiContext;
 
     public static ProjectileUpdater.ProjectileUpdateContext GetProjectileContext(SpacetimeDB.ReducerContext ctx, string gameId, ulong currentTime)
     {
-        if (!_projectileContexts.TryGetValue(gameId, out var context))
+        if (_projectileContext == null)
         {
-            context = new ProjectileUpdater.ProjectileUpdateContext(ctx, gameId, currentTime);
-            _projectileContexts[gameId] = context;
+            _projectileContext = new ProjectileUpdater.ProjectileUpdateContext(ctx, gameId, currentTime);
         }
         else
         {
-            context.Reset(ctx, gameId, currentTime);
+            _projectileContext.Reset(ctx, gameId, currentTime);
         }
-        return context;
+        return _projectileContext;
     }
 
     public static TankUpdater.TankUpdateContext GetTankContext(SpacetimeDB.ReducerContext ctx, string gameId)
     {
-        if (!_tankContexts.TryGetValue(gameId, out var context))
+        if (_tankContext == null)
         {
-            context = new TankUpdater.TankUpdateContext(ctx, gameId);
-            _tankContexts[gameId] = context;
+            _tankContext = new TankUpdater.TankUpdateContext(ctx, gameId);
         }
         else
         {
-            context.Reset(ctx, gameId);
+            _tankContext.Reset(ctx, gameId);
         }
-        return context;
+        return _tankContext;
     }
 
     public static AIContext GetAIContext(SpacetimeDB.ReducerContext ctx, string gameId)
     {
-        if (!_aiContexts.TryGetValue(gameId, out var context))
+        if (_aiContext == null)
         {
-            context = new AIContext(ctx, gameId);
-            _aiContexts[gameId] = context;
+            _aiContext = new AIContext(ctx, gameId);
         }
         else
         {
-            context.Reset(ctx, gameId);
+            _aiContext.Reset(ctx, gameId);
         }
-        return context;
-    }
-
-    public static void RemoveGameContexts(string gameId)
-    {
-        _projectileContexts.Remove(gameId);
-        _tankContexts.Remove(gameId);
-        _aiContexts.Remove(gameId);
+        return _aiContext;
     }
 }
