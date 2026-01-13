@@ -10,9 +10,11 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.row({
-  gameId: __t.string().primaryKey(),
+export default __t.object("ProjectileTraversibilityMap", {
+  gameId: __t.string(),
   map: __t.byteArray(),
   width: __t.i32(),
   height: __t.i32(),
 });
+
+

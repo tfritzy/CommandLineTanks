@@ -113,12 +113,16 @@ import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
 import ProjectileTransformRow from "./projectile_transform_table";
 export { ProjectileTransformRow };
+import ProjectileTraversibilityMapRow from "./projectile_traversibility_map_table";
+export { ProjectileTraversibilityMapRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
 import TankRow from "./tank_table";
 export { TankRow };
 import TankFireStateRow from "./tank_fire_state_table";
 export { TankFireStateRow };
+import TankGunRow from "./tank_gun_table";
+export { TankGunRow };
 import TankPathRow from "./tank_path_table";
 export { TankPathRow };
 import TankTransformRow from "./tank_transform_table";
@@ -163,6 +167,8 @@ import Projectile from "./projectile_type";
 export { Projectile };
 import ProjectileTransform from "./projectile_transform_type";
 export { ProjectileTransform };
+import ProjectileTraversibilityMap from "./projectile_traversibility_map_type";
+export { ProjectileTraversibilityMap };
 import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
 import ScheduledAiUpdate from "./scheduled_ai_update_type";
@@ -187,6 +193,8 @@ import Tank from "./tank_type";
 export { Tank };
 import TankFireState from "./tank_fire_state_type";
 export { TankFireState };
+import TankGun from "./tank_gun_type";
+export { TankGun };
 import TankPath from "./tank_path_type";
 export { TankPath };
 import TankTransform from "./tank_transform_type";
@@ -407,6 +415,17 @@ const tablesSchema = __schema(
     ],
   }, ProjectileTransformRow),
   __table({
+    name: 'projectile_traversibility_map',
+    indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+    ],
+    constraints: [
+      { name: 'projectile_traversibility_map_GameId_key', constraint: 'unique', columns: ['gameId'] },
+    ],
+  }, ProjectileTraversibilityMapRow),
+  __table({
     name: 'score',
     indexes: [
       { name: 'GameId', algorithm: 'btree', columns: [
@@ -460,6 +479,23 @@ const tablesSchema = __schema(
       { name: 'tank_fire_state_TankId_key', constraint: 'unique', columns: ['tankId'] },
     ],
   }, TankFireStateRow),
+  __table({
+    name: 'tank_gun',
+    indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'TankId', algorithm: 'btree', columns: [
+        'tankId',
+      ] },
+    ],
+    constraints: [
+      { name: 'tank_gun_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, TankGunRow),
   __table({
     name: 'tank_path',
     indexes: [
