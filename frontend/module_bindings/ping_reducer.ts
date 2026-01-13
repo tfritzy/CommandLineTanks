@@ -10,10 +10,6 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.row({
-  id: __t.string().primaryKey(),
-  identity: __t.identity(),
-  name: __t.option(__t.string()),
-  createdAt: __t.u64(),
-  ping: __t.u64(),
-});
+export default {
+  clientTimestamp: __t.u64(),
+};
