@@ -11,7 +11,7 @@ export class PingTracker {
   private measurements: PingMeasurement[] = [];
   private maxMeasurements = 10;
   private pingIntervalMs = 500;
-  private lastPingSentAt: number = 0;
+  private lastPingSentTimestamp: bigint = BigInt(0);
   private waitingForResponse: boolean = false;
   private intervalId: number | null = null;
   private connection: DbConnection | null = null;
@@ -31,11 +31,10 @@ export class PingTracker {
       if (!newRow.identity.isEqual(this.connection.identity)) return;
       if (!this.waitingForResponse) return;
       
-      const sentTimestamp = BigInt(Math.floor(this.lastPingSentAt));
-      if (newRow.ping === sentTimestamp) {
+      if (newRow.ping === this.lastPingSentTimestamp) {
         const receivedAt = performance.now();
         this.measurements.push({
-          sentAt: this.lastPingSentAt,
+          sentAt: Number(this.lastPingSentTimestamp),
           receivedAt: receivedAt,
         });
 
@@ -66,9 +65,10 @@ export class PingTracker {
     if (!this.connection) return;
     if (this.waitingForResponse) return;
 
-    this.lastPingSentAt = performance.now();
+    const now = performance.now();
+    this.lastPingSentTimestamp = BigInt(Math.floor(now));
     this.waitingForResponse = true;
-    this.connection.reducers.ping({ clientTimestamp: BigInt(Math.floor(this.lastPingSentAt)) });
+    this.connection.reducers.ping({ clientTimestamp: this.lastPingSentTimestamp });
   }
 
   private calculatePing(): void {
