@@ -43,6 +43,17 @@ public static partial class TurretAI
         return tank;
     }
 
+    private static bool IsValidTarget(FullTank candidate, FullTank fullTank, int turretTileX, int turretTileY)
+    {
+        if (candidate.Id == fullTank.Id || candidate.Health <= 0 || candidate.Alliance == fullTank.Alliance)
+            return false;
+            
+        int tankTileX = (int)candidate.PositionX / TILE_SIZE;
+        int tankTileY = (int)candidate.PositionY / TILE_SIZE;
+        
+        return tankTileX == turretTileX && tankTileY == turretTileY;
+    }
+
     private static Tank SelectNewTarget(ReducerContext ctx, FullTank fullTank, Tank tank, AIContext aiContext)
     {
         int turretTileX = (int)fullTank.PositionX / TILE_SIZE;
@@ -55,13 +66,7 @@ public static partial class TurretAI
         
         foreach (var t in allTanks)
         {
-            if (t.Id == fullTank.Id || t.Health <= 0 || t.Alliance == fullTank.Alliance)
-                continue;
-                
-            int tankTileX = (int)t.PositionX / TILE_SIZE;
-            int tankTileY = (int)t.PositionY / TILE_SIZE;
-            
-            if (tankTileX == turretTileX && tankTileY == turretTileY)
+            if (IsValidTarget(t, fullTank, turretTileX, turretTileY))
             {
                 validTargetCount++;
                 if (firstValidTarget == null)
@@ -88,13 +93,7 @@ public static partial class TurretAI
                 
                 foreach (var t in allTanks)
                 {
-                    if (t.Id == fullTank.Id || t.Health <= 0 || t.Alliance == fullTank.Alliance)
-                        continue;
-                        
-                    int tankTileX = (int)t.PositionX / TILE_SIZE;
-                    int tankTileY = (int)t.PositionY / TILE_SIZE;
-                    
-                    if (tankTileX == turretTileX && tankTileY == turretTileY)
+                    if (IsValidTarget(t, fullTank, turretTileX, turretTileY))
                     {
                         if (currentIndex == targetIndex)
                         {
