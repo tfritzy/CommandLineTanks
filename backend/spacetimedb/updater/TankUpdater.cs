@@ -88,8 +88,7 @@ public static partial class TankUpdater
                 if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
                 {
                     var overshoot = moveDistance - distance;
-                    var newPath = new Vector2Float[currentPath.Length - 1];
-                    Array.Copy(currentPath, 1, newPath, 0, newPath.Length);
+                    var newPath = currentPath.AsSpan(1).ToArray();
 
                     if (newPath.Length > 0)
                     {
