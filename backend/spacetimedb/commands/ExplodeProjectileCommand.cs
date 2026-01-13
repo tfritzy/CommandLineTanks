@@ -136,7 +136,7 @@ public static partial class ProjectileUpdater
         ref Module.TraversibilityMap traversibilityMap)
     {
         var terrainDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, gridX, gridY)).FirstOrDefault();
-        if (terrainDetail == null || terrainDetail.Value.Health == null)
+        if (!terrainDetail.HasValue || terrainDetail.Value.Health == null)
         {
             return false;
         }

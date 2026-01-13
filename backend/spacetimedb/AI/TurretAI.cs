@@ -80,16 +80,12 @@ public static partial class TurretAI
 
         if (validTargetCount > 0)
         {
-            FullTank targetFullTank;
-            if (validTargetCount == 1)
-            {
-                targetFullTank = firstValidTarget.Value;
-            }
-            else
+            FullTank targetFullTank = firstValidTarget.Value;
+            
+            if (validTargetCount > 1)
             {
                 int targetIndex = aiContext.GetRandom().Next(validTargetCount);
                 int currentIndex = 0;
-                targetFullTank = firstValidTarget.Value;
                 
                 foreach (var t in allTanks)
                 {
