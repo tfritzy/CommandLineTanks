@@ -1,4 +1,4 @@
-import { COLORS } from "../theme/colors";
+import { COLORS, PALETTE } from "../theme/colors";
 import { getPing } from "../spacetimedb-connection";
 
 
@@ -37,11 +37,11 @@ export class FpsCounter {
       
       let pingColor = COLORS.UI.TEXT_PRIMARY;
       if (ping < 50) {
-        pingColor = "#96dc7f";
+        pingColor = PALETTE.GREEN_SUCCESS;
       } else if (ping < 100) {
-        pingColor = "#f5c47c";
+        pingColor = PALETTE.YELLOW_MEDIUM;
       } else {
-        pingColor = "#e39764";
+        pingColor = PALETTE.ORANGE_MEDIUM;
       }
       
       ctx.beginPath();
