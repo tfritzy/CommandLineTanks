@@ -117,6 +117,8 @@ import ProjectileRow from "./projectile_table";
 export { ProjectileRow };
 import ProjectileTransformRow from "./projectile_transform_table";
 export { ProjectileTransformRow };
+import ProjectileTraversibilityMapRow from "./projectile_traversibility_map_table";
+export { ProjectileTraversibilityMapRow };
 import ScoreRow from "./score_table";
 export { ScoreRow };
 import TankRow from "./tank_table";
@@ -167,6 +169,8 @@ import Projectile from "./projectile_type";
 export { Projectile };
 import ProjectileTransform from "./projectile_transform_type";
 export { ProjectileTransform };
+import ProjectileTraversibilityMap from "./projectile_traversibility_map_type";
+export { ProjectileTraversibilityMap };
 import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
 import ScheduledAiUpdate from "./scheduled_ai_update_type";
@@ -410,6 +414,17 @@ const tablesSchema = __schema(
       { name: 'projectile_transform_ProjectileId_key', constraint: 'unique', columns: ['projectileId'] },
     ],
   }, ProjectileTransformRow),
+  __table({
+    name: 'projectile_traversibility_map',
+    indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+    ],
+    constraints: [
+      { name: 'projectile_traversibility_map_GameId_key', constraint: 'unique', columns: ['gameId'] },
+    ],
+  }, ProjectileTraversibilityMapRow),
   __table({
     name: 'score',
     indexes: [

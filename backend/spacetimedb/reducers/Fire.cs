@@ -82,7 +82,7 @@ public static partial class Module
 
             if (gun.Ammo <= 0)
             {
-                var newGuns = new Gun[tank.Guns.Length - 1];
+                var newGuns = new Types.Gun[tank.Guns.Length - 1];
                 int newIndex = 0;
                 for (int i = 0; i < tank.Guns.Length; i++)
                 {
