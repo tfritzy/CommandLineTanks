@@ -16,8 +16,6 @@ export default __t.object("PathEntry", {
   get position() {
     return Vector2Float;
   },
-  throttlePercent: __t.f32(),
-  reverse: __t.bool(),
 });
 
 

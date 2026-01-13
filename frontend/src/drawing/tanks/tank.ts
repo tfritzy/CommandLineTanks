@@ -192,7 +192,7 @@ export function drawTankPath(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
-  path: Array<{ position: { x: number; y: number }; throttlePercent: number }>,
+  path: Array<{ position: { x: number; y: number } }>,
   lineColor: string,
   dotColor: string
 ) {

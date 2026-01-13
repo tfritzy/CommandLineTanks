@@ -20,8 +20,6 @@ public static partial class Types
     public partial struct PathEntry
     {
         public Vector2Float Position;
-        public float ThrottlePercent;
-        public bool Reverse;
     }
 
     [Type]

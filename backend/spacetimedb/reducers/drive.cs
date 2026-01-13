@@ -7,7 +7,7 @@ using System.Linq;
 public static partial class Module
 {
     [Reducer]
-    public static void drive(ReducerContext ctx, string gameId, int targetX, int targetY, float throttle)
+    public static void drive(ReducerContext ctx, string gameId, int targetX, int targetY)
     {
         Game? maybeGame = ctx.Db.game.Id.Find(gameId);
         if (maybeGame != null)
@@ -52,9 +52,7 @@ public static partial class Module
         {
             pathEntries.Add(new PathEntry
             {
-                Position = new Vector2Float(point.x, point.y),
-                ThrottlePercent = throttle,
-                Reverse = false
+                Position = new Vector2Float(point.x, point.y)
             });
         }
 

@@ -97,9 +97,7 @@ public static partial class TileboundAI
 
         PathEntry entry = new()
         {
-            ThrottlePercent = 1.0f,
-            Position = nextPos,
-            Reverse = false
+            Position = nextPos
         };
 
         var newPathState = new Module.TankPath

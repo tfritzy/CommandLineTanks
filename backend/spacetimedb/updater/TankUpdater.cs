@@ -82,7 +82,7 @@ public static partial class TankUpdater
                 var deltaY = targetPos.Position.Y - transform.PositionY;
                 var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-                var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
+                var moveSpeed = tank.TopSpeed;
                 var moveDistance = moveSpeed * deltaTime;
 
                 if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
@@ -102,7 +102,7 @@ public static partial class TankUpdater
                         {
                             var nextDirX = nextDeltaX / nextDistance;
                             var nextDirY = nextDeltaY / nextDistance;
-                            var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent;
+                            var nextMoveSpeed = tank.TopSpeed;
 
                             var finalX = targetPos.Position.X + nextDirX * Math.Min(overshoot, nextDistance);
                             var finalY = targetPos.Position.Y + nextDirY * Math.Min(overshoot, nextDistance);

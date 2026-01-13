@@ -15,7 +15,6 @@ import { COLORS } from "../theme/colors";
 
 type PathEntry = {
   position: { x: number; y: number };
-  throttlePercent: number;
 };
 
 export class Tank {

@@ -79,9 +79,7 @@ public static partial class GameAI
     {
         var pathEntries = path.Select(waypoint => new PathEntry
         {
-            Position = new Vector2Float(waypoint.x, waypoint.y),
-            ThrottlePercent = 1.0f,
-            Reverse = false
+            Position = new Vector2Float(waypoint.x, waypoint.y)
         }).ToArray();
 
         var newPathState = new Module.TankPath
@@ -114,9 +112,7 @@ public static partial class GameAI
 
         PathEntry entry = new()
         {
-            ThrottlePercent = 1.0f,
-            Position = nextPos,
-            Reverse = false
+            Position = nextPos
         };
 
         var newPathState = new Module.TankPath
