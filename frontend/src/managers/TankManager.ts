@@ -6,7 +6,8 @@ import { TankIndicatorManager } from "./TankIndicatorManager";
 import { TargetingReticle } from "../objects/TargetingReticle";
 import { ScreenShake } from "../utils/ScreenShake";
 import { MuzzleFlashParticlesManager } from "./MuzzleFlashParticlesManager";
-import { GUN_BARREL_LENGTH } from "../constants";
+import { GUN_BARREL_LENGTH, UNIT_TO_PIXEL } from "../constants";
+import { COLORS } from "../theme/colors";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
@@ -363,15 +364,45 @@ export class TankManager {
     const playerTank = this.playerTankId ? this.tanks.get(this.playerTankId) : null;
     const playerAlliance = playerTank ? playerTank.getAlliance() : null;
 
+    ctx.textAlign = "center";
+
+    const tanksWithTargetCodes: Array<{ tank: Tank, targetCode: string }> = [];
+    const tanksWithoutTargetCodes: Tank[] = [];
+
     for (const tank of this.tanks.values()) {
+      if (tank.getHealth() <= 0) continue;
+      
       const isPlayerTank = tank.id === this.playerTankId;
       const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
+      const targetCode = tank.getTargetCode();
 
-      if (isPlayerTank || isFriendly) {
-        tank.drawNameLabelWithoutTargetCode(ctx);
+      if (isPlayerTank || isFriendly || !targetCode) {
+        tanksWithoutTargetCodes.push(tank);
       } else {
-        tank.drawNameLabel(ctx);
+        tanksWithTargetCodes.push({ tank, targetCode });
       }
+    }
+
+    if (tanksWithTargetCodes.length > 0) {
+      ctx.font = "bold 16px monospace";
+      ctx.fillStyle = COLORS.TERMINAL.WARNING;
+      for (const { tank, targetCode } of tanksWithTargetCodes) {
+        const pos = tank.getPosition();
+        ctx.fillText(targetCode, pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 34);
+      }
+    }
+
+    ctx.font = "12px monospace";
+    ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
+    
+    for (const { tank } of tanksWithTargetCodes) {
+      const pos = tank.getPosition();
+      ctx.fillText(tank.getName(), pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 20);
+    }
+    
+    for (const tank of tanksWithoutTargetCodes) {
+      const pos = tank.getPosition();
+      ctx.fillText(tank.getName(), pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 27);
     }
   }
 
