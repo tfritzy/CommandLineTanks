@@ -349,9 +349,9 @@ public static class GameAILogic
                 return false;
 
             var index = checkY * traversibilityMap.Value.Width + checkX;
-            if (index >= 0 && index < traversibilityMap.Value.Map.Length)
+            if (index >= 0 && index < traversibilityMap.Value.Map.Length * 8)
             {
-                if (!traversibilityMap.Value.Map[index])
+                if (!traversibilityMap.Value.IsTraversable(index))
                 {
                     return false;
                 }
@@ -408,7 +408,7 @@ public static class GameAILogic
                 continue;
 
             int index = checkY * traversibilityMap.Width + checkX;
-            if (index >= 0 && index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
+            if (index >= 0 && index < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(index))
             {
                 validMoves[validMoveCount++] = (checkX, checkY);
             }
@@ -461,7 +461,7 @@ public static class GameAILogic
             if (checkX == currentX && checkY == currentY) continue;
 
             int index = checkY * traversibilityMap.Width + checkX;
-            if (index >= 0 && index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
+            if (index >= 0 && index < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(index))
             {
                 return (checkX, checkY);
             }

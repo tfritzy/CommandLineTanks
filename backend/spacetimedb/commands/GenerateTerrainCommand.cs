@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public static (BaseTerrain[], (int x, int y, TerrainDetailType type, int rotation)[], bool[]) GenerateTerrainCommand(ReducerContext ctx, int width, int height)
+    public static (BaseTerrain[], (int x, int y, TerrainDetailType type, int rotation)[], byte[]) GenerateTerrainCommand(ReducerContext ctx, int width, int height)
     {
         var (baseTerrain, terrainDetails) = TerrainGenerator.GenerateTerrain(ctx.Rng, width, height);
         var terrainDetailArray = TerrainGenerator.ConvertToArray(

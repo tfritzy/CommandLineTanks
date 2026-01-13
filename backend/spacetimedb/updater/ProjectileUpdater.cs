@@ -146,7 +146,7 @@ public static partial class ProjectileUpdater
         }
 
         int tileIndex = projectileTileY * traversibilityMap.Width + projectileTileX;
-        bool tileIsTraversable = tileIndex < traversibilityMap.Map.Length && traversibilityMap.Map[tileIndex];
+        bool tileIsTraversable = tileIndex < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(tileIndex);
 
         if (projectile.PassThroughTerrain)
         {

@@ -185,7 +185,7 @@ public static partial class PickupSpawner
             return false;
 
         int tileIndex = spawnY * traversibilityMap.Width + spawnX;
-        if (tileIndex >= traversibilityMap.Map.Length || !traversibilityMap.Map[tileIndex])
+        if (tileIndex >= traversibilityMap.Map.Length * 8 || !traversibilityMap.IsTraversable(tileIndex))
             return false;
 
         float centerX = spawnX + 0.5f;

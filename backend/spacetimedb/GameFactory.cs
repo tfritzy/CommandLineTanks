@@ -8,7 +8,7 @@ public static partial class Module
         string gameId,
         BaseTerrain[] baseTerrain,
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
-        bool[] traversibilityMap,
+        byte[] traversibilityMap,
         int width,
         int height,
         GameVisibility visibility = GameVisibility.Public,

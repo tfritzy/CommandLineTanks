@@ -130,7 +130,7 @@ public static partial class Module
         }
 
         int tileIndex = gridY * traversibilityMap.Width + gridX;
-        if (traversibilityMap.Map[tileIndex])
+        if (traversibilityMap.IsTraversable(tileIndex))
         {
             return;
         }
@@ -151,7 +151,7 @@ public static partial class Module
             if (newHealth <= 0)
             {
                 ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
-                traversibilityMap.Map[tileIndex] = true;
+                traversibilityMap.SetTraversable(tileIndex, true);
                 ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
             }
             else

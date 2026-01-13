@@ -68,7 +68,7 @@ public static partial class TileboundAI
             int targetY = tileMinY + rng.Next(tileMaxY - tileMinY + 1);
 
             int index = targetY * traversibilityMap.Width + targetX;
-            if (index >= 0 && index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
+            if (index >= 0 && index < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(index))
             {
                 return (targetX, targetY);
             }

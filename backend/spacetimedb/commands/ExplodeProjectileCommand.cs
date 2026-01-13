@@ -136,17 +136,17 @@ public static partial class ProjectileUpdater
         ref Module.TraversibilityMap traversibilityMap)
     {
         var terrainDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, gridX, gridY)).FirstOrDefault();
-        if (!terrainDetail.HasValue || terrainDetail.Value.Health == null)
+        if (terrainDetail.Id == null || terrainDetail.Health == null)
         {
             return false;
         }
 
-        var detail = terrainDetail.Value;
+        var detail = terrainDetail;
         var newHealth = detail.Health.Value - damage;
         if (newHealth <= 0)
         {
             ctx.Db.terrain_detail.Id.Delete(detail.Id);
-            traversibilityMap.Map[tileIndex] = true;
+            traversibilityMap.SetTraversable(tileIndex, true);
             return true;
         }
         else

@@ -101,7 +101,7 @@ public static partial class Module
             }
 
             int index = y * worldWidth + x;
-            if (index < traversibilityMap.Map.Length && traversibilityMap.Map[index])
+            if (index < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(index))
             {
                 return (x + 0.5f, y + 0.5f);
             }
