@@ -201,13 +201,16 @@ public static partial class ProjectileUpdater
 
         System.Span<DamagedTile> recentlyDamagedBuffer = stackalloc DamagedTile[128];
         int recentlyDamagedCount = 0;
-        foreach (var damagedTile in projectile.RecentlyDamagedTiles)
+        if (projectile.RecentlyDamagedTiles != null)
         {
-            if (currentTime - damagedTile.DamagedAt < expirationThreshold)
+            foreach (var damagedTile in projectile.RecentlyDamagedTiles)
             {
-                if (recentlyDamagedCount < recentlyDamagedBuffer.Length)
+                if (currentTime - damagedTile.DamagedAt < expirationThreshold)
                 {
-                    recentlyDamagedBuffer[recentlyDamagedCount++] = damagedTile;
+                    if (recentlyDamagedCount < recentlyDamagedBuffer.Length)
+                    {
+                        recentlyDamagedBuffer[recentlyDamagedCount++] = damagedTile;
+                    }
                 }
             }
         }
@@ -268,7 +271,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyDamagedTiles = recentlyDamagedBuffer.Slice(0, recentlyDamagedCount).ToArray()
+            RecentlyDamagedTiles = recentlyDamagedCount > 0 ? recentlyDamagedBuffer.Slice(0, recentlyDamagedCount).ToArray() : null
         };
 
         return (projectile, transform, traversibilityMapChanged);
@@ -408,13 +411,16 @@ public static partial class ProjectileUpdater
 
         System.Span<DamagedTank> recentlyHitBuffer = stackalloc DamagedTank[128];
         int recentlyHitCount = 0;
-        foreach (var hitTank in projectile.RecentlyHitTanks)
+        if (projectile.RecentlyHitTanks != null)
         {
-            if (currentTime - hitTank.DamagedAt < expirationThreshold)
+            foreach (var hitTank in projectile.RecentlyHitTanks)
             {
-                if (recentlyHitCount < recentlyHitBuffer.Length)
+                if (currentTime - hitTank.DamagedAt < expirationThreshold)
                 {
-                    recentlyHitBuffer[recentlyHitCount++] = hitTank;
+                    if (recentlyHitCount < recentlyHitBuffer.Length)
+                    {
+                        recentlyHitBuffer[recentlyHitCount++] = hitTank;
+                    }
                 }
             }
         }
@@ -498,7 +504,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyHitTanks = recentlyHitBuffer.AsSpan(0, recentlyHitCount).ToArray()
+            RecentlyHitTanks = recentlyHitCount > 0 ? recentlyHitBuffer.Slice(0, recentlyHitCount).ToArray() : null
         };
 
         return (false, projectile, transform, false);

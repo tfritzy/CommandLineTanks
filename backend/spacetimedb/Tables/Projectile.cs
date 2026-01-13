@@ -37,8 +37,8 @@ public static partial class Module
 
         public float Speed;
         public bool IsReturning;
-        public DamagedTile[] RecentlyDamagedTiles;
-        public DamagedTank[] RecentlyHitTanks;
+        public DamagedTile[]? RecentlyDamagedTiles;
+        public DamagedTank[]? RecentlyHitTanks;
     }
 
     public static (Projectile, ProjectileTransform) BuildProjectile(
@@ -94,8 +94,8 @@ public static partial class Module
             Bounce = bounce,
             Speed = speed,
             IsReturning = isReturning,
-            RecentlyDamagedTiles = recentlyDamagedTiles ?? Array.Empty<DamagedTile>(),
-            RecentlyHitTanks = recentlyHitTanks ?? Array.Empty<DamagedTank>()
+            RecentlyDamagedTiles = recentlyDamagedTiles,
+            RecentlyHitTanks = recentlyHitTanks
         };
 
         var transform = new ProjectileTransform
