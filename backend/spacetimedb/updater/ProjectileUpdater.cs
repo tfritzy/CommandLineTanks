@@ -199,12 +199,16 @@ public static partial class ProjectileUpdater
         ulong expirationThreshold = 500_000;
         float collisionRadiusSquared = projectile.CollisionRadius * projectile.CollisionRadius;
 
-        var recentlyDamagedList = new System.Collections.Generic.List<DamagedTile>();
+        System.Span<DamagedTile> recentlyDamagedBuffer = stackalloc DamagedTile[128];
+        int recentlyDamagedCount = 0;
         foreach (var damagedTile in projectile.RecentlyDamagedTiles)
         {
             if (currentTime - damagedTile.DamagedAt < expirationThreshold)
             {
-                recentlyDamagedList.Add(damagedTile);
+                if (recentlyDamagedCount < recentlyDamagedBuffer.Length)
+                {
+                    recentlyDamagedBuffer[recentlyDamagedCount++] = damagedTile;
+                }
             }
         }
 
@@ -231,9 +235,9 @@ public static partial class ProjectileUpdater
                 if (distanceSquared <= collisionRadiusSquared)
                 {
                     bool alreadyDamaged = false;
-                    foreach (var damagedTile in recentlyDamagedList)
+                    for (int i = 0; i < recentlyDamagedCount; i++)
                     {
-                        if (damagedTile.X == tileX && damagedTile.Y == tileY)
+                        if (recentlyDamagedBuffer[i].X == tileX && recentlyDamagedBuffer[i].Y == tileY)
                         {
                             alreadyDamaged = true;
                             break;
@@ -248,12 +252,15 @@ public static partial class ProjectileUpdater
                             traversibilityMapChanged = true;
                         }
 
-                        recentlyDamagedList.Add(new DamagedTile
+                        if (recentlyDamagedCount < recentlyDamagedBuffer.Length)
                         {
-                            X = tileX,
-                            Y = tileY,
-                            DamagedAt = currentTime
-                        });
+                            recentlyDamagedBuffer[recentlyDamagedCount++] = new DamagedTile
+                            {
+                                X = tileX,
+                                Y = tileY,
+                                DamagedAt = currentTime
+                            };
+                        }
                     }
                 }
             }
@@ -261,7 +268,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyDamagedTiles = recentlyDamagedList.ToArray()
+            RecentlyDamagedTiles = recentlyDamagedBuffer.Slice(0, recentlyDamagedCount).ToArray()
         };
 
         return (projectile, transform, traversibilityMapChanged);
@@ -399,12 +406,16 @@ public static partial class ProjectileUpdater
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         ulong expirationThreshold = 500_000;
 
-        var recentlyHitList = new System.Collections.Generic.List<DamagedTank>();
+        DamagedTank[] recentlyHitBuffer = new DamagedTank[128];
+        int recentlyHitCount = 0;
         foreach (var hitTank in projectile.RecentlyHitTanks)
         {
             if (currentTime - hitTank.DamagedAt < expirationThreshold)
             {
-                recentlyHitList.Add(hitTank);
+                if (recentlyHitCount < recentlyHitBuffer.Length)
+                {
+                    recentlyHitBuffer[recentlyHitCount++] = hitTank;
+                }
             }
         }
 
@@ -437,9 +448,9 @@ public static partial class ProjectileUpdater
                         if (tank.Alliance != projectile.Alliance && tank.Health > 0 && tank.RemainingImmunityMicros <= 0)
                         {
                             bool alreadyHit = false;
-                            foreach (var hitTank in recentlyHitList)
+                            for (int i = 0; i < recentlyHitCount; i++)
                             {
-                                if (hitTank.TankId == tank.Id)
+                                if (recentlyHitBuffer[i].TankId == tank.Id)
                                 {
                                     alreadyHit = true;
                                     break;
@@ -462,11 +473,14 @@ public static partial class ProjectileUpdater
                                     Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId);
                                 }
 
-                                recentlyHitList.Add(new DamagedTank
+                                if (recentlyHitCount < recentlyHitBuffer.Length)
                                 {
-                                    TankId = tank.Id,
-                                    DamagedAt = currentTime
-                                });
+                                    recentlyHitBuffer[recentlyHitCount++] = new DamagedTank
+                                    {
+                                        TankId = tank.Id,
+                                        DamagedAt = currentTime
+                                    };
+                                }
 
                                 bool shouldDelete;
                                 (shouldDelete, transform) = Module.IncrementProjectileCollision(ctx, projectile, transform);
@@ -484,7 +498,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyHitTanks = recentlyHitList.ToArray()
+            RecentlyHitTanks = recentlyHitBuffer.AsSpan(0, recentlyHitCount).ToArray()
         };
 
         return (false, projectile, transform, false);
