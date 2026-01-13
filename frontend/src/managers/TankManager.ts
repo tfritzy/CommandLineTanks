@@ -109,7 +109,6 @@ export class TankManager {
               }
 
               tank.setHealth(newTank.health);
-              tank.setGuns(newTank.guns);
               tank.setSelectedGunIndex(newTank.selectedGunIndex);
               tank.setHasShield(newTank.hasShield);
               tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
@@ -246,7 +245,6 @@ export class TankManager {
       tank.maxHealth,
       transform.turretAngularVelocity,
       path,
-      tank.guns,
       tank.selectedGunIndex,
       tank.hasShield,
       tank.remainingImmunityMicros

@@ -43,6 +43,11 @@ export function getFullTank(tankId: string): FullTankData | null {
 
   if (!tank || !transform) return null;
 
+  const guns: Infer<typeof Gun>[] = [];
+  for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
+    guns[tankGun.slotIndex] = tankGun.gun;
+  }
+
   return {
     id: tank.id,
     gameId: tank.gameId,
@@ -61,7 +66,7 @@ export function getFullTank(tankId: string): FullTankData | null {
     deathTimestamp: tank.deathTimestamp,
     selectedGunIndex: tank.selectedGunIndex,
     lastDamagedBy: tank.lastDamagedBy,
-    guns: tank.guns,
+    guns: guns,
     owner: tank.owner,
     name: tank.name,
     targetCode: tank.targetCode,
