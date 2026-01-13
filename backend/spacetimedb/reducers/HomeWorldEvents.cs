@@ -63,8 +63,7 @@ public static partial class Module
                 if (traversibilityMapQuery != null)
                 {
                     var traversibilityMap = traversibilityMapQuery.Value;
-                    var updateContext = new ProjectileUpdater.ProjectileUpdateContext(ctx, identityString, (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
-                    ProjectileUpdater.ExplodeProjectileCommand(ctx, updateContext, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap);
+                    ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap);
                     ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
                 }
                 ProjectileUpdater.DeleteProjectile(ctx, projectileId);
@@ -137,8 +136,7 @@ public static partial class Module
 
         if (projectile.Value.ExplosionRadius != null && projectile.Value.ExplosionRadius > 0 && projectile.Value.ExplosionTrigger == ExplosionTrigger.OnHit)
         {
-            var updateContext = new ProjectileUpdater.ProjectileUpdateContext(ctx, identityString, (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
-            ProjectileUpdater.ExplodeProjectileCommand(ctx, updateContext, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap);
+            ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap);
             ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
             ProjectileUpdater.DeleteProjectile(ctx, projectileId);
             return;
@@ -194,8 +192,7 @@ public static partial class Module
             if (traversibilityMapQuery != null)
             {
                 var traversibilityMap = traversibilityMapQuery.Value;
-                var updateContext = new ProjectileUpdater.ProjectileUpdateContext(ctx, identityString, (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
-                ProjectileUpdater.ExplodeProjectileCommand(ctx, updateContext, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap);
+                ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap);
                 ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
             }
         }

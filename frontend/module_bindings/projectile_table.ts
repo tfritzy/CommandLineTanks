@@ -41,10 +41,6 @@ export default __t.row({
   bounce: __t.bool(),
   speed: __t.f32(),
   isReturning: __t.bool(),
-  get recentlyDamagedTiles() {
-    return __t.array(DamagedTile);
-  },
-  get recentlyHitTanks() {
-    return __t.array(DamagedTank);
-  },
+  recentlyDamagedTiles: __t.option(__t.array(DamagedTile)),
+  recentlyHitTanks: __t.option(__t.array(DamagedTank)),
 });
