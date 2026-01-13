@@ -16,7 +16,7 @@ import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 
-const VIEWPORT_CULLING_PADDING = 50;
+const VIEWPORT_PADDING = 100;
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -363,17 +363,17 @@ export class TankManager {
     viewportWidth: number,
     viewportHeight: number
   ) {
-    const left = cameraX - VIEWPORT_CULLING_PADDING;
-    const right = cameraX + viewportWidth + VIEWPORT_CULLING_PADDING;
-    const top = cameraY - VIEWPORT_CULLING_PADDING;
-    const bottom = cameraY + viewportHeight + VIEWPORT_CULLING_PADDING;
+    const paddedLeft = cameraX - VIEWPORT_PADDING;
+    const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
+    const paddedTop = cameraY - VIEWPORT_PADDING;
+    const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
 
     for (const tank of this.tanks.values()) {
       const pos = tank.getPosition();
       const px = pos.x * UNIT_TO_PIXEL;
       const py = pos.y * UNIT_TO_PIXEL;
       
-      if (px < left || px > right || py < top || py > bottom) continue;
+      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
       
       tank.drawHealthBar(ctx);
     }
@@ -389,10 +389,10 @@ export class TankManager {
     const playerTank = this.playerTankId ? this.tanks.get(this.playerTankId) : null;
     const playerAlliance = playerTank ? playerTank.getAlliance() : null;
 
-    const left = cameraX - VIEWPORT_CULLING_PADDING;
-    const right = cameraX + viewportWidth + VIEWPORT_CULLING_PADDING;
-    const top = cameraY - VIEWPORT_CULLING_PADDING;
-    const bottom = cameraY + viewportHeight + VIEWPORT_CULLING_PADDING;
+    const paddedLeft = cameraX - VIEWPORT_PADDING;
+    const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
+    const paddedTop = cameraY - VIEWPORT_PADDING;
+    const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
 
     ctx.textAlign = "center";
 
@@ -405,7 +405,7 @@ export class TankManager {
       const px = pos.x * UNIT_TO_PIXEL;
       const py = pos.y * UNIT_TO_PIXEL;
       
-      if (px < left || px > right || py < top || py > bottom) continue;
+      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
       
       const isPlayerTank = tank.id === this.playerTankId;
       const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
@@ -425,7 +425,7 @@ export class TankManager {
       const px = pos.x * UNIT_TO_PIXEL;
       const py = pos.y * UNIT_TO_PIXEL;
       
-      if (px < left || px > right || py < top || py > bottom) continue;
+      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
       
       const isPlayerTank = tank.id === this.playerTankId;
       const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
