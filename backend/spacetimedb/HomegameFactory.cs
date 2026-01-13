@@ -205,7 +205,7 @@ public static partial class Module
             gridY: areaY,
             type: TerrainDetailType.Label,
             health: 100,
-            label: "Use [color=#fceba8]`target <code>`[/color] to lock onto an enemy, then [color=#fceba8]`fire`[/color] to shoot",
+            label: "Use [color=#fceba8]`track <code>`[/color] to lock onto an enemy, then [color=#fceba8]`fire`[/color] to shoot",
             rotation: 0
         ));
 
@@ -335,7 +335,7 @@ public static partial class Module
             gridY: areaY,
             type: TerrainDetailType.Label,
             health: 100,
-            label: "Use shorthands, for example: [color=#fceba8]`f`[/color] for fire, [color=#fceba8]`t <code>`[/color] for target",
+            label: "Use shorthands, for example: [color=#fceba8]`f`[/color] for fire, [color=#fceba8]`t <code>`[/color] for track",
             rotation: 0
         ));
 
