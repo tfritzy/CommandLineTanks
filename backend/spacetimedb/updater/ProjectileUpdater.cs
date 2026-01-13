@@ -5,6 +5,8 @@ using static Module;
 
 public static partial class ProjectileUpdater
 {
+    private const int COLLISION_TRACKING_BUFFER_SIZE = 128;
+
     [Table(Scheduled = nameof(UpdateProjectiles))]
     public partial struct ScheduledProjectileUpdates
     {
@@ -199,7 +201,7 @@ public static partial class ProjectileUpdater
         ulong expirationThreshold = 500_000;
         float collisionRadiusSquared = projectile.CollisionRadius * projectile.CollisionRadius;
 
-        System.Span<DamagedTile> recentlyDamagedBuffer = stackalloc DamagedTile[128];
+        System.Span<DamagedTile> recentlyDamagedBuffer = stackalloc DamagedTile[COLLISION_TRACKING_BUFFER_SIZE];
         int recentlyDamagedCount = 0;
         if (projectile.RecentlyDamagedTiles != null)
         {
@@ -419,7 +421,7 @@ public static partial class ProjectileUpdater
                 {
                     if (recentlyHitBuffer == null)
                     {
-                        recentlyHitBuffer = new DamagedTank[128];
+                        recentlyHitBuffer = new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];
                     }
                     if (recentlyHitCount < recentlyHitBuffer.Length)
                     {
@@ -488,7 +490,7 @@ public static partial class ProjectileUpdater
 
                                 if (recentlyHitBuffer == null)
                                 {
-                                    recentlyHitBuffer = new DamagedTank[128];
+                                    recentlyHitBuffer = new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];
                                 }
                                 if (recentlyHitCount < recentlyHitBuffer.Length)
                                 {
