@@ -12,5 +12,5 @@ import {
 
 export default {
   gameId: __t.string(),
-  angleRadians: __t.f32(),
+  targetCode: __t.string(),
 };

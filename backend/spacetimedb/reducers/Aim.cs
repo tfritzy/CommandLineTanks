@@ -3,7 +3,7 @@ using SpacetimeDB;
 public static partial class Module
 {
     [Reducer]
-    public static void aim(ReducerContext ctx, string gameId, float? angleRadians, string? targetCode)
+    public static void aim(ReducerContext ctx, string gameId, float angleRadians)
     {
         Tank? tankQuery = ctx.Db.tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
@@ -11,27 +11,19 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        if (targetCode != null)
+        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        if (transformQuery == null) return;
+        var transform = transformQuery.Value;
+
+        var normalizedAngle = Module.NormalizeAngleToTarget(angleRadians, transform.TurretRotation);
+
+        var updatedTransform = transform with 
         {
-            tank = TargetTankByCode(ctx, tank, targetCode);
-            ctx.Db.tank.Id.Update(tank);
-        }
-        else if (angleRadians != null)
-        {
-            var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
-            if (transformQuery == null) return;
-            var transform = transformQuery.Value;
+            TargetTurretRotation = normalizedAngle
+        };
+        ctx.Db.tank_transform.TankId.Update(updatedTransform);
 
-            var normalizedAngle = Module.NormalizeAngleToTarget(angleRadians.Value, transform.TurretRotation);
-
-            var updatedTransform = transform with 
-            {
-                TargetTurretRotation = normalizedAngle
-            };
-            ctx.Db.tank_transform.TankId.Update(updatedTransform);
-
-            var updatedTank = tank with { Target = null };
-            ctx.Db.tank.Id.Update(updatedTank);
-        }
+        var updatedTank = tank with { Target = null };
+        ctx.Db.tank.Id.Update(updatedTank);
     }
 }

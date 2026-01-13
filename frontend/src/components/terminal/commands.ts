@@ -142,6 +142,7 @@ function directionToAngle(direction: string): number {
 
 const allCommands = [
   { name: 'drive', alias: 'd' },
+  { name: 'track', alias: 't' },
   { name: 'stop', alias: 's' },
   { name: 'aim', alias: 'a' },
   { name: 'fire', alias: 'f' },
@@ -227,8 +228,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       `  ${themeColors.command("drive")}, ${themeColors.command("d")}             Drive to a direction or coordinate using pathfinding`,
+      `  ${themeColors.command("track")}, ${themeColors.command("t")}             Track an enemy tank by code for automatic targeting`,
       `  ${themeColors.command("stop")}, ${themeColors.command("s")}              Stop the tank immediately`,
-      `  ${themeColors.command("aim")}, ${themeColors.command("a")}               Aim turret at an angle/direction or target a tank by code`,
+      `  ${themeColors.command("aim")}, ${themeColors.command("a")}               Aim turret at an angle or direction`,
       `  ${themeColors.command("fire")}, ${themeColors.command("f")}              Fire a projectile from your tank`,
       `  ${themeColors.command("switch")}, ${themeColors.command("w")}            Switch to a different gun`,
       `  ${themeColors.command("respawn")}              Respawn after death`,
@@ -271,6 +273,24 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  drive s 10",
       ];
 
+    case "track":
+    case "t":
+      return [
+        "track, t - Track an enemy tank by code for automatic targeting",
+        "",
+        "Usage: track <target_code>",
+        "",
+        "Arguments:",
+        "  <target_code>       Target code of the tank to track (e.g., a4, h8, z2)",
+        "                      Format: one letter + one digit",
+        "                      Your turret will automatically follow the target",
+        "",
+        "Examples:",
+        "  track a4",
+        "  track h8",
+        "  t z2",
+      ];
+
     case "stop":
     case "s":
       return [
@@ -288,10 +308,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "aim":
     case "a":
       return [
-        "aim, a - Aim turret at an angle/direction or target a tank by code",
+        "aim, a - Aim turret at an angle or direction",
         "",
         "Usage: aim <angle|direction>",
-        "       aim <target_code>",
         "",
         "Arguments:",
         "  <angle|direction>   Angle in degrees or direction name",
@@ -306,15 +325,11 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                        ↙: southwest, downleft, leftdown, sw, dl, ld",
         "                        ←: west, left, w, l",
         "                        ↖: northwest, upleft, leftup, nw, ul, lu",
-        "  <target_code>       Target code of the tank to track (e.g., a4, h8, z2)",
-        "                      Format: one letter + one digit",
-        "                      Your turret will automatically follow the target",
         "",
         "Examples:",
         "  aim 90",
         "  aim -45",
         "  aim northeast",
-        "  aim a4",
       ];
 
     case "fire":
@@ -501,11 +516,66 @@ export function aim(
       themeColors.error("aim: error: missing required argument"),
       "",
       themeColors.dim("Usage: aim <angle|direction>"),
-      themeColors.dim("       aim <target_code>"),
       themeColors.dim("Examples:"),
       themeColors.dim("  aim 45"),
       themeColors.dim("  aim northeast"),
-      themeColors.dim("  aim a4"),
+    ];
+  }
+
+  const input = args[0];
+  const inputLower = input.toLowerCase();
+
+  if (validDirections.includes(inputLower)) {
+    const angleRadians = directionToAngle(inputLower);
+    const dirInfo = directionAliases[inputLower];
+    const description = themeColors.value(dirInfo.name);
+
+    connection.reducers.aim({ gameId, angleRadians });
+    return [themeColors.success("Aiming turret ") + description];
+  } else {
+    const degrees = Number.parseFloat(input);
+    if (Number.isNaN(degrees)) {
+      return [
+        themeColors.error(`aim: error: invalid value '${args[0]}'`),
+        themeColors.dim("Must be a number (degrees) or valid direction"),
+        themeColors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
+        "",
+        themeColors.dim("Usage: aim <angle|direction>"),
+        themeColors.dim("Examples:"),
+        themeColors.dim("  aim 90"),
+        themeColors.dim("  aim northeast"),
+      ];
+    }
+
+    const angleRadians = (-degrees * Math.PI) / 180;
+    const description = `${degrees}°`;
+
+    connection.reducers.aim({ gameId, angleRadians });
+    return [themeColors.success(`Aiming turret to ${description}`)];
+  }
+}
+
+export function track(
+  connection: DbConnection,
+  gameId: string,
+  args: string[]
+): string[] {
+  if (isPlayerDead(connection, gameId)) {
+    return [
+      themeColors.error("track: error: cannot track while dead"),
+      "",
+      themeColors.dim("Use 'respawn' to respawn"),
+    ];
+  }
+
+  if (args.length < 1) {
+    return [
+      themeColors.error("track: error: missing required argument"),
+      "",
+      themeColors.dim("Usage: track <target_code>"),
+      themeColors.dim("Examples:"),
+      themeColors.dim("  track a4"),
+      themeColors.dim("  track h8"),
     ];
   }
 
@@ -513,69 +583,47 @@ export function aim(
   const inputLower = input.toLowerCase();
 
   const targetCodePattern = /^[a-z][0-9]$/;
-  if (targetCodePattern.test(inputLower)) {
-    if (!connection.identity) {
-      return [themeColors.error("aim: error: no connection")];
-    }
-
-    const myTank = findMyTank(connection, gameId);
-    if (!myTank) {
-      return [themeColors.error("aim: error: no connection")];
-    }
-
-    if (inputLower === myTank.targetCode) {
-      return [themeColors.error("aim: error: cannot target your own tank")];
-    }
-
-    const allTanks = Array.from(connection.db.tank.iter()).filter(
-      (t) => t.gameId === gameId
-    );
-    const targetTank = allTanks.find((t) => t.targetCode === inputLower);
-    if (!targetTank || targetTank.alliance === myTank.alliance) {
-      return [themeColors.error(`aim: error: tank with code '${inputLower}' not found`)];
-    }
-
-    connection.reducers.aim({
-      gameId,
-      angleRadians: undefined,
-      targetCode: inputLower,
-    });
-
-    const tankCodeColored = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
-    const tankName = targetTank.name;
-
-    return [themeColors.success(`Targeting tank ${tankCodeColored} (${tankName})`)];
+  if (!targetCodePattern.test(inputLower)) {
+    return [
+      themeColors.error(`track: error: invalid target code '${input}'`),
+      themeColors.dim("Target code must be one letter followed by one digit (e.g., a4, h8)"),
+      "",
+      themeColors.dim("Usage: track <target_code>"),
+      themeColors.dim("Examples:"),
+      themeColors.dim("  track a4"),
+    ];
   }
 
-  if (validDirections.includes(inputLower)) {
-    const angleRadians = directionToAngle(inputLower);
-    const dirInfo = directionAliases[inputLower];
-    const description = themeColors.value(dirInfo.name);
-
-    connection.reducers.aim({ gameId, angleRadians, targetCode: undefined });
-    return [themeColors.success("Aiming turret ") + description];
-  } else {
-    const degrees = Number.parseFloat(input);
-    if (Number.isNaN(degrees)) {
-      return [
-        themeColors.error(`aim: error: invalid value '${args[0]}'`),
-        themeColors.dim("Must be a number (degrees), valid direction, or target code (e.g., a4)"),
-        themeColors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
-        "",
-        themeColors.dim("Usage: aim <angle|direction>"),
-        themeColors.dim("       aim <target_code>"),
-        themeColors.dim("Examples:"),
-        themeColors.dim("  aim 90"),
-        themeColors.dim("  aim a4"),
-      ];
-    }
-
-    const angleRadians = (-degrees * Math.PI) / 180;
-    const description = `${degrees}°`;
-
-    connection.reducers.aim({ gameId, angleRadians, targetCode: undefined });
-    return [themeColors.success(`Aiming turret to ${description}`)];
+  if (!connection.identity) {
+    return [themeColors.error("track: error: no connection")];
   }
+
+  const myTank = findMyTank(connection, gameId);
+  if (!myTank) {
+    return [themeColors.error("track: error: no connection")];
+  }
+
+  if (inputLower === myTank.targetCode) {
+    return [themeColors.error("track: error: cannot target your own tank")];
+  }
+
+  const allTanks = Array.from(connection.db.tank.iter()).filter(
+    (t) => t.gameId === gameId
+  );
+  const targetTank = allTanks.find((t) => t.targetCode === inputLower);
+  if (!targetTank || targetTank.alliance === myTank.alliance) {
+    return [themeColors.error(`track: error: tank with code '${inputLower}' not found`)];
+  }
+
+  connection.reducers.track({
+    gameId,
+    targetCode: inputLower,
+  });
+
+  const tankCodeColored = themeColors.colorize(targetTank.targetCode, 'TANK_CODE');
+  const tankName = targetTank.name;
+
+  return [themeColors.success(`Tracking tank ${tankCodeColored} (${tankName})`)];
 }
 
 export function stop(
