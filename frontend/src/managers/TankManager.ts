@@ -366,9 +366,8 @@ export class TankManager {
 
     ctx.textAlign = "center";
 
-    const tanksWithTargetCodes: Array<{ tank: Tank, targetCode: string }> = [];
-    const tanksWithoutTargetCodes: Tank[] = [];
-
+    ctx.font = "bold 16px monospace";
+    ctx.fillStyle = COLORS.TERMINAL.WARNING;
     for (const tank of this.tanks.values()) {
       if (tank.getHealth() <= 0) continue;
       
@@ -376,17 +375,7 @@ export class TankManager {
       const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
       const targetCode = tank.getTargetCode();
 
-      if (isPlayerTank || isFriendly || !targetCode) {
-        tanksWithoutTargetCodes.push(tank);
-      } else {
-        tanksWithTargetCodes.push({ tank, targetCode });
-      }
-    }
-
-    if (tanksWithTargetCodes.length > 0) {
-      ctx.font = "bold 16px monospace";
-      ctx.fillStyle = COLORS.TERMINAL.WARNING;
-      for (const { tank, targetCode } of tanksWithTargetCodes) {
+      if (!isPlayerTank && !isFriendly && targetCode) {
         const pos = tank.getPosition();
         ctx.fillText(targetCode, pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 34);
       }
@@ -394,15 +383,19 @@ export class TankManager {
 
     ctx.font = "12px monospace";
     ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
-    
-    for (const { tank } of tanksWithTargetCodes) {
+    for (const tank of this.tanks.values()) {
+      if (tank.getHealth() <= 0) continue;
+      
+      const isPlayerTank = tank.id === this.playerTankId;
+      const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
+      const targetCode = tank.getTargetCode();
+
       const pos = tank.getPosition();
-      ctx.fillText(tank.getName(), pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 20);
-    }
-    
-    for (const tank of tanksWithoutTargetCodes) {
-      const pos = tank.getPosition();
-      ctx.fillText(tank.getName(), pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 27);
+      if (!isPlayerTank && !isFriendly && targetCode) {
+        ctx.fillText(tank.getName(), pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 20);
+      } else {
+        ctx.fillText(tank.getName(), pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 27);
+      }
     }
   }
 
