@@ -42,6 +42,15 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
       return null;
     };
 
+    const hasAnyTanksForWorld = (): boolean => {
+      for (const tank of connection.db.tank.iter()) {
+        if (tank.gameId === gameId) {
+          return true;
+        }
+      }
+      return false;
+    };
+
     const setStatusIfCurrentGame = (newStatus: JoinModalStatus) => {
       if (worldIdRef.current === gameId) {
         setStatus(newStatus);
@@ -56,6 +65,10 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
 
           if (isCurrentIdentity(tank.owner)) {
             setStatusIfCurrentGame("has_tank");
+          } else {
+            if (!findPlayerTank()) {
+              setStatusIfCurrentGame("no_tank");
+            }
           }
         },
         onUpdate: (
@@ -72,7 +85,9 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
           if (tank.gameId !== gameId) return;
           if (!isCurrentIdentity(tank.owner)) return;
 
-          setStatusIfCurrentGame("no_tank");
+          if (hasAnyTanksForWorld()) {
+            setStatusIfCurrentGame("no_tank");
+          }
         },
       },
     });
@@ -93,7 +108,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
 
       if (findPlayerTank()) {
         setStatus("has_tank");
-      } else {
+      } else if (hasAnyTanksForWorld()) {
         setStatus("no_tank");
       }
     }, 500);
