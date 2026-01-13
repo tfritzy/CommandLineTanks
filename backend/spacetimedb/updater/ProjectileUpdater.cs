@@ -504,7 +504,7 @@ public static partial class ProjectileUpdater
         return (false, projectile, transform, false);
     }
 
-    private static void DeleteProjectile(ReducerContext ctx, ulong projectileId)
+    public static void DeleteProjectile(ReducerContext ctx, ulong projectileId)
     {
         ctx.Db.projectile.Id.Delete(projectileId);
         ctx.Db.projectile_transform.ProjectileId.Delete(projectileId);

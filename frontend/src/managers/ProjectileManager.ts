@@ -6,6 +6,7 @@ import { UNIT_TO_PIXEL } from "../constants";
 import type { TankManager } from "./TankManager";
 import { ScreenShake } from "../utils/ScreenShake";
 import { SoundManager } from "./SoundManager";
+import { HomeWorldCollisionHandler } from "./HomeWorldCollisionHandler";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import ProjectileRow from "../../module_bindings/projectile_type";
@@ -21,17 +22,20 @@ export class ProjectileManager {
   private soundManager: SoundManager;
   private projectileSubscription: TableSubscription<typeof ProjectileRow> | null = null;
   private transformSubscription: TableSubscription<typeof ProjectileTransformRow> | null = null;
+  private homeWorldCollisionHandler: HomeWorldCollisionHandler;
 
   constructor(gameId: string, screenShake: ScreenShake, soundManager: SoundManager) {
     this.gameId = gameId;
     this.particlesManager = new ProjectileImpactParticlesManager();
     this.screenShake = screenShake;
     this.soundManager = soundManager;
+    this.homeWorldCollisionHandler = new HomeWorldCollisionHandler(gameId);
     this.subscribeToProjectiles();
   }
 
   public setTankManager(tankManager: TankManager) {
     this.tankManager = tankManager;
+    this.homeWorldCollisionHandler.setTankManager(tankManager);
   }
 
   private subscribeToProjectiles() {
@@ -63,6 +67,7 @@ export class ProjectileManager {
             newProjectile.trackingRadius
           );
           this.projectiles.set(newProjectile.id, projectile);
+          this.homeWorldCollisionHandler.registerProjectile(newProjectile.id);
 
           const playerTank = this.tankManager?.getPlayerTank();
           if (playerTank && newProjectile.shooterTankId === playerTank.id && newProjectile.projectileType.tag === "Moag") {
@@ -73,6 +78,7 @@ export class ProjectileManager {
         onDelete: (_ctx: EventContext, projectile: Infer<typeof ProjectileRow>) => {
           if (projectile.gameId !== this.gameId) return;
           this.projectiles.delete(projectile.id);
+          this.homeWorldCollisionHandler.clearPendingCollision(projectile.id);
         }
       }
     });
@@ -101,6 +107,7 @@ export class ProjectileManager {
             projectileData.trackingRadius
           );
           this.projectiles.set(newTransform.projectileId, projectile);
+          this.homeWorldCollisionHandler.registerProjectile(newTransform.projectileId);
 
           const playerTank = this.tankManager?.getPlayerTank();
           if (playerTank && projectileData.shooterTankId === playerTank.id && projectileData.projectileType.tag === "Moag") {
@@ -127,6 +134,7 @@ export class ProjectileManager {
             localProjectile.spawnDeathParticles(this.particlesManager);
             this.soundManager.play("projectile-hit", 0.3, transform.positionX, transform.positionY);
             this.projectiles.delete(transform.projectileId);
+            this.homeWorldCollisionHandler.clearPendingCollision(transform.projectileId);
           }
         }
       }
@@ -142,13 +150,15 @@ export class ProjectileManager {
       this.transformSubscription.unsubscribe();
       this.transformSubscription = null;
     }
+    this.homeWorldCollisionHandler.destroy();
     this.projectiles.clear();
     this.particlesManager.destroy();
   }
 
   public update(deltaTime: number) {
-    for (const projectile of this.projectiles.values()) {
+    for (const [projectileId, projectile] of this.projectiles.entries()) {
       projectile.update(deltaTime, this.tankManager ?? undefined);
+      this.homeWorldCollisionHandler.checkCollisions(projectileId, projectile);
     }
     this.particlesManager.update(deltaTime);
   }

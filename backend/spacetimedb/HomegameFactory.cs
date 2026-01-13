@@ -38,39 +38,8 @@ public static partial class Module
             IsHomeGame = true
         };
 
-        ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            GameId = identityString,
-            LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-            TickCount = 0
-        });
-
-        ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
-            GameId = identityString,
-            LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-        });
-
-        ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
-            GameId = identityString,
-            TickCount = 0
-        });
-
-        ctx.Db.ScheduledPickupSpawn.Insert(new PickupSpawner.ScheduledPickupSpawn
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 8_000_000 }),
-            GameId = identityString
-        });
-
         ctx.Db.game.Insert(game);
+        StartHomeGameTickers(ctx, identityString);
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
 

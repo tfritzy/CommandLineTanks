@@ -57,6 +57,12 @@ import HandleConnect from "./handle_connect_reducer";
 export { HandleConnect };
 import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
+import HomeWorldProjectileExpire from "./home_world_projectile_expire_reducer";
+export { HomeWorldProjectileExpire };
+import HomeWorldProjectileTankHit from "./home_world_projectile_tank_hit_reducer";
+export { HomeWorldProjectileTankHit };
+import HomeWorldProjectileTerrainHit from "./home_world_projectile_terrain_hit_reducer";
+export { HomeWorldProjectileTerrainHit };
 import JoinGame from "./join_game_reducer";
 export { JoinGame };
 import ResetGame from "./reset_game_reducer";
@@ -536,6 +542,9 @@ const reducersSchema = __reducers(
   __reducerSchema("ensureHomegame", EnsureHomegame),
   __reducerSchema("exitGame", ExitGame),
   __reducerSchema("fire", Fire),
+  __reducerSchema("homeWorldProjectileExpire", HomeWorldProjectileExpire),
+  __reducerSchema("homeWorldProjectileTankHit", HomeWorldProjectileTankHit),
+  __reducerSchema("homeWorldProjectileTerrainHit", HomeWorldProjectileTerrainHit),
   __reducerSchema("joinGame", JoinGame),
   __reducerSchema("ResetGame", ResetGame),
   __reducerSchema("respawn", Respawn),
