@@ -154,12 +154,14 @@ export class ProjectileManager {
   }
 
   public update(deltaTime: number) {
-    const connection = getConnection();
+    const isHomeWorld = this.homeWorldCollisionHandler.isEnabled();
+    const connection = isHomeWorld ? getConnection() : null;
+    
     for (const [projectileId, projectile] of this.projectiles.entries()) {
       projectile.update(deltaTime, this.tankManager ?? undefined);
       
-      if (this.homeWorldCollisionHandler.isEnabled()) {
-        const projectileData = connection?.db.projectile.id.find(projectileId);
+      if (isHomeWorld && connection) {
+        const projectileData = connection.db.projectile.id.find(projectileId);
         if (projectileData) {
           this.homeWorldCollisionHandler.checkCollisions(projectileId, projectile, projectileData);
         }
