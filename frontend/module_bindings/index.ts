@@ -75,6 +75,8 @@ import Stop from "./stop_reducer";
 export { Stop };
 import SwitchGun from "./switch_gun_reducer";
 export { SwitchGun };
+import Track from "./track_reducer";
+export { Track };
 import UpdateAi from "./update_ai_reducer";
 export { UpdateAi };
 import UpdateProjectiles from "./update_projectiles_reducer";
@@ -551,6 +553,7 @@ const reducersSchema = __reducers(
   __reducerSchema("SpawnPickup", SpawnPickup),
   __reducerSchema("stop", Stop),
   __reducerSchema("switchGun", SwitchGun),
+  __reducerSchema("track", Track),
   __reducerSchema("UpdateAI", UpdateAi),
   __reducerSchema("UpdateProjectiles", UpdateProjectiles),
   __reducerSchema("UpdateTanks", UpdateTanks),
