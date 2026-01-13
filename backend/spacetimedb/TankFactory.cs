@@ -36,7 +36,7 @@ public static partial class Module
             TargetCode = newTargetCode
         };
 
-        SetTankGuns(ctx, tank.Id, gameId, [BASE_GUN]);
+        SetTankGuns(ctx, tank.Id, gameId, []);
 
         var respawnedTransform = transform with
         {

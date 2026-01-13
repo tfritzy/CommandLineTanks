@@ -485,15 +485,12 @@ const tablesSchema = __schema(
       { name: 'GameId', algorithm: 'btree', columns: [
         'gameId',
       ] },
-      { name: 'Id', algorithm: 'btree', columns: [
-        'id',
-      ] },
       { name: 'TankId', algorithm: 'btree', columns: [
         'tankId',
       ] },
     ],
     constraints: [
-      { name: 'tank_gun_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'tank_gun_TankId_key', constraint: 'unique', columns: ['tankId'] },
     ],
   }, TankGunRow),
   __table({

@@ -13,11 +13,9 @@ import Gun from "./gun_type";
 
 
 export default __t.row({
-  id: __t.u64().primaryKey(),
-  tankId: __t.string(),
+  tankId: __t.string().primaryKey(),
   gameId: __t.string(),
-  slotIndex: __t.i32(),
-  get gun() {
-    return Gun;
+  get guns() {
+    return __t.array(Gun);
   },
 });

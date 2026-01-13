@@ -1,6 +1,28 @@
 import { getConnection } from "../spacetimedb-connection";
 import { Identity, type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
+import GunType from "../../module_bindings/gun_type_type";
+
+const BASE_GUN: Infer<typeof Gun> = {
+  gunType: { tag: "Base" } as Infer<typeof GunType>,
+  ammo: undefined,
+  projectileCount: 1,
+  spreadAngle: 0,
+  damage: 20,
+  trackingStrength: 0,
+  trackingRadius: 0,
+  projectileType: { tag: "Normal" },
+  lifetimeSeconds: 10.0,
+  maxCollisions: 1,
+  passThroughTerrain: false,
+  collisionRadius: 0.1,
+  explosionRadius: undefined,
+  explosionTrigger: { tag: "None" },
+  damping: undefined,
+  bounce: false,
+  projectileSize: 0.15,
+  projectileSpeed: 4.0,
+};
 
 export interface FullTankData {
   id: string;
@@ -43,9 +65,10 @@ export function getFullTank(tankId: string): FullTankData | null {
 
   if (!tank || !transform) return null;
 
-  const guns: Infer<typeof Gun>[] = [];
-  for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
-    guns[tankGun.slotIndex] = tankGun.gun;
+  const guns: Infer<typeof Gun>[] = [BASE_GUN];
+  const tankGunRow = connection.db.tankGun.tankId.find(tankId);
+  if (tankGunRow) {
+    guns.push(...tankGunRow.guns);
   }
 
   return {

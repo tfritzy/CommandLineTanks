@@ -5,127 +5,204 @@ using System.Linq;
 public static partial class Module
 {
     [Table(Name = "tank_gun", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(TankGun.TankId) })]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(TankGun.GameId) })]
     public partial struct TankGun
     {
-        [AutoInc]
         [PrimaryKey]
-        public ulong Id;
-
         public string TankId;
 
         public string GameId;
 
-        public int SlotIndex;
-
-        public Gun Gun;
+        public Gun[] Guns;
     }
 
     public static Gun[] GetTankGuns(ReducerContext ctx, string tankId)
     {
-        var gunRows = ctx.Db.tank_gun.TankId.Filter(tankId);
-        var gunsList = new System.Collections.Generic.List<TankGun>();
-        
-        foreach (var gunRow in gunRows)
+        var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
+        if (tankGunRow == null)
         {
-            gunsList.Add(gunRow);
+            return [BASE_GUN];
         }
         
-        gunsList.Sort((a, b) => a.SlotIndex.CompareTo(b.SlotIndex));
-        
-        return gunsList.Select(g => g.Gun).ToArray();
+        var allGuns = new Gun[tankGunRow.Value.Guns.Length + 1];
+        allGuns[0] = BASE_GUN;
+        for (int i = 0; i < tankGunRow.Value.Guns.Length; i++)
+        {
+            allGuns[i + 1] = tankGunRow.Value.Guns[i];
+        }
+        return allGuns;
     }
 
     public static void SetTankGuns(ReducerContext ctx, string tankId, string gameId, Gun[] guns)
     {
-        foreach (var existingGun in ctx.Db.tank_gun.TankId.Filter(tankId))
+        var pickupGuns = guns.Where(g => g.GunType != GunType.Base).ToArray();
+        
+        var existingRow = ctx.Db.tank_gun.TankId.Find(tankId);
+        if (pickupGuns.Length == 0)
         {
-            ctx.Db.tank_gun.Id.Delete(existingGun.Id);
+            if (existingRow != null)
+            {
+                ctx.Db.tank_gun.TankId.Delete(tankId);
+            }
+            return;
         }
 
-        for (int i = 0; i < guns.Length; i++)
+        var tankGunRow = new TankGun
         {
-            ctx.Db.tank_gun.Insert(new TankGun
-            {
-                Id = 0,
-                TankId = tankId,
-                GameId = gameId,
-                SlotIndex = i,
-                Gun = guns[i]
-            });
+            TankId = tankId,
+            GameId = gameId,
+            Guns = pickupGuns
+        };
+
+        if (existingRow != null)
+        {
+            ctx.Db.tank_gun.TankId.Update(tankGunRow);
+        }
+        else
+        {
+            ctx.Db.tank_gun.Insert(tankGunRow);
         }
     }
 
     public static Gun? GetTankGunAtIndex(ReducerContext ctx, string tankId, int index)
     {
-        foreach (var gunRow in ctx.Db.tank_gun.TankId.Filter(tankId))
+        if (index == 0)
         {
-            if (gunRow.SlotIndex == index)
-            {
-                return gunRow.Gun;
-            }
+            return BASE_GUN;
         }
-        return null;
+        
+        var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
+        if (tankGunRow == null)
+        {
+            return null;
+        }
+        
+        int pickupIndex = index - 1;
+        if (pickupIndex < 0 || pickupIndex >= tankGunRow.Value.Guns.Length)
+        {
+            return null;
+        }
+        
+        return tankGunRow.Value.Guns[pickupIndex];
     }
 
     public static void UpdateTankGunAtIndex(ReducerContext ctx, string tankId, int index, Gun gun)
     {
-        foreach (var gunRow in ctx.Db.tank_gun.TankId.Filter(tankId))
+        if (index == 0)
         {
-            if (gunRow.SlotIndex == index)
-            {
-                var updated = gunRow with { Gun = gun };
-                ctx.Db.tank_gun.Id.Update(updated);
-                return;
-            }
+            return;
         }
+        
+        var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
+        if (tankGunRow == null)
+        {
+            return;
+        }
+        
+        int pickupIndex = index - 1;
+        if (pickupIndex < 0 || pickupIndex >= tankGunRow.Value.Guns.Length)
+        {
+            return;
+        }
+        
+        var updatedGuns = new Gun[tankGunRow.Value.Guns.Length];
+        for (int i = 0; i < tankGunRow.Value.Guns.Length; i++)
+        {
+            updatedGuns[i] = i == pickupIndex ? gun : tankGunRow.Value.Guns[i];
+        }
+        
+        var updated = tankGunRow.Value with { Guns = updatedGuns };
+        ctx.Db.tank_gun.TankId.Update(updated);
     }
 
     public static void DeleteTankGunAtIndex(ReducerContext ctx, string tankId, int index)
     {
-        foreach (var gunRow in ctx.Db.tank_gun.TankId.Filter(tankId))
+        if (index == 0)
         {
-            if (gunRow.SlotIndex == index)
+            return;
+        }
+        
+        var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
+        if (tankGunRow == null)
+        {
+            return;
+        }
+        
+        int pickupIndex = index - 1;
+        if (pickupIndex < 0 || pickupIndex >= tankGunRow.Value.Guns.Length)
+        {
+            return;
+        }
+        
+        var newGuns = new Gun[tankGunRow.Value.Guns.Length - 1];
+        int newIndex = 0;
+        for (int i = 0; i < tankGunRow.Value.Guns.Length; i++)
+        {
+            if (i != pickupIndex)
             {
-                ctx.Db.tank_gun.Id.Delete(gunRow.Id);
+                newGuns[newIndex++] = tankGunRow.Value.Guns[i];
             }
-            else if (gunRow.SlotIndex > index)
-            {
-                var updated = gunRow with { SlotIndex = gunRow.SlotIndex - 1 };
-                ctx.Db.tank_gun.Id.Update(updated);
-            }
+        }
+        
+        if (newGuns.Length == 0)
+        {
+            ctx.Db.tank_gun.TankId.Delete(tankId);
+        }
+        else
+        {
+            var updated = tankGunRow.Value with { Guns = newGuns };
+            ctx.Db.tank_gun.TankId.Update(updated);
         }
     }
 
     public static int GetTankGunCount(ReducerContext ctx, string tankId)
     {
-        int count = 0;
-        foreach (var gunRow in ctx.Db.tank_gun.TankId.Filter(tankId))
+        var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
+        if (tankGunRow == null)
         {
-            count++;
+            return 1;
         }
-        return count;
+        return tankGunRow.Value.Guns.Length + 1;
     }
 
     public static void AddTankGun(ReducerContext ctx, string tankId, string gameId, Gun gun)
     {
-        int maxSlotIndex = -1;
-        foreach (var gunRow in ctx.Db.tank_gun.TankId.Filter(tankId))
+        if (gun.GunType == GunType.Base)
         {
-            if (gunRow.SlotIndex > maxSlotIndex)
-            {
-                maxSlotIndex = gunRow.SlotIndex;
-            }
+            return;
         }
-
-        ctx.Db.tank_gun.Insert(new TankGun
+        
+        var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
+        
+        Gun[] newGuns;
+        if (tankGunRow == null)
         {
-            Id = 0,
+            newGuns = [gun];
+        }
+        else
+        {
+            newGuns = new Gun[tankGunRow.Value.Guns.Length + 1];
+            for (int i = 0; i < tankGunRow.Value.Guns.Length; i++)
+            {
+                newGuns[i] = tankGunRow.Value.Guns[i];
+            }
+            newGuns[tankGunRow.Value.Guns.Length] = gun;
+        }
+        
+        var updated = new TankGun
+        {
             TankId = tankId,
             GameId = gameId,
-            SlotIndex = maxSlotIndex + 1,
-            Gun = gun
-        });
+            Guns = newGuns
+        };
+        
+        if (tankGunRow == null)
+        {
+            ctx.Db.tank_gun.Insert(updated);
+        }
+        else
+        {
+            ctx.Db.tank_gun.TankId.Update(updated);
+        }
     }
 }

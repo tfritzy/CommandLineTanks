@@ -13,12 +13,10 @@ import Gun from "./gun_type";
 
 
 export default __t.object("TankGun", {
-  id: __t.u64(),
   tankId: __t.string(),
   gameId: __t.string(),
-  slotIndex: __t.i32(),
-  get gun() {
-    return Gun;
+  get guns() {
+    return __t.array(Gun);
   },
 });
 

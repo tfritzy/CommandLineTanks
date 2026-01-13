@@ -8,8 +8,6 @@ public static partial class Module
         ctx.Db.tank.Insert(tank);
         ctx.Db.tank_transform.Insert(transform);
         
-        SetTankGuns(ctx, tank.Id, tank.GameId, [BASE_GUN]);
-        
         if (tank.IsBot)
         {
             IncrementBotCount(ctx, tank.GameId);
@@ -33,9 +31,10 @@ public static partial class Module
         
         DeleteTankPathIfExists(ctx, tank.Id);
         
-        foreach (var gunRow in ctx.Db.tank_gun.TankId.Filter(tank.Id))
+        var gunRow = ctx.Db.tank_gun.TankId.Find(tank.Id);
+        if (gunRow != null)
         {
-            ctx.Db.tank_gun.Id.Delete(gunRow.Id);
+            ctx.Db.tank_gun.TankId.Delete(tank.Id);
         }
         
         ctx.Db.tank_transform.TankId.Delete(tank.Id);
