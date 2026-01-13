@@ -1205,8 +1205,9 @@
 
                 lines.push('Available commands:');
                 lines.push('  <span class="terminal-cyan">drive</span>      Move unit: drive &lt;dir&gt; [dist]');
+                lines.push('  <span class="terminal-cyan">track</span>      Track target: track &lt;code&gt;');
+                lines.push('  <span class="terminal-cyan">aim</span>        Aim turret: aim &lt;deg|dir&gt;');
                 lines.push('  <span class="terminal-cyan">fire</span>       Fire main weapon');
-                lines.push('  <span class="terminal-cyan">aim</span>        Aim or target: aim &lt;deg|dir|code&gt;');
                 lines.push('  <span class="terminal-cyan">switch</span>     Switch weapon: switch &lt;slot&gt;');
                 lines.push('');
                 lines.push('');
@@ -1223,9 +1224,9 @@
                 render();
                 await sleep(1000);
 
-                await typeText('aim a4');
+                await typeText('track a4');
                 await newLine();
-                lines.push('Targeting tank <span class="terminal-magenta">a4</span> (Alpha)');
+                lines.push('Tracking tank <span class="terminal-magenta">a4</span> (Alpha)');
                 lines.push('');
                 lines.push('');
                 currentLine = prompt();
