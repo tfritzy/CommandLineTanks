@@ -13,11 +13,6 @@ import {
 import { ServerTimeSync } from "../utils/ServerTimeSync";
 import { COLORS } from "../theme/colors";
 
-type PathEntry = {
-  position: { x: number; y: number };
-  throttlePercent: number;
-};
-
 export class Tank {
   public arrayIndex: number = -1;
   public readonly id: string;
@@ -26,7 +21,7 @@ export class Tank {
   private turretRotation: number;
   private targetTurretRotation: number;
   private turretAngularVelocity: number;
-  private path: PathEntry[];
+  private path: Array<{ x: number; y: number }>;
   private name: string;
   private targetCode: string;
   private alliance: number;
@@ -56,7 +51,7 @@ export class Tank {
     health: number,
     maxHealth: number = 100,
     turretAngularVelocity: number = 0,
-    path: PathEntry[] = [],
+    path: Array<{ x: number; y: number }> = [],
     guns: Infer<typeof Gun>[] = [],
     selectedGunIndex: number = 0,
     hasShield: boolean = false,
@@ -185,7 +180,7 @@ export class Tank {
     this.turretAngularVelocity = turretAngularVelocity;
   }
 
-  public setPath(path: PathEntry[]) {
+  public setPath(path: Array<{ x: number; y: number }>) {
     this.path = path;
   }
 

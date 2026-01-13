@@ -95,19 +95,12 @@ public static partial class TileboundAI
         Vector2Float rootPos = new Vector2Float(fullTank.PositionX, fullTank.PositionY);
         Vector2Float nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
 
-        PathEntry entry = new()
-        {
-            ThrottlePercent = 1.0f,
-            Position = nextPos,
-            Reverse = false
-        };
-
         var newPathState = new Module.TankPath
         {
             TankId = fullTank.Id,
             GameId = fullTank.GameId,
             Owner = fullTank.Owner,
-            Path = [entry]
+            Path = [nextPos]
         };
 
         UpsertTankPath(ctx, newPathState);

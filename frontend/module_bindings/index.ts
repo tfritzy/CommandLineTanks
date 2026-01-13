@@ -147,8 +147,6 @@ import GunType from "./gun_type_type";
 export { GunType };
 import Kill from "./kill_type";
 export { Kill };
-import PathEntry from "./path_entry_type";
-export { PathEntry };
 import Pickup from "./pickup_type";
 export { Pickup };
 import PickupType from "./pickup_type_type";
@@ -459,11 +457,12 @@ const tablesSchema = __schema(
   __table({
     name: 'tank_path',
     indexes: [
+      { name: 'GameId_Owner', algorithm: 'btree', columns: [
+        'gameId',
+        'owner',
+      ] },
       { name: 'GameId', algorithm: 'btree', columns: [
         'gameId',
-      ] },
-      { name: 'Owner', algorithm: 'btree', columns: [
-        'owner',
       ] },
       { name: 'TankId', algorithm: 'btree', columns: [
         'tankId',

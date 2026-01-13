@@ -250,7 +250,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "drive, d - Navigate your tank using pathfinding",
         "",
-        "Usage: drive <direction> [distance] [throttle]",
+        "Usage: drive <direction> [distance]",
         "",
         "Arguments:",
         "  <direction>    Direction to drive (with pathfinding)",
@@ -264,11 +264,10 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ←: west, left, w, l",
         "                   ↖: northwest, upleft, leftup, nw, ul, lu",
         "  [distance]     Distance to drive in units (default: 1)",
-        "  [throttle]     Speed as percentage 1-100 (default: 100)",
         "",
         "Examples:",
         "  drive northeast 5",
-        "  drive up 3 75",
+        "  drive up 3",
         "  drive s 10",
       ];
 
@@ -734,12 +733,11 @@ export function drive(
     return [
       themeColors.error("drive: error: missing required arguments"),
       "",
-      themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
-      themeColors.dim("       drive <relative_x> <relative_y> [throttle]"),
+      themeColors.dim("Usage: drive <direction> [distance]"),
       "",
       themeColors.dim("Examples:"),
       themeColors.dim("  drive northeast 5"),
-      themeColors.dim("  drive up 3 75"),
+      themeColors.dim("  drive up 3"),
       themeColors.dim("  drive 10 5      (10 units right, 5 units down)"),
     ];
   }
@@ -766,26 +764,11 @@ export function drive(
         return [
           themeColors.error(`drive: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`),
           "",
-          themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
+          themeColors.dim("Usage: drive <direction> [distance]"),
           themeColors.dim("       drive northeast 5"),
         ];
       } else {
         distance = parsed;
-      }
-    }
-
-    let throttle = 1;
-    if (args.length > 2) {
-      const parsed = Number.parseInt(args[2]);
-      if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
-        return [
-          themeColors.error(`drive: error: invalid value '${args[2]}' for '[throttle]': must be an integer between 1 and 100`),
-          "",
-          themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
-          themeColors.dim("       drive northeast 5 75"),
-        ];
-      } else {
-        throttle = parsed / 100;
       }
     }
 
@@ -795,25 +778,24 @@ export function drive(
     const targetX = Math.floor(myTransform.positionX) + relativeX;
     const targetY = Math.floor(myTransform.positionY) + relativeY;
 
-    connection.reducers.drive({ gameId, targetX, targetY, throttle });
+    connection.reducers.drive({ gameId, targetX, targetY });
 
     const distanceText = themeColors.value(distance.toString());
     const dirName = themeColors.value(directionInfo.name);
-    const throttleDisplay = throttle === 1 ? themeColors.success("full") : themeColors.value(`${throttle * 100}%`);
     const explanation = `${distanceText} ${themeColors.success(distance !== 1 ? "units" : "unit")} ${dirName}`;
     return [
-      themeColors.success("Driving ") + explanation + themeColors.success(" at ") + throttleDisplay + themeColors.success(" throttle"),
+      themeColors.success("Driving ") + explanation,
     ];
   }
 
   return [
     themeColors.error("drive: error: invalid movement command"),
     "",
-    themeColors.dim("Usage: drive <direction> [distance] [throttle]"),
+    themeColors.dim("Usage: drive <direction> [distance]"),
     "",
     themeColors.dim("Examples:"),
     themeColors.dim("  drive northeast 5"),
-    themeColors.dim("  drive up 3 75"),
+    themeColors.dim("  drive up 3"),
   ];
 }
 

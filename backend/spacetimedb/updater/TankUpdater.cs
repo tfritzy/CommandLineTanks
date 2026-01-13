@@ -78,34 +78,34 @@ public static partial class TankUpdater
             {
                 var currentPath = pathState.Value.Path;
                 var targetPos = currentPath[0];
-                var deltaX = targetPos.Position.X - transform.PositionX;
-                var deltaY = targetPos.Position.Y - transform.PositionY;
+                var deltaX = targetPos.X - transform.PositionX;
+                var deltaY = targetPos.Y - transform.PositionY;
                 var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-                var moveSpeed = tank.TopSpeed * targetPos.ThrottlePercent;
+                var moveSpeed = tank.TopSpeed;
                 var moveDistance = moveSpeed * deltaTime;
 
                 if (distance <= ARRIVAL_THRESHOLD || moveDistance >= distance)
                 {
                     var overshoot = moveDistance - distance;
-                    var newPath = new PathEntry[currentPath.Length - 1];
+                    var newPath = new Vector2Float[currentPath.Length - 1];
                     Array.Copy(currentPath, 1, newPath, 0, newPath.Length);
 
                     if (newPath.Length > 0)
                     {
                         var nextTarget = newPath[0];
-                        var nextDeltaX = nextTarget.Position.X - targetPos.Position.X;
-                        var nextDeltaY = nextTarget.Position.Y - targetPos.Position.Y;
+                        var nextDeltaX = nextTarget.X - targetPos.X;
+                        var nextDeltaY = nextTarget.Y - targetPos.Y;
                         var nextDistance = Math.Sqrt(nextDeltaX * nextDeltaX + nextDeltaY * nextDeltaY);
 
                         if (nextDistance > 0)
                         {
                             var nextDirX = nextDeltaX / nextDistance;
                             var nextDirY = nextDeltaY / nextDistance;
-                            var nextMoveSpeed = tank.TopSpeed * nextTarget.ThrottlePercent;
+                            var nextMoveSpeed = tank.TopSpeed;
 
-                            var finalX = targetPos.Position.X + nextDirX * Math.Min(overshoot, nextDistance);
-                            var finalY = targetPos.Position.Y + nextDirY * Math.Min(overshoot, nextDistance);
+                            var finalX = targetPos.X + nextDirX * Math.Min(overshoot, nextDistance);
+                            var finalY = targetPos.Y + nextDirY * Math.Min(overshoot, nextDistance);
 
                             transform = transform with
                             {
@@ -118,8 +118,8 @@ public static partial class TankUpdater
                         {
                             transform = transform with
                             {
-                                PositionX = targetPos.Position.X,
-                                PositionY = targetPos.Position.Y,
+                                PositionX = targetPos.X,
+                                PositionY = targetPos.Y,
                                 Velocity = new Vector2Float(0, 0)
                             };
                         }
@@ -130,8 +130,8 @@ public static partial class TankUpdater
                     {
                         transform = transform with
                         {
-                            PositionX = targetPos.Position.X,
-                            PositionY = targetPos.Position.Y,
+                            PositionX = targetPos.X,
+                            PositionY = targetPos.Y,
                             Velocity = new Vector2Float(0, 0)
                         };
 

@@ -192,7 +192,7 @@ export function drawTankPath(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
-  path: Array<{ position: { x: number; y: number }; throttlePercent: number }>,
+  path: Array<{ x: number; y: number }>,
   lineColor: string,
   dotColor: string
 ) {
@@ -209,16 +209,16 @@ export function drawTankPath(
   ctx.moveTo(startX, startY);
 
   for (const pathEntry of path) {
-    const worldX = pathEntry.position.x * UNIT_TO_PIXEL;
-    const worldY = pathEntry.position.y * UNIT_TO_PIXEL;
+    const worldX = pathEntry.x * UNIT_TO_PIXEL;
+    const worldY = pathEntry.y * UNIT_TO_PIXEL;
     ctx.lineTo(worldX, worldY);
   }
 
   ctx.stroke();
 
   const lastEntry = path[path.length - 1];
-  const endX = lastEntry.position.x * UNIT_TO_PIXEL;
-  const endY = lastEntry.position.y * UNIT_TO_PIXEL;
+  const endX = lastEntry.x * UNIT_TO_PIXEL;
+  const endY = lastEntry.y * UNIT_TO_PIXEL;
 
   ctx.fillStyle = dotColor;
   ctx.beginPath();

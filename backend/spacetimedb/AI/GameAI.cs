@@ -77,12 +77,7 @@ public static partial class GameAI
 
     private static void SetPath(ReducerContext ctx, FullTank fullTank, List<(int x, int y)> path)
     {
-        var pathEntries = path.Select(waypoint => new PathEntry
-        {
-            Position = new Vector2Float(waypoint.x, waypoint.y),
-            ThrottlePercent = 1.0f,
-            Reverse = false
-        }).ToArray();
+        var pathEntries = path.Select(waypoint => new Vector2Float(waypoint.x, waypoint.y)).ToArray();
 
         var newPathState = new Module.TankPath
         {
@@ -112,19 +107,12 @@ public static partial class GameAI
         Vector2Float rootPos = new Vector2Float(fullTank.PositionX, fullTank.PositionY);
         Vector2Float nextPos = new(rootPos.X + offset.X, rootPos.Y + offset.Y);
 
-        PathEntry entry = new()
-        {
-            ThrottlePercent = 1.0f,
-            Position = nextPos,
-            Reverse = false
-        };
-
         var newPathState = new Module.TankPath
         {
             TankId = fullTank.Id,
             GameId = fullTank.GameId,
             Owner = fullTank.Owner,
-            Path = [entry]
+            Path = [nextPos]
         };
 
         UpsertTankPath(ctx, newPathState);
