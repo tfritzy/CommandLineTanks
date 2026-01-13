@@ -6,7 +6,8 @@ import { TankIndicatorManager } from "./TankIndicatorManager";
 import { TargetingReticle } from "../objects/TargetingReticle";
 import { ScreenShake } from "../utils/ScreenShake";
 import { MuzzleFlashParticlesManager } from "./MuzzleFlashParticlesManager";
-import { GUN_BARREL_LENGTH } from "../constants";
+import { GUN_BARREL_LENGTH, UNIT_TO_PIXEL } from "../constants";
+import { COLORS } from "../theme/colors";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
@@ -14,6 +15,8 @@ import TankTransformRow from "../../module_bindings/tank_transform_type";
 import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
+
+const VIEWPORT_PADDING = 100;
 
 export class TankManager {
   private tanks: Map<string, Tank> = new Map();
@@ -353,24 +356,85 @@ export class TankManager {
     }
   }
 
-  public drawHealthBars(ctx: CanvasRenderingContext2D) {
+  public drawHealthBars(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
+    const paddedLeft = cameraX - VIEWPORT_PADDING;
+    const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
+    const paddedTop = cameraY - VIEWPORT_PADDING;
+    const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
+
     for (const tank of this.tanks.values()) {
+      const pos = tank.getPosition();
+      const px = pos.x * UNIT_TO_PIXEL;
+      const py = pos.y * UNIT_TO_PIXEL;
+      
+      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
+      
       tank.drawHealthBar(ctx);
     }
   }
 
-  public drawNameLabels(ctx: CanvasRenderingContext2D) {
+  public drawNameLabels(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
     const playerTank = this.playerTankId ? this.tanks.get(this.playerTankId) : null;
     const playerAlliance = playerTank ? playerTank.getAlliance() : null;
 
+    const paddedLeft = cameraX - VIEWPORT_PADDING;
+    const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
+    const paddedTop = cameraY - VIEWPORT_PADDING;
+    const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
+
+    ctx.textAlign = "center";
+
+    ctx.font = "bold 16px monospace";
+    ctx.fillStyle = COLORS.TERMINAL.WARNING;
     for (const tank of this.tanks.values()) {
+      if (tank.getHealth() <= 0) continue;
+      
+      const pos = tank.getPosition();
+      const px = pos.x * UNIT_TO_PIXEL;
+      const py = pos.y * UNIT_TO_PIXEL;
+      
+      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
+      
       const isPlayerTank = tank.id === this.playerTankId;
       const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
+      const targetCode = tank.getTargetCode();
 
-      if (isPlayerTank || isFriendly) {
-        tank.drawNameLabelWithoutTargetCode(ctx);
+      if (!isPlayerTank && !isFriendly && targetCode) {
+        ctx.fillText(targetCode, px, py - 34);
+      }
+    }
+
+    ctx.font = "12px monospace";
+    ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
+    for (const tank of this.tanks.values()) {
+      if (tank.getHealth() <= 0) continue;
+      
+      const pos = tank.getPosition();
+      const px = pos.x * UNIT_TO_PIXEL;
+      const py = pos.y * UNIT_TO_PIXEL;
+      
+      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
+      
+      const isPlayerTank = tank.id === this.playerTankId;
+      const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
+      const targetCode = tank.getTargetCode();
+
+      if (!isPlayerTank && !isFriendly && targetCode) {
+        ctx.fillText(tank.getName(), px, py - 20);
       } else {
-        tank.drawNameLabel(ctx);
+        ctx.fillText(tank.getName(), px, py - 27);
       }
     }
   }

@@ -222,10 +222,22 @@ export class Game {
       )
     );
     this.profiler.profile("tank_labels", () =>
-      this.tankManager.drawNameLabels(this.ctx)
+      this.tankManager.drawNameLabels(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
     this.profiler.profile("tank_health", () =>
-      this.tankManager.drawHealthBars(this.ctx)
+      this.tankManager.drawHealthBars(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
     );
     this.profiler.profile("tank_indicators", () =>
       this.tankManager.drawTankIndicators(this.ctx)
