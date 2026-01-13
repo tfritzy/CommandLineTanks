@@ -17,7 +17,7 @@ public static partial class Module
 
         var gameId = GenerateGameId(ctx);
 
-        var (baseTerrain, terrainDetails, traversibilityMap) = GenerateTerrainCommand(ctx, width, height);
+        var (baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
         var game = CreateGame(
             ctx,
@@ -25,6 +25,7 @@ public static partial class Module
             baseTerrain,
             terrainDetails,
             traversibilityMap,
+            projectileTraversibilityMap,
             width,
             height,
             visibility,

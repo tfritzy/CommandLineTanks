@@ -9,6 +9,7 @@ public static partial class Module
         BaseTerrain[] baseTerrain,
         (int x, int y, TerrainDetailType type, int rotation)[] terrainDetails,
         byte[] traversibilityMap,
+        byte[] projectileTraversibilityMap,
         int width,
         int height,
         GameVisibility visibility = GameVisibility.Public,
@@ -69,6 +70,14 @@ public static partial class Module
         {
             GameId = gameId,
             Map = traversibilityMap,
+            Width = width,
+            Height = height
+        });
+
+        ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
+        {
+            GameId = gameId,
+            Map = projectileTraversibilityMap,
             Width = width,
             Height = height
         });

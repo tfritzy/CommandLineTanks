@@ -15,11 +15,13 @@ public static partial class Module
 
         var baseTerrain = new BaseTerrain[totalTiles];
         var traversibilityBoolMap = new bool[totalTiles];
+        var projectileTraversibilityBoolMap = new bool[totalTiles];
 
         for (int i = 0; i < totalTiles; i++)
         {
             baseTerrain[i] = BaseTerrain.Ground;
             traversibilityBoolMap[i] = true;
+            projectileTraversibilityBoolMap[i] = true;
         }
 
         CreateTargetingDemonstrationArea(ctx, identityString, worldWidth, worldHeight, baseTerrain);
@@ -51,6 +53,7 @@ public static partial class Module
             if (traversibilityBoolMap[rIndex] && (Math.Abs(rx - worldWidth / 2) > 5 || Math.Abs(ry - worldHeight / 2) > 5) && !IsInsideAnyPen(rx, ry))
             {
                 traversibilityBoolMap[rIndex] = false;
+                projectileTraversibilityBoolMap[rIndex] = false;
                 ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     gameId: identityString,
@@ -73,6 +76,7 @@ public static partial class Module
             if (traversibilityBoolMap[tIndex] && (Math.Abs(tx - worldWidth / 2) > 5 || Math.Abs(ty - worldHeight / 2) > 5) && !IsInsideAnyPen(tx, ty))
             {
                 traversibilityBoolMap[tIndex] = false;
+                projectileTraversibilityBoolMap[tIndex] = false;
                 ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     gameId: identityString,
@@ -97,6 +101,14 @@ public static partial class Module
         {
             GameId = identityString,
             Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
+            Width = worldWidth,
+            Height = worldHeight
+        });
+
+        ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
+        {
+            GameId = identityString,
+            Map = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap),
             Width = worldWidth,
             Height = worldHeight
         });
