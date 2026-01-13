@@ -409,7 +409,7 @@ public static partial class ProjectileUpdater
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         ulong expirationThreshold = 500_000;
 
-        DamagedTank[] recentlyHitBuffer = new DamagedTank[128];
+        DamagedTank[]? recentlyHitBuffer = null;
         int recentlyHitCount = 0;
         if (projectile.RecentlyHitTanks != null)
         {
@@ -417,6 +417,10 @@ public static partial class ProjectileUpdater
             {
                 if (currentTime - hitTank.DamagedAt < expirationThreshold)
                 {
+                    if (recentlyHitBuffer == null)
+                    {
+                        recentlyHitBuffer = new DamagedTank[128];
+                    }
                     if (recentlyHitCount < recentlyHitBuffer.Length)
                     {
                         recentlyHitBuffer[recentlyHitCount++] = hitTank;
@@ -454,12 +458,15 @@ public static partial class ProjectileUpdater
                         if (tank.Alliance != projectile.Alliance && tank.Health > 0 && tank.RemainingImmunityMicros <= 0)
                         {
                             bool alreadyHit = false;
-                            for (int i = 0; i < recentlyHitCount; i++)
+                            if (recentlyHitBuffer != null)
                             {
-                                if (recentlyHitBuffer[i].TankId == tank.Id)
+                                for (int i = 0; i < recentlyHitCount; i++)
                                 {
-                                    alreadyHit = true;
-                                    break;
+                                    if (recentlyHitBuffer[i].TankId == tank.Id)
+                                    {
+                                        alreadyHit = true;
+                                        break;
+                                    }
                                 }
                             }
 
@@ -479,6 +486,10 @@ public static partial class ProjectileUpdater
                                     Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId);
                                 }
 
+                                if (recentlyHitBuffer == null)
+                                {
+                                    recentlyHitBuffer = new DamagedTank[128];
+                                }
                                 if (recentlyHitCount < recentlyHitBuffer.Length)
                                 {
                                     recentlyHitBuffer[recentlyHitCount++] = new DamagedTank
@@ -504,7 +515,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyHitTanks = recentlyHitCount > 0 ? recentlyHitBuffer.AsSpan(0, recentlyHitCount).ToArray() : null
+            RecentlyHitTanks = recentlyHitCount > 0 && recentlyHitBuffer != null ? recentlyHitBuffer.AsSpan(0, recentlyHitCount).ToArray() : null
         };
 
         return (false, projectile, transform, false);
