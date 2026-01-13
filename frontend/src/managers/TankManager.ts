@@ -354,15 +354,45 @@ export class TankManager {
     }
   }
 
-  public drawHealthBars(ctx: CanvasRenderingContext2D) {
+  public drawHealthBars(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
+    const padding = 50;
+    const left = cameraX - padding;
+    const right = cameraX + viewportWidth + padding;
+    const top = cameraY - padding;
+    const bottom = cameraY + viewportHeight + padding;
+
     for (const tank of this.tanks.values()) {
+      const pos = tank.getPosition();
+      const px = pos.x * UNIT_TO_PIXEL;
+      const py = pos.y * UNIT_TO_PIXEL;
+      
+      if (px < left || px > right || py < top || py > bottom) continue;
+      
       tank.drawHealthBar(ctx);
     }
   }
 
-  public drawNameLabels(ctx: CanvasRenderingContext2D) {
+  public drawNameLabels(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
     const playerTank = this.playerTankId ? this.tanks.get(this.playerTankId) : null;
     const playerAlliance = playerTank ? playerTank.getAlliance() : null;
+
+    const padding = 50;
+    const left = cameraX - padding;
+    const right = cameraX + viewportWidth + padding;
+    const top = cameraY - padding;
+    const bottom = cameraY + viewportHeight + padding;
 
     ctx.textAlign = "center";
 
@@ -371,13 +401,18 @@ export class TankManager {
     for (const tank of this.tanks.values()) {
       if (tank.getHealth() <= 0) continue;
       
+      const pos = tank.getPosition();
+      const px = pos.x * UNIT_TO_PIXEL;
+      const py = pos.y * UNIT_TO_PIXEL;
+      
+      if (px < left || px > right || py < top || py > bottom) continue;
+      
       const isPlayerTank = tank.id === this.playerTankId;
       const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
       const targetCode = tank.getTargetCode();
 
       if (!isPlayerTank && !isFriendly && targetCode) {
-        const pos = tank.getPosition();
-        ctx.fillText(targetCode, pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 34);
+        ctx.fillText(targetCode, px, py - 34);
       }
     }
 
@@ -386,15 +421,20 @@ export class TankManager {
     for (const tank of this.tanks.values()) {
       if (tank.getHealth() <= 0) continue;
       
+      const pos = tank.getPosition();
+      const px = pos.x * UNIT_TO_PIXEL;
+      const py = pos.y * UNIT_TO_PIXEL;
+      
+      if (px < left || px > right || py < top || py > bottom) continue;
+      
       const isPlayerTank = tank.id === this.playerTankId;
       const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
       const targetCode = tank.getTargetCode();
 
-      const pos = tank.getPosition();
       if (!isPlayerTank && !isFriendly && targetCode) {
-        ctx.fillText(tank.getName(), pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 20);
+        ctx.fillText(tank.getName(), px, py - 20);
       } else {
-        ctx.fillText(tank.getName(), pos.x * UNIT_TO_PIXEL, pos.y * UNIT_TO_PIXEL - 27);
+        ctx.fillText(tank.getName(), px, py - 27);
       }
     }
   }
