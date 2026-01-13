@@ -98,6 +98,23 @@ public static partial class Module
         Log.Info($"Started tickers for game {gameId}");
     }
 
+    public static void StartHomeGameTickers(ReducerContext ctx, string gameId)
+    {
+        StartGameTickers(ctx, gameId);
+
+        if (!ctx.Db.ScheduledPickupSpawn.GameId.Filter(gameId).Any())
+        {
+            ctx.Db.ScheduledPickupSpawn.Insert(new PickupSpawner.ScheduledPickupSpawn
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 8_000_000 }),
+                GameId = gameId
+            });
+        }
+
+        Log.Info($"Started home game tickers for game {gameId}");
+    }
+
     [Reducer]
     public static void ResetGame(ReducerContext ctx, ScheduledGameReset args)
     {

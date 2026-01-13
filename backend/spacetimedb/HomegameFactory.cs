@@ -38,22 +38,8 @@ public static partial class Module
             IsHomeGame = true
         };
 
-        ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
-            GameId = identityString,
-            TickCount = 0
-        });
-
-        ctx.Db.ScheduledPickupSpawn.Insert(new PickupSpawner.ScheduledPickupSpawn
-        {
-            ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 8_000_000 }),
-            GameId = identityString
-        });
-
         ctx.Db.game.Insert(game);
+        StartHomeGameTickers(ctx, identityString);
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
 
