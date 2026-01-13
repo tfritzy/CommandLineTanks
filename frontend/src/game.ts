@@ -11,7 +11,6 @@ import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
 import { Profiler } from "./utils/Profiler";
 import { initializeAllTextures } from "./textures";
-import { getPing } from "./spacetimedb-connection";
 
 let texturesInitialized = false;
 let textureInitPromise: Promise<void> | null = null;
@@ -62,7 +61,6 @@ export class Game {
     this.soundManager = SoundManager.getInstance();
     this.screenShake = new ScreenShake();
     this.fpsCounter = new FpsCounter();
-    this.fpsCounter.setPingGetter(getPing);
     this.profiler = new Profiler();
     this.tankManager = new TankManager(
       gameId,
