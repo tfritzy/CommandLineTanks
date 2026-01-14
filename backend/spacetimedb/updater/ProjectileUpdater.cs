@@ -201,7 +201,7 @@ public static partial class ProjectileUpdater
         ulong expirationThreshold = 500_000;
         float collisionRadiusSquared = projectile.CollisionRadius * projectile.CollisionRadius;
 
-        System.Span<DamagedTile> recentlyDamagedBuffer = stackalloc DamagedTile[COLLISION_TRACKING_BUFFER_SIZE];
+        DamagedTile[]? recentlyDamagedBuffer = null;
         int recentlyDamagedCount = 0;
         if (projectile.RecentlyDamagedTiles != null)
         {
@@ -209,6 +209,7 @@ public static partial class ProjectileUpdater
             {
                 if (currentTime - damagedTile.DamagedAt < expirationThreshold)
                 {
+                    recentlyDamagedBuffer ??= new DamagedTile[COLLISION_TRACKING_BUFFER_SIZE];
                     if (recentlyDamagedCount < recentlyDamagedBuffer.Length)
                     {
                         recentlyDamagedBuffer[recentlyDamagedCount++] = damagedTile;
@@ -242,7 +243,7 @@ public static partial class ProjectileUpdater
                     bool alreadyDamaged = false;
                     for (int i = 0; i < recentlyDamagedCount; i++)
                     {
-                        if (recentlyDamagedBuffer[i].X == tileX && recentlyDamagedBuffer[i].Y == tileY)
+                        if (recentlyDamagedBuffer![i].X == tileX && recentlyDamagedBuffer[i].Y == tileY)
                         {
                             alreadyDamaged = true;
                             break;
@@ -257,6 +258,7 @@ public static partial class ProjectileUpdater
                             traversibilityMapChanged = true;
                         }
 
+                        recentlyDamagedBuffer ??= new DamagedTile[COLLISION_TRACKING_BUFFER_SIZE];
                         if (recentlyDamagedCount < recentlyDamagedBuffer.Length)
                         {
                             recentlyDamagedBuffer[recentlyDamagedCount++] = new DamagedTile
@@ -273,7 +275,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyDamagedTiles = recentlyDamagedCount > 0 ? recentlyDamagedBuffer.Slice(0, recentlyDamagedCount).ToArray() : null
+            RecentlyDamagedTiles = recentlyDamagedCount > 0 ? recentlyDamagedBuffer!.AsSpan(0, recentlyDamagedCount).ToArray() : null
         };
 
         return (projectile, transform, traversibilityMapChanged);
