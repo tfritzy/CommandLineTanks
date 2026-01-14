@@ -154,12 +154,12 @@ export class MiniMapManager {
     const miniMapX = canvasWidth - miniMapWidth - this.margin;
     const miniMapY = canvasHeight - miniMapHeight - this.margin;
 
-    const worldChanged = this.worldWidth !== this.lastWorldWidth || this.worldHeight !== this.lastWorldHeight;
+    const gameChanged = this.gameWidth !== this.lastGameWidth || this.gameHeight !== this.lastGameHeight;
     const dprChanged = dpr !== this.lastDpr;
-    if (worldChanged || dprChanged || this.needsRedraw || !this.baseLayerCanvas) {
-      this.createBaseLayer(miniMapWidth, miniMapHeight, this.worldWidth, this.worldHeight, dpr);
-      this.lastWorldWidth = this.worldWidth;
-      this.lastWorldHeight = this.worldHeight;
+    if (gameChanged || dprChanged || this.needsRedraw || !this.baseLayerCanvas) {
+      this.createBaseLayer(miniMapWidth, miniMapHeight, this.gameWidth, this.gameHeight, dpr);
+      this.lastGameWidth = this.gameWidth;
+      this.lastGameHeight = this.gameHeight;
       this.lastDpr = dpr;
       this.needsRedraw = false;
     }

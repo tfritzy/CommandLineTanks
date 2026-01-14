@@ -21,7 +21,7 @@ export function drawBaseTerrain(
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
       if (
         tileX < 0 ||
-        tileX >=gameWidth ||
+        tileX >= gameWidth ||
         tileY < 0 ||
         tileY >= gameHeight
       ) {
@@ -46,7 +46,7 @@ export function drawBaseTerrain(
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
       if (
         tileX < 0 ||
-        tileX >=gameWidth ||
+        tileX >= gameWidth ||
         tileY < 0 ||
         tileY >= gameHeight
       ) {
@@ -74,7 +74,7 @@ export function drawBaseTerrain(
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
       if (
         tileX < 0 ||
-        tileX >=gameWidth ||
+        tileX >= gameWidth ||
         tileY < 0 ||
         tileY >= gameHeight
       ) {
@@ -106,7 +106,7 @@ export function drawBaseTerrain(
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
       if (
         tileX < 0 ||
-        tileX >=gameWidth ||
+        tileX >= gameWidth ||
         tileY < 0 ||
         tileY >= gameHeight
       ) {
@@ -127,9 +127,9 @@ export function drawBaseTerrain(
   ctx.beginPath();
   
   const topY = Math.max(startTileY, 0) * UNIT_TO_PIXEL;
-  const bottomY = Math.min(endTileY + 1, worldHeight) * UNIT_TO_PIXEL;
+  const bottomY = Math.min(endTileY + 1, gameHeight) * UNIT_TO_PIXEL;
   for (let tileX = startTileX; tileX <= endTileX; tileX++) {
-    if (tileX < 0 || tileX >=gameWidth) {
+    if (tileX < 0 || tileX >= gameWidth) {
       continue;
     }
     const worldX = tileX * UNIT_TO_PIXEL;
@@ -143,7 +143,7 @@ export function drawBaseTerrain(
   }
   
   const leftX = Math.max(startTileX, 0) * UNIT_TO_PIXEL;
-  const rightX = Math.min(endTileX + 1, worldWidth) * UNIT_TO_PIXEL;
+  const rightX = Math.min(endTileX + 1, gameWidth) * UNIT_TO_PIXEL;
   for (let tileY = startTileY; tileY <= endTileY; tileY++) {
     if (tileY < 0 || tileY >= gameHeight) {
       continue;
@@ -162,8 +162,8 @@ export function drawBaseTerrain(
   drawWaterDualGrid(
     ctx,
     baseTerrainLayer,
-    worldWidth,
-    worldHeight,
+    gameWidth,
+    gameHeight,
     startTileX,
     endTileX,
     startTileY,
@@ -191,8 +191,8 @@ function drawWaterDualGrid(
     for (let dualX = dualStartX; dualX <= dualEndX; dualX++) {
       const tileIndex = waterTextureCache.computeTileIndex(
         baseTerrainLayer,
-        worldWidth,
-        worldHeight,
+        gameWidth,
+        gameHeight,
         dualX,
         dualY
       );
