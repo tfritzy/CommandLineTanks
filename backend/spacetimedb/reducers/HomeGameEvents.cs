@@ -60,11 +60,22 @@ public static partial class Module
             if (projectile.Value.ExplosionTrigger == ExplosionTrigger.OnHit)
             {
                 var traversibilityMapQuery = ctx.Db.traversibility_map.GameId.Find(identityString);
-                if (traversibilityMapQuery != null)
+                var projectileTraversibilityMapQuery = ctx.Db.projectile_traversibility_map.GameId.Find(identityString);
+                if (traversibilityMapQuery != null && projectileTraversibilityMapQuery != null)
                 {
                     var traversibilityMap = traversibilityMapQuery.Value;
-                    ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap);
-                    ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
+                    var projectileTraversibilityMap = projectileTraversibilityMapQuery.Value;
+                    bool tankMapChanged;
+                    bool projectileMapChanged;
+                    (tankMapChanged, projectileMapChanged) = ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap, ref projectileTraversibilityMap);
+                    if (tankMapChanged)
+                    {
+                        ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
+                    }
+                    if (projectileMapChanged)
+                    {
+                        ctx.Db.projectile_traversibility_map.GameId.Update(projectileTraversibilityMap);
+                    }
                 }
                 ProjectileUpdater.DeleteProjectile(ctx, projectileId);
                 return;
@@ -121,23 +132,39 @@ public static partial class Module
             return;
         }
 
-        var traversibilityMap = traversibilityMapQuery.Value;
-
-        if (gridX < 0 || gridX >= traversibilityMap.Width || gridY < 0 || gridY >= traversibilityMap.Height)
+        var projectileTraversibilityMapQuery = ctx.Db.projectile_traversibility_map.GameId.Find(identityString);
+        if (projectileTraversibilityMapQuery == null)
         {
             return;
         }
 
-        int tileIndex = gridY * traversibilityMap.Width + gridX;
-        if (traversibilityMap.IsTraversable(tileIndex))
+        var traversibilityMap = traversibilityMapQuery.Value;
+        var projectileTraversibilityMap = projectileTraversibilityMapQuery.Value;
+
+        if (gridX < 0 || gridX >= projectileTraversibilityMap.Width || gridY < 0 || gridY >= projectileTraversibilityMap.Height)
+        {
+            return;
+        }
+
+        int tileIndex = gridY * projectileTraversibilityMap.Width + gridX;
+        if (projectileTraversibilityMap.IsTraversable(tileIndex))
         {
             return;
         }
 
         if (projectile.Value.ExplosionRadius != null && projectile.Value.ExplosionRadius > 0 && projectile.Value.ExplosionTrigger == ExplosionTrigger.OnHit)
         {
-            ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap);
-            ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
+            bool tankMapChanged;
+            bool projectileMapChanged;
+            (tankMapChanged, projectileMapChanged) = ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap, ref projectileTraversibilityMap);
+            if (tankMapChanged)
+            {
+                ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
+            }
+            if (projectileMapChanged)
+            {
+                ctx.Db.projectile_traversibility_map.GameId.Update(projectileTraversibilityMap);
+            }
             ProjectileUpdater.DeleteProjectile(ctx, projectileId);
             return;
         }
@@ -150,7 +177,9 @@ public static partial class Module
             {
                 ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
                 traversibilityMap.SetTraversable(tileIndex, true);
+                projectileTraversibilityMap.SetTraversable(tileIndex, true);
                 ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
+                ctx.Db.projectile_traversibility_map.GameId.Update(projectileTraversibilityMap);
             }
             else
             {
@@ -189,11 +218,22 @@ public static partial class Module
         if (projectile.Value.ExplosionTrigger == ExplosionTrigger.OnExpiration)
         {
             var traversibilityMapQuery = ctx.Db.traversibility_map.GameId.Find(identityString);
-            if (traversibilityMapQuery != null)
+            var projectileTraversibilityMapQuery = ctx.Db.projectile_traversibility_map.GameId.Find(identityString);
+            if (traversibilityMapQuery != null && projectileTraversibilityMapQuery != null)
             {
                 var traversibilityMap = traversibilityMapQuery.Value;
-                ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap);
-                ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
+                var projectileTraversibilityMap = projectileTraversibilityMapQuery.Value;
+                bool tankMapChanged;
+                bool projectileMapChanged;
+                (tankMapChanged, projectileMapChanged) = ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile.Value, projectileTransform.Value, identityString, ref traversibilityMap, ref projectileTraversibilityMap);
+                if (tankMapChanged)
+                {
+                    ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
+                }
+                if (projectileMapChanged)
+                {
+                    ctx.Db.projectile_traversibility_map.GameId.Update(projectileTraversibilityMap);
+                }
             }
         }
 
