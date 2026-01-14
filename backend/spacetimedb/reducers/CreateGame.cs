@@ -15,6 +15,18 @@ public static partial class Module
             return;
         }
 
+        if (width < 10 || width > 200)
+        {
+            Log.Error($"Invalid width: {width}. Must be between 10 and 200.");
+            return;
+        }
+
+        if (height < 10 || height > 200)
+        {
+            Log.Error($"Invalid height: {height}. Must be between 10 and 200.");
+            return;
+        }
+
         var gameId = GenerateGameId(ctx);
 
         var (baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap) = GenerateTerrainCommand(ctx, width, height);

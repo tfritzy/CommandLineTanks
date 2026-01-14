@@ -123,10 +123,14 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                   }
                   const val = parseInt(e.target.value);
                   if (isNaN(val)) return;
-                  setWidth(Math.max(10, Math.min(200, val)));
+                  setWidth(val);
                 }}
                 onBlur={() => {
-                  if (width === '') setWidth(50);
+                  if (width === '' || width < 10) {
+                    setWidth(50);
+                  } else if (width > 200) {
+                    setWidth(200);
+                  }
                 }}
                 onWheel={(e) => e.currentTarget.blur()}
                 onKeyDown={(e) => {
@@ -155,10 +159,14 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                   }
                   const val = parseInt(e.target.value);
                   if (isNaN(val)) return;
-                  setHeight(Math.max(10, Math.min(200, val)));
+                  setHeight(val);
                 }}
                 onBlur={() => {
-                  if (height === '') setHeight(50);
+                  if (height === '' || height < 10) {
+                    setHeight(50);
+                  } else if (height > 200) {
+                    setHeight(200);
+                  }
                 }}
                 onWheel={(e) => e.currentTarget.blur()}
                 onKeyDown={(e) => {
