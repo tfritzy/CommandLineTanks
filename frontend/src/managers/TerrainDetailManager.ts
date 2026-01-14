@@ -9,6 +9,7 @@ import { UNIT_TO_PIXEL } from "../constants";
 import { TerrainDetailObject } from "../objects/terrain-details/TerrainDetailObject";
 import { Rock } from "../objects/terrain-details/Rock";
 import { Tree } from "../objects/terrain-details/Tree";
+import { DeadTree } from "../objects/terrain-details/DeadTree";
 import { HayBale } from "../objects/terrain-details/HayBale";
 import { Label } from "../objects/terrain-details/Label";
 import { FoundationEdge } from "../objects/terrain-details/FoundationEdge";
@@ -144,6 +145,9 @@ export class TerrainDetailManager {
         obj = new Tree(x, y, label, health, rotation);
         this.mushroomDecorations.generateMushroomsAroundTree(x, y);
         break;
+      case "DeadTree":
+        obj = new DeadTree(x, y, label, health, rotation);
+        break;
       case "HayBale":
         obj = new HayBale(x, y, label, health, rotation);
         break;
@@ -189,7 +193,7 @@ export class TerrainDetailManager {
     isTree: boolean
   ) {
     for (const obj of this.detailObjects.values()) {
-      if ((obj instanceof Tree) !== isTree) continue;
+      if ((obj instanceof Tree || obj instanceof DeadTree) !== isTree) continue;
 
       const objX = obj.getX();
       const objY = obj.getY();
@@ -228,7 +232,7 @@ export class TerrainDetailManager {
     isTree: boolean
   ) {
     for (const obj of this.detailObjects.values()) {
-      if ((obj instanceof Tree) !== isTree) continue;
+      if ((obj instanceof Tree || obj instanceof DeadTree) !== isTree) continue;
 
       const objX = obj.getX();
       const objY = obj.getY();

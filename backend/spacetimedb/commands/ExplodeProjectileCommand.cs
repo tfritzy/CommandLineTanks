@@ -145,9 +145,22 @@ public static partial class ProjectileUpdater
         var newHealth = detail.Health.Value - damage;
         if (newHealth <= 0)
         {
-            ctx.Db.terrain_detail.Id.Delete(detail.Id);
-            traversibilityMap.SetTraversable(tileIndex, true);
-            return true;
+            if (detail.Type == TerrainDetailType.Tree)
+            {
+                var deadTree = detail with
+                {
+                    Type = TerrainDetailType.DeadTree,
+                    Health = null
+                };
+                ctx.Db.terrain_detail.Id.Update(deadTree);
+                return false;
+            }
+            else
+            {
+                ctx.Db.terrain_detail.Id.Delete(detail.Id);
+                traversibilityMap.SetTraversable(tileIndex, true);
+                return true;
+            }
         }
         else
         {
