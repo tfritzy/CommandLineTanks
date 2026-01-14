@@ -5,6 +5,8 @@ using static Module;
 
 public static partial class ProjectileUpdater
 {
+    private const int COLLISION_TRACKING_BUFFER_SIZE = 128;
+
     [Table(Scheduled = nameof(UpdateProjectiles))]
     public partial struct ScheduledProjectileUpdates
     {
@@ -199,7 +201,7 @@ public static partial class ProjectileUpdater
         ulong expirationThreshold = 500_000;
         float collisionRadiusSquared = projectile.CollisionRadius * projectile.CollisionRadius;
 
-        System.Span<DamagedTile> recentlyDamagedBuffer = stackalloc DamagedTile[128];
+        DamagedTile[]? recentlyDamagedBuffer = null;
         int recentlyDamagedCount = 0;
         if (projectile.RecentlyDamagedTiles != null)
         {
@@ -207,6 +209,7 @@ public static partial class ProjectileUpdater
             {
                 if (currentTime - damagedTile.DamagedAt < expirationThreshold)
                 {
+                    recentlyDamagedBuffer ??= new DamagedTile[COLLISION_TRACKING_BUFFER_SIZE];
                     if (recentlyDamagedCount < recentlyDamagedBuffer.Length)
                     {
                         recentlyDamagedBuffer[recentlyDamagedCount++] = damagedTile;
@@ -240,7 +243,7 @@ public static partial class ProjectileUpdater
                     bool alreadyDamaged = false;
                     for (int i = 0; i < recentlyDamagedCount; i++)
                     {
-                        if (recentlyDamagedBuffer[i].X == tileX && recentlyDamagedBuffer[i].Y == tileY)
+                        if (recentlyDamagedBuffer![i].X == tileX && recentlyDamagedBuffer[i].Y == tileY)
                         {
                             alreadyDamaged = true;
                             break;
@@ -255,6 +258,7 @@ public static partial class ProjectileUpdater
                             traversibilityMapChanged = true;
                         }
 
+                        recentlyDamagedBuffer ??= new DamagedTile[COLLISION_TRACKING_BUFFER_SIZE];
                         if (recentlyDamagedCount < recentlyDamagedBuffer.Length)
                         {
                             recentlyDamagedBuffer[recentlyDamagedCount++] = new DamagedTile
@@ -271,7 +275,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyDamagedTiles = recentlyDamagedCount > 0 ? recentlyDamagedBuffer.Slice(0, recentlyDamagedCount).ToArray() : null
+            RecentlyDamagedTiles = recentlyDamagedCount > 0 ? recentlyDamagedBuffer!.AsSpan(0, recentlyDamagedCount).ToArray() : null
         };
 
         return (projectile, transform, traversibilityMapChanged);
@@ -409,7 +413,7 @@ public static partial class ProjectileUpdater
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         ulong expirationThreshold = 500_000;
 
-        DamagedTank[] recentlyHitBuffer = new DamagedTank[128];
+        DamagedTank[]? recentlyHitBuffer = null;
         int recentlyHitCount = 0;
         if (projectile.RecentlyHitTanks != null)
         {
@@ -417,6 +421,7 @@ public static partial class ProjectileUpdater
             {
                 if (currentTime - hitTank.DamagedAt < expirationThreshold)
                 {
+                    recentlyHitBuffer ??= new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];
                     if (recentlyHitCount < recentlyHitBuffer.Length)
                     {
                         recentlyHitBuffer[recentlyHitCount++] = hitTank;
@@ -456,7 +461,7 @@ public static partial class ProjectileUpdater
                             bool alreadyHit = false;
                             for (int i = 0; i < recentlyHitCount; i++)
                             {
-                                if (recentlyHitBuffer[i].TankId == tank.Id)
+                                if (recentlyHitBuffer![i].TankId == tank.Id)
                                 {
                                     alreadyHit = true;
                                     break;
@@ -479,6 +484,7 @@ public static partial class ProjectileUpdater
                                     Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId);
                                 }
 
+                                recentlyHitBuffer ??= new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];
                                 if (recentlyHitCount < recentlyHitBuffer.Length)
                                 {
                                     recentlyHitBuffer[recentlyHitCount++] = new DamagedTank
@@ -504,7 +510,7 @@ public static partial class ProjectileUpdater
 
         projectile = projectile with
         {
-            RecentlyHitTanks = recentlyHitCount > 0 ? recentlyHitBuffer.AsSpan(0, recentlyHitCount).ToArray() : null
+            RecentlyHitTanks = recentlyHitCount > 0 ? recentlyHitBuffer!.AsSpan(0, recentlyHitCount).ToArray() : null
         };
 
         return (false, projectile, transform, false);
