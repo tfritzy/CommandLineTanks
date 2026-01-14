@@ -78,7 +78,7 @@ public static partial class TerrainGenerator
     {
         int totalArea = width * height;
         int baseRockCount = (int)(totalArea * ROCK_DENSITY_BASE);
-        int rockVariance = (int)(totalArea * ROCK_DENSITY_VARIANCE);
+        int rockVariance = Math.Max(1, (int)(totalArea * ROCK_DENSITY_VARIANCE));
         int numRocks = baseRockCount + random.Next(rockVariance + 1);
 
         for (int i = 0; i < numRocks; i++)
