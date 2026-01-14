@@ -32,7 +32,7 @@ public static partial class GameTimer
         ctx.Db.ScheduledGameReset.Insert(new ScheduledGameReset
         {
             ScheduledId = 0,
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.WORLD_RESET_DELAY_MICROS }),
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = Module.GAME_RESET_DELAY_MICROS }),
             GameId = args.GameId
         });
     }

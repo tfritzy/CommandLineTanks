@@ -13,7 +13,7 @@ public static partial class Module
             RemoveTankFromGame(ctx, existingTank);
         }
 
-        DeleteHomeworldIfEmpty(ctx, identityString);
+        DeleteHomegameIfEmpty(ctx, identityString);
 
         var result = CreateTankInGame(ctx, gameId, ctx.Sender, joinCode);
         if (result != null)

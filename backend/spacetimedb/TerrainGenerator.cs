@@ -5,12 +5,12 @@ using System.Collections.Generic;
 
 public static partial class TerrainGenerator
 {
-    private const int DEFAULT_WORLD_WIDTH = 64;
-    private const int DEFAULT_WORLD_HEIGHT = 64;
-    private const int MIN_WORLD_WIDTH = 10;
-    private const int MIN_WORLD_HEIGHT = 10;
-    private const int MAX_WORLD_WIDTH = 200;
-    private const int MAX_WORLD_HEIGHT = 200;
+    private const int DEFAULT_GAME_WIDTH = 64;
+    private const int DEFAULT_GAME_HEIGHT = 64;
+    private const int MIN_GAME_WIDTH = 10;
+    private const int MIN_GAME_HEIGHT = 10;
+    private const int MAX_GAME_WIDTH = 200;
+    private const int MAX_GAME_HEIGHT = 200;
     private const int FIELD_MIN_SIZE = 5;
     private const int FIELD_MAX_SIZE = 10;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
@@ -26,10 +26,10 @@ public static partial class TerrainGenerator
 
     private static readonly int[] p = new int[512];
 
-    public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random, int width = DEFAULT_WORLD_WIDTH, int height = DEFAULT_WORLD_HEIGHT)
+    public static (BaseTerrain[], List<(int x, int y, TerrainDetailType type, int rotation)>) GenerateTerrain(Random random, int width = DEFAULT_GAME_WIDTH, int height = DEFAULT_GAME_HEIGHT)
     {
-        width = Math.Clamp(width, MIN_WORLD_WIDTH, MAX_WORLD_WIDTH);
-        height = Math.Clamp(height, MIN_WORLD_HEIGHT, MAX_WORLD_HEIGHT);
+        width = Math.Clamp(width, MIN_GAME_WIDTH, MAX_GAME_WIDTH);
+        height = Math.Clamp(height, MIN_GAME_HEIGHT, MAX_GAME_HEIGHT);
 
         InitPerlin(random);
         var baseTerrain = new BaseTerrain[width * height];
@@ -385,12 +385,12 @@ public static partial class TerrainGenerator
 
     public static int GetGameWidth()
     {
-        return DEFAULT_WORLD_WIDTH;
+        return DEFAULT_GAME_WIDTH;
     }
 
     public static int GetGameHeight()
     {
-        return DEFAULT_WORLD_HEIGHT;
+        return DEFAULT_GAME_HEIGHT;
     }
 
     private static void GenerateStructures(

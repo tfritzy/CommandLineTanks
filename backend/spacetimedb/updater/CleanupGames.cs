@@ -15,27 +15,27 @@ public static partial class Module
     [Reducer]
     public static void CleanupResultsGames(ReducerContext ctx, ScheduledGameCleanup args)
     {
-        var worldsToDelete = new System.Collections.Generic.List<string>();
+        var gamesToDelete = new System.Collections.Generic.List<string>();
 
         foreach (var game in ctx.Db.game.GameState.Filter(GameState.Results))
         {
             if (game.CreatedAt + (ulong)game.GameDurationMicros + 60_000_000 < (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
             {
-                worldsToDelete.Add(game.Id);
+                gamesToDelete.Add(game.Id);
             }
         }
 
-        foreach (var gameId in worldsToDelete)
+        foreach (var gameId in gamesToDelete)
         {
             DeleteGame(ctx, gameId);
         }
 
-        if (worldsToDelete.Count > 0)
+        if (gamesToDelete.Count > 0)
         {
-            Log.Info($"Cleaned up {worldsToDelete.Count} game(s) in Results state");
+            Log.Info($"Cleaned up {gamesToDelete.Count} game(s) in Results state");
         }
 
-        var homeworldsToDelete = new System.Collections.Generic.List<string>();
+        var homegamesToDelete = new System.Collections.Generic.List<string>();
 
         foreach (var game in ctx.Db.game.Iter())
         {
@@ -44,19 +44,19 @@ public static partial class Module
                 var hasHumanPlayers = ctx.Db.tank.GameId.Filter(game.Id).Any(t => !t.IsBot);
                 if (!hasHumanPlayers)
                 {
-                    homeworldsToDelete.Add(game.Id);
+                    homegamesToDelete.Add(game.Id);
                 }
             }
         }
 
-        foreach (var gameId in homeworldsToDelete)
+        foreach (var gameId in homegamesToDelete)
         {
             DeleteGame(ctx, gameId);
         }
 
-        if (homeworldsToDelete.Count > 0)
+        if (homegamesToDelete.Count > 0)
         {
-            Log.Info($"Cleaned up {homeworldsToDelete.Count} empty homegame(s)");
+            Log.Info($"Cleaned up {homegamesToDelete.Count} empty homegame(s)");
         }
     }
 
@@ -136,9 +136,9 @@ public static partial class Module
             ctx.Db.ScheduledPickupSpawn.ScheduledId.Delete(pickupSpawn.ScheduledId);
         }
 
-        foreach (var worldReset in ctx.Db.ScheduledGameReset.GameId.Filter(gameId))
+        foreach (var gameReset in ctx.Db.ScheduledGameReset.GameId.Filter(gameId))
         {
-            ctx.Db.ScheduledGameReset.ScheduledId.Delete(worldReset.ScheduledId);
+            ctx.Db.ScheduledGameReset.ScheduledId.Delete(gameReset.ScheduledId);
         }
 
         foreach (var gameEnd in ctx.Db.ScheduledGameEnd.GameId.Filter(gameId))
@@ -156,8 +156,8 @@ public static partial class Module
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
         }
 
-        var worldToDelete = ctx.Db.game.Id.Find(gameId);
-        if (worldToDelete != null)
+        var gameToDelete = ctx.Db.game.Id.Find(gameId);
+        if (gameToDelete != null)
         {
             ctx.Db.game.Id.Delete(gameId);
         }

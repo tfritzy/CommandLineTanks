@@ -20,7 +20,7 @@ public static partial class Module
             RemoveTankFromGame(ctx, currentTank);
         }
 
-        ReturnToHomeworld(ctx, joinCode);
+        ReturnToHomegame(ctx, joinCode);
         
         Log.Info($"Returned to homegame");
     }

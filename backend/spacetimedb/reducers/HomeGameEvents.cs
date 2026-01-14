@@ -5,7 +5,7 @@ using System;
 public static partial class Module
 {
     [Reducer]
-    public static void homeWorldProjectileTankHit(ReducerContext ctx, ulong projectileId, string targetTankId)
+    public static void homegameProjectileTankHit(ReducerContext ctx, ulong projectileId, string targetTankId)
     {
         var identityString = ctx.Sender.ToString().ToLower();
         
@@ -83,7 +83,7 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void homeWorldProjectileTerrainHit(ReducerContext ctx, ulong projectileId, int gridX, int gridY)
+    public static void homegameProjectileTerrainHit(ReducerContext ctx, ulong projectileId, int gridX, int gridY)
     {
         var identityString = ctx.Sender.ToString().ToLower();
         
@@ -163,7 +163,7 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void homeWorldProjectileExpire(ReducerContext ctx, ulong projectileId)
+    public static void homegameProjectileExpire(ReducerContext ctx, ulong projectileId)
     {
         var identityString = ctx.Sender.ToString().ToLower();
         

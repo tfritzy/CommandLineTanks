@@ -85,7 +85,7 @@ public static partial class PickupSpawner
 
         if (game.Value.IsHomeGame)
         {
-            SpawnHomeworldPickups(ctx, args.GameId);
+            SpawnHomegamePickups(ctx, args.GameId);
         }
         else
         {
@@ -115,11 +115,11 @@ public static partial class PickupSpawner
         }
     }
 
-    public static void SpawnHomeworldPickups(ReducerContext ctx, string gameId)
+    public static void SpawnHomegamePickups(ReducerContext ctx, string gameId)
     {
         foreach (var pickupType in HOMEGAME_PICKUP_TYPES)
         {
-            var (gridX, gridY) = GetHomeworldPickupPosition(pickupType);
+            var (gridX, gridY) = GetHomegamePickupPosition(pickupType);
 
             if (gridX < 0 || gridY < 0)
             {
@@ -231,7 +231,7 @@ public static partial class PickupSpawner
         return true;
     }
 
-    public static (int gridX, int gridY) GetHomeworldPickupPosition(PickupType pickupType)
+    public static (int gridX, int gridY) GetHomegamePickupPosition(PickupType pickupType)
     {
         int index = Array.IndexOf(HOMEGAME_PICKUP_TYPES, pickupType);
 
