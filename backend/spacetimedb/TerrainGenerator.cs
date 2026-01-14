@@ -23,6 +23,8 @@ public static partial class TerrainGenerator
     private const int LAKE_MIN_SIZE = 4;
     private const int LAKE_MAX_SIZE = 8;
     private const int NUM_LAKES = 2;
+    private const double ROCK_DENSITY_BASE = 0.01;
+    private const double ROCK_DENSITY_VARIANCE = 0.005;
 
     private static readonly int[] p = new int[512];
 
@@ -74,7 +76,10 @@ public static partial class TerrainGenerator
 
     private static void GenerateRocks(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random, int width, int height)
     {
-        int numRocks = 30 + random.Next(40);
+        int totalArea = width * height;
+        int baseRockCount = (int)(totalArea * ROCK_DENSITY_BASE);
+        int rockVariance = Math.Max(1, (int)(totalArea * ROCK_DENSITY_VARIANCE));
+        int numRocks = baseRockCount + random.Next(rockVariance + 1);
 
         for (int i = 0; i < numRocks; i++)
         {
