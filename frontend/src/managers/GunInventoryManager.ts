@@ -6,6 +6,7 @@ import TankRow from "../../module_bindings/tank_type";
 import TankGunRow from "../../module_bindings/tank_gun_table";
 import { redTeamPickupTextureCache, blueTeamPickupTextureCache } from "../textures";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
+import { getTankGuns } from "../utils/tankHelpers";
 
 export class GunInventoryManager {
   private guns: Infer<typeof Gun>[] = [];
@@ -83,18 +84,10 @@ export class GunInventoryManager {
   }
 
   private loadGuns(tankId: string) {
-    const connection = getConnection();
-    if (!connection) return;
-
-    const gunEntries: Array<{ slotIndex: number; gun: Infer<typeof Gun> }> = [];
-    for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
-      gunEntries.push({ slotIndex: tankGun.slotIndex, gun: tankGun.gun });
-    }
-    gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
-    
+    const guns = getTankGuns(tankId);
     this.guns.length = 0;
-    for (const entry of gunEntries) {
-      this.guns.push(entry.gun);
+    for (const gun of guns) {
+      this.guns.push(gun);
     }
   }
 

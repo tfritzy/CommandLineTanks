@@ -34,7 +34,7 @@ export interface FullTankData {
   updatedAt: bigint;
 }
 
-function getTankGuns(tankId: string): Infer<typeof Gun>[] {
+export function getTankGuns(tankId: string): Infer<typeof Gun>[] {
   const connection = getConnection();
   if (!connection) return [];
   

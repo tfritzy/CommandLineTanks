@@ -16,6 +16,7 @@ import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
 import TankGunRow from "../../module_bindings/tank_gun_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
+import { getTankGuns } from "../utils/tankHelpers";
 
 const VIEWPORT_PADDING = 100;
 
@@ -288,16 +289,7 @@ export class TankManager {
   }
 
   private loadTankGuns(tank: Tank, tankId: string) {
-    const connection = getConnection();
-    if (!connection) return;
-
-    const gunEntries: Array<{ slotIndex: number; gun: Infer<typeof TankGunRow>["gun"] }> = [];
-    for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
-      gunEntries.push({ slotIndex: tankGun.slotIndex, gun: tankGun.gun });
-    }
-    gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
-    
-    const guns = gunEntries.map(entry => entry.gun);
+    const guns = getTankGuns(tankId);
     tank.setGuns(guns);
   }
 

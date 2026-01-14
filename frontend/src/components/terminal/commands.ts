@@ -4,6 +4,7 @@ import Gun from "../../../module_bindings/gun_type";
 import { type Infer } from "spacetimedb";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 import * as themeColors from "../../theme/colors";
+import { getTankGuns } from "../../utils/tankHelpers";
 
 export function parseCommandInput(input: string): string[] {
   const args: string[] = [];
@@ -68,15 +69,6 @@ function isPlayerDead(connection: DbConnection, gameId: string): boolean {
   }
   const tank = findMyTank(connection, gameId);
   return tank ? tank.health <= 0 : false;
-}
-
-function getMyTankGuns(connection: DbConnection, tankId: string): Infer<typeof Gun>[] {
-  const gunEntries: Array<{ slotIndex: number; gun: Infer<typeof Gun> }> = [];
-  for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
-    gunEntries.push({ slotIndex: tankGun.slotIndex, gun: tankGun.gun });
-  }
-  gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
-  return gunEntries.map(entry => entry.gun);
 }
 
 const directionAliases: Record<
@@ -760,7 +752,7 @@ export function switchGun(
     return [themeColors.error("switch: error: tank not found")];
   }
 
-  const guns = getMyTankGuns(connection, myTank.id);
+  const guns = getTankGuns(myTank.id);
   if (gunIndex >= guns.length) {
     return [
       themeColors.error(`switch: error: gun slot ${themeColors.value(parsed.toString())} is empty`),
@@ -1141,7 +1133,7 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
 
   const combinedTanks: CombinedTank[] = [];
   for (const tank of tanksInGame) {
-    const guns = getMyTankGuns(connection, tank.id);
+    const guns = getTankGuns(tank.id);
     combinedTanks.push({
       id: tank.id,
       name: tank.name,
