@@ -1,5 +1,6 @@
 using SpacetimeDB;
 using System;
+using static Types;
 
 public static partial class Module
 {
@@ -37,9 +38,10 @@ public static partial class Module
             if (timeSinceLastFire < FIRE_RATE_LIMIT_MICROS) return tank;
         }
 
-        if (tank.SelectedGunIndex < 0 || tank.SelectedGunIndex >= tank.Guns.Length) return tank;
-
-        var gun = tank.Guns[tank.SelectedGunIndex];
+        var gunQuery = ctx.Db.tank_gun.TankId_SlotIndex.Filter((tank.Id, tank.SelectedGunIndex)).FirstOrDefault();
+        if (gunQuery.TankId == null) return tank;
+        var tankGun = gunQuery;
+        var gun = tankGun.Gun;
 
         if (gun.Ammo != null && gun.Ammo <= 0) return tank;
 
@@ -60,7 +62,7 @@ public static partial class Module
                 float posX = barrelTipX;
                 float posY = barrelTipY;
 
-                if (gun.GunType == Types.GunType.TripleShooter)
+                if (gun.GunType == GunType.TripleShooter)
                 {
                     if (i == 1)
                     {
@@ -86,26 +88,29 @@ public static partial class Module
 
             if (gun.Ammo <= 0)
             {
-                var newGuns = new Types.Gun[tank.Guns.Length - 1];
-                int newIndex = 0;
-                for (int i = 0; i < tank.Guns.Length; i++)
+                ctx.Db.tank_gun.Id.Delete(tankGun.Id);
+
+                int deletedSlot = tank.SelectedGunIndex;
+                foreach (var g in ctx.Db.tank_gun.TankId.Filter(tank.Id))
                 {
-                    if (i != tank.SelectedGunIndex)
+                    if (g.SlotIndex > deletedSlot)
                     {
-                        newGuns[newIndex++] = tank.Guns[i];
+                        ctx.Db.tank_gun.Id.Update(g with { SlotIndex = g.SlotIndex - 1 });
                     }
                 }
-                tank.Guns = newGuns;
-                
-                if (tank.Guns.Length > 0)
+
+                int gunCount = GetGunCount(ctx, tank.Id);
+                if (gunCount > 0)
                 {
                     int firstNonBaseGunIndex = -1;
-                    for (int i = 0; i < tank.Guns.Length; i++)
+                    foreach (var g in ctx.Db.tank_gun.TankId.Filter(tank.Id))
                     {
-                        if (tank.Guns[i].GunType != Types.GunType.Base)
+                        if (g.Gun.GunType != GunType.Base)
                         {
-                            firstNonBaseGunIndex = i;
-                            break;
+                            if (firstNonBaseGunIndex < 0 || g.SlotIndex < firstNonBaseGunIndex)
+                            {
+                                firstNonBaseGunIndex = g.SlotIndex;
+                            }
                         }
                     }
                     tank.SelectedGunIndex = firstNonBaseGunIndex >= 0 ? firstNonBaseGunIndex : 0;
@@ -117,7 +122,7 @@ public static partial class Module
             }
             else
             {
-                tank.Guns[tank.SelectedGunIndex] = gun;
+                ctx.Db.tank_gun.Id.Update(tankGun with { Gun = gun });
             }
         }
 

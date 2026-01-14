@@ -52,7 +52,6 @@ public static partial class Module
 
         public string? Message;
 
-        public Gun[] Guns;
         public int SelectedGunIndex;
 
         public bool HasShield;
@@ -94,7 +93,6 @@ public static partial class Module
         float turretAngularVelocity = 0,
         float turretRotation = 0.0f,
         float targetTurretRotation = 0.0f,
-        Gun[]? guns = null,
         int selectedGunIndex = 0,
         bool hasShield = false,
         long remainingImmunityMicros = 0,
@@ -130,7 +128,6 @@ public static partial class Module
             Target = target,
             TargetLead = targetLead,
             Message = message,
-            Guns = guns ?? [BASE_GUN],
             SelectedGunIndex = selectedGunIndex,
             HasShield = hasShield,
             RemainingImmunityMicros = remainingImmunityMicros,

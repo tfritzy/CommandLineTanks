@@ -70,6 +70,15 @@ function isPlayerDead(connection: DbConnection, gameId: string): boolean {
   return tank ? tank.health <= 0 : false;
 }
 
+function getMyTankGuns(connection: DbConnection, tankId: string): Infer<typeof Gun>[] {
+  const gunEntries: Array<{ slotIndex: number; gun: Infer<typeof Gun> }> = [];
+  for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
+    gunEntries.push({ slotIndex: tankGun.slotIndex, gun: tankGun.gun });
+  }
+  gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
+  return gunEntries.map(entry => entry.gun);
+}
+
 const directionAliases: Record<
   string,
   { x: number; y: number; name: string; symbol: string }
@@ -751,11 +760,12 @@ export function switchGun(
     return [themeColors.error("switch: error: tank not found")];
   }
 
-  if (gunIndex >= myTank.guns.length) {
+  const guns = getMyTankGuns(connection, myTank.id);
+  if (gunIndex >= guns.length) {
     return [
       themeColors.error(`switch: error: gun slot ${themeColors.value(parsed.toString())} is empty`),
       "",
-      themeColors.dim(`You only have ${themeColors.value(myTank.guns.length.toString())} gun${myTank.guns.length !== 1 ? "s" : ""}`),
+      themeColors.dim(`You only have ${themeColors.value(guns.length.toString())} gun${guns.length !== 1 ? "s" : ""}`),
     ];
   }
 
@@ -1131,6 +1141,7 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
 
   const combinedTanks: CombinedTank[] = [];
   for (const tank of tanksInGame) {
+    const guns = getMyTankGuns(connection, tank.id);
     combinedTanks.push({
       id: tank.id,
       name: tank.name,
@@ -1138,7 +1149,7 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
       kills: tank.kills,
       deaths: tank.deaths,
       selectedGunIndex: tank.selectedGunIndex,
-      guns: tank.guns,
+      guns: guns,
     });
   }
 

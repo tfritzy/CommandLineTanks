@@ -28,7 +28,6 @@ public static partial class Module
             Target = null,
             TargetLead = 0.0f,
             Message = null,
-            Guns = [BASE_GUN],
             SelectedGunIndex = 0,
             HasShield = false,
             RemainingImmunityMicros = SPAWN_IMMUNITY_DURATION_MICROS,
@@ -36,6 +35,8 @@ public static partial class Module
             Alliance = alliance,
             TargetCode = newTargetCode
         };
+
+        ResetTankToBaseGun(ctx, tank.Id, gameId);
 
         var respawnedTransform = transform with
         {

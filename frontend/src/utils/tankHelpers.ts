@@ -34,6 +34,18 @@ export interface FullTankData {
   updatedAt: bigint;
 }
 
+function getTankGuns(tankId: string): Infer<typeof Gun>[] {
+  const connection = getConnection();
+  if (!connection) return [];
+  
+  const gunEntries: Array<{ slotIndex: number; gun: Infer<typeof Gun> }> = [];
+  for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
+    gunEntries.push({ slotIndex: tankGun.slotIndex, gun: tankGun.gun });
+  }
+  gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
+  return gunEntries.map(entry => entry.gun);
+}
+
 export function getFullTank(tankId: string): FullTankData | null {
   const connection = getConnection();
   if (!connection) return null;
@@ -61,7 +73,7 @@ export function getFullTank(tankId: string): FullTankData | null {
     deathTimestamp: tank.deathTimestamp,
     selectedGunIndex: tank.selectedGunIndex,
     lastDamagedBy: tank.lastDamagedBy,
-    guns: tank.guns,
+    guns: getTankGuns(tankId),
     owner: tank.owner,
     name: tank.name,
     targetCode: tank.targetCode,

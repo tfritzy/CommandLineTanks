@@ -125,6 +125,8 @@ import TankRow from "./tank_table";
 export { TankRow };
 import TankFireStateRow from "./tank_fire_state_table";
 export { TankFireStateRow };
+import TankGunRow from "./tank_gun_table";
+export { TankGunRow };
 import TankPathRow from "./tank_path_table";
 export { TankPathRow };
 import TankTransformRow from "./tank_transform_table";
@@ -195,6 +197,8 @@ import Tank from "./tank_type";
 export { Tank };
 import TankFireState from "./tank_fire_state_type";
 export { TankFireState };
+import TankGun from "./tank_gun_type";
+export { TankGun };
 import TankPath from "./tank_path_type";
 export { TankPath };
 import TankTransform from "./tank_transform_type";
@@ -479,6 +483,27 @@ const tablesSchema = __schema(
       { name: 'tank_fire_state_TankId_key', constraint: 'unique', columns: ['tankId'] },
     ],
   }, TankFireStateRow),
+  __table({
+    name: 'tank_gun',
+    indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'TankId_SlotIndex', algorithm: 'btree', columns: [
+        'tankId',
+        'slotIndex',
+      ] },
+      { name: 'TankId', algorithm: 'btree', columns: [
+        'tankId',
+      ] },
+    ],
+    constraints: [
+      { name: 'tank_gun_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, TankGunRow),
   __table({
     name: 'tank_path',
     indexes: [

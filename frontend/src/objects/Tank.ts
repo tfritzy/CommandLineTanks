@@ -27,7 +27,7 @@ export class Tank {
   private alliance: number;
   private health: number;
   private maxHealth: number;
-  private guns: Infer<typeof Gun>[];
+  private guns: Infer<typeof Gun>[] = [];
   private selectedGunIndex: number;
   private flashTimer: number = 0;
   private hasShield: boolean = false;
@@ -52,7 +52,6 @@ export class Tank {
     maxHealth: number = 100,
     turretAngularVelocity: number = 0,
     path: Array<{ x: number; y: number }> = [],
-    guns: Infer<typeof Gun>[] = [],
     selectedGunIndex: number = 0,
     hasShield: boolean = false,
     remainingImmunityMicros: bigint = 0n
@@ -69,7 +68,6 @@ export class Tank {
     this.maxHealth = maxHealth;
     this.turretAngularVelocity = turretAngularVelocity;
     this.path = path;
-    this.guns = guns;
     this.selectedGunIndex = selectedGunIndex;
     this.hasShield = hasShield;
     this.remainingImmunityMicros = remainingImmunityMicros;

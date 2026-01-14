@@ -3,15 +3,16 @@ import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import Gun from "../../module_bindings/gun_type";
 import { type EventContext } from "../../module_bindings";
 import TankRow from "../../module_bindings/tank_type";
+import TankGunRow from "../../module_bindings/tank_gun_table";
 import { redTeamPickupTextureCache, blueTeamPickupTextureCache } from "../textures";
-import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
+import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 
 export class GunInventoryManager {
   private guns: Infer<typeof Gun>[] = [];
   private selectedGunIndex: number = 0;
   private playerTankId: string | null = null;
   private playerAlliance: number = 0;
-  private subscription: TableSubscription<typeof TankRow> | null = null;
+  private subscription: MultiTableSubscription | null = null;
   private gameId: string;
 
   constructor(gameId: string) {
@@ -26,42 +27,75 @@ export class GunInventoryManager {
       return;
     }
 
-    this.subscription = subscribeToTable({
-      table: connection.db.tank,
-      handlers: {
-        onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.gameId !== gameId) return;
-          if (isCurrentIdentity(tank.owner)) {
-            this.playerTankId = tank.id;
-            this.playerAlliance = tank.alliance;
-            this.guns.length = 0;
-            for (let i = 0; i < tank.guns.length; i++) {
-              this.guns.push(tank.guns[i]);
+    this.subscription = createMultiTableSubscription()
+      .add<typeof TankRow>({
+        table: connection.db.tank,
+        handlers: {
+          onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+            if (tank.gameId !== gameId) return;
+            if (isCurrentIdentity(tank.owner)) {
+              this.playerTankId = tank.id;
+              this.playerAlliance = tank.alliance;
+              this.loadGuns(tank.id);
+              this.selectedGunIndex = tank.selectedGunIndex;
             }
-            this.selectedGunIndex = tank.selectedGunIndex;
-          }
-        },
-        onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
-          if (newTank.gameId !== this.gameId) return;
-          if (this.playerTankId === newTank.id) {
-            this.playerAlliance = newTank.alliance;
-            this.guns.length = 0;
-            for (let i = 0; i < newTank.guns.length; i++) {
-              this.guns.push(newTank.guns[i]);
+          },
+          onUpdate: (_ctx: EventContext, _oldTank: Infer<typeof TankRow>, newTank: Infer<typeof TankRow>) => {
+            if (newTank.gameId !== this.gameId) return;
+            if (this.playerTankId === newTank.id) {
+              this.playerAlliance = newTank.alliance;
+              this.selectedGunIndex = newTank.selectedGunIndex;
             }
-            this.selectedGunIndex = newTank.selectedGunIndex;
-          }
-        },
-        onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
-          if (tank.gameId !== this.gameId) return;
-          if (this.playerTankId === tank.id) {
-            this.playerTankId = null;
-            this.guns.length = 0;
-            this.selectedGunIndex = 0;
+          },
+          onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
+            if (tank.gameId !== this.gameId) return;
+            if (this.playerTankId === tank.id) {
+              this.playerTankId = null;
+              this.guns.length = 0;
+              this.selectedGunIndex = 0;
+            }
           }
         }
-      }
-    });
+      })
+      .add<typeof TankGunRow>({
+        table: connection.db.tankGun,
+        handlers: {
+          onInsert: (_ctx: EventContext, tankGun: Infer<typeof TankGunRow>) => {
+            if (tankGun.gameId !== this.gameId) return;
+            if (this.playerTankId === tankGun.tankId) {
+              this.loadGuns(tankGun.tankId);
+            }
+          },
+          onUpdate: (_ctx: EventContext, _oldGun: Infer<typeof TankGunRow>, newGun: Infer<typeof TankGunRow>) => {
+            if (newGun.gameId !== this.gameId) return;
+            if (this.playerTankId === newGun.tankId) {
+              this.loadGuns(newGun.tankId);
+            }
+          },
+          onDelete: (_ctx: EventContext, tankGun: Infer<typeof TankGunRow>) => {
+            if (tankGun.gameId !== this.gameId) return;
+            if (this.playerTankId === tankGun.tankId) {
+              this.loadGuns(tankGun.tankId);
+            }
+          }
+        }
+      });
+  }
+
+  private loadGuns(tankId: string) {
+    const connection = getConnection();
+    if (!connection) return;
+
+    const gunEntries: Array<{ slotIndex: number; gun: Infer<typeof Gun> }> = [];
+    for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
+      gunEntries.push({ slotIndex: tankGun.slotIndex, gun: tankGun.gun });
+    }
+    gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
+    
+    this.guns.length = 0;
+    for (const entry of gunEntries) {
+      this.guns.push(entry.gun);
+    }
   }
 
   public destroy() {
