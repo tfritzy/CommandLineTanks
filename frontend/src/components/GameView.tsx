@@ -29,10 +29,10 @@ export default function GameView() {
   const gameRef = useRef<GameEngine | null>(null);
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
   const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
-  const worldCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const gameCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDead, setIsDead] = useState(false);
   const [killerName, setKillerName] = useState<string | null>(null);
-  const [worldNotFound, setGameNotFound] = useState(false);
+  const [gameNotFound, setGameNotFound] = useState(false);
 
   const myIdentity = getIdentityHex();
   const isHomegame = myIdentity && gameId?.toLowerCase() === myIdentity.toLowerCase();
@@ -40,14 +40,14 @@ export default function GameView() {
   const joinModalStatus = useJoinModalStatus(gameId);
   const showJoinModal = joinModalStatus === "no_tank";
 
-  const handleWorldChange = (newGameId: string) => {
+  const handleGameChange = (newGameId: string) => {
     if (newGameId !== gameId) {
       console.log("Switch to", newGameId);
       navigate(`/game/${newGameId}`);
     }
   };
 
-  useGameSwitcher(handleWorldChange, gameId || null);
+  useGameSwitcher(handleGameChange, gameId || null);
 
   useEffect(() => {
     if (!gameId) return;
@@ -198,22 +198,22 @@ export default function GameView() {
       }
     };
 
-    worldCheckTimeoutRef.current = setTimeout(check, 1500);
+    gameCheckTimeoutRef.current = setTimeout(check, 1500);
 
-    const handleWorldInsert = (_ctx: EventContext, game: Infer<typeof Game>) => {
+    const handleGameInsert = (_ctx: EventContext, game: Infer<typeof Game>) => {
       if (game.id === gameId) {
         setGameNotFound(false);
       }
     };
 
-    connection.db.game.onInsert(handleWorldInsert);
+    connection.db.game.onInsert(handleGameInsert);
 
     return () => {
-      if (worldCheckTimeoutRef.current) {
-        clearTimeout(worldCheckTimeoutRef.current);
+      if (gameCheckTimeoutRef.current) {
+        clearTimeout(gameCheckTimeoutRef.current);
       }
       if (connection) {
-        connection.db.game.removeOnInsert(handleWorldInsert);
+        connection.db.game.removeOnInsert(handleGameInsert);
       }
     };
   }, [gameId]);
@@ -271,7 +271,7 @@ export default function GameView() {
           )}
         </AnimatePresence>
         <AnimatePresence>
-          {worldNotFound && (
+          {gameNotFound && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

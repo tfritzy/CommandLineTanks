@@ -9,7 +9,7 @@ import { ServerTimeSync } from '../utils/ServerTimeSync';
 import { SoundManager } from '../managers/SoundManager';
 import { createMultiTableSubscription, type MultiTableSubscription } from '../utils/tableSubscription';
 
-const WORLD_RESET_DELAY_MICROS = 15_000_000;
+const GAME_RESET_DELAY_MICROS = 15_000_000;
 
 interface ResultsScreenProps {
     gameId: string;
@@ -121,11 +121,11 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                             updateScores();
                         }
                     },
-                    onUpdate: (_ctx: EventContext, oldWorld: Infer<typeof GameRow>, newWorld: Infer<typeof GameRow>) => {
-                        if (newWorld.id === gameId) {
-                            if (newWorld.gameState.tag === 'Results' && oldWorld.gameState.tag === 'Playing') {
+                    onUpdate: (_ctx: EventContext, oldGame: Infer<typeof GameRow>, newGame: Infer<typeof GameRow>) => {
+                        if (newGame.id === gameId) {
+                            if (newGame.gameState.tag === 'Results' && oldGame.gameState.tag === 'Playing') {
                                 setShowResults(true);
-                                const endTime = newWorld.gameStartedAt + BigInt(newWorld.gameDurationMicros);
+                                const endTime = newGame.gameStartedAt + BigInt(newGame.gameDurationMicros);
                                 setGameEndTime(endTime);
                                 updateTanks();
                                 updateScores();
@@ -150,7 +150,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                                         }
                                     }
                                 }
-                            } else if (newWorld.gameState.tag === 'Playing' && oldWorld.gameState.tag === 'Results') {
+                            } else if (newGame.gameState.tag === 'Playing' && oldGame.gameState.tag === 'Results') {
                                 setShowResults(false);
                                 setGameEndTime(null);
                             }
@@ -183,7 +183,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
     const winnerColor = isDraw ? '#fcfbf3' : (winningTeam === 0 ? '#c06852' : '#7396d5');
 
     const timeUntilReset = gameEndTime !== null
-        ? Math.max(0, Math.ceil(Number(gameEndTime + BigInt(WORLD_RESET_DELAY_MICROS) - BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000))) / 1_000_000))
+        ? Math.max(0, Math.ceil(Number(gameEndTime + BigInt(GAME_RESET_DELAY_MICROS) - BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000))) / 1_000_000))
         : 0;
 
     return (

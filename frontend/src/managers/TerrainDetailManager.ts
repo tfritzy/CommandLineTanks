@@ -23,8 +23,8 @@ import { terrainDetailTextureCache } from "../textures";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export class TerrainDetailManager {
-  private worldWidth: number = 0;
-  private worldHeight: number = 0;
+  private gameWidth: number = 0;
+  private gameHeight: number = 0;
   private gameId: string;
   private detailObjects: Map<string, TerrainDetailObject> = new Map();
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
@@ -36,25 +36,25 @@ export class TerrainDetailManager {
   private soundManager: SoundManager;
   private subscription: TableSubscription<typeof TerrainDetailRow> | null = null;
 
-  constructor(gameId: string, worldWidth: number, worldHeight: number, soundManager: SoundManager) {
+  constructor(gameId: string, gameWidth: number, gameHeight: number, soundManager: SoundManager) {
     this.gameId = gameId;
-    this.worldWidth = worldWidth;
-    this.worldHeight = worldHeight;
+    this.gameWidth = gameWidth;
+    this.gameHeight = gameHeight;
     this.soundManager = soundManager;
     this.initializeDetailObjectsArray();
     this.subscribeToTerrainDetails();
   }
 
-  public updateWorldDimensions(width: number, height: number) {
-    this.worldWidth = width;
-    this.worldHeight = height;
+  public updateGameDimensions(width: number, height: number) {
+    this.gameWidth = width;
+    this.gameHeight = height;
     this.initializeDetailObjectsArray();
   }
 
   private initializeDetailObjectsArray() {
     this.detailObjectsByPosition = [];
-    for (let y = 0; y < this.worldHeight; y++) {
-      this.detailObjectsByPosition[y] = new Array(this.worldWidth).fill(null);
+    for (let y = 0; y < this.gameHeight; y++) {
+      this.detailObjectsByPosition[y] = new Array(this.gameWidth).fill(null);
     }
   }
 
@@ -84,7 +84,7 @@ export class TerrainDetailManager {
           if (obj) {
             const x = Math.floor(obj.getX());
             const y = Math.floor(obj.getY());
-            if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
+            if (y >= 0 && y < this.gameHeight && x >= 0 && x < this.gameWidth) {
               this.detailObjectsByPosition[y][x] = null;
             }
 
@@ -174,7 +174,7 @@ export class TerrainDetailManager {
       this.detailObjects.set(detail.id, obj);
       const x = Math.floor(obj.getX());
       const y = Math.floor(obj.getY());
-      if (y >= 0 && y < this.worldHeight && x >= 0 && x < this.worldWidth) {
+      if (y >= 0 && y < this.gameHeight && x >= 0 && x < this.gameWidth) {
         this.detailObjectsByPosition[y][x] = obj;
       }
     }

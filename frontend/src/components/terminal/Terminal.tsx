@@ -4,7 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
-import { aim, track, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitWorld, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
+import { aim, track, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitGame, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
 import { type EventContext } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
 import GameRow from "../../../module_bindings/game_type";
@@ -168,7 +168,7 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
           return join(connection, gameId, commandArgs);
         case 'exit':
         case 'e':
-          return exitWorld(connection, gameId, commandArgs);
+          return exitGame(connection, gameId, commandArgs);
         case 'name':
           return changeName(connection, commandArgs);
         case 'help':
@@ -434,12 +434,12 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
     const term = xtermRef.current;
     if (!connection || !term) return;
 
-    const handleWorldInsert = (_ctx: EventContext, game: Infer<typeof GameRow>) => {
+    const handleGameInsert = (_ctx: EventContext, game: Infer<typeof GameRow>) => {
       if (game.owner && connection.identity && game.owner.isEqual(connection.identity)) {
         const url = `${window.location.origin}/game/${game.id}`;
         
         const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'BORDER');
-        const title = colorize('🎮 WORLD CREATED SUCCESSFULLY', 'SUCCESS');
+        const title = colorize('🎮 GAME CREATED SUCCESSFULLY', 'SUCCESS');
         const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
         const urlText = colorize(url, 'TANK_CODE');
         
@@ -456,10 +456,10 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
       }
     };
 
-    connection.db.game.onInsert(handleWorldInsert);
+    connection.db.game.onInsert(handleGameInsert);
 
     return () => {
-      connection.db.game.removeOnInsert(handleWorldInsert);
+      connection.db.game.removeOnInsert(handleGameInsert);
     };
   }, []);
 

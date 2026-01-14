@@ -13,8 +13,8 @@ type BaseTerrainType = Infer<typeof BaseTerrain>;
 export class TerrainManager {
   private detailManager: TerrainDetailManager | null = null;
   private gameId: string;
-  private worldWidth: number = 0;
-  private worldHeight: number = 0;
+  private gameWidth: number = 0;
+  private gameHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
   private soundManager: SoundManager;
   private subscription: TableSubscription<typeof GameRow> | null = null;
@@ -22,17 +22,17 @@ export class TerrainManager {
   constructor(gameId: string, soundManager: SoundManager) {
     this.gameId = gameId;
     this.soundManager = soundManager;
-    this.subscribeToWorldForDetails();
+    this.subscribeToGameForDetails();
   }
 
-  private subscribeToWorldForDetails() {
+  private subscribeToGameForDetails() {
     const connection = getConnection();
     if (!connection) return;
 
-    const handleWorldChange = (game: Infer<typeof GameRow>) => {
+    const handleGameChange = (game: Infer<typeof GameRow>) => {
       if (game.id !== this.gameId) return;
-      this.worldWidth = game.width;
-      this.worldHeight = game.height;
+      this.gameWidth = game.width;
+      this.gameHeight = game.height;
       this.baseTerrainLayer = game.baseTerrainLayer;
 
       if (!this.detailManager) {
@@ -43,7 +43,7 @@ export class TerrainManager {
           this.soundManager
         );
       } else {
-        this.detailManager.updateWorldDimensions(game.width, game.height);
+        this.detailManager.updateGameDimensions(game.width, game.height);
       }
     };
 
@@ -51,10 +51,10 @@ export class TerrainManager {
       table: connection.db.game,
       handlers: {
         onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
-          handleWorldChange(game);
+          handleGameChange(game);
         },
-        onUpdate: (_ctx: EventContext, _oldWorld: Infer<typeof GameRow>, newWorld: Infer<typeof GameRow>) => {
-          handleWorldChange(newWorld);
+        onUpdate: (_ctx: EventContext, _oldGame: Infer<typeof GameRow>, newGame: Infer<typeof GameRow>) => {
+          handleGameChange(newGame);
         }
       },
       loadInitialData: false
@@ -62,7 +62,7 @@ export class TerrainManager {
 
     const cachedGame = connection.db.game.Id.find(this.gameId);
     if (cachedGame) {
-      handleWorldChange(cachedGame);
+      handleGameChange(cachedGame);
     }
   }
 
@@ -99,8 +99,8 @@ export class TerrainManager {
     drawBaseTerrain(
       ctx,
       this.baseTerrainLayer,
-      this.worldWidth,
-      this.worldHeight,
+      this.gameWidth,
+      this.gameHeight,
       startTileX,
       endTileX,
       startTileY,
@@ -180,12 +180,12 @@ export class TerrainManager {
     }
   }
 
-  public getWorldWidth(): number {
-    return this.worldWidth;
+  public getGameWidth(): number {
+    return this.gameWidth;
   }
 
-  public getWorldHeight(): number {
-    return this.worldHeight;
+  public getGameHeight(): number {
+    return this.gameHeight;
   }
 
   public getBaseTerrainLayer() {

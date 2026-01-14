@@ -96,11 +96,11 @@ export class PickupManager {
   }
 
   private drawPickup(ctx: CanvasRenderingContext2D, pickup: PickupData) {
-    const worldX = pickup.positionX * UNIT_TO_PIXEL;
-    const worldY = pickup.positionY * UNIT_TO_PIXEL;
+    const gameX = pickup.positionX * UNIT_TO_PIXEL;
+    const gameY = pickup.positionY * UNIT_TO_PIXEL;
 
     const textureCache = this.playerAlliance === 0 ? redTeamPickupTextureCache : blueTeamPickupTextureCache;
 
-    textureCache.draw(ctx, pickup.type.tag, worldX, worldY);
+    textureCache.draw(ctx, pickup.type.tag, gameX, gameY);
   }
 }

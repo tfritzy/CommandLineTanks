@@ -107,8 +107,8 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
       .add<typeof GameRow>({
         table: connection.db.game,
         handlers: {
-          onUpdate: (_ctx, _oldWorld, newWorld) => {
-            if (newWorld.id === gameId) {
+          onUpdate: (_ctx, _oldGame, newGame) => {
+            if (newGame.id === gameId) {
               updateTimer();
             }
           }

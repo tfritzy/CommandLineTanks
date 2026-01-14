@@ -385,7 +385,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  <new_name>  Your new player name (max 15 characters)",
         "",
         "With no arguments, displays your current name.",
-        "With 'set', changes your player name across all tanks and worlds.",
+        "With 'set', changes your player name across all tanks and games.",
         "Use quotes for names with spaces.",
         "",
         "Examples:",
@@ -406,7 +406,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  --width, -w         Map width, 10-200 (default: 50)",
         "  --height, -h        Map height, 10-200 (default: 50)",
         "",
-        "All worlds are created as private.",
+        "All games are created as private.",
         "After creation, you'll be automatically joined to the new game.",
         "",
         "Examples:",
@@ -420,15 +420,15 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "join - Join or create a game",
         "",
-        "Usage: join [world_id|random] [passcode]",
+        "Usage: join [game_id|random] [passcode]",
         "",
         "Arguments:",
-        "  [world_id|random]  The 4-letter ID of the game to join, or 'random' (default: random)",
-        "  [passcode]         The passcode for private worlds (optional)",
+        "  [game_id|random]  The 4-letter ID of the game to join, or 'random' (default: random)",
+        "  [passcode]         The passcode for private games (optional)",
         "",
         "With no arguments or 'random', finds an available public game or creates one.",
         "With a game ID, joins that specific game.",
-        "Private worlds require a passcode. Use quotes for passcodes with spaces.",
+        "Private games require a passcode. Use quotes for passcodes with spaces.",
         "",
         "Examples:",
         "  join              (same as 'join random')",
@@ -1073,7 +1073,7 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
   return [themeColors.success(`Name changed to: ${themeColors.value(newName)}`)];
 }
 
-export function exitWorld(connection: DbConnection, gameId: string, args: string[]): string[] {
+export function exitGame(connection: DbConnection, gameId: string, args: string[]): string[] {
   if (args.length > 0) {
     return [
       themeColors.error("exit: error: exit command takes no arguments"),
