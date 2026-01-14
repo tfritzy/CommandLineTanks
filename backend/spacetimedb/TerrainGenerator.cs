@@ -74,7 +74,10 @@ public static partial class TerrainGenerator
 
     private static void GenerateRocks(TerrainDetailType[] terrainDetail, BaseTerrain[] baseTerrain, Random random, int width, int height)
     {
-        int numRocks = 30 + random.Next(40);
+        int totalArea = width * height;
+        int baseRockCount = (int)(totalArea * 0.01);
+        int rockVariance = (int)(totalArea * 0.005);
+        int numRocks = baseRockCount + random.Next(rockVariance + 1);
 
         for (int i = 0; i < numRocks; i++)
         {
