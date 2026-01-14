@@ -168,3 +168,11 @@ export const areIdentitiesEqual = (
 export const getPing = (): number => {
   return pingTracker?.getPing() ?? 0;
 };
+
+export const getMinPing = (): number => {
+  return pingTracker?.getMinPing() ?? 0;
+};
+
+export const getMaxPing = (): number => {
+  return pingTracker?.getMaxPing() ?? 0;
+};

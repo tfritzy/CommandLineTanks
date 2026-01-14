@@ -16,6 +16,8 @@ export class PingTracker {
   private intervalId: number | null = null;
   private connection: DbConnection | null = null;
   private currentPing: number = 0;
+  private minPing: number = Infinity;
+  private maxPing: number = 0;
   private started: boolean = false;
 
   public start(connection: DbConnection): void {
@@ -78,14 +80,29 @@ export class PingTracker {
     }
 
     let totalRtt = 0;
+    let minRtt = Infinity;
+    let maxRtt = 0;
     for (const measurement of this.measurements) {
-      totalRtt += measurement.receivedAt - measurement.sentAt;
+      const rtt = measurement.receivedAt - measurement.sentAt;
+      totalRtt += rtt;
+      if (rtt < minRtt) minRtt = rtt;
+      if (rtt > maxRtt) maxRtt = rtt;
     }
     
     this.currentPing = Math.round(totalRtt / this.measurements.length);
+    this.minPing = Math.round(minRtt);
+    this.maxPing = Math.round(maxRtt);
   }
 
   public getPing(): number {
     return this.currentPing;
+  }
+
+  public getMinPing(): number {
+    return this.minPing === Infinity ? 0 : this.minPing;
+  }
+
+  public getMaxPing(): number {
+    return this.maxPing;
   }
 }

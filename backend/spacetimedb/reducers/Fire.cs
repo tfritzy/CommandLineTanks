@@ -45,16 +45,20 @@ public static partial class Module
 
         if (gun.ProjectileCount == 1)
         {
-            CreateProjectile(ctx, tank, transform.PositionX, transform.PositionY, transform.TurretRotation, gun);
+            float barrelTipX = transform.PositionX + (float)Math.Cos(transform.TurretRotation) * GUN_BARREL_LENGTH;
+            float barrelTipY = transform.PositionY + (float)Math.Sin(transform.TurretRotation) * GUN_BARREL_LENGTH;
+            CreateProjectile(ctx, tank, barrelTipX, barrelTipY, transform.TurretRotation, gun);
         }
         else
         {
+            float barrelTipX = transform.PositionX + (float)Math.Cos(transform.TurretRotation) * GUN_BARREL_LENGTH;
+            float barrelTipY = transform.PositionY + (float)Math.Sin(transform.TurretRotation) * GUN_BARREL_LENGTH;
             float halfSpread = gun.SpreadAngle * (gun.ProjectileCount - 1) / 2.0f;
             for (int i = 0; i < gun.ProjectileCount; i++)
             {
                 float angle = transform.TurretRotation - halfSpread + (i * gun.SpreadAngle);
-                float posX = transform.PositionX;
-                float posY = transform.PositionY;
+                float posX = barrelTipX;
+                float posY = barrelTipY;
 
                 if (gun.GunType == Types.GunType.TripleShooter)
                 {

@@ -1,5 +1,5 @@
-import { COLORS, PALETTE } from "../theme/colors";
-import { getPing } from "../spacetimedb-connection";
+import { COLORS } from "../theme/colors";
+import { getPing, getMinPing, getMaxPing } from "../spacetimedb-connection";
 
 
 export class FpsCounter {
@@ -30,28 +30,16 @@ export class FpsCounter {
       ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
       ctx.strokeStyle = COLORS.TERRAIN.GROUND;
       ctx.lineWidth = 3;
-      const x = 10;
+      const x = 8;
       
       const ping = getPing();
+      const minPing = getMinPing();
+      const maxPing = getMaxPing();
       const pingY = displayHeight - 30;
-      
-      let pingColor = COLORS.UI.TEXT_PRIMARY;
-      if (ping < 50) {
-        pingColor = PALETTE.GREEN_SUCCESS;
-      } else if (ping < 100) {
-        pingColor = PALETTE.YELLOW_MEDIUM;
-      } else {
-        pingColor = PALETTE.ORANGE_MEDIUM;
-      }
-      
-      ctx.beginPath();
-      ctx.arc(x + 3, pingY - 4, 4, 0, Math.PI * 2);
-      ctx.fillStyle = pingColor;
-      ctx.fill();
-      
+
       ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
-      ctx.strokeText(`Ping: ${ping}ms`, x + 12, pingY);
-      ctx.fillText(`Ping: ${ping}ms`, x + 12, pingY);
+      ctx.strokeText(`Ping: ${ping}ms (${minPing}-${maxPing})`, x, pingY);
+      ctx.fillText(`Ping: ${ping}ms (${minPing}-${maxPing})`, x, pingY);
       
       const fpsY = displayHeight - 10;
       ctx.strokeText(`FPS: ${this.fps}`, x, fpsY);
