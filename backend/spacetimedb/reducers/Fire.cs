@@ -82,16 +82,15 @@ public static partial class Module
 
             if (gun.Ammo <= 0)
             {
+                var guns = GetTankGuns(ctx, tank.Id);
                 DeleteTankGunAtIndex(ctx, tank.Id, tank.SelectedGunIndex);
                 
-                int gunCount = GetTankGunCount(ctx, tank.Id);
-                if (gunCount > 0)
+                if (guns.Length > 1)
                 {
                     int firstNonBaseGunIndex = -1;
-                    var guns = GetTankGuns(ctx, tank.Id);
                     for (int i = 0; i < guns.Length; i++)
                     {
-                        if (guns[i].GunType != Types.GunType.Base)
+                        if (i != tank.SelectedGunIndex && guns[i].GunType != Types.GunType.Base)
                         {
                             firstNonBaseGunIndex = i;
                             break;
@@ -101,7 +100,7 @@ public static partial class Module
                 }
                 else
                 {
-                    tank = tank with { SelectedGunIndex = -1 };
+                    tank = tank with { SelectedGunIndex = 0 };
                 }
             }
             else

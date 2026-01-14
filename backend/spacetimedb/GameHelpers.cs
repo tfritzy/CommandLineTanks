@@ -8,6 +8,8 @@ public static partial class Module
         ctx.Db.tank.Insert(tank);
         ctx.Db.tank_transform.Insert(transform);
         
+        SetTankGuns(ctx, tank.Id, tank.GameId, [BASE_GUN]);
+        
         if (tank.IsBot)
         {
             IncrementBotCount(ctx, tank.GameId);

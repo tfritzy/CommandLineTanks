@@ -24,36 +24,19 @@ public static partial class Module
             return [BASE_GUN];
         }
         
-        var allGuns = new Gun[tankGunRow.Value.Guns.Length + 1];
-        allGuns[0] = BASE_GUN;
-        for (int i = 0; i < tankGunRow.Value.Guns.Length; i++)
-        {
-            allGuns[i + 1] = tankGunRow.Value.Guns[i];
-        }
-        return allGuns;
+        return tankGunRow.Value.Guns;
     }
 
     public static void SetTankGuns(ReducerContext ctx, string tankId, string gameId, Gun[] guns)
     {
-        var pickupGuns = guns.Where(g => g.GunType != GunType.Base).ToArray();
-        
-        var existingRow = ctx.Db.tank_gun.TankId.Find(tankId);
-        if (pickupGuns.Length == 0)
-        {
-            if (existingRow != null)
-            {
-                ctx.Db.tank_gun.TankId.Delete(tankId);
-            }
-            return;
-        }
-
         var tankGunRow = new TankGun
         {
             TankId = tankId,
             GameId = gameId,
-            Guns = pickupGuns
+            Guns = guns
         };
 
+        var existingRow = ctx.Db.tank_gun.TankId.Find(tankId);
         if (existingRow != null)
         {
             ctx.Db.tank_gun.TankId.Update(tankGunRow);
@@ -66,47 +49,29 @@ public static partial class Module
 
     public static Gun? GetTankGunAtIndex(ReducerContext ctx, string tankId, int index)
     {
-        if (index == 0)
-        {
-            return BASE_GUN;
-        }
-        
         var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
         if (tankGunRow == null)
         {
-            return null;
+            return index == 0 ? BASE_GUN : null;
         }
         
-        int pickupIndex = index - 1;
-        if (pickupIndex < 0 || pickupIndex >= tankGunRow.Value.Guns.Length)
+        if (index < 0 || index >= tankGunRow.Value.Guns.Length)
         {
             return null;
         }
         
-        return tankGunRow.Value.Guns[pickupIndex];
+        return tankGunRow.Value.Guns[index];
     }
 
     public static void UpdateTankGunAtIndex(ReducerContext ctx, string tankId, int index, Gun gun)
     {
-        if (index == 0)
-        {
-            return;
-        }
-        
-        if (gun.GunType == GunType.Base)
-        {
-            DeleteTankGunAtIndex(ctx, tankId, index);
-            return;
-        }
-        
         var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
         if (tankGunRow == null)
         {
             return;
         }
         
-        int pickupIndex = index - 1;
-        if (pickupIndex < 0 || pickupIndex >= tankGunRow.Value.Guns.Length)
+        if (index < 0 || index >= tankGunRow.Value.Guns.Length)
         {
             return;
         }
@@ -114,7 +79,7 @@ public static partial class Module
         var updatedGuns = new Gun[tankGunRow.Value.Guns.Length];
         for (int i = 0; i < tankGunRow.Value.Guns.Length; i++)
         {
-            updatedGuns[i] = i == pickupIndex ? gun : tankGunRow.Value.Guns[i];
+            updatedGuns[i] = i == index ? gun : tankGunRow.Value.Guns[i];
         }
         
         var updated = tankGunRow.Value with { Guns = updatedGuns };
@@ -123,19 +88,13 @@ public static partial class Module
 
     public static void DeleteTankGunAtIndex(ReducerContext ctx, string tankId, int index)
     {
-        if (index == 0)
-        {
-            return;
-        }
-        
         var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
         if (tankGunRow == null)
         {
             return;
         }
         
-        int pickupIndex = index - 1;
-        if (pickupIndex < 0 || pickupIndex >= tankGunRow.Value.Guns.Length)
+        if (index < 0 || index >= tankGunRow.Value.Guns.Length)
         {
             return;
         }
@@ -144,21 +103,14 @@ public static partial class Module
         int newIndex = 0;
         for (int i = 0; i < tankGunRow.Value.Guns.Length; i++)
         {
-            if (i != pickupIndex)
+            if (i != index)
             {
                 newGuns[newIndex++] = tankGunRow.Value.Guns[i];
             }
         }
         
-        if (newGuns.Length == 0)
-        {
-            ctx.Db.tank_gun.TankId.Delete(tankId);
-        }
-        else
-        {
-            var updated = tankGunRow.Value with { Guns = newGuns };
-            ctx.Db.tank_gun.TankId.Update(updated);
-        }
+        var updated = tankGunRow.Value with { Guns = newGuns };
+        ctx.Db.tank_gun.TankId.Update(updated);
     }
 
     public static int GetTankGunCount(ReducerContext ctx, string tankId)
@@ -168,46 +120,33 @@ public static partial class Module
         {
             return 1;
         }
-        return tankGunRow.Value.Guns.Length + 1;
+        return tankGunRow.Value.Guns.Length;
     }
 
     public static void AddTankGun(ReducerContext ctx, string tankId, string gameId, Gun gun)
     {
-        if (gun.GunType == GunType.Base)
-        {
-            return;
-        }
-        
         var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
         
-        Gun[] newGuns;
         if (tankGunRow == null)
         {
-            newGuns = [gun];
+            var newRow = new TankGun
+            {
+                TankId = tankId,
+                GameId = gameId,
+                Guns = [BASE_GUN, gun]
+            };
+            ctx.Db.tank_gun.Insert(newRow);
         }
         else
         {
-            newGuns = new Gun[tankGunRow.Value.Guns.Length + 1];
+            var newGuns = new Gun[tankGunRow.Value.Guns.Length + 1];
             for (int i = 0; i < tankGunRow.Value.Guns.Length; i++)
             {
                 newGuns[i] = tankGunRow.Value.Guns[i];
             }
             newGuns[tankGunRow.Value.Guns.Length] = gun;
-        }
-        
-        var updated = new TankGun
-        {
-            TankId = tankId,
-            GameId = gameId,
-            Guns = newGuns
-        };
-        
-        if (tankGunRow == null)
-        {
-            ctx.Db.tank_gun.Insert(updated);
-        }
-        else
-        {
+            
+            var updated = tankGunRow.Value with { Guns = newGuns };
             ctx.Db.tank_gun.TankId.Update(updated);
         }
     }

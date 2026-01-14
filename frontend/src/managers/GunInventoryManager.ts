@@ -1,33 +1,11 @@
 import { type Infer } from "spacetimedb";
 import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import Gun from "../../module_bindings/gun_type";
-import GunType from "../../module_bindings/gun_type_type";
 import { type EventContext } from "../../module_bindings";
 import TankRow from "../../module_bindings/tank_type";
 import TankGunRow from "../../module_bindings/tank_gun_type";
 import { redTeamPickupTextureCache, blueTeamPickupTextureCache } from "../textures";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
-
-const BASE_GUN: Infer<typeof Gun> = {
-  gunType: { tag: "Base" } as Infer<typeof GunType>,
-  ammo: undefined,
-  projectileCount: 1,
-  spreadAngle: 0,
-  damage: 20,
-  trackingStrength: 0,
-  trackingRadius: 0,
-  projectileType: { tag: "Normal" },
-  lifetimeSeconds: 10.0,
-  maxCollisions: 1,
-  passThroughTerrain: false,
-  collisionRadius: 0.1,
-  explosionRadius: undefined,
-  explosionTrigger: { tag: "None" },
-  damping: undefined,
-  bounce: false,
-  projectileSize: 0.15,
-  projectileSpeed: 4.0,
-};
 
 export class GunInventoryManager {
   private guns: Map<number, Infer<typeof Gun>> = new Map();
@@ -106,12 +84,11 @@ export class GunInventoryManager {
     if (!connection) return;
 
     this.guns.clear();
-    this.guns.set(0, BASE_GUN);
     
     const tankGunRow = connection.db.tankGun.tankId.find(tankId);
     if (tankGunRow) {
       for (let i = 0; i < tankGunRow.guns.length; i++) {
-        this.guns.set(i + 1, tankGunRow.guns[i]);
+        this.guns.set(i, tankGunRow.guns[i]);
       }
     }
   }

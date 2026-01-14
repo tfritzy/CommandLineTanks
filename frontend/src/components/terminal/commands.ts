@@ -701,11 +701,8 @@ export function switchGun(
     return [themeColors.error("switch: error: tank not found")];
   }
 
-  let gunCount = 1;
   const tankGunRow = connection.db.tankGun.tankId.find(myTank.id);
-  if (tankGunRow) {
-    gunCount += tankGunRow.guns.length;
-  }
+  const gunCount = tankGunRow ? tankGunRow.guns.length : 0;
 
   if (gunIndex >= gunCount) {
     return [
@@ -1087,11 +1084,8 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
 
   const combinedTanks: CombinedTank[] = [];
   for (const tank of tanksInGame) {
-    let gunCount = 1;
     const tankGunRow = connection.db.tankGun.tankId.find(tank.id);
-    if (tankGunRow) {
-      gunCount += tankGunRow.guns.length;
-    }
+    const gunCount = tankGunRow ? tankGunRow.guns.length : 0;
     combinedTanks.push({
       id: tank.id,
       name: tank.name,
@@ -1124,14 +1118,11 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
   const deathsWidth = 6;
   const kdWidth = 6;
   const gunWidth = Math.max(3, ...combinedTanks.map(t => {
-    if (t.selectedGunIndex === 0) {
-      return "Base".length;
-    }
     const tankGunRow = connection.db.tankGun.tankId.find(t.id);
-    if (!tankGunRow || t.selectedGunIndex - 1 >= tankGunRow.guns.length) {
+    if (!tankGunRow || t.selectedGunIndex >= tankGunRow.guns.length) {
       return "None".length;
     }
-    const gunName = tankGunRow.guns[t.selectedGunIndex - 1].gunType.tag;
+    const gunName = tankGunRow.guns[t.selectedGunIndex].gunType.tag;
     return gunName.length;
   }));
 
@@ -1155,13 +1146,9 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
       : (tank.kills / tank.deaths).toFixed(2);
 
     let gunName = "None";
-    if (tank.selectedGunIndex === 0) {
-      gunName = "Base";
-    } else {
-      const tankGunRow = connection.db.tankGun.tankId.find(tank.id);
-      if (tankGunRow && tank.selectedGunIndex - 1 < tankGunRow.guns.length) {
-        gunName = tankGunRow.guns[tank.selectedGunIndex - 1].gunType.tag;
-      }
+    const tankGunRow = connection.db.tankGun.tankId.find(tank.id);
+    if (tankGunRow && tank.selectedGunIndex < tankGunRow.guns.length) {
+      gunName = tankGunRow.guns[tank.selectedGunIndex].gunType.tag;
     }
 
     const teamName = tank.alliance === 0 ? "Red" : tank.alliance === 1 ? "Blue" : "Unknown";
