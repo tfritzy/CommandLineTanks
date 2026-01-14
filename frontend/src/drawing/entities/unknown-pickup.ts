@@ -6,12 +6,12 @@ export function drawUnknownPickupShadow(
   positionX: number,
   positionY: number
 ) {
-  const worldX = positionX * UNIT_TO_PIXEL;
-  const worldY = positionY * UNIT_TO_PIXEL;
+  const gameX = positionX * UNIT_TO_PIXEL;
+  const gameY = positionY * UNIT_TO_PIXEL;
   const size = UNIT_TO_PIXEL * 0.6;
 
   ctx.save();
-  ctx.translate(worldX - 4, worldY + 4);
+  ctx.translate(gameX - 4, gameY + 4);
   ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
@@ -24,12 +24,12 @@ export function drawUnknownPickupBody(
   positionX: number,
   positionY: number
 ) {
-  const worldX = positionX * UNIT_TO_PIXEL;
-  const worldY = positionY * UNIT_TO_PIXEL;
+  const gameX = positionX * UNIT_TO_PIXEL;
+  const gameY = positionY * UNIT_TO_PIXEL;
   const size = UNIT_TO_PIXEL * 0.6;
 
   ctx.save();
-  ctx.translate(worldX, worldY);
+  ctx.translate(gameX, gameY);
 
   ctx.fillStyle = COLORS.TERMINAL.TEXT_MUTED;
   ctx.strokeStyle = COLORS.TERMINAL.TEXT_DIM;

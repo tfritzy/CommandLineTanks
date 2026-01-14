@@ -5,8 +5,8 @@ import { drawHayBaleShadow, drawHayBaleBody } from "../../drawing/terrain-detail
 export class HayBale extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
+    const x = this.getGameX();
+    const y = this.getGameY();
     const centerX = x;
     const centerY = y;
     const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.HAY_BALE, 0, 21.21, 12.12);
@@ -16,8 +16,8 @@ export class HayBale extends TerrainDetailObject {
 
   public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
+    const x = this.getGameX();
+    const y = this.getGameY();
     const centerX = x;
     const centerY = y;
     const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.HAY_BALE, 0, 21.21, 12.12);

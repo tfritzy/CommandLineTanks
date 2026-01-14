@@ -84,8 +84,8 @@ export abstract class TerrainDetailObject {
     const segments = this.parseLabel(this.label);
 
     ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
+    const x = this.getGameX();
+    const y = this.getGameY();
     const labelY = y - 24;
 
     const fontSize = UNIT_TO_PIXEL * 0.26;
@@ -174,11 +174,11 @@ export abstract class TerrainDetailObject {
     return 1.0;
   }
 
-  protected getWorldX(): number {
+  protected getGameX(): number {
     return this.x * UNIT_TO_PIXEL;
   }
 
-  protected getWorldY(): number {
+  protected getGameY(): number {
     return this.y * UNIT_TO_PIXEL;
   }
 

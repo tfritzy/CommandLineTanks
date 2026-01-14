@@ -9,8 +9,8 @@ type BaseTerrainType = Infer<typeof BaseTerrain>;
 export function drawBaseTerrain(
   ctx: CanvasRenderingContext2D,
   baseTerrainLayer: BaseTerrainType[],
-  worldWidth: number,
-  worldHeight: number,
+  gameWidth: number,
+  gameHeight: number,
   startTileX: number,
   endTileX: number,
   startTileY: number,
@@ -21,14 +21,14 @@ export function drawBaseTerrain(
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
       if (
         tileX < 0 ||
-        tileX >= worldWidth ||
+        tileX >=gameWidth ||
         tileY < 0 ||
-        tileY >= worldHeight
+        tileY >= gameHeight
       ) {
         continue;
       }
 
-      const index = tileY * worldWidth + tileX;
+      const index = tileY * gameWidth + tileX;
       const terrain = baseTerrainLayer[index];
 
       if (terrain.tag === "BlackChecker") {
@@ -46,14 +46,14 @@ export function drawBaseTerrain(
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
       if (
         tileX < 0 ||
-        tileX >= worldWidth ||
+        tileX >=gameWidth ||
         tileY < 0 ||
-        tileY >= worldHeight
+        tileY >= gameHeight
       ) {
         continue;
       }
 
-      const index = tileY * worldWidth + tileX;
+      const index = tileY * gameWidth + tileX;
       const terrain = baseTerrainLayer[index];
 
       if (terrain.tag === "WhiteChecker") {
@@ -74,14 +74,14 @@ export function drawBaseTerrain(
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
       if (
         tileX < 0 ||
-        tileX >= worldWidth ||
+        tileX >=gameWidth ||
         tileY < 0 ||
-        tileY >= worldHeight
+        tileY >= gameHeight
       ) {
         continue;
       }
 
-      const index = tileY * worldWidth + tileX;
+      const index = tileY * gameWidth + tileX;
       const terrain = baseTerrainLayer[index];
 
       if (terrain.tag === "Farm") {
@@ -106,9 +106,9 @@ export function drawBaseTerrain(
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
       if (
         tileX < 0 ||
-        tileX >= worldWidth ||
+        tileX >=gameWidth ||
         tileY < 0 ||
-        tileY >= worldHeight
+        tileY >= gameHeight
       ) {
         continue;
       }
@@ -129,14 +129,14 @@ export function drawBaseTerrain(
   const topY = Math.max(startTileY, 0) * UNIT_TO_PIXEL;
   const bottomY = Math.min(endTileY + 1, worldHeight) * UNIT_TO_PIXEL;
   for (let tileX = startTileX; tileX <= endTileX; tileX++) {
-    if (tileX < 0 || tileX >= worldWidth) {
+    if (tileX < 0 || tileX >=gameWidth) {
       continue;
     }
     const worldX = tileX * UNIT_TO_PIXEL;
     ctx.moveTo(worldX, topY);
     ctx.lineTo(worldX, bottomY);
   }
-  if (endTileX + 1 <= worldWidth) {
+  if (endTileX + 1 <= gameWidth) {
     const worldX = (endTileX + 1) * UNIT_TO_PIXEL;
     ctx.moveTo(worldX, topY);
     ctx.lineTo(worldX, bottomY);
@@ -145,14 +145,14 @@ export function drawBaseTerrain(
   const leftX = Math.max(startTileX, 0) * UNIT_TO_PIXEL;
   const rightX = Math.min(endTileX + 1, worldWidth) * UNIT_TO_PIXEL;
   for (let tileY = startTileY; tileY <= endTileY; tileY++) {
-    if (tileY < 0 || tileY >= worldHeight) {
+    if (tileY < 0 || tileY >= gameHeight) {
       continue;
     }
     const worldY = tileY * UNIT_TO_PIXEL;
     ctx.moveTo(leftX, worldY);
     ctx.lineTo(rightX, worldY);
   }
-  if (endTileY + 1 <= worldHeight) {
+  if (endTileY + 1 <= gameHeight) {
     const worldY = (endTileY + 1) * UNIT_TO_PIXEL;
     ctx.moveTo(leftX, worldY);
     ctx.lineTo(rightX, worldY);
@@ -174,8 +174,8 @@ export function drawBaseTerrain(
 function drawWaterDualGrid(
   ctx: CanvasRenderingContext2D,
   baseTerrainLayer: BaseTerrainType[],
-  worldWidth: number,
-  worldHeight: number,
+  gameWidth: number,
+  gameHeight: number,
   startTileX: number,
   endTileX: number,
   startTileY: number,

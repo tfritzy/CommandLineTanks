@@ -209,9 +209,9 @@ export function drawTankPath(
   ctx.moveTo(startX, startY);
 
   for (const pathEntry of path) {
-    const worldX = pathEntry.x * UNIT_TO_PIXEL;
-    const worldY = pathEntry.y * UNIT_TO_PIXEL;
-    ctx.lineTo(worldX, worldY);
+    const gameX = pathEntry.x * UNIT_TO_PIXEL;
+    const gameY = pathEntry.y * UNIT_TO_PIXEL;
+    ctx.lineTo(gameX, gameY);
   }
 
   ctx.stroke();
