@@ -607,7 +607,7 @@ public static partial class TerrainGenerator
                 TerrainDetailType.FenceEdge => true,
                 TerrainDetailType.FenceCorner => true,
                 TerrainDetailType.TargetDummy => false,
-                TerrainDetailType.DeadTree => true,
+                TerrainDetailType.DeadTree => false,
                 _ => true
             };
 

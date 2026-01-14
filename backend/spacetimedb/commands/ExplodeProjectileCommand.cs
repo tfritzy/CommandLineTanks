@@ -153,13 +153,14 @@ public static partial class ProjectileUpdater
                     Health = null
                 };
                 ctx.Db.terrain_detail.Id.Update(deadTree);
+                return false;
             }
             else
             {
                 ctx.Db.terrain_detail.Id.Delete(detail.Id);
+                traversibilityMap.SetTraversable(tileIndex, true);
+                return true;
             }
-            traversibilityMap.SetTraversable(tileIndex, true);
-            return true;
         }
         else
         {
