@@ -17,9 +17,9 @@ export class PenBorder extends TerrainDetailObject {
   }
 
   public drawBody(ctx: CanvasRenderingContext2D): void {
-    const worldX = this.x * UNIT_TO_PIXEL;
-    const worldY = this.y * UNIT_TO_PIXEL;
-    drawPenBorderBody(ctx, worldX, worldY, PEN_SIZE, PEN_SIZE);
+    const gameX = this.x * UNIT_TO_PIXEL;
+    const gameY = this.y * UNIT_TO_PIXEL;
+    drawPenBorderBody(ctx, gameX, gameY, PEN_SIZE, PEN_SIZE);
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {

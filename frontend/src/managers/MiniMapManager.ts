@@ -20,12 +20,12 @@ export class MiniMapManager {
   private spawnZoneWidth: number = 5;
   private baseLayerCanvas: HTMLCanvasElement | null = null;
   private baseLayerContext: CanvasRenderingContext2D | null = null;
-  private lastWorldWidth: number = 0;
-  private lastWorldHeight: number = 0;
+  private lastGameWidth: number = 0;
+  private lastGameHeight: number = 0;
   private needsRedraw: boolean = true;
   private lastDpr: number = 0;
-  private worldWidth: number = 0;
-  private worldHeight: number = 0;
+  private gameWidth: number = 0;
+  private gameHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
   private terrainDetailsByPosition: Map<string, Infer<typeof TerrainDetailRow>> = new Map();
   private pickupsByPosition: Map<string, Infer<typeof PickupRow>> = new Map();
@@ -47,10 +47,10 @@ export class MiniMapManager {
     const connection = getConnection();
     if (!connection) return;
 
-    const handleWorldChange = (game: Infer<typeof GameRow>) => {
+    const handleGameChange = (game: Infer<typeof GameRow>) => {
       if (game.id !== this.gameId) return;
-      this.worldWidth = game.width;
-      this.worldHeight = game.height;
+      this.gameWidth = game.width;
+      this.gameHeight = game.height;
       this.baseTerrainLayer = game.baseTerrainLayer;
       this.markForRedraw();
     };
@@ -60,10 +60,10 @@ export class MiniMapManager {
         table: connection.db.game,
         handlers: {
           onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
-            handleWorldChange(game);
+            handleGameChange(game);
           },
-          onUpdate: (_ctx: EventContext, _oldWorld: Infer<typeof GameRow>, newWorld: Infer<typeof GameRow>) => {
-            handleWorldChange(newWorld);
+          onUpdate: (_ctx: EventContext, _oldGame: Infer<typeof GameRow>, newGame: Infer<typeof GameRow>) => {
+            handleGameChange(newGame);
           }
         },
         loadInitialData: false
@@ -105,7 +105,7 @@ export class MiniMapManager {
 
     const cachedGame = connection.db.game.Id.find(this.gameId);
     if (cachedGame) {
-      handleWorldChange(cachedGame);
+      handleGameChange(cachedGame);
     }
   }
 
@@ -133,13 +133,13 @@ export class MiniMapManager {
   }
 
   public draw(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
-    if (this.worldWidth === 0 || this.worldHeight === 0) return;
+    if (this.gameWidth === 0 || this.gameHeight === 0) return;
 
     const playerTank = this.tankManager.getPlayerTank();
     if (!playerTank) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const aspectRatio = this.worldWidth / this.worldHeight;
+    const aspectRatio = this.gameWidth / this.gameHeight;
     let miniMapWidth: number;
     let miniMapHeight: number;
     
@@ -154,12 +154,12 @@ export class MiniMapManager {
     const miniMapX = canvasWidth - miniMapWidth - this.margin;
     const miniMapY = canvasHeight - miniMapHeight - this.margin;
 
-    const worldChanged = this.worldWidth !== this.lastWorldWidth || this.worldHeight !== this.lastWorldHeight;
+    const gameChanged = this.gameWidth !== this.lastGameWidth || this.gameHeight !== this.lastGameHeight;
     const dprChanged = dpr !== this.lastDpr;
-    if (worldChanged || dprChanged || this.needsRedraw || !this.baseLayerCanvas) {
-      this.createBaseLayer(miniMapWidth, miniMapHeight, this.worldWidth, this.worldHeight, dpr);
-      this.lastWorldWidth = this.worldWidth;
-      this.lastWorldHeight = this.worldHeight;
+    if (gameChanged || dprChanged || this.needsRedraw || !this.baseLayerCanvas) {
+      this.createBaseLayer(miniMapWidth, miniMapHeight, this.gameWidth, this.gameHeight, dpr);
+      this.lastGameWidth = this.gameWidth;
+      this.lastGameHeight = this.gameHeight;
       this.lastDpr = dpr;
       this.needsRedraw = false;
     }
@@ -183,10 +183,10 @@ export class MiniMapManager {
       if (tank.getHealth() <= 0) continue;
 
       const tankPos = tank.getPosition();
-      const clampedX = Math.max(0, Math.min(tankPos.x, this.worldWidth));
-      const clampedY = Math.max(0, Math.min(tankPos.y, this.worldHeight));
-      const tankX = (clampedX / this.worldWidth) * miniMapWidth;
-      const tankY = (clampedY / this.worldHeight) * miniMapHeight;
+      const clampedX = Math.max(0, Math.min(tankPos.x, this.gameWidth));
+      const clampedY = Math.max(0, Math.min(tankPos.y, this.gameHeight));
+      const tankX = (clampedX / this.gameWidth) * miniMapWidth;
+      const tankY = (clampedY / this.gameHeight) * miniMapHeight;
 
       const isPlayerTank = tank.id === playerTank.id;
       const size = isPlayerTank ? this.playerTankIndicatorSize : this.tankIndicatorSize;
@@ -275,8 +275,8 @@ export class MiniMapManager {
   private createBaseLayer(
     miniMapWidth: number,
     miniMapHeight: number,
-    worldWidth: number,
-    worldHeight: number,
+    gameWidth: number,
+    gameHeight: number,
     dpr: number
   ) {
     if (!this.baseLayerCanvas) {
@@ -296,9 +296,9 @@ export class MiniMapManager {
     this.baseLayerContext.scale(dpr, dpr);
     this.baseLayerContext.imageSmoothingEnabled = false;
 
-    this.drawTerrain(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
-    this.drawSpawnZones(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
-    this.drawPickups(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, worldWidth, worldHeight);
+    this.drawTerrain(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, gameWidth, gameHeight);
+    this.drawSpawnZones(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, gameWidth, gameHeight);
+    this.drawPickups(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, gameWidth, gameHeight);
   }
 
   private drawTerrain(
@@ -307,13 +307,13 @@ export class MiniMapManager {
     miniMapY: number,
     miniMapWidth: number,
     miniMapHeight: number,
-    worldWidth: number,
-    worldHeight: number
+    gameWidth: number,
+    gameHeight: number
   ) {
     if (!this.baseTerrainLayer || this.baseTerrainLayer.length === 0) return;
 
-    const pixelWidth = miniMapWidth / worldWidth;
-    const pixelHeight = miniMapHeight / worldHeight;
+    const pixelWidth = miniMapWidth / gameWidth;
+    const pixelHeight = miniMapHeight / gameHeight;
 
     // Fill background
     ctx.fillStyle = COLORS.TERRAIN.GROUND;
@@ -323,8 +323,8 @@ export class MiniMapManager {
     ctx.fillStyle = COLORS.TERRAIN.FARM_GROOVE;
     for (let i = 0; i < this.baseTerrainLayer.length; i++) {
       if (this.baseTerrainLayer[i].tag === "Farm") {
-        const tileX = i % worldWidth;
-        const tileY = Math.floor(i / worldWidth);
+        const tileX = i % gameWidth;
+        const tileY = Math.floor(i / gameWidth);
         ctx.fillRect(
           miniMapX + tileX * pixelWidth,
           miniMapY + tileY * pixelHeight,
@@ -338,8 +338,8 @@ export class MiniMapManager {
     ctx.fillStyle = COLORS.TERRAIN.WATER_DEEP;
     for (let i = 0; i < this.baseTerrainLayer.length; i++) {
       if (this.baseTerrainLayer[i].tag === "Water") {
-        const tileX = i % worldWidth;
-        const tileY = Math.floor(i / worldWidth);
+        const tileX = i % gameWidth;
+        const tileY = Math.floor(i / gameWidth);
         ctx.fillRect(
           miniMapX + tileX * pixelWidth,
           miniMapY + tileY * pixelHeight,
@@ -354,8 +354,8 @@ export class MiniMapManager {
       const tag = this.baseTerrainLayer[i].tag;
       if (tag === "BlackChecker" || tag === "WhiteChecker") {
         ctx.fillStyle = tag === "BlackChecker" ? COLORS.TERRAIN.BLACK_CHECKER : COLORS.TERRAIN.WHITE_CHECKER;
-        const tileX = i % worldWidth;
-        const tileY = Math.floor(i / worldWidth);
+        const tileX = i % gameWidth;
+        const tileY = Math.floor(i / gameWidth);
         ctx.fillRect(
           miniMapX + tileX * pixelWidth,
           miniMapY + tileY * pixelHeight,
@@ -417,24 +417,24 @@ export class MiniMapManager {
     miniMapY: number,
     miniMapWidth: number,
     miniMapHeight: number,
-    worldWidth: number,
-    worldHeight: number
+    gameWidth: number,
+    gameHeight: number
   ) {
-    const pixelWidth = miniMapWidth / worldWidth;
-    const pixelHeight = miniMapHeight / worldHeight;
+    const pixelWidth = miniMapWidth / gameWidth;
+    const pixelHeight = miniMapHeight / gameHeight;
 
     ctx.fillStyle = COLORS.GAME.TEAM_RED_BRIGHT + "33";
     const redSpawnX = miniMapX;
     const redSpawnY = miniMapY;
     const redSpawnWidth = this.spawnZoneWidth * pixelWidth;
-    const redSpawnHeight = worldHeight * pixelHeight;
+    const redSpawnHeight = gameHeight * pixelHeight;
     ctx.fillRect(redSpawnX, redSpawnY, redSpawnWidth, redSpawnHeight);
 
     ctx.fillStyle = COLORS.GAME.TEAM_BLUE_BRIGHT + "33";
-    const blueSpawnX = miniMapX + (worldWidth - this.spawnZoneWidth) * pixelWidth;
+    const blueSpawnX = miniMapX + (gameWidth - this.spawnZoneWidth) * pixelWidth;
     const blueSpawnY = miniMapY;
     const blueSpawnWidth = this.spawnZoneWidth * pixelWidth;
-    const blueSpawnHeight = worldHeight * pixelHeight;
+    const blueSpawnHeight = gameHeight * pixelHeight;
     ctx.fillRect(blueSpawnX, blueSpawnY, blueSpawnWidth, blueSpawnHeight);
   }
 
@@ -444,11 +444,11 @@ export class MiniMapManager {
     miniMapY: number,
     miniMapWidth: number,
     miniMapHeight: number,
-    worldWidth: number,
-    worldHeight: number
+    gameWidth: number,
+    gameHeight: number
   ) {
-    const pixelWidth = miniMapWidth / worldWidth;
-    const pixelHeight = miniMapHeight / worldHeight;
+    const pixelWidth = miniMapWidth / gameWidth;
+    const pixelHeight = miniMapHeight / gameHeight;
 
     ctx.fillStyle = "#fceba8";
 

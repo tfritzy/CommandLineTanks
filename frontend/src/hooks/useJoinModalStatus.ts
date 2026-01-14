@@ -10,7 +10,7 @@ type JoinModalStatus = "loading" | "no_tank" | "has_tank";
 export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus {
   const [status, setStatus] = useState<JoinModalStatus>("loading");
   const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
-  const worldIdRef = useRef(gameId);
+  const gameIdRef = useRef(gameId);
 
   useEffect(() => {
     if (subscriptionRef.current) {
@@ -18,7 +18,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
       subscriptionRef.current = null;
     }
 
-    worldIdRef.current = gameId;
+    gameIdRef.current = gameId;
 
     if (!gameId) {
       setStatus("loading");
@@ -42,7 +42,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
       return null;
     };
 
-    const hasAnyTanksForWorld = (): boolean => {
+    const hasAnyTanksForGame = (): boolean => {
       for (const tank of connection.db.tank.iter()) {
         if (tank.gameId === gameId) {
           return true;
@@ -52,7 +52,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
     };
 
     const setStatusIfCurrentGame = (newStatus: JoinModalStatus) => {
-      if (worldIdRef.current === gameId) {
+      if (gameIdRef.current === gameId) {
         setStatus(newStatus);
       }
     };
@@ -85,7 +85,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
           if (tank.gameId !== gameId) return;
           if (!isCurrentIdentity(tank.owner)) return;
 
-          if (hasAnyTanksForWorld()) {
+          if (hasAnyTanksForGame()) {
             setStatusIfCurrentGame("no_tank");
           }
         },
@@ -104,11 +104,11 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
     }
 
     const timeout = setTimeout(() => {
-      if (worldIdRef.current !== gameId) return;
+      if (gameIdRef.current !== gameId) return;
 
       if (findPlayerTank()) {
         setStatus("has_tank");
-      } else if (hasAnyTanksForWorld()) {
+      } else if (hasAnyTanksForGame()) {
         setStatus("no_tank");
       }
     }, 500);

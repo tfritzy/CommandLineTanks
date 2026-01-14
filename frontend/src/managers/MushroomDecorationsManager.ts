@@ -65,14 +65,14 @@ export class MushroomDecorationsManager {
       if (x >= startX && x <= endX && y >= startY && y <= endY) {
         if (writeIndex >= this.visibleMushroomsBuffer.length) {
           this.visibleMushroomsBuffer.push({
-            x: mushroom.getWorldX(),
-            y: mushroom.getWorldY(),
+            x: mushroom.getGameX(),
+            y: mushroom.getGameY(),
             size: mushroom.getSize() * UNIT_TO_PIXEL,
           });
         } else {
           const mushroomInfo = this.visibleMushroomsBuffer[writeIndex];
-          mushroomInfo.x = mushroom.getWorldX();
-          mushroomInfo.y = mushroom.getWorldY();
+          mushroomInfo.x = mushroom.getGameX();
+          mushroomInfo.y = mushroom.getGameY();
           mushroomInfo.size = mushroom.getSize() * UNIT_TO_PIXEL;
         }
         writeIndex++;

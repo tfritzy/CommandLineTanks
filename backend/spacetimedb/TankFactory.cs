@@ -61,8 +61,8 @@ public static partial class Module
 
     public static (float, float) FindSpawnPosition(ReducerContext ctx, TraversibilityMap traversibilityMap, int alliance, Random random)
     {
-        int worldWidth = traversibilityMap.Width;
-        int worldHeight = traversibilityMap.Height;
+        int gameWidth = traversibilityMap.Width;
+        int gameHeight = traversibilityMap.Height;
 
         int minX, maxX, minY, maxY;
 
@@ -73,8 +73,8 @@ public static partial class Module
         }
         else if (alliance == 1)
         {
-            minX = worldWidth - SPAWN_ZONE_WIDTH;
-            maxX = worldWidth;
+            minX = gameWidth - SPAWN_ZONE_WIDTH;
+            maxX = gameWidth;
         }
         else
         {
@@ -83,7 +83,7 @@ public static partial class Module
         }
 
         minY = 0;
-        maxY = worldHeight;
+        maxY = gameHeight;
 
         for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++)
         {
@@ -100,7 +100,7 @@ public static partial class Module
                 y = minY + random.Next(maxY - minY);
             }
 
-            int index = y * worldWidth + x;
+            int index = y * gameWidth + x;
             if (index < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(index))
             {
                 return (x + 0.5f, y + 0.5f);

@@ -92,7 +92,7 @@ public static partial class Module
         ctx.Db.game.Id.Update(updatedGame);
     }
 
-    public static void DeleteHomeworldIfEmpty(ReducerContext ctx, string identityString)
+    public static void DeleteHomegameIfEmpty(ReducerContext ctx, string identityString)
     {
         var homegame = ctx.Db.game.Id.Find(identityString);
         if (homegame == null || !homegame.Value.IsHomeGame)
@@ -110,7 +110,7 @@ public static partial class Module
         Log.Info($"Deleted empty homegame for identity {identityString}");
     }
 
-    public static void EnsureTankInHomeworld(ReducerContext ctx, string identityString, string joinCode)
+    public static void EnsureTankInHomegame(ReducerContext ctx, string identityString, string joinCode)
     {
         var existingTank = ctx.Db.tank.GameId_Owner.Filter((identityString, ctx.Sender))
             .FirstOrDefault();
@@ -135,8 +135,8 @@ public static partial class Module
             targetCode: "",
             joinCode: joinCode,
             alliance: 0,
-            positionX: HOMEWORLD_WIDTH / 2 + .5f,
-            positionY: HOMEWORLD_HEIGHT / 2 + .5f,
+            positionX: HOMEGAME_WIDTH / 2 + .5f,
+            positionY: HOMEGAME_HEIGHT / 2 + .5f,
             aiBehavior: AIBehavior.None);
 
         AddTankToGame(ctx, tank, transform);
@@ -144,16 +144,16 @@ public static partial class Module
         Log.Info($"Created homegame tank for identity {identityString}");
     }
 
-    public static void ReturnToHomeworld(ReducerContext ctx, string joinCode)
+    public static void ReturnToHomegame(ReducerContext ctx, string joinCode)
     {
         var identityString = ctx.Sender.ToString().ToLower();
         var homegame = ctx.Db.game.Id.Find(identityString);
         if (homegame == null)
         {
-            CreateHomeworld(ctx, identityString);
+            CreateHomegame(ctx, identityString);
         }
 
-        EnsureTankInHomeworld(ctx, identityString, joinCode);
+        EnsureTankInHomegame(ctx, identityString, joinCode);
     }
 
     public static Tank TargetTankByCode(ReducerContext ctx, Tank tank, string targetCode)

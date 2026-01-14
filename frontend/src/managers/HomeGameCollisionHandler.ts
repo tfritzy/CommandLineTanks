@@ -10,13 +10,13 @@ import type { Projectile } from "../objects/projectiles";
 import type { TankManager } from "./TankManager";
 import { byteArrayToBoolArray } from "../utils/bitPacking";
 
-export class HomeWorldCollisionHandler {
+export class HomeGameCollisionHandler {
   private gameId: string;
   private tankManager: TankManager | null = null;
-  private isHomeWorld: boolean = false;
+  private isHomeGame: boolean = false;
   private traversibilityMap: boolean[] | null = null;
-  private worldWidth: number = 0;
-  private worldHeight: number = 0;
+  private gameWidth: number = 0;
+  private gameHeight: number = 0;
   private pendingCollisions: Set<bigint> = new Set();
   private clientSpawnTimes: Map<bigint, number> = new Map();
   private traversibilityMapSubscription: TableSubscription<typeof TraversibilityMapRow> | null = null;
@@ -32,7 +32,7 @@ export class HomeWorldCollisionHandler {
   }
 
   public isEnabled(): boolean {
-    return this.isHomeWorld;
+    return this.isHomeGame;
   }
 
   public hasPendingCollision(projectileId: bigint): boolean {
@@ -45,7 +45,7 @@ export class HomeWorldCollisionHandler {
   }
 
   public registerProjectile(projectileId: bigint) {
-    if (this.isHomeWorld && !this.clientSpawnTimes.has(projectileId)) {
+    if (this.isHomeGame && !this.clientSpawnTimes.has(projectileId)) {
       this.clientSpawnTimes.set(projectileId, performance.now());
     }
   }
@@ -59,15 +59,15 @@ export class HomeWorldCollisionHandler {
       handlers: {
         onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
           if (game.id !== this.gameId) return;
-          this.isHomeWorld = game.isHomeGame;
-          this.worldWidth = game.width;
-          this.worldHeight = game.height;
+          this.isHomeGame = game.isHomeGame;
+          this.gameWidth = game.width;
+          this.gameHeight = game.height;
         },
         onUpdate: (_ctx: EventContext, _oldGame: Infer<typeof GameRow>, newGame: Infer<typeof GameRow>) => {
           if (newGame.id !== this.gameId) return;
-          this.isHomeWorld = newGame.isHomeGame;
-          this.worldWidth = newGame.width;
-          this.worldHeight = newGame.height;
+          this.isHomeGame = newGame.isHomeGame;
+          this.gameWidth = newGame.width;
+          this.gameHeight = newGame.height;
         }
       },
       loadInitialData: false
@@ -75,9 +75,9 @@ export class HomeWorldCollisionHandler {
 
     const cachedGame = connection.db.game.Id.find(this.gameId);
     if (cachedGame) {
-      this.isHomeWorld = cachedGame.isHomeGame;
-      this.worldWidth = cachedGame.width;
-      this.worldHeight = cachedGame.height;
+      this.isHomeGame = cachedGame.isHomeGame;
+      this.gameWidth = cachedGame.width;
+      this.gameHeight = cachedGame.height;
     }
 
     this.traversibilityMapSubscription = subscribeToTable({
@@ -86,14 +86,14 @@ export class HomeWorldCollisionHandler {
         onInsert: (_ctx: EventContext, map: Infer<typeof TraversibilityMapRow>) => {
           if (map.gameId !== this.gameId) return;
           this.traversibilityMap = byteArrayToBoolArray(new Uint8Array(map.map), map.width * map.height);
-          this.worldWidth = map.width;
-          this.worldHeight = map.height;
+          this.gameWidth = map.width;
+          this.gameHeight = map.height;
         },
         onUpdate: (_ctx: EventContext, _oldMap: Infer<typeof TraversibilityMapRow>, newMap: Infer<typeof TraversibilityMapRow>) => {
           if (newMap.gameId !== this.gameId) return;
           this.traversibilityMap = byteArrayToBoolArray(new Uint8Array(newMap.map), newMap.width * newMap.height);
-          this.worldWidth = newMap.width;
-          this.worldHeight = newMap.height;
+          this.gameWidth = newMap.width;
+          this.gameHeight = newMap.height;
         }
       },
       loadInitialData: false
@@ -102,13 +102,13 @@ export class HomeWorldCollisionHandler {
     const cachedMap = connection.db.traversibilityMap.gameId.find(this.gameId);
     if (cachedMap) {
       this.traversibilityMap = byteArrayToBoolArray(new Uint8Array(cachedMap.map), cachedMap.width * cachedMap.height);
-      this.worldWidth = cachedMap.width;
-      this.worldHeight = cachedMap.height;
+      this.gameWidth = cachedMap.width;
+      this.gameHeight = cachedMap.height;
     }
   }
 
   public checkCollisions(projectileId: bigint, projectile: Projectile) {
-    if (!this.isHomeWorld) return;
+    if (!this.isHomeGame) return;
     if (this.pendingCollisions.has(projectileId)) return;
 
     const projectileData = getConnection()?.db.projectile.id.find(projectileId);
@@ -141,18 +141,18 @@ export class HomeWorldCollisionHandler {
   }
 
   private checkTerrainCollision(x: number, y: number, data: Infer<typeof ProjectileRow>): { gridX: number; gridY: number } | null {
-    if (!this.traversibilityMap || this.worldWidth === 0 || this.worldHeight === 0) {
+    if (!this.traversibilityMap || this.gameWidth === 0 || this.gameHeight === 0) {
       return null;
     }
 
     const gridX = Math.floor(x);
     const gridY = Math.floor(y);
 
-    if (gridX < 0 || gridX >= this.worldWidth || gridY < 0 || gridY >= this.worldHeight) {
+    if (gridX < 0 || gridX >= this.gameWidth || gridY < 0 || gridY >= this.gameHeight) {
       return null;
     }
 
-    const tileIndex = gridY * this.worldWidth + gridX;
+    const tileIndex = gridY * this.gameWidth + gridX;
     const isTraversable = tileIndex < this.traversibilityMap.length && this.traversibilityMap[tileIndex];
 
     if (isTraversable) {
@@ -198,17 +198,17 @@ export class HomeWorldCollisionHandler {
 
   private handleProjectileExpire(projectileId: bigint) {
     this.pendingCollisions.add(projectileId);
-    getConnection()?.reducers.homeWorldProjectileExpire({ projectileId });
+    getConnection()?.reducers.homegameProjectileExpire({ projectileId });
   }
 
   private handleTerrainCollision(projectileId: bigint, gridX: number, gridY: number) {
     this.pendingCollisions.add(projectileId);
-    getConnection()?.reducers.homeWorldProjectileTerrainHit({ projectileId, gridX, gridY });
+    getConnection()?.reducers.homegameProjectileTerrainHit({ projectileId, gridX, gridY });
   }
 
   private handleTankCollision(projectileId: bigint, targetTankId: string) {
     this.pendingCollisions.add(projectileId);
-    getConnection()?.reducers.homeWorldProjectileTankHit({ projectileId, targetTankId });
+    getConnection()?.reducers.homegameProjectileTankHit({ projectileId, targetTankId });
   }
 
   public destroy() {

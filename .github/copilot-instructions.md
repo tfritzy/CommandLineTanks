@@ -73,21 +73,21 @@ Before starting on a request related to spacetimedb, read: https://spacetimedb.c
 - When a method returns a non-nullable value type (like a tuple), return a default value instead of `null`
 - Example: `if (query == null) return (0, 0);` instead of `return null;`
 
-### World Dimensions
+### Game Dimensions
 
-- DO NOT load the world table just to get width and height
+- DO NOT load the game table just to get width and height
 - CORRECT: Use traversibility map dimensions: `traversibilityMap.Width` and `traversibilityMap.Height`
-- The traversibility map has Width and Height properties that match the world dimensions
-- Only load the world table if you need other world-specific data beyond dimensions
+- The traversibility map has Width and Height properties that match the game dimensions
+- Only load the game table if you need other game-specific data beyond dimensions
 
 ### Scheduled Tasks and Cleanup
 
 - When adding a new scheduled task table (marked with `[Table(Scheduled = ...)]`), ALWAYS update cleanup logic
-- All scheduled tasks MUST have a `WorldId` field to tie them to a world
+- All scheduled tasks MUST have a `GameId` field to tie them to a game
 - Add cleanup to BOTH:
-  - `StopWorldTickers()` in `WorldTickerManager.cs`
-  - `DeleteWorld()` in `reducers/CleanupGames.cs`
-- Use the pattern: `foreach (var item in ctx.Db.ScheduledTableName.WorldId.Filter(worldId)) { ctx.Db.ScheduledTableName.ScheduledId.Delete(item.ScheduledId); }`
+  - `StopGameTickers()` in `GameTickerManager.cs`
+  - `DeleteGame()` in `reducers/CleanupGames.cs`
+- Use the pattern: `foreach (var item in ctx.Db.ScheduledTableName.GameId.Filter(gameId)) { ctx.Db.ScheduledTableName.ScheduledId.Delete(item.ScheduledId); }`
 
 ## SpacetimeDB TypeScript API Reference
 

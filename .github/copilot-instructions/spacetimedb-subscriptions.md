@@ -22,20 +22,20 @@ This code only accesses locally cached tanks that were synchronized through exis
 ### Solution
 
 Instead of trying to count entities on the frontend:
-- **Store aggregate counts directly on parent entities** (e.g., `currentPlayerCount` and `botCount` on the `World` table)
+- **Store aggregate counts directly on parent entities** (e.g., `currentPlayerCount` and `botCount` on the `Game` table)
 - **Update these counts in reducers** when entities are created or deleted
 - **Subscribe to the parent entity** (which is typically already subscribed)
 
 ```typescript
-// ✅ CORRECT: Use pre-computed counts from the World table
-// (assuming the World table is already subscribed, which it typically is in this app)
-const worlds = Array.from(connection.db.world.iter());
-for (const world of worlds) {
-  console.log(`Players: ${world.currentPlayerCount}, Bots: ${world.botCount}`);
+// ✅ CORRECT: Use pre-computed counts from the Game table
+// (assuming the Game table is already subscribed, which it typically is in this app)
+const games = Array.from(connection.db.game.iter());
+for (const game of games) {
+  console.log(`Players: ${game.currentPlayerCount}, Bots: ${game.botCount}`);
 }
 ```
 
-**Note**: The code above works because the application has already subscribed to the World table. The key point is to avoid subscribing to large tables (like Tank) when you only need aggregate data.
+**Note**: The code above works because the application has already subscribed to the Game table. The key point is to avoid subscribing to large tables (like Tank) when you only need aggregate data.
 
 This approach:
 - Avoids the need for additional subscriptions

@@ -5,8 +5,8 @@ import { TERRAIN_DETAIL_RADIUS } from "../../constants";
 export class Rock extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
+    const x = this.getGameX();
+    const y = this.getGameY();
     const centerX = x;
     const centerY = y;
     const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.ROCK, 0, 13.37, 42.42);
@@ -16,8 +16,8 @@ export class Rock extends TerrainDetailObject {
 
   public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
+    const x = this.getGameX();
+    const y = this.getGameY();
     const centerX = x;
     const centerY = y;
     const radius = this.getRadius(TERRAIN_DETAIL_RADIUS.ROCK, 0, 13.37, 42.42);

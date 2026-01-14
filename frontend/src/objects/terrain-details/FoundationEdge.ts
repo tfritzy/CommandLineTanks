@@ -4,8 +4,8 @@ import { drawFoundationEdgeShadow, drawFoundationEdgeBody } from "../../drawing/
 export class FoundationEdge extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
+    const x = this.getGameX();
+    const y = this.getGameY();
     const centerX = x;
     const centerY = y;
     drawFoundationEdgeShadow(ctx, x, y, centerX, centerY, this.rotation);
@@ -14,8 +14,8 @@ export class FoundationEdge extends TerrainDetailObject {
 
   public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
+    const x = this.getGameX();
+    const y = this.getGameY();
     const centerX = x;
     const centerY = y;
     drawFoundationEdgeBody(ctx, x, y, centerX, centerY, this.rotation, this.flashTimer);

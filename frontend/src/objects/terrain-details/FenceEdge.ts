@@ -4,8 +4,8 @@ import { drawFenceEdgeShadow, drawFenceEdgeBody } from "../../drawing/terrain-de
 export class FenceEdge extends TerrainDetailObject {
   public drawShadow(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
+    const x = this.getGameX();
+    const y = this.getGameY();
     const centerX = x;
     const centerY = y;
     drawFenceEdgeShadow(ctx, x, y, centerX, centerY, this.rotation);
@@ -14,8 +14,8 @@ export class FenceEdge extends TerrainDetailObject {
 
   public drawBody(ctx: CanvasRenderingContext2D): void {
     ctx.save();
-    const x = this.getWorldX();
-    const y = this.getWorldY();
+    const x = this.getGameX();
+    const y = this.getGameY();
     const centerX = x;
     const centerY = y;
     drawFenceEdgeBody(ctx, x, y, centerX, centerY, this.rotation, this.flashTimer);

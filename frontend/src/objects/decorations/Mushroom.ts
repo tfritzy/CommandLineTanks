@@ -23,11 +23,11 @@ export class Mushroom {
     return this.size;
   }
 
-  public getWorldX(): number {
+  public getGameX(): number {
     return this.x * UNIT_TO_PIXEL;
   }
 
-  public getWorldY(): number {
+  public getGameY(): number {
     return this.y * UNIT_TO_PIXEL;
   }
 }

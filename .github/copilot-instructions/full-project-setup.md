@@ -130,7 +130,7 @@ All commands are documented in `commands.txt` at the repository root:
 
 2. **Query SpacetimeDB** (for debugging):
    ```bash
-   spacetime sql clt "SELECT Id from world"
+   spacetime sql clt "SELECT Id from game"
    ```
 
 3. **Publish without clearing data**:

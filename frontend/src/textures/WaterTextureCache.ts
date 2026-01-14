@@ -176,16 +176,16 @@ class WaterTextureCache {
 
   public computeTileIndex(
     baseTerrainLayer: { tag: string }[],
-    worldWidth: number,
-    worldHeight: number,
+    gameWidth: number,
+    gameHeight: number,
     dualX: number,
     dualY: number
   ): number {
     const isWater = (x: number, y: number): boolean => {
-      if (x < 0 || x >= worldWidth || y < 0 || y >= worldHeight) {
+      if (x < 0 || x >= gameWidth || y < 0 || y >= gameHeight) {
         return false;
       }
-      return baseTerrainLayer[y * worldWidth + x]?.tag === "Water";
+      return baseTerrainLayer[y * gameWidth + x]?.tag === "Water";
     };
 
     const tl = isWater(dualX, dualY) ? 1 : 0;
