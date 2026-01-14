@@ -93,6 +93,12 @@ public static partial class Module
             return;
         }
         
+        if (gun.GunType == GunType.Base)
+        {
+            DeleteTankGunAtIndex(ctx, tankId, index);
+            return;
+        }
+        
         var tankGunRow = ctx.Db.tank_gun.TankId.Find(tankId);
         if (tankGunRow == null)
         {
