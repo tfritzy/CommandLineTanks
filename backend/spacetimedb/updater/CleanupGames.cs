@@ -161,6 +161,11 @@ public static partial class Module
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
         }
 
+        foreach (var activityCheck in ctx.Db.ScheduledHomeworldActivityCheck.GameId.Filter(gameId))
+        {
+            ctx.Db.ScheduledHomeworldActivityCheck.ScheduledId.Delete(activityCheck.ScheduledId);
+        }
+
         var gameToDelete = ctx.Db.game.Id.Find(gameId);
         if (gameToDelete != null)
         {
