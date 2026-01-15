@@ -23,7 +23,7 @@ public static partial class Module
                 if (targetCode == null) continue;
 
                 var (spawnX, spawnY) = FindSpawnPosition(ctx, game, alliance, ctx.Rng);
-                var botName = $"Bot{ctx.Rng.Next(1000, 10000)}";
+                var botName = GenerateBotName(ctx, gameId);
                 var (botTank, botTransform) = BuildTank(
                     ctx: ctx,
                     gameId: gameId,
