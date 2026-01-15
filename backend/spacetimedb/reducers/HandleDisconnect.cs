@@ -14,14 +14,7 @@ public static partial class Module
         var tanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
         foreach (var tank in tanks)
         {
-            var game = ctx.Db.game.Id.Find(tank.GameId);
-            if (game == null)
-            {
-                Log.Warn($"Player {player.Value.Name} disconnected, game {tank.GameId} not found for tank {tank.Id}, keeping tank");
-                continue;
-            }
-            
-            if (game.Value.IsHomeGame)
+            if (tank.GameId.Length > 4)
             {
                 RemoveTankFromGame(ctx, tank);
                 Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} from homegame {tank.GameId}");
