@@ -5,9 +5,6 @@ import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
 import { aim, track, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitGame, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
-import { type EventContext } from "../../../module_bindings";
-import { type Infer } from "spacetimedb";
-import GameRow from "../../../module_bindings/game_type";
 
 interface TerminalComponentProps {
   gameId: string;
@@ -29,7 +26,6 @@ const VALID_COMMANDS = ['aim', 'a', 'track', 't', 'drive', 'd', 'stop', 's', 'fi
   'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
 
 const MAX_TERMINAL_LINES = 1000;
-const SEPARATOR_LENGTH = 80;
 
 function TerminalComponent({ gameId }: TerminalComponentProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -428,40 +424,6 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
       term.dispose();
     };
   }, [gameId]);
-
-  useEffect(() => {
-    const connection = getConnection();
-    const term = xtermRef.current;
-    if (!connection || !term) return;
-
-    const handleGameInsert = (_ctx: EventContext, game: Infer<typeof GameRow>) => {
-      if (game.owner && connection.identity && game.owner.isEqual(connection.identity)) {
-        const url = `${window.location.origin}/game/${game.id}`;
-        
-        const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'BORDER');
-        const title = colorize('🎮 GAME CREATED SUCCESSFULLY', 'SUCCESS');
-        const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
-        const urlText = colorize(url, 'TANK_CODE');
-        
-        let output = `\r\n${separator}\r\n`;
-        output += `${title}\r\n`;
-        output += `\r\n`;
-        output += `${urlLabel}\r\n`;
-        output += `${urlText}\r\n`;
-        output += `${separator}\r\n`;
-        output += `\r\n`;
-
-        terminalOutputRef.current += output;
-        term.write(output);
-      }
-    };
-
-    connection.db.game.onInsert(handleGameInsert);
-
-    return () => {
-      connection.db.game.removeOnInsert(handleGameInsert);
-    };
-  }, []);
 
   return (
     <div
