@@ -5,6 +5,9 @@ using static Types;
 
 public static partial class Module
 {
+    private const long HOMEWORLD_INACTIVITY_TIMEOUT_MICROS = 30_000_000;
+    private const long HOMEWORLD_ACTIVITY_CHECK_INTERVAL_MICROS = 30_000_000;
+
     [Table(Scheduled = nameof(ResetGame))]
     public partial struct ScheduledGameReset
     {
@@ -14,6 +17,15 @@ public static partial class Module
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
         public string GameId;
+    }
+
+    [Table(Scheduled = nameof(CheckHomeworldActivity))]
+    public partial struct ScheduledHomeworldActivityCheck
+    {
+        [AutoInc]
+        [PrimaryKey]
+        public ulong ScheduledId;
+        public ScheduleAt ScheduledAt;
     }
 
     public static bool HasAnyTanksInGame(ReducerContext ctx, string gameId)
@@ -56,12 +68,30 @@ public static partial class Module
         Log.Info($"Stopped tickers for game {gameId}");
     }
 
-    public static void StartGameTickers(ReducerContext ctx, string gameId)
+    private static void PauseHomeworldUpdaters(ReducerContext ctx, string gameId)
+    {
+        foreach (var tankUpdater in ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId))
+        {
+            ctx.Db.ScheduledTankUpdates.ScheduledId.Delete(tankUpdater.ScheduledId);
+        }
+
+        foreach (var projectileUpdater in ctx.Db.ScheduledProjectileUpdates.GameId.Filter(gameId))
+        {
+            ctx.Db.ScheduledProjectileUpdates.ScheduledId.Delete(projectileUpdater.ScheduledId);
+        }
+
+        Log.Info($"Paused updaters for homeworld {gameId}");
+    }
+
+    public static void MaybeResumeUpdatersForHomeworld(ReducerContext ctx, string gameId)
     {
         var game = ctx.Db.game.Id.Find(gameId);
-        bool isHomeGame = game != null && game.Value.IsHomeGame;
+        if (game == null || !game.Value.IsHomeGame)
+        {
+            return;
+        }
 
-        if (!isHomeGame && !ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId).Any())
+        if (!ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId).Any())
         {
             ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
             {
@@ -73,7 +103,74 @@ public static partial class Module
             });
         }
 
-        if (!isHomeGame && !ctx.Db.ScheduledProjectileUpdates.GameId.Filter(gameId).Any())
+        if (!ctx.Db.ScheduledProjectileUpdates.GameId.Filter(gameId).Any())
+        {
+            ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
+                GameId = gameId,
+                LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+            });
+        }
+    }
+
+    [Reducer]
+    public static void CheckHomeworldActivity(ReducerContext ctx, ScheduledHomeworldActivityCheck args)
+    {
+        var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+
+        foreach (var game in ctx.Db.game.Iter())
+        {
+            if (!game.IsHomeGame)
+            {
+                continue;
+            }
+
+            Tank? playerTank = null;
+            foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
+            {
+                if (!tank.IsBot)
+                {
+                    playerTank = tank;
+                    break;
+                }
+            }
+
+            if (playerTank == null)
+            {
+                continue;
+            }
+
+            var playerTransform = ctx.Db.tank_transform.TankId.Find(playerTank.Value.Id);
+            if (playerTransform == null)
+            {
+                continue;
+            }
+
+            var timeSinceLastUpdate = currentTime - playerTransform.Value.UpdatedAt;
+            if (timeSinceLastUpdate > (ulong)HOMEWORLD_INACTIVITY_TIMEOUT_MICROS)
+            {
+                PauseHomeworldUpdaters(ctx, game.Id);
+            }
+        }
+    }
+
+    public static void StartGameTickers(ReducerContext ctx, string gameId)
+    {
+        if (!ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId).Any())
+        {
+            ctx.Db.ScheduledTankUpdates.Insert(new TankUpdater.ScheduledTankUpdates
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
+                GameId = gameId,
+                LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
+                TickCount = 0
+            });
+        }
+
+        if (!ctx.Db.ScheduledProjectileUpdates.GameId.Filter(gameId).Any())
         {
             ctx.Db.ScheduledProjectileUpdates.Insert(new ProjectileUpdater.ScheduledProjectileUpdates
             {

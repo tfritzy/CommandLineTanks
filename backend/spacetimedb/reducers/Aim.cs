@@ -5,6 +5,8 @@ public static partial class Module
     [Reducer]
     public static void aim(ReducerContext ctx, string gameId, float angleRadians)
     {
+        MaybeResumeUpdatersForHomeworld(ctx, gameId);
+
         Tank? tankQuery = ctx.Db.tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
