@@ -13,8 +13,7 @@ import terrainDestroy from '../sounds/terrain-destroy.json';
 import death from '../sounds/death.json';
 import kill from '../sounds/kill.json';
 import fire from '../sounds/fire.json';
-import win from '../sounds/win.json';
-import loss from '../sounds/loss.json';
+import fireBoomerang from '../sounds/fire-boomerang.json';
 
 export class SoundManager {
     private audioContext: AudioContext | null = null;
@@ -31,7 +30,6 @@ export class SoundManager {
         },
         'enemy-damage': {
             params: enemyDamage as JsfxrParams,
-            volume: 1,
         },
         'projectile-hit': {
             params: projectileHit as JsfxrParams
@@ -68,13 +66,9 @@ export class SoundManager {
         },
         'fire': {
             params: fire as JsfxrParams,
-            volume: 1
         },
-        'win': {
-            params: win as JsfxrParams
-        },
-        'loss': {
-            params: loss as JsfxrParams
+        'fire-boomerang': {
+            params: fireBoomerang as JsfxrParams,
         },
     };
 

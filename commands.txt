@@ -2,8 +2,7 @@ spacetime generate --lang typescript --out-dir frontend/module_bindings --projec
 
 spacetime sql clt "SELECT Id from game"
 
-spacetime publish --project-path backend/spacetimedb clt
-spacetime publish -c --project-path backend/spacetimedb clt -y
+spacetime publish -c --project-path backend/spacetimedb clt -y -s local
 
 # Deploy backend to maincloud (production)
 spacetime publish -s maincloud --project-path backend/spacetimedb clt

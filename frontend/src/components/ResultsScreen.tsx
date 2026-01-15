@@ -129,27 +129,6 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                                 setGameEndTime(endTime);
                                 updateTanks();
                                 updateScores();
-
-                                const score = connection.db.score.GameId.find(gameId);
-                                const myTank = Array.from(connection.db.tank.iter()).find(t =>
-                                    isCurrentIdentity(t.owner) && t.gameId === gameId
-                                );
-
-                                if (score && myTank) {
-                                    const team0Kills = score.kills[0] || 0;
-                                    const team1Kills = score.kills[1] || 0;
-
-                                    if (team0Kills === team1Kills) {
-                                        SoundManager.getInstance().play('loss');
-                                    } else {
-                                        const winningTeam = team0Kills > team1Kills ? 0 : 1;
-                                        if (myTank.alliance === winningTeam) {
-                                            SoundManager.getInstance().play('win');
-                                        } else {
-                                            SoundManager.getInstance().play('loss');
-                                        }
-                                    }
-                                }
                             } else if (newGame.gameState.tag === 'Playing' && oldGame.gameState.tag === 'Results') {
                                 setShowResults(false);
                                 setGameEndTime(null);
