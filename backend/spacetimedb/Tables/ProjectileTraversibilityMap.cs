@@ -12,6 +12,7 @@ public static partial class Module
         public byte[] Map;
         public int Width;
         public int Height;
+        public ulong Version;
 
         public bool IsTraversable(int index)
         {
@@ -21,6 +22,7 @@ public static partial class Module
         public void SetTraversable(int index, bool value)
         {
             BitPackingUtils.SetBit(Map, index, value);
+            Version++;
         }
     }
 }

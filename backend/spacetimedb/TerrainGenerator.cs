@@ -588,29 +588,8 @@ public static partial class TerrainGenerator
 
         for (int i = 0; i < baseTerrain.Length; i++)
         {
-            bool baseTraversible = baseTerrain[i] switch
-            {
-                BaseTerrain.Ground => true,
-                BaseTerrain.Farm => true,
-                BaseTerrain.Water => false,
-                _ => true
-            };
-
-            bool detailTraversible = terrainDetail[i] switch
-            {
-                TerrainDetailType.None => true,
-                TerrainDetailType.Rock => false,
-                TerrainDetailType.Tree => false,
-                TerrainDetailType.HayBale => false,
-                TerrainDetailType.FoundationEdge => false,
-                TerrainDetailType.FoundationCorner => false,
-                TerrainDetailType.FenceEdge => true,
-                TerrainDetailType.FenceCorner => true,
-                TerrainDetailType.TargetDummy => false,
-                TerrainDetailType.DeadTree => false,
-                _ => true
-            };
-
+            bool baseTraversible = !baseTerrain[i].BlocksTanks();
+            bool detailTraversible = !terrainDetail[i].BlocksTanks();
             traversibility[i] = baseTraversible && detailTraversible;
         }
 
@@ -623,29 +602,8 @@ public static partial class TerrainGenerator
 
         for (int i = 0; i < baseTerrain.Length; i++)
         {
-            bool baseTraversible = baseTerrain[i] switch
-            {
-                BaseTerrain.Ground => true,
-                BaseTerrain.Farm => true,
-                BaseTerrain.Water => true,
-                _ => true
-            };
-
-            bool detailTraversible = terrainDetail[i] switch
-            {
-                TerrainDetailType.None => true,
-                TerrainDetailType.Rock => false,
-                TerrainDetailType.Tree => false,
-                TerrainDetailType.HayBale => true,
-                TerrainDetailType.FoundationEdge => false,
-                TerrainDetailType.FoundationCorner => false,
-                TerrainDetailType.FenceEdge => true,
-                TerrainDetailType.FenceCorner => true,
-                TerrainDetailType.TargetDummy => false,
-                TerrainDetailType.DeadTree => true,
-                _ => true
-            };
-
+            bool baseTraversible = !baseTerrain[i].BlocksProjectiles();
+            bool detailTraversible = !terrainDetail[i].BlocksProjectiles();
             traversibility[i] = baseTraversible && detailTraversible;
         }
 

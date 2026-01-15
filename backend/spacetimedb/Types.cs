@@ -184,6 +184,78 @@ public static class AIBehaviorExtensions
     }
 }
 
+public static class TerrainDetailTypeExtensions
+{
+    public static bool BlocksTanks(this Types.TerrainDetailType type)
+    {
+        return type switch
+        {
+            Types.TerrainDetailType.None => false,
+            Types.TerrainDetailType.Rock => true,
+            Types.TerrainDetailType.Tree => true,
+            Types.TerrainDetailType.HayBale => true,
+            Types.TerrainDetailType.Label => false,
+            Types.TerrainDetailType.FoundationEdge => true,
+            Types.TerrainDetailType.FoundationCorner => true,
+            Types.TerrainDetailType.FenceEdge => false,
+            Types.TerrainDetailType.FenceCorner => false,
+            Types.TerrainDetailType.TargetDummy => true,
+            Types.TerrainDetailType.DeadTree => true,
+            Types.TerrainDetailType.PenBorder => false,
+            _ => false
+        };
+    }
+
+    public static bool BlocksProjectiles(this Types.TerrainDetailType type)
+    {
+        return type switch
+        {
+            Types.TerrainDetailType.None => false,
+            Types.TerrainDetailType.Rock => true,
+            Types.TerrainDetailType.Tree => true,
+            Types.TerrainDetailType.HayBale => false,
+            Types.TerrainDetailType.Label => false,
+            Types.TerrainDetailType.FoundationEdge => true,
+            Types.TerrainDetailType.FoundationCorner => true,
+            Types.TerrainDetailType.FenceEdge => false,
+            Types.TerrainDetailType.FenceCorner => false,
+            Types.TerrainDetailType.TargetDummy => true,
+            Types.TerrainDetailType.DeadTree => false,
+            Types.TerrainDetailType.PenBorder => false,
+            _ => false
+        };
+    }
+}
+
+public static class BaseTerrainExtensions
+{
+    public static bool BlocksTanks(this Types.BaseTerrain terrain)
+    {
+        return terrain switch
+        {
+            Types.BaseTerrain.Ground => false,
+            Types.BaseTerrain.Farm => false,
+            Types.BaseTerrain.BlackChecker => false,
+            Types.BaseTerrain.WhiteChecker => false,
+            Types.BaseTerrain.Water => true,
+            _ => false
+        };
+    }
+
+    public static bool BlocksProjectiles(this Types.BaseTerrain terrain)
+    {
+        return terrain switch
+        {
+            Types.BaseTerrain.Ground => false,
+            Types.BaseTerrain.Farm => false,
+            Types.BaseTerrain.BlackChecker => false,
+            Types.BaseTerrain.WhiteChecker => false,
+            Types.BaseTerrain.Water => false,
+            _ => false
+        };
+    }
+}
+
 public struct FullTank
 {
     public Module.Tank Tank;

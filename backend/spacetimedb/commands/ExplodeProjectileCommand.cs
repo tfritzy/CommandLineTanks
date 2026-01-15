@@ -4,17 +4,17 @@ using System;
 
 public static partial class ProjectileUpdater
 {
-    public static bool ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string gameId, ref Module.TraversibilityMap traversibilityMap)
+    public static void ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string gameId, ref Module.TraversibilityMap traversibilityMap, ref Module.ProjectileTraversibilityMap projectileTraversibilityMap)
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
         {
-            return false;
+            return;
         }
 
         if (projectile.ProjectileType == ProjectileType.Grenade)
         {
             SpawnGrenadeSubProjectiles(ctx, projectile, transform);
-            return false;
+            return;
         }
 
         float explosionRadius = projectile.ExplosionRadius.Value;
@@ -57,8 +57,6 @@ public static partial class ProjectileUpdater
         int explosionTileX = (int)transform.PositionX;
         int explosionTileY = (int)transform.PositionY;
 
-        bool traversibilityMapChanged = false;
-
         for (int dx = -explosionTileRadius; dx <= explosionTileRadius; dx++)
         {
             for (int dy = -explosionTileRadius; dy <= explosionTileRadius; dy++)
@@ -83,16 +81,12 @@ public static partial class ProjectileUpdater
                 if (distanceSquared <= explosionRadiusSquared)
                 {
                     int tileIndex = tileY * traversibilityMap.Width + tileX;
-                    if (DamageTerrainAtTile(ctx, gameId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap))
-                    {
-                        traversibilityMapChanged = true;
-                    }
+                    DamageTerrainAtTile(ctx, gameId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap, ref projectileTraversibilityMap);
                 }
             }
         }
 
         Log.Info($"Projectile exploded at ({transform.PositionX}, {transform.PositionY})");
-        return traversibilityMapChanged;
     }
 
     private static void SpawnGrenadeSubProjectiles(ReducerContext ctx, Module.Projectile grenade, Module.ProjectileTransform grenadeTransform)
@@ -126,19 +120,20 @@ public static partial class ProjectileUpdater
         }
     }
 
-    private static bool DamageTerrainAtTile(
+    private static void DamageTerrainAtTile(
         ReducerContext ctx,
         string gameId,
         int gridX,
         int gridY,
         int tileIndex,
         int damage,
-        ref Module.TraversibilityMap traversibilityMap)
+        ref Module.TraversibilityMap traversibilityMap,
+        ref Module.ProjectileTraversibilityMap projectileTraversibilityMap)
     {
         var terrainDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, gridX, gridY)).FirstOrDefault();
         if (terrainDetail.Id == null || terrainDetail.Health == null)
         {
-            return false;
+            return;
         }
 
         var detail = terrainDetail;
@@ -153,13 +148,16 @@ public static partial class ProjectileUpdater
                     Health = null
                 };
                 ctx.Db.terrain_detail.Id.Update(deadTree);
-                return false;
+                projectileTraversibilityMap.SetTraversable(tileIndex, true);
             }
             else
             {
                 ctx.Db.terrain_detail.Id.Delete(detail.Id);
                 traversibilityMap.SetTraversable(tileIndex, true);
-                return true;
+                if (detail.Type.BlocksProjectiles())
+                {
+                    projectileTraversibilityMap.SetTraversable(tileIndex, true);
+                }
             }
         }
         else
@@ -170,6 +168,5 @@ public static partial class ProjectileUpdater
             };
             ctx.Db.terrain_detail.Id.Update(updatedDetail);
         }
-        return false;
     }
 }
