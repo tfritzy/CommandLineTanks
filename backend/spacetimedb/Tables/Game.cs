@@ -17,6 +17,8 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public GameState GameState;
         public bool IsHomeGame;
+        [SpacetimeDB.Index.BTree]
+        public GameType GameType;
         public ulong GameStartedAt;
         public long GameDurationMicros;
         public GameVisibility Visibility;

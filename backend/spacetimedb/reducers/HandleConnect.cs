@@ -6,6 +6,7 @@ public static partial class Module
     public static void HandleConnect(ReducerContext ctx)
     {
         var existingPlayer = ctx.Db.player.Identity.Find(ctx.Sender);
+        var isNewPlayer = existingPlayer == null;
 
         if (existingPlayer != null)
         {
@@ -27,12 +28,28 @@ public static partial class Module
             Log.Info($"New player connected with ID {playerId}");
         }
 
-        var identityString = ctx.Sender.ToString().ToLower();
-        var existingTank = ctx.Db.tank.GameId_Owner.Filter((identityString, ctx.Sender))
-            .FirstOrDefault();
-        if (existingTank.Id == null)
+        bool hasAnyTank = false;
+        foreach (var tank in ctx.Db.tank.Owner.Filter(ctx.Sender))
         {
-            ReturnToHomegame(ctx, "");
+            if (!tank.IsBot)
+            {
+                hasAnyTank = true;
+                break;
+            }
+        }
+
+        if (!hasAnyTank)
+        {
+            if (isNewPlayer)
+            {
+                var joinCode = $"tutorial_start_{ctx.Timestamp.MicrosecondsSinceUnixEpoch}";
+                CreateTutorialGame(ctx, ctx.Sender, joinCode);
+                Log.Info($"New player routed to tutorial");
+            }
+            else
+            {
+                ReturnToHomegame(ctx, "");
+            }
         }
     }
 }

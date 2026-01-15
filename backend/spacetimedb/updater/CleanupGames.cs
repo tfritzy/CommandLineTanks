@@ -161,6 +161,12 @@ public static partial class Module
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
         }
 
+        var tutorialProgress = ctx.Db.tutorial_progress.GameId.Find(gameId);
+        if (tutorialProgress != null)
+        {
+            ctx.Db.tutorial_progress.GameId.Delete(gameId);
+        }
+
         var gameToDelete = ctx.Db.game.Id.Find(gameId);
         if (gameToDelete != null)
         {
