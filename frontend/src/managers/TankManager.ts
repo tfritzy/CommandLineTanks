@@ -155,6 +155,7 @@ export class TankManager {
             const existingTank = this.tanks.get(transform.tankId);
             if (existingTank) {
               existingTank.setPosition(transform.positionX, transform.positionY, transform.updatedAt);
+              existingTank.setVelocity(transform.velocity.x, transform.velocity.y);
               existingTank.setTargetTurretRotation(transform.targetTurretRotation);
               existingTank.setTurretAngularVelocity(transform.turretAngularVelocity);
               existingTank.setTurretRotation(transform.turretRotation);
@@ -167,6 +168,7 @@ export class TankManager {
             const tank = this.tanks.get(newTransform.tankId);
             if (tank) {
               tank.setPosition(newTransform.positionX, newTransform.positionY, newTransform.updatedAt);
+              tank.setVelocity(newTransform.velocity.x, newTransform.velocity.y);
               tank.setTargetTurretRotation(newTransform.targetTurretRotation);
               tank.setTurretAngularVelocity(newTransform.turretAngularVelocity);
               tank.setTurretRotation(newTransform.turretRotation);
@@ -247,6 +249,7 @@ export class TankManager {
       tank.hasShield,
       tank.remainingImmunityMicros
     );
+    newTank.setVelocity(transform.velocity.x, transform.velocity.y);
 
     this.tanks.set(tank.id, newTank);
     

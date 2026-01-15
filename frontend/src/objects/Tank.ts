@@ -19,6 +19,8 @@ export class Tank {
   private turretRotation: number;
   private targetTurretRotation: number;
   private turretAngularVelocity: number;
+  private velocityX: number = 0;
+  private velocityY: number = 0;
   private path: Array<{ x: number; y: number }>;
   private name: string;
   private targetCode: string;
@@ -172,6 +174,11 @@ export class Tank {
     this.turretAngularVelocity = turretAngularVelocity;
   }
 
+  public setVelocity(velocityX: number, velocityY: number) {
+    this.velocityX = velocityX;
+    this.velocityY = velocityY;
+  }
+
   public setPath(path: Array<{ x: number; y: number }>) {
     this.path = path;
   }
@@ -238,17 +245,28 @@ export class Tank {
     }
   }
 
-  private updateInterpolatedMovement(_deltaTime: number) {
-    if (this.positionBuffer.length === 0) return;
-
-    if (this.positionBuffer.length === 1) {
-      this.x = this.positionBuffer[0].x;
-      this.y = this.positionBuffer[0].y;
+  private updateInterpolatedMovement(deltaTime: number) {
+    if (this.positionBuffer.length === 0) {
+      this.x += this.velocityX * deltaTime;
+      this.y += this.velocityY * deltaTime;
       return;
     }
 
     const currentServerTime = ServerTimeSync.getInstance().getServerTime();
     const renderTime = currentServerTime - INTERPOLATION_DELAY;
+
+    if (this.positionBuffer.length === 1) {
+      const target = this.positionBuffer[0];
+      const timePastBuffer = (renderTime - target.serverTimestampMs) / 1000;
+      if (timePastBuffer > 0) {
+        this.x = target.x + this.velocityX * timePastBuffer;
+        this.y = target.y + this.velocityY * timePastBuffer;
+      } else {
+        this.x = target.x;
+        this.y = target.y;
+      }
+      return;
+    }
 
     let prev = this.positionBuffer[0];
     let next = this.positionBuffer[1];
@@ -266,8 +284,9 @@ export class Tank {
       this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs
     ) {
       const last = this.positionBuffer[this.positionBuffer.length - 1];
-      this.x = last.x;
-      this.y = last.y;
+      const timePastBuffer = (renderTime - last.serverTimestampMs) / 1000;
+      this.x = last.x + this.velocityX * timePastBuffer;
+      this.y = last.y + this.velocityY * timePastBuffer;
       return;
     }
 
