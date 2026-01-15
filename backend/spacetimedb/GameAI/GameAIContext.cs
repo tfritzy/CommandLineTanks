@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Module;
 
-public class AIContext
+public class GameAIContext
 {
     private readonly ReducerContext _ctx;
     private readonly string _gameId;
@@ -14,7 +14,7 @@ public class AIContext
     private bool _traversibilityMapLoaded;
     private Dictionary<string, Module.TankPath?>? _tankPaths;
 
-    public AIContext(ReducerContext ctx, string gameId)
+    public GameAIContext(ReducerContext ctx, string gameId)
     {
         _ctx = ctx;
         _gameId = gameId;
