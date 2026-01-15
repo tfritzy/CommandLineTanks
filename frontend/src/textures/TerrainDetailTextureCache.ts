@@ -3,6 +3,10 @@ import { renderToImageBitmap, type TextureImage, TEXTURE_DPR } from "./TextureRe
 import { drawRockShadow, drawRockBody } from "../drawing/terrain-details/rock";
 import { drawTreeShadow, drawTreeBody } from "../drawing/terrain-details/tree";
 import {
+  drawDeadTreeShadow,
+  drawDeadTreeBody,
+} from "../drawing/terrain-details/dead-tree";
+import {
   drawHayBaleShadow,
   drawHayBaleBody,
 } from "../drawing/terrain-details/hay-bale";
@@ -45,6 +49,7 @@ class TerrainDetailTextureCache {
     const promises: Promise<void>[] = [
       this.createRockTexture("rock", cellSize),
       this.createTreeTexture("tree", cellSize),
+      this.createDeadTreeTexture("dead-tree", cellSize),
       this.createHayBaleTexture("haybale", cellSize),
       this.createTargetDummyTexture("targetdummy", cellSize),
     ];
@@ -86,6 +91,22 @@ class TerrainDetailTextureCache {
       }),
       renderToImageBitmap(cellSize, cellSize, centerOffset, centerOffset, (ctx) => {
         drawTreeShadow(ctx, centerOffset, centerOffset, radius);
+      }),
+    ]);
+
+    this.textures.set(key, { body, shadow });
+  }
+
+  private async createDeadTreeTexture(key: string, cellSize: number) {
+    const centerOffset = cellSize / 2;
+    const radius = UNIT_TO_PIXEL * TERRAIN_DETAIL_RADIUS.TREE;
+
+    const [body, shadow] = await Promise.all([
+      renderToImageBitmap(cellSize, cellSize, centerOffset, centerOffset, (ctx) => {
+        drawDeadTreeBody(ctx, centerOffset, centerOffset, radius, 0);
+      }),
+      renderToImageBitmap(cellSize, cellSize, centerOffset, centerOffset, (ctx) => {
+        drawDeadTreeShadow(ctx, centerOffset, centerOffset, radius);
       }),
     ]);
 
@@ -202,7 +223,7 @@ class TerrainDetailTextureCache {
     if (!pair?.body) return;
 
     const texture = pair.body;
-    const offset = -UNIT_TO_PIXEL * scale;
+    const offset = (-texture.width / 2) * scale;
 
     ctx.drawImage(
       texture.image,
@@ -228,7 +249,7 @@ class TerrainDetailTextureCache {
     if (!pair?.shadow) return;
 
     const texture = pair.shadow;
-    const offset = -UNIT_TO_PIXEL * scale;
+    const offset = (-texture.width / 2) * scale;
 
     ctx.drawImage(
       texture.image,

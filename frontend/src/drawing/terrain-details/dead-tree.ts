@@ -8,11 +8,12 @@ export function drawDeadTreeShadow(
   centerY: number,
   radius: number
 ) {
-  const shadowOffsetX = -radius * 0.4;
-  const shadowOffsetY = radius * 0.4;
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  const stumpRadius = radius * 0.35;
+  const shadowOffsetX = -radius * 0.08;
+  const shadowOffsetY = radius * 0.08;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
   ctx.beginPath();
-  ctx.arc(centerX + shadowOffsetX, centerY + shadowOffsetY, radius * 0.8, 0, Math.PI * 2);
+  ctx.arc(centerX + shadowOffsetX, centerY + shadowOffsetY, stumpRadius, 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -23,24 +24,18 @@ export function drawDeadTreeBody(
   radius: number,
   flashTimer: number
 ) {
-  const colors = { BASE: COLORS.TERRAIN.DEAD_TREE_BASE, FOLIAGE: COLORS.TERRAIN.DEAD_TREE_FOLIAGE };
+  const colors = { BARK: COLORS.TERRAIN.DEAD_TREE_BASE, WOOD: COLORS.TERRAIN.DEAD_TREE_FOLIAGE };
+  const stumpRadius = radius * 0.35;
 
-  ctx.save();
+  // Outer bark
+  ctx.fillStyle = getFlashColor(colors.BARK, flashTimer);
   ctx.beginPath();
-  ctx.arc(centerX, centerY, radius * 0.8, 0, Math.PI * 2);
-  ctx.clip();
-
-  ctx.fillStyle = getFlashColor(colors.BASE, flashTimer);
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius * 0.8, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, stumpRadius, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = getFlashColor(colors.FOLIAGE, flashTimer);
+  // Inner wood surface
+  ctx.fillStyle = getFlashColor(colors.WOOD, flashTimer);
   ctx.beginPath();
-  const dividerCenterX = centerX + radius * 0.3;
-  const dividerCenterY = centerY - radius * 0.3;
-  const dividerRadius = radius * 1.0;
-  ctx.arc(dividerCenterX, dividerCenterY, dividerRadius, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, stumpRadius * 0.7, 0, Math.PI * 2);
   ctx.fill();
-  ctx.restore();
 }

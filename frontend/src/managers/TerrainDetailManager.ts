@@ -19,6 +19,7 @@ import { FenceCorner } from "../objects/terrain-details/FenceCorner";
 import { TargetDummy } from "../objects/terrain-details/TargetDummy";
 import { PenBorder } from "../objects/terrain-details/PenBorder";
 import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
+import { TreeDestructionParticlesManager } from "./TreeDestructionParticlesManager";
 import { MushroomDecorationsManager } from "./MushroomDecorationsManager";
 import { terrainDetailTextureCache } from "../textures";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
@@ -31,6 +32,8 @@ export class TerrainDetailManager {
   private detailObjectsByPosition: (TerrainDetailObject | null)[][] = [];
   private terrainDebrisParticles: TerrainDebrisParticlesManager =
     new TerrainDebrisParticlesManager();
+  private treeDestructionParticles: TreeDestructionParticlesManager =
+    new TreeDestructionParticlesManager();
   private mushroomDecorations: MushroomDecorationsManager =
     new MushroomDecorationsManager();
   private onDetailDeletedCallbacks: (() => void)[] = [];
@@ -74,7 +77,52 @@ export class TerrainDetailManager {
           if (newDetail.gameId !== this.gameId) return;
           const existingObj = this.detailObjects.get(newDetail.id);
           if (existingObj) {
-            existingObj.setData(newDetail);
+            const oldType = existingObj.getType();
+            const newType = newDetail.type.tag;
+
+            if (oldType === newType) {
+              existingObj.setData(newDetail);
+            } else {
+              // Clean up old object from position map
+              const oldX = Math.floor(existingObj.getX());
+              const oldY = Math.floor(existingObj.getY());
+              if (oldY >= 0 && oldY < this.gameHeight && oldX >= 0 && oldX < this.gameWidth) {
+                if (this.detailObjectsByPosition[oldY][oldX] === existingObj) {
+                  this.detailObjectsByPosition[oldY][oldX] = null;
+                }
+              }
+
+              // Handle tree becoming a stump
+              if (oldType === "Tree" && newType === "DeadTree") {
+                this.treeDestructionParticles.spawnParticles(
+                  newDetail.positionX,
+                  newDetail.positionY,
+                  false
+                );
+                this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
+              } else if (newType === "None") {
+                // If it becomes "None", it's effectively destroyed
+                this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
+                if (oldType === "Tree" || oldType === "DeadTree") {
+                  this.treeDestructionParticles.spawnParticles(
+                    newDetail.positionX,
+                    newDetail.positionY,
+                    oldType === "DeadTree"
+                  );
+                } else {
+                  this.terrainDebrisParticles.spawnParticles(
+                    newDetail.positionX,
+                    newDetail.positionY
+                  );
+                }
+              }
+
+              if (newType === "None") {
+                this.detailObjects.delete(newDetail.id);
+              } else {
+                this.createDetailObject(newDetail);
+              }
+            }
           } else {
             this.createDetailObject(newDetail);
           }
@@ -89,6 +137,9 @@ export class TerrainDetailManager {
               this.detailObjectsByPosition[y][x] = null;
             }
 
+            // Always play sound on destruction
+            this.soundManager.play("terrain-destroy", 0.5, detail.positionX, detail.positionY);
+
             if (
               detail.type.tag === "FenceEdge" ||
               detail.type.tag === "FenceCorner"
@@ -97,7 +148,21 @@ export class TerrainDetailManager {
                 detail.positionX,
                 detail.positionY
               );
-              this.soundManager.play("terrain-destroy", 0.5, detail.positionX, detail.positionY);
+            } else if (
+              detail.type.tag === "Tree" ||
+              detail.type.tag === "DeadTree"
+            ) {
+              this.treeDestructionParticles.spawnParticles(
+                detail.positionX,
+                detail.positionY,
+                detail.type.tag === "DeadTree"
+              );
+            } else {
+              // Generic debris for other types like rocks, haybales
+              this.terrainDebrisParticles.spawnParticles(
+                detail.positionX,
+                detail.positionY
+              );
             }
           }
           this.detailObjects.delete(detail.id);
@@ -115,6 +180,7 @@ export class TerrainDetailManager {
     this.detailObjects.clear();
     this.onDetailDeletedCallbacks = [];
     this.terrainDebrisParticles.destroy();
+    this.treeDestructionParticles.destroy();
     this.mushroomDecorations.destroy();
   }
 
@@ -124,6 +190,7 @@ export class TerrainDetailManager {
     }
 
     this.terrainDebrisParticles.update(deltaTime);
+    this.treeDestructionParticles.update(deltaTime);
   }
 
   private createDetailObject(detail: Infer<typeof TerrainDetailRow>) {
@@ -290,6 +357,13 @@ export class TerrainDetailManager {
     viewportHeight: number
   ) {
     this.terrainDebrisParticles.draw(
+      ctx,
+      cameraX,
+      cameraY,
+      viewportWidth,
+      viewportHeight
+    );
+    this.treeDestructionParticles.draw(
       ctx,
       cameraX,
       cameraY,
