@@ -86,7 +86,7 @@ public static partial class Module
     public static void MaybeResumeUpdatersForHomeworld(ReducerContext ctx, string gameId)
     {
         var game = ctx.Db.game.Id.Find(gameId);
-        if (game == null || !game.Value.IsHomeGame)
+        if (game == null || (game.Value.GameType != GameType.Home && game.Value.GameType != GameType.Tutorial))
         {
             return;
         }
@@ -122,7 +122,7 @@ public static partial class Module
 
         foreach (var game in ctx.Db.game.Iter())
         {
-            if (!game.IsHomeGame)
+            if (game.GameType != GameType.Home && game.GameType != GameType.Tutorial)
             {
                 continue;
             }

@@ -36,6 +36,7 @@ export default function GameView() {
 
   const myIdentity = getIdentityHex();
   const isHomegame = myIdentity && gameId?.toLowerCase() === myIdentity.toLowerCase();
+  const isTutorial = myIdentity && gameId?.toLowerCase().startsWith(`tutorial_${myIdentity.toLowerCase()}`);
 
   const joinModalStatus = useJoinModalStatus(gameId);
   const showJoinModal = joinModalStatus === "no_tank";
@@ -73,7 +74,6 @@ export default function GameView() {
         `SELECT * FROM score WHERE GameId = '${gameId}'`,
         `SELECT * FROM tank_gun WHERE GameId = '${gameId}'`,
         `SELECT * FROM player WHERE Identity = '${connection.identity}'`,
-        `SELECT * FROM tutorial_progress WHERE GameId = '${gameId}'`,
       ]);
 
     return () => {
@@ -233,6 +233,28 @@ export default function GameView() {
     console.log(`Called ensureHomegame for gameId: ${gameId}`);
   }, [gameId, isHomegame]);
 
+  useEffect(() => {
+    if (!gameId || !isTutorial) return;
+
+    const connection = getConnection();
+    if (!connection) return;
+
+    const reducers = connection.reducers as {
+      ensureTutorial?: (params: { gameId: string; joinCode: string }) => void;
+    };
+
+    if (!reducers.ensureTutorial) {
+      console.log('ensureTutorial reducer not available');
+      return;
+    }
+
+    const joinCode = `ensure_tutorial_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    setPendingJoinCode(joinCode);
+    
+    reducers.ensureTutorial({ gameId, joinCode });
+    console.log(`Called ensureTutorial for gameId: ${gameId}`);
+  }, [gameId, isTutorial]);
+
   if (!gameId) {
     return null;
   }
@@ -243,6 +265,16 @@ export default function GameView() {
         <GameHeader gameId={gameId} />
         <ScoreBoard gameId={gameId} />
         {isHomegame && <HomegameOverlay />}
+        {isTutorial && (
+          <div 
+            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none"
+            style={{ opacity: 0.6 }}
+          >
+            <span className="text-[#707b89] text-sm font-mono">
+              Use <span className="text-[#a9bcbf]">`tutorial skip`</span> to skip the tutorial
+            </span>
+          </div>
+        )}
         <canvas
           ref={canvasRef}
           className="block m-0 p-0 w-full h-full bg-palette-ground-dark"

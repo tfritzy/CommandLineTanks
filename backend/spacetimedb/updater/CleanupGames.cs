@@ -39,7 +39,7 @@ public static partial class Module
 
         foreach (var game in ctx.Db.game.Iter())
         {
-            if (game.IsHomeGame)
+            if (game.GameType == GameType.Home || game.GameType == GameType.Tutorial)
             {
                 var hasHumanPlayers = ctx.Db.tank.GameId.Filter(game.Id).Any(t => !t.IsBot);
                 if (!hasHumanPlayers)
@@ -159,12 +159,6 @@ public static partial class Module
         foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
-        }
-
-        var tutorialProgress = ctx.Db.tutorial_progress.GameId.Find(gameId);
-        if (tutorialProgress != null)
-        {
-            ctx.Db.tutorial_progress.GameId.Delete(gameId);
         }
 
         var gameToDelete = ctx.Db.game.Id.Find(gameId);

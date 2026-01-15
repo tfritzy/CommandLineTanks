@@ -3,6 +3,25 @@ using SpacetimeDB;
 public static partial class Module
 {
     [Reducer]
+    public static void ensureTutorial(ReducerContext ctx, string gameId, string joinCode)
+    {
+        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        if (player == null)
+        {
+            Log.Info("ensureTutorial called with no player");
+            return;
+        }
+
+        var expectedGameId = GetTutorialGameId(ctx.Sender);
+        if (gameId.ToLower() != expectedGameId.ToLower())
+        {
+            return;
+        }
+
+        EnsureTutorialGame(ctx, ctx.Sender, joinCode);
+    }
+
+    [Reducer]
     public static void tutorialComplete(ReducerContext ctx, string gameId, string joinCode)
     {
         var game = ctx.Db.game.Id.Find(gameId);
@@ -18,7 +37,7 @@ public static partial class Module
             return;
         }
 
-        DeleteTutorialGame(ctx, gameId);
+        CompleteTutorial(ctx, ctx.Sender);
 
         ReturnToHomegame(ctx, joinCode);
 
@@ -41,7 +60,7 @@ public static partial class Module
             return;
         }
 
-        DeleteTutorialGame(ctx, gameId);
+        CompleteTutorial(ctx, ctx.Sender);
 
         ReturnToHomegame(ctx, joinCode);
 

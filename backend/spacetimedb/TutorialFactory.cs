@@ -7,7 +7,7 @@ public static partial class Module
     private const int TUTORIAL_WIDTH = 20;
     private const int TUTORIAL_HEIGHT = 12;
     private const int TUTORIAL_STARTING_HEALTH = 30;
-    private const int TUTORIAL_ENEMY_HEALTH = 60;
+    private const int TUTORIAL_SNIPER_AMMO = 1000;
 
     private static readonly (int x, int y) TUTORIAL_PLAYER_SPAWN = (3, 6);
     private static readonly (int x, int y) TUTORIAL_HEALTH_PICKUP = (6, 3);
@@ -16,39 +16,51 @@ public static partial class Module
 
     public static string GetTutorialGameId(Identity identity)
     {
-        var identityString = identity.ToString().ToLower();
-        var truncatedId = identityString.Length >= 16 ? identityString.Substring(0, 16) : identityString;
-        return $"tutorial_{truncatedId}";
+        return $"tutorial_{identity.ToString().ToLower()}";
     }
 
-    public static bool ShouldShowTutorial(ReducerContext ctx, Identity identity)
+    public static void EnsureTutorialGame(ReducerContext ctx, Identity identity, string joinCode)
     {
-        var player = ctx.Db.player.Identity.Find(identity);
-        if (player == null) return true;
+        var tutorialGameId = GetTutorialGameId(identity);
 
-        foreach (var game in ctx.Db.game.GameType.Filter(GameType.Tutorial))
+        var existingGame = ctx.Db.game.Id.Find(tutorialGameId);
+        if (existingGame == null)
         {
-            if (game.Owner.HasValue && game.Owner.Value.Equals(identity))
-            {
-                return true;
-            }
+            CreateTutorialGame(ctx, identity, joinCode);
+        }
+        else
+        {
+            EnsureTankInTutorial(ctx, tutorialGameId, identity, joinCode);
+        }
+    }
+
+    private static void EnsureTankInTutorial(ReducerContext ctx, string gameId, Identity owner, string joinCode)
+    {
+        var existingTank = ctx.Db.tank.GameId_Owner.Filter((gameId, owner)).FirstOrDefault();
+        if (existingTank.Id != null)
+        {
+            return;
         }
 
-        foreach (var game in ctx.Db.game.Iter())
-        {
-            if (game.GameType != GameType.Tutorial)
-            {
-                foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
-                {
-                    if (tank.Owner.Equals(identity) && !tank.IsBot)
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
+        var player = ctx.Db.player.Identity.Find(owner);
+        var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
-        return true;
+        var targetCode = AllocateTargetCode(ctx, gameId) ?? "p1";
+
+        var (tank, transform) = BuildTank(
+            ctx: ctx,
+            gameId: gameId,
+            owner: owner,
+            name: playerName,
+            targetCode: targetCode,
+            joinCode: joinCode,
+            alliance: 0,
+            health: TUTORIAL_STARTING_HEALTH,
+            positionX: TUTORIAL_PLAYER_SPAWN.x + 0.5f,
+            positionY: TUTORIAL_PLAYER_SPAWN.y + 0.5f,
+            aiBehavior: AIBehavior.None);
+
+        AddTankToGame(ctx, tank, transform);
     }
 
     public static void CreateTutorialGame(ReducerContext ctx, Identity identity, string joinCode)
@@ -63,14 +75,10 @@ public static partial class Module
 
         int totalTiles = TUTORIAL_WIDTH * TUTORIAL_HEIGHT;
         var baseTerrain = new BaseTerrain[totalTiles];
-        var traversibilityBoolMap = new bool[totalTiles];
-        var projectileTraversibilityBoolMap = new bool[totalTiles];
 
         for (int i = 0; i < totalTiles; i++)
         {
             baseTerrain[i] = BaseTerrain.Ground;
-            traversibilityBoolMap[i] = true;
-            projectileTraversibilityBoolMap[i] = true;
         }
 
         var game = new Game
@@ -81,7 +89,6 @@ public static partial class Module
             Height = TUTORIAL_HEIGHT,
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
-            IsHomeGame = false,
             GameType = GameType.Tutorial,
             GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             GameDurationMicros = 0,
@@ -94,21 +101,7 @@ public static partial class Module
 
         ctx.Db.game.Insert(game);
 
-        ctx.Db.traversibility_map.Insert(new TraversibilityMap
-        {
-            GameId = tutorialGameId,
-            Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
-            Width = TUTORIAL_WIDTH,
-            Height = TUTORIAL_HEIGHT
-        });
-
-        ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
-        {
-            GameId = tutorialGameId,
-            Map = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap),
-            Width = TUTORIAL_WIDTH,
-            Height = TUTORIAL_HEIGHT
-        });
+        InsertTraversibilityMapsForEmptyTerrain(ctx, tutorialGameId, TUTORIAL_WIDTH, TUTORIAL_HEIGHT);
 
         ctx.Db.score.Insert(new Score
         {
@@ -116,16 +109,8 @@ public static partial class Module
             Kills = new int[] { 0, 0 }
         });
 
-        ctx.Db.tutorial_progress.Insert(new TutorialProgress
-        {
-            GameId = tutorialGameId,
-            State = TutorialState.DriveToHealth,
-            TargetTankId = null
-        });
-
         SpawnTutorialHealthPickup(ctx, tutorialGameId);
         SpawnDriveToHealthLabel(ctx, tutorialGameId);
-        SpawnSkipTutorialLabel(ctx, tutorialGameId);
 
         var player = ctx.Db.player.Identity.Find(identity);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
@@ -147,9 +132,38 @@ public static partial class Module
 
         AddTankToGame(ctx, tank, transform);
 
-        StartGameTickers(ctx, tutorialGameId);
+        StartHomeGameTickers(ctx, tutorialGameId);
 
         Log.Info($"Created tutorial game {tutorialGameId} for identity {identity}");
+    }
+
+    public static void InsertTraversibilityMapsForEmptyTerrain(ReducerContext ctx, string gameId, int width, int height)
+    {
+        int totalTiles = width * height;
+        var traversibilityBoolMap = new bool[totalTiles];
+        var projectileTraversibilityBoolMap = new bool[totalTiles];
+
+        for (int i = 0; i < totalTiles; i++)
+        {
+            traversibilityBoolMap[i] = true;
+            projectileTraversibilityBoolMap[i] = true;
+        }
+
+        ctx.Db.traversibility_map.Insert(new TraversibilityMap
+        {
+            GameId = gameId,
+            Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
+            Width = width,
+            Height = height
+        });
+
+        ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
+        {
+            GameId = gameId,
+            Map = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap),
+            Width = width,
+            Height = height
+        });
     }
 
     private static void SpawnTutorialHealthPickup(ReducerContext ctx, string gameId)
@@ -175,7 +189,7 @@ public static partial class Module
             gridX: TUTORIAL_WEAPON_PICKUP.x,
             gridY: TUTORIAL_WEAPON_PICKUP.y,
             type: PickupType.Sniper,
-            ammo: SNIPER_GUN.Ammo
+            ammo: TUTORIAL_SNIPER_AMMO
         ));
     }
 
@@ -254,21 +268,6 @@ public static partial class Module
         ));
     }
 
-    private static void SpawnSkipTutorialLabel(ReducerContext ctx, string gameId)
-    {
-        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-            ctx: ctx,
-            id: $"{gameId}_label_skip",
-            gameId: gameId,
-            positionX: TUTORIAL_WIDTH / 2.0f,
-            positionY: TUTORIAL_HEIGHT - 1.0f,
-            gridX: TUTORIAL_WIDTH / 2,
-            gridY: TUTORIAL_HEIGHT - 1,
-            type: TerrainDetailType.Label,
-            label: "[color=#707b89]Use `tutorial skip` to skip the tutorial[/color]"
-        ));
-    }
-
     private static string SpawnTutorialEnemy(ReducerContext ctx, string gameId)
     {
         var targetCode = AllocateTargetCode(ctx, gameId) ?? "e1";
@@ -283,8 +282,6 @@ public static partial class Module
             targetCode: targetCode,
             joinCode: "",
             alliance: 1,
-            health: TUTORIAL_ENEMY_HEALTH,
-            maxHealth: TUTORIAL_ENEMY_HEALTH,
             positionX: TUTORIAL_ENEMY_SPAWN.x + 0.5f,
             positionY: TUTORIAL_ENEMY_SPAWN.y + 0.5f,
             aiBehavior: AIBehavior.None);
@@ -304,7 +301,7 @@ public static partial class Module
         }
     }
 
-    public static void MaybeAdvanceTutorial(ReducerContext ctx, string gameId)
+    public static void MaybeAdvanceTutorialOnPickup(ReducerContext ctx, string gameId, Tank tank, PickupType pickupType)
     {
         var game = ctx.Db.game.Id.Find(gameId);
         if (game == null || game.Value.GameType != GameType.Tutorial)
@@ -312,107 +309,28 @@ public static partial class Module
             return;
         }
 
-        var progress = ctx.Db.tutorial_progress.GameId.Find(gameId);
-        if (progress == null)
+        if (tank.IsBot)
         {
             return;
         }
 
-        var currentState = progress.Value.State;
-
-        switch (currentState)
-        {
-            case TutorialState.DriveToHealth:
-                MaybeAdvanceFromDriveToHealth(ctx, gameId);
-                break;
-            case TutorialState.DriveToWeapon:
-                MaybeAdvanceFromDriveToWeapon(ctx, gameId);
-                break;
-            case TutorialState.TargetEnemy:
-                break;
-            case TutorialState.KillEnemy:
-                MaybeAdvanceFromKillEnemy(ctx, gameId);
-                break;
-            case TutorialState.Complete:
-                break;
-        }
-    }
-
-    private static void MaybeAdvanceFromDriveToHealth(ReducerContext ctx, string gameId)
-    {
-        Tank? playerTank = null;
-        foreach (var tank in ctx.Db.tank.GameId.Filter(gameId))
-        {
-            if (!tank.IsBot && tank.AIBehavior == AIBehavior.None)
-            {
-                playerTank = tank;
-                break;
-            }
-        }
-
-        if (playerTank == null) return;
-
-        if (playerTank.Value.Health >= playerTank.Value.MaxHealth)
+        if (pickupType == PickupType.Health)
         {
             RemoveTutorialLabel(ctx, $"{gameId}_label_health");
-
             SpawnTutorialWeaponPickup(ctx, gameId);
             SpawnDriveToWeaponLabel(ctx, gameId);
-
-            ctx.Db.tutorial_progress.GameId.Update(new TutorialProgress
-            {
-                GameId = gameId,
-                State = TutorialState.DriveToWeapon,
-                TargetTankId = null
-            });
-
             Log.Info($"Tutorial {gameId}: Advanced to DriveToWeapon");
         }
-    }
-
-    private static void MaybeAdvanceFromDriveToWeapon(ReducerContext ctx, string gameId)
-    {
-        Tank? playerTank = null;
-        foreach (var tank in ctx.Db.tank.GameId.Filter(gameId))
-        {
-            if (!tank.IsBot && tank.AIBehavior == AIBehavior.None)
-            {
-                playerTank = tank;
-                break;
-            }
-        }
-
-        if (playerTank == null) return;
-
-        bool hasSniperGun = false;
-        foreach (var gun in ctx.Db.tank_gun.TankId.Filter(playerTank.Value.Id))
-        {
-            if (gun.Gun.GunType == GunType.Sniper)
-            {
-                hasSniperGun = true;
-                break;
-            }
-        }
-
-        if (hasSniperGun)
+        else if (pickupType == PickupType.Sniper)
         {
             RemoveTutorialLabel(ctx, $"{gameId}_label_weapon");
-
             var targetCode = SpawnTutorialEnemy(ctx, gameId);
             SpawnTargetEnemyLabel(ctx, gameId, targetCode);
-
-            ctx.Db.tutorial_progress.GameId.Update(new TutorialProgress
-            {
-                GameId = gameId,
-                State = TutorialState.TargetEnemy,
-                TargetTankId = $"{gameId}_enemy"
-            });
-
             Log.Info($"Tutorial {gameId}: Advanced to TargetEnemy");
         }
     }
 
-    public static void MaybeAdvanceFromTargetEnemy(ReducerContext ctx, string gameId, Tank playerTank)
+    public static void MaybeAdvanceTutorialOnTarget(ReducerContext ctx, string gameId, Tank playerTank)
     {
         var game = ctx.Db.game.Id.Find(gameId);
         if (game == null || game.Value.GameType != GameType.Tutorial)
@@ -420,47 +338,49 @@ public static partial class Module
             return;
         }
 
-        var progress = ctx.Db.tutorial_progress.GameId.Find(gameId);
-        if (progress == null || progress.Value.State != TutorialState.TargetEnemy)
+        var targetLabel = ctx.Db.terrain_detail.Id.Find($"{gameId}_label_target");
+        if (targetLabel == null)
         {
             return;
         }
 
-        if (playerTank.Target == progress.Value.TargetTankId)
+        if (playerTank.Target == $"{gameId}_enemy")
         {
             RemoveTutorialLabel(ctx, $"{gameId}_label_target");
             SpawnFireLabel(ctx, gameId);
-
-            ctx.Db.tutorial_progress.GameId.Update(new TutorialProgress
-            {
-                GameId = gameId,
-                State = TutorialState.KillEnemy,
-                TargetTankId = progress.Value.TargetTankId
-            });
-
             Log.Info($"Tutorial {gameId}: Advanced to KillEnemy");
         }
     }
 
-    private static void MaybeAdvanceFromKillEnemy(ReducerContext ctx, string gameId)
+    public static void MaybeAdvanceTutorialOnKill(ReducerContext ctx, string gameId, Tank killedTank)
     {
-        var progress = ctx.Db.tutorial_progress.GameId.Find(gameId);
-        if (progress == null) return;
+        var game = ctx.Db.game.Id.Find(gameId);
+        if (game == null || game.Value.GameType != GameType.Tutorial)
+        {
+            return;
+        }
 
-        var enemyTank = ctx.Db.tank.Id.Find(progress.Value.TargetTankId ?? "");
-        if (enemyTank == null || enemyTank.Value.Health <= 0)
+        if (killedTank.Id == $"{gameId}_enemy")
         {
             RemoveTutorialLabel(ctx, $"{gameId}_label_fire");
             SpawnCompletionLabel(ctx, gameId);
-
-            ctx.Db.tutorial_progress.GameId.Update(new TutorialProgress
-            {
-                GameId = gameId,
-                State = TutorialState.Complete,
-                TargetTankId = null
-            });
-
             Log.Info($"Tutorial {gameId}: Complete!");
+        }
+    }
+
+    public static void CompleteTutorial(ReducerContext ctx, Identity identity)
+    {
+        var player = ctx.Db.player.Identity.Find(identity);
+        if (player != null)
+        {
+            ctx.Db.player.Identity.Update(player.Value with { TutorialComplete = true });
+        }
+
+        var tutorialGameId = GetTutorialGameId(identity);
+        var game = ctx.Db.game.Id.Find(tutorialGameId);
+        if (game != null)
+        {
+            DeleteTutorialGame(ctx, tutorialGameId);
         }
     }
 
@@ -503,12 +423,6 @@ public static partial class Module
         if (projectileTraversibilityMap != null)
         {
             ctx.Db.projectile_traversibility_map.GameId.Delete(gameId);
-        }
-
-        var tutorialProgress = ctx.Db.tutorial_progress.GameId.Find(gameId);
-        if (tutorialProgress != null)
-        {
-            ctx.Db.tutorial_progress.GameId.Delete(gameId);
         }
 
         StopGameTickers(ctx, gameId);

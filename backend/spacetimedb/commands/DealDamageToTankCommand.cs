@@ -80,6 +80,8 @@ public static partial class Module
                     ctx.Db.score.GameId.Update(updatedScore);
                 }
             }
+
+            MaybeAdvanceTutorialOnKill(ctx, gameId, killedTank);
         }
         else
         {

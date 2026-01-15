@@ -37,7 +37,6 @@ public static partial class Module
             Height = gameHeight,
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
-            IsHomeGame = true,
             GameType = GameType.Home
         };
 

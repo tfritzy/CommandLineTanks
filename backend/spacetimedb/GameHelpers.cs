@@ -96,7 +96,7 @@ public static partial class Module
     public static void DeleteHomegameIfEmpty(ReducerContext ctx, string identityString)
     {
         var homegame = ctx.Db.game.Id.Find(identityString);
-        if (homegame == null || !homegame.Value.IsHomeGame)
+        if (homegame == null || homegame.Value.GameType != GameType.Home)
         {
             return;
         }

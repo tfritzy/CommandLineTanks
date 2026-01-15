@@ -270,11 +270,6 @@ public static partial class TankUpdater
                 transform = transform with { UpdatedAt = currentTime };
                 ctx.Db.tank_transform.TankId.Update(transform);
             }
-
-            if (!tank.IsBot && tank.AIBehavior == AIBehavior.None)
-            {
-                Module.MaybeAdvanceTutorial(ctx, args.GameId);
-            }
         }
     }
 }

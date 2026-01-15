@@ -4,7 +4,7 @@ using static Types;
 public static partial class Module
 {
     [Table(Name = "game", Public = true)]
-    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameState), nameof(IsHomeGame), nameof(Visibility) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameState), nameof(GameType), nameof(Visibility) })]
     public partial struct Game
     {
         [PrimaryKey]
@@ -16,7 +16,6 @@ public static partial class Module
         public BaseTerrain[] BaseTerrainLayer;
         [SpacetimeDB.Index.BTree]
         public GameState GameState;
-        public bool IsHomeGame;
         [SpacetimeDB.Index.BTree]
         public GameType GameType;
         public ulong GameStartedAt;

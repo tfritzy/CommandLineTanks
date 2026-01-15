@@ -94,16 +94,6 @@ public static partial class Types
     }
 
     [Type]
-    public enum TutorialState : byte
-    {
-        DriveToHealth,
-        DriveToWeapon,
-        TargetEnemy,
-        KillEnemy,
-        Complete
-    }
-
-    [Type]
     public enum GunType : byte
     {
         Base,

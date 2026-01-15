@@ -18,7 +18,7 @@ public static partial class Module
 
         if (string.IsNullOrEmpty(gameId))
         {
-            var games = ctx.Db.game.GameState_IsHomeGame_Visibility.Filter((GameState.Playing, false, GameVisibility.Public));
+            var games = ctx.Db.game.GameState_GameType_Visibility.Filter((GameState.Playing, GameType.Game, GameVisibility.Public));
             game = games.FirstOrDefault(w => w.Id != currentGameId);
             
             if (game == null || string.IsNullOrEmpty(game.Value.Id))

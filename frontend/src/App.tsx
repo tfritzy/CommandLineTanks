@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Routes, Route } from "react-router-dom";
 import { connectToSpacetimeDB, onDisconnect } from "./spacetimedb-connection";
 import GameView from "./components/GameView";
-import HomeGameRedirector from "./components/HomeGameRedirector";
+import TutorialRedirector from "./components/TutorialRedirector";
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
@@ -83,7 +83,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/deploy" element={<HomeGameRedirector />} />
+      <Route path="/deploy" element={<TutorialRedirector />} />
       <Route path="/game/:gameId" element={<GameView />} />
     </Routes>
   );

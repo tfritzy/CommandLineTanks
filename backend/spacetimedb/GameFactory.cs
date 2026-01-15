@@ -26,7 +26,6 @@ public static partial class Module
             Height = height,
             BaseTerrainLayer = baseTerrain,
             GameState = GameState.Playing,
-            IsHomeGame = false,
             GameType = GameType.Game,
             GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
             GameDurationMicros = duration,
