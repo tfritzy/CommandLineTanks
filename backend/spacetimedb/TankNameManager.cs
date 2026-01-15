@@ -17,9 +17,39 @@ public static partial class Module
         "Yankee", "Zulu"
     ];
 
-    public static string GenerateBotName(ReducerContext ctx)
+    public static string GenerateBotName(ReducerContext ctx, string gameId)
     {
-        return NatoPhonetic[ctx.Rng.Next(NatoPhonetic.Length)];
+        var tanksInGame = ctx.Db.tank.GameId.Filter(gameId);
+        var usedNames = new HashSet<string>();
+        
+        foreach (var tank in tanksInGame)
+        {
+            if (!string.IsNullOrEmpty(tank.Name))
+            {
+                usedNames.Add(tank.Name);
+            }
+        }
+
+        for (int attempt = 0; attempt < 100; attempt++)
+        {
+            var baseName = NatoPhonetic[ctx.Rng.Next(NatoPhonetic.Length)];
+            
+            if (!usedNames.Contains(baseName))
+            {
+                return baseName;
+            }
+            
+            for (int suffix = 2; suffix <= 10; suffix++)
+            {
+                var nameWithSuffix = $"{baseName}{suffix}";
+                if (!usedNames.Contains(nameWithSuffix))
+                {
+                    return nameWithSuffix;
+                }
+            }
+        }
+
+        return $"Bot{ctx.Rng.Next(1000, 10000)}";
     }
 
     public static string? AllocateTargetCode(ReducerContext ctx, string gameId)
