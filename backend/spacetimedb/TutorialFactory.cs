@@ -17,7 +17,7 @@ public static partial class Module
     {
         var identityString = identity.ToString().ToLower();
         var truncatedId = identityString.Length >= 16 ? identityString.Substring(0, 16) : identityString;
-        return $"tutorial/{truncatedId}";
+        return $"tutorial_{truncatedId}";
     }
 
     public static bool ShouldShowTutorial(ReducerContext ctx, Identity identity)
