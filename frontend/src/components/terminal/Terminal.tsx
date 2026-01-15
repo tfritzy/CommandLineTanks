@@ -103,8 +103,9 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
     term.focus();
 
     setTerminalWriteCallback((text: string) => {
-      terminalOutputRef.current += text;
-      term.write(text);
+      terminalOutputRef.current = terminalOutputRef.current.slice(0, -getPrompt().length - 1);
+      terminalOutputRef.current += text + "\r\n";
+      terminalOutputRef.current += getPrompt();
     });
 
     const handleResize = () => {

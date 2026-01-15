@@ -967,8 +967,6 @@ export function create(
   return [
     themeColors.success(`Creating private game...`),
     themeColors.dim(`Bots: ${themeColors.value(state.bots.toString())}, Duration: ${themeColors.value(state.duration.toString())} min, Size: ${themeColors.value(`${state.width}x${state.height}`)}`),
-    "",
-    themeColors.dim("Game creation initiated. You'll be automatically joined.")
   ];
 }
 

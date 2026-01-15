@@ -6,22 +6,15 @@ import TankRow from '../../module_bindings/tank_type';
 import { writeToTerminal } from '../utils/terminalOutput';
 import { colorize } from '../theme/colors';
 
-const SEPARATOR_LENGTH = 80;
 
 function outputGameCreatedMessage(gameId: string): void {
     const url = `${window.location.origin}/game/${gameId}`;
-    const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'BORDER');
-    const title = colorize('🎮 GAME CREATED SUCCESSFULLY', 'SUCCESS');
     const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
     const urlText = colorize(url, 'TANK_CODE');
     
-    let output = `\r\n${separator}\r\n`;
-    output += `${title}\r\n`;
-    output += `\r\n`;
+    let output = `\r\n`;
     output += `${urlLabel}\r\n`;
     output += `${urlText}\r\n`;
-    output += `${separator}\r\n`;
-    output += `\r\n`;
     
     writeToTerminal(output);
 }
