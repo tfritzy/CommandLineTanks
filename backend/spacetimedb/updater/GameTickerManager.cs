@@ -8,7 +8,6 @@ public static partial class Module
     private const long HOMEWORLD_INACTIVITY_TIMEOUT_MICROS = 30_000_000;
     private const long HOMEWORLD_ACTIVITY_CHECK_INTERVAL_MICROS = 30_000_000;
     private const long REAL_GAME_INACTIVITY_TIMEOUT_MICROS = 60_000_000;
-    private const long REAL_GAME_ACTIVITY_CHECK_INTERVAL_MICROS = 30_000_000;
 
     [Table(Scheduled = nameof(ResetGame))]
     public partial struct ScheduledGameReset
@@ -23,15 +22,6 @@ public static partial class Module
 
     [Table(Scheduled = nameof(CheckHomeworldActivity))]
     public partial struct ScheduledHomeworldActivityCheck
-    {
-        [AutoInc]
-        [PrimaryKey]
-        public ulong ScheduledId;
-        public ScheduleAt ScheduledAt;
-    }
-
-    [Table(Scheduled = nameof(CheckRealGameActivity))]
-    public partial struct ScheduledRealGameActivityCheck
     {
         [AutoInc]
         [PrimaryKey]
@@ -133,79 +123,65 @@ public static partial class Module
 
         foreach (var game in ctx.Db.game.Iter())
         {
-            if (!game.IsHomeGame)
-            {
-                continue;
-            }
-
-            Tank? playerTank = null;
-            foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
-            {
-                if (!tank.IsBot)
-                {
-                    playerTank = tank;
-                    break;
-                }
-            }
-
-            if (playerTank == null)
-            {
-                continue;
-            }
-
-            var playerTransform = ctx.Db.tank_transform.TankId.Find(playerTank.Value.Id);
-            if (playerTransform == null)
-            {
-                continue;
-            }
-
-            var timeSinceLastUpdate = currentTime - playerTransform.Value.UpdatedAt;
-            if (timeSinceLastUpdate > (ulong)HOMEWORLD_INACTIVITY_TIMEOUT_MICROS)
-            {
-                PauseHomeworldUpdaters(ctx, game.Id);
-            }
-        }
-    }
-
-    [Reducer]
-    public static void CheckRealGameActivity(ReducerContext ctx, ScheduledRealGameActivityCheck args)
-    {
-        var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-
-        foreach (var game in ctx.Db.game.Iter())
-        {
             if (game.IsHomeGame)
             {
-                continue;
-            }
+                Tank? playerTank = null;
+                foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
+                {
+                    if (!tank.IsBot)
+                    {
+                        playerTank = tank;
+                        break;
+                    }
+                }
 
-            var tanksToRemove = new List<Tank>();
-            var tankInactivityTimes = new Dictionary<string, ulong>();
-            foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
-            {
-                if (tank.IsBot)
+                if (playerTank == null)
                 {
                     continue;
                 }
 
-                var tankTransform = ctx.Db.tank_transform.TankId.Find(tank.Id);
-                if (tankTransform == null)
+                var playerTransform = ctx.Db.tank_transform.TankId.Find(playerTank.Value.Id);
+                if (playerTransform == null)
                 {
                     continue;
                 }
 
-                var timeSinceLastUpdate = currentTime - tankTransform.Value.UpdatedAt;
-                if (timeSinceLastUpdate > (ulong)REAL_GAME_INACTIVITY_TIMEOUT_MICROS)
+                var timeSinceLastUpdate = currentTime - playerTransform.Value.UpdatedAt;
+                if (timeSinceLastUpdate > (ulong)HOMEWORLD_INACTIVITY_TIMEOUT_MICROS)
                 {
-                    tanksToRemove.Add(tank);
-                    tankInactivityTimes[tank.Id] = timeSinceLastUpdate;
+                    PauseHomeworldUpdaters(ctx, game.Id);
                 }
             }
-
-            foreach (var tank in tanksToRemove)
+            else
             {
-                Log.Info($"Removing inactive tank {tank.Name} from game {game.Id} due to {(tankInactivityTimes[tank.Id] / 1_000_000)} seconds of inactivity");
-                RemoveTankFromGame(ctx, tank);
+                var tanksToRemove = new List<Tank>();
+                var tankInactivityTimes = new Dictionary<string, ulong>();
+                foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
+                {
+                    if (tank.IsBot)
+                    {
+                        continue;
+                    }
+
+                    var tankTransform = ctx.Db.tank_transform.TankId.Find(tank.Id);
+                    if (tankTransform == null)
+                    {
+                        continue;
+                    }
+
+                    var timeSinceLastUpdate = currentTime - tankTransform.Value.UpdatedAt;
+                    if (timeSinceLastUpdate > (ulong)REAL_GAME_INACTIVITY_TIMEOUT_MICROS)
+                    {
+                        tanksToRemove.Add(tank);
+                        tankInactivityTimes[tank.Id] = timeSinceLastUpdate;
+                    }
+                }
+
+                foreach (var tank in tanksToRemove)
+                {
+                    Log.Info($"Removing inactive tank {tank.Name} from game {game.Id} due to {(tankInactivityTimes[tank.Id] / 1_000_000)} seconds of inactivity");
+                    RemoveTankFromGame(ctx, tank);
+                }
             }
         }
     }

@@ -39,8 +39,6 @@ import CheckAndRespawnEnemyTanks from "./check_and_respawn_enemy_tanks_reducer";
 export { CheckAndRespawnEnemyTanks };
 import CheckHomeworldActivity from "./check_homeworld_activity_reducer";
 export { CheckHomeworldActivity };
-import CheckRealGameActivity from "./check_real_game_activity_reducer";
-export { CheckRealGameActivity };
 import CleanupResultsGames from "./cleanup_results_games_reducer";
 export { CleanupResultsGames };
 import CreateGame from "./create_game_reducer";
@@ -103,8 +101,6 @@ import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
 export { ScheduledProjectileUpdatesRow };
-import ScheduledRealGameActivityCheckRow from "./scheduled_real_game_activity_check_table";
-export { ScheduledRealGameActivityCheckRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import GameRow from "./game_table";
@@ -193,8 +189,6 @@ import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
-import ScheduledRealGameActivityCheck from "./scheduled_real_game_activity_check_type";
-export { ScheduledRealGameActivityCheck };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 export { ScheduledTankUpdates };
 import Score from "./score_type";
@@ -326,17 +320,6 @@ const tablesSchema = __schema(
       { name: 'ScheduledProjectileUpdates_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledProjectileUpdatesRow),
-  __table({
-    name: 'ScheduledRealGameActivityCheck',
-    indexes: [
-      { name: 'ScheduledId', algorithm: 'btree', columns: [
-        'scheduledId',
-      ] },
-    ],
-    constraints: [
-      { name: 'ScheduledRealGameActivityCheck_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
-    ],
-  }, ScheduledRealGameActivityCheckRow),
   __table({
     name: 'ScheduledTankUpdates',
     indexes: [
@@ -607,7 +590,6 @@ const reducersSchema = __reducers(
   __reducerSchema("changeName", ChangeName),
   __reducerSchema("CheckAndRespawnEnemyTanks", CheckAndRespawnEnemyTanks),
   __reducerSchema("CheckHomeworldActivity", CheckHomeworldActivity),
-  __reducerSchema("CheckRealGameActivity", CheckRealGameActivity),
   __reducerSchema("CleanupResultsGames", CleanupResultsGames),
   __reducerSchema("createGame", CreateGame),
   __reducerSchema("delete_kill", DeleteKill),
