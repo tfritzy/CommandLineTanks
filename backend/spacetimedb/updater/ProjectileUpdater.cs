@@ -6,6 +6,7 @@ using static Module;
 public static partial class ProjectileUpdater
 {
     private const int COLLISION_TRACKING_BUFFER_SIZE = 128;
+    private const ulong LATE_UPDATE_THRESHOLD_MICROS = Module.NETWORK_TICK_RATE_MICROS * 2;
 
     [Table(Scheduled = nameof(UpdateProjectiles))]
     public partial struct ScheduledProjectileUpdates
@@ -529,6 +530,11 @@ public static partial class ProjectileUpdater
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
+
+        if (deltaTimeMicros > LATE_UPDATE_THRESHOLD_MICROS)
+        {
+            Log.Warn($"Projectile update significantly late: {deltaTimeMicros}µs (expected ~{Module.NETWORK_TICK_RATE_MICROS}µs, game: {args.GameId})");
+        }
 
         ctx.Db.ScheduledProjectileUpdates.ScheduledId.Update(args with
         {

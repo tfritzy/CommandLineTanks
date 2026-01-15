@@ -6,6 +6,7 @@ using System.Diagnostics;
 public static partial class TankUpdater
 {
     private const double ARRIVAL_THRESHOLD = 0.1;
+    private const ulong LATE_UPDATE_THRESHOLD_MICROS = Module.NETWORK_TICK_RATE_MICROS * 2;
 
     [Table(Scheduled = nameof(UpdateTanks))]
     public partial struct ScheduledTankUpdates
@@ -26,6 +27,11 @@ public static partial class TankUpdater
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
+
+        if (deltaTimeMicros > LATE_UPDATE_THRESHOLD_MICROS)
+        {
+            Log.Warn($"Tank update significantly late: {deltaTimeMicros}µs (expected ~{Module.NETWORK_TICK_RATE_MICROS}µs, game: {args.GameId})");
+        }
 
         var newTickCount = args.TickCount + 1;
 
