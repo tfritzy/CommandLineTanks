@@ -19,6 +19,7 @@ export default __t.object("TankPath", {
   get path() {
     return __t.array(Vector2Float);
   },
+  pathIndex: __t.i32(),
 });
 
 

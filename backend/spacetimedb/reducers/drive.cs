@@ -60,7 +60,8 @@ public static partial class Module
             TankId = tank.Id,
             GameId = tank.GameId,
             Owner = tank.Owner,
-            Path = pathEntries
+            Path = pathEntries,
+            PathIndex = 0
         };
 
         UpsertTankPath(ctx, newPathState);

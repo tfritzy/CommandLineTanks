@@ -10,8 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+import ScheduledHomeworldActivityCheck from "./scheduled_homeworld_activity_check_type";
+
 export default {
-  projectileId: __t.u64(),
-  gridX: __t.i32(),
-  gridY: __t.i32(),
+  get args() {
+    return ScheduledHomeworldActivityCheck;
+  },
 };
