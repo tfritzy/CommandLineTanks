@@ -71,6 +71,7 @@ export default function GameView() {
         `SELECT * FROM terrain_detail WHERE GameId = '${gameId}'`,
         `SELECT * FROM game WHERE Id = '${gameId}'`,
         `SELECT * FROM score WHERE GameId = '${gameId}'`,
+        `SELECT * FROM tank_gun WHERE GameId = '${gameId}'`,
         `SELECT * FROM player WHERE Identity = '${connection.identity}'`,
       ]);
 
