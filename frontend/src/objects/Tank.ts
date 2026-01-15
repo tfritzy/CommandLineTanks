@@ -20,6 +20,7 @@ export class Tank {
   private targetTurretRotation: number;
   private turretAngularVelocity: number;
   private path: Array<{ x: number; y: number }>;
+  private localPathIndex: number;
   private topSpeed: number;
   private name: string;
   private targetCode: string;
@@ -64,6 +65,7 @@ export class Tank {
     this.maxHealth = maxHealth;
     this.turretAngularVelocity = turretAngularVelocity;
     this.path = path;
+    this.localPathIndex = 0;
     this.hasShield = hasShield;
     this.remainingImmunityMicros = remainingImmunityMicros;
     this.topSpeed = topSpeed;
@@ -166,6 +168,7 @@ export class Tank {
 
   public setPath(path: Array<{ x: number; y: number }>) {
     this.path = path;
+    this.localPathIndex = 0;
   }
 
   public setHealth(health: number) {
@@ -231,9 +234,9 @@ export class Tank {
   }
 
   private updatePathBasedMovement(deltaTime: number) {
-    if (this.path.length === 0) return;
+    if (this.localPathIndex >= this.path.length) return;
 
-    const targetPos = this.path[0];
+    const targetPos = this.path[this.localPathIndex];
     const deltaX = targetPos.x - this.x;
     const deltaY = targetPos.y - this.y;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -244,10 +247,10 @@ export class Tank {
     if (distance <= Tank.ARRIVAL_THRESHOLD || moveDistance >= distance) {
       const overshoot = moveDistance - distance;
       
-      this.path = this.path.slice(1);
+      this.localPathIndex++;
 
-      if (this.path.length > 0) {
-        const nextTarget = this.path[0];
+      if (this.localPathIndex < this.path.length) {
+        const nextTarget = this.path[this.localPathIndex];
         const nextDeltaX = nextTarget.x - targetPos.x;
         const nextDeltaY = nextTarget.y - targetPos.y;
         const nextDistance = Math.sqrt(nextDeltaX * nextDeltaX + nextDeltaY * nextDeltaY);
