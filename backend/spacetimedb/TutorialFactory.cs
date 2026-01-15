@@ -15,12 +15,9 @@ public static partial class Module
 
     public static string GetTutorialGameId(Identity identity)
     {
-        return $"tutorial/{identity.ToString().ToLower().Substring(0, 16)}";
-    }
-
-    public static bool IsTutorialGame(Game game)
-    {
-        return game.GameType == GameType.Tutorial;
+        var identityString = identity.ToString().ToLower();
+        var truncatedId = identityString.Length >= 16 ? identityString.Substring(0, 16) : identityString;
+        return $"tutorial/{truncatedId}";
     }
 
     public static bool ShouldShowTutorial(ReducerContext ctx, Identity identity)
