@@ -98,6 +98,13 @@ public static partial class TerrainGenerator
     {
         const int SPAWN_ZONE_WIDTH = 6;
 
+        int minRequiredWidth = LAKE_MIN_SIZE + SPAWN_ZONE_WIDTH * 2 + 1;
+        int minRequiredHeight = LAKE_MIN_SIZE + 4 + 1;
+        if (width < minRequiredWidth || height < minRequiredHeight)
+        {
+            return;
+        }
+
         for (int lakeIdx = 0; lakeIdx < NUM_LAKES; lakeIdx++)
         {
             int attempts = 0;
@@ -107,10 +114,14 @@ public static partial class TerrainGenerator
             {
                 attempts++;
 
-                int lakeWidth = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
-                int lakeHeight = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
-                int startX = SPAWN_ZONE_WIDTH + random.Next(width - lakeWidth - SPAWN_ZONE_WIDTH * 2);
-                int startY = 2 + random.Next(height - lakeHeight - 4);
+                int maxLakeWidth = Math.Min(LAKE_MAX_SIZE, width - SPAWN_ZONE_WIDTH * 2);
+                int maxLakeHeight = Math.Min(LAKE_MAX_SIZE, height - 4);
+                int lakeWidth = LAKE_MIN_SIZE + random.Next(Math.Max(1, maxLakeWidth - LAKE_MIN_SIZE + 1));
+                int lakeHeight = LAKE_MIN_SIZE + random.Next(Math.Max(1, maxLakeHeight - LAKE_MIN_SIZE + 1));
+                int xRange = width - lakeWidth - SPAWN_ZONE_WIDTH * 2;
+                int yRange = height - lakeHeight - 4;
+                int startX = SPAWN_ZONE_WIDTH + (xRange > 0 ? random.Next(xRange) : 0);
+                int startY = 2 + (yRange > 0 ? random.Next(yRange) : 0);
 
                 bool validLocation = true;
 
@@ -171,6 +182,12 @@ public static partial class TerrainGenerator
     {
         var fieldTilesList = new Vector2[width * height];
         int fieldTilesCount = 0;
+
+        if (width < FIELD_MIN_SIZE || height < FIELD_MIN_SIZE)
+        {
+            return new Vector2[0];
+        }
+
         int numFields = 1 + random.Next(2);
 
         for (int fieldIdx = 0; fieldIdx < numFields; fieldIdx++)
@@ -182,10 +199,14 @@ public static partial class TerrainGenerator
             {
                 attempts++;
 
-                int fieldWidth = FIELD_MIN_SIZE + random.Next(FIELD_MAX_SIZE - FIELD_MIN_SIZE + 1);
-                int fieldHeight = FIELD_MIN_SIZE + random.Next(FIELD_MAX_SIZE - FIELD_MIN_SIZE + 1);
-                int startX = random.Next(width - fieldWidth);
-                int startY = random.Next(height - fieldHeight);
+                int maxFieldWidth = Math.Min(FIELD_MAX_SIZE, width);
+                int maxFieldHeight = Math.Min(FIELD_MAX_SIZE, height);
+                int fieldWidth = FIELD_MIN_SIZE + random.Next(Math.Max(1, maxFieldWidth - FIELD_MIN_SIZE + 1));
+                int fieldHeight = FIELD_MIN_SIZE + random.Next(Math.Max(1, maxFieldHeight - FIELD_MIN_SIZE + 1));
+                int xRange = width - fieldWidth;
+                int yRange = height - fieldHeight;
+                int startX = xRange > 0 ? random.Next(xRange) : 0;
+                int startY = yRange > 0 ? random.Next(yRange) : 0;
 
                 bool validLocation = true;
 
@@ -407,6 +428,13 @@ public static partial class TerrainGenerator
         int width,
         int height)
     {
+        const int MIN_STRUCTURE_SIZE = 4;
+        const int STRUCTURE_PADDING = 4;
+        if (width < MIN_STRUCTURE_SIZE + STRUCTURE_PADDING || height < MIN_STRUCTURE_SIZE + STRUCTURE_PADDING)
+        {
+            return;
+        }
+
         int numStructures = MIN_STRUCTURES + random.Next(STRUCTURE_COUNT_RANGE);
 
         for (int structureIdx = 0; structureIdx < numStructures; structureIdx++)
@@ -418,10 +446,14 @@ public static partial class TerrainGenerator
             {
                 attempts++;
 
-                int structureWidth = 4 + random.Next(5);
-                int structureHeight = 4 + random.Next(5);
-                int startX = random.Next(2, width - structureWidth - 2);
-                int startY = random.Next(2, height - structureHeight - 2);
+                int maxStructureWidth = Math.Min(8, width - STRUCTURE_PADDING);
+                int maxStructureHeight = Math.Min(8, height - STRUCTURE_PADDING);
+                int structureWidth = MIN_STRUCTURE_SIZE + random.Next(Math.Max(1, maxStructureWidth - MIN_STRUCTURE_SIZE + 1));
+                int structureHeight = MIN_STRUCTURE_SIZE + random.Next(Math.Max(1, maxStructureHeight - MIN_STRUCTURE_SIZE + 1));
+                int xMax = width - structureWidth - 2;
+                int yMax = height - structureHeight - 2;
+                int startX = xMax > 2 ? random.Next(2, xMax) : 2;
+                int startY = yMax > 2 ? random.Next(2, yMax) : 2;
 
                 bool validLocation = true;
                 int objectsToReplace = 0;
