@@ -20,7 +20,7 @@ export class Tank {
   private targetTurretRotation: number;
   private turretAngularVelocity: number;
   private path: Array<{ x: number; y: number }>;
-  private localPathIndex: number;
+  private pathIndex: number;
   private topSpeed: number;
   private name: string;
   private targetCode: string;
@@ -47,6 +47,7 @@ export class Tank {
     maxHealth: number = 100,
     turretAngularVelocity: number = 0,
     path: Array<{ x: number; y: number }> = [],
+    pathIndex: number = 0,
     hasShield: boolean = false,
     remainingImmunityMicros: bigint = 0n,
     topSpeed: number = 3.0
@@ -65,7 +66,7 @@ export class Tank {
     this.maxHealth = maxHealth;
     this.turretAngularVelocity = turretAngularVelocity;
     this.path = path;
-    this.localPathIndex = 0;
+    this.pathIndex = pathIndex;
     this.hasShield = hasShield;
     this.remainingImmunityMicros = remainingImmunityMicros;
     this.topSpeed = topSpeed;
@@ -166,9 +167,9 @@ export class Tank {
     this.turretAngularVelocity = turretAngularVelocity;
   }
 
-  public setPath(path: Array<{ x: number; y: number }>) {
+  public setPath(path: Array<{ x: number; y: number }>, pathIndex: number = 0) {
     this.path = path;
-    this.localPathIndex = 0;
+    this.pathIndex = pathIndex;
   }
 
   public setHealth(health: number) {
@@ -234,9 +235,9 @@ export class Tank {
   }
 
   private updatePathBasedMovement(deltaTime: number) {
-    if (this.localPathIndex >= this.path.length) return;
+    if (this.pathIndex >= this.path.length) return;
 
-    const targetPos = this.path[this.localPathIndex];
+    const targetPos = this.path[this.pathIndex];
     const deltaX = targetPos.x - this.x;
     const deltaY = targetPos.y - this.y;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -247,10 +248,10 @@ export class Tank {
     if (distance <= Tank.ARRIVAL_THRESHOLD || moveDistance >= distance) {
       const overshoot = Math.max(0, moveDistance - distance);
       
-      this.localPathIndex++;
+      const nextIndex = this.pathIndex + 1;
 
-      if (this.localPathIndex < this.path.length) {
-        const nextTarget = this.path[this.localPathIndex];
+      if (nextIndex < this.path.length) {
+        const nextTarget = this.path[nextIndex];
         const nextDeltaX = nextTarget.x - targetPos.x;
         const nextDeltaY = nextTarget.y - targetPos.y;
         const nextDistance = Math.sqrt(nextDeltaX * nextDeltaX + nextDeltaY * nextDeltaY);

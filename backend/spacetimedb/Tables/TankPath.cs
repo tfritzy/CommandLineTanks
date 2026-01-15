@@ -14,5 +14,6 @@ public static partial class Module
         public string GameId;
         public Identity Owner;
         public Vector2Float[] Path;
+        public int PathIndex;
     }
 }

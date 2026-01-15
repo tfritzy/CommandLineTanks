@@ -88,7 +88,8 @@ public static partial class GameAI
             TankId = fullTank.Id,
             GameId = fullTank.GameId,
             Owner = fullTank.Owner,
-            Path = pathEntries
+            Path = pathEntries,
+            PathIndex = 0
         };
 
         UpsertTankPath(ctx, newPathState);
@@ -116,7 +117,8 @@ public static partial class GameAI
             TankId = fullTank.Id,
             GameId = fullTank.GameId,
             Owner = fullTank.Owner,
-            Path = [nextPos]
+            Path = [nextPos],
+            PathIndex = 0
         };
 
         UpsertTankPath(ctx, newPathState);

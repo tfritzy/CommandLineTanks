@@ -100,7 +100,8 @@ public static partial class TileboundAI
             TankId = fullTank.Id,
             GameId = fullTank.GameId,
             Owner = fullTank.Owner,
-            Path = [nextPos]
+            Path = [nextPos],
+            PathIndex = 0
         };
 
         UpsertTankPath(ctx, newPathState);
