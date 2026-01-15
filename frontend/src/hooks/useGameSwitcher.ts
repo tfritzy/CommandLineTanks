@@ -1,8 +1,30 @@
 import { useEffect, useRef } from 'react';
-import { getConnection, getPendingJoinCode, clearPendingJoinCode, isCurrentIdentity } from '../spacetimedb-connection';
+import { getConnection, getPendingJoinCode, clearPendingJoinCode, isCurrentIdentity, isPendingCreation } from '../spacetimedb-connection';
 import type { EventContext, SubscriptionHandle } from '../../module_bindings';
 import { type Infer } from "spacetimedb";
 import TankRow from '../../module_bindings/tank_type';
+import { writeToTerminal } from '../utils/terminalOutput';
+import { colorize } from '../theme/colors';
+
+const SEPARATOR_LENGTH = 80;
+
+function outputGameCreatedMessage(gameId: string): void {
+    const url = `${window.location.origin}/game/${gameId}`;
+    const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'BORDER');
+    const title = colorize('🎮 GAME CREATED SUCCESSFULLY', 'SUCCESS');
+    const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
+    const urlText = colorize(url, 'TANK_CODE');
+    
+    let output = `\r\n${separator}\r\n`;
+    output += `${title}\r\n`;
+    output += `\r\n`;
+    output += `${urlLabel}\r\n`;
+    output += `${urlText}\r\n`;
+    output += `${separator}\r\n`;
+    output += `\r\n`;
+    
+    writeToTerminal(output);
+}
 
 export function useGameSwitcher(onGameChange: (gameId: string) => void, currentGameId: string | null) {
     const subscriptionHandleRef = useRef<SubscriptionHandle | null>(null);
@@ -24,6 +46,11 @@ export function useGameSwitcher(onGameChange: (gameId: string) => void, currentG
                 if (pendingJoinCode && tank.joinCode === pendingJoinCode) {
                     console.log(`Found tank with joinCode ${pendingJoinCode}, gameId: ${tank.gameId}`);
                     console.log(`Switching to game: ${tank.gameId}`);
+                    
+                    if (isPendingCreation()) {
+                        outputGameCreatedMessage(tank.gameId);
+                    }
+                    
                     onGameChange(tank.gameId);
                     clearPendingJoinCode();
                 }
@@ -41,6 +68,11 @@ export function useGameSwitcher(onGameChange: (gameId: string) => void, currentG
                 if (pendingJoinCode && newTank.joinCode === pendingJoinCode) {
                     console.log(`Found tank with joinCode ${pendingJoinCode}, gameId: ${newTank.gameId}`);
                     console.log(`Switching to game: ${newTank.gameId}`);
+                    
+                    if (isPendingCreation()) {
+                        outputGameCreatedMessage(newTank.gameId);
+                    }
+                    
                     onGameChange(newTank.gameId);
                     clearPendingJoinCode();
                 }

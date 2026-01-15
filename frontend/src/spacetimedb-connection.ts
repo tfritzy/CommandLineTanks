@@ -11,6 +11,7 @@ let connectingPromise: Promise<DbConnection> | null = null;
 let disconnectCallback: (() => void) | null = null;
 
 let pendingJoinCode: string | null = null;
+let isPendingGameCreation: boolean = false;
 
 let pingTracker: PingTracker | null = null;
 
@@ -121,8 +122,9 @@ export function isConnected(): boolean {
 /**
  * Set pending join code for game switching
  */
-export function setPendingJoinCode(joinCode: string): void {
+export function setPendingJoinCode(joinCode: string, isCreation: boolean = false): void {
   pendingJoinCode = joinCode;
+  isPendingGameCreation = isCreation;
 }
 
 /**
@@ -133,10 +135,18 @@ export function getPendingJoinCode(): string | null {
 }
 
 /**
+ * Check if the pending join code is for a game creation
+ */
+export function isPendingCreation(): boolean {
+  return isPendingGameCreation;
+}
+
+/**
  * Clear pending join code
  */
 export function clearPendingJoinCode(): void {
   pendingJoinCode = null;
+  isPendingGameCreation = false;
 }
 
 let cachedIdentityHex: string | null = null;
