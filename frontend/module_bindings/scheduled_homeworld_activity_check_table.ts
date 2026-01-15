@@ -10,7 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  projectileId: __t.u64(),
-  targetTankId: __t.string(),
-};
+export default __t.row({
+  scheduledId: __t.u64().primaryKey(),
+  scheduledAt: __t.scheduleAt(),
+});

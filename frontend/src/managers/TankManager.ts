@@ -68,9 +68,6 @@ export class TankManager {
                 }
               }
 
-              if (oldTank.health <= 0 && newTank.health > 0) {
-                tank.clearPositionBuffer();
-              }
 
               if (oldTank.message !== newTank.message && newTank.message) {
                 const pos = tank.getPosition();
@@ -116,6 +113,7 @@ export class TankManager {
               tank.setTargetCode(newTank.targetCode);
               tank.setName(newTank.name);
               tank.setMaxHealth(newTank.maxHealth);
+              tank.setTopSpeed(newTank.topSpeed);
             } else {
               this.buildTank(newTank.id);
             }
@@ -154,7 +152,7 @@ export class TankManager {
             
             const existingTank = this.tanks.get(transform.tankId);
             if (existingTank) {
-              existingTank.setPosition(transform.positionX, transform.positionY, transform.updatedAt);
+              existingTank.setPosition(transform.positionX, transform.positionY);
               existingTank.setTargetTurretRotation(transform.targetTurretRotation);
               existingTank.setTurretAngularVelocity(transform.turretAngularVelocity);
               existingTank.setTurretRotation(transform.turretRotation);
@@ -166,7 +164,7 @@ export class TankManager {
             if (newTransform.gameId !== this.gameId) return;
             const tank = this.tanks.get(newTransform.tankId);
             if (tank) {
-              tank.setPosition(newTransform.positionX, newTransform.positionY, newTransform.updatedAt);
+              tank.setPosition(newTransform.positionX, newTransform.positionY);
               tank.setTargetTurretRotation(newTransform.targetTurretRotation);
               tank.setTurretAngularVelocity(newTransform.turretAngularVelocity);
               tank.setTurretRotation(newTransform.turretRotation);
@@ -187,21 +185,21 @@ export class TankManager {
             if (tankPath.gameId !== this.gameId) return;
             const tank = this.tanks.get(tankPath.tankId);
             if (tank) {
-              tank.setPath(tankPath.path);
+              tank.setPath(tankPath.path, tankPath.pathIndex);
             }
           },
           onUpdate: (_ctx: EventContext, _oldPath: Infer<typeof TankPathRow>, newPath: Infer<typeof TankPathRow>) => {
             if (newPath.gameId !== this.gameId) return;
             const tank = this.tanks.get(newPath.tankId);
             if (tank) {
-              tank.setPath(newPath.path);
+              tank.setPath(newPath.path, newPath.pathIndex);
             }
           },
           onDelete: (_ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => {
             if (tankPath.gameId !== this.gameId) return;
             const tank = this.tanks.get(tankPath.tankId);
             if (tank) {
-              tank.setPath([]);
+              tank.setPath([], 0);
             }
           }
         }
@@ -231,6 +229,7 @@ export class TankManager {
 
     const tankPath = connection.db.tankPath.tankId.find(tankId);
     const path = tankPath?.path ?? [];
+    const pathIndex = tankPath?.pathIndex ?? 0;
 
     const newTank = new Tank(
       tank.id,
@@ -244,8 +243,10 @@ export class TankManager {
       tank.maxHealth,
       transform.turretAngularVelocity,
       path,
+      pathIndex,
       tank.hasShield,
-      tank.remainingImmunityMicros
+      tank.remainingImmunityMicros,
+      tank.topSpeed
     );
 
     this.tanks.set(tank.id, newTank);
