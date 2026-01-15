@@ -15,6 +15,7 @@ export default __t.object("TraversibilityMap", {
   map: __t.byteArray(),
   width: __t.i32(),
   height: __t.i32(),
+  version: __t.u64(),
 });
 
 

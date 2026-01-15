@@ -15,6 +15,7 @@ export default __t.object("ProjectileTraversibilityMap", {
   map: __t.byteArray(),
   width: __t.i32(),
   height: __t.i32(),
+  version: __t.u64(),
 });
 
 
