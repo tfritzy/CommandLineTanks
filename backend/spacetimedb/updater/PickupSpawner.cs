@@ -83,9 +83,13 @@ public static partial class PickupSpawner
         var game = ctx.Db.game.Id.Find(args.GameId);
         if (game == null) return;
 
-        if (game.Value.IsHomeGame)
+        if (game.Value.GameType == GameType.Home)
         {
             SpawnHomegamePickups(ctx, args.GameId);
+        }
+        else if (game.Value.GameType == GameType.Tutorial)
+        {
+            return;
         }
         else
         {
@@ -263,22 +267,27 @@ public static partial class PickupSpawner
 
     public static bool TryCollectPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup)
     {
+        bool collected = false;
+
         if (pickup.Type == PickupType.Health)
         {
-            return TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup, tank.MaxHealth);
+            collected = TryCollectHealthPickup(ctx, ref tank, ref needsUpdate, pickup, tank.MaxHealth);
         }
-
-        if (pickup.Type == PickupType.Shield)
+        else if (pickup.Type == PickupType.Shield)
         {
-            return TryCollectShieldPickup(ctx, ref tank, ref needsUpdate, pickup);
+            collected = TryCollectShieldPickup(ctx, ref tank, ref needsUpdate, pickup);
         }
-
-        if (PickupToGunMap.TryGetValue(pickup.Type, out Gun gun))
+        else if (PickupToGunMap.TryGetValue(pickup.Type, out Gun gun))
         {
-            return TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, gun);
+            collected = TryCollectGunPickup(ctx, ref tank, ref needsUpdate, pickup, gun);
         }
 
-        return false;
+        if (collected)
+        {
+            Module.MaybeAdvanceTutorialOnPickup(ctx, tank.GameId, tank, pickup.Type);
+        }
+
+        return collected;
     }
 
     private static bool TryCollectHealthPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup, int maxHealth)
