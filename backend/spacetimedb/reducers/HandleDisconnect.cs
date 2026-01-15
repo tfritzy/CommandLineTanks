@@ -15,7 +15,13 @@ public static partial class Module
         foreach (var tank in tanks)
         {
             var game = ctx.Db.game.Id.Find(tank.GameId);
-            if (game != null && game.Value.IsHomeGame)
+            if (game == null)
+            {
+                Log.Warn($"Player {player.Value.Name} disconnected, game {tank.GameId} not found for tank {tank.Id}, keeping tank");
+                continue;
+            }
+            
+            if (game.Value.IsHomeGame)
             {
                 RemoveTankFromGame(ctx, tank);
                 Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} from homegame {tank.GameId}");
