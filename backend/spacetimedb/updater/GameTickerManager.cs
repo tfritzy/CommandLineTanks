@@ -180,6 +180,7 @@ public static partial class Module
             }
 
             var tanksToRemove = new List<Tank>();
+            var tankInactivityTimes = new Dictionary<string, ulong>();
             foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
             {
                 if (tank.IsBot)
@@ -197,12 +198,13 @@ public static partial class Module
                 if (timeSinceLastUpdate > (ulong)REAL_GAME_INACTIVITY_TIMEOUT_MICROS)
                 {
                     tanksToRemove.Add(tank);
+                    tankInactivityTimes[tank.Id] = timeSinceLastUpdate;
                 }
             }
 
             foreach (var tank in tanksToRemove)
             {
-                Log.Info($"Removing inactive tank {tank.Name} from game {game.Id} due to {((currentTime - ctx.Db.tank_transform.TankId.Find(tank.Id).Value.UpdatedAt) / 1_000_000)} seconds of inactivity");
+                Log.Info($"Removing inactive tank {tank.Name} from game {game.Id} due to {(tankInactivityTimes[tank.Id] / 1_000_000)} seconds of inactivity");
                 RemoveTankFromGame(ctx, tank);
             }
         }
