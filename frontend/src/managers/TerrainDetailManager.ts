@@ -20,6 +20,7 @@ import { TargetDummy } from "../objects/terrain-details/TargetDummy";
 import { PenBorder } from "../objects/terrain-details/PenBorder";
 import { TerrainDebrisParticlesManager } from "./TerrainDebrisParticlesManager";
 import { MushroomDecorationsManager } from "./MushroomDecorationsManager";
+import { FlowerDecorationsManager } from "./FlowerDecorationsManager";
 import { terrainDetailTextureCache } from "../textures";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
@@ -33,6 +34,8 @@ export class TerrainDetailManager {
     new TerrainDebrisParticlesManager();
   private mushroomDecorations: MushroomDecorationsManager =
     new MushroomDecorationsManager();
+  private flowerDecorations: FlowerDecorationsManager =
+    new FlowerDecorationsManager();
   private onDetailDeletedCallbacks: (() => void)[] = [];
   private soundManager: SoundManager;
   private subscription: TableSubscription<typeof TerrainDetailRow> | null = null;
@@ -116,6 +119,7 @@ export class TerrainDetailManager {
     this.onDetailDeletedCallbacks = [];
     this.terrainDebrisParticles.destroy();
     this.mushroomDecorations.destroy();
+    this.flowerDecorations.destroy();
   }
 
   public update(deltaTime: number) {
@@ -306,6 +310,7 @@ export class TerrainDetailManager {
     canvasHeight: number
   ) {
     this.mushroomDecorations.draw(ctx, cameraX, cameraY, canvasWidth, canvasHeight);
+    this.flowerDecorations.draw(ctx, cameraX, cameraY, canvasWidth, canvasHeight);
   }
 
   public getDetailObjectsByPosition(): (TerrainDetailObject | null)[][] {
@@ -314,5 +319,18 @@ export class TerrainDetailManager {
 
   public onDetailDeleted(callback: () => void): void {
     this.onDetailDeletedCallbacks.push(callback);
+  }
+
+  public updateFlowerDecorations(
+    baseTerrainLayer: any[],
+    gameWidth: number,
+    gameHeight: number
+  ): void {
+    this.flowerDecorations.generateFlowersOnTerrain(
+      baseTerrainLayer,
+      gameWidth,
+      gameHeight,
+      this.detailObjectsByPosition
+    );
   }
 }

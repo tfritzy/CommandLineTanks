@@ -45,6 +45,14 @@ export class TerrainManager {
       } else {
         this.detailManager.updateGameDimensions(game.width, game.height);
       }
+
+      if (this.detailManager && this.baseTerrainLayer.length > 0) {
+        this.detailManager.updateFlowerDecorations(
+          this.baseTerrainLayer,
+          this.gameWidth,
+          this.gameHeight
+        );
+      }
     };
 
     this.subscription = subscribeToTable({
