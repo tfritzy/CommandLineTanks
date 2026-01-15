@@ -14,10 +14,14 @@ public static partial class Module
         int totalTiles = gameWidth * gameHeight;
 
         var baseTerrain = new BaseTerrain[totalTiles];
+        var traversibilityBoolMap = new bool[totalTiles];
+        var projectileTraversibilityBoolMap = new bool[totalTiles];
 
         for (int i = 0; i < totalTiles; i++)
         {
             baseTerrain[i] = BaseTerrain.Ground;
+            traversibilityBoolMap[i] = true;
+            projectileTraversibilityBoolMap[i] = true;
         }
 
         CreateTargetingDemonstrationArea(ctx, identityString, gameWidth, gameHeight, baseTerrain);
@@ -93,7 +97,21 @@ public static partial class Module
             Kills = new int[] { 0, 0 }
         });
 
-        InsertTraversibilityMapsForEmptyTerrain(ctx, identityString, gameWidth, gameHeight);
+        ctx.Db.traversibility_map.Insert(new TraversibilityMap
+        {
+            GameId = identityString,
+            Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
+            Width = gameWidth,
+            Height = gameHeight
+        });
+
+        ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
+        {
+            GameId = identityString,
+            Map = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap),
+            Width = gameWidth,
+            Height = gameHeight
+        });
     }
 
     private static void SpawnTurretBot(ReducerContext ctx, string gameId, int x, int y, int alliance, AiConfig? aiConfig = null)
