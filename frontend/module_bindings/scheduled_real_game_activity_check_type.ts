@@ -10,7 +10,9 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  projectileId: __t.u64(),
-  targetTankId: __t.string(),
-};
+export default __t.object("ScheduledRealGameActivityCheck", {
+  scheduledId: __t.u64(),
+  scheduledAt: __t.scheduleAt(),
+});
+
+
