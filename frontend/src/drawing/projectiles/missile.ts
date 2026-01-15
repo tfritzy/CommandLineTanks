@@ -37,7 +37,7 @@ export function drawMissileBody(
   ctx.translate(centerX, centerY);
   ctx.rotate(angle);
   
-  const flameLength = radius * 1 + .5;
+  const flameLength = radius * 1.5;
   ctx.fillStyle = COLORS.EFFECTS.FIRE_YELLOW;
   ctx.beginPath();
   ctx.moveTo(0, -radius * 0.3);

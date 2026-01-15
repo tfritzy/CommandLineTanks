@@ -88,16 +88,18 @@ class ProjectileTextureCache {
   }
 
   private async createGrenadeTextures(key: string, color: string, radius: number) {
-    const padding = 2;
+    const padding = 4;
     const width = radius * 2 + padding * 2;
-    const height = radius * 2.6 + padding * 2;
+    const height = radius * 2.8 + padding * 2;
+    const centerX = width / 2;
+    const centerY = height / 2 + radius * 0.2;
 
     const [body, shadow] = await Promise.all([
-      renderToImageBitmap(width, height, width / 2, height / 2, (ctx) => {
-        drawGrenadeBody(ctx, width / 2, height / 2, radius, color);
+      renderToImageBitmap(width, height, centerX, centerY, (ctx) => {
+        drawGrenadeBody(ctx, centerX, centerY, radius, color);
       }),
-      renderToImageBitmap(width, height, width / 2, height / 2, (ctx) => {
-        drawGrenadeShadow(ctx, width / 2, height / 2, radius);
+      renderToImageBitmap(width, height, centerX, centerY, (ctx) => {
+        drawGrenadeShadow(ctx, centerX, centerY, radius);
       }),
     ]);
 
@@ -121,12 +123,12 @@ class ProjectileTextureCache {
   }
 
   private async createRocketTextures(key: string, color: string, radius: number) {
-    const padding = 2;
-    const flameLength = radius * 1.5;
-    const width = flameLength + radius * 6 + padding * 2;
+    const padding = 4;
+    const flameLength = radius * 2;
+    const width = flameLength + radius * 3 + padding * 2;
     const height = radius * 2.4 + padding * 2;
-    const centerX = radius * 3 + flameLength + padding;
-    const centerY = radius * 1.2 + padding;
+    const centerX = flameLength + padding;
+    const centerY = height / 2;
 
     const [body, shadow] = await Promise.all([
       renderToImageBitmap(width, height, centerX, centerY, (ctx) => {
@@ -141,12 +143,12 @@ class ProjectileTextureCache {
   }
 
   private async createMissileTextures(key: string, color: string, radius: number) {
-    const padding = 2;
-    const flameLength = radius * 1.0;
+    const padding = 4;
+    const flameLength = radius * 1.5;
     const width = flameLength + radius * 2 + padding * 2;
     const height = radius * 1.6 + padding * 2;
     const centerX = flameLength + padding;
-    const centerY = radius + padding;
+    const centerY = height / 2;
 
     const [body, shadow] = await Promise.all([
       renderToImageBitmap(width, height, centerX, centerY, (ctx) => {
