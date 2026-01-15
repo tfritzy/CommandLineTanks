@@ -80,7 +80,22 @@ export function useGameSwitcher(onGameChange: (gameId: string) => void, currentG
         connection.db.tank.onInsert(handleTankInsert);
         connection.db.tank.onUpdate(handleTankUpdate);
 
+        const checkInitialTankLocation = () => {
+            for (const tank of connection.db.tank.iter()) {
+                if (isCurrentIdentity(tank.owner) && !tank.isBot) {
+                    if (currentGameId && tank.gameId !== currentGameId) {
+                        console.log(`Player tank found in different game: ${tank.gameId}, redirecting from ${currentGameId}`);
+                        onGameChange(tank.gameId);
+                    }
+                    break;
+                }
+            }
+        };
+
+        const timeoutId = setTimeout(checkInitialTankLocation, 500);
+
         return () => {
+            clearTimeout(timeoutId);
             if (subscriptionHandleRef.current) {
                 subscriptionHandleRef.current.unsubscribe();
             }
