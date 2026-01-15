@@ -130,7 +130,7 @@ public static partial class ProjectileUpdater
         };
     }
 
-    private static (bool collided, Module.Projectile projectile, Module.ProjectileTransform transform, bool tankMapChanged, bool projectileMapChanged) HandleTerrainCollision(
+    private static (bool collided, Module.Projectile projectile, Module.ProjectileTransform transform) HandleTerrainCollision(
         ReducerContext ctx,
         Module.Projectile projectile,
         Module.ProjectileTransform transform,
@@ -145,7 +145,7 @@ public static partial class ProjectileUpdater
         if (projectileTileX < 0 || projectileTileX >= projectileTraversibilityMap.Width ||
             projectileTileY < 0 || projectileTileY >= projectileTraversibilityMap.Height)
         {
-            return (false, projectile, transform, false, false);
+            return (false, projectile, transform);
         }
 
         int tileIndex = projectileTileY * projectileTraversibilityMap.Width + projectileTileX;
@@ -155,39 +155,37 @@ public static partial class ProjectileUpdater
         {
             if (projectile.CollisionRadius > 0)
             {
-                bool tankMapChanged;
-                bool projMapChanged;
-                (projectile, transform, tankMapChanged, projMapChanged) = DamageTerrainInRadius(ctx, projectile, transform, ref traversibilityMap, ref projectileTraversibilityMap, gameId);
-                return (false, projectile, transform, tankMapChanged, projMapChanged);
+                (projectile, transform) = DamageTerrainInRadius(ctx, projectile, transform, ref traversibilityMap, ref projectileTraversibilityMap, gameId);
+                return (false, projectile, transform);
             }
-            return (false, projectile, transform, false, false);
+            return (false, projectile, transform);
         }
 
         if (tileIsTraversable)
         {
-            return (false, projectile, transform, false, false);
+            return (false, projectile, transform);
         }
 
         if (projectile.Bounce)
         {
             (projectile, transform) = HandleProjectileBounce(projectile, transform, projectileTileX, projectileTileY, deltaTime);
-            return (false, projectile, transform, false, false);
+            return (false, projectile, transform);
         }
 
         if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0 && projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
         {
-            var (tankMapChanged, projMapChanged) = ExplodeProjectileCommand(ctx, projectile, transform, gameId, ref traversibilityMap, ref projectileTraversibilityMap);
+            ExplodeProjectileCommand(ctx, projectile, transform, gameId, ref traversibilityMap, ref projectileTraversibilityMap);
             DeleteProjectile(ctx, projectile.Id);
-            return (true, projectile, transform, tankMapChanged, projMapChanged);
+            return (true, projectile, transform);
         }
 
-        var (terrainTankMapChanged, terrainProjMapChanged) = DamageTerrainAtTile(ctx, gameId, projectileTileX, projectileTileY, tileIndex, projectile.Damage, ref traversibilityMap, ref projectileTraversibilityMap);
+        DamageTerrainAtTile(ctx, gameId, projectileTileX, projectileTileY, tileIndex, projectile.Damage, ref traversibilityMap, ref projectileTraversibilityMap);
 
         DeleteProjectile(ctx, projectile.Id);
-        return (true, projectile, transform, terrainTankMapChanged, terrainProjMapChanged);
+        return (true, projectile, transform);
     }
 
-    private static (Module.Projectile projectile, Module.ProjectileTransform transform, bool tankMapChanged, bool projectileMapChanged) DamageTerrainInRadius(
+    private static (Module.Projectile projectile, Module.ProjectileTransform transform) DamageTerrainInRadius(
         ReducerContext ctx,
         Module.Projectile projectile,
         Module.ProjectileTransform transform,
@@ -199,8 +197,6 @@ public static partial class ProjectileUpdater
         int centerTileX = (int)transform.PositionX;
         int centerTileY = (int)transform.PositionY;
 
-        bool tankMapChanged = false;
-        bool projectileMapChanged = false;
         ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         ulong expirationThreshold = 500_000;
         float collisionRadiusSquared = projectile.CollisionRadius * projectile.CollisionRadius;
@@ -257,9 +253,7 @@ public static partial class ProjectileUpdater
                     if (!alreadyDamaged)
                     {
                         int tileIndex = tileY * traversibilityMap.Width + tileX;
-                        var (tileTankChanged, tileProjChanged) = DamageTerrainAtTile(ctx, gameId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap, ref projectileTraversibilityMap);
-                        if (tileTankChanged) tankMapChanged = true;
-                        if (tileProjChanged) projectileMapChanged = true;
+                        DamageTerrainAtTile(ctx, gameId, tileX, tileY, tileIndex, projectile.Damage, ref traversibilityMap, ref projectileTraversibilityMap);
 
                         recentlyDamagedBuffer ??= new DamagedTile[COLLISION_TRACKING_BUFFER_SIZE];
                         if (recentlyDamagedCount < recentlyDamagedBuffer.Length)
@@ -281,7 +275,7 @@ public static partial class ProjectileUpdater
             RecentlyDamagedTiles = recentlyDamagedCount > 0 ? recentlyDamagedBuffer!.AsSpan(0, recentlyDamagedCount).ToArray() : null
         };
 
-        return (projectile, transform, tankMapChanged, projectileMapChanged);
+        return (projectile, transform);
     }
 
     private static (Module.Projectile projectile, Module.ProjectileTransform transform) HandleProjectileBounce(Module.Projectile projectile, Module.ProjectileTransform transform, int projectileTileX, int projectileTileY, double deltaTime)
@@ -399,7 +393,7 @@ public static partial class ProjectileUpdater
         return true;
     }
 
-    private static (bool collided, Module.Projectile projectile, Module.ProjectileTransform transform, bool tankMapChanged, bool projectileMapChanged) HandleTankCollisions(
+    private static (bool collided, Module.Projectile projectile, Module.ProjectileTransform transform) HandleTankCollisions(
         ReducerContext ctx,
         Module.Projectile projectile,
         Module.ProjectileTransform transform,
@@ -457,7 +451,7 @@ public static partial class ProjectileUpdater
 
                         if (HandleBoomerangReturn(ctx, projectile, tank))
                         {
-                            return (true, projectile, transform, false, false);
+                            return (true, projectile, transform);
                         }
 
                         if (tank.Alliance != projectile.Alliance && tank.Health > 0 && tank.RemainingImmunityMicros <= 0)
@@ -478,9 +472,9 @@ public static partial class ProjectileUpdater
                                 {
                                     if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
                                     {
-                                        var (tankMapChanged, projMapChanged) = ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, transform, gameId, ref traversibilityMap, ref projectileTraversibilityMap);
+                                        ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, transform, gameId, ref traversibilityMap, ref projectileTraversibilityMap);
                                         DeleteProjectile(ctx, projectile.Id);
-                                        return (true, projectile, transform, tankMapChanged, projMapChanged);
+                                        return (true, projectile, transform);
                                     }
                                 }
                                 else
@@ -503,7 +497,7 @@ public static partial class ProjectileUpdater
 
                                 if (shouldDelete)
                                 {
-                                    return (true, projectile, transform, false, false);
+                                    return (true, projectile, transform);
                                 }
                             }
                         }
@@ -517,7 +511,7 @@ public static partial class ProjectileUpdater
             RecentlyHitTanks = recentlyHitCount > 0 ? recentlyHitBuffer!.AsSpan(0, recentlyHitCount).ToArray() : null
         };
 
-        return (false, projectile, transform, false, false);
+        return (false, projectile, transform);
     }
 
     public static void DeleteProjectile(ReducerContext ctx, ulong projectileId)
@@ -541,13 +535,12 @@ public static partial class ProjectileUpdater
         var traversibilityMapQuery = ctx.Db.traversibility_map.GameId.Find(args.GameId);
         if (traversibilityMapQuery == null) return;
         var traversibilityMap = traversibilityMapQuery.Value;
+        var initialTankMapVersion = traversibilityMap.Version;
 
         var projectileTraversibilityMapQuery = ctx.Db.projectile_traversibility_map.GameId.Find(args.GameId);
         if (projectileTraversibilityMapQuery == null) return;
         var projectileTraversibilityMap = projectileTraversibilityMapQuery.Value;
-
-        bool traversibilityMapChanged = false;
-        bool projectileTraversibilityMapChanged = false;
+        var initialProjectileMapVersion = projectileTraversibilityMap.Version;
 
         foreach (var iProjectile in ctx.Db.projectile.GameId.Filter(args.GameId))
         {
@@ -569,9 +562,7 @@ public static partial class ProjectileUpdater
             {
                 if (projectile.ExplosionTrigger == ExplosionTrigger.OnExpiration)
                 {
-                    var (tankMapChanged, projMapChanged) = ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap);
-                    if (tankMapChanged) traversibilityMapChanged = true;
-                    if (projMapChanged) projectileTraversibilityMapChanged = true;
+                    ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap);
                 }
                 DeleteProjectile(ctx, projectile.Id);
                 continue;
@@ -601,21 +592,13 @@ public static partial class ProjectileUpdater
             };
 
             bool collided;
-            bool tankMapChanged;
-            bool projMapChanged;
-            (collided, projectile, transform, tankMapChanged, projMapChanged) = HandleTerrainCollision(ctx, projectile, transform, ref projectileTraversibilityMap, ref traversibilityMap, args.GameId, deltaTime);
-
-            if (tankMapChanged) traversibilityMapChanged = true;
-            if (projMapChanged) projectileTraversibilityMapChanged = true;
+            (collided, projectile, transform) = HandleTerrainCollision(ctx, projectile, transform, ref projectileTraversibilityMap, ref traversibilityMap, args.GameId, deltaTime);
 
             if (collided) continue;
 
             var (minRegionX, maxRegionX, minRegionY, maxRegionY) = CalculateTankCollisionRegions(projectile, transform);
 
-            (collided, projectile, transform, tankMapChanged, projMapChanged) = HandleTankCollisions(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
-
-            if (tankMapChanged) traversibilityMapChanged = true;
-            if (projMapChanged) projectileTraversibilityMapChanged = true;
+            (collided, projectile, transform) = HandleTankCollisions(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
 
             if (collided) continue;
 
@@ -623,12 +606,12 @@ public static partial class ProjectileUpdater
             ctx.Db.projectile_transform.ProjectileId.Update(transform);
         }
 
-        if (traversibilityMapChanged)
+        if (traversibilityMap.Version != initialTankMapVersion)
         {
             ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
         }
 
-        if (projectileTraversibilityMapChanged)
+        if (projectileTraversibilityMap.Version != initialProjectileMapVersion)
         {
             ctx.Db.projectile_traversibility_map.GameId.Update(projectileTraversibilityMap);
         }
