@@ -7,6 +7,7 @@ public static partial class Module
     private const int TUTORIAL_WIDTH = 20;
     private const int TUTORIAL_HEIGHT = 12;
     private const int TUTORIAL_STARTING_HEALTH = 30;
+    private const int TUTORIAL_ENEMY_HEALTH = 60;
 
     private static readonly (int x, int y) TUTORIAL_PLAYER_SPAWN = (3, 6);
     private static readonly (int x, int y) TUTORIAL_HEALTH_PICKUP = (6, 3);
@@ -282,8 +283,8 @@ public static partial class Module
             targetCode: targetCode,
             joinCode: "",
             alliance: 1,
-            health: 60,
-            maxHealth: 60,
+            health: TUTORIAL_ENEMY_HEALTH,
+            maxHealth: TUTORIAL_ENEMY_HEALTH,
             positionX: TUTORIAL_ENEMY_SPAWN.x + 0.5f,
             positionY: TUTORIAL_ENEMY_SPAWN.y + 0.5f,
             aiBehavior: AIBehavior.None);
