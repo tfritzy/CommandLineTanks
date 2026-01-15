@@ -245,7 +245,7 @@ export class Tank {
     const moveDistance = moveSpeed * deltaTime;
 
     if (distance <= Tank.ARRIVAL_THRESHOLD || moveDistance >= distance) {
-      const overshoot = moveDistance - distance;
+      const overshoot = Math.max(0, moveDistance - distance);
       
       this.localPathIndex++;
 

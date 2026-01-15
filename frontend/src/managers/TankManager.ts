@@ -122,7 +122,9 @@ export class TankManager {
               tank.setTargetCode(newTank.targetCode);
               tank.setName(newTank.name);
               tank.setMaxHealth(newTank.maxHealth);
-              tank.setTopSpeed(newTank.topSpeed);
+              if (newTank.topSpeed !== undefined) {
+                tank.setTopSpeed(newTank.topSpeed);
+              }
             } else {
               this.buildTank(newTank.id);
             }
