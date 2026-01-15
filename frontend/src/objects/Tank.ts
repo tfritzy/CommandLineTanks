@@ -169,7 +169,7 @@ export class Tank {
 
   public setPath(path: Array<{ x: number; y: number }>, pathIndex: number = 0) {
     this.path = path;
-    this.pathIndex = pathIndex;
+    this.pathIndex = Math.max(this.pathIndex, pathIndex);
   }
 
   public setHealth(health: number) {
@@ -248,10 +248,10 @@ export class Tank {
     if (distance <= Tank.ARRIVAL_THRESHOLD || moveDistance >= distance) {
       const overshoot = Math.max(0, moveDistance - distance);
       
-      const nextIndex = this.pathIndex + 1;
+      this.pathIndex++;
 
-      if (nextIndex < this.path.length) {
-        const nextTarget = this.path[nextIndex];
+      if (this.pathIndex < this.path.length) {
+        const nextTarget = this.path[this.pathIndex];
         const nextDeltaX = nextTarget.x - targetPos.x;
         const nextDeltaY = nextTarget.y - targetPos.y;
         const nextDistance = Math.sqrt(nextDeltaX * nextDeltaX + nextDeltaY * nextDeltaY);
