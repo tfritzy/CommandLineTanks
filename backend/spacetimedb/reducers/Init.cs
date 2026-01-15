@@ -17,6 +17,12 @@ public static partial class Module
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = HOMEWORLD_ACTIVITY_CHECK_INTERVAL_MICROS })
         });
+
+        ctx.Db.ScheduledRealGameActivityCheck.Insert(new ScheduledRealGameActivityCheck
+        {
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = REAL_GAME_ACTIVITY_CHECK_INTERVAL_MICROS })
+        });
     }
 
     public static void SpawnInitialBots(ReducerContext ctx, string gameId, Game game)
