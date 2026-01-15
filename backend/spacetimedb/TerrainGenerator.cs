@@ -183,7 +183,7 @@ public static partial class TerrainGenerator
         var fieldTilesList = new Vector2[width * height];
         int fieldTilesCount = 0;
 
-        if (width <= FIELD_MIN_SIZE || height <= FIELD_MIN_SIZE)
+        if (width < FIELD_MIN_SIZE || height < FIELD_MIN_SIZE)
         {
             return new Vector2[0];
         }
