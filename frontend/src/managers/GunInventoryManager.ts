@@ -129,7 +129,7 @@ export class GunInventoryManager {
 
     const textureCache = this.playerAlliance === 0 ? redTeamPickupTextureCache : blueTeamPickupTextureCache;
 
-    textureCache.draw(ctx, gunType, centerX, centerY);
+    textureCache.draw(ctx, gunType, centerX, centerY, false);
 
     ctx.restore();
   }

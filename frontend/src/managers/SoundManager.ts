@@ -14,6 +14,8 @@ import death from '../sounds/death.json';
 import kill from '../sounds/kill.json';
 import fire from '../sounds/fire.json';
 import fireBoomerang from '../sounds/fire-boomerang.json';
+import fireMoag from '../sounds/fire-moag.json';
+import fireRocket from '../sounds/fire-rocket.json';
 
 export class SoundManager {
     private audioContext: AudioContext | null = null;
@@ -69,6 +71,12 @@ export class SoundManager {
         },
         'fire-boomerang': {
             params: fireBoomerang as JsfxrParams,
+        },
+        'fire-moag': {
+            params: fireMoag as JsfxrParams,
+        },
+        'fire-rocket': {
+            params: fireRocket as JsfxrParams,
         },
     };
 

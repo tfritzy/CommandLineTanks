@@ -13,5 +13,7 @@ public static partial class Module
         public string GameId;
 
         public ulong LastFireTime;
+
+        public GunType GunType;
     }
 }

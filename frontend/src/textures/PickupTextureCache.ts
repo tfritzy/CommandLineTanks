@@ -55,6 +55,7 @@ const CELL_SIZE_MULTIPLIER = 1.2;
 
 class PickupTextureCache {
   private textures: Map<string, TextureImage> = new Map();
+  private texturesNoShadow: Map<string, TextureImage> = new Map();
   private pickupColor: string;
   private initialized: boolean = false;
 
@@ -75,6 +76,7 @@ class PickupTextureCache {
 
     for (const pickupType of PROJECTILE_PICKUP_TYPES) {
       promises.push(this.createProjectilePickupTexture(pickupType, cellSize));
+      promises.push(this.createProjectilePickupTextureNoShadow(pickupType, cellSize));
     }
 
     await Promise.all(promises);
@@ -201,13 +203,102 @@ class PickupTextureCache {
     this.textures.set(key, texture);
   }
 
+  private async createProjectilePickupTextureNoShadow(key: string, size: number) {
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const angle = -Math.PI / 4;
+
+    const texture = await renderToImageBitmap(size, size, centerX, centerY, (ctx) => {
+      ctx.translate(centerX, centerY);
+
+      switch (key) {
+        case "Base": {
+          const radius = 0.1 * UNIT_TO_PIXEL;
+          drawNormalProjectileBody(ctx, 0, 0, radius, this.pickupColor);
+          break;
+        }
+        case "TripleShooter": {
+          const triangleSpacing = 0.15 * UNIT_TO_PIXEL;
+          const cos30 = Math.sqrt(3) / 2;
+          const sin30 = 0.5;
+          const trianglePositions = [
+            { x: 0, y: triangleSpacing },
+            { x: -triangleSpacing * cos30, y: -triangleSpacing * sin30 },
+            { x: triangleSpacing * cos30, y: -triangleSpacing * sin30 },
+          ];
+          const radius = 0.08 * UNIT_TO_PIXEL;
+
+          for (let i = 0; i < 3; i++) {
+            drawNormalProjectileBody(
+              ctx,
+              trianglePositions[i].x,
+              trianglePositions[i].y,
+              radius,
+              this.pickupColor
+            );
+          }
+          break;
+        }
+        case "MissileLauncher": {
+          const radius = 0.2 * UNIT_TO_PIXEL;
+          drawMissileBody(ctx, 0, 0, radius, angle, this.pickupColor);
+          break;
+        }
+        case "Rocket": {
+          const radius = 0.1 * UNIT_TO_PIXEL;
+          drawRocketBody(ctx, 0, 0, radius, angle, this.pickupColor);
+          break;
+        }
+        case "Grenade": {
+          const radius = 0.2 * UNIT_TO_PIXEL;
+          drawGrenadeBody(ctx, 0, 0, radius, this.pickupColor);
+          break;
+        }
+        case "Boomerang": {
+          const radius = 0.18 * UNIT_TO_PIXEL;
+          const armWidth = radius * 0.8;
+          const armLength = radius * 2.2;
+          drawBoomerangBody(ctx, 0, 0, armLength, armWidth, this.pickupColor);
+          break;
+        }
+        case "Moag": {
+          const scale = 0.3;
+          const radius = scale * UNIT_TO_PIXEL;
+
+          ctx.fillStyle = this.pickupColor;
+          ctx.beginPath();
+          ctx.arc(0, 0, radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = "#000000";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(0, 0, radius, 0, Math.PI * 2);
+          ctx.stroke();
+          break;
+        }
+        case "Sniper": {
+          const bulletLength = 0.4 * UNIT_TO_PIXEL;
+          const bulletWidth = bulletLength * 0.3;
+          const bulletBackRatio = 0.4;
+          drawSniperProjectileBody(ctx, 0, 0, bulletLength, bulletWidth, bulletBackRatio, angle, this.pickupColor);
+          break;
+        }
+      }
+    });
+
+    this.texturesNoShadow.set(key, texture);
+  }
+
   public draw(
     ctx: CanvasRenderingContext2D,
     key: string,
     x: number,
-    y: number
+    y: number,
+    withShadow: boolean = true
   ) {
-    const texture = this.textures.get(key);
+    const textureMap = withShadow ? this.textures : this.texturesNoShadow;
+    const texture = textureMap.get(key);
     if (!texture) return;
 
     drawTexture(ctx, texture, x, y);

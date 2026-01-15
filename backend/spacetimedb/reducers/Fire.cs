@@ -129,7 +129,8 @@ public static partial class Module
         {
             TankId = tank.Id,
             GameId = tank.GameId,
-            LastFireTime = currentTime
+            LastFireTime = currentTime,
+            GunType = gun.GunType
         };
         if (fireState != null)
         {

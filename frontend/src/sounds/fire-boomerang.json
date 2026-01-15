@@ -1,10 +1,10 @@
 {
   "oldParams": true,
   "wave_type": 3,
-  "p_env_attack": 0.075,
-  "p_env_sustain": 0.24,
+  "p_env_attack": 0.222,
+  "p_env_sustain": 0,
   "p_env_punch": 0.135,
-  "p_env_decay": 0.515,
+  "p_env_decay": 0.421,
   "p_base_freq": 0.06,
   "p_freq_limit": 0,
   "p_freq_ramp": 0.09,

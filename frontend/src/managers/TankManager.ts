@@ -277,7 +277,23 @@ export class TankManager {
         transform.turretRotation,
         tankRow.alliance
       );
-      this.soundManager.play("fire", 0.4, transform.positionX, transform.positionY);
+
+      const soundKey = this.getFireSoundForGunType(fireState.gunType);
+      this.soundManager.play(soundKey, 0.4, transform.positionX, transform.positionY);
+    }
+  }
+
+  private getFireSoundForGunType(gunType: Infer<typeof TankFireStateRow>['gunType']): string {
+    switch (gunType.tag) {
+      case 'Boomerang':
+        return 'fire-boomerang';
+      case 'Moag':
+        return 'fire-moag';
+      case 'MissileLauncher':
+      case 'Rocket':
+        return 'fire-rocket';
+      default:
+        return 'fire';
     }
   }
 
