@@ -68,15 +68,7 @@ export class TankManager {
                 }
               }
 
-              if (oldTank.health <= 0 && newTank.health > 0) {
-                const connection = getConnection();
-                if (connection) {
-                  const transform = connection.db.tankTransform.tankId.find(newTank.id);
-                  if (transform) {
-                    tank.setPosition(transform.positionX, transform.positionY);
-                  }
-                }
-              }
+
 
               if (oldTank.message !== newTank.message && newTank.message) {
                 const pos = tank.getPosition();
@@ -122,9 +114,7 @@ export class TankManager {
               tank.setTargetCode(newTank.targetCode);
               tank.setName(newTank.name);
               tank.setMaxHealth(newTank.maxHealth);
-              if (newTank.topSpeed !== undefined) {
-                tank.setTopSpeed(newTank.topSpeed);
-              }
+              tank.setTopSpeed(newTank.topSpeed);
             } else {
               this.buildTank(newTank.id);
             }
