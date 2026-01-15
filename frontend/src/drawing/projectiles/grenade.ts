@@ -52,8 +52,7 @@ export function drawGrenadeBody(
   ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
   ctx.clip();
 
-  ctx.beginPath();
-  ctx.ellipse(centerX, centerY, radius, radius * 1.1, 0, 0, Math.PI * 2);
+  // Base color (Primary Color)
   ctx.fillStyle = color;
   ctx.fill();
 

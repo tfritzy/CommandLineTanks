@@ -66,8 +66,8 @@ export function drawTexture(
     texture.height * TEXTURE_DPR,
     -texture.anchorX,
     -texture.anchorY,
-    texture.width + 1,
-    texture.height + 1
+    texture.width,
+    texture.height
   );
   
   ctx.restore();

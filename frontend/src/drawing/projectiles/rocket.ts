@@ -43,7 +43,6 @@ export function drawRocketBody(
   ctx.moveTo(0, -radius * 0.4);
   ctx.lineTo(-flameLength, 0);
   ctx.lineTo(0, radius * 0.4);
-  ctx.closePath();
   ctx.fill();
 
   ctx.fillStyle = color;

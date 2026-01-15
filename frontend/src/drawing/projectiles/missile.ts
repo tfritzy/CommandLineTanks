@@ -43,7 +43,6 @@ export function drawMissileBody(
   ctx.moveTo(0, -radius * 0.3);
   ctx.lineTo(-flameLength, 0);
   ctx.lineTo(0, radius * 0.3);
-  ctx.closePath();
   ctx.fill();
 
   ctx.fillStyle = color;
