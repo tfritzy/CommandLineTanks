@@ -14,8 +14,16 @@ public static partial class Module
         var tanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
         foreach (var tank in tanks)
         {
-            RemoveTankFromGame(ctx, tank);
-            Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} in game {tank.GameId}");
+            var game = ctx.Db.game.Id.Find(tank.GameId);
+            if (game != null && game.Value.IsHomeGame)
+            {
+                RemoveTankFromGame(ctx, tank);
+                Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} from homegame {tank.GameId}");
+            }
+            else
+            {
+                Log.Info($"Player {player.Value.Name} disconnected, keeping tank {tank.Id} in real game {tank.GameId}");
+            }
         }
 
         var identityString = ctx.Sender.ToString().ToLower();
