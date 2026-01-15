@@ -7,8 +7,8 @@ const VIEWPORT_PADDING = 100;
 export class TreeDestructionParticlesManager {
   private particleSystems: TreeDestructionParticles[] = [];
 
-  public spawnParticles(x: number, y: number, isDeadTree: boolean): void {
-    const particles = new TreeDestructionParticles(x, y, isDeadTree);
+  public spawnParticles(x: number, y: number): void {
+    const particles = new TreeDestructionParticles(x, y);
     this.particleSystems.push(particles);
   }
 

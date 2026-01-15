@@ -34,6 +34,7 @@ export class Profiler {
   }
 
   private logResults(): void {
+    return;
     if (this.measurements.size === 0) return;
 
     console.log("--- Profiler Results (ms) ---");

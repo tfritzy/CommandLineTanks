@@ -83,7 +83,6 @@ export class TerrainDetailManager {
             if (oldType === newType) {
               existingObj.setData(newDetail);
             } else {
-              // Clean up old object from position map
               const oldX = Math.floor(existingObj.getX());
               const oldY = Math.floor(existingObj.getY());
               if (oldY >= 0 && oldY < this.gameHeight && oldX >= 0 && oldX < this.gameWidth) {
@@ -92,22 +91,18 @@ export class TerrainDetailManager {
                 }
               }
 
-              // Handle tree becoming a stump
               if (oldType === "Tree" && newType === "DeadTree") {
                 this.treeDestructionParticles.spawnParticles(
                   newDetail.positionX,
                   newDetail.positionY,
-                  false
                 );
                 this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
               } else if (newType === "None") {
-                // If it becomes "None", it's effectively destroyed
                 this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
                 if (oldType === "Tree" || oldType === "DeadTree") {
                   this.treeDestructionParticles.spawnParticles(
                     newDetail.positionX,
                     newDetail.positionY,
-                    oldType === "DeadTree"
                   );
                 } else {
                   this.terrainDebrisParticles.spawnParticles(
@@ -137,7 +132,6 @@ export class TerrainDetailManager {
               this.detailObjectsByPosition[y][x] = null;
             }
 
-            // Always play sound on destruction
             this.soundManager.play("terrain-destroy", 0.5, detail.positionX, detail.positionY);
 
             if (
@@ -154,11 +148,9 @@ export class TerrainDetailManager {
             ) {
               this.treeDestructionParticles.spawnParticles(
                 detail.positionX,
-                detail.positionY,
-                detail.type.tag === "DeadTree"
+                detail.positionY
               );
             } else {
-              // Generic debris for other types like rocks, haybales
               this.terrainDebrisParticles.spawnParticles(
                 detail.positionX,
                 detail.positionY

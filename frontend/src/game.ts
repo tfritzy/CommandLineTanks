@@ -134,11 +134,8 @@ export class Game {
       this.pickupManager.setPlayerAlliance(null);
     }
 
-    this.currentCameraX = targetCameraX;
-    this.currentCameraY = targetCameraY;
-
-    this.currentCameraX = Math.floor(this.currentCameraX);
-    this.currentCameraY = Math.floor(this.currentCameraY);
+    this.currentCameraX = Math.floor(targetCameraX);
+    this.currentCameraY = Math.floor(targetCameraY);
 
     const shakeOffset = this.screenShake.update(deltaTime);
     const finalCameraX = this.currentCameraX + shakeOffset.x;

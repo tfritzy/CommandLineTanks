@@ -34,8 +34,8 @@ export function drawTankShadow(ctx: CanvasRenderingContext2D, x: number, y: numb
 }
 
 export function drawTankBody(ctx: CanvasRenderingContext2D, params: TankDrawParams) {
-  const centerX = params.x * UNIT_TO_PIXEL;
-  const centerY = params.y * UNIT_TO_PIXEL;
+  const centerX = Math.floor(params.x * UNIT_TO_PIXEL);
+  const centerY = Math.floor(params.y * UNIT_TO_PIXEL);
 
   const allianceColor = params.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
   const baseBorderColor = params.alliance === 0 ? "#330000" : "#000033";
@@ -120,8 +120,8 @@ export function drawTankNameLabel(
   targetCode: string,
   name: string
 ) {
-  const px = x * UNIT_TO_PIXEL;
-  const py = y * UNIT_TO_PIXEL;
+  const px = Math.floor(x * UNIT_TO_PIXEL);
+  const py = Math.floor(y * UNIT_TO_PIXEL);
   
   ctx.textAlign = "center";
 
