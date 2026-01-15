@@ -97,10 +97,6 @@ public static partial class Module
         foreach (var tankGun in ctx.Db.tank_gun.TankId.Filter(tank.Id))
         {
             var gun = tankGun.Gun;
-            if (gun.GunType == GunType.Base)
-            {
-                continue;
-            }
 
             var pickupType = PickupSpawner.GetPickupTypeForGun(gun.GunType);
             if (pickupType == null)

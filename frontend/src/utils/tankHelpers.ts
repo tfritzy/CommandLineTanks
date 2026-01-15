@@ -1,6 +1,7 @@
 import { getConnection } from "../spacetimedb-connection";
 import { Identity, type Infer } from "spacetimedb";
 import Gun from "../../module_bindings/gun_type";
+import { BASE_GUN } from "../constants";
 
 export interface FullTankData {
   id: string;
@@ -36,14 +37,18 @@ export interface FullTankData {
 
 export function getTankGuns(tankId: string): Infer<typeof Gun>[] {
   const connection = getConnection();
-  if (!connection) return [];
+  if (!connection) return [BASE_GUN];
   
+  const guns: Infer<typeof Gun>[] = [BASE_GUN];
   const gunEntries: Array<{ slotIndex: number; gun: Infer<typeof Gun> }> = [];
   for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
     gunEntries.push({ slotIndex: tankGun.slotIndex, gun: tankGun.gun });
   }
   gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
-  return gunEntries.map(entry => entry.gun);
+  for (const entry of gunEntries) {
+    guns.push(entry.gun);
+  }
+  return guns;
 }
 
 export function getFullTank(tankId: string): FullTankData | null {

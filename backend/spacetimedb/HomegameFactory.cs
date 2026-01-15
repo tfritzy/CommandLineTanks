@@ -133,7 +133,6 @@ public static partial class Module
         );
         ctx.Db.tank.Insert(turretBot);
         ctx.Db.tank_transform.Insert(turretTransform);
-        ResetTankToBaseGun(ctx, turretBot.Id, gameId);
     }
 
     private static void SpawnRandomAimBot(ReducerContext ctx, string gameId, int x, int y, int alliance, AiConfig? aiConfig = null)
@@ -155,7 +154,6 @@ public static partial class Module
         );
         ctx.Db.tank.Insert(aimBot);
         ctx.Db.tank_transform.Insert(aimTransform);
-        ResetTankToBaseGun(ctx, aimBot.Id, gameId);
     }
 
     private static void SpawnTileboundBot(ReducerContext ctx, string gameId, int x, int y, int alliance, AiConfig? aiConfig = null)
@@ -177,7 +175,6 @@ public static partial class Module
         );
         ctx.Db.tank.Insert(tileboundBot);
         ctx.Db.tank_transform.Insert(tileboundTransform);
-        ResetTankToBaseGun(ctx, tileboundBot.Id, gameId);
     }
 
     private static void CreateTargetingDemonstrationArea(ReducerContext ctx, string gameId, int gameWidth, int gameHeight, BaseTerrain[] baseTerrain)

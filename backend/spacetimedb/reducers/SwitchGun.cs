@@ -11,10 +11,17 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
+        if (gunIndex == 0)
+        {
+            var updatedTank = tank with { SelectedGunIndex = 0 };
+            ctx.Db.tank.Id.Update(updatedTank);
+            return;
+        }
+
         var gunQuery = ctx.Db.tank_gun.TankId_SlotIndex.Filter((tank.Id, gunIndex)).FirstOrDefault();
         if (gunQuery.TankId == null) return;
 
-        var updatedTank = tank with { SelectedGunIndex = gunIndex };
-        ctx.Db.tank.Id.Update(updatedTank);
+        var updatedTankWithGun = tank with { SelectedGunIndex = gunIndex };
+        ctx.Db.tank.Id.Update(updatedTankWithGun);
     }
 }

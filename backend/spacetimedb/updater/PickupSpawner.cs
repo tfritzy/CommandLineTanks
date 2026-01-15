@@ -308,10 +308,10 @@ public static partial class PickupSpawner
     private static bool TryCollectGunPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup, Gun gunToAdd)
     {
         Module.TankGun? existingGunEntry = null;
-        int gunCount = 0;
+        int storedGunCount = 0;
         foreach (var g in ctx.Db.tank_gun.TankId.Filter(tank.Id))
         {
-            gunCount++;
+            storedGunCount++;
             if (g.Gun.GunType == gunToAdd.GunType)
             {
                 existingGunEntry = g;
@@ -337,20 +337,21 @@ public static partial class PickupSpawner
                 return true;
             }
         }
-        else if (gunCount < 3)
+        else if (storedGunCount < 2)
         {
             var gunWithAmmo = pickup.Ammo.HasValue
                 ? gunToAdd with { Ammo = pickup.Ammo }
                 : gunToAdd;
 
+            int newSlotIndex = storedGunCount + 1;
             ctx.Db.tank_gun.Insert(new Module.TankGun
             {
                 TankId = tank.Id,
                 GameId = tank.GameId,
-                SlotIndex = gunCount,
+                SlotIndex = newSlotIndex,
                 Gun = gunWithAmmo
             });
-            tank = tank with { SelectedGunIndex = gunCount };
+            tank = tank with { SelectedGunIndex = newSlotIndex };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
             return true;

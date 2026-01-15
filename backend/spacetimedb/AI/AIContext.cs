@@ -82,7 +82,7 @@ public class AIContext
 
     public int GetGunCount(string tankId)
     {
-        int count = 0;
+        int count = 1;
         foreach (var _ in _ctx.Db.tank_gun.TankId.Filter(tankId))
         {
             count++;

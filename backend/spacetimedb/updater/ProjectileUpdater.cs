@@ -361,10 +361,10 @@ public static partial class ProjectileUpdater
         }
 
         Module.TankGun? existingBoomerang = null;
-        int gunCount = 0;
+        int storedGunCount = 0;
         foreach (var g in ctx.Db.tank_gun.TankId.Filter(tank.Id))
         {
-            gunCount++;
+            storedGunCount++;
             if (g.Gun.GunType == GunType.Boomerang)
             {
                 existingBoomerang = g;
@@ -380,10 +380,10 @@ public static partial class ProjectileUpdater
                 ctx.Db.tank_gun.Id.Update(existingBoomerang.Value with { Gun = gun });
             }
         }
-        else if (gunCount < 3)
+        else if (storedGunCount < 2)
         {
             var boomerangGun = Module.BOOMERANG_GUN with { Ammo = 1 };
-            var newGunIndex = gunCount;
+            var newGunIndex = storedGunCount + 1;
             ctx.Db.tank_gun.Insert(new Module.TankGun
             {
                 TankId = tank.Id,

@@ -36,7 +36,7 @@ public static partial class Module
             TargetCode = newTargetCode
         };
 
-        ResetTankToBaseGun(ctx, tank.Id, gameId);
+        ClearNonBaseGuns(ctx, tank.Id);
 
         var respawnedTransform = transform with
         {
