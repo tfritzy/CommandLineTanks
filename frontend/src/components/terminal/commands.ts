@@ -1,10 +1,8 @@
 import { type DbConnection } from "../../../module_bindings";
 import GameVisibility from "../../../module_bindings/game_visibility_type";
-import Gun from "../../../module_bindings/gun_type";
-import { type Infer } from "spacetimedb";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 import * as themeColors from "../../theme/colors";
-import { getTankGuns } from "../../utils/tankHelpers";
+import { getTankGuns, type GunSlot } from "../../utils/tankHelpers";
 
 export function parseCommandInput(input: string): string[] {
   const args: string[] = [];
@@ -1128,7 +1126,7 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
     kills: number;
     deaths: number;
     selectedGunIndex: number;
-    guns: Infer<typeof Gun>[];
+    guns: GunSlot[];
   }
 
   const combinedTanks: CombinedTank[] = [];
@@ -1167,7 +1165,7 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
   const kdWidth = 6;
   const gunWidth = Math.max(3, ...combinedTanks.map(t => {
     const selectedGun = t.guns.at(t.selectedGunIndex) ?? null;
-    const gunName = selectedGun?.gunType.tag ?? "None";
+    const gunName = selectedGun?.gunType ?? "None";
     return gunName.length;
   }));
 
@@ -1191,7 +1189,7 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
       : (tank.kills / tank.deaths).toFixed(2);
 
     const selectedGun = tank.guns.at(tank.selectedGunIndex) ?? null;
-    const gunName = selectedGun?.gunType.tag ?? "None";
+    const gunName = selectedGun?.gunType ?? "None";
 
     const teamName = tank.alliance === 0 ? "Red" : tank.alliance === 1 ? "Blue" : "Unknown";
     const teamColorKey = tank.alliance === 0 ? 'TEAM_RED' : tank.alliance === 1 ? 'TEAM_BLUE' : 'TEXT_MUTED';
