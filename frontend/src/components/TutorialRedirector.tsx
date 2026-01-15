@@ -1,9 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getConnection, getIdentityHex, setPendingJoinCode } from '../spacetimedb-connection';
+import { getConnection, getIdentityHex } from '../spacetimedb-connection';
 import type { EventContext, SubscriptionHandle } from '../../module_bindings';
 import { type Infer } from "spacetimedb";
 import PlayerRow from '../../module_bindings/player_type';
+
+function getTutorialGameId(identity: string): string {
+    return `tutorial_${identity.toLowerCase()}`;
+}
 
 const TutorialRedirector: React.FC = () => {
     const navigate = useNavigate();
@@ -19,6 +23,9 @@ const TutorialRedirector: React.FC = () => {
             return;
         }
 
+        const identityLower = identity.toLowerCase();
+        const tutorialGameId = getTutorialGameId(identity);
+
         const subscription = connection
             .subscriptionBuilder()
             .onError((e) => console.log("Player subscription error", e))
@@ -29,12 +36,11 @@ const TutorialRedirector: React.FC = () => {
         const checkPlayerAndRedirect = () => {
             let playerFound = false;
             for (const player of connection.db.player.iter()) {
-                if (player.identity.toHexString().toLowerCase() === identity.toLowerCase()) {
+                if (player.identity.toHexString().toLowerCase() === identityLower) {
                     playerFound = true;
                     if (player.tutorialComplete) {
-                        navigate(`/game/${identity.toLowerCase()}`, { replace: true });
+                        navigate(`/game/${identityLower}`, { replace: true });
                     } else {
-                        const tutorialGameId = `tutorial_${identity.toLowerCase()}`;
                         navigate(`/game/${tutorialGameId}`, { replace: true });
                     }
                     break;
@@ -42,27 +48,25 @@ const TutorialRedirector: React.FC = () => {
             }
             
             if (!playerFound) {
-                const tutorialGameId = `tutorial_${identity.toLowerCase()}`;
                 navigate(`/game/${tutorialGameId}`, { replace: true });
             }
         };
 
         const handlePlayerInsert = (_ctx: EventContext, player: Infer<typeof PlayerRow>) => {
-            if (player.identity.toHexString().toLowerCase() === identity.toLowerCase()) {
+            if (player.identity.toHexString().toLowerCase() === identityLower) {
                 setIsLoading(false);
                 if (player.tutorialComplete) {
-                    navigate(`/game/${identity.toLowerCase()}`, { replace: true });
+                    navigate(`/game/${identityLower}`, { replace: true });
                 } else {
-                    const tutorialGameId = `tutorial_${identity.toLowerCase()}`;
                     navigate(`/game/${tutorialGameId}`, { replace: true });
                 }
             }
         };
 
         const handlePlayerUpdate = (_ctx: EventContext, _oldPlayer: Infer<typeof PlayerRow>, newPlayer: Infer<typeof PlayerRow>) => {
-            if (newPlayer.identity.toHexString().toLowerCase() === identity.toLowerCase()) {
+            if (newPlayer.identity.toHexString().toLowerCase() === identityLower) {
                 if (newPlayer.tutorialComplete) {
-                    navigate(`/game/${identity.toLowerCase()}`, { replace: true });
+                    navigate(`/game/${identityLower}`, { replace: true });
                 }
             }
         };
