@@ -14,9 +14,7 @@ import TankRow from "../../module_bindings/tank_type";
 import TankTransformRow from "../../module_bindings/tank_transform_type";
 import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
-import TankGunRow from "../../module_bindings/tank_gun_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
-import { getTankGuns } from "../utils/tankHelpers";
 
 const VIEWPORT_PADDING = 100;
 
@@ -111,7 +109,6 @@ export class TankManager {
               }
 
               tank.setHealth(newTank.health);
-              tank.setSelectedGunIndex(newTank.selectedGunIndex);
               tank.setHasShield(newTank.hasShield);
               tank.setRemainingImmunityMicros(newTank.remainingImmunityMicros);
               tank.setMessage(newTank.message ?? null);
@@ -220,32 +217,6 @@ export class TankManager {
           }
         },
         loadInitialData: false
-      })
-      .add<typeof TankGunRow>({
-        table: connection.db.tankGun,
-        handlers: {
-          onInsert: (_ctx: EventContext, tankGun: Infer<typeof TankGunRow>) => {
-            if (tankGun.gameId !== this.gameId) return;
-            const tank = this.tanks.get(tankGun.tankId);
-            if (tank) {
-              this.loadTankGuns(tank, tankGun.tankId);
-            }
-          },
-          onUpdate: (_ctx: EventContext, _oldGun: Infer<typeof TankGunRow>, newGun: Infer<typeof TankGunRow>) => {
-            if (newGun.gameId !== this.gameId) return;
-            const tank = this.tanks.get(newGun.tankId);
-            if (tank) {
-              this.loadTankGuns(tank, newGun.tankId);
-            }
-          },
-          onDelete: (_ctx: EventContext, tankGun: Infer<typeof TankGunRow>) => {
-            if (tankGun.gameId !== this.gameId) return;
-            const tank = this.tanks.get(tankGun.tankId);
-            if (tank) {
-              this.loadTankGuns(tank, tankGun.tankId);
-            }
-          }
-        }
       });
   }
 
@@ -273,12 +244,9 @@ export class TankManager {
       tank.maxHealth,
       transform.turretAngularVelocity,
       path,
-      tank.selectedGunIndex,
       tank.hasShield,
       tank.remainingImmunityMicros
     );
-
-    this.loadTankGuns(newTank, tankId);
 
     this.tanks.set(tank.id, newTank);
     
@@ -286,11 +254,6 @@ export class TankManager {
       this.playerTankId = tank.id;
       this.updatePlayerTarget(tank.target);
     }
-  }
-
-  private loadTankGuns(tank: Tank, tankId: string) {
-    const guns = getTankGuns(tankId);
-    tank.setGuns(guns);
   }
 
   private handleTankFire(fireState: Infer<typeof TankFireStateRow>) {

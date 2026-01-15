@@ -1,15 +1,18 @@
 import { type Infer } from "spacetimedb";
 import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
-import Gun from "../../module_bindings/gun_type";
 import { type EventContext } from "../../module_bindings";
 import TankRow from "../../module_bindings/tank_type";
 import TankGunRow from "../../module_bindings/tank_gun_table";
 import { redTeamPickupTextureCache, blueTeamPickupTextureCache } from "../textures";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
-import { getTankGuns } from "../utils/tankHelpers";
+
+interface GunSlot {
+  gunType: string;
+  ammo: number | undefined;
+}
 
 export class GunInventoryManager {
-  private guns: Infer<typeof Gun>[] = [];
+  private guns: GunSlot[] = [];
   private selectedGunIndex: number = 0;
   private playerTankId: string | null = null;
   private playerAlliance: number = 0;
@@ -84,10 +87,23 @@ export class GunInventoryManager {
   }
 
   private loadGuns(tankId: string) {
-    const guns = getTankGuns(tankId);
+    const connection = getConnection();
+    if (!connection) return;
+
     this.guns.length = 0;
-    for (const gun of guns) {
-      this.guns.push(gun);
+    this.guns.push({ gunType: "Base", ammo: undefined });
+    
+    const gunEntries: Array<{ slotIndex: number; gunType: string; ammo: number | undefined }> = [];
+    for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
+      gunEntries.push({ 
+        slotIndex: tankGun.slotIndex, 
+        gunType: tankGun.gun.gunType.tag, 
+        ammo: tankGun.gun.ammo 
+      });
+    }
+    gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
+    for (const entry of gunEntries) {
+      this.guns.push({ gunType: entry.gunType, ammo: entry.ammo });
     }
   }
 
@@ -102,7 +118,7 @@ export class GunInventoryManager {
 
   private drawGunGraphic(
     ctx: CanvasRenderingContext2D,
-    gun: Infer<typeof Gun>,
+    gunType: string,
     x: number,
     y: number,
     size: number
@@ -113,14 +129,14 @@ export class GunInventoryManager {
 
     const textureCache = this.playerAlliance === 0 ? redTeamPickupTextureCache : blueTeamPickupTextureCache;
 
-    textureCache.draw(ctx, gun.gunType.tag, centerX, centerY);
+    textureCache.draw(ctx, gunType, centerX, centerY);
 
     ctx.restore();
   }
 
   private drawSlot(
     ctx: CanvasRenderingContext2D,
-    gun: Infer<typeof Gun> | null,
+    gun: GunSlot | null,
     slotIndex: number,
     x: number,
     y: number,
@@ -158,7 +174,7 @@ export class GunInventoryManager {
     ctx.stroke();
 
     if (gun) {
-      this.drawGunGraphic(ctx, gun, x, y, slotSize);
+      this.drawGunGraphic(ctx, gun.gunType, x, y, slotSize);
 
       ctx.fillStyle = "#fcfbf3";
       ctx.font = "bold 10px monospace";
