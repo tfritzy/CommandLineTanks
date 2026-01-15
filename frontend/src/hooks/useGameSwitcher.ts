@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { getConnection, getPendingJoinCode, clearPendingJoinCode, isCurrentIdentity } from '../spacetimedb-connection';
+import { getConnection, getPendingJoinCode, clearPendingJoinCode, isCurrentIdentity, isPendingCreation } from '../spacetimedb-connection';
 import type { EventContext, SubscriptionHandle } from '../../module_bindings';
 import { type Infer } from "spacetimedb";
 import TankRow from '../../module_bindings/tank_type';
+import { writeToTerminal } from '../utils/terminalOutput';
+import { colorize } from '../theme/colors';
 
 export function useGameSwitcher(onGameChange: (gameId: string) => void, currentGameId: string | null) {
     const subscriptionHandleRef = useRef<SubscriptionHandle | null>(null);
@@ -24,6 +26,26 @@ export function useGameSwitcher(onGameChange: (gameId: string) => void, currentG
                 if (pendingJoinCode && tank.joinCode === pendingJoinCode) {
                     console.log(`Found tank with joinCode ${pendingJoinCode}, gameId: ${tank.gameId}`);
                     console.log(`Switching to game: ${tank.gameId}`);
+                    
+                    if (isPendingCreation()) {
+                        const url = `${window.location.origin}/game/${tank.gameId}`;
+                        const SEPARATOR_LENGTH = 80;
+                        const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'BORDER');
+                        const title = colorize('🎮 GAME CREATED SUCCESSFULLY', 'SUCCESS');
+                        const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
+                        const urlText = colorize(url, 'TANK_CODE');
+                        
+                        let output = `\r\n${separator}\r\n`;
+                        output += `${title}\r\n`;
+                        output += `\r\n`;
+                        output += `${urlLabel}\r\n`;
+                        output += `${urlText}\r\n`;
+                        output += `${separator}\r\n`;
+                        output += `\r\n`;
+                        
+                        writeToTerminal(output);
+                    }
+                    
                     onGameChange(tank.gameId);
                     clearPendingJoinCode();
                 }
@@ -41,6 +63,26 @@ export function useGameSwitcher(onGameChange: (gameId: string) => void, currentG
                 if (pendingJoinCode && newTank.joinCode === pendingJoinCode) {
                     console.log(`Found tank with joinCode ${pendingJoinCode}, gameId: ${newTank.gameId}`);
                     console.log(`Switching to game: ${newTank.gameId}`);
+                    
+                    if (isPendingCreation()) {
+                        const url = `${window.location.origin}/game/${newTank.gameId}`;
+                        const SEPARATOR_LENGTH = 80;
+                        const separator = colorize('═'.repeat(SEPARATOR_LENGTH), 'BORDER');
+                        const title = colorize('🎮 GAME CREATED SUCCESSFULLY', 'SUCCESS');
+                        const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
+                        const urlText = colorize(url, 'TANK_CODE');
+                        
+                        let output = `\r\n${separator}\r\n`;
+                        output += `${title}\r\n`;
+                        output += `\r\n`;
+                        output += `${urlLabel}\r\n`;
+                        output += `${urlText}\r\n`;
+                        output += `${separator}\r\n`;
+                        output += `\r\n`;
+                        
+                        writeToTerminal(output);
+                    }
+                    
                     onGameChange(newTank.gameId);
                     clearPendingJoinCode();
                 }

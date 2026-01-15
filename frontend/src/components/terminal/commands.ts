@@ -950,7 +950,7 @@ export function create(
   }
 
   const joinCode = `join_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-  setPendingJoinCode(joinCode);
+  setPendingJoinCode(joinCode, true);
 
   const gameDurationMicros = BigInt(state.duration * 60 * 1000000);
   const visibility = GameVisibility.Private;
