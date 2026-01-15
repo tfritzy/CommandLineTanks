@@ -1213,3 +1213,52 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
   return rows;
 }
 
+export function tutorial(
+  connection: DbConnection,
+  gameId: string,
+  args: string[]
+): string[] {
+  if (args.length < 1) {
+    return [
+      themeColors.error("tutorial: error: missing subcommand"),
+      "",
+      themeColors.dim("Usage: tutorial complete"),
+      themeColors.dim("       tutorial skip"),
+    ];
+  }
+
+  const subcommand = args[0].toLowerCase();
+
+  const reducers = connection.reducers as {
+    tutorialComplete?: (params: { gameId: string }) => void;
+    tutorialSkip?: (params: { gameId: string }) => void;
+  };
+
+  if (subcommand === "complete") {
+    if (!reducers.tutorialComplete) {
+      return [themeColors.error("tutorial: error: tutorial commands not available")];
+    }
+    const joinCode = `tutorial_complete_${Date.now()}`;
+    setPendingJoinCode(joinCode);
+    reducers.tutorialComplete({ gameId });
+    return [themeColors.success("Completing tutorial...")];
+  }
+
+  if (subcommand === "skip") {
+    if (!reducers.tutorialSkip) {
+      return [themeColors.error("tutorial: error: tutorial commands not available")];
+    }
+    const joinCode = `tutorial_skip_${Date.now()}`;
+    setPendingJoinCode(joinCode);
+    reducers.tutorialSkip({ gameId });
+    return [themeColors.success("Skipping tutorial...")];
+  }
+
+  return [
+    themeColors.error(`tutorial: error: unknown subcommand '${subcommand}'`),
+    "",
+    themeColors.dim("Usage: tutorial complete"),
+    themeColors.dim("       tutorial skip"),
+  ];
+}
+

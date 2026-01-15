@@ -15,5 +15,7 @@ public static partial class Module
 
         tank = TargetTankByCode(ctx, tank, targetCode);
         ctx.Db.tank.Id.Update(tank);
+
+        MaybeAdvanceFromTargetEnemy(ctx, gameId, tank);
     }
 }

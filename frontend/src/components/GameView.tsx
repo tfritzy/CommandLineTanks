@@ -73,6 +73,7 @@ export default function GameView() {
         `SELECT * FROM score WHERE GameId = '${gameId}'`,
         `SELECT * FROM tank_gun WHERE GameId = '${gameId}'`,
         `SELECT * FROM player WHERE Identity = '${connection.identity}'`,
+        `SELECT * FROM tutorial_progress WHERE GameId = '${gameId}'`,
       ]);
 
     return () => {

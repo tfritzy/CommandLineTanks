@@ -1,0 +1,54 @@
+using SpacetimeDB;
+
+public static partial class Module
+{
+    [Reducer]
+    public static void tutorialComplete(ReducerContext ctx, string gameId)
+    {
+        var game = ctx.Db.game.Id.Find(gameId);
+        if (game == null || game.Value.GameType != Types.GameType.Tutorial)
+        {
+            Log.Info("tutorialComplete called on non-tutorial game");
+            return;
+        }
+
+        if (!game.Value.Owner.HasValue || !game.Value.Owner.Value.Equals(ctx.Sender))
+        {
+            Log.Info("tutorialComplete called by non-owner");
+            return;
+        }
+
+        var joinCode = $"tutorial_complete_{ctx.Timestamp.MicrosecondsSinceUnixEpoch}";
+
+        DeleteTutorialGame(ctx, gameId);
+
+        ReturnToHomegame(ctx, joinCode);
+
+        Log.Info($"Tutorial completed for {ctx.Sender}");
+    }
+
+    [Reducer]
+    public static void tutorialSkip(ReducerContext ctx, string gameId)
+    {
+        var game = ctx.Db.game.Id.Find(gameId);
+        if (game == null || game.Value.GameType != Types.GameType.Tutorial)
+        {
+            Log.Info("tutorialSkip called on non-tutorial game");
+            return;
+        }
+
+        if (!game.Value.Owner.HasValue || !game.Value.Owner.Value.Equals(ctx.Sender))
+        {
+            Log.Info("tutorialSkip called by non-owner");
+            return;
+        }
+
+        var joinCode = $"tutorial_skip_{ctx.Timestamp.MicrosecondsSinceUnixEpoch}";
+
+        DeleteTutorialGame(ctx, gameId);
+
+        ReturnToHomegame(ctx, joinCode);
+
+        Log.Info($"Tutorial skipped for {ctx.Sender}");
+    }
+}

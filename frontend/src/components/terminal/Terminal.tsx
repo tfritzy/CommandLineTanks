@@ -4,7 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
-import { aim, track, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitGame, tanks, findCommandSuggestion, parseCommandInput } from "./commands";
+import { aim, track, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitGame, tanks, tutorial, findCommandSuggestion, parseCommandInput } from "./commands";
 import { setTerminalWriteCallback } from "../../utils/terminalOutput";
 
 interface TerminalComponentProps {
@@ -24,7 +24,7 @@ const CTRL_ARROW_RIGHT = "\x1b[1;5C";
 
 const VALID_COMMANDS = ['aim', 'a', 'track', 't', 'drive', 'd', 'stop', 's', 'fire', 'f',
   'switch', 'w',
-  'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c'];
+  'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c', 'tutorial'];
 
 const MAX_TERMINAL_LINES = 1000;
 
@@ -177,6 +177,8 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
         case 'help':
         case 'h':
           return help(connection, commandArgs);
+        case 'tutorial':
+          return tutorial(connection, gameId, commandArgs);
         case 'clear':
         case 'c':
           return 'CLEAR';
