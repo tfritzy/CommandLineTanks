@@ -3,7 +3,7 @@ using SpacetimeDB;
 public static partial class Module
 {
     [Reducer]
-    public static void tutorialComplete(ReducerContext ctx, string gameId)
+    public static void tutorialComplete(ReducerContext ctx, string gameId, string joinCode)
     {
         var game = ctx.Db.game.Id.Find(gameId);
         if (game == null || game.Value.GameType != Types.GameType.Tutorial)
@@ -18,8 +18,6 @@ public static partial class Module
             return;
         }
 
-        var joinCode = $"tutorial_complete_{ctx.Timestamp.MicrosecondsSinceUnixEpoch}";
-
         DeleteTutorialGame(ctx, gameId);
 
         ReturnToHomegame(ctx, joinCode);
@@ -28,7 +26,7 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void tutorialSkip(ReducerContext ctx, string gameId)
+    public static void tutorialSkip(ReducerContext ctx, string gameId, string joinCode)
     {
         var game = ctx.Db.game.Id.Find(gameId);
         if (game == null || game.Value.GameType != Types.GameType.Tutorial)
@@ -42,8 +40,6 @@ public static partial class Module
             Log.Info("tutorialSkip called by non-owner");
             return;
         }
-
-        var joinCode = $"tutorial_skip_{ctx.Timestamp.MicrosecondsSinceUnixEpoch}";
 
         DeleteTutorialGame(ctx, gameId);
 

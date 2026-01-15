@@ -1230,17 +1230,17 @@ export function tutorial(
   const subcommand = args[0].toLowerCase();
 
   const reducers = connection.reducers as {
-    tutorialComplete?: (params: { gameId: string }) => void;
-    tutorialSkip?: (params: { gameId: string }) => void;
+    tutorialComplete?: (params: { gameId: string; joinCode: string }) => void;
+    tutorialSkip?: (params: { gameId: string; joinCode: string }) => void;
   };
 
   if (subcommand === "complete") {
     if (!reducers.tutorialComplete) {
       return [themeColors.error("tutorial: error: tutorial commands not available")];
     }
-    const joinCode = `tutorial_complete_${Date.now()}`;
+    const joinCode = `tutorial_complete_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     setPendingJoinCode(joinCode);
-    reducers.tutorialComplete({ gameId });
+    reducers.tutorialComplete({ gameId, joinCode });
     return [themeColors.success("Completing tutorial...")];
   }
 
@@ -1248,9 +1248,9 @@ export function tutorial(
     if (!reducers.tutorialSkip) {
       return [themeColors.error("tutorial: error: tutorial commands not available")];
     }
-    const joinCode = `tutorial_skip_${Date.now()}`;
+    const joinCode = `tutorial_skip_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     setPendingJoinCode(joinCode);
-    reducers.tutorialSkip({ gameId });
+    reducers.tutorialSkip({ gameId, joinCode });
     return [themeColors.success("Skipping tutorial...")];
   }
 
