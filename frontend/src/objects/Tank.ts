@@ -1,5 +1,4 @@
 import { FLASH_DURATION } from "../utils/colors";
-import { INTERPOLATION_DELAY, BUFFER_DURATION,  } from "../constants";
 import {
   drawTankShadow,
   drawTankBody,
@@ -8,7 +7,6 @@ import {
   drawTankNameLabel,
   drawTankTextLabel,
 } from "../drawing/tanks/tank";
-import { ServerTimeSync } from "../utils/ServerTimeSync";
 import { COLORS } from "../theme/colors";
 
 export class Tank {
@@ -16,10 +14,14 @@ export class Tank {
   public readonly id: string;
   private x: number;
   private y: number;
+  private serverX: number;
+  private serverY: number;
   private turretRotation: number;
   private targetTurretRotation: number;
   private turretAngularVelocity: number;
   private path: Array<{ x: number; y: number }>;
+  private pathIndex: number;
+  private topSpeed: number;
   private name: string;
   private targetCode: string;
   private alliance: number;
@@ -29,12 +31,9 @@ export class Tank {
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
   private message: string | null = null;
-  private positionBuffer: Array<{
-    x: number;
-    y: number;
-    serverTimestampMs: number;
-  }> = [];
   private cachedPosition: { x: number; y: number } = { x: 0, y: 0 };
+  private static readonly ARRIVAL_THRESHOLD = 0.1;
+  private static readonly TELEPORT_THRESHOLD = 2.0;
 
   constructor(
     id: string,
@@ -48,12 +47,16 @@ export class Tank {
     maxHealth: number = 100,
     turretAngularVelocity: number = 0,
     path: Array<{ x: number; y: number }> = [],
+    pathIndex: number = 0,
     hasShield: boolean = false,
-    remainingImmunityMicros: bigint = 0n
+    remainingImmunityMicros: bigint = 0n,
+    topSpeed: number = 3.0
   ) {
     this.id = id;
     this.x = x;
     this.y = y;
+    this.serverX = x;
+    this.serverY = y;
     this.turretRotation = turretRotation;
     this.targetTurretRotation = turretRotation;
     this.name = name;
@@ -63,8 +66,10 @@ export class Tank {
     this.maxHealth = maxHealth;
     this.turretAngularVelocity = turretAngularVelocity;
     this.path = path;
+    this.pathIndex = pathIndex;
     this.hasShield = hasShield;
     this.remainingImmunityMicros = remainingImmunityMicros;
+    this.topSpeed = topSpeed;
   }
 
   public getAllianceColor(): string {
@@ -132,32 +137,22 @@ export class Tank {
     drawTankPath(ctx, this.x, this.y, this.path, lineColor, dotColor);
   }
 
-  public setPosition(x: number, y: number, serverTimestampMicros: bigint) {
-    const serverTimestampMs = Number(serverTimestampMicros / 1000n);
+  public setPosition(x: number, y: number) {
+    this.serverX = x;
+    this.serverY = y;
 
-    ServerTimeSync.getInstance().recordServerTimestamp(serverTimestampMicros);
+    const dx = this.serverX - this.x;
+    const dy = this.serverY - this.y;
+    const distanceSquared = dx * dx + dy * dy;
 
-    this.positionBuffer.push({
-      x,
-      y,
-      serverTimestampMs,
-    });
-
-    const cutoffTime = serverTimestampMs - BUFFER_DURATION;
-    let writeIndex = 0;
-    for (let i = 0; i < this.positionBuffer.length; i++) {
-      if (this.positionBuffer[i].serverTimestampMs > cutoffTime) {
-        if (writeIndex !== i) {
-          this.positionBuffer[writeIndex] = this.positionBuffer[i];
-        }
-        writeIndex++;
-      }
+    if (distanceSquared > Tank.TELEPORT_THRESHOLD * Tank.TELEPORT_THRESHOLD) {
+      this.x = this.serverX;
+      this.y = this.serverY;
     }
-    this.positionBuffer.length = writeIndex;
   }
 
-  public clearPositionBuffer() {
-    this.positionBuffer.length = 0;
+  public setTopSpeed(topSpeed: number) {
+    this.topSpeed = topSpeed;
   }
 
   public setTurretRotation(rotation: number) {
@@ -172,8 +167,9 @@ export class Tank {
     this.turretAngularVelocity = turretAngularVelocity;
   }
 
-  public setPath(path: Array<{ x: number; y: number }>) {
+  public setPath(path: Array<{ x: number; y: number }>, pathIndex: number = 0) {
     this.path = path;
+    this.pathIndex = Math.max(this.pathIndex, pathIndex);
   }
 
   public setHealth(health: number) {
@@ -216,7 +212,7 @@ export class Tank {
       this.flashTimer = Math.max(0, this.flashTimer - deltaTime);
     }
 
-    this.updateInterpolatedMovement(deltaTime);
+    this.updatePathBasedMovement(deltaTime);
 
     if (this.turretAngularVelocity !== 0) {
       let currentDiff = this.targetTurretRotation - this.turretRotation;
@@ -238,45 +234,49 @@ export class Tank {
     }
   }
 
-  private updateInterpolatedMovement(_deltaTime: number) {
-    if (this.positionBuffer.length === 0) return;
+  private updatePathBasedMovement(deltaTime: number) {
+    if (this.pathIndex >= this.path.length) return;
 
-    if (this.positionBuffer.length === 1) {
-      this.x = this.positionBuffer[0].x;
-      this.y = this.positionBuffer[0].y;
-      return;
-    }
+    const targetPos = this.path[this.pathIndex];
+    const deltaX = targetPos.x - this.x;
+    const deltaY = targetPos.y - this.y;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-    const currentServerTime = ServerTimeSync.getInstance().getServerTime();
-    const renderTime = currentServerTime - INTERPOLATION_DELAY;
+    const moveSpeed = this.topSpeed;
+    const moveDistance = moveSpeed * deltaTime;
 
-    let prev = this.positionBuffer[0];
-    let next = this.positionBuffer[1];
+    if (distance <= Tank.ARRIVAL_THRESHOLD || moveDistance >= distance) {
+      const overshoot = Math.max(0, moveDistance - distance);
+      
+      this.pathIndex++;
 
-    for (let i = 0; i < this.positionBuffer.length - 1; i++) {
-      if (this.positionBuffer[i + 1].serverTimestampMs > renderTime) {
-        prev = this.positionBuffer[i];
-        next = this.positionBuffer[i + 1];
-        break;
+      if (this.pathIndex < this.path.length) {
+        const nextTarget = this.path[this.pathIndex];
+        const nextDeltaX = nextTarget.x - targetPos.x;
+        const nextDeltaY = nextTarget.y - targetPos.y;
+        const nextDistance = Math.sqrt(nextDeltaX * nextDeltaX + nextDeltaY * nextDeltaY);
+
+        if (nextDistance > 0) {
+          const nextDirX = nextDeltaX / nextDistance;
+          const nextDirY = nextDeltaY / nextDistance;
+
+          this.x = targetPos.x + nextDirX * Math.min(overshoot, nextDistance);
+          this.y = targetPos.y + nextDirY * Math.min(overshoot, nextDistance);
+        } else {
+          this.x = targetPos.x;
+          this.y = targetPos.y;
+        }
+      } else {
+        this.x = targetPos.x;
+        this.y = targetPos.y;
       }
+    } else {
+      const dirX = deltaX / distance;
+      const dirY = deltaY / distance;
+
+      this.x += dirX * moveDistance;
+      this.y += dirY * moveDistance;
     }
-
-    if (
-      renderTime >=
-      this.positionBuffer[this.positionBuffer.length - 1].serverTimestampMs
-    ) {
-      const last = this.positionBuffer[this.positionBuffer.length - 1];
-      this.x = last.x;
-      this.y = last.y;
-      return;
-    }
-
-    const total = next.serverTimestampMs - prev.serverTimestampMs;
-    const elapsed = renderTime - prev.serverTimestampMs;
-    const t = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
-
-    this.x = prev.x + (next.x - prev.x) * t;
-    this.y = prev.y + (next.y - prev.y) * t;
   }
 
   // Getters

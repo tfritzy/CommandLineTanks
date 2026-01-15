@@ -19,4 +19,5 @@ export default __t.row({
   get path() {
     return __t.array(Vector2Float);
   },
+  pathIndex: __t.i32(),
 });
