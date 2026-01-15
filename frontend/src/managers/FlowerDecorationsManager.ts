@@ -8,11 +8,9 @@ type BaseTerrainType = Infer<typeof BaseTerrain>;
 
 const FLOWER_SPAWN_CHANCE = 0.15;
 const FLOWER_CIRCLE_RADIUS = 0.5;
-const MIN_FLOWERS_PER_CIRCLE = 3;
-const MAX_FLOWERS_PER_CIRCLE = 5;
 
 export class FlowerDecorationsManager {
-  private flowers: Flower[] = [];
+  private flowerCircles: Flower[] = [];
   private visibleFlowersBuffer: Array<{ x: number; y: number; variation: number }> = [];
   private occupiedCircles: Set<string> = new Set();
 
@@ -22,7 +20,7 @@ export class FlowerDecorationsManager {
     gameHeight: number,
     detailObjectsByPosition: (any | null)[][]
   ): void {
-    this.flowers = [];
+    this.flowerCircles = [];
     this.occupiedCircles.clear();
 
     for (let y = 0; y < gameHeight; y++) {
@@ -52,26 +50,11 @@ export class FlowerDecorationsManager {
 
         this.occupiedCircles.add(circleKey);
 
-        const countSeed = seed * 98765.4321;
-        const flowerCount = MIN_FLOWERS_PER_CIRCLE + 
-          Math.floor(Math.abs(Math.sin(countSeed) * 10000) % (MAX_FLOWERS_PER_CIRCLE - MIN_FLOWERS_PER_CIRCLE + 1));
+        const variationSeed = seed * 98765.4321;
+        const variation = Math.floor(Math.abs(Math.sin(variationSeed) * 10000) % getVariationCount());
 
-        for (let i = 0; i < flowerCount; i++) {
-          const angleSeed = seed + i * 7.77;
-          const distSeed = seed + i * 3.33;
-          const variationSeed = seed + i * 9.99;
-
-          const angle = Math.abs(Math.sin(angleSeed * 11111.1111) * 10000) % 1 * Math.PI * 2;
-          const distance = Math.abs(Math.sin(distSeed * 22222.2222) * 10000) % 1 * FLOWER_CIRCLE_RADIUS;
-
-          const flowerX = x + 0.5 + Math.cos(angle) * distance;
-          const flowerY = y + 0.5 + Math.sin(angle) * distance;
-
-          const variation = Math.floor(Math.abs(Math.sin(variationSeed * 33333.3333) * 10000) % getVariationCount());
-
-          const flower = new Flower(flowerX, flowerY, variation);
-          this.flowers.push(flower);
-        }
+        const flowerCircle = new Flower(x + 0.5, y + 0.5, variation);
+        this.flowerCircles.push(flowerCircle);
       }
     }
   }
@@ -116,22 +99,22 @@ export class FlowerDecorationsManager {
 
     let writeIndex = 0;
 
-    for (const flower of this.flowers) {
-      const x = flower.getX();
-      const y = flower.getY();
+    for (const flowerCircle of this.flowerCircles) {
+      const x = flowerCircle.getX();
+      const y = flowerCircle.getY();
 
       if (x >= startX && x <= endX && y >= startY && y <= endY) {
         if (writeIndex >= this.visibleFlowersBuffer.length) {
           this.visibleFlowersBuffer.push({
-            x: flower.getGameX(),
-            y: flower.getGameY(),
-            variation: flower.getVariation(),
+            x: flowerCircle.getGameX(),
+            y: flowerCircle.getGameY(),
+            variation: flowerCircle.getVariation(),
           });
         } else {
           const flowerInfo = this.visibleFlowersBuffer[writeIndex];
-          flowerInfo.x = flower.getGameX();
-          flowerInfo.y = flower.getGameY();
-          flowerInfo.variation = flower.getVariation();
+          flowerInfo.x = flowerCircle.getGameX();
+          flowerInfo.y = flowerCircle.getGameY();
+          flowerInfo.variation = flowerCircle.getVariation();
         }
         writeIndex++;
       }
@@ -143,7 +126,7 @@ export class FlowerDecorationsManager {
   }
 
   public destroy(): void {
-    this.flowers.length = 0;
+    this.flowerCircles.length = 0;
     this.visibleFlowersBuffer.length = 0;
     this.occupiedCircles.clear();
   }

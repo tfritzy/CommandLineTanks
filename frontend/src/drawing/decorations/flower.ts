@@ -24,7 +24,7 @@ function generateFlowerTexture(variationIndex: number): HTMLCanvasElement {
   const petalPixelSize = PETAL_SIZE * UNIT_TO_PIXEL;
   const centerPixelSize = CENTER_SIZE * UNIT_TO_PIXEL;
 
-  const flowerCount = 3 + (Math.abs(Math.sin(seed * 1.1)) * 3);
+  const flowerCount = 3 + Math.floor(Math.abs(Math.sin(seed * 1.1)) * 3);
 
   for (let f = 0; f < flowerCount; f++) {
     const flowerSeed = seed + f * 23.7;
