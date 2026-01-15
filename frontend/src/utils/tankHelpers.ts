@@ -1,6 +1,10 @@
 import { getConnection } from "../spacetimedb-connection";
-import { Identity, type Infer } from "spacetimedb";
-import Gun from "../../module_bindings/gun_type";
+import { Identity } from "spacetimedb";
+
+export interface GunSlot {
+  gunType: string;
+  ammo: number | undefined;
+}
 
 export interface FullTankData {
   id: string;
@@ -20,7 +24,7 @@ export interface FullTankData {
   deathTimestamp: bigint;
   selectedGunIndex: number;
   lastDamagedBy: Identity | undefined;
-  guns: Infer<typeof Gun>[];
+  guns: GunSlot[];
   owner: Identity;
   name: string;
   targetCode: string;
@@ -32,6 +36,22 @@ export interface FullTankData {
   positionY: number;
   velocity: { x: number; y: number };
   updatedAt: bigint;
+}
+
+export function getTankGuns(tankId: string): GunSlot[] {
+  const connection = getConnection();
+  if (!connection) return [{ gunType: "Base", ammo: undefined }];
+  
+  const guns: GunSlot[] = [{ gunType: "Base", ammo: undefined }];
+  const gunEntries: Array<{ slotIndex: number; gunType: string; ammo: number | undefined }> = [];
+  for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
+    gunEntries.push({ slotIndex: tankGun.slotIndex, gunType: tankGun.gun.gunType.tag, ammo: tankGun.gun.ammo });
+  }
+  gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
+  for (const entry of gunEntries) {
+    guns.push({ gunType: entry.gunType, ammo: entry.ammo });
+  }
+  return guns;
 }
 
 export function getFullTank(tankId: string): FullTankData | null {
@@ -61,7 +81,7 @@ export function getFullTank(tankId: string): FullTankData | null {
     deathTimestamp: tank.deathTimestamp,
     selectedGunIndex: tank.selectedGunIndex,
     lastDamagedBy: tank.lastDamagedBy,
-    guns: tank.guns,
+    guns: getTankGuns(tankId),
     owner: tank.owner,
     name: tank.name,
     targetCode: tank.targetCode,

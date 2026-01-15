@@ -236,36 +236,39 @@ public static partial class Module
 
     private static void HandleBoomerangReturn(ReducerContext ctx, Projectile projectile, Tank tank)
     {
-        int existingGunIndex = -1;
-        for (int i = 0; i < tank.Guns.Length; i++)
+        TankGun? existingBoomerang = null;
+        int storedGunCount = 0;
+        foreach (var g in ctx.Db.tank_gun.TankId.Filter(tank.Id))
         {
-            if (tank.Guns[i].GunType == GunType.Boomerang)
+            storedGunCount++;
+            if (g.Gun.GunType == GunType.Boomerang)
             {
-                existingGunIndex = i;
-                break;
+                existingBoomerang = g;
             }
         }
 
-        if (existingGunIndex >= 0)
+        if (existingBoomerang != null)
         {
-            var gun = tank.Guns[existingGunIndex];
+            var gun = existingBoomerang.Value.Gun;
             if (gun.Ammo != null)
             {
                 gun.Ammo = gun.Ammo.Value + 1;
-                tank.Guns[existingGunIndex] = gun;
-                ctx.Db.tank.Id.Update(tank);
+                ctx.Db.tank_gun.Id.Update(existingBoomerang.Value with { Gun = gun });
             }
         }
-        else if (tank.Guns.Length < 3)
+        else if (storedGunCount < 2)
         {
             var boomerangGun = BOOMERANG_GUN with { Ammo = 1 };
-            var newGunIndex = tank.Guns.Length;
-            tank = tank with
+            var newGunIndex = storedGunCount + 1;
+            ctx.Db.tank_gun.Insert(new TankGun
             {
-                Guns = [.. tank.Guns, boomerangGun],
-                SelectedGunIndex = newGunIndex
-            };
-            ctx.Db.tank.Id.Update(tank);
+                TankId = tank.Id,
+                GameId = tank.GameId,
+                SlotIndex = newGunIndex,
+                Gun = boomerangGun
+            });
+            var updatedTank = tank with { SelectedGunIndex = newGunIndex };
+            ctx.Db.tank.Id.Update(updatedTank);
         }
 
         ProjectileUpdater.DeleteProjectile(ctx, projectile.Id);

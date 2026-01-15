@@ -165,7 +165,7 @@ public static class GameAILogic
         if (!isCurrentlyMoving)
         {
             var nearbyPickup = FindNearestPickup(tank, context.GetAllPickups());
-            if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value))
+            if (nearbyPickup != null && ShouldCollectPickup(tank, nearbyPickup.Value, context))
             {
                 var tMap = context.GetTraversibilityMap();
                 if (tMap != null)
@@ -187,7 +187,7 @@ public static class GameAILogic
         return new AIDecision { Action = AIAction.None };
     }
 
-    public static bool ShouldCollectPickup(FullTank tank, Module.Pickup pickup)
+    public static bool ShouldCollectPickup(FullTank tank, Module.Pickup pickup, AIContext context)
     {
         var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
         if (distance >= 15f) return false;
@@ -197,7 +197,7 @@ public static class GameAILogic
             return tank.Health < tank.MaxHealth;
         }
 
-        if (tank.Guns.Length >= 3) return false;
+        if (context.GetGunCount(tank.Id) >= 3) return false;
 
         return true;
     }

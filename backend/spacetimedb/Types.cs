@@ -287,7 +287,6 @@ public struct FullTank
     public string? Target => Tank.Target;
     public float TargetLead => Tank.TargetLead;
     public string? Message => Tank.Message;
-    public Types.Gun[] Guns => Tank.Guns;
     public int SelectedGunIndex => Tank.SelectedGunIndex;
     public bool HasShield => Tank.HasShield;
     public long RemainingImmunityMicros => Tank.RemainingImmunityMicros;

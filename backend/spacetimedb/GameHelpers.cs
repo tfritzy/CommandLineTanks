@@ -30,6 +30,7 @@ public static partial class Module
         }
         
         DeleteTankPathIfExists(ctx, tank.Id);
+        DeleteTankGuns(ctx, tank.Id);
         
         ctx.Db.tank_transform.TankId.Delete(tank.Id);
         ctx.Db.tank.Id.Delete(tank.Id);

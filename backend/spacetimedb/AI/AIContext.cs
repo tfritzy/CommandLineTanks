@@ -80,6 +80,16 @@ public class AIContext
         return _tankPaths[tankId];
     }
 
+    public int GetGunCount(string tankId)
+    {
+        int count = 1;
+        foreach (var _ in _ctx.Db.tank_gun.TankId.Filter(tankId))
+        {
+            count++;
+        }
+        return count;
+    }
+
     public FullTank? GetClosestEnemyTank(FullTank sourceTank)
     {
         var tanks = GetAllTanks();

@@ -1,5 +1,3 @@
-import { type Infer } from "spacetimedb";
-import Gun from "../../module_bindings/gun_type";
 import { FLASH_DURATION } from "../utils/colors";
 import { INTERPOLATION_DELAY, BUFFER_DURATION,  } from "../constants";
 import {
@@ -27,8 +25,6 @@ export class Tank {
   private alliance: number;
   private health: number;
   private maxHealth: number;
-  private guns: Infer<typeof Gun>[];
-  private selectedGunIndex: number;
   private flashTimer: number = 0;
   private hasShield: boolean = false;
   private remainingImmunityMicros: bigint = 0n;
@@ -52,8 +48,6 @@ export class Tank {
     maxHealth: number = 100,
     turretAngularVelocity: number = 0,
     path: Array<{ x: number; y: number }> = [],
-    guns: Infer<typeof Gun>[] = [],
-    selectedGunIndex: number = 0,
     hasShield: boolean = false,
     remainingImmunityMicros: bigint = 0n
   ) {
@@ -69,8 +63,6 @@ export class Tank {
     this.maxHealth = maxHealth;
     this.turretAngularVelocity = turretAngularVelocity;
     this.path = path;
-    this.guns = guns;
-    this.selectedGunIndex = selectedGunIndex;
     this.hasShield = hasShield;
     this.remainingImmunityMicros = remainingImmunityMicros;
   }
@@ -195,14 +187,6 @@ export class Tank {
     this.alliance = alliance;
   }
 
-  public setGuns(guns: Infer<typeof Gun>[]) {
-    this.guns = guns;
-  }
-
-  public setSelectedGunIndex(selectedGunIndex: number) {
-    this.selectedGunIndex = selectedGunIndex;
-  }
-
   public setHasShield(hasShield: boolean) {
     this.hasShield = hasShield;
   }
@@ -304,14 +288,6 @@ export class Tank {
 
   public getTurretRotation(): number {
     return this.turretRotation;
-  }
-
-  public getGuns(): Infer<typeof Gun>[] {
-    return this.guns;
-  }
-
-  public getSelectedGunIndex(): number {
-    return this.selectedGunIndex;
   }
 
   public getHealth(): number {

@@ -307,19 +307,20 @@ public static partial class PickupSpawner
 
     private static bool TryCollectGunPickup(ReducerContext ctx, ref Module.Tank tank, ref bool needsUpdate, Module.Pickup pickup, Gun gunToAdd)
     {
-        int existingGunIndex = -1;
-        for (int i = 0; i < tank.Guns.Length; i++)
+        Module.TankGun? existingGunEntry = null;
+        int storedGunCount = 0;
+        foreach (var g in ctx.Db.tank_gun.TankId.Filter(tank.Id))
         {
-            if (tank.Guns[i].GunType == gunToAdd.GunType)
+            storedGunCount++;
+            if (g.Gun.GunType == gunToAdd.GunType)
             {
-                existingGunIndex = i;
-                break;
+                existingGunEntry = g;
             }
         }
 
-        if (existingGunIndex >= 0)
+        if (existingGunEntry != null)
         {
-            var existingGun = tank.Guns[existingGunIndex];
+            var existingGun = existingGunEntry.Value.Gun;
 
             if (pickup.Ammo != null)
             {
@@ -331,23 +332,26 @@ public static partial class PickupSpawner
                 {
                     existingGun.Ammo = pickup.Ammo;
                 }
-                tank.Guns[existingGunIndex] = existingGun;
-                needsUpdate = true;
+                ctx.Db.tank_gun.Id.Update(existingGunEntry.Value with { Gun = existingGun });
                 ctx.Db.pickup.Id.Delete(pickup.Id);
                 return true;
             }
         }
-        else if (tank.Guns.Length < 3)
+        else if (storedGunCount < 2)
         {
             var gunWithAmmo = pickup.Ammo.HasValue
                 ? gunToAdd with { Ammo = pickup.Ammo }
                 : gunToAdd;
 
-            tank = tank with
+            int newSlotIndex = storedGunCount + 1;
+            ctx.Db.tank_gun.Insert(new Module.TankGun
             {
-                Guns = [.. tank.Guns, gunWithAmmo],
-                SelectedGunIndex = tank.Guns.Length
-            };
+                TankId = tank.Id,
+                GameId = tank.GameId,
+                SlotIndex = newSlotIndex,
+                Gun = gunWithAmmo
+            });
+            tank = tank with { SelectedGunIndex = newSlotIndex };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
             return true;

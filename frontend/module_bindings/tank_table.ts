@@ -11,7 +11,6 @@ import {
 } from "spacetimedb";
 import AiBehavior from "./ai_behavior_type";
 import AiConfig from "./ai_config_type";
-import Gun from "./gun_type";
 
 
 export default __t.row({
@@ -39,9 +38,6 @@ export default __t.row({
   target: __t.option(__t.string()),
   targetLead: __t.f32(),
   message: __t.option(__t.string()),
-  get guns() {
-    return __t.array(Gun);
-  },
   selectedGunIndex: __t.i32(),
   hasShield: __t.bool(),
   remainingImmunityMicros: __t.i64(),
