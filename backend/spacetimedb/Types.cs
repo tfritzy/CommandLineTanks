@@ -130,10 +130,7 @@ public static partial class Types
     public enum AIBehavior : byte
     {
         None,
-        GameAI,
-        Tilebound,
-        RandomAim,
-        Turret
+        GameAI
     }
 
     [Type]

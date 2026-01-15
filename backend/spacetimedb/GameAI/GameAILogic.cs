@@ -27,7 +27,7 @@ public static class GameAILogic
         public List<(int x, int y)> Path { get; set; } = new List<(int x, int y)>();
     }
 
-    public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, FullTank tank, AIContext context)
+    public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, FullTank tank, GameAIContext context)
     {
         var allTanks = context.GetAllTanks();
         var pathState = context.GetTankPath(tank.Id);
@@ -187,7 +187,7 @@ public static class GameAILogic
         return new AIDecision { Action = AIAction.None };
     }
 
-    public static bool ShouldCollectPickup(FullTank tank, Module.Pickup pickup, AIContext context)
+    public static bool ShouldCollectPickup(FullTank tank, Module.Pickup pickup, GameAIContext context)
     {
         var distance = GetDistance(tank.PositionX, tank.PositionY, (float)pickup.PositionX, (float)pickup.PositionY);
         if (distance >= 15f) return false;

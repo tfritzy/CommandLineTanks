@@ -7,7 +7,7 @@ using static Module;
 
 public static partial class GameAI
 {
-    public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, AIContext aiContext)
+    public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, GameAIContext aiContext)
     {
         var tank = fullTank.Tank;
         var decision = GameAILogic.EvaluateBehaviorTree(ctx, fullTank, aiContext);
