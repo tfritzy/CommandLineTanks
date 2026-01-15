@@ -26,8 +26,6 @@ public static partial class Module
         [PrimaryKey]
         public ulong ScheduledId;
         public ScheduleAt ScheduledAt;
-        [SpacetimeDB.Index.BTree]
-        public string GameId;
     }
 
     public static bool HasAnyTanksInGame(ReducerContext ctx, string gameId)
@@ -65,11 +63,6 @@ public static partial class Module
         foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
-        }
-
-        foreach (var activityCheck in ctx.Db.ScheduledHomeworldActivityCheck.GameId.Filter(gameId))
-        {
-            ctx.Db.ScheduledHomeworldActivityCheck.ScheduledId.Delete(activityCheck.ScheduledId);
         }
 
         Log.Info($"Stopped tickers for game {gameId}");
@@ -125,46 +118,41 @@ public static partial class Module
     [Reducer]
     public static void CheckHomeworldActivity(ReducerContext ctx, ScheduledHomeworldActivityCheck args)
     {
-        var game = ctx.Db.game.Id.Find(args.GameId);
-        if (game == null)
-        {
-            ctx.Db.ScheduledHomeworldActivityCheck.ScheduledId.Delete(args.ScheduledId);
-            return;
-        }
-
-        if (!game.Value.IsHomeGame)
-        {
-            ctx.Db.ScheduledHomeworldActivityCheck.ScheduledId.Delete(args.ScheduledId);
-            return;
-        }
-
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
 
-        Tank? playerTank = null;
-        foreach (var tank in ctx.Db.tank.GameId.Filter(args.GameId))
+        foreach (var game in ctx.Db.game.Iter())
         {
-            if (!tank.IsBot)
+            if (!game.IsHomeGame)
             {
-                playerTank = tank;
-                break;
+                continue;
             }
-        }
 
-        if (playerTank == null)
-        {
-            return;
-        }
+            Tank? playerTank = null;
+            foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
+            {
+                if (!tank.IsBot)
+                {
+                    playerTank = tank;
+                    break;
+                }
+            }
 
-        var playerTransform = ctx.Db.tank_transform.TankId.Find(playerTank.Value.Id);
-        if (playerTransform == null)
-        {
-            return;
-        }
+            if (playerTank == null)
+            {
+                continue;
+            }
 
-        var timeSinceLastUpdate = currentTime - playerTransform.Value.UpdatedAt;
-        if (timeSinceLastUpdate > (ulong)HOMEWORLD_INACTIVITY_TIMEOUT_MICROS)
-        {
-            PauseHomeworldUpdaters(ctx, args.GameId);
+            var playerTransform = ctx.Db.tank_transform.TankId.Find(playerTank.Value.Id);
+            if (playerTransform == null)
+            {
+                continue;
+            }
+
+            var timeSinceLastUpdate = currentTime - playerTransform.Value.UpdatedAt;
+            if (timeSinceLastUpdate > (ulong)HOMEWORLD_INACTIVITY_TIMEOUT_MICROS)
+            {
+                PauseHomeworldUpdaters(ctx, game.Id);
+            }
         }
     }
 
@@ -217,16 +205,6 @@ public static partial class Module
             {
                 ScheduledId = 0,
                 ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = 8_000_000 }),
-                GameId = gameId
-            });
-        }
-
-        if (!ctx.Db.ScheduledHomeworldActivityCheck.GameId.Filter(gameId).Any())
-        {
-            ctx.Db.ScheduledHomeworldActivityCheck.Insert(new ScheduledHomeworldActivityCheck
-            {
-                ScheduledId = 0,
-                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = HOMEWORLD_ACTIVITY_CHECK_INTERVAL_MICROS }),
                 GameId = gameId
             });
         }
