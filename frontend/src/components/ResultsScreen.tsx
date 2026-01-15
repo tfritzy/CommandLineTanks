@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-import { getConnection, isCurrentIdentity } from '../spacetimedb-connection';
+import { getConnection } from '../spacetimedb-connection';
 import { type Infer } from 'spacetimedb';
 import TankRow from '../../module_bindings/tank_type';
 import ScoreRow from '../../module_bindings/score_type';
 import GameRow from '../../module_bindings/game_type';
 import { type EventContext } from "../../module_bindings";
 import { ServerTimeSync } from '../utils/ServerTimeSync';
-import { SoundManager } from '../managers/SoundManager';
 import { createMultiTableSubscription, type MultiTableSubscription } from '../utils/tableSubscription';
 
 const GAME_RESET_DELAY_MICROS = 15_000_000;

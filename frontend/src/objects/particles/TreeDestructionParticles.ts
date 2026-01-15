@@ -17,7 +17,7 @@ export class TreeDestructionParticles {
   private cachedPosition: { x: number; y: number };
   private windVelocityX: number;
 
-  constructor(x: number, y: number, isDeadTree: boolean) {
+  constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
     this.cachedPosition = { x, y };
