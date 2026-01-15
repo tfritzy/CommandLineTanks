@@ -15,6 +15,7 @@ import TankTransformRow from "../../module_bindings/tank_transform_type";
 import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
+import { HomeGameTankUpdater } from "./HomeGameTankUpdater";
 
 const VIEWPORT_PADDING = 100;
 
@@ -30,6 +31,7 @@ export class TankManager {
   private muzzleFlashManager: MuzzleFlashParticlesManager;
   private soundManager: SoundManager;
   private subscription: MultiTableSubscription | null = null;
+  private homeGameTankUpdater: HomeGameTankUpdater;
 
   constructor(gameId: string, screenShake: ScreenShake, soundManager: SoundManager) {
     this.gameId = gameId;
@@ -39,6 +41,8 @@ export class TankManager {
     this.muzzleFlashManager = new MuzzleFlashParticlesManager();
     this.targetingReticle = new TargetingReticle();
     this.screenShake = screenShake;
+    this.homeGameTankUpdater = new HomeGameTankUpdater(gameId);
+    this.homeGameTankUpdater.setTankManager(this);
     this.subscribeToTanks();
   }
 
@@ -155,7 +159,6 @@ export class TankManager {
             const existingTank = this.tanks.get(transform.tankId);
             if (existingTank) {
               existingTank.setPosition(transform.positionX, transform.positionY, transform.updatedAt);
-              existingTank.setVelocity(transform.velocity.x, transform.velocity.y);
               existingTank.setTargetTurretRotation(transform.targetTurretRotation);
               existingTank.setTurretAngularVelocity(transform.turretAngularVelocity);
               existingTank.setTurretRotation(transform.turretRotation);
@@ -168,7 +171,6 @@ export class TankManager {
             const tank = this.tanks.get(newTransform.tankId);
             if (tank) {
               tank.setPosition(newTransform.positionX, newTransform.positionY, newTransform.updatedAt);
-              tank.setVelocity(newTransform.velocity.x, newTransform.velocity.y);
               tank.setTargetTurretRotation(newTransform.targetTurretRotation);
               tank.setTurretAngularVelocity(newTransform.turretAngularVelocity);
               tank.setTurretRotation(newTransform.turretRotation);
@@ -249,7 +251,6 @@ export class TankManager {
       tank.hasShield,
       tank.remainingImmunityMicros
     );
-    newTank.setVelocity(transform.velocity.x, transform.velocity.y);
 
     this.tanks.set(tank.id, newTank);
     
@@ -294,6 +295,7 @@ export class TankManager {
     this.indicatorManager.destroy();
     this.muzzleFlashManager.destroy();
     this.targetingReticle.clearTank();
+    this.homeGameTankUpdater.destroy();
   }
 
   private updatePlayerTarget(targetId: string | null | undefined) {
@@ -316,6 +318,7 @@ export class TankManager {
   }
 
   public update(deltaTime: number) {
+    this.homeGameTankUpdater.update(deltaTime);
     for (const tank of this.tanks.values()) {
       tank.update(deltaTime);
     }
