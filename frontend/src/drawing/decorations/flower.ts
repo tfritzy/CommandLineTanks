@@ -1,18 +1,19 @@
 import { COLORS } from "../../theme/colors";
 import { UNIT_TO_PIXEL } from "../../constants";
 
-const FLOWER_SIZE = 0.08;
+const FLOWER_SIZE = 0.15;
 const PETAL_COUNT = 4;
-const PETAL_SIZE = 0.04;
-const CENTER_SIZE = 0.018;
+const PETAL_SIZE = 0.06;
+const CENTER_SIZE = 0.025;
 const VARIATION_COUNT = 5;
+const CIRCLE_RADIUS = 0.5;
 
 type FlowerTextureCache = Map<number, HTMLCanvasElement>;
 
 const textureCache: FlowerTextureCache = new Map();
 
 function generateFlowerTexture(variationIndex: number): HTMLCanvasElement {
-  const size = Math.ceil(FLOWER_SIZE * UNIT_TO_PIXEL * 2);
+  const size = Math.ceil((CIRCLE_RADIUS * 2 + FLOWER_SIZE) * UNIT_TO_PIXEL);
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
@@ -29,7 +30,7 @@ function generateFlowerTexture(variationIndex: number): HTMLCanvasElement {
   for (let f = 0; f < flowerCount; f++) {
     const flowerSeed = seed + f * 23.7;
     const angle = Math.abs(Math.sin(flowerSeed * 7.77)) * Math.PI * 2;
-    const distance = Math.abs(Math.sin(flowerSeed * 11.11)) * (size / 3);
+    const distance = Math.abs(Math.sin(flowerSeed * 11.11)) * (CIRCLE_RADIUS * UNIT_TO_PIXEL);
     const flowerX = centerX + Math.cos(angle) * distance;
     const flowerY = centerY + Math.sin(angle) * distance;
     const rotation = Math.abs(Math.sin(flowerSeed * 13.13)) * Math.PI * 2;
