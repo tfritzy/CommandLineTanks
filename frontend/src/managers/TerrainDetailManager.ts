@@ -77,7 +77,7 @@ export class TerrainDetailManager {
         const distance = Math.sqrt((checkX - x) ** 2 + (checkY - y) ** 2);
         if (distance <= bufferDistance) {
           const index = checkY * this.gameWidth + checkX;
-          if (this.baseTerrainLayer[index]?.tag === "Water") {
+          if (index >= 0 && index < this.baseTerrainLayer.length && this.baseTerrainLayer[index]?.tag === "Water") {
             return true;
           }
         }
