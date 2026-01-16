@@ -71,7 +71,7 @@ public static partial class Module
         var existingGame = ctx.Db.game.Id.Find(tutorialGameId);
         if (existingGame != null)
         {
-            DeleteGame(ctx, tutorialGameId);
+            DeleteTutorialGame(ctx, tutorialGameId);
         }
 
         int totalTiles = TUTORIAL_WIDTH * TUTORIAL_HEIGHT;

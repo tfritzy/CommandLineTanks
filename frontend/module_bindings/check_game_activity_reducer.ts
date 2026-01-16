@@ -13,7 +13,12 @@ import {
 import ScheduledGameActivityCheck from "./scheduled_game_activity_check_type";
 
 export default {
+<<<<<<<< HEAD:frontend/module_bindings/tutorial_skip_reducer.ts
+  gameId: __t.string(),
+  joinCode: __t.string(),
+========
   get args() {
     return ScheduledGameActivityCheck;
   },
+>>>>>>>> c7c4bbb64968429354e527424c0e2516f4634dd4:frontend/module_bindings/check_game_activity_reducer.ts
 };

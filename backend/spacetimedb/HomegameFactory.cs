@@ -37,6 +37,7 @@ public static partial class Module
 
         ctx.Db.game.Insert(game);
         StartHomeGameTickers(ctx, identityString);
+        PickupSpawner.SpawnHomegamePickups(ctx, identityString);
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
 

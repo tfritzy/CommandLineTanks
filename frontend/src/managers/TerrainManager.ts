@@ -40,10 +40,12 @@ export class TerrainManager {
           this.gameId,
           game.width,
           game.height,
-          this.soundManager
+          this.soundManager,
+          this.baseTerrainLayer
         );
       } else {
         this.detailManager.updateGameDimensions(game.width, game.height);
+        this.detailManager.updateBaseTerrainLayer(this.baseTerrainLayer);
       }
     };
 
