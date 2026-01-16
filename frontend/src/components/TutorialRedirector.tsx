@@ -41,14 +41,14 @@ const TutorialRedirector: React.FC = () => {
                     if (player.tutorialComplete) {
                         navigate(`/game/${identityLower}`, { replace: true });
                     } else {
-                        navigate(`/game/${tutorialGameId}`, { replace: true });
+                        navigate(`/tutorial/${tutorialGameId}`, { replace: true });
                     }
                     break;
                 }
             }
             
             if (!playerFound) {
-                navigate(`/game/${tutorialGameId}`, { replace: true });
+                navigate(`/tutorial/${tutorialGameId}`, { replace: true });
             }
         };
 
@@ -58,7 +58,7 @@ const TutorialRedirector: React.FC = () => {
                 if (player.tutorialComplete) {
                     navigate(`/game/${identityLower}`, { replace: true });
                 } else {
-                    navigate(`/game/${tutorialGameId}`, { replace: true });
+                    navigate(`/tutorial/${tutorialGameId}`, { replace: true });
                 }
             }
         };

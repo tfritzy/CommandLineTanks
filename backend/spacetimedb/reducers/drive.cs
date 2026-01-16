@@ -9,7 +9,7 @@ public static partial class Module
     [Reducer]
     public static void drive(ReducerContext ctx, string gameId, int targetX, int targetY)
     {
-        MaybeResumeUpdatersForHomeworld(ctx, gameId);
+        MaybeResumeUpdatersForLowTrafficGame(ctx, gameId);
 
         Game? maybeGame = ctx.Db.game.Id.Find(gameId);
         if (maybeGame != null)

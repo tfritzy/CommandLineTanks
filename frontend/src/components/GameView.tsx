@@ -22,7 +22,11 @@ import {
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { useJoinModalStatus } from "../hooks/useJoinModalStatus";
 
-export default function GameView() {
+interface GameViewProps {
+  isTutorialRoute: boolean;
+}
+
+export default function GameView({ isTutorialRoute }: GameViewProps) {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -36,7 +40,6 @@ export default function GameView() {
 
   const myIdentity = getIdentityHex();
   const isHomegame = myIdentity && gameId?.toLowerCase() === myIdentity.toLowerCase();
-  const isTutorial = myIdentity && gameId?.toLowerCase().startsWith(`tutorial_${myIdentity.toLowerCase()}`);
 
   const joinModalStatus = useJoinModalStatus(gameId);
   const showJoinModal = joinModalStatus === "no_tank";
@@ -234,26 +237,17 @@ export default function GameView() {
   }, [gameId, isHomegame]);
 
   useEffect(() => {
-    if (!gameId || !isTutorial) return;
+    if (!gameId || !isTutorialRoute) return;
 
     const connection = getConnection();
     if (!connection) return;
 
-    const reducers = connection.reducers as {
-      ensureTutorial?: (params: { gameId: string; joinCode: string }) => void;
-    };
-
-    if (!reducers.ensureTutorial) {
-      console.log('ensureTutorial reducer not available');
-      return;
-    }
-
     const joinCode = `ensure_tutorial_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     setPendingJoinCode(joinCode);
     
-    reducers.ensureTutorial({ gameId, joinCode });
+    connection.reducers.ensureTutorial({ gameId, joinCode });
     console.log(`Called ensureTutorial for gameId: ${gameId}`);
-  }, [gameId, isTutorial]);
+  }, [gameId, isTutorialRoute]);
 
   if (!gameId) {
     return null;
@@ -265,7 +259,7 @@ export default function GameView() {
         <GameHeader gameId={gameId} />
         <ScoreBoard gameId={gameId} />
         {isHomegame && <HomegameOverlay />}
-        {isTutorial && (
+        {isTutorialRoute && (
           <div 
             className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none"
             style={{ opacity: 0.6 }}
