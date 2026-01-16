@@ -105,6 +105,7 @@ public static partial class Module
         ctx.Db.game.Insert(game);
 
         var traversibilityBoolMap = CalculateTutorialTraversibility(baseTerrain);
+        var projectileTraversibilityBoolMap = CalculateTutorialProjectileTraversibility(baseTerrain);
 
         ctx.Db.traversibility_map.Insert(new TraversibilityMap
         {
@@ -117,7 +118,7 @@ public static partial class Module
         ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
         {
             GameId = tutorialGameId,
-            Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
+            Map = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap),
             Width = TUTORIAL_WIDTH,
             Height = TUTORIAL_HEIGHT
         });
@@ -268,6 +269,16 @@ public static partial class Module
         for (int i = 0; i < baseTerrain.Length; i++)
         {
             traversibility[i] = !baseTerrain[i].BlocksTanks();
+        }
+        return traversibility;
+    }
+
+    private static bool[] CalculateTutorialProjectileTraversibility(BaseTerrain[] baseTerrain)
+    {
+        var traversibility = new bool[baseTerrain.Length];
+        for (int i = 0; i < baseTerrain.Length; i++)
+        {
+            traversibility[i] = !baseTerrain[i].BlocksProjectiles();
         }
         return traversibility;
     }
