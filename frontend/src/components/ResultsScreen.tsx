@@ -76,20 +76,24 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
             }
         };
 
+        const initializeResetTimer = (game: Infer<typeof GameRow>) => {
+            const endTime = game.gameStartedAt + BigInt(game.gameDurationMicros);
+            const gameEndedAtMs = Number(endTime / 1000n);
+            const currentMs = Date.now();
+            const elapsedSinceEndMs = currentMs - gameEndedAtMs;
+            const resetDelaySeconds = GAME_RESET_DELAY_MICROS / 1_000_000;
+            const remainingSeconds = Math.max(0, Math.ceil(resetDelaySeconds - (elapsedSinceEndMs / 1000)));
+            
+            resetTimerStartRef.current = performance.now();
+            resetDelaySecondsRef.current = remainingSeconds;
+            setTimeUntilReset(remainingSeconds);
+        };
+
         const updateVisibility = () => {
             const game = connection.db.game.Id.find(gameId);
             if (game && game.gameState.tag === 'Results') {
                 setShowResults(true);
-                const endTime = game.gameStartedAt + BigInt(game.gameDurationMicros);
-                const gameEndedAtMs = Number(endTime / 1000n);
-                const currentMs = Date.now();
-                const elapsedSinceEndMs = currentMs - gameEndedAtMs;
-                const resetDelaySeconds = GAME_RESET_DELAY_MICROS / 1_000_000;
-                const remainingSeconds = Math.max(0, Math.ceil(resetDelaySeconds - (elapsedSinceEndMs / 1000)));
-                
-                resetTimerStartRef.current = performance.now();
-                resetDelaySecondsRef.current = remainingSeconds;
-                setTimeUntilReset(remainingSeconds);
+                initializeResetTimer(game);
             } else {
                 setShowResults(false);
                 resetTimerStartRef.current = null;
@@ -132,16 +136,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                     onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
                         if (game.id === gameId && game.gameState.tag === 'Results') {
                             setShowResults(true);
-                            const endTime = game.gameStartedAt + BigInt(game.gameDurationMicros);
-                            const gameEndedAtMs = Number(endTime / 1000n);
-                            const currentMs = Date.now();
-                            const elapsedSinceEndMs = currentMs - gameEndedAtMs;
-                            const resetDelaySeconds = GAME_RESET_DELAY_MICROS / 1_000_000;
-                            const remainingSeconds = Math.max(0, Math.ceil(resetDelaySeconds - (elapsedSinceEndMs / 1000)));
-                            
-                            resetTimerStartRef.current = performance.now();
-                            resetDelaySecondsRef.current = remainingSeconds;
-                            setTimeUntilReset(remainingSeconds);
+                            initializeResetTimer(game);
                             updateTanks();
                             updateScores();
                         }
@@ -150,16 +145,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                         if (newGame.id === gameId) {
                             if (newGame.gameState.tag === 'Results' && oldGame.gameState.tag === 'Playing') {
                                 setShowResults(true);
-                                const endTime = newGame.gameStartedAt + BigInt(newGame.gameDurationMicros);
-                                const gameEndedAtMs = Number(endTime / 1000n);
-                                const currentMs = Date.now();
-                                const elapsedSinceEndMs = currentMs - gameEndedAtMs;
-                                const resetDelaySeconds = GAME_RESET_DELAY_MICROS / 1_000_000;
-                                const remainingSeconds = Math.max(0, Math.ceil(resetDelaySeconds - (elapsedSinceEndMs / 1000)));
-                                
-                                resetTimerStartRef.current = performance.now();
-                                resetDelaySecondsRef.current = remainingSeconds;
-                                setTimeUntilReset(remainingSeconds);
+                                initializeResetTimer(newGame);
                                 updateTanks();
                                 updateScores();
                             } else if (newGame.gameState.tag === 'Playing' && oldGame.gameState.tag === 'Results') {
