@@ -119,13 +119,15 @@ export class TerrainDetailManager {
                 );
                 this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
               } else if (newType === "None") {
-                this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
+                if (oldType !== "Label") {
+                  this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
+                }
                 if (oldType === "Tree" || oldType === "DeadTree") {
                   this.treeDestructionParticles.spawnParticles(
                     newDetail.positionX,
                     newDetail.positionY,
                   );
-                } else {
+                } else if (oldType !== "Label") {
                   this.terrainDebrisParticles.spawnParticles(
                     newDetail.positionX,
                     newDetail.positionY
@@ -153,29 +155,33 @@ export class TerrainDetailManager {
               this.detailObjectsByPosition[y][x] = null;
             }
 
-            this.soundManager.play("terrain-destroy", 0.5, detail.positionX, detail.positionY);
+            if (detail.type.tag !== "Label") {
+              this.soundManager.play("terrain-destroy", 0.5, detail.positionX, detail.positionY);
+            }
 
-            if (
-              detail.type.tag === "FenceEdge" ||
-              detail.type.tag === "FenceCorner"
-            ) {
-              this.terrainDebrisParticles.spawnParticles(
-                detail.positionX,
-                detail.positionY
-              );
-            } else if (
-              detail.type.tag === "Tree" ||
-              detail.type.tag === "DeadTree"
-            ) {
-              this.treeDestructionParticles.spawnParticles(
-                detail.positionX,
-                detail.positionY
-              );
-            } else {
-              this.terrainDebrisParticles.spawnParticles(
-                detail.positionX,
-                detail.positionY
-              );
+            if (detail.type.tag !== "Label") {
+              if (
+                detail.type.tag === "FenceEdge" ||
+                detail.type.tag === "FenceCorner"
+              ) {
+                this.terrainDebrisParticles.spawnParticles(
+                  detail.positionX,
+                  detail.positionY
+                );
+              } else if (
+                detail.type.tag === "Tree" ||
+                detail.type.tag === "DeadTree"
+              ) {
+                this.treeDestructionParticles.spawnParticles(
+                  detail.positionX,
+                  detail.positionY
+                );
+              } else {
+                this.terrainDebrisParticles.spawnParticles(
+                  detail.positionX,
+                  detail.positionY
+                );
+              }
             }
           }
           this.detailObjects.delete(detail.id);
