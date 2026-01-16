@@ -12,6 +12,7 @@ import {
 import GameVisibility from "./game_visibility_type";
 import BaseTerrain from "./base_terrain_type";
 import GameState from "./game_state_type";
+import GameType from "./game_type_type";
 
 
 export default __t.object("Game", {
@@ -25,7 +26,9 @@ export default __t.object("Game", {
   get gameState() {
     return GameState;
   },
-  isHomeGame: __t.bool(),
+  get gameType() {
+    return GameType;
+  },
   gameStartedAt: __t.u64(),
   gameDurationMicros: __t.i64(),
   get visibility() {

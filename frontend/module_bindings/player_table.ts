@@ -16,4 +16,5 @@ export default __t.row({
   name: __t.option(__t.string()),
   createdAt: __t.u64(),
   ping: __t.u64(),
+  tutorialComplete: __t.bool(),
 });

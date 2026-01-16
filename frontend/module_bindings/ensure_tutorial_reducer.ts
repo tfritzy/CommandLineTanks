@@ -10,13 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("Player", {
-  id: __t.string(),
-  identity: __t.identity(),
-  name: __t.option(__t.string()),
-  createdAt: __t.u64(),
-  ping: __t.u64(),
-  tutorialComplete: __t.bool(),
-});
-
-
+export default {
+  gameId: __t.string(),
+  joinCode: __t.string(),
+};

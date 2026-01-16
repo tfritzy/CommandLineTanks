@@ -51,6 +51,8 @@ import EndGame from "./end_game_reducer";
 export { EndGame };
 import EnsureHomegame from "./ensure_homegame_reducer";
 export { EnsureHomegame };
+import EnsureTutorial from "./ensure_tutorial_reducer";
+export { EnsureTutorial };
 import ExitGame from "./exit_game_reducer";
 export { ExitGame };
 import Fire from "./fire_reducer";
@@ -75,6 +77,10 @@ import SwitchGun from "./switch_gun_reducer";
 export { SwitchGun };
 import Track from "./track_reducer";
 export { Track };
+import TutorialComplete from "./tutorial_complete_reducer";
+export { TutorialComplete };
+import TutorialSkip from "./tutorial_skip_reducer";
+export { TutorialSkip };
 import UpdateAi from "./update_ai_reducer";
 export { UpdateAi };
 import UpdateProjectiles from "./update_projectiles_reducer";
@@ -151,6 +157,8 @@ import Game from "./game_type";
 export { Game };
 import GameState from "./game_state_type";
 export { GameState };
+import GameType from "./game_type_type";
+export { GameType };
 import GameVisibility from "./game_visibility_type";
 export { GameVisibility };
 import Gun from "./gun_type";
@@ -337,9 +345,9 @@ const tablesSchema = __schema(
   __table({
     name: 'game',
     indexes: [
-      { name: 'GameState_IsHomeGame_Visibility', algorithm: 'btree', columns: [
+      { name: 'GameState_GameType_Visibility', algorithm: 'btree', columns: [
         'gameState',
-        'isHomeGame',
+        'gameType',
         'visibility',
       ] },
       { name: 'GameState', algorithm: 'btree', columns: [
@@ -596,6 +604,7 @@ const reducersSchema = __reducers(
   __reducerSchema("drive", Drive),
   __reducerSchema("EndGame", EndGame),
   __reducerSchema("ensureHomegame", EnsureHomegame),
+  __reducerSchema("ensureTutorial", EnsureTutorial),
   __reducerSchema("exitGame", ExitGame),
   __reducerSchema("fire", Fire),
   __reducerSchema("joinGame", JoinGame),
@@ -606,6 +615,8 @@ const reducersSchema = __reducers(
   __reducerSchema("stop", Stop),
   __reducerSchema("switchGun", SwitchGun),
   __reducerSchema("track", Track),
+  __reducerSchema("tutorialComplete", TutorialComplete),
+  __reducerSchema("tutorialSkip", TutorialSkip),
   __reducerSchema("UpdateAI", UpdateAi),
   __reducerSchema("UpdateProjectiles", UpdateProjectiles),
   __reducerSchema("UpdateTanks", UpdateTanks),
