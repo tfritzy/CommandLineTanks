@@ -7,6 +7,7 @@ public static partial class Module
 {
     private const long HOMEWORLD_INACTIVITY_TIMEOUT_MICROS = 30_000_000;
     private const long HOMEWORLD_ACTIVITY_CHECK_INTERVAL_MICROS = 30_000_000;
+    private const long REAL_GAME_INACTIVITY_TIMEOUT_MICROS = 60_000_000;
 
     [Table(Scheduled = nameof(ResetGame))]
     public partial struct ScheduledGameReset
@@ -19,8 +20,8 @@ public static partial class Module
         public string GameId;
     }
 
-    [Table(Scheduled = nameof(CheckHomeworldActivity))]
-    public partial struct ScheduledHomeworldActivityCheck
+    [Table(Scheduled = nameof(CheckGameActivity))]
+    public partial struct ScheduledGameActivityCheck
     {
         [AutoInc]
         [PrimaryKey]
@@ -116,42 +117,61 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void CheckHomeworldActivity(ReducerContext ctx, ScheduledHomeworldActivityCheck args)
+    public static void CheckGameActivity(ReducerContext ctx, ScheduledGameActivityCheck args)
     {
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
 
         foreach (var game in ctx.Db.game.Iter())
         {
-            if (!game.IsHomeGame)
+            if (game.IsHomeGame)
             {
-                continue;
-            }
-
-            Tank? playerTank = null;
-            foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
-            {
-                if (!tank.IsBot)
+                Tank? playerTank = null;
+                foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((game.Id, false)))
                 {
                     playerTank = tank;
                     break;
                 }
-            }
 
-            if (playerTank == null)
-            {
-                continue;
-            }
+                if (playerTank == null)
+                {
+                    continue;
+                }
 
-            var playerTransform = ctx.Db.tank_transform.TankId.Find(playerTank.Value.Id);
-            if (playerTransform == null)
-            {
-                continue;
-            }
+                var playerTransform = ctx.Db.tank_transform.TankId.Find(playerTank.Value.Id);
+                if (playerTransform == null)
+                {
+                    continue;
+                }
 
-            var timeSinceLastUpdate = currentTime - playerTransform.Value.UpdatedAt;
-            if (timeSinceLastUpdate > (ulong)HOMEWORLD_INACTIVITY_TIMEOUT_MICROS)
+                var timeSinceLastUpdate = currentTime - playerTransform.Value.UpdatedAt;
+                if (timeSinceLastUpdate > (ulong)HOMEWORLD_INACTIVITY_TIMEOUT_MICROS)
+                {
+                    PauseHomeworldUpdaters(ctx, game.Id);
+                }
+            }
+            else
             {
-                PauseHomeworldUpdaters(ctx, game.Id);
+                var tanksToRemove = new List<(Tank tank, ulong inactivityTime)>();
+                foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((game.Id, false)))
+                {
+                    var tankTransform = ctx.Db.tank_transform.TankId.Find(tank.Id);
+                    if (tankTransform == null)
+                    {
+                        continue;
+                    }
+
+                    var timeSinceLastUpdate = currentTime - tankTransform.Value.UpdatedAt;
+                    if (timeSinceLastUpdate > (ulong)REAL_GAME_INACTIVITY_TIMEOUT_MICROS)
+                    {
+                        tanksToRemove.Add((tank, timeSinceLastUpdate));
+                    }
+                }
+
+                foreach (var (tank, inactivityTime) in tanksToRemove)
+                {
+                    Log.Info($"Removing inactive tank {tank.Name} from game {game.Id} due to {(inactivityTime / 1_000_000)} seconds of inactivity");
+                    RemoveTankFromGame(ctx, tank);
+                }
             }
         }
     }
