@@ -3,7 +3,8 @@ import { getConnection, getIdentityHex } from "../spacetimedb-connection";
 import ScoreRow from "../../module_bindings/score_type";
 import GameRow from "../../module_bindings/game_type";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
-import { ServerTimeSync } from "../utils/ServerTimeSync";
+import { type EventContext } from "../../module_bindings";
+import { getEventTimestamp } from "../utils/eventHelpers";
 import { PALETTE } from "../theme/colors.config";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
@@ -52,6 +53,8 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const subscription = useRef<MultiTableSubscription>(null);
+  const gameStartTimeRef = useRef<number | null>(null);
+  const gameDurationSecondsRef = useRef<number | null>(null);
 
   const connection = getConnection();
   const isHomegame = useMemo(() => {
@@ -64,6 +67,8 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
     setTeam1Kills(0);
     setTimeRemaining(null);
     setIsVisible(false);
+    gameStartTimeRef.current = null;
+    gameDurationSecondsRef.current = null;
 
     if (!connection || isHomegame) return;
 
@@ -75,21 +80,35 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
       }
     };
 
-    const updateTimer = () => {
-      const game = connection.db.game.Id.find(gameId);
+    const initializeTimer = (game: any, eventTimestampMicros?: bigint) => {
       if (game && game.gameState.tag === "Playing") {
         setIsVisible(true);
-        const currentTime = BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000));
-        const gameElapsedMicros = Number(currentTime - game.gameStartedAt);
+        gameStartTimeRef.current = performance.now();
+        
+        let gameElapsedMicros: number;
+        if (eventTimestampMicros) {
+          gameElapsedMicros = Number(eventTimestampMicros - game.gameStartedAt);
+        } else {
+          gameElapsedMicros = 0;
+        }
+        
         const gameDurationMicros = Number(game.gameDurationMicros);
-        const remainingMicros = Math.max(
-          0,
-          gameDurationMicros - gameElapsedMicros
-        );
+        const remainingMicros = Math.max(0, gameDurationMicros - gameElapsedMicros);
         const remainingSeconds = Math.floor(remainingMicros / 1_000_000);
+        gameDurationSecondsRef.current = remainingSeconds;
         setTimeRemaining(remainingSeconds);
       } else {
         setIsVisible(false);
+        gameStartTimeRef.current = null;
+        gameDurationSecondsRef.current = null;
+      }
+    };
+
+    const updateTimerCountdown = () => {
+      if (gameStartTimeRef.current !== null && gameDurationSecondsRef.current !== null) {
+        const elapsedSeconds = Math.floor((performance.now() - gameStartTimeRef.current) / 1000);
+        const remaining = Math.max(0, gameDurationSecondsRef.current - elapsedSeconds);
+        setTimeRemaining(remaining);
       }
     };
 
@@ -107,19 +126,23 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
       .add<typeof GameRow>({
         table: connection.db.game,
         handlers: {
-          onUpdate: (_ctx, _oldGame, newGame) => {
+          onUpdate: (ctx: EventContext, _oldGame, newGame) => {
             if (newGame.id === gameId) {
-              updateTimer();
+              const eventTimestamp = getEventTimestamp(ctx);
+              initializeTimer(newGame, eventTimestamp);
             }
           }
         }
       });
 
     updateScores();
-    updateTimer();
+    const initialGame = connection.db.game.Id.find(gameId);
+    if (initialGame) {
+      initializeTimer(initialGame);
+    }
 
     const interval = setInterval(() => {
-      updateTimer();
+      updateTimerCountdown();
     }, 1000);
 
     return () => {

@@ -5,8 +5,8 @@ import TankRow from '../../module_bindings/tank_type';
 import ScoreRow from '../../module_bindings/score_type';
 import GameRow from '../../module_bindings/game_type';
 import { type EventContext } from "../../module_bindings";
-import { ServerTimeSync } from '../utils/ServerTimeSync';
 import { createMultiTableSubscription, type MultiTableSubscription } from '../utils/tableSubscription';
+import { getEventTimestamp } from '../utils/eventHelpers';
 
 const GAME_RESET_DELAY_MICROS = 15_000_000;
 
@@ -27,15 +27,24 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
     const [team0Kills, setTeam0Kills] = useState(0);
     const [team1Kills, setTeam1Kills] = useState(0);
     const [showResults, setShowResults] = useState(false);
-    const [gameEndTime, setGameEndTime] = useState<bigint | null>(null);
-    const [, setTick] = useState(0);
+    const [timeUntilReset, setTimeUntilReset] = useState(0);
+    const resetTimerStartRef = useRef<number | null>(null);
+    const resetDelaySecondsRef = useRef<number>(0);
     const subscriptionRef = useRef<MultiTableSubscription | null>(null);
 
     useEffect(() => {
         if (!showResults) return;
-        const interval = setInterval(() => {
-            setTick(t => t + 1);
-        }, 1000);
+        
+        const updateCountdown = () => {
+            if (resetTimerStartRef.current !== null) {
+                const elapsedSeconds = Math.floor((performance.now() - resetTimerStartRef.current) / 1000);
+                const remaining = Math.max(0, resetDelaySecondsRef.current - elapsedSeconds);
+                setTimeUntilReset(remaining);
+            }
+        };
+        
+        updateCountdown();
+        const interval = setInterval(updateCountdown, 1000);
         return () => clearInterval(interval);
     }, [showResults]);
 
@@ -68,15 +77,35 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
             }
         };
 
+        const initializeResetTimer = (game: Infer<typeof GameRow>, eventTimestampMicros?: bigint) => {
+            const endTime = game.gameStartedAt + BigInt(game.gameDurationMicros);
+            
+            let elapsedSinceEndMicros: number;
+            if (eventTimestampMicros) {
+              elapsedSinceEndMicros = Number(eventTimestampMicros - endTime);
+            } else {
+              elapsedSinceEndMicros = 0;
+            }
+            
+            const resetDelaySeconds = GAME_RESET_DELAY_MICROS / 1_000_000;
+            const elapsedSinceEndSeconds = elapsedSinceEndMicros / 1_000_000;
+            const remainingSeconds = Math.max(0, Math.ceil(resetDelaySeconds - elapsedSinceEndSeconds));
+            
+            resetTimerStartRef.current = performance.now();
+            resetDelaySecondsRef.current = remainingSeconds;
+            setTimeUntilReset(remainingSeconds);
+        };
+
         const updateVisibility = () => {
             const game = connection.db.game.Id.find(gameId);
             if (game && game.gameState.tag === 'Results') {
                 setShowResults(true);
-                const endTime = game.gameStartedAt + BigInt(game.gameDurationMicros);
-                setGameEndTime(endTime);
+                initializeResetTimer(game);
             } else {
                 setShowResults(false);
-                setGameEndTime(null);
+                resetTimerStartRef.current = null;
+                resetDelaySecondsRef.current = 0;
+                setTimeUntilReset(0);
             }
         };
 
@@ -111,26 +140,28 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
             .add<typeof GameRow>({
                 table: connection.db.game,
                 handlers: {
-                    onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
+                    onInsert: (ctx: EventContext, game: Infer<typeof GameRow>) => {
                         if (game.id === gameId && game.gameState.tag === 'Results') {
                             setShowResults(true);
-                            const endTime = game.gameStartedAt + BigInt(game.gameDurationMicros);
-                            setGameEndTime(endTime);
+                            const eventTimestamp = getEventTimestamp(ctx);
+                            initializeResetTimer(game, eventTimestamp);
                             updateTanks();
                             updateScores();
                         }
                     },
-                    onUpdate: (_ctx: EventContext, oldGame: Infer<typeof GameRow>, newGame: Infer<typeof GameRow>) => {
+                    onUpdate: (ctx: EventContext, oldGame: Infer<typeof GameRow>, newGame: Infer<typeof GameRow>) => {
                         if (newGame.id === gameId) {
                             if (newGame.gameState.tag === 'Results' && oldGame.gameState.tag === 'Playing') {
                                 setShowResults(true);
-                                const endTime = newGame.gameStartedAt + BigInt(newGame.gameDurationMicros);
-                                setGameEndTime(endTime);
+                                const eventTimestamp = getEventTimestamp(ctx);
+                                initializeResetTimer(newGame, eventTimestamp);
                                 updateTanks();
                                 updateScores();
                             } else if (newGame.gameState.tag === 'Playing' && oldGame.gameState.tag === 'Results') {
                                 setShowResults(false);
-                                setGameEndTime(null);
+                                resetTimerStartRef.current = null;
+                                resetDelaySecondsRef.current = 0;
+                                setTimeUntilReset(0);
                             }
                         }
                     }
@@ -159,10 +190,6 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
     const winningTeam = team0Kills > team1Kills ? 0 : 1;
     const winnerText = isDraw ? 'DRAW' : (winningTeam === 0 ? 'RED VICTORY' : 'BLUE VICTORY');
     const winnerColor = isDraw ? '#fcfbf3' : (winningTeam === 0 ? '#c06852' : '#7396d5');
-
-    const timeUntilReset = gameEndTime !== null
-        ? Math.max(0, Math.ceil(Number(gameEndTime + BigInt(GAME_RESET_DELAY_MICROS) - BigInt(Math.floor(ServerTimeSync.getInstance().getServerTime() * 1000))) / 1_000_000))
-        : 0;
 
     return (
         <div className="absolute inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-[2000] font-mono">
