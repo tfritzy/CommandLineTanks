@@ -111,7 +111,9 @@ public static partial class Module
         });
 
         SpawnTutorialHealthPickup(ctx, tutorialGameId);
+        SpawnLesson1Label(ctx, tutorialGameId);
         SpawnDriveToHealthLabel(ctx, tutorialGameId);
+
 
         EnsureTankInTutorial(ctx, tutorialGameId, identity, joinCode);
 
@@ -176,6 +178,21 @@ public static partial class Module
         ));
     }
 
+    private static void SpawnLesson1Label(ReducerContext ctx, string gameId)
+    {
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            id: $"{gameId}_lesson_1",
+            gameId: gameId,
+            positionX: TUTORIAL_WIDTH / 2.0f,
+            positionY: 2.0f,
+            gridX: TUTORIAL_WIDTH / 2,
+            gridY: 2,
+            type: TerrainDetailType.Label,
+            label: "Lesson 1: Use the [color=#fceba8]`drive`[/color] command to move your tank around"
+        ));
+    }
+
     private static void SpawnDriveToHealthLabel(ReducerContext ctx, string gameId)
     {
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
@@ -187,7 +204,22 @@ public static partial class Module
             gridX: TUTORIAL_HEALTH_PICKUP.x,
             gridY: TUTORIAL_HEALTH_PICKUP.y - 1,
             type: TerrainDetailType.Label,
-            label: "You can use the [color=#fceba8]`drive`[/color] command to move your tank around. You're low on health! Use [color=#fceba8]`drive northeast 3`[/color] to pick up this health pack"
+            label: "You're low on health! Use [color=#fceba8]`drive northeast 3`[/color] to pick up this health pack"
+        ));
+    }
+
+    private static void SpawnLesson2Label(ReducerContext ctx, string gameId)
+    {
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            id: $"{gameId}_lesson_2",
+            gameId: gameId,
+            positionX: TUTORIAL_WIDTH / 2.0f,
+            positionY: 2.0f,
+            gridX: TUTORIAL_WIDTH / 2,
+            gridY: 2,
+            type: TerrainDetailType.Label,
+            label: "Lesson 2: Use shorthands for almost everything. For example, use [color=#fceba8]`d`[/color] instead of [color=#fceba8]`drive`[/color], or [color=#fceba8]`ne`[/color] instead of [color=#fceba8]`northeast`[/color]"
         ));
     }
 
@@ -202,7 +234,22 @@ public static partial class Module
             gridX: TUTORIAL_WEAPON_PICKUP.x,
             gridY: TUTORIAL_WEAPON_PICKUP.y - 1,
             type: TerrainDetailType.Label,
-            label: "You can use shorthands for almost everything. For example, you can use [color=#fceba8]`d`[/color] instead of [color=#fceba8]`drive`[/color]. You can use [color=#fceba8]`n e`[/color] instead of [color=#fceba8]`northeast`[/color]. Enemies are approaching! Use [color=#fceba8]`d se 3`[/color] to pick up this weapon"
+            label: "Enemies are approaching! Use [color=#fceba8]`d se 3`[/color] to pick up this weapon"
+        ));
+    }
+
+    private static void SpawnLesson3Label(ReducerContext ctx, string gameId)
+    {
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            id: $"{gameId}_lesson_3",
+            gameId: gameId,
+            positionX: TUTORIAL_WIDTH / 2.0f,
+            positionY: 2.0f,
+            gridX: TUTORIAL_WIDTH / 2,
+            gridY: 2,
+            type: TerrainDetailType.Label,
+            label: "Lesson 3: Use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock onto an enemy tank and then use [color=#fceba8]`fire`[/color] ([color=#fceba8]`f`[/color]) to fire at them"
         ));
     }
 
@@ -217,7 +264,7 @@ public static partial class Module
             gridX: TUTORIAL_ENEMY_SPAWN.x,
             gridY: TUTORIAL_ENEMY_SPAWN.y - 1,
             type: TerrainDetailType.Label,
-            label: $"You can use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock onto an enemy tank. Target the enemy! Use [color=#fceba8]`t {targetCode}`[/color] to lock onto them"
+            label: $"Target the enemy! Use [color=#fceba8]`t {targetCode}`[/color] to lock onto them"
         ));
     }
 
@@ -232,7 +279,7 @@ public static partial class Module
             gridX: TUTORIAL_ENEMY_SPAWN.x,
             gridY: TUTORIAL_ENEMY_SPAWN.y - 1,
             type: TerrainDetailType.Label,
-            label: "Then use [color=#fceba8]`fire`[/color] ([color=#fceba8]`f`[/color]) to fire at them. Now fire! Use [color=#fceba8]`f`[/color] repeatedly to destroy them"
+            label: "Now fire! Use [color=#fceba8]`f`[/color] repeatedly to destroy them"
         ));
     }
 
@@ -247,7 +294,7 @@ public static partial class Module
             gridX: TUTORIAL_WIDTH / 2,
             gridY: TUTORIAL_HEIGHT / 2 - 1,
             type: TerrainDetailType.Label,
-            label: "Tutorial complete! You can use the [color=#fceba8]`help`[/color] command to get additional information. Use [color=#fceba8]`tutorial complete`[/color] to start playing"
+            label: "Tutorial complete! Use the [color=#fceba8]`help`[/color] command to get additional information. Use [color=#fceba8]`tutorial complete`[/color] to start playing"
         ));
     }
 
@@ -300,14 +347,18 @@ public static partial class Module
         if (pickupType == PickupType.Health)
         {
             RemoveTutorialLabel(ctx, $"{gameId}_label_health");
+            RemoveTutorialLabel(ctx, $"{gameId}_lesson_1");
             SpawnTutorialWeaponPickup(ctx, gameId);
+            SpawnLesson2Label(ctx, gameId);
             SpawnDriveToWeaponLabel(ctx, gameId);
             Log.Info($"Tutorial {gameId}: Advanced to DriveToWeapon");
         }
         else if (pickupType == PickupType.Sniper)
         {
             RemoveTutorialLabel(ctx, $"{gameId}_label_weapon");
+            RemoveTutorialLabel(ctx, $"{gameId}_lesson_2");
             var targetCode = SpawnTutorialEnemy(ctx, gameId);
+            SpawnLesson3Label(ctx, gameId);
             SpawnTargetEnemyLabel(ctx, gameId, targetCode);
             Log.Info($"Tutorial {gameId}: Advanced to TargetEnemy");
         }
@@ -346,6 +397,7 @@ public static partial class Module
         if (killedTank.Id == $"{gameId}_enemy")
         {
             RemoveTutorialLabel(ctx, $"{gameId}_label_fire");
+            RemoveTutorialLabel(ctx, $"{gameId}_lesson_3");
             SpawnCompletionLabel(ctx, gameId);
             Log.Info($"Tutorial {gameId}: Complete!");
         }
