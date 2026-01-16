@@ -30,7 +30,7 @@ export class PingTracker {
     this.connection = connection;
     
     this.connection.db.player.onUpdate((ctx: EventContext, _oldRow: Infer<typeof PlayerRow>, newRow: Infer<typeof PlayerRow>) => {
-      if (ctx.event.tag === 'Reducer' && ctx.event.value.timestamp) {
+      if (ctx.event.tag === 'Reducer' && ctx.event.value?.timestamp?.microsSinceUnixEpoch) {
         ServerTimeSync.getInstance().recordServerTimestamp(ctx.event.value.timestamp.microsSinceUnixEpoch);
       }
       
