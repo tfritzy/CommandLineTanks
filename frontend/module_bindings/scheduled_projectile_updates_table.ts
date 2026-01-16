@@ -15,4 +15,5 @@ export default __t.row({
   scheduledAt: __t.scheduleAt(),
   gameId: __t.string(),
   lastTickAt: __t.u64(),
+  tickCount: __t.u64(),
 });

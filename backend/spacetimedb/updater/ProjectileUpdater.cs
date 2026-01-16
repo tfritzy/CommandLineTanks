@@ -618,7 +618,6 @@ return (false, projectile, transform);
     [Reducer]
     public static void UpdateProjectiles(ReducerContext ctx, ScheduledProjectileUpdates args)
     {
-        var stopwatch = new LogStopwatch("update projectiles");
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
@@ -751,6 +750,5 @@ return (false, projectile, transform);
         {
             GC.Collect();
         }
-        stopwatch.End();
     }
 }
