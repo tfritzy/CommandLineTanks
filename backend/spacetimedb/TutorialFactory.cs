@@ -187,7 +187,7 @@ public static partial class Module
             gridX: TUTORIAL_HEALTH_PICKUP.x,
             gridY: TUTORIAL_HEALTH_PICKUP.y - 1,
             type: TerrainDetailType.Label,
-            label: "You're low on health! Use [color=#fceba8]`drive northeast 3`[/color] to pick up this health pack"
+            label: "You can use the [color=#fceba8]`drive`[/color] command to move your tank around. You're low on health! Use [color=#fceba8]`drive northeast 3`[/color] to pick up this health pack"
         ));
     }
 
@@ -202,7 +202,7 @@ public static partial class Module
             gridX: TUTORIAL_WEAPON_PICKUP.x,
             gridY: TUTORIAL_WEAPON_PICKUP.y - 1,
             type: TerrainDetailType.Label,
-            label: "Enemies are approaching! Use [color=#fceba8]`d se 3`[/color] to pick up this weapon"
+            label: "You can use shorthands for almost everything. For example, you can use [color=#fceba8]`d`[/color] instead of [color=#fceba8]`drive`[/color]. You can use [color=#fceba8]`n e`[/color] instead of [color=#fceba8]`northeast`[/color]. Enemies are approaching! Use [color=#fceba8]`d se 3`[/color] to pick up this weapon"
         ));
     }
 
@@ -217,7 +217,7 @@ public static partial class Module
             gridX: TUTORIAL_ENEMY_SPAWN.x,
             gridY: TUTORIAL_ENEMY_SPAWN.y - 1,
             type: TerrainDetailType.Label,
-            label: $"Target the enemy! Use [color=#fceba8]`t {targetCode}`[/color] to lock onto them"
+            label: $"You can use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock on to an enemy tank. Target the enemy! Use [color=#fceba8]`t {targetCode}`[/color] to lock onto them"
         ));
     }
 
@@ -232,7 +232,7 @@ public static partial class Module
             gridX: TUTORIAL_ENEMY_SPAWN.x,
             gridY: TUTORIAL_ENEMY_SPAWN.y - 1,
             type: TerrainDetailType.Label,
-            label: "Now fire! Use [color=#fceba8]`f`[/color] repeatedly to destroy them"
+            label: "Then use [color=#fceba8]`fire`[/color] ([color=#fceba8]`f`[/color]) to fire at them. Now fire! Use [color=#fceba8]`f`[/color] repeatedly to destroy them"
         ));
     }
 
@@ -247,7 +247,7 @@ public static partial class Module
             gridX: TUTORIAL_WIDTH / 2,
             gridY: TUTORIAL_HEIGHT / 2 - 1,
             type: TerrainDetailType.Label,
-            label: "Tutorial complete! Use [color=#fceba8]`tutorial complete`[/color] to start playing"
+            label: "Tutorial complete! You can use the [color=#fceba8]`help`[/color] command to get additional information. Use [color=#fceba8]`tutorial complete`[/color] to start playing"
         ));
     }
 
