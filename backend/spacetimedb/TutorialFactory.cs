@@ -9,6 +9,7 @@ public static partial class Module
     private const int TUTORIAL_HEIGHT = 12;
     private const int TUTORIAL_STARTING_HEALTH = 30;
     private const int TUTORIAL_SNIPER_AMMO = 1000;
+    private const int LESSON_LABEL_Y_POSITION = 2;
 
     private static readonly (int x, int y) TUTORIAL_PLAYER_SPAWN = (3, 6);
     private static readonly (int x, int y) TUTORIAL_HEALTH_PICKUP = (6, 3);
@@ -114,7 +115,6 @@ public static partial class Module
         SpawnLesson1Label(ctx, tutorialGameId);
         SpawnDriveToHealthLabel(ctx, tutorialGameId);
 
-
         EnsureTankInTutorial(ctx, tutorialGameId, identity, joinCode);
 
         StartHomeGameTickers(ctx, tutorialGameId);
@@ -185,9 +185,9 @@ public static partial class Module
             id: $"{gameId}_lesson_1",
             gameId: gameId,
             positionX: TUTORIAL_WIDTH / 2.0f,
-            positionY: 2.0f,
+            positionY: LESSON_LABEL_Y_POSITION,
             gridX: TUTORIAL_WIDTH / 2,
-            gridY: 2,
+            gridY: LESSON_LABEL_Y_POSITION,
             type: TerrainDetailType.Label,
             label: "Lesson 1: Use the [color=#fceba8]`drive`[/color] command to move your tank around"
         ));
@@ -215,9 +215,9 @@ public static partial class Module
             id: $"{gameId}_lesson_2",
             gameId: gameId,
             positionX: TUTORIAL_WIDTH / 2.0f,
-            positionY: 2.0f,
+            positionY: LESSON_LABEL_Y_POSITION,
             gridX: TUTORIAL_WIDTH / 2,
-            gridY: 2,
+            gridY: LESSON_LABEL_Y_POSITION,
             type: TerrainDetailType.Label,
             label: "Lesson 2: Use shorthands for almost everything. For example, use [color=#fceba8]`d`[/color] instead of [color=#fceba8]`drive`[/color], or [color=#fceba8]`ne`[/color] instead of [color=#fceba8]`northeast`[/color]"
         ));
@@ -245,9 +245,9 @@ public static partial class Module
             id: $"{gameId}_lesson_3",
             gameId: gameId,
             positionX: TUTORIAL_WIDTH / 2.0f,
-            positionY: 2.0f,
+            positionY: LESSON_LABEL_Y_POSITION,
             gridX: TUTORIAL_WIDTH / 2,
-            gridY: 2,
+            gridY: LESSON_LABEL_Y_POSITION,
             type: TerrainDetailType.Label,
             label: "Lesson 3: Use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock onto an enemy tank and then use [color=#fceba8]`fire`[/color] ([color=#fceba8]`f`[/color]) to fire at them"
         ));
