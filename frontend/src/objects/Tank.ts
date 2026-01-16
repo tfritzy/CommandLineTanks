@@ -134,7 +134,8 @@ export class Tank {
       this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "66" : COLORS.GAME.TEAM_BLUE_BRIGHT + "66";
     const dotColor =
       this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "ff" : COLORS.GAME.TEAM_BLUE_BRIGHT + "ff";
-    drawTankPath(ctx, this.x, this.y, this.path, lineColor, dotColor);
+    const remainingPath = this.path.slice(this.pathIndex);
+    drawTankPath(ctx, this.x, this.y, remainingPath, lineColor, dotColor);
   }
 
   public setPosition(x: number, y: number) {
@@ -169,7 +170,7 @@ export class Tank {
 
   public setPath(path: Array<{ x: number; y: number }>, pathIndex: number = 0) {
     this.path = path;
-    this.pathIndex = Math.max(this.pathIndex, pathIndex);
+    this.pathIndex = pathIndex;
   }
 
   public setHealth(health: number) {
@@ -246,12 +247,11 @@ export class Tank {
     const moveDistance = moveSpeed * deltaTime;
 
     if (distance <= Tank.ARRIVAL_THRESHOLD || moveDistance >= distance) {
-      const overshoot = Math.max(0, moveDistance - distance);
-      
-      this.pathIndex++;
+      const overshoot = moveDistance - distance;
+      const newPathIndex = this.pathIndex + 1;
 
-      if (this.pathIndex < this.path.length) {
-        const nextTarget = this.path[this.pathIndex];
+      if (newPathIndex < this.path.length) {
+        const nextTarget = this.path[newPathIndex];
         const nextDeltaX = nextTarget.x - targetPos.x;
         const nextDeltaY = nextTarget.y - targetPos.y;
         const nextDistance = Math.sqrt(nextDeltaX * nextDeltaX + nextDeltaY * nextDeltaY);
@@ -266,6 +266,8 @@ export class Tank {
           this.x = targetPos.x;
           this.y = targetPos.y;
         }
+
+        this.pathIndex = newPathIndex;
       } else {
         this.x = targetPos.x;
         this.y = targetPos.y;

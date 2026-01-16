@@ -61,7 +61,7 @@ export default function GameView() {
       .onError((e) => console.error("Subscription error", e))
       .subscribe([
         `SELECT * FROM tank WHERE GameId = '${gameId}'`,
-        `SELECT * FROM tank_path WHERE GameId = '${gameId}' AND Owner = '${connection.identity}'`,
+        `SELECT * FROM tank_path WHERE GameId = '${gameId}'`,
         `SELECT * FROM tank_transform WHERE GameId = '${gameId}'`,
         `SELECT * FROM projectile WHERE GameId = '${gameId}'`,
         `SELECT * FROM projectile_transform WHERE GameId = '${gameId}'`,
