@@ -1197,7 +1197,15 @@
     <script>
         document.fonts.ready.then(function() {
             document.documentElement.classList.add('fonts-loaded');
+        }).catch(function() {
+            document.documentElement.classList.add('fonts-loaded');
         });
+
+        setTimeout(function() {
+            if (!document.documentElement.classList.contains('fonts-loaded')) {
+                document.documentElement.classList.add('fonts-loaded');
+            }
+        }, 3000);
 
         (function() {
             const terminalEl = document.getElementById('terminal-mock');
