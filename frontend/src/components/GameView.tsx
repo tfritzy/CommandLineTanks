@@ -232,6 +232,33 @@ export default function GameView() {
     console.log(`Called ensureHomegame for gameId: ${gameId}`);
   }, [gameId, isHomegame]);
 
+  useEffect(() => {
+    if (!gameId || isHomegame) return;
+
+    const connection = getConnection();
+    if (!connection) return;
+
+    const handleGameUpdate = (_ctx: EventContext, oldGame: Infer<typeof Game>, newGame: Infer<typeof Game>) => {
+      if (newGame.id !== gameId) return;
+      
+      if (oldGame.gameState.tag === 'Playing' && newGame.gameState.tag === 'Results') {
+        const homegameId = myIdentity?.toLowerCase();
+        if (homegameId) {
+          console.log(`Game ${gameId} transitioned to Results, redirecting to homegame ${homegameId}`);
+          navigate(`/game/${homegameId}`);
+        }
+      }
+    };
+
+    connection.db.game.onUpdate(handleGameUpdate);
+
+    return () => {
+      if (connection) {
+        connection.db.game.removeOnUpdate(handleGameUpdate);
+      }
+    };
+  }, [gameId, isHomegame, myIdentity, navigate]);
+
   if (!gameId) {
     return null;
   }
