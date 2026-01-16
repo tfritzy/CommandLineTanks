@@ -10,7 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("ScheduledHomeworldActivityCheck", {
+export default __t.object("ScheduledGameActivityCheck", {
   scheduledId: __t.u64(),
   scheduledAt: __t.scheduleAt(),
 });

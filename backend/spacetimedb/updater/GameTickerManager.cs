@@ -20,8 +20,8 @@ public static partial class Module
         public string GameId;
     }
 
-    [Table(Scheduled = nameof(CheckHomeworldActivity))]
-    public partial struct ScheduledHomeworldActivityCheck
+    [Table(Scheduled = nameof(CheckGameActivity))]
+    public partial struct ScheduledGameActivityCheck
     {
         [AutoInc]
         [PrimaryKey]
@@ -117,7 +117,7 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void CheckHomeworldActivity(ReducerContext ctx, ScheduledHomeworldActivityCheck args)
+    public static void CheckGameActivity(ReducerContext ctx, ScheduledGameActivityCheck args)
     {
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
 
