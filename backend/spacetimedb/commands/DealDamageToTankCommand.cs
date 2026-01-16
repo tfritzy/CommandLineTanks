@@ -11,7 +11,8 @@ public static partial class Module
         int damage,
         string shooterTankId,
         int attackerAlliance,
-        string gameId)
+        string gameId,
+        ref TraversibilityMap traversibilityMap)
     {
         if (tank.RemainingImmunityMicros > 0)
         {
@@ -48,7 +49,7 @@ public static partial class Module
             };
             ctx.Db.tank.Id.Update(killedTank);
 
-            DropWeaponsOnDeath(ctx, tank, transform, gameId);
+            DropWeaponsOnDeath(ctx, tank, transform, gameId, traversibilityMap);
 
             if (shooterTankQuery != null)
             {
@@ -92,14 +93,8 @@ public static partial class Module
         }
     }
 
-    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankTransform transform, string gameId)
+    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankTransform transform, string gameId, TraversibilityMap traversibilityMap)
     {
-        var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(gameId);
-        if (traversibilityMap == null)
-        {
-            return;
-        }
-
         foreach (var tankGun in ctx.Db.tank_gun.TankId.Filter(tank.Id))
         {
             var gun = tankGun.Gun;
@@ -121,7 +116,7 @@ public static partial class Module
 
             var (finalGridX, finalGridY) = FindNearestTraversableTile(
                 ctx,
-                traversibilityMap.Value,
+                traversibilityMap,
                 initialGridX,
                 initialGridY
             );
