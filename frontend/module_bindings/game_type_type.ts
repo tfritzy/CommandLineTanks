@@ -10,13 +10,12 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("Player", {
-  id: __t.string(),
-  identity: __t.identity(),
-  name: __t.option(__t.string()),
-  createdAt: __t.u64(),
-  ping: __t.u64(),
-  tutorialComplete: __t.bool(),
+// The tagged union or sum type for the algebraic type `GameType`.
+const GameType = __t.enum("GameType", {Game: __t.unit(),
+  Home: __t.unit(),
+  Tutorial: __t.unit(),
 });
+
+export default GameType;
 
 
