@@ -126,13 +126,10 @@ public static partial class Module
             if (game.IsHomeGame)
             {
                 Tank? playerTank = null;
-                foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
+                foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((game.Id, false)))
                 {
-                    if (!tank.IsBot)
-                    {
-                        playerTank = tank;
-                        break;
-                    }
+                    playerTank = tank;
+                    break;
                 }
 
                 if (playerTank == null)
@@ -154,15 +151,9 @@ public static partial class Module
             }
             else
             {
-                var tanksToRemove = new List<Tank>();
-                var tankInactivityTimes = new Dictionary<string, ulong>();
-                foreach (var tank in ctx.Db.tank.GameId.Filter(game.Id))
+                var tanksToRemove = new List<(Tank tank, ulong inactivityTime)>();
+                foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((game.Id, false)))
                 {
-                    if (tank.IsBot)
-                    {
-                        continue;
-                    }
-
                     var tankTransform = ctx.Db.tank_transform.TankId.Find(tank.Id);
                     if (tankTransform == null)
                     {
@@ -172,14 +163,13 @@ public static partial class Module
                     var timeSinceLastUpdate = currentTime - tankTransform.Value.UpdatedAt;
                     if (timeSinceLastUpdate > (ulong)REAL_GAME_INACTIVITY_TIMEOUT_MICROS)
                     {
-                        tanksToRemove.Add(tank);
-                        tankInactivityTimes[tank.Id] = timeSinceLastUpdate;
+                        tanksToRemove.Add((tank, timeSinceLastUpdate));
                     }
                 }
 
-                foreach (var tank in tanksToRemove)
+                foreach (var (tank, inactivityTime) in tanksToRemove)
                 {
-                    Log.Info($"Removing inactive tank {tank.Name} from game {game.Id} due to {(tankInactivityTimes[tank.Id] / 1_000_000)} seconds of inactivity");
+                    Log.Info($"Removing inactive tank {tank.Name} from game {game.Id} due to {(inactivityTime / 1_000_000)} seconds of inactivity");
                     RemoveTankFromGame(ctx, tank);
                 }
             }
