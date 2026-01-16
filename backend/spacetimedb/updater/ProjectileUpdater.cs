@@ -574,7 +574,7 @@ return (false, projectile, transform);
                                 }
                                 else
                                 {
-                                    Module.DealDamageToTankCommand(ctx, currentTank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId, ref traversibilityMap);
+                                    Module.DealDamageToTankCommand(ctx, currentTank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId, traversibilityMap);
                                 }
 
                                 recentlyHitBuffer ??= new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];

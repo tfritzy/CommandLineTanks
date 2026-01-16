@@ -12,7 +12,7 @@ public static partial class Module
         string shooterTankId,
         int attackerAlliance,
         string gameId,
-        ref TraversibilityMap traversibilityMap)
+        TraversibilityMap traversibilityMap)
     {
         if (tank.RemainingImmunityMicros > 0)
         {
