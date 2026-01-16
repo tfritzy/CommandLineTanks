@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
+import TerrainDetailRow from "../../module_bindings/terrain_detail_table";
 import { type EventContext } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
@@ -9,16 +10,23 @@ type JoinModalStatus = "loading" | "no_tank" | "has_tank";
 
 export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus {
   const [status, setStatus] = useState<JoinModalStatus>("loading");
-  const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
+  const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
+  const terrainSubscriptionRef = useRef<TableSubscription<typeof TerrainDetailRow> | null>(null);
   const gameIdRef = useRef(gameId);
+  const worldLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (subscriptionRef.current) {
-      subscriptionRef.current.unsubscribe();
-      subscriptionRef.current = null;
+    if (tankSubscriptionRef.current) {
+      tankSubscriptionRef.current.unsubscribe();
+      tankSubscriptionRef.current = null;
+    }
+    if (terrainSubscriptionRef.current) {
+      terrainSubscriptionRef.current.unsubscribe();
+      terrainSubscriptionRef.current = null;
     }
 
     gameIdRef.current = gameId;
+    worldLoadedRef.current = false;
 
     if (!gameId) {
       setStatus("loading");
@@ -42,33 +50,45 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
       return null;
     };
 
-    const hasAnyTanksForGame = (): boolean => {
-      for (const tank of connection.db.tank.iter()) {
-        if (tank.gameId === gameId) {
-          return true;
-        }
-      }
-      return false;
-    };
-
     const setStatusIfCurrentGame = (newStatus: JoinModalStatus) => {
       if (gameIdRef.current === gameId) {
         setStatus(newStatus);
       }
     };
 
-    subscriptionRef.current = subscribeToTable({
+    const updateStatusBasedOnTanks = () => {
+      if (!worldLoadedRef.current) return;
+      
+      const playerTank = findPlayerTank();
+      if (playerTank) {
+        setStatusIfCurrentGame("has_tank");
+      } else {
+        setStatusIfCurrentGame("no_tank");
+      }
+    };
+
+    terrainSubscriptionRef.current = subscribeToTable({
+      table: connection.db.terrainDetail,
+      handlers: {
+        onInsert: (_ctx: EventContext, terrain: Infer<typeof TerrainDetailRow>) => {
+          if (terrain.gameId !== gameId) return;
+          if (!worldLoadedRef.current) {
+            worldLoadedRef.current = true;
+            updateStatusBasedOnTanks();
+          }
+        },
+      },
+    });
+
+    tankSubscriptionRef.current = subscribeToTable({
       table: connection.db.tank,
       handlers: {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (tank.gameId !== gameId) return;
-
           if (isCurrentIdentity(tank.owner)) {
             setStatusIfCurrentGame("has_tank");
           } else {
-            if (!findPlayerTank()) {
-              setStatusIfCurrentGame("no_tank");
-            }
+            updateStatusBasedOnTanks();
           }
         },
         onUpdate: (
@@ -78,46 +98,40 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
         ) => {
           if (newTank.gameId !== gameId) return;
           if (!isCurrentIdentity(newTank.owner)) return;
-
           setStatusIfCurrentGame("has_tank");
         },
         onDelete: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (tank.gameId !== gameId) return;
           if (!isCurrentIdentity(tank.owner)) return;
-
-          if (hasAnyTanksForGame()) {
-            setStatusIfCurrentGame("no_tank");
-          }
+          updateStatusBasedOnTanks();
         },
       },
     });
 
-    const existingTank = findPlayerTank();
-    if (existingTank) {
-      setStatus("has_tank");
-      return () => {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.unsubscribe();
-          subscriptionRef.current = null;
-        }
-      };
+    for (const terrain of connection.db.terrainDetail.iter()) {
+      if (terrain.gameId === gameId) {
+        worldLoadedRef.current = true;
+        break;
+      }
     }
 
-    const timeout = setTimeout(() => {
-      if (gameIdRef.current !== gameId) return;
-
-      if (findPlayerTank()) {
+    if (worldLoadedRef.current) {
+      const existingTank = findPlayerTank();
+      if (existingTank) {
         setStatus("has_tank");
-      } else if (hasAnyTanksForGame()) {
+      } else {
         setStatus("no_tank");
       }
-    }, 500);
+    }
 
     return () => {
-      clearTimeout(timeout);
-      if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
-        subscriptionRef.current = null;
+      if (tankSubscriptionRef.current) {
+        tankSubscriptionRef.current.unsubscribe();
+        tankSubscriptionRef.current = null;
+      }
+      if (terrainSubscriptionRef.current) {
+        terrainSubscriptionRef.current.unsubscribe();
+        terrainSubscriptionRef.current = null;
       }
     };
   }, [gameId]);

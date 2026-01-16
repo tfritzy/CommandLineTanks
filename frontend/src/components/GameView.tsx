@@ -5,7 +5,7 @@ import TerminalComponent from "./terminal/Terminal";
 import ResultsScreen from "./ResultsScreen";
 import GameHeader from "./GameHeader";
 import ScoreBoard from "./ScoreBoard";
-import JoinGameModal from "./JoinGameModal";
+import { JoinGameModal } from "./JoinGameModal";
 import GameNotFound from "./GameNotFound";
 import EliminatedModal from "./EliminatedModal";
 import HomegameOverlay from "./HomegameOverlay";
@@ -258,7 +258,6 @@ export default function GameView() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ delay: 0.3 }}
             >
               <JoinGameModal
                 gameId={gameId}
