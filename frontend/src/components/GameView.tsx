@@ -211,7 +211,22 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       }
     };
 
+    const handleGameUpdate = (_ctx: EventContext, oldGame: Infer<typeof Game>, newGame: Infer<typeof Game>) => {
+      if (newGame.id !== gameId) return;
+      
+      if (oldGame.gameState.tag === 'Playing' && newGame.gameState.tag === 'Results') {
+        if (!isHomegame && joinModalStatus === "no_tank") {
+          const homegameId = myIdentity?.toLowerCase();
+          if (homegameId) {
+            console.log(`Game ${gameId} transitioned to Results, redirecting spectator to homegame ${homegameId}`);
+            navigate(`/game/${homegameId}`);
+          }
+        }
+      }
+    };
+
     connection.db.game.onInsert(handleGameInsert);
+    connection.db.game.onUpdate(handleGameUpdate);
 
     return () => {
       if (gameCheckTimeoutRef.current) {
@@ -219,9 +234,10 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       }
       if (connection) {
         connection.db.game.removeOnInsert(handleGameInsert);
+        connection.db.game.removeOnUpdate(handleGameUpdate);
       }
     };
-  }, [gameId]);
+  }, [gameId, isHomegame, joinModalStatus, myIdentity, navigate]);
 
   useEffect(() => {
     if (!gameId || !isHomegame) return;
