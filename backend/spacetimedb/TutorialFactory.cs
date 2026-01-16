@@ -1,6 +1,7 @@
 using SpacetimeDB;
 using static Types;
 using System;
+using System.Linq;
 
 public static partial class Module
 {
