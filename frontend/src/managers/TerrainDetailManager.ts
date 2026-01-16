@@ -157,9 +157,7 @@ export class TerrainDetailManager {
 
             if (detail.type.tag !== "Label") {
               this.soundManager.play("terrain-destroy", 0.5, detail.positionX, detail.positionY);
-            }
 
-            if (detail.type.tag !== "Label") {
               if (
                 detail.type.tag === "FenceEdge" ||
                 detail.type.tag === "FenceCorner"
