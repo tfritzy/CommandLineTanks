@@ -83,7 +83,7 @@ public static partial class Module
         Log.Info($"Paused updaters for homeworld {gameId}");
     }
 
-    public static void MaybeResumeUpdatersForHomeworld(ReducerContext ctx, string gameId)
+    public static void MaybeResumeUpdatersForLowTrafficGame(ReducerContext ctx, string gameId)
     {
         var game = ctx.Db.game.Id.Find(gameId);
         if (game == null || (game.Value.GameType != GameType.Home && game.Value.GameType != GameType.Tutorial))

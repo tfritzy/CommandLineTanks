@@ -84,7 +84,8 @@ function App() {
   return (
     <Routes>
       <Route path="/deploy" element={<TutorialRedirector />} />
-      <Route path="/game/:gameId" element={<GameView />} />
+      <Route path="/tutorial/:gameId" element={<GameView isTutorialRoute={true} />} />
+      <Route path="/game/:gameId" element={<GameView isTutorialRoute={false} />} />
     </Routes>
   );
 }

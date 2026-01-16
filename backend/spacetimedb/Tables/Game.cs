@@ -16,7 +16,6 @@ public static partial class Module
         public BaseTerrain[] BaseTerrainLayer;
         [SpacetimeDB.Index.BTree]
         public GameState GameState;
-        [SpacetimeDB.Index.BTree]
         public GameType GameType;
         public ulong GameStartedAt;
         public long GameDurationMicros;

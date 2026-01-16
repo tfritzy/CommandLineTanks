@@ -60,7 +60,7 @@ public static partial class Module
         }
     }
 
-    private static void DeleteGame(ReducerContext ctx, string gameId)
+    public static void DeleteGame(ReducerContext ctx, string gameId)
     {
         foreach (var tank in ctx.Db.tank.GameId.Filter(gameId))
         {

@@ -112,25 +112,7 @@ public static partial class Module
         SpawnTutorialHealthPickup(ctx, tutorialGameId);
         SpawnDriveToHealthLabel(ctx, tutorialGameId);
 
-        var player = ctx.Db.player.Identity.Find(identity);
-        var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
-
-        var targetCode = AllocateTargetCode(ctx, tutorialGameId) ?? "p1";
-
-        var (tank, transform) = BuildTank(
-            ctx: ctx,
-            gameId: tutorialGameId,
-            owner: identity,
-            name: playerName,
-            targetCode: targetCode,
-            joinCode: joinCode,
-            alliance: 0,
-            health: TUTORIAL_STARTING_HEALTH,
-            positionX: TUTORIAL_PLAYER_SPAWN.x + 0.5f,
-            positionY: TUTORIAL_PLAYER_SPAWN.y + 0.5f,
-            aiBehavior: AIBehavior.None);
-
-        AddTankToGame(ctx, tank, transform);
+        EnsureTankInTutorial(ctx, tutorialGameId, identity, joinCode);
 
         StartHomeGameTickers(ctx, tutorialGameId);
 
@@ -380,59 +362,7 @@ public static partial class Module
         var game = ctx.Db.game.Id.Find(tutorialGameId);
         if (game != null)
         {
-            DeleteTutorialGame(ctx, tutorialGameId);
+            DeleteGame(ctx, tutorialGameId);
         }
-    }
-
-    public static void DeleteTutorialGame(ReducerContext ctx, string gameId)
-    {
-        foreach (var tank in ctx.Db.tank.GameId.Filter(gameId))
-        {
-            RemoveTankFromGame(ctx, tank);
-        }
-
-        foreach (var terrainDetail in ctx.Db.terrain_detail.GameId.Filter(gameId))
-        {
-            ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
-        }
-
-        foreach (var pickup in ctx.Db.pickup.GameId.Filter(gameId))
-        {
-            ctx.Db.pickup.Id.Delete(pickup.Id);
-        }
-
-        foreach (var projectile in ctx.Db.projectile.GameId.Filter(gameId))
-        {
-            ctx.Db.projectile_transform.ProjectileId.Delete(projectile.Id);
-            ctx.Db.projectile.Id.Delete(projectile.Id);
-        }
-
-        var score = ctx.Db.score.GameId.Find(gameId);
-        if (score != null)
-        {
-            ctx.Db.score.GameId.Delete(gameId);
-        }
-
-        var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(gameId);
-        if (traversibilityMap != null)
-        {
-            ctx.Db.traversibility_map.GameId.Delete(gameId);
-        }
-
-        var projectileTraversibilityMap = ctx.Db.projectile_traversibility_map.GameId.Find(gameId);
-        if (projectileTraversibilityMap != null)
-        {
-            ctx.Db.projectile_traversibility_map.GameId.Delete(gameId);
-        }
-
-        StopGameTickers(ctx, gameId);
-
-        var gameToDelete = ctx.Db.game.Id.Find(gameId);
-        if (gameToDelete != null)
-        {
-            ctx.Db.game.Id.Delete(gameId);
-        }
-
-        Log.Info($"Deleted tutorial game {gameId}");
     }
 }
