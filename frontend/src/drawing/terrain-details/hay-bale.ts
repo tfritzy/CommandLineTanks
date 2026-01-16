@@ -8,9 +8,20 @@ export function drawHayBaleShadow(
   centerY: number,
   radius: number
 ) {
+  const width = radius * 2.4;
+  const height = radius * 1.8;
+  const cornerRadius = 4;
+  const shadowOffset = UNIT_TO_PIXEL * 0.1;
+
   ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
   ctx.beginPath();
-  ctx.arc(centerX - UNIT_TO_PIXEL * 0.15, centerY + UNIT_TO_PIXEL * 0.15, radius, 0, Math.PI * 2);
+  ctx.roundRect(
+    centerX - width / 2 - shadowOffset,
+    centerY - height / 2 + shadowOffset,
+    width,
+    height,
+    cornerRadius
+  );
   ctx.fill();
 }
 
@@ -21,17 +32,35 @@ export function drawHayBaleBody(
   radius: number,
   flashTimer: number
 ) {
+  const width = radius * 2.4;
+  const height = radius * 1.8;
+  const cornerRadius = 4;
+
+  // Body
   ctx.fillStyle = getFlashColor(COLORS.TERRAIN.HAY_BALE_BODY, flashTimer);
   ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  ctx.roundRect(centerX - width / 2, centerY - height / 2, width, height, cornerRadius);
   ctx.fill();
 
+  // Highlight on top
+  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.beginPath();
+  ctx.roundRect(centerX - width / 2, centerY - height / 2, width, height * 0.4, cornerRadius);
+  ctx.fill();
+
+  // Straps/Bands
   ctx.strokeStyle = getFlashColor(COLORS.TERRAIN.HAY_BALE_RING, flashTimer);
   ctx.lineWidth = 2;
+  
+  // Left band
   ctx.beginPath();
-  ctx.arc(centerX, centerY, radius * 0.7, 0, Math.PI * 2);
+  ctx.moveTo(centerX - width * 0.25, centerY - height / 2);
+  ctx.lineTo(centerX - width * 0.25, centerY + height / 2);
   ctx.stroke();
+
+  // Right band
   ctx.beginPath();
-  ctx.arc(centerX, centerY, radius * 0.4, 0, Math.PI * 2);
+  ctx.moveTo(centerX + width * 0.25, centerY - height / 2);
+  ctx.lineTo(centerX + width * 0.25, centerY + height / 2);
   ctx.stroke();
 }

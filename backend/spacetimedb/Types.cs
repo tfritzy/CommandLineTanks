@@ -210,7 +210,7 @@ public static class TerrainDetailTypeExtensions
             Types.TerrainDetailType.None => false,
             Types.TerrainDetailType.Rock => true,
             Types.TerrainDetailType.Tree => true,
-            Types.TerrainDetailType.HayBale => false,
+            Types.TerrainDetailType.HayBale => true,
             Types.TerrainDetailType.Label => false,
             Types.TerrainDetailType.FoundationEdge => true,
             Types.TerrainDetailType.FoundationCorner => true,

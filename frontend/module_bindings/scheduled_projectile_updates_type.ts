@@ -15,6 +15,7 @@ export default __t.object("ScheduledProjectileUpdates", {
   scheduledAt: __t.scheduleAt(),
   gameId: __t.string(),
   lastTickAt: __t.u64(),
+  tickCount: __t.u64(),
 });
 
 
