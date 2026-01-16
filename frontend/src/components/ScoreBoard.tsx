@@ -20,7 +20,7 @@ interface PlayerScore {
 
 interface ScoreBoardProps {
   gameId: string;
-  isTutorialRoute?: boolean;
+  isGame: boolean;
 }
 
 interface AnimatedScoreProps {
@@ -43,7 +43,7 @@ function AnimatedScore({ value }: AnimatedScoreProps) {
   return <span>{displayValue}</span>;
 }
 
-export default function ScoreBoard({ gameId, isTutorialRoute = false }: ScoreBoardProps) {
+export default function ScoreBoard({ gameId, isGame }: ScoreBoardProps) {
   const [players, setPlayers] = useState<PlayerScore[]>([]);
   const connection = getConnection();
   const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
@@ -114,7 +114,7 @@ export default function ScoreBoard({ gameId, isTutorialRoute = false }: ScoreBoa
   }, [gameId, connection, isHomegame]);
 
 
-  if (isHomegame || isTutorialRoute || players.length === 0) {
+  if (isHomegame || !isGame || players.length === 0) {
     return null;
   }
 

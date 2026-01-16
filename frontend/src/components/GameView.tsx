@@ -23,11 +23,7 @@ import {
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { useJoinModalStatus } from "../hooks/useJoinModalStatus";
 
-interface GameViewProps {
-  isTutorialRoute: boolean;
-}
-
-export default function GameView({ isTutorialRoute }: GameViewProps) {
+export default function GameView() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,6 +37,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
 
   const myIdentity = getIdentityHex();
   const isHomegame = myIdentity && gameId?.toLowerCase() === myIdentity.toLowerCase();
+  const isGame = gameId?.length === 4;
 
   const joinModalStatus = useJoinModalStatus(gameId);
   const showJoinModal = joinModalStatus === "no_tank";
@@ -254,7 +251,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
   }, [gameId, isHomegame]);
 
   useEffect(() => {
-    if (!gameId || !isTutorialRoute) return;
+    if (!gameId || isGame) return;
 
     const connection = getConnection();
     if (!connection) return;
@@ -264,7 +261,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
     
     connection.reducers.ensureTutorial({ gameId, joinCode });
     console.log(`Called ensureTutorial for gameId: ${gameId}`);
-  }, [gameId, isTutorialRoute]);
+  }, [gameId, isGame]);
 
   if (!gameId) {
     return null;
@@ -273,11 +270,11 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
   return (
     <div className="flex flex-col h-screen w-screen m-0 p-0 overflow-hidden">
       <div className="flex-1 overflow-hidden relative">
-        <GameHeader gameId={gameId} isTutorialRoute={isTutorialRoute} />
-        <ScoreBoard gameId={gameId} isTutorialRoute={isTutorialRoute} />
+        <GameHeader gameId={gameId} isGame={isGame} />
+        <ScoreBoard gameId={gameId} isGame={isGame} />
         {isHomegame && <HomegameOverlay />}
-        {isTutorialRoute && <TutorialOverlay />}
-        {isTutorialRoute && (
+        {!isGame && <TutorialOverlay />}
+        {!isGame && (
           <div 
             className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none"
             style={{ opacity: 0.6 }}
