@@ -11,7 +11,8 @@ public static partial class Module
         int damage,
         string shooterTankId,
         int attackerAlliance,
-        string gameId)
+        string gameId,
+        TraversibilityMap traversibilityMap)
     {
         if (tank.RemainingImmunityMicros > 0)
         {
@@ -48,7 +49,7 @@ public static partial class Module
             };
             ctx.Db.tank.Id.Update(killedTank);
 
-            DropWeaponsOnDeath(ctx, tank, transform, gameId);
+            DropWeaponsOnDeath(ctx, tank, transform, gameId, traversibilityMap);
 
             if (shooterTankQuery != null)
             {
@@ -94,7 +95,7 @@ public static partial class Module
         }
     }
 
-    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankTransform transform, string gameId)
+    private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankTransform transform, string gameId, TraversibilityMap traversibilityMap)
     {
         foreach (var tankGun in ctx.Db.tank_gun.TankId.Filter(tank.Id))
         {
@@ -112,19 +113,83 @@ public static partial class Module
             float dropX = transform.PositionX + offsetX;
             float dropY = transform.PositionY + offsetY;
 
-            int gridX = (int)Math.Floor(dropX);
-            int gridY = (int)Math.Floor(dropY);
+            int initialGridX = (int)Math.Floor(dropX);
+            int initialGridY = (int)Math.Floor(dropY);
+
+            var (finalGridX, finalGridY) = FindNearestTraversableTile(
+                ctx,
+                traversibilityMap,
+                initialGridX,
+                initialGridY
+            );
+
+            if (finalGridX < 0 || finalGridY < 0)
+            {
+                continue;
+            }
+
+            float centerX = finalGridX + 0.5f;
+            float centerY = finalGridY + 0.5f;
 
             ctx.Db.pickup.Insert(Pickup.Build(
                 ctx: ctx,
                 gameId: gameId,
-                positionX: dropX,
-                positionY: dropY,
-                gridX: gridX,
-                gridY: gridY,
+                positionX: centerX,
+                positionY: centerY,
+                gridX: finalGridX,
+                gridY: finalGridY,
                 type: pickupType.Value,
                 ammo: gun.Ammo
             ));
         }
+    }
+
+    private static (int gridX, int gridY) FindNearestTraversableTile(
+        ReducerContext ctx,
+        TraversibilityMap traversibilityMap,
+        int startX,
+        int startY)
+    {
+        if (startX >= 0 && startX < traversibilityMap.Width &&
+            startY >= 0 && startY < traversibilityMap.Height)
+        {
+            int startIndex = startY * traversibilityMap.Width + startX;
+            if (startIndex < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(startIndex))
+            {
+                return (startX, startY);
+            }
+        }
+
+        int maxSearchRadius = 10;
+        for (int radius = 1; radius <= maxSearchRadius; radius++)
+        {
+            for (int dx = -radius; dx <= radius; dx++)
+            {
+                for (int dy = -radius; dy <= radius; dy++)
+                {
+                    if (Math.Abs(dx) != radius && Math.Abs(dy) != radius)
+                    {
+                        continue;
+                    }
+
+                    int checkX = startX + dx;
+                    int checkY = startY + dy;
+
+                    if (checkX < 0 || checkX >= traversibilityMap.Width ||
+                        checkY < 0 || checkY >= traversibilityMap.Height)
+                    {
+                        continue;
+                    }
+
+                    int tileIndex = checkY * traversibilityMap.Width + checkX;
+                    if (tileIndex < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(tileIndex))
+                    {
+                        return (checkX, checkY);
+                    }
+                }
+            }
+        }
+
+        return (-1, -1);
     }
 }
