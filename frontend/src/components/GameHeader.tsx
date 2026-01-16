@@ -3,6 +3,7 @@ import { getConnection, getIdentityHex } from "../spacetimedb-connection";
 import ScoreRow from "../../module_bindings/score_type";
 import GameRow from "../../module_bindings/game_type";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
+import { type EventContext } from "../../module_bindings";
 import { PALETTE } from "../theme/colors.config";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
@@ -78,12 +79,18 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
       }
     };
 
-    const initializeTimer = () => {
-      const game = connection.db.game.Id.find(gameId);
+    const initializeTimer = (game: any, eventTimestampMicros?: bigint) => {
       if (game && game.gameState.tag === "Playing") {
         setIsVisible(true);
         gameStartTimeRef.current = performance.now();
-        const gameElapsedMicros = Number(BigInt(Date.now()) * 1000n - game.gameStartedAt);
+        
+        let gameElapsedMicros: number;
+        if (eventTimestampMicros) {
+          gameElapsedMicros = Number(eventTimestampMicros - game.gameStartedAt);
+        } else {
+          gameElapsedMicros = 0;
+        }
+        
         const gameDurationMicros = Number(game.gameDurationMicros);
         const remainingMicros = Math.max(0, gameDurationMicros - gameElapsedMicros);
         const remainingSeconds = Math.floor(remainingMicros / 1_000_000);
@@ -118,16 +125,20 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
       .add<typeof GameRow>({
         table: connection.db.game,
         handlers: {
-          onUpdate: (_ctx, _oldGame, newGame) => {
+          onUpdate: (ctx: EventContext, _oldGame, newGame) => {
             if (newGame.id === gameId) {
-              initializeTimer();
+              const eventTimestamp = ctx.event.tag === 'Reducer' && ctx.event.value?.timestamp?.microsSinceUnixEpoch;
+              initializeTimer(newGame, eventTimestamp || undefined);
             }
           }
         }
       });
 
     updateScores();
-    initializeTimer();
+    const initialGame = connection.db.game.Id.find(gameId);
+    if (initialGame) {
+      initializeTimer(initialGame);
+    }
 
     const interval = setInterval(() => {
       updateTimerCountdown();

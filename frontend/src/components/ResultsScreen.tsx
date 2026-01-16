@@ -76,13 +76,19 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
             }
         };
 
-        const initializeResetTimer = (game: Infer<typeof GameRow>) => {
+        const initializeResetTimer = (game: Infer<typeof GameRow>, eventTimestampMicros?: bigint) => {
             const endTime = game.gameStartedAt + BigInt(game.gameDurationMicros);
-            const gameEndedAtMs = Number(endTime / 1000n);
-            const currentMs = Date.now();
-            const elapsedSinceEndMs = currentMs - gameEndedAtMs;
+            
+            let elapsedSinceEndMicros: number;
+            if (eventTimestampMicros) {
+              elapsedSinceEndMicros = Number(eventTimestampMicros - endTime);
+            } else {
+              elapsedSinceEndMicros = 0;
+            }
+            
             const resetDelaySeconds = GAME_RESET_DELAY_MICROS / 1_000_000;
-            const remainingSeconds = Math.max(0, Math.ceil(resetDelaySeconds - (elapsedSinceEndMs / 1000)));
+            const elapsedSinceEndSeconds = elapsedSinceEndMicros / 1_000_000;
+            const remainingSeconds = Math.max(0, Math.ceil(resetDelaySeconds - elapsedSinceEndSeconds));
             
             resetTimerStartRef.current = performance.now();
             resetDelaySecondsRef.current = remainingSeconds;
@@ -133,19 +139,21 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
             .add<typeof GameRow>({
                 table: connection.db.game,
                 handlers: {
-                    onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
+                    onInsert: (ctx: EventContext, game: Infer<typeof GameRow>) => {
                         if (game.id === gameId && game.gameState.tag === 'Results') {
                             setShowResults(true);
-                            initializeResetTimer(game);
+                            const eventTimestamp = ctx.event.tag === 'Reducer' && ctx.event.value?.timestamp?.microsSinceUnixEpoch;
+                            initializeResetTimer(game, eventTimestamp || undefined);
                             updateTanks();
                             updateScores();
                         }
                     },
-                    onUpdate: (_ctx: EventContext, oldGame: Infer<typeof GameRow>, newGame: Infer<typeof GameRow>) => {
+                    onUpdate: (ctx: EventContext, oldGame: Infer<typeof GameRow>, newGame: Infer<typeof GameRow>) => {
                         if (newGame.id === gameId) {
                             if (newGame.gameState.tag === 'Results' && oldGame.gameState.tag === 'Playing') {
                                 setShowResults(true);
-                                initializeResetTimer(newGame);
+                                const eventTimestamp = ctx.event.tag === 'Reducer' && ctx.event.value?.timestamp?.microsSinceUnixEpoch;
+                                initializeResetTimer(newGame, eventTimestamp || undefined);
                                 updateTanks();
                                 updateScores();
                             } else if (newGame.gameState.tag === 'Playing' && oldGame.gameState.tag === 'Results') {
