@@ -2,7 +2,7 @@ import { UNIT_TO_PIXEL } from "../../constants";
 import { COLORS } from "../../theme/colors";
 
 export function drawHealthPackShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   positionX: number,
   positionY: number
 ) {
@@ -20,7 +20,7 @@ export function drawHealthPackShadow(
 }
 
 export function drawHealthPackBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   positionX: number,
   positionY: number
 ) {

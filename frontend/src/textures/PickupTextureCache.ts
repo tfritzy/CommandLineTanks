@@ -86,8 +86,8 @@ class PickupTextureCache {
   private async createPickupTexture(
     key: string,
     size: number,
-    drawShadow: (ctx: CanvasRenderingContext2D, positionX: number, positionY: number) => void,
-    drawBody: (ctx: CanvasRenderingContext2D, positionX: number, positionY: number) => void
+    drawShadow: (ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, positionX: number, positionY: number) => void,
+    drawBody: (ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, positionX: number, positionY: number) => void
   ) {
     const centerX = size / 2;
     const centerY = size / 2;

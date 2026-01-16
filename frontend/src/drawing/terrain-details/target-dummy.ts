@@ -3,7 +3,7 @@ import { getFlashColor } from "../../utils/colors";
 import { COLORS } from "../../theme/colors";
 
 export function drawTargetDummyShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number
 ) {
@@ -15,7 +15,7 @@ export function drawTargetDummyShadow(
 }
 
 export function drawTargetDummyBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   flashTimer: number

@@ -2,7 +2,7 @@ import { COLORS } from "../../theme/colors";
 
 
 export function drawBoomerangShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   armLength: number,
@@ -35,7 +35,7 @@ export function drawBoomerangShadow(
 }
 
 export function drawBoomerangBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   armLength: number,

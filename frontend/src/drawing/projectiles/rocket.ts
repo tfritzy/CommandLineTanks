@@ -2,7 +2,7 @@ import { COLORS } from "../../theme/colors";
 
 
 export function drawRocketShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number,
@@ -25,7 +25,7 @@ export function drawRocketShadow(
 }
 
 export function drawRocketBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number,

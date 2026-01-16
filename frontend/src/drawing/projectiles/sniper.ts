@@ -2,7 +2,7 @@ import { COLORS } from "../../theme/colors";
 
 
 export function drawSniperProjectileShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   bulletLength: number,
@@ -37,7 +37,7 @@ export function drawSniperProjectileShadow(
 }
 
 export function drawSniperProjectileBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   bulletLength: number,

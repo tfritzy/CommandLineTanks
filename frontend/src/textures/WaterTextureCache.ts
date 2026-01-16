@@ -38,7 +38,7 @@ class WaterTextureCache {
   }
 
   private drawWaterTileVariant(
-    ctx: CanvasRenderingContext2D,
+    ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     tl: boolean,
     tr: boolean,
     bl: boolean,

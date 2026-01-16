@@ -3,7 +3,7 @@ import { getFlashColor } from "../../utils/colors";
 import { COLORS } from "../../theme/colors";
 
 export function drawFoundationCornerShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   x: number,
   y: number,
   centerX: number,
@@ -32,7 +32,7 @@ export function drawFoundationCornerShadow(
 }
 
 export function drawFoundationCornerBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   x: number,
   y: number,
   centerX: number,

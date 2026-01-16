@@ -3,7 +3,7 @@ import { getFlashColor } from "../../utils/colors";
 import { COLORS } from "../../theme/colors";
 
 export function drawHayBaleShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number
@@ -26,7 +26,7 @@ export function drawHayBaleShadow(
 }
 
 export function drawHayBaleBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number,

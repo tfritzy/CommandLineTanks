@@ -2,7 +2,7 @@ import { COLORS } from "../../theme/colors";
 
 
 export function drawNormalProjectileShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number
@@ -16,7 +16,7 @@ export function drawNormalProjectileShadow(
 }
 
 export function drawNormalProjectileBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number,

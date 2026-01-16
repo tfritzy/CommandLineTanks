@@ -3,7 +3,7 @@ import { COLORS } from "../../theme/colors";
 
 
 export function drawTreeShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number
@@ -17,7 +17,7 @@ export function drawTreeShadow(
 }
 
 export function drawTreeBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number,

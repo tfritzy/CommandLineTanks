@@ -2,7 +2,7 @@ import { COLORS } from "../../theme/colors";
 
 
 export function drawMissileShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number,
@@ -25,7 +25,7 @@ export function drawMissileShadow(
 }
 
 export function drawMissileBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number,

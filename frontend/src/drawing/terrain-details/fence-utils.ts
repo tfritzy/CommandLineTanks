@@ -1,7 +1,7 @@
 import { getFlashColor, lerpColor } from "../../utils/colors";
 
 export function drawSquarePost(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   size: number,
@@ -25,7 +25,7 @@ export function drawSquarePost(
 }
 
 export function drawSquarePostShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   size: number,

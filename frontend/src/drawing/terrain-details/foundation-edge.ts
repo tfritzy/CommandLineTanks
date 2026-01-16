@@ -3,7 +3,7 @@ import { getFlashColor } from "../../utils/colors";
 import { COLORS } from "../../theme/colors";
 
 export function drawFoundationEdgeShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   x: number,
   y: number,
   centerX: number,
@@ -24,7 +24,7 @@ export function drawFoundationEdgeShadow(
 }
 
 export function drawFoundationEdgeBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   x: number,
   y: number,
   centerX: number,

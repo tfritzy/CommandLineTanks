@@ -2,7 +2,7 @@ import { COLORS } from "../../theme/colors";
 
 
 export function drawGrenadeShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number
@@ -40,7 +40,7 @@ export function drawGrenadeShadow(
 }
 
 export function drawGrenadeBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   radius: number,

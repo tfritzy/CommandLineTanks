@@ -3,7 +3,7 @@ import { COLORS } from "../../theme/colors";
 
 
 export function drawMoagShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   size: number
@@ -19,7 +19,7 @@ export function drawMoagShadow(
 }
 
 export function drawMoagBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   size: number,

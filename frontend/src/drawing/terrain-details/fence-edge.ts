@@ -4,7 +4,7 @@ import { drawSquarePost, drawSquarePostShadow } from "./fence-utils";
 import { COLORS } from "../../theme/colors";
 
 export function drawFenceEdgeShadow(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   x: number,
   y: number,
   centerX: number,
@@ -36,7 +36,7 @@ export function drawFenceEdgeShadow(
 }
 
 export function drawFenceEdgeBody(
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   x: number,
   y: number,
   centerX: number,
