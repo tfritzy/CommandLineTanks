@@ -6,6 +6,7 @@ import ScoreRow from '../../module_bindings/score_type';
 import GameRow from '../../module_bindings/game_type';
 import { type EventContext } from "../../module_bindings";
 import { createMultiTableSubscription, type MultiTableSubscription } from '../utils/tableSubscription';
+import { getEventTimestamp } from '../utils/eventHelpers';
 
 const GAME_RESET_DELAY_MICROS = 15_000_000;
 
@@ -142,8 +143,8 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                     onInsert: (ctx: EventContext, game: Infer<typeof GameRow>) => {
                         if (game.id === gameId && game.gameState.tag === 'Results') {
                             setShowResults(true);
-                            const eventTimestamp = ctx.event.tag === 'Reducer' && ctx.event.value?.timestamp?.microsSinceUnixEpoch;
-                            initializeResetTimer(game, eventTimestamp || undefined);
+                            const eventTimestamp = getEventTimestamp(ctx);
+                            initializeResetTimer(game, eventTimestamp);
                             updateTanks();
                             updateScores();
                         }
@@ -152,8 +153,8 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                         if (newGame.id === gameId) {
                             if (newGame.gameState.tag === 'Results' && oldGame.gameState.tag === 'Playing') {
                                 setShowResults(true);
-                                const eventTimestamp = ctx.event.tag === 'Reducer' && ctx.event.value?.timestamp?.microsSinceUnixEpoch;
-                                initializeResetTimer(newGame, eventTimestamp || undefined);
+                                const eventTimestamp = getEventTimestamp(ctx);
+                                initializeResetTimer(newGame, eventTimestamp);
                                 updateTanks();
                                 updateScores();
                             } else if (newGame.gameState.tag === 'Playing' && oldGame.gameState.tag === 'Results') {

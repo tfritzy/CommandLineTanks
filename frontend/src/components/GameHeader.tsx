@@ -4,6 +4,7 @@ import ScoreRow from "../../module_bindings/score_type";
 import GameRow from "../../module_bindings/game_type";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
 import { type EventContext } from "../../module_bindings";
+import { getEventTimestamp } from "../utils/eventHelpers";
 import { PALETTE } from "../theme/colors.config";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
@@ -127,8 +128,8 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
         handlers: {
           onUpdate: (ctx: EventContext, _oldGame, newGame) => {
             if (newGame.id === gameId) {
-              const eventTimestamp = ctx.event.tag === 'Reducer' && ctx.event.value?.timestamp?.microsSinceUnixEpoch;
-              initializeTimer(newGame, eventTimestamp || undefined);
+              const eventTimestamp = getEventTimestamp(ctx);
+              initializeTimer(newGame, eventTimestamp);
             }
           }
         }
