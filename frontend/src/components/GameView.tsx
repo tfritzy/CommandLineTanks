@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Game as GameEngine } from "../game";
 import TerminalComponent from "./terminal/Terminal";
 import ResultsScreen from "./ResultsScreen";
@@ -26,6 +26,7 @@ import { useJoinModalStatus } from "../hooks/useJoinModalStatus";
 export default function GameView() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<GameEngine | null>(null);
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
@@ -37,7 +38,7 @@ export default function GameView() {
 
   const myIdentity = getIdentityHex();
   const isHomegame = myIdentity && gameId?.toLowerCase() === myIdentity.toLowerCase();
-  const isGame = gameId?.length === 4;
+  const isTutorial = location.pathname.includes('/tutorial/');
 
   const joinModalStatus = useJoinModalStatus(gameId);
   const showJoinModal = joinModalStatus === "no_tank";
@@ -251,7 +252,7 @@ export default function GameView() {
   }, [gameId, isHomegame]);
 
   useEffect(() => {
-    if (!gameId || isGame) return;
+    if (!gameId || !isTutorial) return;
 
     const connection = getConnection();
     if (!connection) return;
@@ -261,7 +262,7 @@ export default function GameView() {
     
     connection.reducers.ensureTutorial({ gameId, joinCode });
     console.log(`Called ensureTutorial for gameId: ${gameId}`);
-  }, [gameId, isGame]);
+  }, [gameId, isTutorial]);
 
   if (!gameId) {
     return null;
@@ -270,11 +271,11 @@ export default function GameView() {
   return (
     <div className="flex flex-col h-screen w-screen m-0 p-0 overflow-hidden">
       <div className="flex-1 overflow-hidden relative">
-        <GameHeader gameId={gameId} isGame={isGame} />
-        <ScoreBoard gameId={gameId} isGame={isGame} />
+        <GameHeader gameId={gameId} isTutorial={isTutorial} />
+        <ScoreBoard gameId={gameId} isTutorial={isTutorial} />
         {isHomegame && <HomegameOverlay />}
-        {!isGame && <TutorialOverlay />}
-        {!isGame && (
+        {isTutorial && <TutorialOverlay />}
+        {isTutorial && (
           <div 
             className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none"
             style={{ opacity: 0.6 }}
