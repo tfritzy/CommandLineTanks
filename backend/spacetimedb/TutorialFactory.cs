@@ -82,6 +82,8 @@ public static partial class Module
             baseTerrain[i] = BaseTerrain.Ground;
         }
 
+        AddTutorialDecorations(baseTerrain, TUTORIAL_WIDTH, TUTORIAL_HEIGHT);
+
         var game = new Game
         {
             Id = tutorialGameId,
@@ -102,13 +104,31 @@ public static partial class Module
 
         ctx.Db.game.Insert(game);
 
-        InsertTraversibilityMapsForEmptyTerrain(ctx, tutorialGameId, TUTORIAL_WIDTH, TUTORIAL_HEIGHT);
+        var traversibilityBoolMap = CalculateTutorialTraversibility(baseTerrain);
+
+        ctx.Db.traversibility_map.Insert(new TraversibilityMap
+        {
+            GameId = tutorialGameId,
+            Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
+            Width = TUTORIAL_WIDTH,
+            Height = TUTORIAL_HEIGHT
+        });
+
+        ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
+        {
+            GameId = tutorialGameId,
+            Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
+            Width = TUTORIAL_WIDTH,
+            Height = TUTORIAL_HEIGHT
+        });
 
         ctx.Db.score.Insert(new Score
         {
             GameId = tutorialGameId,
             Kills = new int[] { 0, 0 }
         });
+
+        AddTutorialTerrainDetails(ctx, tutorialGameId);
 
         SpawnTutorialHealthPickup(ctx, tutorialGameId);
         SpawnDriveToHealthLabel(ctx, tutorialGameId);
@@ -120,33 +140,136 @@ public static partial class Module
         Log.Info($"Created tutorial game {tutorialGameId} for identity {identity}");
     }
 
-    public static void InsertTraversibilityMapsForEmptyTerrain(ReducerContext ctx, string gameId, int width, int height)
+    private static void AddTutorialDecorations(BaseTerrain[] baseTerrain, int width, int height)
     {
-        int totalTiles = width * height;
-        var traversibilityBoolMap = new bool[totalTiles];
-        var projectileTraversibilityBoolMap = new bool[totalTiles];
+        baseTerrain[0 * width + 1] = BaseTerrain.Water;
+        baseTerrain[0 * width + 2] = BaseTerrain.Water;
+        baseTerrain[1 * width + 0] = BaseTerrain.Water;
+        baseTerrain[1 * width + 1] = BaseTerrain.Water;
+        baseTerrain[1 * width + 2] = BaseTerrain.Water;
+        baseTerrain[2 * width + 0] = BaseTerrain.Water;
+        baseTerrain[2 * width + 1] = BaseTerrain.Water;
 
-        for (int i = 0; i < totalTiles; i++)
+        baseTerrain[0 * width + 17] = BaseTerrain.Water;
+        baseTerrain[0 * width + 18] = BaseTerrain.Water;
+        baseTerrain[1 * width + 17] = BaseTerrain.Water;
+        baseTerrain[1 * width + 18] = BaseTerrain.Water;
+        baseTerrain[1 * width + 19] = BaseTerrain.Water;
+        baseTerrain[2 * width + 18] = BaseTerrain.Water;
+        baseTerrain[2 * width + 19] = BaseTerrain.Water;
+
+        baseTerrain[9 * width + 0] = BaseTerrain.Water;
+        baseTerrain[9 * width + 1] = BaseTerrain.Water;
+        baseTerrain[10 * width + 0] = BaseTerrain.Water;
+        baseTerrain[10 * width + 1] = BaseTerrain.Water;
+        baseTerrain[11 * width + 0] = BaseTerrain.Water;
+        baseTerrain[11 * width + 1] = BaseTerrain.Water;
+
+        baseTerrain[10 * width + 18] = BaseTerrain.Water;
+        baseTerrain[10 * width + 19] = BaseTerrain.Water;
+        baseTerrain[11 * width + 18] = BaseTerrain.Water;
+        baseTerrain[11 * width + 19] = BaseTerrain.Water;
+    }
+
+    private static void AddTutorialTerrainDetails(ReducerContext ctx, string gameId)
+    {
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 0.5f,
+            positionY: 5.5f,
+            gridX: 0,
+            gridY: 5,
+            type: TerrainDetailType.Rock,
+            rotation: 0
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 19.5f,
+            positionY: 1.5f,
+            gridX: 19,
+            gridY: 1,
+            type: TerrainDetailType.Rock,
+            rotation: 1
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 19.5f,
+            positionY: 10.5f,
+            gridX: 19,
+            gridY: 10,
+            type: TerrainDetailType.Rock,
+            rotation: 2
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 1.5f,
+            positionY: 11.5f,
+            gridX: 1,
+            gridY: 11,
+            type: TerrainDetailType.Tree,
+            rotation: 0
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 18.5f,
+            positionY: 11.5f,
+            gridX: 18,
+            gridY: 11,
+            type: TerrainDetailType.Tree,
+            rotation: 0
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 10.5f,
+            positionY: 0.5f,
+            gridX: 10,
+            gridY: 0,
+            type: TerrainDetailType.DeadTree,
+            rotation: 0
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 0.5f,
+            positionY: 8.5f,
+            gridX: 0,
+            gridY: 8,
+            type: TerrainDetailType.DeadTree,
+            rotation: 0
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 19.5f,
+            positionY: 4.5f,
+            gridX: 19,
+            gridY: 4,
+            type: TerrainDetailType.DeadTree,
+            rotation: 0
+        ));
+    }
+
+    private static bool[] CalculateTutorialTraversibility(BaseTerrain[] baseTerrain)
+    {
+        var traversibility = new bool[baseTerrain.Length];
+        for (int i = 0; i < baseTerrain.Length; i++)
         {
-            traversibilityBoolMap[i] = true;
-            projectileTraversibilityBoolMap[i] = true;
+            traversibility[i] = !baseTerrain[i].BlocksTanks();
         }
-
-        ctx.Db.traversibility_map.Insert(new TraversibilityMap
-        {
-            GameId = gameId,
-            Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
-            Width = width,
-            Height = height
-        });
-
-        ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
-        {
-            GameId = gameId,
-            Map = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap),
-            Width = width,
-            Height = height
-        });
+        return traversibility;
     }
 
     private static void SpawnTutorialHealthPickup(ReducerContext ctx, string gameId)
