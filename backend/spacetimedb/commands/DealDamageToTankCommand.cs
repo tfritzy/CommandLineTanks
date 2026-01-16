@@ -157,7 +157,7 @@ public static partial class Module
             startY >= 0 && startY < traversibilityMap.Height)
         {
             int startIndex = startY * traversibilityMap.Width + startX;
-            if (traversibilityMap.IsTraversable(startIndex))
+            if (startIndex < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(startIndex))
             {
                 return (startX, startY);
             }
@@ -185,7 +185,7 @@ public static partial class Module
                     }
 
                     int tileIndex = checkY * traversibilityMap.Width + checkX;
-                    if (traversibilityMap.IsTraversable(tileIndex))
+                    if (tileIndex < traversibilityMap.Map.Length * 8 && traversibilityMap.IsTraversable(tileIndex))
                     {
                         return (checkX, checkY);
                     }
