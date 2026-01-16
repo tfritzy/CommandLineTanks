@@ -81,12 +81,14 @@
             text-rendering: optimizeLegibility;
             font-feature-settings: 'liga';
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            color: transparent;
-            transition: color 0.1s ease-in;
+            width: 1em;
+            height: 1em;
+            overflow: hidden;
+            text-indent: -9999px;
         }
 
         .fonts-loaded .material-symbols-outlined {
-            color: inherit;
+            text-indent: 0;
         }
 
         @keyframes scanline {
