@@ -143,8 +143,8 @@ export class Game {
 
     this.ctx.translate(-finalCameraX, -finalCameraY);
 
-    const centerX = this.currentCameraX + displayWidth / 2;
-    const centerY = this.currentCameraY + displayHeight / 2;
+    const centerX = Math.floor(this.currentCameraX + displayWidth / 2);
+    const centerY = Math.floor(this.currentCameraY + displayHeight / 2);
     const listenerX = centerX / UNIT_TO_PIXEL;
     const listenerY = centerY / UNIT_TO_PIXEL;
     this.soundManager.setListenerPosition(listenerX, listenerY);

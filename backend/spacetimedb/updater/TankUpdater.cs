@@ -278,5 +278,10 @@ public static partial class TankUpdater
                 ctx.Db.tank_transform.TankId.Update(transform);
             }
         }
+
+        if (newTickCount % 8 == 0)
+        {
+            GC.Collect();
+        }
     }
 }

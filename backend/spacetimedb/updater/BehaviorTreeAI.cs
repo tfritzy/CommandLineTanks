@@ -23,7 +23,6 @@ public static partial class BehaviorTreeAI
     [Reducer]
     public static void UpdateAI(ReducerContext ctx, ScheduledAIUpdate args)
     {
-        var stopwatch = new LogStopwatch("update ai");
         var aiContext = new GameAIContext(ctx, args.GameId);
 
         foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((args.GameId, true)))
@@ -65,6 +64,9 @@ public static partial class BehaviorTreeAI
         var updatedArgs = args with { TickCount = args.TickCount + 1 };
         ctx.Db.ScheduledAIUpdate.ScheduledId.Update(updatedArgs);
 
-        stopwatch.End();
+        if (updatedArgs.TickCount % 8 == 0)
+        {
+            GC.Collect();
+        }
     }
 }
