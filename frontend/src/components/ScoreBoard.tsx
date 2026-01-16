@@ -20,6 +20,7 @@ interface PlayerScore {
 
 interface ScoreBoardProps {
   gameId: string;
+  isTutorialRoute?: boolean;
 }
 
 interface AnimatedScoreProps {
@@ -42,7 +43,7 @@ function AnimatedScore({ value }: AnimatedScoreProps) {
   return <span>{displayValue}</span>;
 }
 
-export default function ScoreBoard({ gameId }: ScoreBoardProps) {
+export default function ScoreBoard({ gameId, isTutorialRoute = false }: ScoreBoardProps) {
   const [players, setPlayers] = useState<PlayerScore[]>([]);
   const connection = getConnection();
   const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);

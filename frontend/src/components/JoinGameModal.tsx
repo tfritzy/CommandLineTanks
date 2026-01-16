@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { getConnection, isCurrentIdentity, setPendingJoinCode } from '../spacetimedb-connection';
+import { getConnection, isCurrentIdentity } from '../spacetimedb-connection';
 import CopyBox from './CopyBox';
 
 interface JoinGameModalProps {
