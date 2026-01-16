@@ -27,8 +27,6 @@ import { subscribeToTable, type TableSubscription } from "../utils/tableSubscrip
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
-const WATER_BUFFER_DISTANCE = 1.5;
-
 export class TerrainDetailManager {
   private gameWidth: number = 0;
   private gameHeight: number = 0;
@@ -66,24 +64,16 @@ export class TerrainDetailManager {
     this.baseTerrainLayer = baseTerrainLayer;
   }
 
-  private isNearWater(x: number, y: number, bufferDistance: number): boolean {
-    const minX = Math.max(0, Math.floor(x - bufferDistance));
-    const maxX = Math.min(this.gameWidth - 1, Math.ceil(x + bufferDistance));
-    const minY = Math.max(0, Math.floor(y - bufferDistance));
-    const maxY = Math.min(this.gameHeight - 1, Math.ceil(y + bufferDistance));
-
-    for (let checkY = minY; checkY <= maxY; checkY++) {
-      for (let checkX = minX; checkX <= maxX; checkX++) {
-        const distance = Math.sqrt((checkX - x) ** 2 + (checkY - y) ** 2);
-        if (distance <= bufferDistance) {
-          const index = checkY * this.gameWidth + checkX;
-          if (index >= 0 && index < this.baseTerrainLayer.length && this.baseTerrainLayer[index]?.tag === "Water") {
-            return true;
-          }
-        }
-      }
+  private isWater(x: number, y: number): boolean {
+    const gridX = Math.floor(x);
+    const gridY = Math.floor(y);
+    
+    if (gridX < 0 || gridX >= this.gameWidth || gridY < 0 || gridY >= this.gameHeight) {
+      return false;
     }
-    return false;
+    
+    const index = gridY * this.gameWidth + gridX;
+    return this.baseTerrainLayer[index]?.tag === "Water";
   }
 
   private initializeDetailObjectsArray() {
@@ -236,7 +226,7 @@ export class TerrainDetailManager {
         this.mushroomDecorations.generateMushroomsAroundTree(
           x,
           y,
-          (posX: number, posY: number) => this.isNearWater(posX, posY, WATER_BUFFER_DISTANCE)
+          (posX: number, posY: number) => this.isWater(posX, posY)
         );
         break;
       case "DeadTree":
