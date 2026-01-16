@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getConnection, getIdentityHex } from '../spacetimedb-connection';
 import type { EventContext, SubscriptionHandle } from '../../module_bindings';
@@ -9,7 +9,7 @@ function getTutorialGameId(identity: string): string {
     return `tutorial_${identity.toLowerCase()}`;
 }
 
-const TutorialRedirector: React.FC = () => {
+export default function TutorialRedirector() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const subscriptionHandleRef = useRef<SubscriptionHandle | null>(null);
@@ -102,6 +102,4 @@ const TutorialRedirector: React.FC = () => {
         <div className="fixed inset-0 bg-[#1a1a24] z-[9999]">
         </div>
     );
-};
-
-export default TutorialRedirector;
+}
