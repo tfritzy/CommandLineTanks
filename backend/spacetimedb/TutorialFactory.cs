@@ -217,7 +217,7 @@ public static partial class Module
             gridX: TUTORIAL_ENEMY_SPAWN.x,
             gridY: TUTORIAL_ENEMY_SPAWN.y - 1,
             type: TerrainDetailType.Label,
-            label: $"You can use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock on to an enemy tank. Target the enemy! Use [color=#fceba8]`t {targetCode}`[/color] to lock onto them"
+            label: $"You can use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock onto an enemy tank. Target the enemy! Use [color=#fceba8]`t {targetCode}`[/color] to lock onto them"
         ));
     }
 
