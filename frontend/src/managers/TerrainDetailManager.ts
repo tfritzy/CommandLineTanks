@@ -153,29 +153,31 @@ export class TerrainDetailManager {
               this.detailObjectsByPosition[y][x] = null;
             }
 
-            this.soundManager.play("terrain-destroy", 0.5, detail.positionX, detail.positionY);
+            if (detail.type.tag !== "Label") {
+              this.soundManager.play("terrain-destroy", 0.5, detail.positionX, detail.positionY);
 
-            if (
-              detail.type.tag === "FenceEdge" ||
-              detail.type.tag === "FenceCorner"
-            ) {
-              this.terrainDebrisParticles.spawnParticles(
-                detail.positionX,
-                detail.positionY
-              );
-            } else if (
-              detail.type.tag === "Tree" ||
-              detail.type.tag === "DeadTree"
-            ) {
-              this.treeDestructionParticles.spawnParticles(
-                detail.positionX,
-                detail.positionY
-              );
-            } else {
-              this.terrainDebrisParticles.spawnParticles(
-                detail.positionX,
-                detail.positionY
-              );
+              if (
+                detail.type.tag === "FenceEdge" ||
+                detail.type.tag === "FenceCorner"
+              ) {
+                this.terrainDebrisParticles.spawnParticles(
+                  detail.positionX,
+                  detail.positionY
+                );
+              } else if (
+                detail.type.tag === "Tree" ||
+                detail.type.tag === "DeadTree"
+              ) {
+                this.treeDestructionParticles.spawnParticles(
+                  detail.positionX,
+                  detail.positionY
+                );
+              } else {
+                this.terrainDebrisParticles.spawnParticles(
+                  detail.positionX,
+                  detail.positionY
+                );
+              }
             }
           }
           this.detailObjects.delete(detail.id);
