@@ -50,12 +50,14 @@
 
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            opacity: 0;
-            transition: opacity 0.1s ease-in;
+            width: 1em;
+            height: 1em;
+            overflow: hidden;
+            text-indent: -9999px;
         }
 
         .fonts-loaded .material-symbols-outlined {
-            opacity: 1;
+            text-indent: 0;
         }
 
         @keyframes scanline {
@@ -1188,7 +1190,15 @@
     <script>
         document.fonts.ready.then(function() {
             document.documentElement.classList.add('fonts-loaded');
+        }).catch(function() {
+            document.documentElement.classList.add('fonts-loaded');
         });
+
+        setTimeout(function() {
+            if (!document.documentElement.classList.contains('fonts-loaded')) {
+                document.documentElement.classList.add('fonts-loaded');
+            }
+        }, 3000);
 
         (function() {
             const terminalEl = document.getElementById('terminal-mock');
