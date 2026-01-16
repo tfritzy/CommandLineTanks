@@ -1,6 +1,7 @@
 import { type DbConnection, type EventContext } from "../../module_bindings";
 import PlayerRow from "../../module_bindings/player_table";
 import { type Infer } from "spacetimedb";
+import { ServerTimeSync } from "./ServerTimeSync";
 
 interface PingMeasurement {
   sentAt: number;
@@ -28,7 +29,11 @@ export class PingTracker {
     
     this.connection = connection;
     
-    this.connection.db.player.onUpdate((_ctx: EventContext, _oldRow: Infer<typeof PlayerRow>, newRow: Infer<typeof PlayerRow>) => {
+    this.connection.db.player.onUpdate((ctx: EventContext, _oldRow: Infer<typeof PlayerRow>, newRow: Infer<typeof PlayerRow>) => {
+      if (ctx.event.tag === 'Reducer' && ctx.event.value.timestamp) {
+        ServerTimeSync.getInstance().recordServerTimestamp(ctx.event.value.timestamp.microsSinceUnixEpoch);
+      }
+      
       if (!this.connection?.identity) return;
       if (!newRow.identity.isEqual(this.connection.identity)) return;
       if (!this.waitingForResponse) return;
