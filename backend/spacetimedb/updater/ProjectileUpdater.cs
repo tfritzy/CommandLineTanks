@@ -8,6 +8,18 @@ public static partial class ProjectileUpdater
     private const int COLLISION_TRACKING_BUFFER_SIZE = 128;
     private const ulong LATE_UPDATE_THRESHOLD_MICROS = Module.NETWORK_TICK_RATE_MICROS * 2;
 
+    [ThreadStatic]
+    private static Dictionary<ulong, Module.ProjectileTransform>? _transformCache;
+    
+    [ThreadStatic]
+    private static Dictionary<(int, int), List<(Module.Tank, Module.TankTransform)>>? _tanksByRegion;
+    
+    [ThreadStatic]
+    private static Dictionary<string, Module.Tank>? _tanksById;
+    
+    [ThreadStatic]
+    private static List<Module.Projectile>? _projectileList;
+
     [Table(Scheduled = nameof(UpdateProjectiles))]
     public partial struct ScheduledProjectileUpdates
     {
@@ -18,8 +30,82 @@ public static partial class ProjectileUpdater
         [SpacetimeDB.Index.BTree]
         public string GameId;
         public ulong LastTickAt;
+        public ulong TickCount;
     }
 
+    private static Dictionary<ulong, Module.ProjectileTransform> GetTransformCache()
+    {
+        if (_transformCache == null)
+            _transformCache = new Dictionary<ulong, Module.ProjectileTransform>();
+        else
+            _transformCache.Clear();
+        return _transformCache;
+    }
+
+    private static Dictionary<(int, int), List<(Module.Tank, Module.TankTransform)>> GetTanksByRegionCache()
+    {
+        if (_tanksByRegion == null)
+            _tanksByRegion = new Dictionary<(int, int), List<(Module.Tank, Module.TankTransform)>>();
+        else
+        {
+            foreach (var list in _tanksByRegion.Values)
+                list.Clear();
+            _tanksByRegion.Clear();
+        }
+        return _tanksByRegion;
+    }
+
+    private static Dictionary<string, Module.Tank> GetTanksByIdCache()
+    {
+        if (_tanksById == null)
+            _tanksById = new Dictionary<string, Module.Tank>();
+        else
+            _tanksById.Clear();
+        return _tanksById;
+    }
+
+    private static List<Module.Projectile> GetProjectileList()
+    {
+        if (_projectileList == null)
+            _projectileList = new List<Module.Projectile>();
+        else
+            _projectileList.Clear();
+        return _projectileList;
+    }
+
+    [ThreadStatic]
+    private static List<(Module.Tank, Module.TankTransform)>? _reusableTankList;
+
+    private static List<(Module.Tank, Module.TankTransform)> GetOrCreateTankList()
+    {
+        return _reusableTankList ??= new List<(Module.Tank, Module.TankTransform)>();
+    }
+
+    private static void BuildTankSpatialCache(
+        ReducerContext ctx,
+        string gameId,
+        Dictionary<(int, int), List<(Module.Tank, Module.TankTransform)>> tanksByRegion,
+        Dictionary<string, Module.Tank> tanksById)
+    {
+        foreach (var tank in ctx.Db.tank.GameId.Filter(gameId))
+        {
+            tanksById[tank.Id] = tank;
+        }
+
+        foreach (var tankTransform in ctx.Db.tank_transform.GameId.Filter(gameId))
+        {
+            if (!tanksById.TryGetValue(tankTransform.TankId, out var tank))
+                continue;
+
+            var regionKey = (tankTransform.CollisionRegionX, tankTransform.CollisionRegionY);
+            if (!tanksByRegion.TryGetValue(regionKey, out var list))
+            {
+                list = new List<(Module.Tank, Module.TankTransform)>(4);
+                tanksByRegion[regionKey] = list;
+            }
+            list.Add((tank, tankTransform));
+        }
+    }
 
     private static (Module.Projectile projectile, Module.ProjectileTransform transform) UpdateBoomerangVelocity(Module.Projectile projectile, Module.ProjectileTransform transform, double projectileAgeSeconds)
     {
@@ -61,7 +147,11 @@ public static partial class ProjectileUpdater
         });
     }
 
-    private static Module.ProjectileTransform UpdateMissileTracking(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string gameId, double deltaTime)
+    private static Module.ProjectileTransform UpdateMissileTracking(
+        Module.Projectile projectile,
+        Module.ProjectileTransform transform,
+        Dictionary<(int, int), List<(Module.Tank, Module.TankTransform)>> tanksByRegion,
+        double deltaTime)
     {
         if (projectile.TrackingStrength <= 0)
         {
@@ -83,13 +173,12 @@ public static partial class ProjectileUpdater
                 int regionX = projectileCollisionRegionX + deltaX;
                 int regionY = projectileCollisionRegionY + deltaY;
 
-                var tankTransforms = ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY));
-                foreach (var tankTransform in tankTransforms)
-                {
-                    var tank = ctx.Db.tank.Id.Find(tankTransform.TankId);
-                    if (tank == null) continue;
+                if (!tanksByRegion.TryGetValue((regionX, regionY), out var tanksInRegion))
+                    continue;
 
-                    if (tank.Value.Alliance != projectile.Alliance && tank.Value.Health > 0)
+                foreach (var (tank, tankTransform) in tanksInRegion)
+                {
+                    if (tank.Alliance != projectile.Alliance && tank.Health > 0)
                     {
                         var dx_tank = tankTransform.PositionX - transform.PositionX;
                         var dy_tank = tankTransform.PositionY - transform.PositionY;
@@ -164,7 +253,7 @@ public static partial class ProjectileUpdater
 
         if (tileIsTraversable)
         {
-            return (false, projectile, transform);
+return (false, projectile, transform);
         }
 
         if (projectile.Bounce)
@@ -404,6 +493,8 @@ public static partial class ProjectileUpdater
         string gameId,
         ref Module.TraversibilityMap traversibilityMap,
         ref Module.ProjectileTraversibilityMap projectileTraversibilityMap,
+        Dictionary<(int, int), List<(Module.Tank, Module.TankTransform)>> tanksByRegion,
+        Dictionary<string, Module.Tank> tanksById,
         int minRegionX,
         int maxRegionX,
         int minRegionY,
@@ -440,8 +531,10 @@ public static partial class ProjectileUpdater
             {
                 if (regionY < 0) continue;
 
-                var tankTransforms = ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY));
-                foreach (var tankTransform in tankTransforms)
+                if (!tanksByRegion.TryGetValue((regionX, regionY), out var tanksInRegion))
+                    continue;
+
+                foreach (var (tank, tankTransform) in tanksInRegion)
                 {
                     float dx = tankTransform.PositionX - transform.PositionX;
                     float dy = tankTransform.PositionY - transform.PositionY;
@@ -449,21 +542,19 @@ public static partial class ProjectileUpdater
 
                     if (distanceSquared <= collisionRadiusSquared)
                     {
-                        var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
-                        if (tankQuery == null) continue;
-                        var tank = tankQuery.Value;
+                        var currentTank = tanksById.TryGetValue(tank.Id, out var updatedTank) ? updatedTank : tank;
 
-                        if (HandleBoomerangReturn(ctx, projectile, tank))
+                        if (HandleBoomerangReturn(ctx, projectile, currentTank))
                         {
                             return (true, projectile, transform);
                         }
 
-                        if (tank.Alliance != projectile.Alliance && tank.Health > 0 && tank.RemainingImmunityMicros <= 0)
+                        if (currentTank.Alliance != projectile.Alliance && currentTank.Health > 0 && currentTank.RemainingImmunityMicros <= 0)
                         {
                             bool alreadyHit = false;
                             for (int i = 0; i < recentlyHitCount; i++)
                             {
-                                if (recentlyHitBuffer![i].TankId == tank.Id)
+                                if (recentlyHitBuffer![i].TankId == currentTank.Id)
                                 {
                                     alreadyHit = true;
                                     break;
@@ -483,7 +574,7 @@ public static partial class ProjectileUpdater
                                 }
                                 else
                                 {
-                                    Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId);
+                                    Module.DealDamageToTankCommand(ctx, currentTank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId);
                                 }
 
                                 recentlyHitBuffer ??= new DamagedTank[COLLISION_TRACKING_BUFFER_SIZE];
@@ -491,7 +582,7 @@ public static partial class ProjectileUpdater
                                 {
                                     recentlyHitBuffer[recentlyHitCount++] = new DamagedTank
                                     {
-                                        TankId = tank.Id,
+                                        TankId = currentTank.Id,
                                         DamagedAt = currentTime
                                     };
                                 }
@@ -527,11 +618,7 @@ public static partial class ProjectileUpdater
     [Reducer]
     public static void UpdateProjectiles(ReducerContext ctx, ScheduledProjectileUpdates args)
     {
-        var gcStartGen0 = GC.CollectionCount(0);
-        var gcStartGen1 = GC.CollectionCount(1);
-        var gcStartGen2 = GC.CollectionCount(2);
-        var memoryStartBytes = GC.GetTotalMemory(false);
-
+        var stopwatch = new LogStopwatch("update projectiles");
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
@@ -541,9 +628,11 @@ public static partial class ProjectileUpdater
             Log.Warn($"Projectile update significantly late: {deltaTimeMicros / 1000.0:F2}ms (expected ~{Module.NETWORK_TICK_RATE_MICROS / 1000.0:F2}ms, game: {args.GameId})");
         }
 
+        var newTickCount = args.TickCount + 1;
         ctx.Db.ScheduledProjectileUpdates.ScheduledId.Update(args with
         {
-            LastTickAt = currentTime
+            LastTickAt = currentTime,
+            TickCount = newTickCount
         });
 
         var traversibilityMapQuery = ctx.Db.traversibility_map.GameId.Find(args.GameId);
@@ -556,23 +645,37 @@ public static partial class ProjectileUpdater
         var projectileTraversibilityMap = projectileTraversibilityMapQuery.Value;
         var initialProjectileMapVersion = projectileTraversibilityMap.Version;
 
+        var transforms = GetTransformCache();
+        foreach (var t in ctx.Db.projectile_transform.GameId.Filter(args.GameId))
+        {
+            transforms[t.ProjectileId] = t;
+        }
+
+        var tanksByRegion = GetTanksByRegionCache();
+        var tanksById = GetTanksByIdCache();
+        BuildTankSpatialCache(ctx, args.GameId, tanksByRegion, tanksById);
+
+        var projectiles = GetProjectileList();
+        foreach (var p in ctx.Db.projectile.GameId.Filter(args.GameId))
+        {
+            projectiles.Add(p);
+        }
+
         var projectilesProcessed = 0;
         var projectilesExpired = 0;
         var projectilesCollided = 0;
 
-        foreach (var iProjectile in ctx.Db.projectile.GameId.Filter(args.GameId))
+        foreach (var iProjectile in projectiles)
         {
             projectilesProcessed++;
             var projectile = iProjectile;
 
-            var transformQuery = ctx.Db.projectile_transform.ProjectileId.Find(projectile.Id);
-            if (transformQuery == null)
+            if (!transforms.TryGetValue(projectile.Id, out var transform))
             {
                 Log.Warn($"Orphaned projectile found without transform: {projectile.Id}");
                 ctx.Db.projectile.Id.Delete(projectile.Id);
                 continue;
             }
-            var transform = transformQuery.Value;
 
             var projectileAgeMicros = currentTime - projectile.SpawnedAt;
             var projectileAgeSeconds = projectileAgeMicros / 1_000_000.0;
@@ -590,7 +693,7 @@ public static partial class ProjectileUpdater
 
             (projectile, transform) = UpdateBoomerangVelocity(projectile, transform, projectileAgeSeconds);
 
-            transform = UpdateMissileTracking(ctx, projectile, transform, args.GameId, deltaTime);
+            transform = UpdateMissileTracking(projectile, transform, tanksByRegion, deltaTime);
 
             if (projectile.Damping != null && projectile.Damping > 0 && projectile.Damping < 1)
             {
@@ -622,7 +725,7 @@ public static partial class ProjectileUpdater
 
             var (minRegionX, maxRegionX, minRegionY, maxRegionY) = CalculateTankCollisionRegions(projectile, transform);
 
-            (collided, projectile, transform) = HandleTankCollisions(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
+            (collided, projectile, transform) = HandleTankCollisions(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap, tanksByRegion, tanksById, minRegionX, maxRegionX, minRegionY, maxRegionY);
 
             if (collided)
             {
@@ -644,22 +747,10 @@ public static partial class ProjectileUpdater
             ctx.Db.projectile_traversibility_map.GameId.Update(projectileTraversibilityMap);
         }
 
-        var gcEndGen0 = GC.CollectionCount(0);
-        var gcEndGen1 = GC.CollectionCount(1);
-        var gcEndGen2 = GC.CollectionCount(2);
-        var memoryEndBytes = GC.GetTotalMemory(false);
-
-        var gen0Collections = gcEndGen0 - gcStartGen0;
-        var gen1Collections = gcEndGen1 - gcStartGen1;
-        var gen2Collections = gcEndGen2 - gcStartGen2;
-        var memoryDeltaBytes = memoryEndBytes - memoryStartBytes;
-
-        if (gen0Collections > 0 || gen1Collections > 0 || gen2Collections > 0 || Math.Abs(memoryDeltaBytes) > 10_000)
+        if (newTickCount % 8 == 0)
         {
-            Log.Info($"[GC] Projectile update - Game: {args.GameId}, Projectiles: {projectilesProcessed} (expired: {projectilesExpired}, collided: {projectilesCollided}), " +
-                     $"Gen0: {gen0Collections}, Gen1: {gen1Collections}, Gen2: {gen2Collections}, " +
-                     $"Memory: {memoryStartBytes / 1024.0:F2}KB -> {memoryEndBytes / 1024.0:F2}KB (Δ {memoryDeltaBytes / 1024.0:F2}KB), " +
-                     $"Total heap: {GC.GetTotalMemory(false) / 1024.0:F2}KB, Total allocated: {GC.GetTotalAllocatedBytes(false) / 1024.0:F2}KB");
+            GC.Collect();
         }
+        stopwatch.End();
     }
 }
