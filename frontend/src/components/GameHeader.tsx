@@ -44,9 +44,10 @@ const HeaderBox = ({
 
 interface GameHeaderProps {
   gameId: string;
+  isTutorialRoute?: boolean;
 }
 
-export default function GameHeader({ gameId }: GameHeaderProps) {
+export default function GameHeader({ gameId, isTutorialRoute = false }: GameHeaderProps) {
   const [team0Kills, setTeam0Kills] = useState(0);
   const [team1Kills, setTeam1Kills] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
@@ -128,7 +129,7 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
     };
   }, [gameId, connection, isHomegame]);
 
-  if (!isVisible || timeRemaining === null || isHomegame) {
+  if (!isVisible || timeRemaining === null || isHomegame || isTutorialRoute) {
     return null;
   }
 

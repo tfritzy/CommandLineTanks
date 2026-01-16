@@ -113,7 +113,7 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
   }, [gameId, connection, isHomegame]);
 
 
-  if (isHomegame || players.length === 0) {
+  if (isHomegame || isTutorialRoute || players.length === 0) {
     return null;
   }
 
