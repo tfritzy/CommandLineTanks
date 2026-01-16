@@ -14,7 +14,7 @@ export class MushroomDecorationsManager {
   private mushrooms: Mushroom[] = [];
   private visibleMushroomsBuffer: Array<{ x: number; y: number; size: number }> = [];
 
-  public generateMushroomsAroundTree(treeX: number, treeY: number): void {
+  public generateMushroomsAroundTree(treeX: number, treeY: number, isNearWater: (x: number, y: number) => boolean): void {
     const seed = treeX * 13.37 + treeY * 42.42;
     const pseudoRandom1 = Math.abs(Math.sin(seed * 12345.6789) * 10000) % 1;
     
@@ -35,6 +35,10 @@ export class MushroomDecorationsManager {
       
       const x = treeX + Math.cos(angle) * distance;
       const y = treeY + Math.sin(angle) * distance;
+
+      if (isNearWater(x, y)) {
+        continue;
+      }
 
       const size = MIN_MUSHROOM_SIZE + (Math.abs(Math.sin(sizeSeed * 33333.3333) * 10000) % 1) * (MAX_MUSHROOM_SIZE - MIN_MUSHROOM_SIZE);
 

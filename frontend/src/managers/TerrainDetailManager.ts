@@ -3,6 +3,7 @@ import { SoundManager } from "./SoundManager";
 import {
   type TerrainDetailRow,
   type EventContext,
+  BaseTerrain,
 } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import { UNIT_TO_PIXEL } from "../constants";
@@ -24,6 +25,8 @@ import { MushroomDecorationsManager } from "./MushroomDecorationsManager";
 import { terrainDetailTextureCache } from "../textures";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
+type BaseTerrainType = Infer<typeof BaseTerrain>;
+
 export class TerrainDetailManager {
   private gameWidth: number = 0;
   private gameHeight: number = 0;
@@ -39,12 +42,14 @@ export class TerrainDetailManager {
   private onDetailDeletedCallbacks: (() => void)[] = [];
   private soundManager: SoundManager;
   private subscription: TableSubscription<typeof TerrainDetailRow> | null = null;
+  private baseTerrainLayer: BaseTerrainType[] = [];
 
-  constructor(gameId: string, gameWidth: number, gameHeight: number, soundManager: SoundManager) {
+  constructor(gameId: string, gameWidth: number, gameHeight: number, soundManager: SoundManager, baseTerrainLayer: BaseTerrainType[]) {
     this.gameId = gameId;
     this.gameWidth = gameWidth;
     this.gameHeight = gameHeight;
     this.soundManager = soundManager;
+    this.baseTerrainLayer = baseTerrainLayer;
     this.initializeDetailObjectsArray();
     this.subscribeToTerrainDetails();
   }
@@ -53,6 +58,27 @@ export class TerrainDetailManager {
     this.gameWidth = width;
     this.gameHeight = height;
     this.initializeDetailObjectsArray();
+  }
+
+  public updateBaseTerrainLayer(baseTerrainLayer: BaseTerrainType[]) {
+    this.baseTerrainLayer = baseTerrainLayer;
+  }
+
+  private isNearWater(x: number, y: number, bufferDistance: number): boolean {
+    const minX = Math.max(0, Math.floor(x - bufferDistance));
+    const maxX = Math.min(this.gameWidth - 1, Math.ceil(x + bufferDistance));
+    const minY = Math.max(0, Math.floor(y - bufferDistance));
+    const maxY = Math.min(this.gameHeight - 1, Math.ceil(y + bufferDistance));
+
+    for (let checkY = minY; checkY <= maxY; checkY++) {
+      for (let checkX = minX; checkX <= maxX; checkX++) {
+        const index = checkY * this.gameWidth + checkX;
+        if (this.baseTerrainLayer[index]?.tag === "Water") {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private initializeDetailObjectsArray() {
@@ -202,7 +228,11 @@ export class TerrainDetailManager {
         break;
       case "Tree":
         obj = new Tree(x, y, label, health, rotation);
-        this.mushroomDecorations.generateMushroomsAroundTree(x, y);
+        this.mushroomDecorations.generateMushroomsAroundTree(
+          x,
+          y,
+          (posX: number, posY: number) => this.isNearWater(posX, posY, 1.5)
+        );
         break;
       case "DeadTree":
         obj = new DeadTree(x, y, label, health, rotation);
