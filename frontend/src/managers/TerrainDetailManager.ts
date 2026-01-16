@@ -72,9 +72,12 @@ export class TerrainDetailManager {
 
     for (let checkY = minY; checkY <= maxY; checkY++) {
       for (let checkX = minX; checkX <= maxX; checkX++) {
-        const index = checkY * this.gameWidth + checkX;
-        if (this.baseTerrainLayer[index]?.tag === "Water") {
-          return true;
+        const distance = Math.sqrt((checkX - x) ** 2 + (checkY - y) ** 2);
+        if (distance <= bufferDistance) {
+          const index = checkY * this.gameWidth + checkX;
+          if (this.baseTerrainLayer[index]?.tag === "Water") {
+            return true;
+          }
         }
       }
     }
