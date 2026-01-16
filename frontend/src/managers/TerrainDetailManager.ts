@@ -119,15 +119,13 @@ export class TerrainDetailManager {
                 );
                 this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
               } else if (newType === "None") {
-                if (oldType !== "Label") {
-                  this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
-                }
+                this.soundManager.play("terrain-destroy", 0.5, newDetail.positionX, newDetail.positionY);
                 if (oldType === "Tree" || oldType === "DeadTree") {
                   this.treeDestructionParticles.spawnParticles(
                     newDetail.positionX,
                     newDetail.positionY,
                   );
-                } else if (oldType !== "Label") {
+                } else {
                   this.terrainDebrisParticles.spawnParticles(
                     newDetail.positionX,
                     newDetail.positionY
