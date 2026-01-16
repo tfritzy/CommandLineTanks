@@ -27,6 +27,8 @@ import { subscribeToTable, type TableSubscription } from "../utils/tableSubscrip
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
 
+const WATER_BUFFER_DISTANCE = 1.5;
+
 export class TerrainDetailManager {
   private gameWidth: number = 0;
   private gameHeight: number = 0;
@@ -234,7 +236,7 @@ export class TerrainDetailManager {
         this.mushroomDecorations.generateMushroomsAroundTree(
           x,
           y,
-          (posX: number, posY: number) => this.isNearWater(posX, posY, 1.5)
+          (posX: number, posY: number) => this.isNearWater(posX, posY, WATER_BUFFER_DISTANCE)
         );
         break;
       case "DeadTree":
