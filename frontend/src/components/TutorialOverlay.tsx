@@ -8,19 +8,6 @@ const TutorialOverlay: React.FC = () => {
                     Welcome to Command Line Tanks <span className="mx-2 text-palette-yellow-bright">|</span> <span className="text-palette-blue-bright font-bold">Crash course</span>
                 </p>
             </div>
-
-            <style>{`
-        @keyframes fadeInDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
         </div>
     );
 };
