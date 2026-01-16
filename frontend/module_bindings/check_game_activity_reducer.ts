@@ -10,10 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-import ScheduledHomeworldActivityCheck from "./scheduled_homeworld_activity_check_type";
+import ScheduledGameActivityCheck from "./scheduled_game_activity_check_type";
 
 export default {
   get args() {
-    return ScheduledHomeworldActivityCheck;
+    return ScheduledGameActivityCheck;
   },
 };

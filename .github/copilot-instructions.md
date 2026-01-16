@@ -30,21 +30,21 @@ Before starting on a request related to spacetimedb, read: https://spacetimedb.c
 
 ## SpacetimeDB Version Requirements
 
-**CRITICAL: YOU MUST USE SPACETIMEDB CLI VERSION 1.10.0 EXACTLY**
+**CRITICAL: YOU MUST USE SPACETIMEDB CLI VERSION 1.11.0 EXACTLY**
 
-- The project uses SpacetimeDB SDK version 1.10.0 (specified in `frontend/package.json`)
-- You MUST use SpacetimeDB CLI version 1.10.0 to generate TypeScript bindings
-- DO NOT use CLI version 1.11.x or any other version - they are NOT compatible with SDK 1.10.0
+- The project uses SpacetimeDB SDK version 1.11.0 (specified in `frontend/package.json`)
+- You MUST use SpacetimeDB CLI version 1.11.0 to generate TypeScript bindings
+- DO NOT use CLI version 1.10.x or any other version - they are NOT compatible with SDK 1.11.0
 - The generated bindings will have incompatible type definitions if you use the wrong CLI version
-- To install CLI 1.10.0:
+- To install CLI 1.11.0:
   ```bash
-  curl -sSL "https://github.com/clockworklabs/SpacetimeDB/releases/download/v1.10.0/spacetime-x86_64-unknown-linux-gnu.tar.gz" -o spacetime.tar.gz
+  curl -sSL "https://github.com/clockworklabs/SpacetimeDB/releases/download/v1.11.0/spacetime-x86_64-unknown-linux-gnu.tar.gz" -o spacetime.tar.gz
   tar -xzf spacetime.tar.gz
   mkdir -p ~/.local/bin
   cp spacetimedb-cli ~/.local/bin/spacetime
   cp spacetimedb-standalone ~/.local/bin/
   ```
-- Verify version with: `spacetime --version` (should show "1.10.0")
+- Verify version with: `spacetime --version` (should show "1.11.0")
 - Generate bindings with: `spacetime generate --lang typescript --out-dir frontend/module_bindings --project-path backend/spacetimedb`
 
 ## SpacetimeDB C# API Reference

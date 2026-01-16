@@ -12,7 +12,7 @@ public static partial class Module
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = CLEANUP_INTERVAL_MICROS })
         });
 
-        ctx.Db.ScheduledHomeworldActivityCheck.Insert(new ScheduledHomeworldActivityCheck
+        ctx.Db.ScheduledGameActivityCheck.Insert(new ScheduledGameActivityCheck
         {
             ScheduledId = 0,
             ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = HOMEWORLD_ACTIVITY_CHECK_INTERVAL_MICROS })
