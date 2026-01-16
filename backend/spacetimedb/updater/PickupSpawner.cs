@@ -240,12 +240,10 @@ public static partial class PickupSpawner
             return (-1, -1);
         }
 
-        int halfCount = HOMEGAME_PICKUP_TYPES.Length / 2;
-        int column = index < halfCount ? 0 : 1;
-        int rowInColumn = index < halfCount ? index : index - halfCount;
-
-        int gridX = column == 0 ? 12 : 17;
-        int gridY = 11 + (rowInColumn * 2);
+        int pickupCount = HOMEGAME_PICKUP_TYPES.Length;
+        int startX = (Module.HOMEGAME_WIDTH - pickupCount * 2) / 2;
+        int gridX = startX + (index * 2);
+        int gridY = Module.HOMEGAME_HEIGHT / 2 + 5;
         return (gridX, gridY);
     }
 
