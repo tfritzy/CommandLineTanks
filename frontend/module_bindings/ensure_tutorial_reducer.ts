@@ -10,14 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-<<<<<<<< HEAD:frontend/module_bindings/ensure_tutorial_reducer.ts
 export default {
   gameId: __t.string(),
   joinCode: __t.string(),
 };
-========
-export default __t.row({
-  scheduledId: __t.u64().primaryKey(),
-  scheduledAt: __t.scheduleAt(),
-});
->>>>>>>> c7c4bbb64968429354e527424c0e2516f4634dd4:frontend/module_bindings/scheduled_game_activity_check_table.ts
