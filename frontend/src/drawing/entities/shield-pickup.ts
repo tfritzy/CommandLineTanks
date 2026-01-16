@@ -11,7 +11,7 @@ export function drawShieldPickupShadow(
   const size = UNIT_TO_PIXEL * 0.6;
 
   ctx.save();
-  ctx.translate(gameX - 4, gameY + 4);
+  ctx.translate(gameX - 3, gameY + 3);
   ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
   ctx.beginPath();
   ctx.arc(0, 0, size / 2, 0, Math.PI * 2);

@@ -112,7 +112,7 @@ class PickupTextureCache {
       switch (key) {
         case "Base": {
           const radius = 0.1 * UNIT_TO_PIXEL;
-          drawNormalProjectileShadow(ctx, -4, 4, radius);
+          drawNormalProjectileShadow(ctx, -3, 3, radius);
           drawNormalProjectileBody(ctx, 0, 0, radius, this.pickupColor);
           break;
         }
@@ -130,8 +130,8 @@ class PickupTextureCache {
           for (let i = 0; i < 3; i++) {
             drawNormalProjectileShadow(
               ctx,
-              trianglePositions[i].x - 4,
-              trianglePositions[i].y + 4,
+              trianglePositions[i].x - 3,
+              trianglePositions[i].y + 3,
               radius
             );
           }
@@ -148,19 +148,19 @@ class PickupTextureCache {
         }
         case "MissileLauncher": {
           const radius = 0.2 * UNIT_TO_PIXEL;
-          drawMissileShadow(ctx, -4, 4, radius, angle);
+          drawMissileShadow(ctx, -3, 3, radius, angle);
           drawMissileBody(ctx, 0, 0, radius, angle, this.pickupColor);
           break;
         }
         case "Rocket": {
           const radius = 0.1 * UNIT_TO_PIXEL;
-          drawRocketShadow(ctx, -4, 4, radius, angle);
+          drawRocketShadow(ctx, -3, 3, radius, angle);
           drawRocketBody(ctx, 0, 0, radius, angle, this.pickupColor);
           break;
         }
         case "Grenade": {
           const radius = 0.2 * UNIT_TO_PIXEL;
-          drawGrenadeShadow(ctx, -4, 4, radius);
+          drawGrenadeShadow(ctx, -3, 3, radius);
           drawGrenadeBody(ctx, 0, 0, radius, this.pickupColor);
           break;
         }
@@ -168,14 +168,14 @@ class PickupTextureCache {
           const radius = 0.18 * UNIT_TO_PIXEL;
           const armWidth = radius * 0.8;
           const armLength = radius * 2.2;
-          drawBoomerangShadow(ctx, -4, 4, armLength, armWidth);
+          drawBoomerangShadow(ctx, -3, 3, armLength, armWidth);
           drawBoomerangBody(ctx, 0, 0, armLength, armWidth, this.pickupColor);
           break;
         }
         case "Moag": {
           const scale = 0.3;
           const radius = scale * UNIT_TO_PIXEL;
-          drawMoagShadow(ctx, -4, 4, scale);
+          drawMoagShadow(ctx, -3, 3, scale);
 
           ctx.fillStyle = this.pickupColor;
           ctx.beginPath();
@@ -193,7 +193,7 @@ class PickupTextureCache {
           const bulletLength = 0.4 * UNIT_TO_PIXEL;
           const bulletWidth = bulletLength * 0.3;
           const bulletBackRatio = 0.4;
-          drawSniperProjectileShadow(ctx, -4, 4, bulletLength, bulletWidth, bulletBackRatio, angle);
+          drawSniperProjectileShadow(ctx, -3, 3, bulletLength, bulletWidth, bulletBackRatio, angle);
           drawSniperProjectileBody(ctx, 0, 0, bulletLength, bulletWidth, bulletBackRatio, angle, this.pickupColor);
           break;
         }
