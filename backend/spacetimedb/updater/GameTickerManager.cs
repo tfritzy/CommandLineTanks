@@ -151,6 +151,11 @@ public static partial class Module
             }
             else
             {
+                if (game.GameState != GameState.Playing)
+                {
+                    continue;
+                }
+
                 var tanksToRemove = new List<(Tank tank, ulong inactivityTime)>();
                 foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((game.Id, false)))
                 {
