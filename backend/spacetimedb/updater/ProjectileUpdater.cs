@@ -527,13 +527,18 @@ public static partial class ProjectileUpdater
     [Reducer]
     public static void UpdateProjectiles(ReducerContext ctx, ScheduledProjectileUpdates args)
     {
+        var gcStartGen0 = GC.CollectionCount(0);
+        var gcStartGen1 = GC.CollectionCount(1);
+        var gcStartGen2 = GC.CollectionCount(2);
+        var memoryStartBytes = GC.GetTotalMemory(false);
+
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
 
         if (deltaTimeMicros > LATE_UPDATE_THRESHOLD_MICROS)
         {
-            Log.Warn($"Projectile update significantly late: {deltaTimeMicros}µs (expected ~{Module.NETWORK_TICK_RATE_MICROS}µs, game: {args.GameId})");
+            Log.Warn($"Projectile update significantly late: {deltaTimeMicros / 1000.0:F2}ms (expected ~{Module.NETWORK_TICK_RATE_MICROS / 1000.0:F2}ms, game: {args.GameId})");
         }
 
         ctx.Db.ScheduledProjectileUpdates.ScheduledId.Update(args with
@@ -551,8 +556,13 @@ public static partial class ProjectileUpdater
         var projectileTraversibilityMap = projectileTraversibilityMapQuery.Value;
         var initialProjectileMapVersion = projectileTraversibilityMap.Version;
 
+        var projectilesProcessed = 0;
+        var projectilesExpired = 0;
+        var projectilesCollided = 0;
+
         foreach (var iProjectile in ctx.Db.projectile.GameId.Filter(args.GameId))
         {
+            projectilesProcessed++;
             var projectile = iProjectile;
 
             var transformQuery = ctx.Db.projectile_transform.ProjectileId.Find(projectile.Id);
@@ -569,6 +579,7 @@ public static partial class ProjectileUpdater
 
             if (projectileAgeSeconds >= projectile.LifetimeSeconds)
             {
+                projectilesExpired++;
                 if (projectile.ExplosionTrigger == ExplosionTrigger.OnExpiration)
                 {
                     ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap);
@@ -603,13 +614,21 @@ public static partial class ProjectileUpdater
             bool collided;
             (collided, projectile, transform) = HandleTerrainCollision(ctx, projectile, transform, ref projectileTraversibilityMap, ref traversibilityMap, args.GameId, deltaTime);
 
-            if (collided) continue;
+            if (collided)
+            {
+                projectilesCollided++;
+                continue;
+            }
 
             var (minRegionX, maxRegionX, minRegionY, maxRegionY) = CalculateTankCollisionRegions(projectile, transform);
 
             (collided, projectile, transform) = HandleTankCollisions(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap, minRegionX, maxRegionX, minRegionY, maxRegionY);
 
-            if (collided) continue;
+            if (collided)
+            {
+                projectilesCollided++;
+                continue;
+            }
 
             ctx.Db.projectile.Id.Update(projectile);
             ctx.Db.projectile_transform.ProjectileId.Update(transform);
@@ -623,6 +642,24 @@ public static partial class ProjectileUpdater
         if (projectileTraversibilityMap.Version != initialProjectileMapVersion)
         {
             ctx.Db.projectile_traversibility_map.GameId.Update(projectileTraversibilityMap);
+        }
+
+        var gcEndGen0 = GC.CollectionCount(0);
+        var gcEndGen1 = GC.CollectionCount(1);
+        var gcEndGen2 = GC.CollectionCount(2);
+        var memoryEndBytes = GC.GetTotalMemory(false);
+
+        var gen0Collections = gcEndGen0 - gcStartGen0;
+        var gen1Collections = gcEndGen1 - gcStartGen1;
+        var gen2Collections = gcEndGen2 - gcStartGen2;
+        var memoryDeltaBytes = memoryEndBytes - memoryStartBytes;
+
+        if (gen0Collections > 0 || gen1Collections > 0 || gen2Collections > 0 || Math.Abs(memoryDeltaBytes) > 10_000)
+        {
+            Log.Info($"[GC] Projectile update - Game: {args.GameId}, Projectiles: {projectilesProcessed} (expired: {projectilesExpired}, collided: {projectilesCollided}), " +
+                     $"Gen0: {gen0Collections}, Gen1: {gen1Collections}, Gen2: {gen2Collections}, " +
+                     $"Memory: {memoryStartBytes / 1024.0:F2}KB -> {memoryEndBytes / 1024.0:F2}KB (Δ {memoryDeltaBytes / 1024.0:F2}KB), " +
+                     $"Total heap: {GC.GetTotalMemory(false) / 1024.0:F2}KB, Total allocated: {GC.GetTotalAllocatedBytes(false) / 1024.0:F2}KB");
         }
     }
 }

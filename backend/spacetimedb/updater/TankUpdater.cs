@@ -30,7 +30,7 @@ public static partial class TankUpdater
 
         if (deltaTimeMicros > LATE_UPDATE_THRESHOLD_MICROS)
         {
-            Log.Warn($"Tank update significantly late: {deltaTimeMicros}µs (expected ~{Module.NETWORK_TICK_RATE_MICROS}µs, game: {args.GameId})");
+            Log.Warn($"Tank update significantly late: {deltaTimeMicros / 1000.0:F2}ms (expected ~{Module.NETWORK_TICK_RATE_MICROS / 1000.0:F2}ms, game: {args.GameId})");
         }
 
         var newTickCount = args.TickCount + 1;
