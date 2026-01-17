@@ -327,8 +327,4 @@ export class Tank {
   public isImmune(): boolean {
     return this.remainingImmunityMicros > 0;
   }
-
-  public getRemainingPath(): Array<{ x: number; y: number }> {
-    return this.path.slice(this.pathIndex);
-  }
 }

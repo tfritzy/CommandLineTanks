@@ -15,7 +15,7 @@ import TankTransformRow from "../../module_bindings/tank_transform_type";
 import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
-import { drawTankShadow, drawTankBody, drawTankHealthBar, drawTankPath } from "../drawing/tanks/tank";
+import { drawTankShadow, drawTankBody, drawTankHealthBar } from "../drawing/tanks/tank";
 
 const VIEWPORT_PADDING = 100;
 
@@ -351,24 +351,10 @@ export class TankManager {
     return this.playerTankId;
   }
 
-  public drawPaths(ctx: CanvasRenderingContext2D, viewportWidth: number, viewportHeight: number) {
+  public drawPaths(ctx: CanvasRenderingContext2D) {
     const playerTank = this.getPlayerTank();
     if (playerTank) {
-      const dpr = window.devicePixelRatio || 1;
-      const oldTransform = ctx.getTransform();
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      
-      const centerX = viewportWidth / 2 / UNIT_TO_PIXEL;
-      const centerY = viewportHeight / 2 / UNIT_TO_PIXEL;
-      
-      const alliance = playerTank.getAlliance();
-      const lineColor = alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "66" : COLORS.GAME.TEAM_BLUE_BRIGHT + "66";
-      const dotColor = alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "ff" : COLORS.GAME.TEAM_BLUE_BRIGHT + "ff";
-      const remainingPath = playerTank.getRemainingPath();
-      
-      drawTankPath(ctx, centerX, centerY, remainingPath, lineColor, dotColor);
-      
-      ctx.setTransform(oldTransform);
+      playerTank.drawPath(ctx);
     }
   }
 

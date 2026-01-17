@@ -187,7 +187,7 @@ export class Game {
     );
 
     this.profiler.profile("tank_paths", () =>
-      this.tankManager.drawPaths(this.ctx, displayWidth, displayHeight)
+      this.tankManager.drawPaths(this.ctx)
     );
     this.profiler.profile("tank_shadows", () =>
       this.tankManager.drawShadows(this.ctx, displayWidth, displayHeight)
