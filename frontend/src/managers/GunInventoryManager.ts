@@ -208,18 +208,18 @@ export class GunInventoryManager {
     ctx.save();
 
     const maxSlots = 3;
-    const totalHeight = 150;
+    const totalWidth = 150;
     const gap = 6;
-    const slotSize = (totalHeight - gap * (maxSlots - 1)) / maxSlots;
+    const slotSize = (totalWidth - gap * (maxSlots - 1)) / maxSlots;
     const miniMapMaxSize = 150;
     const miniMapMargin = 20;
 
-    const startX = canvasWidth - miniMapMaxSize - miniMapMargin - slotSize - 12;
-    const startY = canvasHeight - totalHeight - miniMapMargin;
+    const startX = canvasWidth - miniMapMaxSize - miniMapMargin - totalWidth - 12;
+    const startY = canvasHeight - slotSize - miniMapMargin;
 
     for (let i = 0; i < maxSlots; i++) {
-      const slotX = startX;
-      const slotY = startY + i * (slotSize + gap);
+      const slotX = startX + i * (slotSize + gap);
+      const slotY = startY;
       const gun = i < this.guns.length ? this.guns[i] : null;
       this.drawSlot(ctx, gun, i, slotX, slotY, slotSize);
     }
