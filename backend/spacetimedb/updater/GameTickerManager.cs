@@ -236,12 +236,9 @@ public static partial class Module
 
         var oldGameId = args.GameId;
         var redirectsToUpdate = new List<string>();
-        foreach (var redirect in ctx.Db.game_redirect.Iter())
+        foreach (var redirect in ctx.Db.game_redirect.NewGameId.Filter(oldGameId))
         {
-            if (redirect.NewGameId == oldGameId)
-            {
-                redirectsToUpdate.Add(redirect.OldGameId);
-            }
+            redirectsToUpdate.Add(redirect.OldGameId);
         }
 
         foreach (var redirectOldGameId in redirectsToUpdate)

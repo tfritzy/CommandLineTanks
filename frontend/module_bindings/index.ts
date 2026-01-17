@@ -366,6 +366,9 @@ const tablesSchema = __schema(
   __table({
     name: 'game_redirect',
     indexes: [
+      { name: 'NewGameId', algorithm: 'btree', columns: [
+        'newGameId',
+      ] },
       { name: 'OldGameId', algorithm: 'btree', columns: [
         'oldGameId',
       ] },

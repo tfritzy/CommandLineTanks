@@ -189,12 +189,9 @@ public static partial class Module
         }
 
         var redirectsPointingToDeletedGame = new System.Collections.Generic.List<string>();
-        foreach (var redirect in ctx.Db.game_redirect.Iter())
+        foreach (var redirect in ctx.Db.game_redirect.NewGameId.Filter(gameId))
         {
-            if (redirect.NewGameId == gameId)
-            {
-                redirectsPointingToDeletedGame.Add(redirect.OldGameId);
-            }
+            redirectsPointingToDeletedGame.Add(redirect.OldGameId);
         }
 
         foreach (var oldGameId in redirectsPointingToDeletedGame)
