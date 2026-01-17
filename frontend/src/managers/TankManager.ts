@@ -370,10 +370,10 @@ export class TankManager {
     const playerTank = this.getPlayerTank();
     if (playerTank) {
       const center = this.getScreenCenterPosition(viewportWidth, viewportHeight);
-      ctx.save();
-      ctx.translate(cameraX, cameraY);
+      const dpr = window.devicePixelRatio || 1;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       playerTank.drawPathFrom(ctx, center.x, center.y);
-      ctx.restore();
+      ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
     }
   }
 
@@ -388,10 +388,10 @@ export class TankManager {
 
     for (const tank of this.tanks.values()) {
       if (tank.id === this.playerTankId) {
-        ctx.save();
-        ctx.translate(cameraX, cameraY);
+        const dpr = window.devicePixelRatio || 1;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         tank.drawShadowAt(ctx, center.x, center.y);
-        ctx.restore();
+        ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
       } else {
         tank.drawShadow(ctx);
       }
@@ -409,10 +409,10 @@ export class TankManager {
 
     for (const tank of this.tanks.values()) {
       if (tank.id === this.playerTankId) {
-        ctx.save();
-        ctx.translate(cameraX, cameraY);
+        const dpr = window.devicePixelRatio || 1;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         tank.drawBodyAt(ctx, center.x, center.y);
-        ctx.restore();
+        ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
       } else {
         tank.drawBody(ctx);
       }
@@ -440,10 +440,10 @@ export class TankManager {
       if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
       
       if (tank.id === this.playerTankId) {
-        ctx.save();
-        ctx.translate(cameraX, cameraY);
+        const dpr = window.devicePixelRatio || 1;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         tank.drawHealthBarAt(ctx, center.x, center.y);
-        ctx.restore();
+        ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
       } else {
         tank.drawHealthBar(ctx);
       }
@@ -499,12 +499,12 @@ export class TankManager {
       const isPlayerTank = tank.id === this.playerTankId;
 
       if (isPlayerTank) {
-        ctx.save();
-        ctx.translate(cameraX, cameraY);
+        const dpr = window.devicePixelRatio || 1;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         const px = center.x * UNIT_TO_PIXEL;
         const py = center.y * UNIT_TO_PIXEL;
         ctx.fillText(tank.getName(), px, py - 27);
-        ctx.restore();
+        ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
       } else {
         const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
         const targetCode = tank.getTargetCode();
