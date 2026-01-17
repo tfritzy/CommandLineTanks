@@ -323,7 +323,7 @@ public static partial class Module
             gridX: TUTORIAL_WIDTH / 2,
             gridY: LESSON_LABEL_Y_POSITION,
             type: TerrainDetailType.Label,
-            label: "[header]Lesson 1: Use the [color=#fceba8]`drive`[/color] command to move your tank around"
+            label: "[color=#7fbbdc]Lesson 1:[/color] Use the [color=#fceba8]`drive`[/color] command to move your tank around"
         ));
     }
 
@@ -353,7 +353,7 @@ public static partial class Module
             gridX: TUTORIAL_WIDTH / 2,
             gridY: LESSON_LABEL_Y_POSITION,
             type: TerrainDetailType.Label,
-            label: "[header]Lesson 2: Use shorthands for almost everything. For example, use [color=#fceba8]`d`[/color] instead of [color=#fceba8]`drive`[/color], or [color=#fceba8]`ne`[/color] instead of [color=#fceba8]`northeast`[/color]"
+            label: "[color=#7fbbdc]Lesson 2:[/color] Use shorthands for almost everything. For example, use [color=#fceba8]`d`[/color] instead of [color=#fceba8]`drive`[/color], or [color=#fceba8]`ne`[/color] instead of [color=#fceba8]`northeast`[/color]"
         ));
     }
 
@@ -383,7 +383,7 @@ public static partial class Module
             gridX: TUTORIAL_WIDTH / 2,
             gridY: LESSON_LABEL_Y_POSITION,
             type: TerrainDetailType.Label,
-            label: "[header]Lesson 3: Use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock onto an enemy tank and then use [color=#fceba8]`fire`[/color] ([color=#fceba8]`f`[/color]) to fire at them"
+            label: "[color=#7fbbdc]Lesson 3:[/color] Use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock onto an enemy tank and then use [color=#fceba8]`fire`[/color] ([color=#fceba8]`f`[/color]) to fire at them"
         ));
     }
 

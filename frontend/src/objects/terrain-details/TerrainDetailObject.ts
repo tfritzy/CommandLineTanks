@@ -4,10 +4,7 @@ import { type TerrainDetailRow } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
 import { COLORS } from "../../theme/colors";
 
-const HEADER_FONT_SIZE_MULTIPLIER = 1.2;
-
-type LabelSegment = { text: string; color?: string; isCode: boolean; isHeader: boolean };
-type ParsedLabel = { segments: LabelSegment[]; isHeaderLabel: boolean };
+type LabelSegment = { text: string; color?: string; isCode: boolean };
 
 export abstract class TerrainDetailObject {
   public arrayIndex: number = -1;
@@ -59,48 +56,41 @@ export abstract class TerrainDetailObject {
 
   public abstract drawBody(ctx: CanvasRenderingContext2D): void;
 
-  private parseLabel(label: string): ParsedLabel {
+  private parseLabel(label: string): LabelSegment[] {
     const segments: LabelSegment[] = [];
-    const regex = /(\[header\]|\[color=#[0-9a-fA-F]{6}\]|\[\/color\]|`)/g;
+    const regex = /(\[color=#[0-9a-fA-F]{6}\]|\[\/color\]|`)/g;
     const parts = label.split(regex);
 
     let currentColor: string | undefined = undefined;
     let inCode = false;
-    let isHeader = false;
-    let isHeaderLabel = false;
 
     for (const part of parts) {
       if (!part) continue;
 
-      if (part === "[header]") {
-        isHeader = true;
-        isHeaderLabel = true;
-      } else if (part.startsWith("[color=")) {
+      if (part.startsWith("[color=")) {
         currentColor = part.substring(7, 14);
       } else if (part === "[/color]") {
         currentColor = undefined;
       } else if (part === "`") {
         inCode = !inCode;
       } else {
-        segments.push({ text: part, color: currentColor, isCode: inCode, isHeader: isHeader });
+        segments.push({ text: part, color: currentColor, isCode: inCode });
       }
     }
-    return { segments, isHeaderLabel };
+    return segments;
   }
 
   public drawLabel(ctx: CanvasRenderingContext2D): void {
     if (!this.label) return;
 
-    const { segments, isHeaderLabel } = this.parseLabel(this.label);
+    const segments = this.parseLabel(this.label);
 
     ctx.save();
     const x = this.getGameX();
     const y = this.getGameY();
     const labelY = y - 24;
 
-    const baseFontSize = UNIT_TO_PIXEL * 0.26;
-    const headerFontSize = baseFontSize * HEADER_FONT_SIZE_MULTIPLIER;
-    const fontSize = isHeaderLabel ? headerFontSize : baseFontSize;
+    const fontSize = UNIT_TO_PIXEL * 0.26;
     const normalFont = `${fontSize}px monospace`;
     const codeFont = `bold ${fontSize}px monospace`;
 
@@ -149,7 +139,7 @@ export abstract class TerrainDetailObject {
       ctx.shadowOffsetX = 1;
       ctx.shadowOffsetY = 1;
 
-      ctx.fillStyle = segment.color || (isHeaderLabel ? COLORS.ABILITY.SMOKESCREEN_READY : COLORS.UI.TEXT_PRIMARY);
+      ctx.fillStyle = segment.color || COLORS.UI.TEXT_PRIMARY;
       ctx.fillText(segment.text, currentX, labelY);
       
       ctx.shadowColor = "transparent";
