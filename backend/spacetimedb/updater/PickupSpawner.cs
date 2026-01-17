@@ -350,7 +350,7 @@ public static partial class PickupSpawner
         }
         else
         {
-            spawnX = width - 1 - random.Next(edgeThreshold);
+            spawnX = width - edgeThreshold + random.Next(edgeThreshold);
         }
         
         int spawnY = random.Next(height);
