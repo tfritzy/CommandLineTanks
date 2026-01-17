@@ -57,10 +57,7 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
   const gameDurationSecondsRef = useRef<number | null>(null);
 
   const connection = getConnection();
-  const isHomegame = useMemo(() => {
-    if (!connection?.identity) return false;
-    return gameId === getIdentityHex();
-  }, [connection, gameId]);
+  const isRealGame = gameId.length === 4;
 
   useEffect(() => {
     setTeam0Kills(0);
@@ -69,8 +66,8 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
     setIsVisible(false);
     gameStartTimeRef.current = null;
     gameDurationSecondsRef.current = null;
-
-    if (!connection || isHomegame) return;
+    
+    if (!connection || !isRealGame) return;
 
     const updateScores = () => {
       const score = connection.db.score.GameId.find(gameId);
@@ -149,9 +146,9 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
       clearInterval(interval);
       subscription.current?.unsubscribe();
     };
-  }, [gameId, connection, isHomegame]);
+  }, [gameId, connection, isRealGame]);
 
-  if (!isVisible || timeRemaining === null || isHomegame) {
+  if (!isVisible || timeRemaining === null || !isRealGame) {
     return null;
   }
 

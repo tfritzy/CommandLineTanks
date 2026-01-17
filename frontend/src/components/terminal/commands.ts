@@ -1086,6 +1086,11 @@ export function exitGame(connection: DbConnection, gameId: string, args: string[
   }
 
   if (gameId.length > 4) {
+    if (gameId.startsWith("tutorial_")) {
+      return [
+        themeColors.error("exit: error: cannot exit from tutorial. Use 'tutorial skip' instead."),
+      ];
+    }
     return [
       themeColors.error("exit: error: you are already in your homegame"),
     ];

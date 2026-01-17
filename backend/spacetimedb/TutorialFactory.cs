@@ -11,8 +11,8 @@ public static partial class Module
     private const int TUTORIAL_SNIPER_AMMO = 1000;
 
     private static readonly (int x, int y) TUTORIAL_PLAYER_SPAWN = (3, 6);
-    private static readonly (int x, int y) TUTORIAL_HEALTH_PICKUP = (6, 3);
-    private static readonly (int x, int y) TUTORIAL_WEAPON_PICKUP = (9, 6);
+    private static readonly (int x, int y) TUTORIAL_HEALTH_PICKUP = (6, 6);
+    private static readonly (int x, int y) TUTORIAL_WEAPON_PICKUP = (9, 9);
     private static readonly (int x, int y) TUTORIAL_ENEMY_SPAWN = (16, 6);
 
     public static string GetTutorialGameId(Identity identity)
@@ -143,29 +143,30 @@ public static partial class Module
 
     private static void AddTutorialDecorations(BaseTerrain[] baseTerrain, int width, int height)
     {
-        baseTerrain[0 * width + 1] = BaseTerrain.Water;
-        baseTerrain[0 * width + 2] = BaseTerrain.Water;
         baseTerrain[1 * width + 0] = BaseTerrain.Water;
         baseTerrain[1 * width + 1] = BaseTerrain.Water;
-        baseTerrain[1 * width + 2] = BaseTerrain.Water;
         baseTerrain[2 * width + 0] = BaseTerrain.Water;
         baseTerrain[2 * width + 1] = BaseTerrain.Water;
+        baseTerrain[2 * width + 2] = BaseTerrain.Water;
+        baseTerrain[3 * width + 1] = BaseTerrain.Water;
 
-        baseTerrain[0 * width + 17] = BaseTerrain.Water;
-        baseTerrain[0 * width + 18] = BaseTerrain.Water;
+        baseTerrain[0 * width + 15] = BaseTerrain.Water;
+        baseTerrain[0 * width + 16] = BaseTerrain.Water;
+        baseTerrain[1 * width + 15] = BaseTerrain.Water;
+        baseTerrain[1 * width + 16] = BaseTerrain.Water;
         baseTerrain[1 * width + 17] = BaseTerrain.Water;
-        baseTerrain[1 * width + 18] = BaseTerrain.Water;
-        baseTerrain[1 * width + 19] = BaseTerrain.Water;
-        baseTerrain[2 * width + 18] = BaseTerrain.Water;
-        baseTerrain[2 * width + 19] = BaseTerrain.Water;
+        baseTerrain[2 * width + 16] = BaseTerrain.Water;
 
+        baseTerrain[8 * width + 0] = BaseTerrain.Water;
         baseTerrain[9 * width + 0] = BaseTerrain.Water;
         baseTerrain[9 * width + 1] = BaseTerrain.Water;
         baseTerrain[10 * width + 0] = BaseTerrain.Water;
         baseTerrain[10 * width + 1] = BaseTerrain.Water;
-        baseTerrain[11 * width + 0] = BaseTerrain.Water;
         baseTerrain[11 * width + 1] = BaseTerrain.Water;
 
+        baseTerrain[9 * width + 18] = BaseTerrain.Water;
+        baseTerrain[9 * width + 19] = BaseTerrain.Water;
+        baseTerrain[10 * width + 17] = BaseTerrain.Water;
         baseTerrain[10 * width + 18] = BaseTerrain.Water;
         baseTerrain[10 * width + 19] = BaseTerrain.Water;
         baseTerrain[11 * width + 18] = BaseTerrain.Water;
@@ -177,9 +178,9 @@ public static partial class Module
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             gameId: gameId,
-            positionX: 0.5f,
+            positionX: 1.5f,
             positionY: 5.5f,
-            gridX: 0,
+            gridX: 1,
             gridY: 5,
             type: TerrainDetailType.Rock,
             rotation: 0
@@ -188,9 +189,9 @@ public static partial class Module
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             gameId: gameId,
-            positionX: 19.5f,
+            positionX: 13.5f,
             positionY: 1.5f,
-            gridX: 19,
+            gridX: 13,
             gridY: 1,
             type: TerrainDetailType.Rock,
             rotation: 1
@@ -199,10 +200,10 @@ public static partial class Module
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             gameId: gameId,
-            positionX: 19.5f,
-            positionY: 10.5f,
-            gridX: 19,
-            gridY: 10,
+            positionX: 16.5f,
+            positionY: 9.5f,
+            gridX: 16,
+            gridY: 9,
             type: TerrainDetailType.Rock,
             rotation: 2
         ));
@@ -210,10 +211,43 @@ public static partial class Module
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             gameId: gameId,
-            positionX: 1.5f,
+            positionX: 4.5f,
+            positionY: 10.5f,
+            gridX: 4,
+            gridY: 10,
+            type: TerrainDetailType.Tree,
+            rotation: 0
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 17.5f,
             positionY: 11.5f,
-            gridX: 1,
+            gridX: 17,
             gridY: 11,
+            type: TerrainDetailType.Tree,
+            rotation: 0
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 11.5f,
+            positionY: 0.5f,
+            gridX: 11,
+            gridY: 0,
+            type: TerrainDetailType.Tree,
+            rotation: 0
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            gameId: gameId,
+            positionX: 2.5f,
+            positionY: 7.5f,
+            gridX: 2,
+            gridY: 7,
             type: TerrainDetailType.Tree,
             rotation: 0
         ));
@@ -222,9 +256,9 @@ public static partial class Module
             ctx: ctx,
             gameId: gameId,
             positionX: 18.5f,
-            positionY: 11.5f,
+            positionY: 3.5f,
             gridX: 18,
-            gridY: 11,
+            gridY: 3,
             type: TerrainDetailType.Tree,
             rotation: 0
         ));
@@ -232,33 +266,22 @@ public static partial class Module
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             gameId: gameId,
-            positionX: 10.5f,
+            positionX: 5.5f,
             positionY: 0.5f,
-            gridX: 10,
+            gridX: 5,
             gridY: 0,
-            type: TerrainDetailType.DeadTree,
+            type: TerrainDetailType.Tree,
             rotation: 0
         ));
 
         ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
             ctx: ctx,
             gameId: gameId,
-            positionX: 0.5f,
-            positionY: 8.5f,
-            gridX: 0,
-            gridY: 8,
-            type: TerrainDetailType.DeadTree,
-            rotation: 0
-        ));
-
-        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-            ctx: ctx,
-            gameId: gameId,
-            positionX: 19.5f,
-            positionY: 4.5f,
-            gridX: 19,
-            gridY: 4,
-            type: TerrainDetailType.DeadTree,
+            positionX: 14.5f,
+            positionY: 11.5f,
+            gridX: 14,
+            gridY: 11,
+            type: TerrainDetailType.Tree,
             rotation: 0
         ));
     }
@@ -321,7 +344,7 @@ public static partial class Module
             gridX: TUTORIAL_HEALTH_PICKUP.x,
             gridY: TUTORIAL_HEALTH_PICKUP.y - 1,
             type: TerrainDetailType.Label,
-            label: "You're low on health! Use [color=#fceba8]`drive northeast 3`[/color] to pick up this health pack"
+            label: "You're low on health! Use [color=#fceba8]`d e 3`[/color] to pick up this health pack"
         ));
     }
 
@@ -382,6 +405,18 @@ public static partial class Module
             gridY: TUTORIAL_HEIGHT / 2 - 1,
             type: TerrainDetailType.Label,
             label: "Tutorial complete! Use [color=#fceba8]`tutorial complete`[/color] to start playing"
+        ));
+
+        ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx: ctx,
+            id: $"{gameId}_label_help",
+            gameId: gameId,
+            positionX: TUTORIAL_WIDTH / 2.0f,
+            positionY: TUTORIAL_HEIGHT / 2.0f,
+            gridX: TUTORIAL_WIDTH / 2,
+            gridY: TUTORIAL_HEIGHT / 2,
+            type: TerrainDetailType.Label,
+            label: "[color=#a9bcbf]Use the help command to learn more[/color]"
         ));
     }
 

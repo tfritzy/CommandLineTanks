@@ -48,10 +48,10 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
   const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
   const cachedOwnerHexStrings = useRef<Map<string, string>>(new Map());
 
-  const isHomegame = isCurrentIdentity(gameId);
+  const isRealGame = gameId.length === 4;
 
   useEffect(() => {
-    if (!connection || isHomegame) return;
+    if (!connection || !isRealGame) return;
 
     const updatePlayerScores = () => {
       const tanks = Array.from(connection.db.tank.iter())
@@ -110,14 +110,12 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
         subscriptionRef.current = null;
       }
     };
-  }, [gameId, connection, isHomegame]);
+  }, [gameId, connection, isRealGame]);
 
 
-  if (isHomegame || players.length === 0) {
+  if (!isRealGame || players.length === 0) {
     return null;
   }
-
-
 
   const currentPlayerIdentity = connection?.identity?.toString();
   const top3 = players.slice(0, 3);

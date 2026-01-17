@@ -95,6 +95,10 @@ export class Game {
 
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.ctx.imageSmoothingEnabled = false;
+
+      this.ctx.clearRect(0, 0, displayWidth, displayHeight);
+      this.ctx.fillStyle = COLORS.TERRAIN.GROUND;
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
   }
 
