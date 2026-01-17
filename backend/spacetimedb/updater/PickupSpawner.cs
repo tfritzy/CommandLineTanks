@@ -235,6 +235,11 @@ public static partial class PickupSpawner
         return true;
     }
 
+    public static int GetHomegamePickupRow()
+    {
+        return Module.HOMEGAME_HEIGHT / 2 + 5;
+    }
+
     public static (int gridX, int gridY) GetHomegamePickupPosition(PickupType pickupType)
     {
         int index = Array.IndexOf(HOMEGAME_PICKUP_TYPES, pickupType);
@@ -247,7 +252,7 @@ public static partial class PickupSpawner
         int pickupCount = HOMEGAME_PICKUP_TYPES.Length;
         int startX = (Module.HOMEGAME_WIDTH - pickupCount * 2) / 2;
         int gridX = startX + (index * 2);
-        int gridY = Module.HOMEGAME_HEIGHT / 2 + 5;
+        int gridY = GetHomegamePickupRow();
         return (gridX, gridY);
     }
 

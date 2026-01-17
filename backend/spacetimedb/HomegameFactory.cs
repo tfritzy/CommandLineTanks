@@ -41,12 +41,14 @@ public static partial class Module
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
 
+        int pickupRow = PickupSpawner.GetHomegamePickupRow();
+
         for (int i = 0; i < 15; i++)
         {
             int rx = random.Next(gameWidth);
             int ry = random.Next(gameHeight);
             int rIndex = ry * gameWidth + rx;
-            if (traversibilityBoolMap[rIndex] && (Math.Abs(rx - gameWidth / 2) > 3 || Math.Abs(ry - gameHeight / 2) > 3))
+            if (traversibilityBoolMap[rIndex] && (Math.Abs(rx - gameWidth / 2) > 3 || Math.Abs(ry - gameHeight / 2) > 3) && ry != pickupRow)
             {
                 traversibilityBoolMap[rIndex] = false;
                 projectileTraversibilityBoolMap[rIndex] = false;
@@ -69,7 +71,7 @@ public static partial class Module
             int tx = random.Next(gameWidth);
             int ty = random.Next(gameHeight);
             int tIndex = ty * gameWidth + tx;
-            if (traversibilityBoolMap[tIndex] && (Math.Abs(tx - gameWidth / 2) > 3 || Math.Abs(ty - gameHeight / 2) > 3))
+            if (traversibilityBoolMap[tIndex] && (Math.Abs(tx - gameWidth / 2) > 3 || Math.Abs(ty - gameHeight / 2) > 3) && ty != pickupRow)
             {
                 traversibilityBoolMap[tIndex] = false;
                 projectileTraversibilityBoolMap[tIndex] = false;
