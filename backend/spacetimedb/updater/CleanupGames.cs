@@ -59,25 +59,25 @@ public static partial class Module
             Log.Info($"Cleaned up {homegamesToDelete.Count} empty homegame(s)");
         }
 
-        var redirectsToDelete = new System.Collections.Generic.List<string>();
+        var expiredRedirectOldGameIds = new System.Collections.Generic.List<string>();
         var oneHourAgoMicros = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch - (ulong)Module.REDIRECT_CLEANUP_AGE_MICROS;
 
         foreach (var redirect in ctx.Db.game_redirect.Iter())
         {
             if (redirect.InsertedAt < oneHourAgoMicros)
             {
-                redirectsToDelete.Add(redirect.OldGameId);
+                expiredRedirectOldGameIds.Add(redirect.OldGameId);
             }
         }
 
-        foreach (var oldGameId in redirectsToDelete)
+        foreach (var oldGameId in expiredRedirectOldGameIds)
         {
             ctx.Db.game_redirect.OldGameId.Delete(oldGameId);
         }
 
-        if (redirectsToDelete.Count > 0)
+        if (expiredRedirectOldGameIds.Count > 0)
         {
-            Log.Info($"Cleaned up {redirectsToDelete.Count} old game redirect(s)");
+            Log.Info($"Cleaned up {expiredRedirectOldGameIds.Count} old game redirect(s)");
         }
     }
 
