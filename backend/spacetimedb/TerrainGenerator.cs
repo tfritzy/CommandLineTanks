@@ -25,10 +25,10 @@ public static partial class TerrainGenerator
     private const int NUM_LAKES = 2;
     private const float LAKE_NOISE_OFFSET_RANGE = 1000f;
     private const float LAKE_LARGE_NOISE_SCALE = 0.08f;
-    private const float LAKE_LARGE_NOISE_AMPLITUDE = 0.5f;
+    private const float LAKE_LARGE_NOISE_AMPLITUDE = 0.35f;
     private const float LAKE_FINE_NOISE_SCALE = 0.3f;
-    private const float LAKE_FINE_NOISE_AMPLITUDE = 0.35f;
-    private const float LAKE_BASE_THRESHOLD = 0.9f;
+    private const float LAKE_FINE_NOISE_AMPLITUDE = 0.25f;
+    private const float LAKE_BASE_THRESHOLD = 1.0f;
     private const double ROCK_DENSITY_BASE = 0.01;
     private const double ROCK_DENSITY_VARIANCE = 0.005;
 
