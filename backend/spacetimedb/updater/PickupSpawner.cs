@@ -207,64 +207,6 @@ public static partial class PickupSpawner
         }
     }
 
-    public static bool TrySpawnPickup(ReducerContext ctx, string gameId, Module.TraversibilityMap traversibilityMap)
-    {
-        var (spawnX, spawnY) = GenerateNormalDistributedPosition(
-            ctx.Rng,
-            traversibilityMap.Width,
-            traversibilityMap.Height
-        );
-
-        if (spawnX < 0 || spawnX >= traversibilityMap.Width || spawnY < 0 || spawnY >= traversibilityMap.Height)
-            return false;
-
-        int tileIndex = spawnY * traversibilityMap.Width + spawnX;
-        if (tileIndex >= traversibilityMap.Map.Length * 8 || !traversibilityMap.IsTraversable(tileIndex))
-            return false;
-
-        float centerX = spawnX + 0.5f;
-        float centerY = spawnY + 0.5f;
-
-        var existingDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
-        foreach (var detail in existingDetail)
-        {
-            return false;
-        }
-
-        var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
-        foreach (var p in existingPickup)
-        {
-            return false;
-        }
-
-        PickupType pickupType;
-        if (ctx.Rng.NextDouble() < 0.33)
-        {
-            pickupType = PickupType.Health;
-        }
-        else
-        {
-            int pickupTypeIndex = ctx.Rng.Next(NON_HEALTH_PICKUP_TYPES.Length);
-            pickupType = NON_HEALTH_PICKUP_TYPES[pickupTypeIndex];
-        }
-
-        var pickupId = Module.GenerateId(ctx, "pickup");
-
-        ctx.Db.pickup.Insert(Module.Pickup.Build(
-            ctx: ctx,
-            id: pickupId,
-            gameId: gameId,
-            positionX: centerX,
-            positionY: centerY,
-            gridX: spawnX,
-            gridY: spawnY,
-            type: pickupType,
-            ammo: GetAmmoForPickupType(pickupType)
-        ));
-
-        return true;
-    }
-
     public static bool TrySpawnRegularPickup(ReducerContext ctx, string gameId, Module.TraversibilityMap traversibilityMap)
     {
         var (spawnX, spawnY) = GenerateNormalDistributedPosition(
