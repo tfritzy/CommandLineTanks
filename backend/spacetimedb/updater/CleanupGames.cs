@@ -58,6 +58,27 @@ public static partial class Module
         {
             Log.Info($"Cleaned up {homegamesToDelete.Count} empty homegame(s)");
         }
+
+        var redirectsToDelete = new System.Collections.Generic.List<string>();
+        var oneHourAgoMicros = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch - 3_600_000_000;
+
+        foreach (var redirect in ctx.Db.game_redirect.Iter())
+        {
+            if (redirect.InsertedAt < oneHourAgoMicros)
+            {
+                redirectsToDelete.Add(redirect.OldGameId);
+            }
+        }
+
+        foreach (var oldGameId in redirectsToDelete)
+        {
+            ctx.Db.game_redirect.OldGameId.Delete(oldGameId);
+        }
+
+        if (redirectsToDelete.Count > 0)
+        {
+            Log.Info($"Cleaned up {redirectsToDelete.Count} old game redirect(s)");
+        }
     }
 
     public static void DeleteGame(ReducerContext ctx, string gameId)
@@ -159,6 +180,12 @@ public static partial class Module
         foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
+        }
+
+        var redirectPointingToGame = ctx.Db.game_redirect.OldGameId.Find(gameId);
+        if (redirectPointingToGame != null)
+        {
+            ctx.Db.game_redirect.OldGameId.Delete(gameId);
         }
 
         var gameToDelete = ctx.Db.game.Id.Find(gameId);
