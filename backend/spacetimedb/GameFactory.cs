@@ -15,7 +15,7 @@ public static partial class Module
         GameVisibility visibility = GameVisibility.Public,
         long? gameDurationMicros = null,
         Identity? owner = null,
-        int minPlayersPerTeam = 2)
+        int minPlayersPerTeam = 0)
     {
         var duration = gameDurationMicros ?? GAME_DURATION_MICROS;
         
