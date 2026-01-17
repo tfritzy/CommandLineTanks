@@ -41,7 +41,9 @@ public static partial class Module
                     GameVisibility.Public
                 );
 
-                SpawnInitialBots(ctx, newGameId, game.Value);
+                int botsPerTeam = ctx.Rng.Next(2, 6);
+                int totalBotCount = botsPerTeam * 2;
+                SpawnInitialBots(ctx, newGameId, game.Value, totalBotCount);
             }
         }
         else
