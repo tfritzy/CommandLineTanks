@@ -20,8 +20,8 @@ public static partial class TerrainGenerator
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
     private const int ROTATION_WEST = 3;
-    private const int LAKE_MIN_SIZE = 4;
-    private const int LAKE_MAX_SIZE = 8;
+    private const int LAKE_MIN_SIZE = 8;
+    private const int LAKE_MAX_SIZE = 16;
     private const int NUM_LAKES = 2;
     private const double ROCK_DENSITY_BASE = 0.01;
     private const double ROCK_DENSITY_VARIANCE = 0.005;
@@ -153,6 +153,11 @@ public static partial class TerrainGenerator
                     float radiusX = lakeWidth / 2.0f;
                     float radiusY = lakeHeight / 2.0f;
 
+                    float largeNoiseOffsetX = (float)(random.NextDouble() * 1000f);
+                    float largeNoiseOffsetY = (float)(random.NextDouble() * 1000f);
+                    float fineNoiseOffsetX = (float)(random.NextDouble() * 1000f);
+                    float fineNoiseOffsetY = (float)(random.NextDouble() * 1000f);
+
                     for (int y = startY; y < startY + lakeHeight; y++)
                     {
                         for (int x = startX; x < startX + lakeWidth; x++)
@@ -161,8 +166,10 @@ public static partial class TerrainGenerator
                             float dy = (y + 0.5f - centerY) / radiusY;
                             float distSq = dx * dx + dy * dy;
 
-                            float noiseValue = Noise((x + 50) * 0.2f, (y + 50) * 0.2f) * 0.3f;
-                            float threshold = 0.8f + noiseValue;
+                            float largeNoiseValue = Noise((x + largeNoiseOffsetX) * 0.08f, (y + largeNoiseOffsetY) * 0.08f) * 0.5f;
+                            float fineNoiseValue = Noise((x + fineNoiseOffsetX) * 0.3f, (y + fineNoiseOffsetY) * 0.3f) * 0.35f;
+                            float combinedNoise = largeNoiseValue + fineNoiseValue;
+                            float threshold = 0.9f + combinedNoise;
 
                             if (distSq < threshold)
                             {
