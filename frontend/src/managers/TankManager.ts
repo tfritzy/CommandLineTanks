@@ -362,8 +362,8 @@ export class TankManager {
 
   public drawPaths(
     ctx: CanvasRenderingContext2D,
-    cameraX: number,
-    cameraY: number,
+    _cameraX: number,
+    _cameraY: number,
     viewportWidth: number,
     viewportHeight: number
   ) {
@@ -371,16 +371,17 @@ export class TankManager {
     if (playerTank) {
       const center = this.getScreenCenterPosition(viewportWidth, viewportHeight);
       const dpr = window.devicePixelRatio || 1;
+      const oldTransform = ctx.getTransform();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       playerTank.drawPathFrom(ctx, center.x, center.y);
-      ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
+      ctx.setTransform(oldTransform);
     }
   }
 
   public drawShadows(
     ctx: CanvasRenderingContext2D,
-    cameraX: number,
-    cameraY: number,
+    _cameraX: number,
+    _cameraY: number,
     viewportWidth: number,
     viewportHeight: number
   ) {
@@ -389,9 +390,10 @@ export class TankManager {
     for (const tank of this.tanks.values()) {
       if (tank.id === this.playerTankId) {
         const dpr = window.devicePixelRatio || 1;
+        const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         tank.drawShadowAt(ctx, center.x, center.y);
-        ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
+        ctx.setTransform(oldTransform);
       } else {
         tank.drawShadow(ctx);
       }
@@ -400,8 +402,8 @@ export class TankManager {
 
   public drawBodies(
     ctx: CanvasRenderingContext2D,
-    cameraX: number,
-    cameraY: number,
+    _cameraX: number,
+    _cameraY: number,
     viewportWidth: number,
     viewportHeight: number
   ) {
@@ -410,9 +412,10 @@ export class TankManager {
     for (const tank of this.tanks.values()) {
       if (tank.id === this.playerTankId) {
         const dpr = window.devicePixelRatio || 1;
+        const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         tank.drawBodyAt(ctx, center.x, center.y);
-        ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
+        ctx.setTransform(oldTransform);
       } else {
         tank.drawBody(ctx);
       }
@@ -441,9 +444,10 @@ export class TankManager {
       
       if (tank.id === this.playerTankId) {
         const dpr = window.devicePixelRatio || 1;
+        const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         tank.drawHealthBarAt(ctx, center.x, center.y);
-        ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
+        ctx.setTransform(oldTransform);
       } else {
         tank.drawHealthBar(ctx);
       }
@@ -500,11 +504,12 @@ export class TankManager {
 
       if (isPlayerTank) {
         const dpr = window.devicePixelRatio || 1;
+        const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         const px = center.x * UNIT_TO_PIXEL;
         const py = center.y * UNIT_TO_PIXEL;
         ctx.fillText(tank.getName(), px, py - 27);
-        ctx.setTransform(dpr, 0, 0, dpr, -cameraX, -cameraY);
+        ctx.setTransform(oldTransform);
       } else {
         const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
         const targetCode = tank.getTargetCode();
