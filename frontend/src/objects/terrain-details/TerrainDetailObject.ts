@@ -4,6 +4,8 @@ import { type TerrainDetailRow } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
 import { COLORS } from "../../theme/colors";
 
+const HEADER_FONT_SIZE_MULTIPLIER = 1.2;
+
 export abstract class TerrainDetailObject {
   public arrayIndex: number = -1;
   protected x: number;
@@ -54,7 +56,7 @@ export abstract class TerrainDetailObject {
 
   public abstract drawBody(ctx: CanvasRenderingContext2D): void;
 
-  private parseLabel(label: string): { text: string; color?: string; isCode: boolean; isHeader: boolean }[] {
+  private parseLabel(label: string): { segments: { text: string; color?: string; isCode: boolean; isHeader: boolean }[]; isHeaderLabel: boolean } {
     const segments: { text: string; color?: string; isCode: boolean; isHeader: boolean }[] = [];
     const regex = /(\[header\]|\[color=#[0-9a-fA-F]{6}\]|\[\/color\]|`)/g;
     const parts = label.split(regex);
@@ -62,12 +64,14 @@ export abstract class TerrainDetailObject {
     let currentColor: string | undefined = undefined;
     let inCode = false;
     let isHeader = false;
+    let isHeaderLabel = false;
 
     for (const part of parts) {
       if (!part) continue;
 
       if (part === "[header]") {
         isHeader = true;
+        isHeaderLabel = true;
       } else if (part.startsWith("[color=")) {
         currentColor = part.substring(7, 14);
       } else if (part === "[/color]") {
@@ -78,22 +82,20 @@ export abstract class TerrainDetailObject {
         segments.push({ text: part, color: currentColor, isCode: inCode, isHeader: isHeader });
       }
     }
-    return segments;
+    return { segments, isHeaderLabel };
   }
 
   public drawLabel(ctx: CanvasRenderingContext2D): void {
     if (!this.label) return;
 
-    const segments = this.parseLabel(this.label);
+    const { segments, isHeaderLabel } = this.parseLabel(this.label);
 
     ctx.save();
     const x = this.getGameX();
     const y = this.getGameY();
     const labelY = y - 24;
 
-    const isHeaderLabel = segments.some(s => s.isHeader);
     const baseFontSize = UNIT_TO_PIXEL * 0.26;
-    const HEADER_FONT_SIZE_MULTIPLIER = 1.2;
     const headerFontSize = baseFontSize * HEADER_FONT_SIZE_MULTIPLIER;
     const fontSize = isHeaderLabel ? headerFontSize : baseFontSize;
     const normalFont = `${fontSize}px monospace`;
