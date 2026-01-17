@@ -20,7 +20,6 @@ public static partial class Module
                 Identity = ctx.Sender,
                 Name = null,
                 CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-                Ping = 0,
                 TutorialComplete = false
             };
 

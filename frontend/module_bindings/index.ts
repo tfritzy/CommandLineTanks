@@ -63,8 +63,6 @@ import HandleDisconnect from "./handle_disconnect_reducer";
 export { HandleDisconnect };
 import JoinGame from "./join_game_reducer";
 export { JoinGame };
-import Ping from "./ping_reducer";
-export { Ping };
 import ResetGame from "./reset_game_reducer";
 export { ResetGame };
 import Respawn from "./respawn_reducer";
@@ -608,7 +606,6 @@ const reducersSchema = __reducers(
   __reducerSchema("exitGame", ExitGame),
   __reducerSchema("fire", Fire),
   __reducerSchema("joinGame", JoinGame),
-  __reducerSchema("ping", Ping),
   __reducerSchema("ResetGame", ResetGame),
   __reducerSchema("respawn", Respawn),
   __reducerSchema("SpawnPickup", SpawnPickup),

@@ -1,6 +1,6 @@
 import { DbConnection, type ErrorContext } from '../module_bindings';
 import { Identity } from 'spacetimedb';
-import { PingTracker } from './utils/PingTracker';
+import { ServerTimeTracker } from './utils/ServerTimeTracker';
 
 const SPACETIMEDB_HOST = import.meta.env.VITE_SPACETIMEDB_HOST || 'ws://localhost:3000';
 const MODULE_NAME = import.meta.env.VITE_SPACETIMEDB_MODULE || 'clt';
@@ -13,7 +13,7 @@ let disconnectCallback: (() => void) | null = null;
 let pendingJoinCode: string | null = null;
 let isPendingGameCreation: boolean = false;
 
-let pingTracker: PingTracker | null = null;
+let serverTimeTracker: ServerTimeTracker | null = null;
 
 /**
  * Register a callback for when the connection is lost
@@ -58,8 +58,8 @@ export async function connectToSpacetimeDB(): Promise<DbConnection> {
           dbConnection = conn;
           connectingPromise = null;
           
-          pingTracker = new PingTracker();
-          pingTracker.start(conn);
+          serverTimeTracker = new ServerTimeTracker();
+          serverTimeTracker.start(conn);
           
           resolve(conn);
         })
@@ -92,9 +92,9 @@ export async function connectToSpacetimeDB(): Promise<DbConnection> {
  * Disconnect from SpacetimeDB
  */
 export function disconnectFromSpacetimeDB(): void {
-  if (pingTracker) {
-    pingTracker.stop();
-    pingTracker = null;
+  if (serverTimeTracker) {
+    serverTimeTracker.stop();
+    serverTimeTracker = null;
   }
   
   if (dbConnection) {
@@ -175,14 +175,18 @@ export const areIdentitiesEqual = (
   return hex1 === hex2;
 };
 
-export const getPing = (): number => {
-  return pingTracker?.getPing() ?? 0;
+export const getServerTime = (): number => {
+  return serverTimeTracker?.getServerTime() ?? Date.now();
 };
 
-export const getMinPing = (): number => {
-  return pingTracker?.getMinPing() ?? 0;
+export const getLatency = (): number => {
+  return serverTimeTracker?.getLatency() ?? 0;
 };
 
-export const getMaxPing = (): number => {
-  return pingTracker?.getMaxPing() ?? 0;
+export const getMinLatency = (): number => {
+  return serverTimeTracker?.getMinLatency() ?? 0;
+};
+
+export const getMaxLatency = (): number => {
+  return serverTimeTracker?.getMaxLatency() ?? 0;
 };

@@ -1,6 +1,4 @@
 import { COLORS } from "../theme/colors";
-import { getPing, getMinPing, getMaxPing } from "../spacetimedb-connection";
-
 
 export class FpsCounter {
   private fps: number = 0;
@@ -31,16 +29,6 @@ export class FpsCounter {
       ctx.strokeStyle = COLORS.TERRAIN.GROUND;
       ctx.lineWidth = 3;
       const x = 8;
-      
-      const ping = getPing();
-      const minPing = getMinPing();
-      const maxPing = getMaxPing();
-      const pingY = displayHeight - 30;
-
-      ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
-      ctx.strokeText(`Ping: ${ping}ms (${minPing}-${maxPing})`, x, pingY);
-      ctx.fillText(`Ping: ${ping}ms (${minPing}-${maxPing})`, x, pingY);
-      
       const fpsY = displayHeight - 10;
       ctx.strokeText(`FPS: ${this.fps}`, x, fpsY);
       ctx.fillText(`FPS: ${this.fps}`, x, fpsY);

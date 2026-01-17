@@ -20,9 +20,10 @@ public static partial class TerrainGenerator
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
     private const int ROTATION_WEST = 3;
-    private const int LAKE_MIN_SIZE = 8;
-    private const int LAKE_MAX_SIZE = 16;
-    private const int NUM_LAKES = 2;
+    private const int LAKE_MIN_SIZE = 6;
+    private const int LAKE_MAX_SIZE = 12;
+    private const int MIN_NUM_LAKES = 0;
+    private const int MAX_NUM_LAKES = 7;
     private const float LAKE_NOISE_OFFSET_RANGE = 1000f;
     private const float LAKE_LARGE_NOISE_SCALE = 0.08f;
     private const float LAKE_LARGE_NOISE_AMPLITUDE = 0.35f;
@@ -102,16 +103,9 @@ public static partial class TerrainGenerator
 
     private static void GenerateLakes(BaseTerrain[] baseTerrain, Random random, int width, int height)
     {
-        const int SPAWN_ZONE_WIDTH = 6;
+        int numLakes = MIN_NUM_LAKES + random.Next(MAX_NUM_LAKES - MIN_NUM_LAKES + 1);
 
-        int minRequiredWidth = LAKE_MIN_SIZE + SPAWN_ZONE_WIDTH * 2 + 1;
-        int minRequiredHeight = LAKE_MIN_SIZE + 4 + 1;
-        if (width < minRequiredWidth || height < minRequiredHeight)
-        {
-            return;
-        }
-
-        for (int lakeIdx = 0; lakeIdx < NUM_LAKES; lakeIdx++)
+        for (int lakeIdx = 0; lakeIdx < numLakes; lakeIdx++)
         {
             int attempts = 0;
             bool placed = false;
@@ -120,14 +114,10 @@ public static partial class TerrainGenerator
             {
                 attempts++;
 
-                int maxLakeWidth = Math.Min(LAKE_MAX_SIZE, width - SPAWN_ZONE_WIDTH * 2);
-                int maxLakeHeight = Math.Min(LAKE_MAX_SIZE, height - 4);
-                int lakeWidth = LAKE_MIN_SIZE + random.Next(Math.Max(1, maxLakeWidth - LAKE_MIN_SIZE + 1));
-                int lakeHeight = LAKE_MIN_SIZE + random.Next(Math.Max(1, maxLakeHeight - LAKE_MIN_SIZE + 1));
-                int xRange = width - lakeWidth - SPAWN_ZONE_WIDTH * 2;
-                int yRange = height - lakeHeight - 4;
-                int startX = SPAWN_ZONE_WIDTH + (xRange > 0 ? random.Next(xRange) : 0);
-                int startY = 2 + (yRange > 0 ? random.Next(yRange) : 0);
+                int lakeWidth = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
+                int lakeHeight = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
+                int startX = random.Next(-lakeWidth / 2, width + lakeWidth / 2);
+                int startY = random.Next(-lakeHeight / 2, height + lakeHeight / 2);
 
                 bool validLocation = true;
 
@@ -135,17 +125,14 @@ public static partial class TerrainGenerator
                 {
                     for (int x = startX - 1; x <= startX + lakeWidth; x++)
                     {
-                        if (x < 0 || x >= width || y < 0 || y >= height)
+                        if (x >= 0 && x < width && y >= 0 && y < height)
                         {
-                            validLocation = false;
-                            break;
-                        }
-
-                        int index = y * width + x;
-                        if (baseTerrain[index] != BaseTerrain.Ground)
-                        {
-                            validLocation = false;
-                            break;
+                            int index = y * width + x;
+                            if (baseTerrain[index] != BaseTerrain.Ground)
+                            {
+                                validLocation = false;
+                                break;
+                            }
                         }
                     }
 
@@ -164,9 +151,9 @@ public static partial class TerrainGenerator
                     float fineNoiseOffsetX = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
                     float fineNoiseOffsetY = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
 
-                    for (int y = startY; y < startY + lakeHeight; y++)
+                    for (int y = Math.Max(0, startY); y < Math.Min(height, startY + lakeHeight); y++)
                     {
-                        for (int x = startX; x < startX + lakeWidth; x++)
+                        for (int x = Math.Max(0, startX); x < Math.Min(width, startX + lakeWidth); x++)
                         {
                             float dx = (x + 0.5f - centerX) / radiusX;
                             float dy = (y + 0.5f - centerY) / radiusY;
