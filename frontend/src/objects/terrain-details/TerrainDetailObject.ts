@@ -93,7 +93,8 @@ export abstract class TerrainDetailObject {
 
     const isHeaderLabel = segments.some(s => s.isHeader);
     const baseFontSize = UNIT_TO_PIXEL * 0.26;
-    const headerFontSize = baseFontSize * 1.2;
+    const HEADER_FONT_SIZE_MULTIPLIER = 1.2;
+    const headerFontSize = baseFontSize * HEADER_FONT_SIZE_MULTIPLIER;
     const fontSize = isHeaderLabel ? headerFontSize : baseFontSize;
     const normalFont = `${fontSize}px monospace`;
     const codeFont = `bold ${fontSize}px monospace`;
@@ -143,7 +144,7 @@ export abstract class TerrainDetailObject {
       ctx.shadowOffsetX = 1;
       ctx.shadowOffsetY = 1;
 
-      ctx.fillStyle = segment.color || (isHeaderLabel ? "#7fbbdc" : COLORS.UI.TEXT_PRIMARY);
+      ctx.fillStyle = segment.color || (isHeaderLabel ? COLORS.ABILITY.SMOKESCREEN_READY : COLORS.UI.TEXT_PRIMARY);
       ctx.fillText(segment.text, currentX, labelY);
       
       ctx.shadowColor = "transparent";
