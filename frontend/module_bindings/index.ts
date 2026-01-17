@@ -109,6 +109,8 @@ import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import GameRow from "./game_table";
 export { GameRow };
+import GameRedirectRow from "./game_redirect_table";
+export { GameRedirectRow };
 import KillsRow from "./kills_table";
 export { KillsRow };
 import PickupRow from "./pickup_table";
@@ -153,6 +155,8 @@ import ExplosionTrigger from "./explosion_trigger_type";
 export { ExplosionTrigger };
 import Game from "./game_type";
 export { Game };
+import GameRedirect from "./game_redirect_type";
+export { GameRedirect };
 import GameState from "./game_state_type";
 export { GameState };
 import GameType from "./game_type_type";
@@ -359,6 +363,20 @@ const tablesSchema = __schema(
       { name: 'game_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, GameRow),
+  __table({
+    name: 'game_redirect',
+    indexes: [
+      { name: 'NewGameId', algorithm: 'btree', columns: [
+        'newGameId',
+      ] },
+      { name: 'OldGameId', algorithm: 'btree', columns: [
+        'oldGameId',
+      ] },
+    ],
+    constraints: [
+      { name: 'game_redirect_OldGameId_key', constraint: 'unique', columns: ['oldGameId'] },
+    ],
+  }, GameRedirectRow),
   __table({
     name: 'kills',
     indexes: [

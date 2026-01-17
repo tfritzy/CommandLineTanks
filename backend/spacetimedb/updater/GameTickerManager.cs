@@ -233,5 +233,27 @@ public static partial class Module
         }
 
         Log.Info($"Created new game {newGameId} from {args.GameId}. Teams randomized, {totalTanks} tanks created.");
+
+        var oldGameId = args.GameId;
+        var redirectsToUpdate = new List<GameRedirect>();
+        foreach (var redirect in ctx.Db.game_redirect.NewGameId.Filter(oldGameId))
+        {
+            redirectsToUpdate.Add(redirect);
+        }
+
+        foreach (var redirect in redirectsToUpdate)
+        {
+            var updatedRedirect = redirect with { NewGameId = newGameId };
+            ctx.Db.game_redirect.OldGameId.Update(updatedRedirect);
+        }
+
+        ctx.Db.game_redirect.Insert(new GameRedirect
+        {
+            OldGameId = oldGameId,
+            NewGameId = newGameId,
+            InsertedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+        });
+
+        Log.Info($"Created game redirect from {oldGameId} to {newGameId}. Updated {redirectsToUpdate.Count} existing redirects.");
     }
 }

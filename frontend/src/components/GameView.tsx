@@ -15,6 +15,7 @@ import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual, s
 import { useGameSwitcher } from "../hooks/useGameSwitcher";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
+import GameRedirectRow from "../../module_bindings/game_redirect_table";
 import { Game } from "../../module_bindings";
 import {
   type EventContext,
@@ -34,6 +35,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
   const gameRef = useRef<GameEngine | null>(null);
   const subscriptionRef = useRef<SubscriptionHandle | null>(null);
   const tankSubscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
+  const redirectSubscriptionRef = useRef<TableSubscription<typeof GameRedirectRow> | null>(null);
   const gameCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDead, setIsDead] = useState(false);
   const [killerName, setKillerName] = useState<string | null>(null);
@@ -78,6 +80,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
         `SELECT * FROM score WHERE GameId = '${gameId}'`,
         `SELECT * FROM tank_gun WHERE GameId = '${gameId}'`,
         `SELECT * FROM player WHERE Identity = '${connection.identity}'`,
+        `SELECT * FROM game_redirect WHERE OldGameId = '${gameId}'`,
       ]);
 
     return () => {
@@ -98,6 +101,32 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       gameRef.current = null;
     };
   }, [gameId]);
+
+  useEffect(() => {
+    if (!gameId) return;
+
+    const connection = getConnection();
+    if (!connection) return;
+
+    redirectSubscriptionRef.current?.unsubscribe();
+    redirectSubscriptionRef.current = subscribeToTable({
+      table: connection.db.gameRedirect,
+      handlers: {
+        onInsert: (_ctx: EventContext, redirect: Infer<typeof GameRedirectRow>) => {
+          if (redirect.oldGameId === gameId) {
+            console.log(`Game ${gameId} has been redirected to ${redirect.newGameId}`);
+            navigate(`/game/${redirect.newGameId}`);
+          }
+        },
+      },
+      loadInitialData: true,
+    });
+
+    return () => {
+      redirectSubscriptionRef.current?.unsubscribe();
+      redirectSubscriptionRef.current = null;
+    };
+  }, [gameId, navigate]);
 
   useEffect(() => {
     if (!gameId) return;
