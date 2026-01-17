@@ -41,7 +41,10 @@ export class Game {
 
   constructor(canvas: HTMLCanvasElement, gameId: string) {
     this.canvas = canvas;
-    const ctx = canvas.getContext("2d", { alpha: false });
+    const ctx = canvas.getContext("2d", { 
+      alpha: false,
+      desynchronized: false
+    });
     if (!ctx) {
       throw new Error("Failed to get 2D context");
     }
