@@ -94,26 +94,47 @@ public static partial class PickupSpawner
         else
         {
             var existingPickups = ctx.Db.pickup.GameId.Filter(args.GameId);
-            int pickupCount = 0;
+            int regularPickupCount = 0;
+            int healthPackCount = 0;
             foreach (var pickup in existingPickups)
             {
-                pickupCount++;
-            }
-
-            if (pickupCount >= 15)
-            {
-                return;
+                if (pickup.Type == PickupType.Health)
+                {
+                    healthPackCount++;
+                }
+                else
+                {
+                    regularPickupCount++;
+                }
             }
 
             var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(args.GameId);
             if (traversibilityMap == null) return;
 
-            int maxAttempts = 100;
-            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            bool spawnedSomething = false;
+
+            if (regularPickupCount < 15)
             {
-                if (TrySpawnPickup(ctx, args.GameId, traversibilityMap.Value))
+                int maxAttempts = 100;
+                for (int attempt = 0; attempt < maxAttempts; attempt++)
                 {
-                    break;
+                    if (TrySpawnRegularPickup(ctx, args.GameId, traversibilityMap.Value))
+                    {
+                        spawnedSomething = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!spawnedSomething && healthPackCount < 15)
+            {
+                int maxAttempts = 100;
+                for (int attempt = 0; attempt < maxAttempts; attempt++)
+                {
+                    if (TrySpawnHealthPack(ctx, args.GameId, traversibilityMap.Value))
+                    {
+                        break;
+                    }
                 }
             }
         }
@@ -165,19 +186,28 @@ public static partial class PickupSpawner
         var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(gameId);
         if (traversibilityMap == null) return;
 
-        int spawnedCount = 0;
+        int regularSpawnedCount = 0;
+        int healthSpawnedCount = 0;
         int maxAttempts = 500;
 
-        for (int attempt = 0; attempt < maxAttempts && spawnedCount < initialPickupCount; attempt++)
+        for (int attempt = 0; attempt < maxAttempts && regularSpawnedCount < initialPickupCount; attempt++)
         {
-            if (TrySpawnPickup(ctx, gameId, traversibilityMap.Value))
+            if (TrySpawnRegularPickup(ctx, gameId, traversibilityMap.Value))
             {
-                spawnedCount++;
+                regularSpawnedCount++;
+            }
+        }
+
+        for (int attempt = 0; attempt < maxAttempts && healthSpawnedCount < initialPickupCount; attempt++)
+        {
+            if (TrySpawnHealthPack(ctx, gameId, traversibilityMap.Value))
+            {
+                healthSpawnedCount++;
             }
         }
     }
 
-    public static bool TrySpawnPickup(ReducerContext ctx, string gameId, Module.TraversibilityMap traversibilityMap)
+    public static bool TrySpawnRegularPickup(ReducerContext ctx, string gameId, Module.TraversibilityMap traversibilityMap)
     {
         var (spawnX, spawnY) = GenerateNormalDistributedPosition(
             ctx.Rng,
@@ -207,16 +237,8 @@ public static partial class PickupSpawner
             return false;
         }
 
-        PickupType pickupType;
-        if (ctx.Rng.NextDouble() < 0.33)
-        {
-            pickupType = PickupType.Health;
-        }
-        else
-        {
-            int pickupTypeIndex = ctx.Rng.Next(NON_HEALTH_PICKUP_TYPES.Length);
-            pickupType = NON_HEALTH_PICKUP_TYPES[pickupTypeIndex];
-        }
+        int pickupTypeIndex = ctx.Rng.Next(NON_HEALTH_PICKUP_TYPES.Length);
+        PickupType pickupType = NON_HEALTH_PICKUP_TYPES[pickupTypeIndex];
 
         var pickupId = Module.GenerateId(ctx, "pickup");
 
@@ -230,6 +252,53 @@ public static partial class PickupSpawner
             gridY: spawnY,
             type: pickupType,
             ammo: GetAmmoForPickupType(pickupType)
+        ));
+
+        return true;
+    }
+
+    public static bool TrySpawnHealthPack(ReducerContext ctx, string gameId, Module.TraversibilityMap traversibilityMap)
+    {
+        var (spawnX, spawnY) = GenerateEdgeDistributedPosition(
+            ctx.Rng,
+            traversibilityMap.Width,
+            traversibilityMap.Height
+        );
+
+        if (spawnX < 0 || spawnX >= traversibilityMap.Width || spawnY < 0 || spawnY >= traversibilityMap.Height)
+            return false;
+
+        int tileIndex = spawnY * traversibilityMap.Width + spawnX;
+        if (tileIndex >= traversibilityMap.Map.Length * 8 || !traversibilityMap.IsTraversable(tileIndex))
+            return false;
+
+        float centerX = spawnX + 0.5f;
+        float centerY = spawnY + 0.5f;
+
+        var existingDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
+        foreach (var detail in existingDetail)
+        {
+            return false;
+        }
+
+        var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
+        foreach (var p in existingPickup)
+        {
+            return false;
+        }
+
+        var pickupId = Module.GenerateId(ctx, "pickup");
+
+        ctx.Db.pickup.Insert(Module.Pickup.Build(
+            ctx: ctx,
+            id: pickupId,
+            gameId: gameId,
+            positionX: centerX,
+            positionY: centerY,
+            gridX: spawnX,
+            gridY: spawnY,
+            type: PickupType.Health,
+            ammo: null
         ));
 
         return true;
@@ -265,6 +334,27 @@ public static partial class PickupSpawner
         int spawnX = (int)Math.Round(centerX + normalX * stdDevX);
         int spawnY = random.Next(height);
 
+        return (spawnX, spawnY);
+    }
+
+    public static (int x, int y) GenerateEdgeDistributedPosition(Random random, int width, int height)
+    {
+        bool spawnOnLeftSide = random.NextDouble() < 0.5;
+        
+        int edgeThreshold = (int)(width * 0.35);
+        
+        int spawnX;
+        if (spawnOnLeftSide)
+        {
+            spawnX = random.Next(edgeThreshold);
+        }
+        else
+        {
+            spawnX = width - edgeThreshold + random.Next(edgeThreshold);
+        }
+        
+        int spawnY = random.Next(height);
+        
         return (spawnX, spawnY);
     }
 
