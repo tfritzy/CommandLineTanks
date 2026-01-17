@@ -54,25 +54,28 @@ export abstract class TerrainDetailObject {
 
   public abstract drawBody(ctx: CanvasRenderingContext2D): void;
 
-  private parseLabel(label: string): { text: string; color?: string; isCode: boolean }[] {
-    const segments: { text: string; color?: string; isCode: boolean }[] = [];
-    const regex = /(\[color=#[0-9a-fA-F]{6}\]|\[\/color\]|`)/g;
+  private parseLabel(label: string): { text: string; color?: string; isCode: boolean; isHeader: boolean }[] {
+    const segments: { text: string; color?: string; isCode: boolean; isHeader: boolean }[] = [];
+    const regex = /(\[header\]|\[color=#[0-9a-fA-F]{6}\]|\[\/color\]|`)/g;
     const parts = label.split(regex);
 
     let currentColor: string | undefined = undefined;
     let inCode = false;
+    let isHeader = false;
 
     for (const part of parts) {
       if (!part) continue;
 
-      if (part.startsWith("[color=")) {
+      if (part === "[header]") {
+        isHeader = true;
+      } else if (part.startsWith("[color=")) {
         currentColor = part.substring(7, 14);
       } else if (part === "[/color]") {
         currentColor = undefined;
       } else if (part === "`") {
         inCode = !inCode;
       } else {
-        segments.push({ text: part, color: currentColor, isCode: inCode });
+        segments.push({ text: part, color: currentColor, isCode: inCode, isHeader: isHeader });
       }
     }
     return segments;
@@ -88,11 +91,13 @@ export abstract class TerrainDetailObject {
     const y = this.getGameY();
     const labelY = y - 24;
 
-    const fontSize = UNIT_TO_PIXEL * 0.26;
+    const isHeaderLabel = segments.some(s => s.isHeader);
+    const baseFontSize = UNIT_TO_PIXEL * 0.26;
+    const headerFontSize = baseFontSize * 1.2;
+    const fontSize = isHeaderLabel ? headerFontSize : baseFontSize;
     const normalFont = `${fontSize}px monospace`;
     const codeFont = `bold ${fontSize}px monospace`;
 
-    // Calculate total width
     let totalWidth = 0;
     const segmentSpacing = 1;
     const codePadding = 4;
@@ -115,7 +120,7 @@ export abstract class TerrainDetailObject {
       if (segment.isCode) {
         currentX += codePadding / 2;
         ctx.save();
-        ctx.fillStyle = "rgba(42, 21, 45, 0.85)"; // Near-black purple
+        ctx.fillStyle = "rgba(42, 21, 45, 0.85)";
         const paddingH = 5;
         const paddingV = 4;
         const bgW = textWidth + paddingH;
@@ -127,22 +132,20 @@ export abstract class TerrainDetailObject {
         ctx.roundRect(bgX, bgY, bgW, bgH, 2);
         ctx.fill();
         
-        ctx.strokeStyle = "rgba(252, 251, 243, 0.15)"; // Muted white
+        ctx.strokeStyle = "rgba(252, 251, 243, 0.15)";
         ctx.lineWidth = 1;
         ctx.stroke();
         ctx.restore();
       }
 
-      // Draw shadow for readability
       ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
       ctx.shadowBlur = 2;
       ctx.shadowOffsetX = 1;
       ctx.shadowOffsetY = 1;
 
-      ctx.fillStyle = segment.color || COLORS.UI.TEXT_PRIMARY;
+      ctx.fillStyle = segment.color || (isHeaderLabel ? "#7fbbdc" : COLORS.UI.TEXT_PRIMARY);
       ctx.fillText(segment.text, currentX, labelY);
       
-      // Reset shadow for next segments
       ctx.shadowColor = "transparent";
       ctx.shadowBlur = 0;
       ctx.shadowOffsetX = 0;
