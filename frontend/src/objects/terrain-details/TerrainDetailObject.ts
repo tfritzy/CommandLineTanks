@@ -4,6 +4,8 @@ import { type TerrainDetailRow } from "../../../module_bindings";
 import { type Infer } from "spacetimedb";
 import { COLORS } from "../../theme/colors";
 
+type LabelSegment = { text: string; color?: string; isCode: boolean };
+
 export abstract class TerrainDetailObject {
   public arrayIndex: number = -1;
   protected x: number;
@@ -54,8 +56,8 @@ export abstract class TerrainDetailObject {
 
   public abstract drawBody(ctx: CanvasRenderingContext2D): void;
 
-  private parseLabel(label: string): { text: string; color?: string; isCode: boolean }[] {
-    const segments: { text: string; color?: string; isCode: boolean }[] = [];
+  private parseLabel(label: string): LabelSegment[] {
+    const segments: LabelSegment[] = [];
     const regex = /(\[color=#[0-9a-fA-F]{6}\]|\[\/color\]|`)/g;
     const parts = label.split(regex);
 
@@ -92,7 +94,6 @@ export abstract class TerrainDetailObject {
     const normalFont = `${fontSize}px monospace`;
     const codeFont = `bold ${fontSize}px monospace`;
 
-    // Calculate total width
     let totalWidth = 0;
     const segmentSpacing = 1;
     const codePadding = 4;
@@ -115,7 +116,7 @@ export abstract class TerrainDetailObject {
       if (segment.isCode) {
         currentX += codePadding / 2;
         ctx.save();
-        ctx.fillStyle = "rgba(42, 21, 45, 0.85)"; // Near-black purple
+        ctx.fillStyle = "rgba(42, 21, 45, 0.85)";
         const paddingH = 5;
         const paddingV = 4;
         const bgW = textWidth + paddingH;
@@ -127,13 +128,12 @@ export abstract class TerrainDetailObject {
         ctx.roundRect(bgX, bgY, bgW, bgH, 2);
         ctx.fill();
         
-        ctx.strokeStyle = "rgba(252, 251, 243, 0.15)"; // Muted white
+        ctx.strokeStyle = "rgba(252, 251, 243, 0.15)";
         ctx.lineWidth = 1;
         ctx.stroke();
         ctx.restore();
       }
 
-      // Draw shadow for readability
       ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
       ctx.shadowBlur = 2;
       ctx.shadowOffsetX = 1;
@@ -142,7 +142,6 @@ export abstract class TerrainDetailObject {
       ctx.fillStyle = segment.color || COLORS.UI.TEXT_PRIMARY;
       ctx.fillText(segment.text, currentX, labelY);
       
-      // Reset shadow for next segments
       ctx.shadowColor = "transparent";
       ctx.shadowBlur = 0;
       ctx.shadowOffsetX = 0;
