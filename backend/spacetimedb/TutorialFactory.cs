@@ -9,7 +9,7 @@ public static partial class Module
     private const int TUTORIAL_HEIGHT = 12;
     private const int TUTORIAL_STARTING_HEALTH = 30;
     private const int TUTORIAL_SNIPER_AMMO = 1000;
-    private const int LESSON_LABEL_Y_POSITION = 1;
+    private const int LESSON_LABEL_Y_POSITION = 2;
 
     private static readonly (int x, int y) TUTORIAL_PLAYER_SPAWN = (3, 6);
     private static readonly (int x, int y) TUTORIAL_HEALTH_PICKUP = (6, 3);
@@ -323,7 +323,7 @@ public static partial class Module
             gridX: TUTORIAL_WIDTH / 2,
             gridY: LESSON_LABEL_Y_POSITION,
             type: TerrainDetailType.Label,
-            label: "[color=#7fbbdc]Lesson 1:[/color] Use the [color=#fceba8]`drive`[/color] command to move your tank around"
+            label: "Lesson 1: Use the [color=#fceba8]`drive`[/color] command to move your tank around"
         ));
     }
 
@@ -334,9 +334,9 @@ public static partial class Module
             id: $"{gameId}_label_health",
             gameId: gameId,
             positionX: TUTORIAL_HEALTH_PICKUP.x + 0.5f,
-            positionY: TUTORIAL_HEALTH_PICKUP.y - 1.3f,
+            positionY: TUTORIAL_HEALTH_PICKUP.y - 0.3f,
             gridX: TUTORIAL_HEALTH_PICKUP.x,
-            gridY: TUTORIAL_HEALTH_PICKUP.y - 2,
+            gridY: TUTORIAL_HEALTH_PICKUP.y - 1,
             type: TerrainDetailType.Label,
             label: "You're low on health! Use [color=#fceba8]`drive northeast 3`[/color] to pick up this health pack"
         ));
@@ -353,7 +353,7 @@ public static partial class Module
             gridX: TUTORIAL_WIDTH / 2,
             gridY: LESSON_LABEL_Y_POSITION,
             type: TerrainDetailType.Label,
-            label: "[color=#7fbbdc]Lesson 2:[/color] Use shorthands for almost everything. For example, use [color=#fceba8]`d`[/color] instead of [color=#fceba8]`drive`[/color], or [color=#fceba8]`ne`[/color] instead of [color=#fceba8]`northeast`[/color]"
+            label: "Lesson 2: Use shorthands for almost everything. For example, use [color=#fceba8]`d`[/color] instead of [color=#fceba8]`drive`[/color], or [color=#fceba8]`ne`[/color] instead of [color=#fceba8]`northeast`[/color]"
         ));
     }
 
@@ -364,9 +364,9 @@ public static partial class Module
             id: $"{gameId}_label_weapon",
             gameId: gameId,
             positionX: TUTORIAL_WEAPON_PICKUP.x + 0.5f,
-            positionY: TUTORIAL_WEAPON_PICKUP.y - 1.3f,
+            positionY: TUTORIAL_WEAPON_PICKUP.y - 0.3f,
             gridX: TUTORIAL_WEAPON_PICKUP.x,
-            gridY: TUTORIAL_WEAPON_PICKUP.y - 2,
+            gridY: TUTORIAL_WEAPON_PICKUP.y - 1,
             type: TerrainDetailType.Label,
             label: "Enemies are approaching! Use [color=#fceba8]`d se 3`[/color] to pick up this weapon"
         ));
@@ -383,7 +383,7 @@ public static partial class Module
             gridX: TUTORIAL_WIDTH / 2,
             gridY: LESSON_LABEL_Y_POSITION,
             type: TerrainDetailType.Label,
-            label: "[color=#7fbbdc]Lesson 3:[/color] Use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock onto an enemy tank and then use [color=#fceba8]`fire`[/color] ([color=#fceba8]`f`[/color]) to fire at them"
+            label: "Lesson 3: Use the [color=#fceba8]`track`[/color] command ([color=#fceba8]`t`[/color]) to lock onto an enemy tank and then use [color=#fceba8]`fire`[/color] ([color=#fceba8]`f`[/color]) to fire at them"
         ));
     }
 
@@ -394,9 +394,9 @@ public static partial class Module
             id: $"{gameId}_label_target",
             gameId: gameId,
             positionX: TUTORIAL_ENEMY_SPAWN.x + 0.5f,
-            positionY: TUTORIAL_ENEMY_SPAWN.y - 1.3f,
+            positionY: TUTORIAL_ENEMY_SPAWN.y - 0.3f,
             gridX: TUTORIAL_ENEMY_SPAWN.x,
-            gridY: TUTORIAL_ENEMY_SPAWN.y - 2,
+            gridY: TUTORIAL_ENEMY_SPAWN.y - 1,
             type: TerrainDetailType.Label,
             label: $"Target the enemy! Use [color=#fceba8]`t {targetCode}`[/color] to lock onto them"
         ));
@@ -409,9 +409,9 @@ public static partial class Module
             id: $"{gameId}_label_fire",
             gameId: gameId,
             positionX: TUTORIAL_ENEMY_SPAWN.x + 0.5f,
-            positionY: TUTORIAL_ENEMY_SPAWN.y - 1.3f,
+            positionY: TUTORIAL_ENEMY_SPAWN.y - 0.3f,
             gridX: TUTORIAL_ENEMY_SPAWN.x,
-            gridY: TUTORIAL_ENEMY_SPAWN.y - 2,
+            gridY: TUTORIAL_ENEMY_SPAWN.y - 1,
             type: TerrainDetailType.Label,
             label: "Now fire! Use [color=#fceba8]`f`[/color] repeatedly to destroy them"
         ));
@@ -424,9 +424,9 @@ public static partial class Module
             id: $"{gameId}_label_complete",
             gameId: gameId,
             positionX: TUTORIAL_WIDTH / 2.0f,
-            positionY: TUTORIAL_HEIGHT / 2.0f - 2,
+            positionY: TUTORIAL_HEIGHT / 2.0f - 1,
             gridX: TUTORIAL_WIDTH / 2,
-            gridY: TUTORIAL_HEIGHT / 2 - 2,
+            gridY: TUTORIAL_HEIGHT / 2 - 1,
             type: TerrainDetailType.Label,
             label: "Tutorial complete! Use the [color=#fceba8]`help`[/color] command to get additional information. Use [color=#fceba8]`tutorial complete`[/color] to start playing"
         ));
