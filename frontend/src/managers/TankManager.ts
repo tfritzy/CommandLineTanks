@@ -474,17 +474,20 @@ export class TankManager {
       if (tank.getHealth() <= 0) continue;
       
       const isPlayerTank = tank.id === this.playerTankId;
-      const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
-      const targetCode = tank.getTargetCode();
 
-      if (!isPlayerTank && !isFriendly && targetCode) {
-        const pos = tank.getPosition();
-        const px = pos.x * UNIT_TO_PIXEL;
-        const py = pos.y * UNIT_TO_PIXEL;
+      if (!isPlayerTank) {
+        const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
+        const targetCode = tank.getTargetCode();
         
-        if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
-        
-        ctx.fillText(targetCode, px, py - 34);
+        if (!isFriendly && targetCode) {
+          const pos = tank.getPosition();
+          const px = pos.x * UNIT_TO_PIXEL;
+          const py = pos.y * UNIT_TO_PIXEL;
+          
+          if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
+          
+          ctx.fillText(targetCode, px, py - 34);
+        }
       }
     }
 
@@ -494,8 +497,6 @@ export class TankManager {
       if (tank.getHealth() <= 0) continue;
       
       const isPlayerTank = tank.id === this.playerTankId;
-      const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
-      const targetCode = tank.getTargetCode();
 
       if (isPlayerTank) {
         ctx.save();
@@ -505,6 +506,8 @@ export class TankManager {
         ctx.fillText(tank.getName(), px, py - 27);
         ctx.restore();
       } else {
+        const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
+        const targetCode = tank.getTargetCode();
         const pos = tank.getPosition();
         const px = pos.x * UNIT_TO_PIXEL;
         const py = pos.y * UNIT_TO_PIXEL;
