@@ -60,7 +60,7 @@ public static partial class Module
         }
 
         var redirectsToDelete = new System.Collections.Generic.List<string>();
-        var oneHourAgoMicros = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch - 3_600_000_000;
+        var oneHourAgoMicros = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch - (ulong)Module.REDIRECT_CLEANUP_AGE_MICROS;
 
         foreach (var redirect in ctx.Db.game_redirect.Iter())
         {
@@ -186,6 +186,20 @@ public static partial class Module
         if (redirectPointingToGame != null)
         {
             ctx.Db.game_redirect.OldGameId.Delete(gameId);
+        }
+
+        var redirectsPointingToDeletedGame = new System.Collections.Generic.List<string>();
+        foreach (var redirect in ctx.Db.game_redirect.Iter())
+        {
+            if (redirect.NewGameId == gameId)
+            {
+                redirectsPointingToDeletedGame.Add(redirect.OldGameId);
+            }
+        }
+
+        foreach (var oldGameId in redirectsPointingToDeletedGame)
+        {
+            ctx.Db.game_redirect.OldGameId.Delete(oldGameId);
         }
 
         var gameToDelete = ctx.Db.game.Id.Find(gameId);
