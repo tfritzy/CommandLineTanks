@@ -20,9 +20,15 @@ public static partial class TerrainGenerator
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
     private const int ROTATION_WEST = 3;
-    private const int LAKE_MIN_SIZE = 4;
-    private const int LAKE_MAX_SIZE = 8;
+    private const int LAKE_MIN_SIZE = 8;
+    private const int LAKE_MAX_SIZE = 16;
     private const int NUM_LAKES = 2;
+    private const float LAKE_NOISE_OFFSET_RANGE = 1000f;
+    private const float LAKE_LARGE_NOISE_SCALE = 0.08f;
+    private const float LAKE_LARGE_NOISE_AMPLITUDE = 0.35f;
+    private const float LAKE_FINE_NOISE_SCALE = 0.3f;
+    private const float LAKE_FINE_NOISE_AMPLITUDE = 0.25f;
+    private const float LAKE_BASE_THRESHOLD = 1.0f;
     private const double ROCK_DENSITY_BASE = 0.01;
     private const double ROCK_DENSITY_VARIANCE = 0.005;
 
@@ -153,6 +159,11 @@ public static partial class TerrainGenerator
                     float radiusX = lakeWidth / 2.0f;
                     float radiusY = lakeHeight / 2.0f;
 
+                    float largeNoiseOffsetX = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
+                    float largeNoiseOffsetY = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
+                    float fineNoiseOffsetX = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
+                    float fineNoiseOffsetY = (float)(random.NextDouble() * LAKE_NOISE_OFFSET_RANGE);
+
                     for (int y = startY; y < startY + lakeHeight; y++)
                     {
                         for (int x = startX; x < startX + lakeWidth; x++)
@@ -161,8 +172,10 @@ public static partial class TerrainGenerator
                             float dy = (y + 0.5f - centerY) / radiusY;
                             float distSq = dx * dx + dy * dy;
 
-                            float noiseValue = Noise((x + 50) * 0.2f, (y + 50) * 0.2f) * 0.3f;
-                            float threshold = 0.8f + noiseValue;
+                            float largeNoiseValue = Noise((x + largeNoiseOffsetX) * LAKE_LARGE_NOISE_SCALE, (y + largeNoiseOffsetY) * LAKE_LARGE_NOISE_SCALE) * LAKE_LARGE_NOISE_AMPLITUDE;
+                            float fineNoiseValue = Noise((x + fineNoiseOffsetX) * LAKE_FINE_NOISE_SCALE, (y + fineNoiseOffsetY) * LAKE_FINE_NOISE_SCALE) * LAKE_FINE_NOISE_AMPLITUDE;
+                            float combinedNoise = largeNoiseValue + fineNoiseValue;
+                            float threshold = LAKE_BASE_THRESHOLD + combinedNoise;
 
                             if (distSq < threshold)
                             {
