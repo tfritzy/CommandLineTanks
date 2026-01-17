@@ -9,6 +9,7 @@ import { JoinGameModal } from "./JoinGameModal";
 import GameNotFound from "./GameNotFound";
 import EliminatedModal from "./EliminatedModal";
 import HomegameOverlay from "./HomegameOverlay";
+import TutorialOverlay from "./TutorialOverlay";
 import { motion, AnimatePresence } from "framer-motion";
 import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual, setPendingJoinCode } from "../spacetimedb-connection";
 import { useGameSwitcher } from "../hooks/useGameSwitcher";
@@ -275,6 +276,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
         <GameHeader gameId={gameId} />
         <ScoreBoard gameId={gameId} />
         {isHomegame && <HomegameOverlay />}
+        {isTutorialRoute && <TutorialOverlay />}
         {isTutorialRoute && (
           <div 
             className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none"
