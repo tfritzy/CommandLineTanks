@@ -485,13 +485,6 @@ export class TankManager {
         if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
         
         ctx.fillText(targetCode, px, py - 34);
-      } else if (isPlayerTank && !isFriendly && targetCode) {
-        ctx.save();
-        ctx.translate(cameraX, cameraY);
-        const px = center.x * UNIT_TO_PIXEL;
-        const py = center.y * UNIT_TO_PIXEL;
-        ctx.fillText(targetCode, px, py - 34);
-        ctx.restore();
       }
     }
 
@@ -509,11 +502,7 @@ export class TankManager {
         ctx.translate(cameraX, cameraY);
         const px = center.x * UNIT_TO_PIXEL;
         const py = center.y * UNIT_TO_PIXEL;
-        if (!isFriendly && targetCode) {
-          ctx.fillText(tank.getName(), px, py - 20);
-        } else {
-          ctx.fillText(tank.getName(), px, py - 27);
-        }
+        ctx.fillText(tank.getName(), px, py - 27);
         ctx.restore();
       } else {
         const pos = tank.getPosition();
