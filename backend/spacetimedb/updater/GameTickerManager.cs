@@ -235,20 +235,16 @@ public static partial class Module
         Log.Info($"Created new game {newGameId} from {args.GameId}. Teams randomized, {totalTanks} tanks created.");
 
         var oldGameId = args.GameId;
-        var redirectsToUpdate = new List<string>();
+        var redirectsToUpdate = new List<GameRedirect>();
         foreach (var redirect in ctx.Db.game_redirect.NewGameId.Filter(oldGameId))
         {
-            redirectsToUpdate.Add(redirect.OldGameId);
+            redirectsToUpdate.Add(redirect);
         }
 
-        foreach (var redirectOldGameId in redirectsToUpdate)
+        foreach (var redirect in redirectsToUpdate)
         {
-            var existingRedirect = ctx.Db.game_redirect.OldGameId.Find(redirectOldGameId);
-            if (existingRedirect != null)
-            {
-                var updatedRedirect = existingRedirect.Value with { NewGameId = newGameId };
-                ctx.Db.game_redirect.OldGameId.Update(updatedRedirect);
-            }
+            var updatedRedirect = redirect with { NewGameId = newGameId };
+            ctx.Db.game_redirect.OldGameId.Update(updatedRedirect);
         }
 
         ctx.Db.game_redirect.Insert(new GameRedirect
