@@ -350,22 +350,56 @@ export class TankManager {
     return this.playerTankId;
   }
 
-  public drawPaths(ctx: CanvasRenderingContext2D) {
+  public drawPaths(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
     const playerTank = this.getPlayerTank();
     if (playerTank) {
-      playerTank.drawPath(ctx);
+      const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
+      const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
+      playerTank.drawPathFrom(ctx, centerX, centerY);
     }
   }
 
-  public drawShadows(ctx: CanvasRenderingContext2D) {
+  public drawShadows(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
+    const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
+    const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
+
     for (const tank of this.tanks.values()) {
-      tank.drawShadow(ctx);
+      if (tank.id === this.playerTankId) {
+        tank.drawShadowAt(ctx, centerX, centerY);
+      } else {
+        tank.drawShadow(ctx);
+      }
     }
   }
 
-  public drawBodies(ctx: CanvasRenderingContext2D) {
+  public drawBodies(
+    ctx: CanvasRenderingContext2D,
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ) {
+    const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
+    const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
+
     for (const tank of this.tanks.values()) {
-      tank.drawBody(ctx);
+      if (tank.id === this.playerTankId) {
+        tank.drawBodyAt(ctx, centerX, centerY);
+      } else {
+        tank.drawBody(ctx);
+      }
     }
   }
 
@@ -380,6 +414,8 @@ export class TankManager {
     const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
     const paddedTop = cameraY - VIEWPORT_PADDING;
     const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
+    const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
+    const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
 
     for (const tank of this.tanks.values()) {
       const pos = tank.getPosition();
@@ -388,7 +424,11 @@ export class TankManager {
       
       if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
       
-      tank.drawHealthBar(ctx);
+      if (tank.id === this.playerTankId) {
+        tank.drawHealthBarAt(ctx, centerX, centerY);
+      } else {
+        tank.drawHealthBar(ctx);
+      }
     }
   }
 
@@ -406,6 +446,8 @@ export class TankManager {
     const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
     const paddedTop = cameraY - VIEWPORT_PADDING;
     const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
+    const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
+    const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
 
     ctx.textAlign = "center";
 
@@ -414,13 +456,20 @@ export class TankManager {
     for (const tank of this.tanks.values()) {
       if (tank.getHealth() <= 0) continue;
       
-      const pos = tank.getPosition();
-      const px = pos.x * UNIT_TO_PIXEL;
-      const py = pos.y * UNIT_TO_PIXEL;
-      
-      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
-      
       const isPlayerTank = tank.id === this.playerTankId;
+      let px: number, py: number;
+      
+      if (isPlayerTank) {
+        px = centerX * UNIT_TO_PIXEL;
+        py = centerY * UNIT_TO_PIXEL;
+      } else {
+        const pos = tank.getPosition();
+        px = pos.x * UNIT_TO_PIXEL;
+        py = pos.y * UNIT_TO_PIXEL;
+        
+        if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
+      }
+      
       const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
       const targetCode = tank.getTargetCode();
 
@@ -434,13 +483,20 @@ export class TankManager {
     for (const tank of this.tanks.values()) {
       if (tank.getHealth() <= 0) continue;
       
-      const pos = tank.getPosition();
-      const px = pos.x * UNIT_TO_PIXEL;
-      const py = pos.y * UNIT_TO_PIXEL;
-      
-      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
-      
       const isPlayerTank = tank.id === this.playerTankId;
+      let px: number, py: number;
+      
+      if (isPlayerTank) {
+        px = centerX * UNIT_TO_PIXEL;
+        py = centerY * UNIT_TO_PIXEL;
+      } else {
+        const pos = tank.getPosition();
+        px = pos.x * UNIT_TO_PIXEL;
+        py = pos.y * UNIT_TO_PIXEL;
+        
+        if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
+      }
+      
       const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
       const targetCode = tank.getTargetCode();
 

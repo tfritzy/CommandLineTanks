@@ -92,6 +92,17 @@ export class Tank {
     );
   }
 
+  public drawHealthBarAt(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    drawTankHealthBar(
+      ctx,
+      x,
+      y,
+      this.health,
+      this.maxHealth,
+      this.getAllianceColor()
+    );
+  }
+
   public drawNameLabel(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
     drawTankNameLabel(ctx, this.x, this.y, this.targetCode, this.name);
@@ -113,12 +124,33 @@ export class Tank {
     drawTankShadow(ctx, this.x, this.y);
   }
 
+  public drawShadowAt(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    if (this.health <= 0) return;
+    drawTankShadow(ctx, x, y);
+  }
+
   public drawBody(ctx: CanvasRenderingContext2D) {
     if (this.health <= 0) return;
     const isImmune = this.remainingImmunityMicros > 0;
     drawTankBody(ctx, {
       x: this.x,
       y: this.y,
+      turretRotation: this.turretRotation,
+      alliance: this.alliance,
+      flashTimer: this.flashTimer,
+      name: this.name,
+      health: this.health,
+      hasShield: this.hasShield,
+      isImmune: isImmune,
+    });
+  }
+
+  public drawBodyAt(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    if (this.health <= 0) return;
+    const isImmune = this.remainingImmunityMicros > 0;
+    drawTankBody(ctx, {
+      x: x,
+      y: y,
       turretRotation: this.turretRotation,
       alliance: this.alliance,
       flashTimer: this.flashTimer,
@@ -136,6 +168,15 @@ export class Tank {
       this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "ff" : COLORS.GAME.TEAM_BLUE_BRIGHT + "ff";
     const remainingPath = this.path.slice(this.pathIndex);
     drawTankPath(ctx, this.x, this.y, remainingPath, lineColor, dotColor);
+  }
+
+  public drawPathFrom(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    const lineColor =
+      this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "66" : COLORS.GAME.TEAM_BLUE_BRIGHT + "66";
+    const dotColor =
+      this.alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "ff" : COLORS.GAME.TEAM_BLUE_BRIGHT + "ff";
+    const remainingPath = this.path.slice(this.pathIndex);
+    drawTankPath(ctx, x, y, remainingPath, lineColor, dotColor);
   }
 
   public setPosition(x: number, y: number) {
