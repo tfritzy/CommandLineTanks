@@ -41,7 +41,7 @@ public static partial class Module
 
         var random = new Random((int)ctx.Timestamp.MicrosecondsSinceUnixEpoch);
 
-        int pickupRow = gameHeight / 2 + 5;
+        int pickupRow = PickupSpawner.GetHomegamePickupRow();
 
         for (int i = 0; i < 15; i++)
         {
