@@ -450,9 +450,9 @@ export class MiniMapManager {
     const pixelWidth = miniMapWidth / gameWidth;
     const pixelHeight = miniMapHeight / gameHeight;
 
-    ctx.fillStyle = "#fceba8";
-
     for (const pickup of this.pickupsByPosition.values()) {
+      ctx.fillStyle = pickup.type.tag === "Health" ? "#6ec077" : "#fceba8";
+      
       const x = miniMapX + pickup.gridX * pixelWidth;
       const y = miniMapY + pickup.gridY * pixelHeight;
       const w = Math.ceil(pixelWidth);
