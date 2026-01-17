@@ -3,12 +3,14 @@ import { TankManager } from "./TankManager";
 import { getConnection } from "../spacetimedb-connection";
 import { type EventContext, type TerrainDetailRow, type PickupRow } from "../../module_bindings";
 import GameRow from "../../module_bindings/game_type";
+import GameType from "../../module_bindings/game_type_type";
 import { type Infer } from "spacetimedb";
 import { BaseTerrain } from "../../module_bindings";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 import { COLORS } from "../theme/colors";
 
 type BaseTerrainType = Infer<typeof BaseTerrain>;
+type GameTypeType = Infer<typeof GameType>;
 
 export class MiniMapManager {
   private tankManager: TankManager;
@@ -26,6 +28,7 @@ export class MiniMapManager {
   private lastDpr: number = 0;
   private gameWidth: number = 0;
   private gameHeight: number = 0;
+  private gameType: GameTypeType | null = null;
   private baseTerrainLayer: BaseTerrainType[] = [];
   private terrainDetailsByPosition: Map<string, Infer<typeof TerrainDetailRow>> = new Map();
   private pickupsByPosition: Map<string, Infer<typeof PickupRow>> = new Map();
@@ -52,6 +55,7 @@ export class MiniMapManager {
       this.gameWidth = game.width;
       this.gameHeight = game.height;
       this.baseTerrainLayer = game.baseTerrainLayer;
+      this.gameType = game.gameType;
       this.markForRedraw();
     };
 
@@ -297,7 +301,9 @@ export class MiniMapManager {
     this.baseLayerContext.imageSmoothingEnabled = false;
 
     this.drawTerrain(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, gameWidth, gameHeight);
-    this.drawSpawnZones(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, gameWidth, gameHeight);
+    if (this.gameType?.tag === "Game") {
+      this.drawSpawnZones(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, gameWidth, gameHeight);
+    }
     this.drawPickups(this.baseLayerContext, 0, 0, miniMapWidth, miniMapHeight, gameWidth, gameHeight);
   }
 
