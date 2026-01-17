@@ -15,7 +15,7 @@ import TankTransformRow from "../../module_bindings/tank_transform_type";
 import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
 import TankPathRow from "../../module_bindings/tank_path_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
-import { drawTankShadow, drawTankBody, drawTankHealthBar } from "../drawing/tanks/tank";
+import { drawTankShadow, drawTankBody, drawTankHealthBar, drawTankNameLabel } from "../drawing/tanks/tank";
 
 const VIEWPORT_PADDING = 100;
 
@@ -501,15 +501,7 @@ export class TankManager {
         const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         
-        const originalX = tank['x'];
-        const originalY = tank['y'];
-        tank['x'] = centerX;
-        tank['y'] = centerY;
-        
-        tank.drawNameLabelWithoutTargetCode(ctx);
-        
-        tank['x'] = originalX;
-        tank['y'] = originalY;
+        drawTankNameLabel(ctx, centerX, centerY, "", tank.getName());
         
         ctx.setTransform(oldTransform);
       } else {
