@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /deploy
+Disallow: /game/
+
+Sitemap: https://cltanks.io/sitemap.xml
