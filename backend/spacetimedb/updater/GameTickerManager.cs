@@ -269,25 +269,25 @@ public static partial class Module
         var newGameId = Module.GenerateGameId(ctx);
         var newGame = CreateGame(ctx, newGameId, baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap, width, height, oldGame.Value.Visibility, oldGame.Value.GameDurationMicros, oldGame.Value.Owner);
 
-        int botsPerTeam;
+        int totalBotCount;
         if (oldGame.Value.Visibility == GameVisibility.Private)
         {
-            int oldBotCount = 0;
+            totalBotCount = 0;
             foreach (var tank in ctx.Db.tank.GameId.Filter(args.GameId))
             {
                 if (tank.IsBot)
                 {
-                    oldBotCount++;
+                    totalBotCount++;
                 }
             }
-            botsPerTeam = oldBotCount / 2;
         }
         else
         {
-            botsPerTeam = ctx.Rng.Next(2, 6);
+            int botsPerTeam = ctx.Rng.Next(2, 6);
+            totalBotCount = botsPerTeam * 2;
         }
 
-        SpawnInitialBots(ctx, newGameId, newGame, botsPerTeam);
+        SpawnInitialBots(ctx, newGameId, newGame, totalBotCount);
         var shuffledIndices = new int[totalTanks];
         for (int i = 0; i < totalTanks; i++)
         {
