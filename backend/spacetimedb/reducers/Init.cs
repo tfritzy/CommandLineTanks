@@ -19,11 +19,11 @@ public static partial class Module
         });
     }
 
-    public static void SpawnInitialBots(ReducerContext ctx, string gameId, Game game)
+    public static void SpawnInitialBots(ReducerContext ctx, string gameId, Game game, int botsPerTeam = 2)
     {
         for (int alliance = 0; alliance < 2; alliance++)
         {
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < botsPerTeam; i++)
             {
                 var targetCode = AllocateTargetCode(ctx, gameId);
                 if (targetCode == null) continue;
