@@ -350,6 +350,18 @@ export class TankManager {
     return this.playerTankId;
   }
 
+  private getScreenCenterPosition(
+    cameraX: number,
+    cameraY: number,
+    viewportWidth: number,
+    viewportHeight: number
+  ): { x: number; y: number } {
+    return {
+      x: (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL,
+      y: (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL
+    };
+  }
+
   public drawPaths(
     ctx: CanvasRenderingContext2D,
     cameraX: number,
@@ -359,9 +371,8 @@ export class TankManager {
   ) {
     const playerTank = this.getPlayerTank();
     if (playerTank) {
-      const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
-      const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
-      playerTank.drawPathFrom(ctx, centerX, centerY);
+      const center = this.getScreenCenterPosition(cameraX, cameraY, viewportWidth, viewportHeight);
+      playerTank.drawPathFrom(ctx, center.x, center.y);
     }
   }
 
@@ -372,12 +383,11 @@ export class TankManager {
     viewportWidth: number,
     viewportHeight: number
   ) {
-    const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
-    const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
+    const center = this.getScreenCenterPosition(cameraX, cameraY, viewportWidth, viewportHeight);
 
     for (const tank of this.tanks.values()) {
       if (tank.id === this.playerTankId) {
-        tank.drawShadowAt(ctx, centerX, centerY);
+        tank.drawShadowAt(ctx, center.x, center.y);
       } else {
         tank.drawShadow(ctx);
       }
@@ -391,12 +401,11 @@ export class TankManager {
     viewportWidth: number,
     viewportHeight: number
   ) {
-    const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
-    const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
+    const center = this.getScreenCenterPosition(cameraX, cameraY, viewportWidth, viewportHeight);
 
     for (const tank of this.tanks.values()) {
       if (tank.id === this.playerTankId) {
-        tank.drawBodyAt(ctx, centerX, centerY);
+        tank.drawBodyAt(ctx, center.x, center.y);
       } else {
         tank.drawBody(ctx);
       }
@@ -414,8 +423,7 @@ export class TankManager {
     const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
     const paddedTop = cameraY - VIEWPORT_PADDING;
     const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
-    const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
-    const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
+    const center = this.getScreenCenterPosition(cameraX, cameraY, viewportWidth, viewportHeight);
 
     for (const tank of this.tanks.values()) {
       const pos = tank.getPosition();
@@ -425,7 +433,7 @@ export class TankManager {
       if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
       
       if (tank.id === this.playerTankId) {
-        tank.drawHealthBarAt(ctx, centerX, centerY);
+        tank.drawHealthBarAt(ctx, center.x, center.y);
       } else {
         tank.drawHealthBar(ctx);
       }
@@ -446,8 +454,7 @@ export class TankManager {
     const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
     const paddedTop = cameraY - VIEWPORT_PADDING;
     const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
-    const centerX = (cameraX + viewportWidth / 2) / UNIT_TO_PIXEL;
-    const centerY = (cameraY + viewportHeight / 2) / UNIT_TO_PIXEL;
+    const center = this.getScreenCenterPosition(cameraX, cameraY, viewportWidth, viewportHeight);
 
     ctx.textAlign = "center";
 
@@ -460,8 +467,8 @@ export class TankManager {
       let px: number, py: number;
       
       if (isPlayerTank) {
-        px = centerX * UNIT_TO_PIXEL;
-        py = centerY * UNIT_TO_PIXEL;
+        px = center.x * UNIT_TO_PIXEL;
+        py = center.y * UNIT_TO_PIXEL;
       } else {
         const pos = tank.getPosition();
         px = pos.x * UNIT_TO_PIXEL;
@@ -487,8 +494,8 @@ export class TankManager {
       let px: number, py: number;
       
       if (isPlayerTank) {
-        px = centerX * UNIT_TO_PIXEL;
-        py = centerY * UNIT_TO_PIXEL;
+        px = center.x * UNIT_TO_PIXEL;
+        py = center.y * UNIT_TO_PIXEL;
       } else {
         const pos = tank.getPosition();
         px = pos.x * UNIT_TO_PIXEL;
