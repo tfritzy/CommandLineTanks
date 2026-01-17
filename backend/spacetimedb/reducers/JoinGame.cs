@@ -29,6 +29,9 @@ public static partial class Module
                 var height = TerrainGenerator.GetGameHeight();
                 var (baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
+                int botsPerTeam = ctx.Rng.Next(2, 6);
+                int minPlayersPerTeam = botsPerTeam;
+
                 game = CreateGame(
                     ctx,
                     newGameId,
@@ -38,10 +41,10 @@ public static partial class Module
                     projectileTraversibilityMap,
                     width,
                     height,
-                    GameVisibility.Public
+                    GameVisibility.Public,
+                    minPlayersPerTeam: minPlayersPerTeam
                 );
 
-                int botsPerTeam = ctx.Rng.Next(2, 6);
                 int totalBotCount = botsPerTeam * 2;
                 SpawnInitialBots(ctx, newGameId, game.Value, totalBotCount);
             }

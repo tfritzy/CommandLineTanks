@@ -31,6 +31,8 @@ public static partial class Module
 
         var (baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
+        int minPlayersPerTeam = botCount / 2;
+
         var game = CreateGame(
             ctx,
             gameId,
@@ -42,7 +44,8 @@ public static partial class Module
             height,
             visibility,
             gameDurationMicros,
-            ctx.Sender
+            ctx.Sender,
+            minPlayersPerTeam
         );
 
         CleanupHomegameAndJoinCommand(ctx, game.Id, joinCode);

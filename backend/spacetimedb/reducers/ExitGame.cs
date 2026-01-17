@@ -18,6 +18,7 @@ public static partial class Module
         if (currentTank.Id != null)
         {
             RemoveTankFromGame(ctx, currentTank);
+            EnsureMinimumPlayersPerTeam(ctx, gameId);
         }
 
         ReturnToHomegame(ctx, joinCode);

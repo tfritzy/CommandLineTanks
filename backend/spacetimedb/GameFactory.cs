@@ -14,7 +14,8 @@ public static partial class Module
         int height,
         GameVisibility visibility = GameVisibility.Public,
         long? gameDurationMicros = null,
-        Identity? owner = null)
+        Identity? owner = null,
+        int minPlayersPerTeam = 0)
     {
         var duration = gameDurationMicros ?? GAME_DURATION_MICROS;
         
@@ -33,6 +34,7 @@ public static partial class Module
             MaxPlayers = 8,
             CurrentPlayerCount = 0,
             BotCount = 0,
+            MinPlayersPerTeam = minPlayersPerTeam,
             Owner = owner
         };
 
