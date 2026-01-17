@@ -6,6 +6,9 @@ import { COLORS } from "../../theme/colors";
 
 const HEADER_FONT_SIZE_MULTIPLIER = 1.2;
 
+type LabelSegment = { text: string; color?: string; isCode: boolean; isHeader: boolean };
+type ParsedLabel = { segments: LabelSegment[]; isHeaderLabel: boolean };
+
 export abstract class TerrainDetailObject {
   public arrayIndex: number = -1;
   protected x: number;
@@ -56,8 +59,8 @@ export abstract class TerrainDetailObject {
 
   public abstract drawBody(ctx: CanvasRenderingContext2D): void;
 
-  private parseLabel(label: string): { segments: { text: string; color?: string; isCode: boolean; isHeader: boolean }[]; isHeaderLabel: boolean } {
-    const segments: { text: string; color?: string; isCode: boolean; isHeader: boolean }[] = [];
+  private parseLabel(label: string): ParsedLabel {
+    const segments: LabelSegment[] = [];
     const regex = /(\[header\]|\[color=#[0-9a-fA-F]{6}\]|\[\/color\]|`)/g;
     const parts = label.split(regex);
 
