@@ -187,31 +187,13 @@ export class Game {
     );
 
     this.profiler.profile("tank_paths", () =>
-      this.tankManager.drawPaths(
-        this.ctx,
-        this.currentCameraX,
-        this.currentCameraY,
-        displayWidth,
-        displayHeight
-      )
+      this.tankManager.drawPaths(this.ctx, displayWidth, displayHeight)
     );
     this.profiler.profile("tank_shadows", () =>
-      this.tankManager.drawShadows(
-        this.ctx,
-        this.currentCameraX,
-        this.currentCameraY,
-        displayWidth,
-        displayHeight
-      )
+      this.tankManager.drawShadows(this.ctx, displayWidth, displayHeight)
     );
     this.profiler.profile("tank_bodies", () =>
-      this.tankManager.drawBodies(
-        this.ctx,
-        this.currentCameraX,
-        this.currentCameraY,
-        displayWidth,
-        displayHeight
-      )
+      this.tankManager.drawBodies(this.ctx, displayWidth, displayHeight)
     );
 
     this.profiler.profile("tank_particles", () =>

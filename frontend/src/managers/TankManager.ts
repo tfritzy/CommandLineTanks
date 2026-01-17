@@ -7,7 +7,7 @@ import { TargetingReticle } from "../objects/TargetingReticle";
 import { ScreenShake } from "../utils/ScreenShake";
 import { MuzzleFlashParticlesManager } from "./MuzzleFlashParticlesManager";
 import { GUN_BARREL_LENGTH, UNIT_TO_PIXEL } from "../constants";
-import { COLORS } from "../theme/colors";
+import { COLORS, PALETTE } from "../theme/colors";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
@@ -350,49 +350,70 @@ export class TankManager {
     return this.playerTankId;
   }
 
-  private getScreenCenterPosition(
-    viewportWidth: number,
-    viewportHeight: number
-  ): { x: number; y: number } {
-    return {
-      x: (viewportWidth / 2) / UNIT_TO_PIXEL,
-      y: (viewportHeight / 2) / UNIT_TO_PIXEL
-    };
-  }
-
-  public drawPaths(
-    ctx: CanvasRenderingContext2D,
-    _cameraX: number,
-    _cameraY: number,
-    viewportWidth: number,
-    viewportHeight: number
-  ) {
+  public drawPaths(ctx: CanvasRenderingContext2D, viewportWidth: number, viewportHeight: number) {
     const playerTank = this.getPlayerTank();
     if (playerTank) {
-      const center = this.getScreenCenterPosition(viewportWidth, viewportHeight);
       const dpr = window.devicePixelRatio || 1;
       const oldTransform = ctx.getTransform();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      playerTank.drawPathFrom(ctx, center.x, center.y);
+      
+      const centerX = viewportWidth / 2 / UNIT_TO_PIXEL;
+      const centerY = viewportHeight / 2 / UNIT_TO_PIXEL;
+      const lineColor = playerTank.getAlliance() === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "66" : COLORS.GAME.TEAM_BLUE_BRIGHT + "66";
+      const dotColor = playerTank.getAlliance() === 0 ? COLORS.GAME.TEAM_RED_BRIGHT + "ff" : COLORS.GAME.TEAM_BLUE_BRIGHT + "ff";
+      const path = playerTank['path'];
+      const pathIndex = playerTank['pathIndex'];
+      const remainingPath = path.slice(pathIndex);
+      
+      if (remainingPath.length > 0) {
+        const dotRadius = 5;
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        const startX = centerX * UNIT_TO_PIXEL;
+        const startY = centerY * UNIT_TO_PIXEL;
+        ctx.moveTo(startX, startY);
+        
+        for (const pathEntry of remainingPath) {
+          const gameX = pathEntry.x * UNIT_TO_PIXEL;
+          const gameY = pathEntry.y * UNIT_TO_PIXEL;
+          ctx.lineTo(gameX, gameY);
+        }
+        
+        ctx.stroke();
+        
+        const lastEntry = remainingPath[remainingPath.length - 1];
+        const endX = lastEntry.x * UNIT_TO_PIXEL;
+        const endY = lastEntry.y * UNIT_TO_PIXEL;
+        
+        ctx.fillStyle = dotColor;
+        ctx.beginPath();
+        ctx.arc(endX, endY, dotRadius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
       ctx.setTransform(oldTransform);
     }
   }
 
-  public drawShadows(
-    ctx: CanvasRenderingContext2D,
-    _cameraX: number,
-    _cameraY: number,
-    viewportWidth: number,
-    viewportHeight: number
-  ) {
-    const center = this.getScreenCenterPosition(viewportWidth, viewportHeight);
-
+  public drawShadows(ctx: CanvasRenderingContext2D, viewportWidth: number, viewportHeight: number) {
+    const dpr = window.devicePixelRatio || 1;
+    const centerX = viewportWidth / 2 / UNIT_TO_PIXEL;
+    const centerY = viewportHeight / 2 / UNIT_TO_PIXEL;
+    
     for (const tank of this.tanks.values()) {
-      if (tank.id === this.playerTankId) {
-        const dpr = window.devicePixelRatio || 1;
+      if (tank.id === this.playerTankId && tank.getHealth() > 0) {
         const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        tank.drawShadowAt(ctx, center.x, center.y);
+        
+        const px = centerX * UNIT_TO_PIXEL - 2;
+        const py = centerY * UNIT_TO_PIXEL + 2;
+        ctx.fillStyle = PALETTE.TRANSPARENT_SHADOW;
+        ctx.beginPath();
+        ctx.roundRect(px - 16, py - 16, 32, 32, 5);
+        ctx.fill();
+        
         ctx.setTransform(oldTransform);
       } else {
         tank.drawShadow(ctx);
@@ -400,21 +421,113 @@ export class TankManager {
     }
   }
 
-  public drawBodies(
-    ctx: CanvasRenderingContext2D,
-    _cameraX: number,
-    _cameraY: number,
-    viewportWidth: number,
-    viewportHeight: number
-  ) {
-    const center = this.getScreenCenterPosition(viewportWidth, viewportHeight);
-
+  public drawBodies(ctx: CanvasRenderingContext2D, viewportWidth: number, viewportHeight: number) {
+    const dpr = window.devicePixelRatio || 1;
+    const centerX = viewportWidth / 2 / UNIT_TO_PIXEL;
+    const centerY = viewportHeight / 2 / UNIT_TO_PIXEL;
+    
     for (const tank of this.tanks.values()) {
-      if (tank.id === this.playerTankId) {
-        const dpr = window.devicePixelRatio || 1;
+      if (tank.id === this.playerTankId && tank.getHealth() > 0) {
         const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        tank.drawBodyAt(ctx, center.x, center.y);
+        
+        const turretRotation = tank.getTurretRotation();
+        const alliance = tank.getAlliance();
+        const hasShield = tank['hasShield'];
+        const isImmune = tank['remainingImmunityMicros'] > 0;
+        const flashTimer = tank['flashTimer'];
+        
+        const allianceColor = alliance === 0 ? COLORS.GAME.TEAM_RED_BRIGHT : COLORS.GAME.TEAM_BLUE_BRIGHT;
+        const baseBorderColor = alliance === 0 ? "#330000" : "#000033";
+        let bodyColor = allianceColor;
+        let borderColor = baseBorderColor;
+        
+        if (flashTimer > 0) {
+          const flashProgress = flashTimer / 0.15;
+          const flashColorValue = Math.floor(flashProgress * 255);
+          bodyColor = `rgb(${flashColorValue}, ${flashColorValue}, ${flashColorValue})`;
+          borderColor = `rgb(${Math.floor(flashColorValue * 0.5)}, ${Math.floor(flashColorValue * 0.5)}, ${Math.floor(flashColorValue * 0.5)})`;
+        }
+        
+        if (isImmune) {
+          const flashCycle = Date.now() / 1000 / 0.2;
+          const lerpAmount = Math.abs(Math.sin(flashCycle * Math.PI)) * 0.5 + 0.5;
+          const groundColor = COLORS.TERRAIN.GROUND;
+          const parseColor = (c: string) => {
+            if (c.startsWith('#')) {
+              const r = parseInt(c.slice(1, 3), 16);
+              const g = parseInt(c.slice(3, 5), 16);
+              const b = parseInt(c.slice(5, 7), 16);
+              return [r, g, b];
+            }
+            return [0, 0, 0];
+          };
+          const [gr, gg, gb] = parseColor(groundColor);
+          const [br, bg, bb] = parseColor(bodyColor);
+          const nr = Math.floor(gr + (br - gr) * lerpAmount);
+          const ng = Math.floor(gg + (bg - gg) * lerpAmount);
+          const nb = Math.floor(gb + (bb - gb) * lerpAmount);
+          bodyColor = `rgb(${nr}, ${ng}, ${nb})`;
+          borderColor = `rgb(${Math.floor(nr * 0.5)}, ${Math.floor(ng * 0.5)}, ${Math.floor(nb * 0.5)})`;
+        }
+        
+        const px = Math.floor(centerX * UNIT_TO_PIXEL);
+        const py = Math.floor(centerY * UNIT_TO_PIXEL);
+        
+        ctx.fillStyle = bodyColor;
+        ctx.beginPath();
+        ctx.roundRect(px - 15, py - 15, 30, 30, 5);
+        ctx.fill();
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+        ctx.save();
+        ctx.translate(px - 2, py + 2);
+        ctx.rotate(turretRotation);
+        ctx.beginPath();
+        ctx.roundRect(0, -5, 24, 10, 3);
+        ctx.fill();
+        ctx.restore();
+        
+        ctx.save();
+        ctx.translate(px - 1.5, py + 1.5);
+        ctx.rotate(turretRotation);
+        ctx.beginPath();
+        ctx.arc(0, 0, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(turretRotation);
+        
+        ctx.fillStyle = bodyColor;
+        ctx.strokeStyle = borderColor;
+        ctx.beginPath();
+        ctx.roundRect(0, -5, 24, 10, 3);
+        ctx.fill();
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.arc(0, 0, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        
+        if (hasShield) {
+          const shieldSize = 40;
+          const shieldHalfSize = shieldSize / 2;
+          ctx.strokeStyle = COLORS.TERMINAL.INFO;
+          ctx.lineWidth = 2;
+          ctx.fillStyle = "rgba(115, 150, 213, 0.25)";
+          ctx.beginPath();
+          ctx.roundRect(px - shieldHalfSize, py - shieldHalfSize, shieldSize, shieldSize, 5);
+          ctx.fill();
+          ctx.stroke();
+        }
+        
         ctx.setTransform(oldTransform);
       } else {
         tank.drawBody(ctx);
@@ -433,22 +546,44 @@ export class TankManager {
     const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
     const paddedTop = cameraY - VIEWPORT_PADDING;
     const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
-    const center = this.getScreenCenterPosition(viewportWidth, viewportHeight);
+    const dpr = window.devicePixelRatio || 1;
+    const centerX = viewportWidth / 2 / UNIT_TO_PIXEL;
+    const centerY = viewportHeight / 2 / UNIT_TO_PIXEL;
 
     for (const tank of this.tanks.values()) {
-      const pos = tank.getPosition();
-      const px = pos.x * UNIT_TO_PIXEL;
-      const py = pos.y * UNIT_TO_PIXEL;
-      
-      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
-      
-      if (tank.id === this.playerTankId) {
-        const dpr = window.devicePixelRatio || 1;
+      if (tank.id === this.playerTankId && tank.getHealth() > 0) {
         const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        tank.drawHealthBarAt(ctx, center.x, center.y);
+        
+        const health = tank.getHealth();
+        const maxHealth = tank['maxHealth'];
+        if (health > 0 && health < maxHealth) {
+          const px = centerX * UNIT_TO_PIXEL;
+          const py = centerY * UNIT_TO_PIXEL;
+          const allianceColor = tank.getAllianceColor();
+          
+          ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+          ctx.beginPath();
+          ctx.roundRect(px - 16, py + 24, 32, 4, 2);
+          ctx.fill();
+          
+          const healthPercent = health / maxHealth;
+          const healthBarWidth = 30 * healthPercent;
+          
+          ctx.fillStyle = allianceColor;
+          ctx.beginPath();
+          ctx.roundRect(px - 15, py + 25, healthBarWidth, 2, 2);
+          ctx.fill();
+        }
+        
         ctx.setTransform(oldTransform);
       } else {
+        const pos = tank.getPosition();
+        const px = pos.x * UNIT_TO_PIXEL;
+        const py = pos.y * UNIT_TO_PIXEL;
+        
+        if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
+        
         tank.drawHealthBar(ctx);
       }
     }
@@ -468,7 +603,9 @@ export class TankManager {
     const paddedRight = cameraX + viewportWidth + VIEWPORT_PADDING;
     const paddedTop = cameraY - VIEWPORT_PADDING;
     const paddedBottom = cameraY + viewportHeight + VIEWPORT_PADDING;
-    const center = this.getScreenCenterPosition(viewportWidth, viewportHeight);
+    const dpr = window.devicePixelRatio || 1;
+    const centerX = viewportWidth / 2 / UNIT_TO_PIXEL;
+    const centerY = viewportHeight / 2 / UNIT_TO_PIXEL;
 
     ctx.textAlign = "center";
 
@@ -478,20 +615,19 @@ export class TankManager {
       if (tank.getHealth() <= 0) continue;
       
       const isPlayerTank = tank.id === this.playerTankId;
+      if (isPlayerTank) continue;
+      
+      const pos = tank.getPosition();
+      const px = pos.x * UNIT_TO_PIXEL;
+      const py = pos.y * UNIT_TO_PIXEL;
+      
+      if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
+      
+      const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
+      const targetCode = tank.getTargetCode();
 
-      if (!isPlayerTank) {
-        const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
-        const targetCode = tank.getTargetCode();
-        
-        if (!isFriendly && targetCode) {
-          const pos = tank.getPosition();
-          const px = pos.x * UNIT_TO_PIXEL;
-          const py = pos.y * UNIT_TO_PIXEL;
-          
-          if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
-          
-          ctx.fillText(targetCode, px, py - 34);
-        }
+      if (!isFriendly && targetCode) {
+        ctx.fillText(targetCode, px, py - 34);
       }
     }
 
@@ -501,24 +637,24 @@ export class TankManager {
       if (tank.getHealth() <= 0) continue;
       
       const isPlayerTank = tank.id === this.playerTankId;
-
+      
       if (isPlayerTank) {
-        const dpr = window.devicePixelRatio || 1;
         const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        const px = center.x * UNIT_TO_PIXEL;
-        const py = center.y * UNIT_TO_PIXEL;
+        const px = centerX * UNIT_TO_PIXEL;
+        const py = centerY * UNIT_TO_PIXEL;
         ctx.fillText(tank.getName(), px, py - 27);
         ctx.setTransform(oldTransform);
       } else {
-        const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
-        const targetCode = tank.getTargetCode();
         const pos = tank.getPosition();
         const px = pos.x * UNIT_TO_PIXEL;
         const py = pos.y * UNIT_TO_PIXEL;
         
         if (px < paddedLeft || px > paddedRight || py < paddedTop || py > paddedBottom) continue;
         
+        const isFriendly = playerAlliance !== null && tank.getAlliance() === playerAlliance;
+        const targetCode = tank.getTargetCode();
+
         if (!isFriendly && targetCode) {
           ctx.fillText(tank.getName(), px, py - 20);
         } else {
