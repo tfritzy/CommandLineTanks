@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
+import { getConnection, getIdentityHex } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
 import { type EventContext } from "../../module_bindings";
@@ -49,7 +49,8 @@ export default function ScoreBoard({ gameId, isTutorial }: ScoreBoardProps) {
   const subscriptionRef = useRef<TableSubscription<typeof TankRow> | null>(null);
   const cachedOwnerHexStrings = useRef<Map<string, string>>(new Map());
 
-  const isHomegame = isCurrentIdentity(gameId);
+  const myIdentity = getIdentityHex();
+  const isHomegame = myIdentity && gameId?.toLowerCase().includes(myIdentity.toLowerCase());
 
   useEffect(() => {
     if (!connection || isHomegame) return;

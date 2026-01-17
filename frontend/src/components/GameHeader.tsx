@@ -57,7 +57,8 @@ export default function GameHeader({ gameId, isTutorial }: GameHeaderProps) {
   const connection = getConnection();
   const isHomegame = useMemo(() => {
     if (!connection?.identity) return false;
-    return gameId === getIdentityHex();
+    const identity = getIdentityHex();
+    return identity && gameId?.toLowerCase().includes(identity.toLowerCase());
   }, [connection, gameId]);
 
   useEffect(() => {

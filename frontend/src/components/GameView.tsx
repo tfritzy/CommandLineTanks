@@ -37,7 +37,7 @@ export default function GameView() {
   const [gameNotFound, setGameNotFound] = useState(false);
 
   const myIdentity = getIdentityHex();
-  const isHomegame = myIdentity && gameId?.toLowerCase() === myIdentity.toLowerCase();
+  const isHomegame = myIdentity && gameId?.toLowerCase().includes(myIdentity.toLowerCase());
   const isTutorial = location.pathname.includes('/tutorial/');
 
   const joinModalStatus = useJoinModalStatus(gameId);
