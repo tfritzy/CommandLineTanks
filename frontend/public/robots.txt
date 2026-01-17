@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /deploy
 Disallow: /game/
+Disallow: /tutorial
 
 Sitemap: https://cltanks.io/sitemap.xml
