@@ -311,4 +311,20 @@ export class Tank {
   public getName(): string {
     return this.name;
   }
+
+  public getMaxHealth(): number {
+    return this.maxHealth;
+  }
+
+  public getFlashTimer(): number {
+    return this.flashTimer;
+  }
+
+  public getHasShield(): boolean {
+    return this.hasShield;
+  }
+
+  public isImmune(): boolean {
+    return this.remainingImmunityMicros > 0;
+  }
 }

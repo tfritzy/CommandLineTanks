@@ -190,10 +190,10 @@ export class Game {
       this.tankManager.drawPaths(this.ctx)
     );
     this.profiler.profile("tank_shadows", () =>
-      this.tankManager.drawShadows(this.ctx)
+      this.tankManager.drawShadows(this.ctx, displayWidth, displayHeight)
     );
     this.profiler.profile("tank_bodies", () =>
-      this.tankManager.drawBodies(this.ctx)
+      this.tankManager.drawBodies(this.ctx, displayWidth, displayHeight)
     );
 
     this.profiler.profile("tank_particles", () =>
