@@ -234,6 +234,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       `  ${themeColors.command("switch")}, ${themeColors.command("w")}            Switch to a different gun`,
       `  ${themeColors.command("respawn")}              Respawn after death`,
       `  ${themeColors.command("tanks")}                Display all tanks in the game with statistics`,
+      `  ${themeColors.command("say")}                  Send a message to all players in the game`,
       `  ${themeColors.command("name")}                 View or change your player name`,
       `  ${themeColors.command("create")}               Create a new game game with optional flags`,
       `  ${themeColors.command("join")}                 Join or create a game game (default: random)`,
@@ -486,6 +487,25 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  tanks",
+      ];
+
+    case "say":
+      return [
+        "say - Send a message to all players in the game",
+        "",
+        "Usage: say <message>",
+        "",
+        "Arguments:",
+        "  <message>     Message to send (max 200 characters)",
+        "                Use quotes for messages with special characters",
+        "",
+        "Sends a message to all players in your current game.",
+        "The message will be inserted into the messages table.",
+        "",
+        "Examples:",
+        "  say Hello everyone!",
+        "  say \"Good game!\"",
+        "  say 'Watch out for enemy tanks'",
       ];
 
     default:
@@ -1265,5 +1285,44 @@ export function tutorial(
     themeColors.dim("Usage: tutorial complete"),
     themeColors.dim("       tutorial skip"),
   ];
+}
+
+export function say(
+  connection: DbConnection,
+  gameId: string,
+  args: string[]
+): string[] {
+  if (args.length < 1) {
+    return [
+      themeColors.error("say: error: missing required argument '<message>'"),
+      "",
+      themeColors.dim("Usage: say <message>"),
+      themeColors.dim("Examples:"),
+      themeColors.dim("  say Hello everyone!"),
+      themeColors.dim("  say 'Message with spaces'"),
+    ];
+  }
+
+  const message = args.join(" ").trim();
+
+  if (message.length === 0) {
+    return [
+      themeColors.error("say: error: message cannot be empty"),
+      "",
+      themeColors.dim("Usage: say <message>"),
+    ];
+  }
+
+  if (message.length > 200) {
+    return [
+      themeColors.error("say: error: message too long (max 200 characters)"),
+      "",
+      themeColors.dim(`Your message has ${themeColors.value(message.length.toString())} characters`),
+    ];
+  }
+
+  connection.reducers.say({ gameId, message });
+
+  return [themeColors.success(`Message sent: ${themeColors.value(message)}`)];
 }
 
