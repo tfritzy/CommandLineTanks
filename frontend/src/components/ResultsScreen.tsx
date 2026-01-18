@@ -20,6 +20,7 @@ interface CombinedTankData {
     kills: number;
     deaths: number;
     alliance: number;
+    isBot: boolean;
 }
 
 export default function ResultsScreen({ gameId }: ResultsScreenProps) {
@@ -64,6 +65,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                     kills: tank.kills,
                     deaths: tank.deaths,
                     alliance: tank.alliance,
+                    isBot: tank.isBot,
                 });
             }
             setTanks(combinedTanks);
@@ -219,9 +221,10 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                         <div className="flex flex-col gap-1">
                             {team0Tanks.map((tank) => {
                                 const kdr = tank.deaths === 0 ? tank.kills.toFixed(1) : (tank.kills / tank.deaths).toFixed(1);
+                                const displayName = tank.isBot ? `[BOT] ${tank.name}` : tank.name;
                                 return (
                                     <div key={tank.id} className="grid grid-cols-[1fr_40px_40px_50px] gap-2 items-center text-[13px] text-ui-text-primary py-1 font-medium text-right">
-                                        <span className="opacity-80 text-left overflow-hidden text-ellipsis whitespace-nowrap">{tank.name}</span>
+                                        <span className="opacity-80 text-left overflow-hidden text-ellipsis whitespace-nowrap">{displayName}</span>
                                         <span className="opacity-40">{kdr}</span>
                                         <span className="opacity-40">{tank.deaths}</span>
                                         <span className="text-palette-orange-medium font-extrabold text-[15px]">{tank.kills}</span>
@@ -241,9 +244,10 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                         <div className="flex flex-col gap-1">
                             {team1Tanks.map((tank) => {
                                 const kdr = tank.deaths === 0 ? tank.kills.toFixed(1) : (tank.kills / tank.deaths).toFixed(1);
+                                const displayName = tank.isBot ? `[BOT] ${tank.name}` : tank.name;
                                 return (
                                     <div key={tank.id} className="grid grid-cols-[1fr_40px_40px_50px] gap-2 items-center text-[13px] text-ui-text-primary py-1 font-medium text-right">
-                                        <span className="opacity-80 text-left overflow-hidden text-ellipsis whitespace-nowrap">{tank.name}</span>
+                                        <span className="opacity-80 text-left overflow-hidden text-ellipsis whitespace-nowrap">{displayName}</span>
                                         <span className="opacity-40">{kdr}</span>
                                         <span className="opacity-40">{tank.deaths}</span>
                                         <span className="text-palette-blue-bright font-extrabold text-[15px]">{tank.kills}</span>

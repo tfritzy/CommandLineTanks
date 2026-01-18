@@ -16,6 +16,8 @@ public static partial class Module
 
         public string KilleeName;
 
+        public bool KilleeIsBot;
+
         public ulong Timestamp;
     }
 }

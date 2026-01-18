@@ -67,6 +67,7 @@ public static partial class Module
                     GameId = gameId,
                     Killer = shooterTankQuery.Value.Owner,
                     KilleeName = killeeName,
+                    KilleeIsBot = tank.IsBot,
                     Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
                 });
 

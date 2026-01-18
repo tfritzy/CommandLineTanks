@@ -3,6 +3,7 @@ import { COLORS } from "../../theme/colors";
 export function drawKillNotification(
   ctx: CanvasRenderingContext2D,
   killeeName: string,
+  killeeIsBot: boolean,
   displayTime: number,
   x: number,
   y: number,
@@ -47,11 +48,13 @@ export function drawKillNotification(
   ctx.font = '700 16px Poppins, sans-serif';
   
   const label = "ELIMINATED ";
+  const botLabel = killeeIsBot ? "[BOT] " : "";
   const name = killeeName.toUpperCase();
   
   const labelWidth = ctx.measureText(label).width;
+  const botLabelWidth = ctx.measureText(botLabel).width;
   const nameWidth = ctx.measureText(name).width;
-  const totalWidth = labelWidth + nameWidth;
+  const totalWidth = labelWidth + botLabelWidth + nameWidth;
   
   const startX = -totalWidth / 2;
   
@@ -60,8 +63,13 @@ export function drawKillNotification(
   ctx.fillStyle = COLORS.TERMINAL.ERROR;
   ctx.fillText(label, startX, 1);
   
+  if (killeeIsBot) {
+    ctx.fillStyle = COLORS.UI.TEXT_DIM;
+    ctx.fillText(botLabel, startX + labelWidth, 1);
+  }
+  
   ctx.fillStyle = COLORS.UI.TEXT_PRIMARY;
-  ctx.fillText(name, startX + labelWidth, 1);
+  ctx.fillText(name, startX + labelWidth + botLabelWidth, 1);
 
   ctx.restore();
 }
