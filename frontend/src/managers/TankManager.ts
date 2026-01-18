@@ -365,6 +365,7 @@ export class TankManager {
     
     for (const tank of this.tanks.values()) {
       if (tank.id === this.playerTankId) {
+        if (tank.getHealth() <= 0) continue;
         const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         
@@ -384,6 +385,7 @@ export class TankManager {
     
     for (const tank of this.tanks.values()) {
       if (tank.id === this.playerTankId) {
+        if (tank.getHealth() <= 0) continue;
         const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         
@@ -423,6 +425,7 @@ export class TankManager {
 
     for (const tank of this.tanks.values()) {
       if (tank.id === this.playerTankId) {
+        if (tank.getHealth() <= 0) continue;
         const oldTransform = ctx.getTransform();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         
