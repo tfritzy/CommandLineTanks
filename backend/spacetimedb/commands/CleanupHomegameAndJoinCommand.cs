@@ -36,5 +36,14 @@ public static partial class Module
         }
 
         EnsureMinimumPlayersPerTeam(ctx, gameId);
+
+        if (player != null)
+        {
+            var game = ctx.Db.game.Id.Find(gameId);
+            if (game != null)
+            {
+                TrackDailyActiveUserCommand(ctx, player.Value.Id, game.Value.GameType);
+            }
+        }
     }
 }

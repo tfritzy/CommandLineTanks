@@ -15,5 +15,6 @@ public static partial class Module
         public string? Name;
         public ulong CreatedAt;
         public bool TutorialComplete;
+        public string? LastGameJoinedDay;
     }
 }
