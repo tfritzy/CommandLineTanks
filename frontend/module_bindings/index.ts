@@ -67,6 +67,8 @@ import ResetGame from "./reset_game_reducer";
 export { ResetGame };
 import Respawn from "./respawn_reducer";
 export { Respawn };
+import Say from "./say_reducer";
+export { Say };
 import SpawnPickup from "./spawn_pickup_reducer";
 export { SpawnPickup };
 import Stop from "./stop_reducer";
@@ -644,6 +646,7 @@ const reducersSchema = __reducers(
   __reducerSchema("joinGame", JoinGame),
   __reducerSchema("ResetGame", ResetGame),
   __reducerSchema("respawn", Respawn),
+  __reducerSchema("say", Say),
   __reducerSchema("SpawnPickup", SpawnPickup),
   __reducerSchema("stop", Stop),
   __reducerSchema("switchGun", SwitchGun),
