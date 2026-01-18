@@ -12,6 +12,10 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public string GameId;
 
+        public string Sender;
+
+        public Identity? SenderIdentity;
+
         public string Text;
 
         public ulong Timestamp;

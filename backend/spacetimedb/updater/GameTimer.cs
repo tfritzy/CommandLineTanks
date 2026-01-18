@@ -31,6 +31,8 @@ public static partial class GameTimer
         {
             Id = GenerateId(ctx, "msg"),
             GameId = args.GameId,
+            Sender = "System",
+            SenderIdentity = null,
             Text = "Game ended!",
             Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });

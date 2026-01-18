@@ -80,6 +80,8 @@ public static partial class Module
                 {
                     Id = GenerateId(ctx, "msg"),
                     GameId = gameId,
+                    Sender = coloredShooterName,
+                    SenderIdentity = shooterTankQuery.Value.Owner,
                     Text = $"{coloredShooterName} killed {coloredKilleeName}",
                     Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
                 });

@@ -13,6 +13,8 @@ import {
 export default __t.object("Message", {
   id: __t.string(),
   gameId: __t.string(),
+  sender: __t.string(),
+  senderIdentity: __t.option(__t.identity()),
   text: __t.string(),
   timestamp: __t.u64(),
 });

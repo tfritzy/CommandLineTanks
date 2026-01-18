@@ -83,6 +83,8 @@ public static partial class Module
         {
             Id = GenerateId(ctx, "msg"),
             GameId = game.Id,
+            Sender = "System",
+            SenderIdentity = null,
             Text = "Game started!",
             Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         });
