@@ -19,19 +19,4 @@ public static partial class Module
     {
         return $"tutorial_{identity.ToString().ToLower()}";
     }
-
-    public static void EnsureTutorialGame(ReducerContext ctx, Identity identity, string joinCode)
-    {
-        EnsureTutorialGameCommand.Call(ctx, identity, joinCode);
-    }
-
-    public static void CreateTutorialGame(ReducerContext ctx, Identity identity, string joinCode)
-    {
-        CreateTutorialGameCommand.Call(ctx, identity, joinCode);
-    }
-
-    public static void CompleteTutorial(ReducerContext ctx, Identity identity)
-    {
-        CompleteTutorialCommand.Call(ctx, identity);
-    }
 }

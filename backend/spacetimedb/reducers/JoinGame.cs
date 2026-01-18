@@ -31,7 +31,7 @@ public static partial class Module
                 int botsPerTeam = ctx.Rng.Next(2, 6);
                 int minPlayersPerTeam = botsPerTeam;
 
-                game = CreateGame(
+                game = CreateGameCommand.Call(
                     ctx,
                     newGameId,
                     baseTerrain,

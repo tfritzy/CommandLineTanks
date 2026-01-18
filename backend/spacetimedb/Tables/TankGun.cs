@@ -22,11 +22,6 @@ public static partial class Module
         public Gun Gun;
     }
 
-    public static void ClearNonBaseGuns(ReducerContext ctx, string tankId)
-    {
-        ClearNonBaseGunsCommand.Call(ctx, tankId);
-    }
-
     public static void DeleteTankGuns(ReducerContext ctx, string tankId)
     {
         foreach (var gun in ctx.Db.tank_gun.TankId.Filter(tankId))

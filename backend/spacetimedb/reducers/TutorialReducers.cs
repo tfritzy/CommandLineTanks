@@ -18,7 +18,7 @@ public static partial class Module
             return;
         }
 
-        EnsureTutorialGame(ctx, ctx.Sender, joinCode);
+        EnsureTutorialGameCommand.Call(ctx, ctx.Sender, joinCode);
     }
 
     [Reducer]
@@ -37,7 +37,7 @@ public static partial class Module
             return;
         }
 
-        CompleteTutorial(ctx, ctx.Sender);
+        CompleteTutorialCommand.Call(ctx, ctx.Sender);
 
         ReturnToHomegame.Call(ctx, joinCode);
 
@@ -60,7 +60,7 @@ public static partial class Module
             return;
         }
 
-        CompleteTutorial(ctx, ctx.Sender);
+        CompleteTutorialCommand.Call(ctx, ctx.Sender);
 
         ReturnToHomegame.Call(ctx, joinCode);
 

@@ -35,11 +35,11 @@ public static partial class Module
                 int botsNeeded = minPlayers - alliance0Players;
                 for (int i = 0; i < botsNeeded; i++)
                 {
-                    var targetCode = AllocateTargetCode(ctx, gameId);
+                    var targetCode = AllocateTargetCodeCommand.Call(ctx, gameId);
                     if (targetCode == null) continue;
 
-                    var (spawnX, spawnY) = FindSpawnPosition(ctx, game.Value, 0, ctx.Rng);
-                    var botName = GenerateBotName(ctx, gameId);
+                    var (spawnX, spawnY) = FindSpawnPositionCommand.Call(ctx, game.Value, 0, ctx.Rng);
+                    var botName = GenerateBotNameCommand.Call(ctx, gameId);
                     var (botTank, botTransform) = BuildTank(
                         ctx: ctx,
                         gameId: gameId,
@@ -60,11 +60,11 @@ public static partial class Module
                 int botsNeeded = minPlayers - alliance1Players;
                 for (int i = 0; i < botsNeeded; i++)
                 {
-                    var targetCode = AllocateTargetCode(ctx, gameId);
+                    var targetCode = AllocateTargetCodeCommand.Call(ctx, gameId);
                     if (targetCode == null) continue;
 
-                    var (spawnX, spawnY) = FindSpawnPosition(ctx, game.Value, 1, ctx.Rng);
-                    var botName = GenerateBotName(ctx, gameId);
+                    var (spawnX, spawnY) = FindSpawnPositionCommand.Call(ctx, game.Value, 1, ctx.Rng);
+                    var botName = GenerateBotNameCommand.Call(ctx, gameId);
                     var (botTank, botTransform) = BuildTank(
                         ctx: ctx,
                         gameId: gameId,

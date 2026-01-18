@@ -17,17 +17,7 @@ public static partial class Module
         if (transformQuery == null) return;
         var transform = transformQuery.Value;
 
-        tank = FireTankWeapon(ctx, tank, transform);
+        tank = FireTankWeaponCommand.Call(ctx, tank, transform);
         ctx.Db.tank.Id.Update(tank);
-    }
-
-    public static Tank FireTankWeapon(ReducerContext ctx, Tank tank)
-    {
-        return FireTankWeaponCommand.Call(ctx, tank);
-    }
-
-    public static Tank FireTankWeapon(ReducerContext ctx, Tank tank, TankTransform transform)
-    {
-        return FireTankWeaponCommand.Call(ctx, tank, transform);
     }
 }
