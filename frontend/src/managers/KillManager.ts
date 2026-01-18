@@ -9,6 +9,7 @@ import { subscribeToTable, type TableSubscription } from "../utils/tableSubscrip
 interface KillNotification {
   id: string;
   killeeName: string;
+  killeeIsBot: boolean;
   timestamp: number;
   displayTime: number;
 }
@@ -43,6 +44,7 @@ export class KillManager {
             const notification: KillNotification = {
               id: kill.id,
               killeeName: kill.killeeName,
+              killeeIsBot: kill.killeeIsBot,
               timestamp: Date.now(),
               displayTime: 0
             };
@@ -140,6 +142,6 @@ export class KillManager {
     width: number,
     height: number
   ) {
-    drawKillNotification(ctx, notification.killeeName, notification.displayTime, x, y, width, height);
+    drawKillNotification(ctx, notification.killeeName, notification.killeeIsBot, notification.displayTime, x, y, width, height);
   }
 }

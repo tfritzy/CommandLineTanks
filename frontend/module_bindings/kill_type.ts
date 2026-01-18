@@ -15,6 +15,7 @@ export default __t.object("Kill", {
   gameId: __t.string(),
   killer: __t.identity(),
   killeeName: __t.string(),
+  killeeIsBot: __t.bool(),
   timestamp: __t.u64(),
 });
 
