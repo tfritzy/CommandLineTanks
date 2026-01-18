@@ -927,6 +927,7 @@ public static partial class TerrainGenerator
     private static List<(int x, int y)> FindPathThroughObstacles((int x, int y) start, (int x, int y) goal, int width, int height)
     {
         var openSet = new PriorityQueue<(int x, int y), int>();
+        var closedSet = new HashSet<(int x, int y)>();
         var gScore = new Dictionary<(int x, int y), int>();
         var cameFrom = new Dictionary<(int x, int y), (int x, int y)>();
 
@@ -939,6 +940,13 @@ public static partial class TerrainGenerator
         while (openSet.Count > 0)
         {
             var current = openSet.Dequeue();
+
+            if (closedSet.Contains(current))
+            {
+                continue;
+            }
+
+            closedSet.Add(current);
 
             if (current == goal)
             {
@@ -965,6 +973,12 @@ public static partial class TerrainGenerator
                 }
 
                 var neighbor = (nx, ny);
+
+                if (closedSet.Contains(neighbor))
+                {
+                    continue;
+                }
+
                 int tentativeG = currentG + 1;
 
                 if (!gScore.TryGetValue(neighbor, out int existingG) || tentativeG < existingG)
