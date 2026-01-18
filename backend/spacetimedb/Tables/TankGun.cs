@@ -22,14 +22,6 @@ public static partial class Module
         public Gun Gun;
     }
 
-    public static void ClearNonBaseGuns(ReducerContext ctx, string tankId)
-    {
-        foreach (var gun in ctx.Db.tank_gun.TankId.Filter(tankId))
-        {
-            ctx.Db.tank_gun.Id.Delete(gun.Id);
-        }
-    }
-
     public static void DeleteTankGuns(ReducerContext ctx, string tankId)
     {
         foreach (var gun in ctx.Db.tank_gun.TankId.Filter(tankId))

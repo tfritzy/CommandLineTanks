@@ -16,7 +16,7 @@ public static partial class Module
                 ctx.Db.tank_fire_state.TankId.Delete(tank.Id);
             }
             
-            DeleteTankPathIfExists(ctx, tank.Id);
+            DeleteTankPath.Call(ctx, tank.Id);
             DeleteTankGuns(ctx, tank.Id);
             
             ctx.Db.tank_transform.TankId.Delete(tank.Id);

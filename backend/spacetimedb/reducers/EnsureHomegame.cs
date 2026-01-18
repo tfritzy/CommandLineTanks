@@ -17,7 +17,7 @@ public static partial class Module
         var homegame = ctx.Db.game.Id.Find(identityString);
         if (homegame == null)
         {
-            CreateHomegame(ctx, identityString);
+            CreateHomegame.Call(ctx, identityString);
         }
 
         EnsureTankInHomegame.Call(ctx, identityString, joinCode);

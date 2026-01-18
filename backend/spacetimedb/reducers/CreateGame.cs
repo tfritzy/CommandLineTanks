@@ -33,7 +33,7 @@ public static partial class Module
 
         int minPlayersPerTeam = botCount / 2;
 
-        var game = CreateGame(
+        var game = CreateGame.Call(
             ctx,
             gameId,
             baseTerrain,
@@ -59,11 +59,11 @@ public static partial class Module
             
             for (int i = 0; i < botsForThisAlliance; i++)
             {
-                var targetCode = AllocateTargetCode(ctx, gameId);
+                var targetCode = AllocateTargetCode.Call(ctx, gameId);
                 if (targetCode == null) continue;
 
-                var (spawnX, spawnY) = FindSpawnPosition(ctx, game, alliance, ctx.Rng);
-                var botName = GenerateBotName(ctx, gameId);
+                var (spawnX, spawnY) = FindSpawnPosition.Call(ctx, game, alliance, ctx.Rng);
+                var botName = GenerateBotName.Call(ctx, gameId);
                 var (botTank, botTransform) = BuildTank(
                     ctx: ctx,
                     gameId: gameId,
