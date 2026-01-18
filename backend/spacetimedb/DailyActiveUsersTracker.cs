@@ -5,9 +5,10 @@ public static partial class Module
 {
     private static string GetDayKey(ReducerContext ctx)
     {
-        var microseconds = ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        var dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(microseconds / 1000);
-        return dateTimeOffset.ToString("yyyy-MM-dd");
+        var timestampMicroseconds = ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        var milliseconds = timestampMicroseconds / 1000;
+        var dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
+        return dateTimeOffset.UtcDateTime.ToString("yyyy-MM-dd");
     }
 
     public static void TrackDailyActiveUser(ReducerContext ctx, string playerId, GameType gameType)
