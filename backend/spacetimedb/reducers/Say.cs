@@ -25,6 +25,12 @@ public static partial class Module
             return;
         }
 
+        if (message.Contains("<") || message.Contains(">"))
+        {
+            Log.Error("Message contains invalid characters");
+            return;
+        }
+
         var newMessage = new Message
         {
             Id = Guid.NewGuid().ToString(),
