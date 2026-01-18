@@ -132,8 +132,15 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
       <motion.div
         key={player.id}
         layout
-        initial={false}
-        exit={{ opacity: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ 
+          type: "spring",
+          stiffness: 500,
+          damping: 30,
+          mass: 1
+        }}
         className={`flex items-center h-6 w-full gap-1 font-mono text-[13px] font-semibold ${!isLast ? 'mb-0.5' : ''}`}
       >
         <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap" style={{ color: teamColors.label }}>
