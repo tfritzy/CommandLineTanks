@@ -25,8 +25,7 @@ public static partial class Module
             {
                 Log.Info("No public games available, creating new game");
                 var newGameId = GenerateGameId(ctx);
-                var width = TerrainGenerator.GetGameWidth();
-                var height = TerrainGenerator.GetGameHeight();
+                var (width, height) = TerrainGenerator.GenerateRandomGameDimensions(ctx.Rng);
                 var (baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
                 int botsPerTeam = ctx.Rng.Next(2, 6);
