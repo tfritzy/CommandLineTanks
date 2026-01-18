@@ -419,6 +419,41 @@ public static partial class TerrainGenerator
         return DEFAULT_GAME_HEIGHT;
     }
 
+    public static (int width, int height) GenerateRandomGameDimensions(Random random)
+    {
+        const int MIN_DIMENSION = 30;
+        const int MAX_DIMENSION = 60;
+        const int INCREMENT = 5;
+
+        bool isLinear = random.Next(2) == 0;
+
+        if (isLinear)
+        {
+            int maxHeightForLinear = (int)(MAX_DIMENSION / 1.5);
+            maxHeightForLinear = (maxHeightForLinear / INCREMENT) * INCREMENT;
+            
+            int heightPossibleValues = ((maxHeightForLinear - MIN_DIMENSION) / INCREMENT) + 1;
+            int heightSteps = random.Next(heightPossibleValues);
+            int height = MIN_DIMENSION + (heightSteps * INCREMENT);
+            
+            int minWidthForLinear = (int)(height * 1.5);
+            minWidthForLinear = ((minWidthForLinear + INCREMENT - 1) / INCREMENT) * INCREMENT;
+            
+            int widthPossibleValues = ((MAX_DIMENSION - minWidthForLinear) / INCREMENT) + 1;
+            int widthSteps = random.Next(widthPossibleValues);
+            int width = minWidthForLinear + (widthSteps * INCREMENT);
+
+            return (width, height);
+        }
+        else
+        {
+            int possibleValues = ((MAX_DIMENSION - MIN_DIMENSION) / INCREMENT) + 1;
+            int steps = random.Next(possibleValues);
+            int dimension = MIN_DIMENSION + (steps * INCREMENT);
+            return (dimension, dimension);
+        }
+    }
+
     private static void GenerateStructures(
         int[] rotationArray,
         TerrainDetailType[] terrainDetail,

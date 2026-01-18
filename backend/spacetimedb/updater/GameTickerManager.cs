@@ -169,8 +169,18 @@ public static partial class Module
 
         Log.Info($"Resetting game {args.GameId} by creating new game...");
 
-        var width = TerrainGenerator.GetGameWidth();
-        var height = TerrainGenerator.GetGameHeight();
+        int width;
+        int height;
+        if (oldGame.Value.Visibility == GameVisibility.Private)
+        {
+            width = oldGame.Value.Width;
+            height = oldGame.Value.Height;
+        }
+        else
+        {
+            (width, height) = TerrainGenerator.GenerateRandomGameDimensions(ctx.Rng);
+        }
+        
         var (baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
         var newGameId = Module.GenerateGameId(ctx);
