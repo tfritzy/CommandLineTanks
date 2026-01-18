@@ -4,10 +4,10 @@ import { type Infer } from "spacetimedb";
 import MessageRow from "../../module_bindings/message_type";
 import { type EventContext } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface Message {
   id: string;
+  sender: string;
   text: string;
   timestamp: bigint;
 }
@@ -21,7 +21,7 @@ interface TextSegment {
   color?: string;
 }
 
-const MAX_VISIBLE_MESSAGES = 5;
+const MAX_VISIBLE_MESSAGES = 10;
 
 function parseMessageText(text: string): TextSegment[] {
   const segments: TextSegment[] = [];
@@ -61,6 +61,7 @@ export default function ChatBox({ gameId }: ChatBoxProps) {
 
       setMessages(recentMessages.map(msg => ({
         id: msg.id,
+        sender: msg.sender,
         text: msg.text,
         timestamp: msg.timestamp,
       })));
@@ -97,28 +98,20 @@ export default function ChatBox({ gameId }: ChatBoxProps) {
 
   return (
     <div className="absolute bottom-4 left-4 z-10 pointer-events-none">
-      <div className="flex flex-col gap-1 min-w-[300px] max-w-[400px]">
-        <AnimatePresence mode="popLayout">
-          {messages.map((message) => {
-            const segments = parseMessageText(message.text);
-            return (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="bg-[#2e2e43] bg-opacity-80 backdrop-blur-sm px-3 py-2 rounded text-[#fcfbf3] text-sm font-mono shadow-lg border border-[#4a4b5b]"
-              >
-                {segments.map((segment, idx) => (
-                  <span key={idx} style={segment.color ? { color: segment.color } : undefined}>
-                    {segment.text}
-                  </span>
-                ))}
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+      <div className="flex flex-col gap-0.5">
+        {messages.map((message) => {
+          const segments = parseMessageText(message.text);
+          return (
+            <div key={message.id} className="text-[#fcfbf3] text-xs font-mono text-shadow-sm">
+              <span className="text-[#a9bcbf]">[{message.sender}] </span>
+              {segments.map((segment, idx) => (
+                <span key={idx} style={segment.color ? { color: segment.color } : undefined}>
+                  {segment.text}
+                </span>
+              ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

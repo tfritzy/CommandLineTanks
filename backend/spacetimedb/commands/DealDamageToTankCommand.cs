@@ -60,7 +60,7 @@ public static partial class Module
                 };
                 ctx.Db.tank.Id.Update(updatedShooterTank);
 
-                var killeeName = tank.IsBot ? $"[Bot] {tank.Name}" : tank.Name;
+                var killeeName = tank.Name;
                 ctx.Db.kills.Insert(new Kill
                 {
                     Id = GenerateId(ctx, "k"),
@@ -72,7 +72,7 @@ public static partial class Module
 
                 var shooterColor = GetAllianceColor(shooterTankQuery.Value.Alliance);
                 var killeeColor = GetAllianceColor(tank.Alliance);
-                var shooterName = shooterTankQuery.Value.IsBot ? $"[Bot] {shooterTankQuery.Value.Name}" : shooterTankQuery.Value.Name;
+                var shooterName = shooterTankQuery.Value.Name;
                 var coloredShooterName = $"[color={shooterColor}]{shooterName}[/color]";
                 var coloredKilleeName = $"[color={killeeColor}]{killeeName}[/color]";
                 
