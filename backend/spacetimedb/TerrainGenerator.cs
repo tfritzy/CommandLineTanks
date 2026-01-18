@@ -433,6 +433,11 @@ public static partial class TerrainGenerator
             int maxHeightForLinear = (int)(MAX_DIMENSION / LINEAR_MAP_WIDTH_MULTIPLIER);
             maxHeightForLinear = (maxHeightForLinear / INCREMENT) * INCREMENT;
             
+            if (maxHeightForLinear < MIN_DIMENSION)
+            {
+                maxHeightForLinear = MIN_DIMENSION;
+            }
+            
             int heightPossibleValues = ((maxHeightForLinear - MIN_DIMENSION) / INCREMENT) + 1;
             int heightSteps = random.Next(heightPossibleValues);
             int height = MIN_DIMENSION + (heightSteps * INCREMENT);
@@ -440,7 +445,12 @@ public static partial class TerrainGenerator
             int minWidthForLinear = (int)(height * LINEAR_MAP_WIDTH_MULTIPLIER);
             minWidthForLinear = ((minWidthForLinear + INCREMENT - 1) / INCREMENT) * INCREMENT;
             
-            int widthPossibleValues = ((MAX_DIMENSION - minWidthForLinear) / INCREMENT) + 1;
+            if (minWidthForLinear > MAX_DIMENSION)
+            {
+                minWidthForLinear = MAX_DIMENSION;
+            }
+            
+            int widthPossibleValues = Math.Max(1, ((MAX_DIMENSION - minWidthForLinear) / INCREMENT) + 1);
             int widthSteps = random.Next(widthPossibleValues);
             int width = minWidthForLinear + (widthSteps * INCREMENT);
 
