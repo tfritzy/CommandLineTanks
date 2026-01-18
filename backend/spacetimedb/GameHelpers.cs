@@ -67,6 +67,12 @@ public static partial class Module
             CurrentPlayerCount = Math.Max(0, game.Value.CurrentPlayerCount - 1)
         };
         ctx.Db.game.Id.Update(updatedGame);
+
+        if (updatedGame.CurrentPlayerCount == 0 && updatedGame.GameType == GameType.Game)
+        {
+            DeleteGame(ctx, gameId);
+            Log.Info($"Deleted game {gameId} after last human player left");
+        }
     }
 
     public static void IncrementBotCount(ReducerContext ctx, string gameId)
