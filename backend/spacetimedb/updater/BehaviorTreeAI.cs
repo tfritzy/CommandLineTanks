@@ -63,10 +63,5 @@ public static partial class BehaviorTreeAI
 
         var updatedArgs = args with { TickCount = args.TickCount + 1 };
         ctx.Db.ScheduledAIUpdate.ScheduledId.Update(updatedArgs);
-
-        if (updatedArgs.TickCount % 8 == 0)
-        {
-            GC.Collect();
-        }
     }
 }
