@@ -20,7 +20,8 @@ public static partial class Module
                 Identity = ctx.Sender,
                 Name = null,
                 CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
-                TutorialComplete = false
+                TutorialComplete = false,
+                LastGameJoinedDay = null
             };
 
             ctx.Db.player.Insert(player);

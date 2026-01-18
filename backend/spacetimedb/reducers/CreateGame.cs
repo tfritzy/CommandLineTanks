@@ -50,6 +50,8 @@ public static partial class Module
 
         CleanupHomegameAndJoinCommand(ctx, game.Id, joinCode);
 
+        TrackDailyActiveUser(ctx, player.Value.Id, game.GameType);
+
         int botsPerAlliance = botCount / 2;
         int extraBot = botCount % 2;
         
