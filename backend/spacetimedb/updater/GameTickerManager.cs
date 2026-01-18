@@ -243,7 +243,7 @@ public static partial class Module
                 positionX: spawnX,
                 positionY: spawnY,
                 aiBehavior: AIBehavior.None);
-            AddTankToGame(ctx, newTank, newTransform);
+            AddTankToGame.Call(ctx, newTank, newTransform);
         }
 
         Log.Info($"Created new game {newGameId} from {args.GameId}. Teams randomized, {totalTanks} tanks created.");

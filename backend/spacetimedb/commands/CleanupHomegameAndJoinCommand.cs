@@ -10,20 +10,20 @@ public static partial class Module
 
         foreach (var existingTank in existingTanks)
         {
-            RemoveTankFromGame(ctx, existingTank);
+            RemoveTankFromGame.Call(ctx, existingTank);
         }
 
-        DeleteHomegameIfEmpty(ctx, identityString);
+        DeleteHomegameIfEmpty.Call(ctx, identityString);
 
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
         var assignedAlliance = GetBalancedAlliance(ctx, gameId);
-        var botToReplace = FindBotInAlliance(ctx, gameId, assignedAlliance);
+        var botToReplace = FindBotInAlliance.Call(ctx, gameId, assignedAlliance);
 
         if (botToReplace != null)
         {
-            ReplaceBotWithPlayer(ctx, botToReplace.Value, ctx.Sender, playerName, joinCode);
+            ReplaceBotWithPlayer.Call(ctx, botToReplace.Value, ctx.Sender, playerName, joinCode);
         }
         else
         {
@@ -31,11 +31,11 @@ public static partial class Module
             if (result != null)
             {
                 var (tank, transform) = result.Value;
-                AddTankToGame(ctx, tank, transform);
+                AddTankToGame.Call(ctx, tank, transform);
             }
         }
 
-        EnsureMinimumPlayersPerTeam(ctx, gameId);
+        EnsureMinimumPlayersPerTeam.Call(ctx, gameId);
 
         if (player != null)
         {

@@ -39,7 +39,7 @@ public static partial class Module
 
         CompleteTutorial(ctx, ctx.Sender);
 
-        ReturnToHomegame(ctx, joinCode);
+        ReturnToHomegame.Call(ctx, joinCode);
 
         Log.Info($"Tutorial completed for {ctx.Sender}");
     }
@@ -62,7 +62,7 @@ public static partial class Module
 
         CompleteTutorial(ctx, ctx.Sender);
 
-        ReturnToHomegame(ctx, joinCode);
+        ReturnToHomegame.Call(ctx, joinCode);
 
         Log.Info($"Tutorial skipped for {ctx.Sender}");
     }
