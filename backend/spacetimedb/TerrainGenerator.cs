@@ -11,6 +11,7 @@ public static partial class TerrainGenerator
     private const int MIN_GAME_HEIGHT = 10;
     private const int MAX_GAME_WIDTH = 200;
     private const int MAX_GAME_HEIGHT = 200;
+    private const double LINEAR_MAP_WIDTH_MULTIPLIER = 1.5;
     private const int FIELD_MIN_SIZE = 5;
     private const int FIELD_MAX_SIZE = 10;
     private const int HAY_BALE_DENSITY_DIVISOR = 10;
@@ -429,14 +430,14 @@ public static partial class TerrainGenerator
 
         if (isLinear)
         {
-            int maxHeightForLinear = (int)(MAX_DIMENSION / 1.5);
+            int maxHeightForLinear = (int)(MAX_DIMENSION / LINEAR_MAP_WIDTH_MULTIPLIER);
             maxHeightForLinear = (maxHeightForLinear / INCREMENT) * INCREMENT;
             
             int heightPossibleValues = ((maxHeightForLinear - MIN_DIMENSION) / INCREMENT) + 1;
             int heightSteps = random.Next(heightPossibleValues);
             int height = MIN_DIMENSION + (heightSteps * INCREMENT);
             
-            int minWidthForLinear = (int)(height * 1.5);
+            int minWidthForLinear = (int)(height * LINEAR_MAP_WIDTH_MULTIPLIER);
             minWidthForLinear = ((minWidthForLinear + INCREMENT - 1) / INCREMENT) * INCREMENT;
             
             int widthPossibleValues = ((MAX_DIMENSION - minWidthForLinear) / INCREMENT) + 1;
