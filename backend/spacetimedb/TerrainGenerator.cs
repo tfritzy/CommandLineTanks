@@ -885,6 +885,11 @@ public static partial class TerrainGenerator
 
     private static void CarvePath(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, bool[] traversible, bool[] visited, List<(int x, int y)> island, List<(int x, int y)> mainNetwork, int width, int height)
     {
+        if (island.Count == 0 || mainNetwork.Count == 0)
+        {
+            return;
+        }
+
         (int x, int y) islandStart = island[0];
         (int x, int y) nearestAccessible = (-1, -1);
         int minDistance = int.MaxValue;
