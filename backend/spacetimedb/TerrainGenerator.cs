@@ -765,16 +765,84 @@ public static partial class TerrainGenerator
         if (startX < 0) return;
 
         var visited = new bool[width * height];
+        FloodFillGlobal(traversible, visited, startX, startY, width, height);
+
+        var islands = FindDisconnectedIslands(traversible, visited, minX, maxX, minY, maxY, width, height);
+
+        foreach (var island in islands)
+        {
+            CarvePath(baseTerrain, terrainDetail, traversible, visited, island, minX, maxX, minY, maxY, width, height);
+        }
+    }
+
+    private static void FloodFillGlobal(bool[] traversible, bool[] visited, int startX, int startY, int width, int height)
+    {
         var queue = new System.Collections.Generic.Queue<(int x, int y)>();
         queue.Enqueue((startX, startY));
         visited[startY * width + startX] = true;
+
+        int[] dx = { -1, 1, 0, 0 };
+        int[] dy = { 0, 0, -1, 1 };
 
         while (queue.Count > 0)
         {
             var (x, y) = queue.Dequeue();
 
-            int[] dx = { -1, 1, 0, 0 };
-            int[] dy = { 0, 0, -1, 1 };
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+
+                if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                {
+                    int nindex = ny * width + nx;
+                    if (!visited[nindex] && traversible[nindex])
+                    {
+                        visited[nindex] = true;
+                        queue.Enqueue((nx, ny));
+                    }
+                }
+            }
+        }
+    }
+
+    private static List<List<(int x, int y)>> FindDisconnectedIslands(bool[] traversible, bool[] visited, int minX, int maxX, int minY, int maxY, int width, int height)
+    {
+        var islands = new List<List<(int x, int y)>>();
+
+        for (int y = minY; y < maxY; y++)
+        {
+            for (int x = minX; x < maxX; x++)
+            {
+                int index = y * width + x;
+                if (traversible[index] && !visited[index])
+                {
+                    var island = new List<(int x, int y)>();
+                    FloodFillIsland(traversible, visited, x, y, island, minX, maxX, minY, maxY, width, height);
+                    if (island.Count > 0)
+                    {
+                        islands.Add(island);
+                    }
+                }
+            }
+        }
+
+        return islands;
+    }
+
+    private static void FloodFillIsland(bool[] traversible, bool[] visited, int startX, int startY, List<(int x, int y)> island, int minX, int maxX, int minY, int maxY, int width, int height)
+    {
+        var queue = new System.Collections.Generic.Queue<(int x, int y)>();
+        queue.Enqueue((startX, startY));
+        visited[startY * width + startX] = true;
+        island.Add((startX, startY));
+
+        int[] dx = { -1, 1, 0, 0 };
+        int[] dy = { 0, 0, -1, 1 };
+
+        while (queue.Count > 0)
+        {
+            var (x, y) = queue.Dequeue();
 
             for (int i = 0; i < 4; i++)
             {
@@ -788,25 +856,120 @@ public static partial class TerrainGenerator
                     {
                         visited[nindex] = true;
                         queue.Enqueue((nx, ny));
+                        island.Add((nx, ny));
+                    }
+                }
+            }
+        }
+    }
+
+    private static void CarvePath(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, bool[] traversible, bool[] visited, List<(int x, int y)> island, int minX, int maxX, int minY, int maxY, int width, int height)
+    {
+        (int x, int y) islandStart = island[0];
+        (int x, int y) nearestAccessible = (-1, -1);
+        int minDistance = int.MaxValue;
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                int index = y * width + x;
+                if (visited[index] && traversible[index])
+                {
+                    int dist = Math.Abs(x - islandStart.x) + Math.Abs(y - islandStart.y);
+                    if (dist < minDistance)
+                    {
+                        minDistance = dist;
+                        nearestAccessible = (x, y);
                     }
                 }
             }
         }
 
-        for (int y = minY; y < maxY; y++)
+        if (nearestAccessible.x < 0)
         {
-            for (int x = minX; x < maxX; x++)
+            return;
+        }
+
+        var pathTiles = FindPathThroughObstacles(islandStart, nearestAccessible, width, height);
+
+        foreach (var (x, y) in pathTiles)
+        {
+            int index = y * width + x;
+            if (baseTerrain[index] == BaseTerrain.Water)
             {
-                int index = y * width + x;
-                if (traversible[index] && !visited[index])
+                baseTerrain[index] = BaseTerrain.Ground;
+            }
+            if (terrainDetail[index] != TerrainDetailType.None &&
+                terrainDetail[index] != TerrainDetailType.FenceEdge &&
+                terrainDetail[index] != TerrainDetailType.FenceCorner)
+            {
+                terrainDetail[index] = TerrainDetailType.None;
+            }
+            traversible[index] = true;
+            visited[index] = true;
+        }
+    }
+
+    private static List<(int x, int y)> FindPathThroughObstacles((int x, int y) start, (int x, int y) goal, int width, int height)
+    {
+        var openSet = new PriorityQueue<(int x, int y), int>();
+        var gScore = new Dictionary<(int x, int y), int>();
+        var cameFrom = new Dictionary<(int x, int y), (int x, int y)>();
+
+        gScore[start] = 0;
+        openSet.Enqueue(start, Heuristic(start, goal));
+
+        int[] dx = { -1, 1, 0, 0 };
+        int[] dy = { 0, 0, -1, 1 };
+
+        while (openSet.Count > 0)
+        {
+            var current = openSet.Dequeue();
+
+            if (current == goal)
+            {
+                var path = new List<(int x, int y)>();
+                while (cameFrom.ContainsKey(current))
                 {
-                    if (terrainDetail[index] != TerrainDetailType.None)
-                    {
-                        terrainDetail[index] = TerrainDetailType.None;
-                    }
+                    path.Add(current);
+                    current = cameFrom[current];
+                }
+                path.Reverse();
+                return path;
+            }
+
+            int currentG = gScore[current];
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = current.x + dx[i];
+                int ny = current.y + dy[i];
+
+                if (nx < 0 || nx >= width || ny < 0 || ny >= height)
+                {
+                    continue;
+                }
+
+                var neighbor = (nx, ny);
+                int tentativeG = currentG + 1;
+
+                if (!gScore.TryGetValue(neighbor, out int existingG) || tentativeG < existingG)
+                {
+                    cameFrom[neighbor] = current;
+                    gScore[neighbor] = tentativeG;
+                    int f = tentativeG + Heuristic(neighbor, goal);
+                    openSet.Enqueue(neighbor, f);
                 }
             }
         }
+
+        return new List<(int x, int y)>();
+    }
+
+    private static int Heuristic((int x, int y) from, (int x, int y) to)
+    {
+        return Math.Abs(to.x - from.x) + Math.Abs(to.y - from.y);
     }
 
     private static void RandomlyRemoveTreesPrePass(TerrainDetailType[] terrainDetail, Random random, int width, int height)
