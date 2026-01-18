@@ -491,21 +491,19 @@ export function help(_connection: DbConnection, args: string[]): string[] {
 
     case "say":
       return [
-        "say - Send a message to all players in the game",
+        "say - Send a message to other players",
         "",
         "Usage: say <message>",
         "",
         "Arguments:",
-        "  <message>     Message to send (max 200 characters)",
-        "                Use quotes for messages with special characters",
+        "  <message>     Your message (max 200 characters)",
         "",
-        "Sends a message to all players in your current game.",
-        "The message will be inserted into the messages table.",
+        "Your message will be visible to all players in the game.",
         "",
         "Examples:",
         "  say Hello everyone!",
-        "  say \"Good game!\"",
-        "  say 'Watch out for enemy tanks'",
+        "  say Good game!",
+        "  say Watch out north",
       ];
 
     default:
@@ -1294,12 +1292,12 @@ export function say(
 ): string[] {
   if (args.length < 1) {
     return [
-      themeColors.error("say: error: missing required argument '<message>'"),
+      themeColors.error("say: error: missing message"),
       "",
       themeColors.dim("Usage: say <message>"),
       themeColors.dim("Examples:"),
       themeColors.dim("  say Hello everyone!"),
-      themeColors.dim("  say 'Message with spaces'"),
+      themeColors.dim("  say Watch out north"),
     ];
   }
 
@@ -1323,6 +1321,6 @@ export function say(
 
   connection.reducers.say({ gameId, message });
 
-  return [themeColors.success(`Message sent: ${themeColors.value(message)}`)];
+  return [themeColors.success("Message sent")];
 }
 
