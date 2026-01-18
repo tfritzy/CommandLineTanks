@@ -746,40 +746,59 @@ public static partial class TerrainGenerator
             traversible[i] = baseTraversible && detailTraversible;
         }
 
-        int startX = -1, startY = -1;
-        for (int y = minY; y < maxY; y++)
+        var visited = new bool[width * height];
+        var mainNetwork = FindLargestConnectedComponent(traversible, width, height);
+
+        if (mainNetwork.Count == 0)
         {
-            for (int x = minX; x < maxX; x++)
-            {
-                int index = y * width + x;
-                if (traversible[index])
-                {
-                    startX = x;
-                    startY = y;
-                    break;
-                }
-            }
-            if (startX >= 0) break;
+            return;
         }
 
-        if (startX < 0) return;
-
-        var visited = new bool[width * height];
-        FloodFillGlobal(traversible, visited, startX, startY, width, height);
+        foreach (var tile in mainNetwork)
+        {
+            visited[tile.y * width + tile.x] = true;
+        }
 
         var islands = FindDisconnectedIslands(traversible, visited, minX, maxX, minY, maxY, width, height);
 
         foreach (var island in islands)
         {
-            CarvePath(baseTerrain, terrainDetail, traversible, visited, island, minX, maxX, minY, maxY, width, height);
+            CarvePath(baseTerrain, terrainDetail, traversible, visited, island, mainNetwork, width, height);
         }
     }
 
-    private static void FloodFillGlobal(bool[] traversible, bool[] visited, int startX, int startY, int width, int height)
+    private static List<(int x, int y)> FindLargestConnectedComponent(bool[] traversible, int width, int height)
+    {
+        var visited = new bool[width * height];
+        var largestComponent = new List<(int x, int y)>();
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                int index = y * width + x;
+                if (traversible[index] && !visited[index])
+                {
+                    var component = new List<(int x, int y)>();
+                    FloodFillComponent(traversible, visited, x, y, component, width, height);
+
+                    if (component.Count > largestComponent.Count)
+                    {
+                        largestComponent = component;
+                    }
+                }
+            }
+        }
+
+        return largestComponent;
+    }
+
+    private static void FloodFillComponent(bool[] traversible, bool[] visited, int startX, int startY, List<(int x, int y)> component, int width, int height)
     {
         var queue = new System.Collections.Generic.Queue<(int x, int y)>();
         queue.Enqueue((startX, startY));
         visited[startY * width + startX] = true;
+        component.Add((startX, startY));
 
         int[] dx = { -1, 1, 0, 0 };
         int[] dy = { 0, 0, -1, 1 };
@@ -800,6 +819,7 @@ public static partial class TerrainGenerator
                     {
                         visited[nindex] = true;
                         queue.Enqueue((nx, ny));
+                        component.Add((nx, ny));
                     }
                 }
             }
@@ -863,26 +883,19 @@ public static partial class TerrainGenerator
         }
     }
 
-    private static void CarvePath(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, bool[] traversible, bool[] visited, List<(int x, int y)> island, int minX, int maxX, int minY, int maxY, int width, int height)
+    private static void CarvePath(BaseTerrain[] baseTerrain, TerrainDetailType[] terrainDetail, bool[] traversible, bool[] visited, List<(int x, int y)> island, List<(int x, int y)> mainNetwork, int width, int height)
     {
         (int x, int y) islandStart = island[0];
         (int x, int y) nearestAccessible = (-1, -1);
         int minDistance = int.MaxValue;
 
-        for (int y = 0; y < height; y++)
+        foreach (var tile in mainNetwork)
         {
-            for (int x = 0; x < width; x++)
+            int dist = Math.Abs(tile.x - islandStart.x) + Math.Abs(tile.y - islandStart.y);
+            if (dist < minDistance)
             {
-                int index = y * width + x;
-                if (visited[index] && traversible[index])
-                {
-                    int dist = Math.Abs(x - islandStart.x) + Math.Abs(y - islandStart.y);
-                    if (dist < minDistance)
-                    {
-                        minDistance = dist;
-                        nearestAccessible = (x, y);
-                    }
-                }
+                minDistance = dist;
+                nearestAccessible = tile;
             }
         }
 
