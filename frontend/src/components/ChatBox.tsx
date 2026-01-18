@@ -21,15 +21,13 @@ const MAX_VISIBLE_MESSAGES = 5;
 export default function ChatBox({ gameId }: ChatBoxProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const subscriptionRef = useRef<TableSubscription<typeof MessageRow> | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const connection = getConnection();
     if (!connection) return;
 
     const updateMessages = () => {
-      const allMessages = Array.from(connection.db.message.iter())
-        .filter(msg => msg.gameId === gameId)
+      const allMessages = Array.from(connection.db.message.GameId.filter(gameId))
         .sort((a, b) => Number(a.timestamp - b.timestamp));
 
       const recentMessages = allMessages.slice(-MAX_VISIBLE_MESSAGES);
@@ -88,7 +86,6 @@ export default function ChatBox({ gameId }: ChatBoxProps) {
           ))}
         </AnimatePresence>
       </div>
-      <div ref={messagesEndRef} />
     </div>
   );
 }
