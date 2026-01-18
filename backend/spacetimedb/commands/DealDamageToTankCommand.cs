@@ -69,6 +69,15 @@ public static partial class Module
                     KilleeName = killeeName,
                     Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
                 });
+
+                var shooterName = shooterTankQuery.Value.IsBot ? $"[Bot] {shooterTankQuery.Value.Name}" : shooterTankQuery.Value.Name;
+                ctx.Db.message.Insert(new Message
+                {
+                    Id = GenerateId(ctx, "msg"),
+                    GameId = gameId,
+                    Text = $"{shooterName} killed {killeeName}",
+                    Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+                });
             }
 
             var score = ctx.Db.score.GameId.Find(gameId);

@@ -113,6 +113,8 @@ import GameRedirectRow from "./game_redirect_table";
 export { GameRedirectRow };
 import KillsRow from "./kills_table";
 export { KillsRow };
+import MessageRow from "./message_table";
+export { MessageRow };
 import PickupRow from "./pickup_table";
 export { PickupRow };
 import PlayerRow from "./player_table";
@@ -169,6 +171,8 @@ import GunType from "./gun_type_type";
 export { GunType };
 import Kill from "./kill_type";
 export { Kill };
+import Message from "./message_type";
+export { Message };
 import Pickup from "./pickup_type";
 export { Pickup };
 import PickupType from "./pickup_type_type";
@@ -391,6 +395,20 @@ const tablesSchema = __schema(
       { name: 'kills_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, KillsRow),
+  __table({
+    name: 'message',
+    indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'message_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, MessageRow),
   __table({
     name: 'pickup',
     indexes: [
