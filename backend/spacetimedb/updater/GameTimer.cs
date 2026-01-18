@@ -27,6 +27,16 @@ public static partial class GameTimer
         var updatedGame = game.Value with { GameState = GameState.Results };
         ctx.Db.game.Id.Update(updatedGame);
 
+        ctx.Db.message.Insert(new Message
+        {
+            Id = GenerateId(ctx, "msg"),
+            GameId = args.GameId,
+            Sender = "System",
+            SenderIdentity = null,
+            Text = "Game ended!",
+            Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+        });
+
         StopGameTickers(ctx, args.GameId);
 
         ctx.Db.ScheduledGameReset.Insert(new ScheduledGameReset

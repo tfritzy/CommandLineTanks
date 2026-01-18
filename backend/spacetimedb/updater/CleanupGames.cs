@@ -129,6 +129,11 @@ public static partial class Module
             ctx.Db.kills.Id.Delete(kill.Id);
         }
 
+        foreach (var message in ctx.Db.message.GameId.Filter(gameId))
+        {
+            ctx.Db.message.Id.Delete(message.Id);
+        }
+
         var score = ctx.Db.score.GameId.Find(gameId);
         if (score != null)
         {

@@ -69,6 +69,22 @@ public static partial class Module
                     KilleeName = killeeName,
                     Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
                 });
+
+                var shooterColor = GetAllianceColor(shooterTankQuery.Value.Alliance);
+                var killeeColor = GetAllianceColor(tank.Alliance);
+                var shooterName = shooterTankQuery.Value.IsBot ? $"[Bot] {shooterTankQuery.Value.Name}" : shooterTankQuery.Value.Name;
+                var coloredShooterName = $"[color={shooterColor}]{shooterName}[/color]";
+                var coloredKilleeName = $"[color={killeeColor}]{killeeName}[/color]";
+                
+                ctx.Db.message.Insert(new Message
+                {
+                    Id = GenerateId(ctx, "msg"),
+                    GameId = gameId,
+                    Sender = "System",
+                    SenderIdentity = null,
+                    Text = $"{coloredShooterName} killed {coloredKilleeName}",
+                    Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+                });
             }
 
             var score = ctx.Db.score.GameId.Find(gameId);
@@ -191,5 +207,10 @@ public static partial class Module
         }
 
         return (-1, -1);
+    }
+
+    private static string GetAllianceColor(int alliance)
+    {
+        return alliance == 0 ? "#ff5555" : "#7fbbdc";
     }
 }

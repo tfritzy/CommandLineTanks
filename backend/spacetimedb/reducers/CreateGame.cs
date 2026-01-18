@@ -79,6 +79,16 @@ public static partial class Module
             }
         }
 
+        ctx.Db.message.Insert(new Message
+        {
+            Id = GenerateId(ctx, "msg"),
+            GameId = game.Id,
+            Sender = "System",
+            SenderIdentity = null,
+            Text = "Game started!",
+            Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+        });
+
         Log.Info($"Player {player.Value.Name} created game ({game.Id})");
     }
 }
