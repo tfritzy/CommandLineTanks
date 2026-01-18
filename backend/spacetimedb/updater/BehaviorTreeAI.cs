@@ -48,7 +48,7 @@ public static partial class BehaviorTreeAI
                     continue;
                 }
 
-                RespawnTankCommand.Call(ctx, tank, transform, args.GameId, tank.Alliance, false, null);
+                RespawnTank.Call(ctx, tank, transform, args.GameId, tank.Alliance, false, null);
                 continue;
             }
 

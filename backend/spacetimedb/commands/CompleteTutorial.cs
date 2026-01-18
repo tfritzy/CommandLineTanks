@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public static class CompleteTutorialCommand
+    public static class CompleteTutorial
     {
         public static void Call(ReducerContext ctx, Identity identity)
         {

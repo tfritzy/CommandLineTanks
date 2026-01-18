@@ -30,11 +30,11 @@ public static partial class Module
             
             for (int i = 0; i < botsForThisAlliance; i++)
             {
-                var targetCode = AllocateTargetCodeCommand.Call(ctx, gameId);
+                var targetCode = AllocateTargetCode.Call(ctx, gameId);
                 if (targetCode == null) continue;
 
-                var (spawnX, spawnY) = FindSpawnPositionCommand.Call(ctx, game, alliance, ctx.Rng);
-                var botName = GenerateBotNameCommand.Call(ctx, gameId);
+                var (spawnX, spawnY) = FindSpawnPosition.Call(ctx, game, alliance, ctx.Rng);
+                var botName = GenerateBotName.Call(ctx, gameId);
                 var (botTank, botTransform) = BuildTank(
                     ctx: ctx,
                     gameId: gameId,

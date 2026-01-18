@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public static class RespawnTankCommand
+    public static class RespawnTank
     {
         public static void Call(ReducerContext ctx, Tank tank, TankTransform transform, string gameId, int alliance, bool resetKills = false, (float, float)? spawnPosition = null)
         {
@@ -13,9 +13,9 @@ public static partial class Module
                 return;
             }
 
-            var (spawnX, spawnY) = spawnPosition ?? FindSpawnPositionCommand.Call(ctx, traversibilityMap.Value, alliance, ctx.Rng);
+            var (spawnX, spawnY) = spawnPosition ?? FindSpawnPosition.Call(ctx, traversibilityMap.Value, alliance, ctx.Rng);
 
-            var newTargetCode = AllocateTargetCodeCommand.Call(ctx, gameId) ?? tank.TargetCode;
+            var newTargetCode = AllocateTargetCode.Call(ctx, gameId) ?? tank.TargetCode;
 
             var respawnedTank = tank with
             {
@@ -34,7 +34,7 @@ public static partial class Module
                 TargetCode = newTargetCode
             };
 
-            ClearNonBaseGunsCommand.Call(ctx, tank.Id);
+            ClearNonBaseGuns.Call(ctx, tank.Id);
 
             var respawnedTransform = transform with
             {

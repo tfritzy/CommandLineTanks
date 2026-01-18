@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public static class CreateGameCommand
+    public static class CreateGame
     {
         public static Game Call(
             ReducerContext ctx,

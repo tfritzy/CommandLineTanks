@@ -18,9 +18,9 @@ public static partial class Module
 
         if (tank.Health > 0) return;
 
-        DeleteTankPathCommand.Call(ctx, tank.Id);
+        DeleteTankPath.Call(ctx, tank.Id);
 
-        RespawnTankCommand.Call(ctx, tank, transform, gameId, tank.Alliance);
+        RespawnTank.Call(ctx, tank, transform, gameId, tank.Alliance);
         Log.Info($"Tank {tank.Name} respawned");
     }
 }

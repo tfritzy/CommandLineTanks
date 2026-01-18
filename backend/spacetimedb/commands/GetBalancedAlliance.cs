@@ -2,7 +2,7 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-    public static class GetBalancedAllianceCommand
+    public static class GetBalancedAlliance
     {
         public static int Call(ReducerContext ctx, string gameId)
         {

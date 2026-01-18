@@ -4,7 +4,7 @@ using System;
 
 public static partial class Module
 {
-    public static class CreateHomegameCommand
+    public static class CreateHomegame
     {
         public static void Call(ReducerContext ctx, string identityString)
         {

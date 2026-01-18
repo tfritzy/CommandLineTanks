@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public static partial class Module
 {
-    public static class AllocateTargetCodeCommand
+    public static class AllocateTargetCode
     {
         private static readonly char[] Letters = [
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',

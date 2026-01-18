@@ -4,7 +4,7 @@ using System;
 
 public static partial class Module
 {
-    public static class FireTankWeaponCommand
+    public static class FireTankWeapon
     {
         public static Tank Call(ReducerContext ctx, Tank tank)
         {
@@ -46,7 +46,7 @@ public static partial class Module
             {
                 float barrelTipX = transform.PositionX + (float)Math.Cos(transform.TurretRotation) * GUN_BARREL_LENGTH;
                 float barrelTipY = transform.PositionY + (float)Math.Sin(transform.TurretRotation) * GUN_BARREL_LENGTH;
-                CreateProjectileCommand.Call(ctx, tank, barrelTipX, barrelTipY, transform.TurretRotation, gun);
+                CreateProjectile.Call(ctx, tank, barrelTipX, barrelTipY, transform.TurretRotation, gun);
             }
             else
             {
@@ -75,7 +75,7 @@ public static partial class Module
                         }
                     }
 
-                    CreateProjectileCommand.Call(ctx, tank, posX, posY, angle, gun);
+                    CreateProjectile.Call(ctx, tank, posX, posY, angle, gun);
                 }
             }
 

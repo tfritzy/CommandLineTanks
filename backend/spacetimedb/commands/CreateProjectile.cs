@@ -4,7 +4,7 @@ using System;
 
 public static partial class Module
 {
-    public static class CreateProjectileCommand
+    public static class CreateProjectile
     {
         public static void Call(ReducerContext ctx, Tank tank, float startX, float startY, float angle, Gun gun)
         {

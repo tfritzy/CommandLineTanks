@@ -15,7 +15,7 @@ public static partial class Module
 
             RemoveTankFromGame.Call(ctx, bot);
 
-            var targetCode = AllocateTargetCodeCommand.Call(ctx, bot.GameId);
+            var targetCode = AllocateTargetCode.Call(ctx, bot.GameId);
             if (targetCode == null)
             {
                 Log.Error($"No available target codes in game {bot.GameId}");

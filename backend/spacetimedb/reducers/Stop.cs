@@ -18,7 +18,7 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        DeleteTankPathCommand.Call(ctx, tank.Id);
+        DeleteTankPath.Call(ctx, tank.Id);
 
         var updatedTransform = transform with 
         {

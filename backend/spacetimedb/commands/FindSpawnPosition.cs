@@ -4,7 +4,7 @@ using System;
 
 public static partial class Module
 {
-    public static class FindSpawnPositionCommand
+    public static class FindSpawnPosition
     {
         private const int MAX_SPAWN_ATTEMPTS = 100;
         private const int SPAWN_ZONE_WIDTH = 5;

@@ -4,7 +4,7 @@ using System.Linq;
 
 public static partial class Module
 {
-    public static class CreateTutorialGameCommand
+    public static class CreateTutorialGame
     {
         private const int TUTORIAL_WIDTH = 20;
         private const int TUTORIAL_HEIGHT = 12;
@@ -297,7 +297,7 @@ public static partial class Module
             var player = ctx.Db.player.Identity.Find(owner);
             var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
-            var targetCode = AllocateTargetCodeCommand.Call(ctx, gameId) ?? "p1";
+            var targetCode = AllocateTargetCode.Call(ctx, gameId) ?? "p1";
 
             var (tank, transform) = BuildTank(
                 ctx: ctx,

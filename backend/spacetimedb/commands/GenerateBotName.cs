@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public static partial class Module
 {
-    public static class GenerateBotNameCommand
+    public static class GenerateBotName
     {
         private static readonly string[] NatoPhonetic = [
             "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot",

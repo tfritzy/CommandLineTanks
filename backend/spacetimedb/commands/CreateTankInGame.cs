@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public static class CreateTankInGameCommand
+    public static class CreateTankInGame
     {
         public static (Tank, TankTransform)? Call(ReducerContext ctx, string gameId, Identity owner, string joinCode)
         {
@@ -21,7 +21,7 @@ public static partial class Module
                 return null;
             }
 
-            var targetCode = AllocateTargetCodeCommand.Call(ctx, gameId);
+            var targetCode = AllocateTargetCode.Call(ctx, gameId);
             if (targetCode == null)
             {
                 Log.Error($"No available target codes in game {gameId}");
@@ -31,8 +31,8 @@ public static partial class Module
             var player = ctx.Db.player.Identity.Find(owner);
             var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
-            int assignedAlliance = GetBalancedAllianceCommand.Call(ctx, gameId);
-            var (spawnX, spawnY) = FindSpawnPositionCommand.Call(ctx, game.Value, assignedAlliance, ctx.Rng);
+            int assignedAlliance = GetBalancedAlliance.Call(ctx, gameId);
+            var (spawnX, spawnY) = FindSpawnPosition.Call(ctx, game.Value, assignedAlliance, ctx.Rng);
 
             var (tank, transform) = BuildTank(
                 ctx: ctx,

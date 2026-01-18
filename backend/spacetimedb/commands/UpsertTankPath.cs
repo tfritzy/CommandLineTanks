@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public static class UpsertTankPathCommand
+    public static class UpsertTankPath
     {
         public static void Call(ReducerContext ctx, TankPath tankPath)
         {

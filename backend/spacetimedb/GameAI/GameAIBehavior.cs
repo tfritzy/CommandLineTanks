@@ -27,7 +27,7 @@ public static partial class GameAI
                     tank = TargetTankByCode.Call(ctx, tank, decision.TargetTank.Value.TargetCode);
                     if (decision.ShouldFire)
                     {
-                        tank = FireTankWeaponCommand.Call(ctx, tank);
+                        tank = FireTankWeapon.Call(ctx, tank);
                     }
                 }
                 break;
@@ -35,7 +35,7 @@ public static partial class GameAI
             case GameAILogic.AIAction.StopMoving:
                 if (decision.TargetTank != null)
                 {
-                    DeleteTankPathCommand.Call(ctx, tank.Id);
+                    DeleteTankPath.Call(ctx, tank.Id);
 
                     var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
                     if (transformQuery != null)
@@ -45,7 +45,7 @@ public static partial class GameAI
                     }
 
                     tank = TargetTankByCode.Call(ctx, tank, decision.TargetTank.Value.TargetCode);
-                    tank = FireTankWeaponCommand.Call(ctx, tank);
+                    tank = FireTankWeapon.Call(ctx, tank);
                 }
                 break;
 
@@ -119,6 +119,6 @@ public static partial class GameAI
             Path = [nextPos]
         };
 
-        UpsertTankPathCommand.Call(ctx, newPathState);
+        UpsertTankPath.Call(ctx, newPathState);
     }
 }

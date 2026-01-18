@@ -230,7 +230,7 @@ public static partial class Module
 
             int newAlliance = i < (totalTanks + 1) / 2 ? 0 : 1;
 
-            var (spawnX, spawnY) = FindSpawnPositionCommand.Call(ctx, newGame, newAlliance, ctx.Rng);
+            var (spawnX, spawnY) = FindSpawnPosition.Call(ctx, newGame, newAlliance, ctx.Rng);
 
             var (newTank, newTransform) = BuildTank(
                 ctx: ctx,

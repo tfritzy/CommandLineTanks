@@ -64,7 +64,7 @@ public static partial class Module
             PathIndex = 0
         };
 
-        UpsertTankPathCommand.Call(ctx, newPathState);
+        UpsertTankPath.Call(ctx, newPathState);
 
         var updatedTransform = transform with
         {

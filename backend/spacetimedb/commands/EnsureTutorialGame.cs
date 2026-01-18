@@ -3,7 +3,7 @@ using static Types;
 
 public static partial class Module
 {
-    public static class EnsureTutorialGameCommand
+    public static class EnsureTutorialGame
     {
         public static void Call(ReducerContext ctx, Identity identity, string joinCode)
         {
