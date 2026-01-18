@@ -19,6 +19,7 @@ interface CombinedTankData {
     name: string;
     kills: number;
     deaths: number;
+    netKills: number;
     alliance: number;
     isBot: boolean;
 }
@@ -64,6 +65,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                     name: tank.name,
                     kills: tank.kills,
                     deaths: tank.deaths,
+                    netKills: tank.kills - tank.deaths,
                     alliance: tank.alliance,
                     isBot: tank.isBot,
                 });
@@ -185,8 +187,8 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
         return null;
     }
 
-    const team0Tanks = tanks.filter(t => t.alliance === 0).sort((a, b) => b.kills - a.kills);
-    const team1Tanks = tanks.filter(t => t.alliance === 1).sort((a, b) => b.kills - a.kills);
+    const team0Tanks = tanks.filter(t => t.alliance === 0).sort((a, b) => b.netKills - a.netKills);
+    const team1Tanks = tanks.filter(t => t.alliance === 1).sort((a, b) => b.netKills - a.netKills);
 
     const isDraw = team0Kills === team1Kills;
     const winningTeam = team0Kills > team1Kills ? 0 : 1;
@@ -212,22 +214,24 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
 
                 <div className="grid grid-cols-2 gap-[60px] max-w-[750px] mx-auto">
                     <div>
-                        <div className="text-[9px] text-palette-red-muted mb-4 tracking-[0.2em] uppercase font-extrabold border-b border-palette-red-muted/20 pb-2 grid grid-cols-[1fr_40px_40px_50px] gap-2 text-right">
+                        <div className="text-[9px] text-palette-red-muted mb-4 tracking-[0.2em] uppercase font-extrabold border-b border-palette-red-muted/20 pb-2 grid grid-cols-[1fr_40px_40px_40px_50px] gap-2 text-right">
                             <span className="text-left">RED TEAM</span>
                             <span className="opacity-50">KDR</span>
+                            <span className="opacity-50">K</span>
                             <span className="opacity-50">D</span>
-                            <span className="opacity-50">KILLS</span>
+                            <span className="opacity-50">NET</span>
                         </div>
                         <div className="flex flex-col gap-1">
                             {team0Tanks.map((tank) => {
                                 const kdr = tank.deaths === 0 ? tank.kills.toFixed(1) : (tank.kills / tank.deaths).toFixed(1);
                                 const displayName = tank.isBot ? `[BOT] ${tank.name}` : tank.name;
                                 return (
-                                    <div key={tank.id} className="grid grid-cols-[1fr_40px_40px_50px] gap-2 items-center text-[13px] text-ui-text-primary py-1 font-medium text-right">
+                                    <div key={tank.id} className="grid grid-cols-[1fr_40px_40px_40px_50px] gap-2 items-center text-[13px] text-ui-text-primary py-1 font-medium text-right">
                                         <span className="opacity-80 text-left overflow-hidden text-ellipsis whitespace-nowrap">{displayName}</span>
                                         <span className="opacity-40">{kdr}</span>
+                                        <span className="opacity-40">{tank.kills}</span>
                                         <span className="opacity-40">{tank.deaths}</span>
-                                        <span className="text-palette-orange-medium font-extrabold text-[15px]">{tank.kills}</span>
+                                        <span className="text-palette-orange-medium font-extrabold text-[15px]">{tank.netKills}</span>
                                     </div>
                                 );
                             })}
@@ -235,22 +239,24 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                     </div>
 
                     <div>
-                        <div className="text-[9px] text-palette-blue-info mb-4 tracking-[0.2em] uppercase font-extrabold border-b border-palette-blue-info/20 pb-2 grid grid-cols-[1fr_40px_40px_50px] gap-2 text-right">
+                        <div className="text-[9px] text-palette-blue-info mb-4 tracking-[0.2em] uppercase font-extrabold border-b border-palette-blue-info/20 pb-2 grid grid-cols-[1fr_40px_40px_40px_50px] gap-2 text-right">
                             <span className="text-left">BLUE TEAM</span>
                             <span className="opacity-50">KDR</span>
+                            <span className="opacity-50">K</span>
                             <span className="opacity-50">D</span>
-                            <span className="opacity-50">KILLS</span>
+                            <span className="opacity-50">NET</span>
                         </div>
                         <div className="flex flex-col gap-1">
                             {team1Tanks.map((tank) => {
                                 const kdr = tank.deaths === 0 ? tank.kills.toFixed(1) : (tank.kills / tank.deaths).toFixed(1);
                                 const displayName = tank.isBot ? `[BOT] ${tank.name}` : tank.name;
                                 return (
-                                    <div key={tank.id} className="grid grid-cols-[1fr_40px_40px_50px] gap-2 items-center text-[13px] text-ui-text-primary py-1 font-medium text-right">
+                                    <div key={tank.id} className="grid grid-cols-[1fr_40px_40px_40px_50px] gap-2 items-center text-[13px] text-ui-text-primary py-1 font-medium text-right">
                                         <span className="opacity-80 text-left overflow-hidden text-ellipsis whitespace-nowrap">{displayName}</span>
                                         <span className="opacity-40">{kdr}</span>
+                                        <span className="opacity-40">{tank.kills}</span>
                                         <span className="opacity-40">{tank.deaths}</span>
-                                        <span className="text-palette-blue-bright font-extrabold text-[15px]">{tank.kills}</span>
+                                        <span className="text-palette-blue-bright font-extrabold text-[15px]">{tank.netKills}</span>
                                     </div>
                                 );
                             })}
