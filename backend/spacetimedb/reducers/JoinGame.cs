@@ -60,8 +60,6 @@ public static partial class Module
 
         CleanupHomegameAndJoinCommand(ctx, game.Value.Id, joinCode);
 
-        TrackDailyActiveUser(ctx, player.Value.Id, game.Value.GameType);
-
         Log.Info($"Player {player.Value.Name} joined game {game.Value.Id}");
     }
 }

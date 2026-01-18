@@ -12,7 +12,7 @@ public static partial class Module
         return dateTimeOffset.UtcDateTime.ToString("yyyy-MM-dd");
     }
 
-    public static void TrackDailyActiveUser(ReducerContext ctx, string playerId, GameType gameType)
+    public static void TrackDailyActiveUserCommand(ReducerContext ctx, string playerId, GameType gameType)
     {
         if (gameType != GameType.Game)
         {
@@ -22,7 +22,7 @@ public static partial class Module
         var player = ctx.Db.player.Id.Find(playerId);
         if (player == null)
         {
-            Log.Error($"TrackDailyActiveUser: Player {playerId} not found");
+            Log.Error($"TrackDailyActiveUserCommand: Player {playerId} not found");
             return;
         }
 
