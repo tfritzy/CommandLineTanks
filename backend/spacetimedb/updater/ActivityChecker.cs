@@ -76,7 +76,7 @@ public static partial class Module
                 foreach (var (tank, inactivityTime) in tanksToRemove)
                 {
                     Log.Info($"Removing inactive tank {tank.Name} from game {game.Id} due to {(inactivityTime / 1_000_000)} seconds of inactivity");
-                    RemoveTankFromGame(ctx, tank);
+                    RemoveTankFromGame.Call(ctx, tank);
                 }
             }
         }

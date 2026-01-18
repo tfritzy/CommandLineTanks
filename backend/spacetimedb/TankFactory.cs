@@ -138,7 +138,7 @@ public static partial class Module
         if (existingTank != null && !string.IsNullOrEmpty(existingTank.Value.Id))
         {
             Log.Info($"Player already has tank in game {gameId}, removing before creating new one");
-            RemoveTankFromGame(ctx, existingTank.Value);
+            RemoveTankFromGame.Call(ctx, existingTank.Value);
         }
 
         var game = ctx.Db.game.Id.Find(gameId);

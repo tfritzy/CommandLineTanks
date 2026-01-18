@@ -17,11 +17,11 @@ public static partial class Module
 
         if (currentTank.Id != null)
         {
-            RemoveTankFromGame(ctx, currentTank);
-            EnsureMinimumPlayersPerTeam(ctx, gameId);
+            RemoveTankFromGame.Call(ctx, currentTank);
+            EnsureMinimumPlayersPerTeam.Call(ctx, gameId);
         }
 
-        ReturnToHomegame(ctx, joinCode);
+        ReturnToHomegame.Call(ctx, joinCode);
         
         Log.Info($"Returned to homegame");
     }

@@ -46,7 +46,7 @@ public static partial class Module
                     positionX: spawnX,
                     positionY: spawnY,
                     aiBehavior: AIBehavior.GameAI);
-                AddTankToGame(ctx, botTank, botTransform);
+                AddTankToGame.Call(ctx, botTank, botTransform);
             }
         }
     }

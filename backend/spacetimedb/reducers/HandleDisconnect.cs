@@ -16,7 +16,7 @@ public static partial class Module
         {
             if (tank.GameId.Length > 4)
             {
-                RemoveTankFromGame(ctx, tank);
+                RemoveTankFromGame.Call(ctx, tank);
                 Log.Info($"Player {player.Value.Name} disconnected, removed tank {tank.Id} from homegame {tank.GameId}");
             }
             else
@@ -26,6 +26,6 @@ public static partial class Module
         }
 
         var identityString = ctx.Sender.ToString().ToLower();
-        DeleteHomegameIfEmpty(ctx, identityString);
+        DeleteHomegameIfEmpty.Call(ctx, identityString);
     }
 }

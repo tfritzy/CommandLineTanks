@@ -61,7 +61,7 @@ public static partial class Module
             positionY: TUTORIAL_PLAYER_SPAWN.y + 0.5f,
             aiBehavior: AIBehavior.None);
 
-        AddTankToGame(ctx, tank, transform);
+        AddTankToGame.Call(ctx, tank, transform);
     }
 
     public static void CreateTutorialGame(ReducerContext ctx, Identity identity, string joinCode)

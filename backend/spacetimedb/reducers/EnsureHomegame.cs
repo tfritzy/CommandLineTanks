@@ -20,6 +20,6 @@ public static partial class Module
             CreateHomegame(ctx, identityString);
         }
 
-        EnsureTankInHomegame(ctx, identityString, joinCode);
+        EnsureTankInHomegame.Call(ctx, identityString, joinCode);
     }
 }

@@ -13,7 +13,7 @@ public static partial class Module
 
         if (tank.Health <= 0) return;
 
-        tank = TargetTankByCode(ctx, tank, targetCode);
+        tank = TargetTankByCode.Call(ctx, tank, targetCode);
         ctx.Db.tank.Id.Update(tank);
 
         MaybeAdvanceTutorialOnTarget(ctx, gameId, tank);
