@@ -4,7 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
-import { aim, track, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitGame, tanks, tutorial, findCommandSuggestion, parseCommandInput } from "./commands";
+import { aim, track, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitGame, tanks, tutorial, say, findCommandSuggestion, parseCommandInput } from "./commands";
 import { setTerminalWriteCallback } from "../../utils/terminalOutput";
 
 interface TerminalComponentProps {
@@ -24,7 +24,7 @@ const CTRL_ARROW_RIGHT = "\x1b[1;5C";
 
 const VALID_COMMANDS = ['aim', 'a', 'track', 't', 'drive', 'd', 'stop', 's', 'fire', 'f',
   'switch', 'w',
-  'respawn', 'tanks', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c', 'tutorial'];
+  'respawn', 'tanks', 'say', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c', 'tutorial'];
 
 const MAX_TERMINAL_LINES = 1000;
 
@@ -165,6 +165,8 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
           return respawn(connection, gameId, commandArgs);
         case 'tanks':
           return tanks(connection, gameId, commandArgs);
+        case 'say':
+          return say(connection, gameId, commandArgs);
         case 'create':
           return create(connection, commandArgs);
         case 'join':
