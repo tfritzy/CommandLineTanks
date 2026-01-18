@@ -5,6 +5,7 @@ import TerminalComponent from "./terminal/Terminal";
 import ResultsScreen from "./ResultsScreen";
 import GameHeader from "./GameHeader";
 import ScoreBoard from "./ScoreBoard";
+import ChatBox from "./ChatBox";
 import { JoinGameModal } from "./JoinGameModal";
 import GameNotFound from "./GameNotFound";
 import EliminatedModal from "./EliminatedModal";
@@ -74,6 +75,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
         `SELECT * FROM projectile_transform WHERE GameId = '${gameId}'`,
         `SELECT * FROM pickup WHERE GameId = '${gameId}'`,
         `SELECT * FROM kills WHERE GameId = '${gameId}'`,
+        `SELECT * FROM message WHERE GameId = '${gameId}'`,
         `SELECT * FROM tank_fire_state WHERE GameId = '${gameId}'`,
         `SELECT * FROM terrain_detail WHERE GameId = '${gameId}'`,
         `SELECT * FROM game WHERE Id = '${gameId}'`,
@@ -304,6 +306,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       <div className="flex-1 overflow-hidden relative">
         <GameHeader gameId={gameId} />
         <ScoreBoard gameId={gameId} />
+        <ChatBox gameId={gameId} />
         {isHomegame && <HomegameOverlay />}
         {isTutorialRoute && <TutorialOverlay />}
         {isTutorialRoute && (
