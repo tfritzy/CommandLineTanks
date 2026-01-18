@@ -33,6 +33,8 @@ public static partial class Module
             return;
         }
 
+        bool isNewPlayer = player.Value.LastGameJoinedDay == null;
+
         var dailyStats = ctx.Db.daily_active_users.Day.Find(currentDay);
         if (dailyStats == null)
         {
@@ -40,7 +42,7 @@ public static partial class Module
             {
                 Day = currentDay,
                 TotalCount = 1,
-                NewCount = player.Value.LastGameJoinedDay == null ? 1 : 0
+                NewCount = isNewPlayer ? 1 : 0
             });
         }
         else
@@ -49,7 +51,7 @@ public static partial class Module
             {
                 Day = currentDay,
                 TotalCount = dailyStats.Value.TotalCount + 1,
-                NewCount = dailyStats.Value.NewCount + (player.Value.LastGameJoinedDay == null ? 1 : 0)
+                NewCount = dailyStats.Value.NewCount + (isNewPlayer ? 1 : 0)
             });
         }
 
