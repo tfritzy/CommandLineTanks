@@ -1,12 +1,13 @@
 using SpacetimeDB;
 using System;
+using static Types;
 
 public static partial class Module
 {
     private static string GetDayKey(ReducerContext ctx)
     {
         var timestampMicroseconds = ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-        var milliseconds = timestampMicroseconds / 1000;
+        var milliseconds = timestampMicroseconds / 1000L;
         var dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
         return dateTimeOffset.UtcDateTime.ToString("yyyy-MM-dd");
     }
@@ -21,6 +22,7 @@ public static partial class Module
         var player = ctx.Db.player.Id.Find(playerId);
         if (player == null)
         {
+            Log.Error($"TrackDailyActiveUser: Player {playerId} not found");
             return;
         }
 
