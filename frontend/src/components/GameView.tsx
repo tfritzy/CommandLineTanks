@@ -7,7 +7,6 @@ import GameHeader from "./GameHeader";
 import ScoreBoard from "./ScoreBoard";
 import ChatBox from "./ChatBox";
 import { JoinGameModal } from "./JoinGameModal";
-import GameNotFound from "./GameNotFound";
 import EliminatedModal from "./EliminatedModal";
 import HomegameOverlay from "./HomegameOverlay";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,7 +38,6 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
   const gameCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDead, setIsDead] = useState(false);
   const [killerName, setKillerName] = useState<string | null>(null);
-  const [gameNotFound, setGameNotFound] = useState(false);
 
   const myIdentity = getIdentityHex();
   const isHomegame = myIdentity && gameId?.toLowerCase() === myIdentity.toLowerCase();
@@ -236,26 +234,14 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
     const connection = getConnection();
     if (!connection) return;
 
-    setGameNotFound(false);
-
     const check = () => {
       const game = connection.db.game.Id.find(gameId);
-      if (game) {
-        setGameNotFound(false);
-      } else {
-        if (!navigateToHomegameIfNotHome("not found")) {
-          setGameNotFound(true);
-        }
+      if (!game) {
+        navigateToHomegameIfNotHome("not found");
       }
     };
 
     gameCheckTimeoutRef.current = setTimeout(check, 1500);
-
-    const handleGameInsert = (_ctx: EventContext, game: Infer<typeof Game>) => {
-      if (game.id === gameId) {
-        setGameNotFound(false);
-      }
-    };
 
     const handleGameUpdate = (_ctx: EventContext, oldGame: Infer<typeof Game>, newGame: Infer<typeof Game>) => {
       if (newGame.id !== gameId) return;
@@ -271,26 +257,14 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       }
     };
 
-    const handleGameDelete = (_ctx: EventContext, game: Infer<typeof Game>) => {
-      if (game.id !== gameId) return;
-      
-      if (!navigateToHomegameIfNotHome("was deleted")) {
-        setGameNotFound(true);
-      }
-    };
-
-    connection.db.game.onInsert(handleGameInsert);
     connection.db.game.onUpdate(handleGameUpdate);
-    connection.db.game.onDelete(handleGameDelete);
 
     return () => {
       if (gameCheckTimeoutRef.current) {
         clearTimeout(gameCheckTimeoutRef.current);
       }
       if (connection) {
-        connection.db.game.removeOnInsert(handleGameInsert);
         connection.db.game.removeOnUpdate(handleGameUpdate);
-        connection.db.game.removeOnDelete(handleGameDelete);
       }
     };
   }, [gameId, isHomegame, joinModalStatus, myIdentity, navigate]);
@@ -368,18 +342,6 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
         <AnimatePresence>
           {!showJoinModal && isDead && (
             <EliminatedModal killerName={killerName} gameId={gameId} />
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {gameNotFound && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-[2000]"
-            >
-              <GameNotFound gameId={gameId} />
-            </motion.div>
           )}
         </AnimatePresence>
         <ResultsScreen gameId={gameId} />
