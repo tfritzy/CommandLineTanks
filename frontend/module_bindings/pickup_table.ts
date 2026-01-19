@@ -15,6 +15,7 @@ import PickupType from "./pickup_type_type";
 export default __t.row({
   id: __t.string().primaryKey(),
   gameId: __t.string(),
+  targetCode: __t.string(),
   positionX: __t.f32(),
   positionY: __t.f32(),
   gridX: __t.i32(),

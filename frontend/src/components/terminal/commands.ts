@@ -253,6 +253,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "drive, d - Navigate your tank using pathfinding",
         "",
         "Usage: drive <direction> [distance]",
+        "       drive <pickup_code>",
         "",
         "Arguments:",
         "  <direction>    Direction to drive (with pathfinding)",
@@ -266,11 +267,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ←: west, left, w, l",
         "                   ↖: northwest, upleft, leftup, nw, ul, lu",
         "  [distance]     Distance to drive in units (default: 1)",
+        "  <pickup_code>  Target code of a pickup to drive to (e.g., a4, h8)",
+        "                 Each pickup has a unique code shown on the map",
         "",
         "Examples:",
         "  drive northeast 5",
         "  drive up 3",
         "  drive s 10",
+        "  drive a4           (drive to pickup with code a4)",
       ];
 
     case "track":
@@ -800,11 +804,12 @@ export function drive(
       themeColors.error("drive: error: missing required arguments"),
       "",
       themeColors.dim("Usage: drive <direction> [distance]"),
+      themeColors.dim("       drive <pickup_code>"),
       "",
       themeColors.dim("Examples:"),
       themeColors.dim("  drive northeast 5"),
       themeColors.dim("  drive up 3"),
-      themeColors.dim("  drive 10 5      (10 units right, 5 units down)"),
+      themeColors.dim("  drive a4          (drive to pickup with code a4)"),
     ];
   }
 
@@ -819,6 +824,32 @@ export function drive(
   }
 
   const firstArgLower = args[0].toLowerCase();
+
+  const targetCodePattern = /^[a-z][0-9]$/;
+  if (targetCodePattern.test(firstArgLower)) {
+    const allPickups = Array.from(connection.db.pickup.iter()).filter(
+      (p) => p.gameId === gameId
+    );
+    const targetPickup = allPickups.find((p) => p.targetCode === firstArgLower);
+
+    if (!targetPickup) {
+      return [
+        themeColors.error(`drive: error: pickup with code '${firstArgLower}' not found`),
+        "",
+        themeColors.dim("Use a valid pickup target code to drive to a pickup"),
+      ];
+    }
+
+    const targetX = targetPickup.gridX;
+    const targetY = targetPickup.gridY;
+
+    connection.reducers.drive({ gameId, targetX, targetY });
+
+    const pickupCodeColored = themeColors.colorize(targetPickup.targetCode, 'VALUE');
+    return [
+      themeColors.success(`Driving to pickup ${pickupCodeColored}`),
+    ];
+  }
 
   if (validDirections.includes(firstArgLower)) {
     const directionInfo = directionAliases[firstArgLower];
@@ -858,10 +889,12 @@ export function drive(
     themeColors.error("drive: error: invalid movement command"),
     "",
     themeColors.dim("Usage: drive <direction> [distance]"),
+    themeColors.dim("       drive <pickup_code>"),
     "",
     themeColors.dim("Examples:"),
     themeColors.dim("  drive northeast 5"),
     themeColors.dim("  drive up 3"),
+    themeColors.dim("  drive a4          (drive to pickup with code a4)"),
   ];
 }
 

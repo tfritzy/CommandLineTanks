@@ -159,11 +159,13 @@ public static partial class PickupSpawner
             }
 
             var pickupId = Module.GenerateId(ctx, "pickup");
+            var targetCode = Module.AllocatePickupTargetCode.Call(ctx, gameId) ?? "";
 
             ctx.Db.pickup.Insert(Module.Pickup.Build(
                 ctx: ctx,
                 id: pickupId,
                 gameId: gameId,
+                targetCode: targetCode,
                 positionX: gridX + 0.5f,
                 positionY: gridY + 0.5f,
                 gridX: gridX,
@@ -241,11 +243,13 @@ public static partial class PickupSpawner
         PickupType pickupType = NON_HEALTH_PICKUP_TYPES[pickupTypeIndex];
 
         var pickupId = Module.GenerateId(ctx, "pickup");
+        var targetCode = Module.AllocatePickupTargetCode.Call(ctx, gameId) ?? "";
 
         ctx.Db.pickup.Insert(Module.Pickup.Build(
             ctx: ctx,
             id: pickupId,
             gameId: gameId,
+            targetCode: targetCode,
             positionX: centerX,
             positionY: centerY,
             gridX: spawnX,
@@ -288,11 +292,13 @@ public static partial class PickupSpawner
         }
 
         var pickupId = Module.GenerateId(ctx, "pickup");
+        var targetCode = Module.AllocatePickupTargetCode.Call(ctx, gameId) ?? "";
 
         ctx.Db.pickup.Insert(Module.Pickup.Build(
             ctx: ctx,
             id: pickupId,
             gameId: gameId,
+            targetCode: targetCode,
             positionX: centerX,
             positionY: centerY,
             gridX: spawnX,

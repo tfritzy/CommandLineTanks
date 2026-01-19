@@ -449,6 +449,10 @@ const tablesSchema = __schema(
         'gridX',
         'gridY',
       ] },
+      { name: 'GameId_TargetCode', algorithm: 'btree', columns: [
+        'gameId',
+        'targetCode',
+      ] },
       { name: 'GameId', algorithm: 'btree', columns: [
         'gameId',
       ] },

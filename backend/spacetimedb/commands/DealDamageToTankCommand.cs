@@ -148,9 +148,12 @@ public static partial class Module
             float centerX = finalGridX + 0.5f;
             float centerY = finalGridY + 0.5f;
 
+            var targetCode = AllocatePickupTargetCode.Call(ctx, gameId) ?? "";
+
             ctx.Db.pickup.Insert(Pickup.Build(
                 ctx: ctx,
                 gameId: gameId,
+                targetCode: targetCode,
                 positionX: centerX,
                 positionY: centerY,
                 gridX: finalGridX,

@@ -50,10 +50,12 @@ public static partial class Module
             const int TUTORIAL_SNIPER_AMMO = 1000;
 
             var gun = SNIPER_GUN with { Ammo = TUTORIAL_SNIPER_AMMO };
+            var targetCode = AllocatePickupTargetCode.Call(ctx, gameId) ?? "";
 
             ctx.Db.pickup.Insert(Pickup.Build(
                 ctx: ctx,
                 gameId: gameId,
+                targetCode: targetCode,
                 positionX: TUTORIAL_WEAPON_PICKUP_X + 0.5f,
                 positionY: TUTORIAL_WEAPON_PICKUP_Y + 0.5f,
                 gridX: TUTORIAL_WEAPON_PICKUP_X,

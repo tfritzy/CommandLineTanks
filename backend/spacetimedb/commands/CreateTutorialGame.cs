@@ -267,9 +267,12 @@ public static partial class Module
 
         private static void SpawnTutorialHealthPickup(ReducerContext ctx, string gameId)
         {
+            var targetCode = AllocatePickupTargetCode.Call(ctx, gameId) ?? "";
+
             ctx.Db.pickup.Insert(Pickup.Build(
                 ctx: ctx,
                 gameId: gameId,
+                targetCode: targetCode,
                 positionX: TUTORIAL_HEALTH_PICKUP.x + 0.5f,
                 positionY: TUTORIAL_HEALTH_PICKUP.y + 0.5f,
                 gridX: TUTORIAL_HEALTH_PICKUP.x,
