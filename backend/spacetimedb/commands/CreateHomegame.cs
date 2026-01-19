@@ -101,10 +101,13 @@ public static partial class Module
                 Kills = new int[] { 0, 0 }
             });
 
+            var traversibilityMapBytes = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap);
+            var projectileTraversibilityMapBytes = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap);
+
             ctx.Db.traversibility_map.Insert(new TraversibilityMap
             {
                 GameId = identityString,
-                Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
+                Map = traversibilityMapBytes,
                 Width = gameWidth,
                 Height = gameHeight
             });
@@ -112,10 +115,12 @@ public static partial class Module
             ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
             {
                 GameId = identityString,
-                Map = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap),
+                Map = projectileTraversibilityMapBytes,
                 Width = gameWidth,
                 Height = gameHeight
             });
+
+            GenerateDestinationAnchors.Call(ctx, identityString, traversibilityMapBytes, gameWidth, gameHeight);
         }
     }
 }
