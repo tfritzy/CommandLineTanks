@@ -27,7 +27,6 @@ public static partial class Module
                 CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
                 Width = width,
                 Height = height,
-                BaseTerrainLayer = baseTerrain,
                 GameState = GameState.Playing,
                 GameType = GameType.Game,
                 GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
@@ -41,6 +40,14 @@ public static partial class Module
             };
 
             ctx.Db.game.Insert(game);
+
+            ctx.Db.base_terrain_layer.Insert(new BaseTerrainLayer
+            {
+                GameId = gameId,
+                Layer = baseTerrain,
+                Width = width,
+                Height = height
+            });
 
             foreach (var detail in terrainDetails)
             {
