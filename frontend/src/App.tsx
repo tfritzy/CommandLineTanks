@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { connectToSpacetimeDB, onDisconnect } from "./spacetimedb-connection";
 import GameView from "./components/GameView";
 import TutorialRedirector from "./components/TutorialRedirector";
+import StatsPage from "./components/StatsPage";
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
@@ -83,6 +84,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/stats" element={<StatsPage />} />
       <Route path="/deploy" element={<TutorialRedirector />} />
       <Route path="/tutorial/:gameId" element={<GameView isTutorialRoute={true} />} />
       <Route path="/game/:gameId" element={<GameView isTutorialRoute={false} />} />

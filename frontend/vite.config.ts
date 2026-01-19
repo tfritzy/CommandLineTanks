@@ -9,7 +9,7 @@ export default defineConfig({
       name: 'rewrite-middleware',
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
-          if (req.url === '/deploy' || req.url?.startsWith('/game/')) {
+          if (req.url === '/deploy' || req.url === '/stats' || req.url?.startsWith('/game/')) {
             req.url = '/app.html';
           }
           next();
