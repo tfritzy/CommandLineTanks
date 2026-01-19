@@ -10,10 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-import ScheduledAiUpdate from "./scheduled_ai_update_type";
-
-export default {
-  get args() {
-    return ScheduledAiUpdate;
-  },
-};
+export default __t.row({
+  scheduledId: __t.u64().primaryKey(),
+  scheduledAt: __t.scheduleAt(),
+  gameId: __t.string(),
+  tankId: __t.string(),
+  tickCount: __t.i32(),
+});

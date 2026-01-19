@@ -81,18 +81,16 @@ import TutorialComplete from "./tutorial_complete_reducer";
 export { TutorialComplete };
 import TutorialSkip from "./tutorial_skip_reducer";
 export { TutorialSkip };
-import UpdateAi from "./update_ai_reducer";
-export { UpdateAi };
 import UpdateProjectiles from "./update_projectiles_reducer";
 export { UpdateProjectiles };
+import UpdateTankAi from "./update_tank_ai_reducer";
+export { UpdateTankAi };
 import UpdateTanks from "./update_tanks_reducer";
 export { UpdateTanks };
 
 // Import and reexport all procedure arg types
 
 // Import and reexport all table handle types
-import ScheduledAiUpdateRow from "./scheduled_ai_update_table";
-export { ScheduledAiUpdateRow };
 import ScheduledEnemyTankRespawnCheckRow from "./scheduled_enemy_tank_respawn_check_table";
 export { ScheduledEnemyTankRespawnCheckRow };
 import ScheduledGameActivityCheckRow from "./scheduled_game_activity_check_table";
@@ -107,6 +105,8 @@ import ScheduledPickupSpawnRow from "./scheduled_pickup_spawn_table";
 export { ScheduledPickupSpawnRow };
 import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table";
 export { ScheduledProjectileUpdatesRow };
+import ScheduledTankAiUpdateRow from "./scheduled_tank_ai_update_table";
+export { ScheduledTankAiUpdateRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
 import BaseTerrainLayerRow from "./base_terrain_layer_table";
@@ -197,8 +197,6 @@ import ProjectileTraversibilityMap from "./projectile_traversibility_map_type";
 export { ProjectileTraversibilityMap };
 import ProjectileType from "./projectile_type_type";
 export { ProjectileType };
-import ScheduledAiUpdate from "./scheduled_ai_update_type";
-export { ScheduledAiUpdate };
 import ScheduledEnemyTankRespawnCheck from "./scheduled_enemy_tank_respawn_check_type";
 export { ScheduledEnemyTankRespawnCheck };
 import ScheduledGameActivityCheck from "./scheduled_game_activity_check_type";
@@ -213,6 +211,8 @@ import ScheduledPickupSpawn from "./scheduled_pickup_spawn_type";
 export { ScheduledPickupSpawn };
 import ScheduledProjectileUpdates from "./scheduled_projectile_updates_type";
 export { ScheduledProjectileUpdates };
+import ScheduledTankAiUpdate from "./scheduled_tank_ai_update_type";
+export { ScheduledTankAiUpdate };
 import ScheduledTankUpdates from "./scheduled_tank_updates_type";
 export { ScheduledTankUpdates };
 import Score from "./score_type";
@@ -238,20 +238,6 @@ export { Vector2Float };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
-  __table({
-    name: 'ScheduledAIUpdate',
-    indexes: [
-      { name: 'GameId', algorithm: 'btree', columns: [
-        'gameId',
-      ] },
-      { name: 'ScheduledId', algorithm: 'btree', columns: [
-        'scheduledId',
-      ] },
-    ],
-    constraints: [
-      { name: 'ScheduledAIUpdate_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
-    ],
-  }, ScheduledAiUpdateRow),
   __table({
     name: 'ScheduledEnemyTankRespawnCheck',
     indexes: [
@@ -344,6 +330,23 @@ const tablesSchema = __schema(
       { name: 'ScheduledProjectileUpdates_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledProjectileUpdatesRow),
+  __table({
+    name: 'ScheduledTankAIUpdate',
+    indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'ScheduledId', algorithm: 'btree', columns: [
+        'scheduledId',
+      ] },
+      { name: 'TankId', algorithm: 'btree', columns: [
+        'tankId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScheduledTankAIUpdate_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
+    ],
+  }, ScheduledTankAiUpdateRow),
   __table({
     name: 'ScheduledTankUpdates',
     indexes: [
@@ -683,8 +686,8 @@ const reducersSchema = __reducers(
   __reducerSchema("track", Track),
   __reducerSchema("tutorialComplete", TutorialComplete),
   __reducerSchema("tutorialSkip", TutorialSkip),
-  __reducerSchema("UpdateAI", UpdateAi),
   __reducerSchema("UpdateProjectiles", UpdateProjectiles),
+  __reducerSchema("UpdateTankAI", UpdateTankAi),
   __reducerSchema("UpdateTanks", UpdateTanks),
 );
 
