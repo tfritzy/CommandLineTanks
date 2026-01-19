@@ -10,7 +10,6 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import GameVisibility from "./game_visibility_type";
-import BaseTerrain from "./base_terrain_type";
 import GameState from "./game_state_type";
 import GameType from "./game_type_type";
 
@@ -20,9 +19,6 @@ export default __t.row({
   createdAt: __t.u64(),
   width: __t.i32(),
   height: __t.i32(),
-  get baseTerrainLayer() {
-    return __t.array(BaseTerrain);
-  },
   get gameState() {
     return GameState;
   },

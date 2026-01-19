@@ -42,7 +42,6 @@ public static partial class Module
                 CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
                 Width = TUTORIAL_WIDTH,
                 Height = TUTORIAL_HEIGHT,
-                BaseTerrainLayer = baseTerrain,
                 GameState = GameState.Playing,
                 GameType = GameType.Tutorial,
                 GameStartedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
@@ -55,6 +54,14 @@ public static partial class Module
             };
 
             ctx.Db.game.Insert(game);
+
+            ctx.Db.base_terrain_layer.Insert(new BaseTerrainLayer
+            {
+                GameId = tutorialGameId,
+                Layer = baseTerrain,
+                Width = TUTORIAL_WIDTH,
+                Height = TUTORIAL_HEIGHT
+            });
 
             var traversibilityBoolMap = CalculateTutorialTraversibility(baseTerrain);
             var projectileTraversibilityBoolMap = CalculateTutorialProjectileTraversibility(baseTerrain);

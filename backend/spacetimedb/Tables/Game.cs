@@ -13,7 +13,6 @@ public static partial class Module
         public ulong CreatedAt;
         public int Width;
         public int Height;
-        public BaseTerrain[] BaseTerrainLayer;
         [SpacetimeDB.Index.BTree]
         public GameState GameState;
         public GameType GameType;

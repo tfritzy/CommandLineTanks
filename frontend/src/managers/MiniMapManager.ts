@@ -3,6 +3,7 @@ import { TankManager } from "./TankManager";
 import { getConnection } from "../spacetimedb-connection";
 import { type EventContext, type TerrainDetailRow, type PickupRow } from "../../module_bindings";
 import GameRow from "../../module_bindings/game_type";
+import BaseTerrainLayerRow from "../../module_bindings/base_terrain_layer_type";
 import GameType from "../../module_bindings/game_type_type";
 import { type Infer } from "spacetimedb";
 import { BaseTerrain } from "../../module_bindings";
@@ -54,8 +55,13 @@ export class MiniMapManager {
       if (game.id !== this.gameId) return;
       this.gameWidth = game.width;
       this.gameHeight = game.height;
-      this.baseTerrainLayer = game.baseTerrainLayer;
       this.gameType = game.gameType;
+      this.markForRedraw();
+    };
+
+    const handleTerrainChange = (terrain: Infer<typeof BaseTerrainLayerRow>) => {
+      if (terrain.gameId !== this.gameId) return;
+      this.baseTerrainLayer = terrain.layer;
       this.markForRedraw();
     };
 
@@ -68,6 +74,18 @@ export class MiniMapManager {
           },
           onUpdate: (_ctx: EventContext, _oldGame: Infer<typeof GameRow>, newGame: Infer<typeof GameRow>) => {
             handleGameChange(newGame);
+          }
+        },
+        loadInitialData: false
+      })
+      .add<typeof BaseTerrainLayerRow>({
+        table: connection.db.baseTerrainLayer,
+        handlers: {
+          onInsert: (_ctx: EventContext, terrain: Infer<typeof BaseTerrainLayerRow>) => {
+            handleTerrainChange(terrain);
+          },
+          onUpdate: (_ctx: EventContext, _oldTerrain: Infer<typeof BaseTerrainLayerRow>, newTerrain: Infer<typeof BaseTerrainLayerRow>) => {
+            handleTerrainChange(newTerrain);
           }
         },
         loadInitialData: false
@@ -110,6 +128,11 @@ export class MiniMapManager {
     const cachedGame = connection.db.game.Id.find(this.gameId);
     if (cachedGame) {
       handleGameChange(cachedGame);
+    }
+
+    const cachedTerrain = connection.db.baseTerrainLayer.GameId.find(this.gameId);
+    if (cachedTerrain) {
+      handleTerrainChange(cachedTerrain);
     }
   }
 

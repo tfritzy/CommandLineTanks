@@ -152,6 +152,12 @@ public static partial class Module
             ctx.Db.projectile_traversibility_map.GameId.Delete(gameId);
         }
 
+        var baseTerrainLayer = ctx.Db.base_terrain_layer.GameId.Find(gameId);
+        if (baseTerrainLayer != null)
+        {
+            ctx.Db.base_terrain_layer.GameId.Delete(gameId);
+        }
+
         foreach (var tankUpdater in ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId))
         {
             ctx.Db.ScheduledTankUpdates.ScheduledId.Delete(tankUpdater.ScheduledId);

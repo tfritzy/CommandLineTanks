@@ -29,12 +29,19 @@ public static partial class Module
                 CreatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch,
                 Width = gameWidth,
                 Height = gameHeight,
-                BaseTerrainLayer = baseTerrain,
                 GameState = GameState.Playing,
                 GameType = GameType.Home
             };
 
             ctx.Db.game.Insert(game);
+
+            ctx.Db.base_terrain_layer.Insert(new BaseTerrainLayer
+            {
+                GameId = identityString,
+                Layer = baseTerrain,
+                Width = gameWidth,
+                Height = gameHeight
+            });
             StartHomeGameTickers(ctx, identityString);
             PickupSpawner.SpawnHomegamePickups(ctx, identityString);
 

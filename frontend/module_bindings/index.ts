@@ -109,6 +109,8 @@ import ScheduledProjectileUpdatesRow from "./scheduled_projectile_updates_table"
 export { ScheduledProjectileUpdatesRow };
 import ScheduledTankUpdatesRow from "./scheduled_tank_updates_table";
 export { ScheduledTankUpdatesRow };
+import BaseTerrainLayerRow from "./base_terrain_layer_table";
+export { BaseTerrainLayerRow };
 import DailyActiveUsersRow from "./daily_active_users_table";
 export { DailyActiveUsersRow };
 import GameRow from "./game_table";
@@ -153,6 +155,8 @@ import AiConfig from "./ai_config_type";
 export { AiConfig };
 import BaseTerrain from "./base_terrain_type";
 export { BaseTerrain };
+import BaseTerrainLayer from "./base_terrain_layer_type";
+export { BaseTerrainLayer };
 import DailyActiveUsers from "./daily_active_users_type";
 export { DailyActiveUsers };
 import DamagedTank from "./damaged_tank_type";
@@ -354,6 +358,17 @@ const tablesSchema = __schema(
       { name: 'ScheduledTankUpdates_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },
     ],
   }, ScheduledTankUpdatesRow),
+  __table({
+    name: 'base_terrain_layer',
+    indexes: [
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+    ],
+    constraints: [
+      { name: 'base_terrain_layer_GameId_key', constraint: 'unique', columns: ['gameId'] },
+    ],
+  }, BaseTerrainLayerRow),
   __table({
     name: 'daily_active_users',
     indexes: [
