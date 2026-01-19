@@ -23,6 +23,11 @@ export default defineConfig({
         landing: resolve(__dirname, 'index.html'),
         app: resolve(__dirname, 'app.html'),
       },
+      output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
     },
   },
 })
