@@ -6,21 +6,37 @@ public static partial class Module
     {
         public static int Call(ReducerContext ctx, string gameId)
         {
-            int alliance0Count = 0;
-            int alliance1Count = 0;
+            int alliance0HumanCount = 0;
+            int alliance1HumanCount = 0;
+            int alliance0TotalCount = 0;
+            int alliance1TotalCount = 0;
+
             foreach (var t in ctx.Db.tank.GameId.Filter(gameId))
             {
                 if (t.Alliance == 0)
                 {
-                    alliance0Count++;
+                    alliance0TotalCount++;
+                    if (!t.IsBot)
+                    {
+                        alliance0HumanCount++;
+                    }
                 }
                 else if (t.Alliance == 1)
                 {
-                    alliance1Count++;
+                    alliance1TotalCount++;
+                    if (!t.IsBot)
+                    {
+                        alliance1HumanCount++;
+                    }
                 }
             }
 
-            return alliance0Count <= alliance1Count ? 0 : 1;
+            if (alliance0HumanCount != alliance1HumanCount)
+            {
+                return alliance0HumanCount < alliance1HumanCount ? 0 : 1;
+            }
+
+            return alliance0TotalCount <= alliance1TotalCount ? 0 : 1;
         }
     }
 }
