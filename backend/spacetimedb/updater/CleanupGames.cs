@@ -193,9 +193,9 @@ public static partial class Module
             ctx.Db.ScheduledEnemyTankRespawnCheck.ScheduledId.Delete(enemyTankRespawnCheck.ScheduledId);
         }
 
-        foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.GameId.Filter(gameId))
+        foreach (var aiUpdate in ctx.Db.ScheduledTankAIUpdate.GameId.Filter(gameId))
         {
-            ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
+            ctx.Db.ScheduledTankAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
         }
 
         var redirectPointingToGame = ctx.Db.game_redirect.OldGameId.Find(gameId);

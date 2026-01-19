@@ -48,9 +48,9 @@ public static partial class Module
             ctx.Db.ScheduledGameReset.ScheduledId.Delete(gameReset.ScheduledId);
         }
 
-        foreach (var aiUpdate in ctx.Db.ScheduledAIUpdate.GameId.Filter(gameId))
+        foreach (var aiUpdate in ctx.Db.ScheduledTankAIUpdate.GameId.Filter(gameId))
         {
-            ctx.Db.ScheduledAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
+            ctx.Db.ScheduledTankAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
         }
 
         Log.Info($"Stopped tickers for game {gameId}");
@@ -110,17 +110,6 @@ public static partial class Module
                 ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = NETWORK_TICK_RATE_MICROS }),
                 GameId = gameId,
                 LastTickAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-            });
-        }
-
-        if (!ctx.Db.ScheduledAIUpdate.GameId.Filter(gameId).Any())
-        {
-            ctx.Db.ScheduledAIUpdate.Insert(new BehaviorTreeAI.ScheduledAIUpdate
-            {
-                ScheduledId = 0,
-                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = AI_UPDATE_INTERVAL_MICROS }),
-                GameId = gameId,
-                TickCount = 0
             });
         }
 
