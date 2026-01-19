@@ -21,10 +21,6 @@ public static partial class TerrainGenerator
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
     private const int ROTATION_WEST = 3;
-    private const int LAKE_MIN_SIZE = 6;
-    private const int LAKE_MAX_SIZE = 12;
-    private const int MIN_NUM_LAKES = 0;
-    private const int MAX_NUM_LAKES = 7;
     private const float LAKE_NOISE_OFFSET_RANGE = 1000f;
     private const float LAKE_LARGE_NOISE_SCALE = 0.08f;
     private const float LAKE_LARGE_NOISE_AMPLITUDE = 0.35f;
@@ -104,7 +100,23 @@ public static partial class TerrainGenerator
 
     private static void GenerateLakes(BaseTerrain[] baseTerrain, Random random, int width, int height)
     {
-        int numLakes = MIN_NUM_LAKES + random.Next(MAX_NUM_LAKES - MIN_NUM_LAKES + 1);
+        int totalArea = width * height;
+        int minDimension = Math.Min(width, height);
+        int maxDimension = Math.Max(width, height);
+
+        int lakeMinSize = Math.Max(4, minDimension / 10);
+        int lakeMaxSize = Math.Max(lakeMinSize + 2, minDimension / 5);
+
+        double targetWaterPercentageMin = 0.03;
+        double targetWaterPercentageMax = 0.10;
+        double targetWaterPercentage = targetWaterPercentageMin + random.NextDouble() * (targetWaterPercentageMax - targetWaterPercentageMin);
+
+        int targetWaterTiles = (int)(totalArea * targetWaterPercentage);
+
+        int avgLakeSize = (lakeMinSize + lakeMaxSize) / 2;
+        int avgLakeArea = avgLakeSize * avgLakeSize;
+
+        int numLakes = Math.Max(0, Math.Min(10, targetWaterTiles / avgLakeArea));
 
         for (int lakeIdx = 0; lakeIdx < numLakes; lakeIdx++)
         {
@@ -115,8 +127,8 @@ public static partial class TerrainGenerator
             {
                 attempts++;
 
-                int lakeWidth = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
-                int lakeHeight = LAKE_MIN_SIZE + random.Next(LAKE_MAX_SIZE - LAKE_MIN_SIZE + 1);
+                int lakeWidth = lakeMinSize + random.Next(lakeMaxSize - lakeMinSize + 1);
+                int lakeHeight = lakeMinSize + random.Next(lakeMaxSize - lakeMinSize + 1);
                 int startX = random.Next(-lakeWidth / 2, width + lakeWidth / 2);
                 int startY = random.Next(-lakeHeight / 2, height + lakeHeight / 2);
 
