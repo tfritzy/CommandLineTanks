@@ -21,6 +21,13 @@ public static partial class TerrainGenerator
     private const int ROTATION_EAST = 1;
     private const int ROTATION_SOUTH = 2;
     private const int ROTATION_WEST = 3;
+    private const int LAKE_MIN_SIZE_THRESHOLD = 4;
+    private const int LAKE_MIN_SIZE_DIVISOR = 10;
+    private const int LAKE_MAX_SIZE_DIVISOR = 5;
+    private const int LAKE_SIZE_BUFFER = 2;
+    private const double LAKE_MIN_WATER_PERCENTAGE = 0.03;
+    private const double LAKE_MAX_WATER_PERCENTAGE = 0.10;
+    private const int LAKE_MAX_COUNT = 10;
     private const float LAKE_NOISE_OFFSET_RANGE = 1000f;
     private const float LAKE_LARGE_NOISE_SCALE = 0.08f;
     private const float LAKE_LARGE_NOISE_AMPLITUDE = 0.35f;
@@ -104,19 +111,17 @@ public static partial class TerrainGenerator
         int minDimension = Math.Min(width, height);
         int maxDimension = Math.Max(width, height);
 
-        int lakeMinSize = Math.Max(4, minDimension / 10);
-        int lakeMaxSize = Math.Max(lakeMinSize + 2, minDimension / 5);
+        int lakeMinSize = Math.Max(LAKE_MIN_SIZE_THRESHOLD, minDimension / LAKE_MIN_SIZE_DIVISOR);
+        int lakeMaxSize = Math.Max(lakeMinSize + LAKE_SIZE_BUFFER, minDimension / LAKE_MAX_SIZE_DIVISOR);
 
-        double targetWaterPercentageMin = 0.03;
-        double targetWaterPercentageMax = 0.10;
-        double targetWaterPercentage = targetWaterPercentageMin + random.NextDouble() * (targetWaterPercentageMax - targetWaterPercentageMin);
+        double targetWaterPercentage = LAKE_MIN_WATER_PERCENTAGE + random.NextDouble() * (LAKE_MAX_WATER_PERCENTAGE - LAKE_MIN_WATER_PERCENTAGE);
 
         int targetWaterTiles = (int)(totalArea * targetWaterPercentage);
 
         int avgLakeSize = (lakeMinSize + lakeMaxSize) / 2;
         int avgLakeArea = avgLakeSize * avgLakeSize;
 
-        int numLakes = Math.Max(0, Math.Min(10, targetWaterTiles / avgLakeArea));
+        int numLakes = avgLakeArea > 0 ? Math.Max(0, Math.Min(LAKE_MAX_COUNT, targetWaterTiles / avgLakeArea)) : 0;
 
         for (int lakeIdx = 0; lakeIdx < numLakes; lakeIdx++)
         {
