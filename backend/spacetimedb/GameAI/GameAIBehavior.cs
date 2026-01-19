@@ -7,10 +7,11 @@ using static Module;
 
 public static partial class GameAI
 {
-    public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, GameAIContext aiContext)
+    public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, GameAIContext aiContext, int tickCount)
     {
         var tank = fullTank.Tank;
-        var decision = GameAILogic.EvaluateBehaviorTree(ctx, fullTank, aiContext);
+        bool canFireThisTick = tickCount % 2 == 0;
+        var decision = GameAILogic.EvaluateBehaviorTree(ctx, fullTank, aiContext, canFireThisTick);
 
         switch (decision.Action)
         {

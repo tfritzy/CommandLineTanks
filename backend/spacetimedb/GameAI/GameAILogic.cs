@@ -27,7 +27,7 @@ public static class GameAILogic
         public List<(int x, int y)> Path { get; set; } = new List<(int x, int y)>();
     }
 
-    public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, FullTank tank, GameAIContext context)
+    public static AIDecision EvaluateBehaviorTree(ReducerContext ctx, FullTank tank, GameAIContext context, bool canFireThisTick)
     {
         var allTanks = context.GetAllTanks();
         var pathState = context.GetTankPath(tank.Id);
@@ -82,7 +82,7 @@ public static class GameAILogic
                 {
                     Action = AIAction.AimAndFire,
                     TargetTank = nearbyEnemy,
-                    ShouldFire = true
+                    ShouldFire = canFireThisTick
                 };
             }
         }
@@ -138,7 +138,7 @@ public static class GameAILogic
                     {
                         Action = AIAction.AimAndFire,
                         TargetTank = target,
-                        ShouldFire = true
+                        ShouldFire = canFireThisTick
                     };
                 }
             }
