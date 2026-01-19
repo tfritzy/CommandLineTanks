@@ -948,7 +948,7 @@
                         </div>
                         <div class="command-card-content">
                             <div class="command-name">
-                                <span>drive</span>
+                                <span>drive [d]</span>
                             </div>
                             <p class="command-description">
                                 Navigate through the game using pathfinding by specifying a tactical direction and optional distance.
@@ -968,7 +968,7 @@
                         </div>
                         <div class="command-card-content">
                             <div class="command-name">
-                                <span>track</span>
+                                <span>track [t]</span>
                             </div>
                             <p class="command-description">
                                 Lock onto an enemy unit's code to automatically track and follow them with your turret.
@@ -988,14 +988,14 @@
                         </div>
                         <div class="command-card-content">
                             <div class="command-name">
-                                <span>fire</span>
+                                <span>fire [f]</span>
                             </div>
                             <p class="command-description">
-                                Fire your primary or secondary weapon in the direction the turret is currently facing.
+                                Fire your selected weapon in the direction the turret is currently facing.
                             </p>
                             <div class="command-syntax">
                                 <div class="syntax-comment"># Syntax</div>
-                                <div class="syntax-primary">fire [f]</div>
+                                <div class="syntax-primary">fire</div>
                                 <div class="syntax-comment"># Type this:</div>
                                 <div class="syntax-example"><span class="syntax-dollar">$</span> fire</div>
                             </div>
@@ -1008,7 +1008,7 @@
                         </div>
                         <div class="command-card-content">
                             <div class="command-name">
-                                <span>aim</span>
+                                <span>aim [a]</span>
                             </div>
                             <p class="command-description">
                                 Rotate your turret to a specific angle or direction for precise targeting.
@@ -1029,7 +1029,7 @@
                         </div>
                         <div class="command-card-content">
                             <div class="command-name">
-                                <span>switch</span>
+                                <span>switch [w]</span>
                             </div>
                             <p class="command-description">
                                 Switch to a specific weapon system slot (1, 2, or 3).
@@ -1069,14 +1069,14 @@
                         </div>
                         <div class="command-card-content">
                             <div class="command-name">
-                                <span>stop</span>
+                                <span>stop [s]</span>
                             </div>
                             <p class="command-description">
                                 Immediately halt all movement and clear any active pathfinding routes.
                             </p>
                             <div class="command-syntax">
                                 <div class="syntax-comment"># Syntax</div>
-                                <div class="syntax-primary">stop [s]</div>
+                                <div class="syntax-primary">stop</div>
                                 <div class="syntax-comment"># Type this:</div>
                                 <div class="syntax-example"><span class="syntax-dollar">$</span> stop</div>
                             </div>
@@ -1132,13 +1132,13 @@
                                 <span>create</span>
                             </div>
                             <p class="command-description">
-                                Initialize a new game instance. Configure name, bots, dimensions, duration, and access control.
+                                Initialize a new game instance. Configure bots, dimensions, and duration.
                             </p>
                             <div class="command-syntax">
                                 <div class="syntax-comment"># Syntax</div>
-                                <div class="syntax-primary">create [-n name] [-b bots] [-w width] [-h height] [-d mins]</div>
+                                <div class="syntax-primary">create [-b bots] [-w width] [-h height] [-d mins]</div>
                                 <div class="syntax-comment"># Type this:</div>
-                                <div class="syntax-example"><span class="syntax-dollar">$</span> create -n "Battle" -b 4 -w 100</div>
+                                <div class="syntax-example"><span class="syntax-dollar">$</span> create -b 4 -w 100</div>
                             </div>
                         </div>
                     </div>
@@ -1169,14 +1169,14 @@
                         </div>
                         <div class="command-card-content">
                             <div class="command-name">
-                                <span>exit</span>
+                                <span>exit [e]</span>
                             </div>
                             <p class="command-description">
                                 Gracefully disconnect from the current game and return home.
                             </p>
                             <div class="command-syntax">
                                 <div class="syntax-comment"># Syntax</div>
-                                <div class="syntax-primary">exit [e]</div>
+                                <div class="syntax-primary">exit</div>
                                 <div class="syntax-comment"># Type this:</div>
                                 <div class="syntax-example"><span class="syntax-dollar">$</span> exit</div>
                             </div>
@@ -1189,14 +1189,14 @@
                         </div>
                         <div class="command-card-content">
                             <div class="command-name">
-                                <span>clear</span>
+                                <span>clear [c]</span>
                             </div>
                             <p class="command-description">
                                 Wipe the terminal display history and reset the command prompt.
                             </p>
                             <div class="command-syntax">
                                 <div class="syntax-comment"># Syntax</div>
-                                <div class="syntax-primary">clear [c]</div>
+                                <div class="syntax-primary">clear</div>
                                 <div class="syntax-comment"># Type this:</div>
                                 <div class="syntax-example"><span class="syntax-dollar">$</span> clear</div>
                             </div>
@@ -1209,7 +1209,7 @@
                         </div>
                         <div class="command-card-content">
                             <div class="command-name">
-                                <span>help</span>
+                                <span>help [h]</span>
                             </div>
                             <p class="command-description">
                                 Access terminal documentation for any command or view all operations.
