@@ -256,8 +256,21 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       }
     };
 
+    const handleGameDelete = (_ctx: EventContext, game: Infer<typeof Game>) => {
+      if (game.id !== gameId) return;
+      
+      if (!isHomegame) {
+        const homegameId = myIdentity?.toLowerCase();
+        if (homegameId) {
+          console.log(`Game ${gameId} was deleted, redirecting to homegame ${homegameId}`);
+          navigate(`/game/${homegameId}`);
+        }
+      }
+    };
+
     connection.db.game.onInsert(handleGameInsert);
     connection.db.game.onUpdate(handleGameUpdate);
+    connection.db.game.onDelete(handleGameDelete);
 
     return () => {
       if (gameCheckTimeoutRef.current) {
@@ -266,6 +279,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       if (connection) {
         connection.db.game.removeOnInsert(handleGameInsert);
         connection.db.game.removeOnUpdate(handleGameUpdate);
+        connection.db.game.removeOnDelete(handleGameDelete);
       }
     };
   }, [gameId, isHomegame, joinModalStatus, myIdentity, navigate]);
