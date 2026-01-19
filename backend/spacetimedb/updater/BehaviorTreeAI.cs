@@ -55,7 +55,7 @@ public static partial class BehaviorTreeAI
             Tank mutatedTank = tank;
             if (tank.AIBehavior == AIBehavior.GameAI)
             {
-                mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext);
+                mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext, args.TickCount);
             }
 
             ctx.Db.tank.Id.Update(mutatedTank);
