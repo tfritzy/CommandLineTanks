@@ -20,7 +20,7 @@ const HomegameOverlay: React.FC = () => {
 
                     <button
                         onClick={() => setShowHostModal(true)}
-                        className="pointer-events-auto ml-2 bg-palette-blue-cyan/15 hover:bg-palette-blue-cyan/25 border border-palette-blue-cyan/30 hover:border-palette-blue-cyan/50 rounded px-3 py-1 text-[11px] text-palette-blue-cyan font-mono cursor-pointer tracking-wider font-bold transition-all uppercase whitespace-nowrap active:translate-y-[1px]"
+                        className="pointer-events-auto bg-palette-blue-cyan/15 hover:bg-palette-blue-cyan/25 border border-palette-blue-cyan/30 hover:border-palette-blue-cyan/50 rounded px-3 py-1 text-[11px] text-palette-blue-cyan font-mono cursor-pointer tracking-wider font-bold transition-all uppercase whitespace-nowrap active:translate-y-[1px]"
                     >
                         Host Game
                     </button>
