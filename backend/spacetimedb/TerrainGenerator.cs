@@ -109,7 +109,6 @@ public static partial class TerrainGenerator
     {
         int totalArea = width * height;
         int minDimension = Math.Min(width, height);
-        int maxDimension = Math.Max(width, height);
 
         int lakeMinSize = Math.Max(LAKE_MIN_SIZE_THRESHOLD, minDimension / LAKE_MIN_SIZE_DIVISOR);
         int lakeMaxSize = Math.Max(lakeMinSize + LAKE_SIZE_BUFFER, minDimension / LAKE_MAX_SIZE_DIVISOR);
@@ -121,7 +120,7 @@ public static partial class TerrainGenerator
         int avgLakeSize = (lakeMinSize + lakeMaxSize) / 2;
         int avgLakeArea = avgLakeSize * avgLakeSize;
 
-        int numLakes = avgLakeArea > 0 ? Math.Max(0, Math.Min(LAKE_MAX_COUNT, targetWaterTiles / avgLakeArea)) : 0;
+        int numLakes = Math.Max(0, Math.Min(LAKE_MAX_COUNT, targetWaterTiles / avgLakeArea));
 
         for (int lakeIdx = 0; lakeIdx < numLakes; lakeIdx++)
         {
