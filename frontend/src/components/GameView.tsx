@@ -47,6 +47,18 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
   const joinModalStatus = useJoinModalStatus(gameId);
   const showJoinModal = joinModalStatus === "no_tank";
 
+  const navigateToHomegameIfNotHome = (reason: string): boolean => {
+    if (!isHomegame) {
+      const homegameId = myIdentity?.toLowerCase();
+      if (homegameId) {
+        console.log(`Game ${gameId} ${reason}, navigating to homegame ${homegameId}`);
+        navigate(`/game/${homegameId}`);
+        return true;
+      }
+    }
+    return false;
+  };
+
   const handleGameChange = (newGameId: string) => {
     if (newGameId !== gameId) {
       console.log("Switch to", newGameId);
@@ -231,7 +243,9 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       if (game) {
         setGameNotFound(false);
       } else {
-        setGameNotFound(true);
+        if (!navigateToHomegameIfNotHome("not found")) {
+          setGameNotFound(true);
+        }
       }
     };
 
@@ -259,7 +273,10 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
 
     const handleGameDelete = (_ctx: EventContext, game: Infer<typeof Game>) => {
       if (game.id !== gameId) return;
-      setGameNotFound(true);
+      
+      if (!navigateToHomegameIfNotHome("was deleted")) {
+        setGameNotFound(true);
+      }
     };
 
     connection.db.game.onInsert(handleGameInsert);
@@ -277,16 +294,6 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       }
     };
   }, [gameId, isHomegame, joinModalStatus, myIdentity, navigate]);
-
-  useEffect(() => {
-    if (!gameNotFound) return;
-    
-    const homegameId = myIdentity?.toLowerCase();
-    if (homegameId && gameId?.toLowerCase() !== homegameId) {
-      console.log(`Game not found, navigating to homegame ${homegameId}`);
-      navigate(`/game/${homegameId}`);
-    }
-  }, [gameNotFound, gameId, myIdentity, navigate]);
 
   useEffect(() => {
     if (!gameId || !isHomegame) return;
