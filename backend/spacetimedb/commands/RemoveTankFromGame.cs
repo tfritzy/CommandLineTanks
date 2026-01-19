@@ -30,22 +30,18 @@ public static partial class Module
             {
                 DecrementPlayerCount.Call(ctx, gameId);
                 
-                var game = ctx.Db.game.Id.Find(gameId);
-                if (game != null && game.Value.GameType == GameType.Game)
+                var allianceColor = GetAllianceColor(tank.Alliance);
+                var coloredPlayerName = $"[color={allianceColor}]{tank.Name}[/color]";
+                
+                ctx.Db.message.Insert(new Message
                 {
-                    var allianceColor = GetAllianceColor(tank.Alliance);
-                    var coloredPlayerName = $"[color={allianceColor}]{tank.Name}[/color]";
-                    
-                    ctx.Db.message.Insert(new Message
-                    {
-                        Id = GenerateId(ctx, "msg"),
-                        GameId = gameId,
-                        Sender = "System",
-                        SenderIdentity = null,
-                        Text = $"{coloredPlayerName} left the game",
-                        Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
-                    });
-                }
+                    Id = GenerateId(ctx, "msg"),
+                    GameId = gameId,
+                    Sender = "System",
+                    SenderIdentity = null,
+                    Text = $"{coloredPlayerName} left the game",
+                    Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
+                });
             }
         }
     }
