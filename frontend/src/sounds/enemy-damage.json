@@ -1,6 +1,6 @@
 {
   "oldParams": true,
-  "wave_type": 3,
+  "wave_type": 2,
   "p_env_attack": 0,
   "p_env_sustain": 0.53,
   "p_env_punch": 0.335,
@@ -15,7 +15,7 @@
   "p_arp_speed": -0.7922351034070849,
   "p_duty": -0.5762972767999337,
   "p_duty_ramp": 0.3063847622638328,
-  "p_repeat_speed": 0.3331491035048588,
+  "p_repeat_speed": 0,
   "p_pha_offset": -0.01,
   "p_pha_ramp": -0.17,
   "p_lpf_freq": 0.15,
@@ -23,7 +23,8 @@
   "p_lpf_resonance": 0.4460773443119539,
   "p_hpf_freq": 0.005,
   "p_hpf_ramp": -0.16179870535701793,
-  "sound_vol": 0.25,
+  "sound_vol": 0.095,
   "sample_rate": 44100,
-  "sample_size": 8
+  "sample_size": 8,
+  "p_vib_delay": 0.008985805514883635
 }

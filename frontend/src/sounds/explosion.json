@@ -1,7 +1,7 @@
 {
   "oldParams": true,
-  "wave_type": 3,
-  "p_env_attack": 0,
+  "wave_type": 1,
+  "p_env_attack": 0.03,
   "p_env_sustain": 0.2,
   "p_env_punch": 0.6,
   "p_env_decay": 0.45,
@@ -25,5 +25,6 @@
   "p_hpf_ramp": 0.02,
   "sound_vol": 0.4,
   "sample_rate": 44100,
-  "sample_size": 8
+  "sample_size": 8,
+  "p_vib_delay": 0.008985805514883635
 }

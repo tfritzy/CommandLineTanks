@@ -1,6 +1,6 @@
 {
   "oldParams": true,
-  "wave_type": 3,
+  "wave_type": 2,
   "p_env_attack": 0,
   "p_env_sustain": 0.08,
   "p_env_punch": 0.5,
@@ -25,5 +25,6 @@
   "p_hpf_ramp": 0,
   "sound_vol": 0.35,
   "sample_rate": 44100,
-  "sample_size": 8
+  "sample_size": 8,
+  "p_vib_delay": 0.008985805514883635
 }
