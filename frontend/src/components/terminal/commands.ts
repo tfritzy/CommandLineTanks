@@ -226,7 +226,7 @@ export function findCommandSuggestion(input: string): string | null {
 export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
-      `  ${themeColors.command("drive")}, ${themeColors.command("d")}             Drive to a direction or coordinate using pathfinding`,
+      `  ${themeColors.command("drive")}, ${themeColors.command("d")}             Drive in a direction using pathfinding`,
       `  ${themeColors.command("track")}, ${themeColors.command("t")}             Track an enemy tank by code for automatic targeting`,
       `  ${themeColors.command("stop")}, ${themeColors.command("s")}              Stop the tank immediately`,
       `  ${themeColors.command("aim")}, ${themeColors.command("a")}               Aim turret at an angle or direction`,
@@ -236,8 +236,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       `  ${themeColors.command("tanks")}                Display all tanks in the game with statistics`,
       `  ${themeColors.command("say")}                  Send a message to all players in the game`,
       `  ${themeColors.command("name")}                 View or change your player name`,
-      `  ${themeColors.command("create")}               Create a new game game with optional flags`,
-      `  ${themeColors.command("join")}                 Join or create a game game (default: random)`,
+      `  ${themeColors.command("create")}               Create a new game`,
+      `  ${themeColors.command("join")}                 Join a game (default: random)`,
       `  ${themeColors.command("exit")}, ${themeColors.command("e")}              Return to your homegame`,
       `  ${themeColors.command("clear")}, ${themeColors.command("c")}             Clear the terminal output`,
       `  ${themeColors.command("help")}, ${themeColors.command("h")}              Display help information`,
@@ -252,7 +252,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "drive, d - Navigate your tank using pathfinding",
         "",
-        "Usage: drive <direction> [distance]",
+        "Usage: drive <direction>",
         "",
         "Arguments:",
         "  <direction>    Direction to drive (with pathfinding)",
@@ -265,12 +265,10 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ↙: southwest, downleft, leftdown, sw, dl, ld",
         "                   ←: west, left, w, l",
         "                   ↖: northwest, upleft, leftup, nw, ul, lu",
-        "  [distance]     Distance to drive in units (default: 1)",
         "",
         "Examples:",
-        "  drive northeast 5",
-        "  drive up 3",
-        "  drive s 10",
+        "  d up",
+        "  d s",
       ];
 
     case "track":
@@ -799,12 +797,11 @@ export function drive(
     return [
       themeColors.error("drive: error: missing required arguments"),
       "",
-      themeColors.dim("Usage: drive <direction> [distance]"),
+      themeColors.dim("Usage: drive <direction>"),
       "",
       themeColors.dim("Examples:"),
-      themeColors.dim("  drive northeast 5"),
-      themeColors.dim("  drive up 3"),
-      themeColors.dim("  drive 10 5      (10 units right, 5 units down)"),
+      themeColors.dim("  d ne"),
+      themeColors.dim("  d u"),
     ];
   }
 
@@ -823,45 +820,28 @@ export function drive(
   if (validDirections.includes(firstArgLower)) {
     const directionInfo = directionAliases[firstArgLower];
 
-    let distance = 1;
-    if (args.length > 1) {
-      const parsed = Number.parseInt(args[1]);
-      if (Number.isNaN(parsed) || parsed <= 0) {
-        return [
-          themeColors.error(`drive: error: invalid value '${args[1]}' for '[distance]': must be a positive integer`),
-          "",
-          themeColors.dim("Usage: drive <direction> [distance]"),
-          themeColors.dim("       drive northeast 5"),
-        ];
-      } else {
-        distance = parsed;
-      }
-    }
-
-    const relativeX = directionInfo.x * distance;
-    const relativeY = directionInfo.y * distance;
+    const relativeX = directionInfo.x * 100;
+    const relativeY = directionInfo.y * 100;
 
     const targetX = Math.floor(myTransform.positionX) + relativeX;
     const targetY = Math.floor(myTransform.positionY) + relativeY;
 
     connection.reducers.drive({ gameId, targetX, targetY });
 
-    const distanceText = themeColors.value(distance.toString());
     const dirName = themeColors.value(directionInfo.name);
-    const explanation = `${distanceText} ${themeColors.success(distance !== 1 ? "units" : "unit")} ${dirName}`;
     return [
-      themeColors.success("Driving ") + explanation,
+      themeColors.success("Driving ") + dirName,
     ];
   }
 
   return [
     themeColors.error("drive: error: invalid movement command"),
     "",
-    themeColors.dim("Usage: drive <direction> [distance]"),
+    themeColors.dim("Usage: drive <direction>"),
     "",
     themeColors.dim("Examples:"),
-    themeColors.dim("  drive northeast 5"),
-    themeColors.dim("  drive up 3"),
+    themeColors.dim("  d ne"),
+    themeColors.dim("  d u"),
   ];
 }
 
