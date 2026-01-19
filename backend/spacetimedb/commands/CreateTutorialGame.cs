@@ -90,8 +90,8 @@ public static partial class Module
 
             AddTutorialTerrainDetails(ctx, tutorialGameId);
 
-            SpawnTutorialHealthPickup(ctx, tutorialGameId);
-            SpawnDriveToHealthLabel(ctx, tutorialGameId);
+            var healthDestinationCode = SpawnTutorialHealthPickup(ctx, tutorialGameId);
+            SpawnDriveToHealthLabel(ctx, tutorialGameId, healthDestinationCode);
 
             EnsureTankInTutorial(ctx, tutorialGameId, identity, joinCode);
 
@@ -265,21 +265,26 @@ public static partial class Module
             return traversibility;
         }
 
-        private static void SpawnTutorialHealthPickup(ReducerContext ctx, string gameId)
+        private static string? SpawnTutorialHealthPickup(ReducerContext ctx, string gameId)
         {
-            ctx.Db.pickup.Insert(Pickup.Build(
+            return SpawnPickupWithDestination.Call(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: TUTORIAL_HEALTH_PICKUP.x + 0.5f,
                 positionY: TUTORIAL_HEALTH_PICKUP.y + 0.5f,
                 gridX: TUTORIAL_HEALTH_PICKUP.x,
                 gridY: TUTORIAL_HEALTH_PICKUP.y,
-                type: PickupType.Health
-            ));
+                pickupType: PickupType.Health,
+                ammo: null
+            );
         }
 
-        private static void SpawnDriveToHealthLabel(ReducerContext ctx, string gameId)
+        private static void SpawnDriveToHealthLabel(ReducerContext ctx, string gameId, string? destinationCode)
         {
+            var driveCommand = destinationCode != null 
+                ? $"d {destinationCode}"
+                : "d e 3";
+            
             ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 id: $"{gameId}_label_health",
@@ -289,7 +294,7 @@ public static partial class Module
                 gridX: TUTORIAL_HEALTH_PICKUP.x,
                 gridY: TUTORIAL_HEALTH_PICKUP.y - 1,
                 type: TerrainDetailType.Label,
-                label: "You're low on health! Use [color=#fceba8]`d e 3`[/color] to pick up this health pack"
+                label: $"You're low on health! Use [color=#fceba8]`{driveCommand}`[/color] to pick up this health pack"
             ));
         }
 

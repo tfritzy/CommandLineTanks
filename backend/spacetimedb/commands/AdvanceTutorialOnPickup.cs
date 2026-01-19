@@ -21,8 +21,8 @@ public static partial class Module
             if (pickupType == PickupType.Health)
             {
                 RemoveTutorialLabel(ctx, $"{gameId}_label_health");
-                SpawnTutorialWeaponPickup(ctx, gameId);
-                SpawnDriveToWeaponLabel(ctx, gameId);
+                var weaponDestinationCode = SpawnTutorialWeaponPickup(ctx, gameId);
+                SpawnDriveToWeaponLabel(ctx, gameId, weaponDestinationCode);
                 Log.Info($"Tutorial {gameId}: Advanced to DriveToWeapon");
             }
             else if (pickupType == PickupType.Sniper)
@@ -43,7 +43,7 @@ public static partial class Module
             }
         }
 
-        private static void SpawnTutorialWeaponPickup(ReducerContext ctx, string gameId)
+        private static string? SpawnTutorialWeaponPickup(ReducerContext ctx, string gameId)
         {
             const int TUTORIAL_WEAPON_PICKUP_X = 9;
             const int TUTORIAL_WEAPON_PICKUP_Y = 9;
@@ -51,21 +51,26 @@ public static partial class Module
 
             var gun = SNIPER_GUN with { Ammo = TUTORIAL_SNIPER_AMMO };
 
-            ctx.Db.pickup.Insert(Pickup.Build(
+            return SpawnPickupWithDestination.Call(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: TUTORIAL_WEAPON_PICKUP_X + 0.5f,
                 positionY: TUTORIAL_WEAPON_PICKUP_Y + 0.5f,
                 gridX: TUTORIAL_WEAPON_PICKUP_X,
                 gridY: TUTORIAL_WEAPON_PICKUP_Y,
-                type: PickupType.Sniper
-            ));
+                pickupType: PickupType.Sniper,
+                ammo: gun.Ammo
+            );
         }
 
-        private static void SpawnDriveToWeaponLabel(ReducerContext ctx, string gameId)
+        private static void SpawnDriveToWeaponLabel(ReducerContext ctx, string gameId, string? destinationCode)
         {
             const int TUTORIAL_WEAPON_PICKUP_X = 9;
             const int TUTORIAL_WEAPON_PICKUP_Y = 9;
+
+            var driveCommand = destinationCode != null 
+                ? $"d {destinationCode}"
+                : "d se 3";
 
             ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
@@ -76,7 +81,7 @@ public static partial class Module
                 gridX: TUTORIAL_WEAPON_PICKUP_X,
                 gridY: TUTORIAL_WEAPON_PICKUP_Y - 1,
                 type: TerrainDetailType.Label,
-                label: "Enemies are approaching! Use [color=#fceba8]`d se 3`[/color] to pick up this weapon"
+                label: $"Enemies are approaching! Use [color=#fceba8]`{driveCommand}`[/color] to pick up this weapon"
             ));
         }
 

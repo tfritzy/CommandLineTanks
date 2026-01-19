@@ -148,16 +148,16 @@ public static partial class Module
             float centerX = finalGridX + 0.5f;
             float centerY = finalGridY + 0.5f;
 
-            ctx.Db.pickup.Insert(Pickup.Build(
+            SpawnPickupWithDestination.Call(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: centerX,
                 positionY: centerY,
                 gridX: finalGridX,
                 gridY: finalGridY,
-                type: pickupType.Value,
+                pickupType: pickupType.Value,
                 ammo: gun.Ammo
-            ));
+            );
         }
     }
 

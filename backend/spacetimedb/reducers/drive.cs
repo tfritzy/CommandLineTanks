@@ -7,9 +7,19 @@ using System.Linq;
 public static partial class Module
 {
     [Reducer]
-    public static void drive(ReducerContext ctx, string gameId, int targetX, int targetY)
+    public static void drive(ReducerContext ctx, string gameId, int targetX, int targetY, string? targetCode)
     {
         MaybeResumeUpdatersForLowTrafficGame(ctx, gameId);
+
+        if (!string.IsNullOrEmpty(targetCode))
+        {
+            var destination = ctx.Db.destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
+            if (destination != null)
+            {
+                targetX = (int)destination.PositionX;
+                targetY = (int)destination.PositionY;
+            }
+        }
 
         Game? maybeGame = ctx.Db.game.Id.Find(gameId);
         if (maybeGame != null)

@@ -82,6 +82,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
         `SELECT * FROM tank_transform WHERE GameId = '${gameId}'`,
         `SELECT * FROM projectile WHERE GameId = '${gameId}'`,
         `SELECT * FROM projectile_transform WHERE GameId = '${gameId}'`,
+        `SELECT * FROM destination WHERE GameId = '${gameId}'`,
         `SELECT * FROM pickup WHERE GameId = '${gameId}'`,
         `SELECT * FROM kills WHERE GameId = '${gameId}'`,
         `SELECT * FROM message WHERE GameId = '${gameId}'`,

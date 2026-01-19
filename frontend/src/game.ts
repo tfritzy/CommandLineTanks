@@ -4,6 +4,7 @@ import { ProjectileManager } from "./managers/ProjectileManager";
 import { TerrainManager } from "./managers/TerrainManager";
 import { GunInventoryManager } from "./managers/GunInventoryManager";
 import { PickupManager } from "./managers/PickupManager";
+import { DestinationManager } from "./managers/DestinationManager";
 import { MiniMapManager } from "./managers/MiniMapManager";
 import { KillManager } from "./managers/KillManager";
 import { COLORS, UNIT_TO_PIXEL } from "./constants";
@@ -27,6 +28,7 @@ export class Game {
   private terrainManager: TerrainManager;
   private gunInventoryManager: GunInventoryManager;
   private pickupManager: PickupManager;
+  private destinationManager: DestinationManager;
   private miniMapManager: MiniMapManager;
   private killManager: KillManager;
   private currentCameraX: number = 0;
@@ -79,6 +81,7 @@ export class Game {
     this.projectileManager.setTankManager(this.tankManager);
     this.gunInventoryManager = new GunInventoryManager(gameId);
     this.pickupManager = new PickupManager(gameId, this.soundManager);
+    this.destinationManager = new DestinationManager(gameId);
     this.miniMapManager = new MiniMapManager(this.tankManager, gameId);
     this.killManager = new KillManager(gameId, this.soundManager);
   }
@@ -178,6 +181,16 @@ export class Game {
 
     this.profiler.profile("pickup_draw", () =>
       this.pickupManager.draw(
+        this.ctx,
+        this.currentCameraX,
+        this.currentCameraY,
+        displayWidth,
+        displayHeight
+      )
+    );
+
+    this.profiler.profile("destination_draw", () =>
+      this.destinationManager.draw(
         this.ctx,
         this.currentCameraX,
         this.currentCameraY,
@@ -336,6 +349,7 @@ export class Game {
     this.terrainManager.destroy();
     this.gunInventoryManager.destroy();
     this.pickupManager.destroy();
+    this.destinationManager.destroy();
     this.miniMapManager.destroy();
     this.killManager.destroy();
 

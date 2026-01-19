@@ -10,9 +10,12 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
+export default __t.object("Destination", {
+  id: __t.string(),
   gameId: __t.string(),
-  targetX: __t.i32(),
-  targetY: __t.i32(),
-  targetCode: __t.option(__t.string()),
-};
+  targetCode: __t.string(),
+  positionX: __t.f32(),
+  positionY: __t.f32(),
+});
+
+

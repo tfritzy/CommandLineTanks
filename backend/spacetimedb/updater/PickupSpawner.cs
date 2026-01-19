@@ -158,19 +158,16 @@ public static partial class PickupSpawner
                 continue;
             }
 
-            var pickupId = Module.GenerateId(ctx, "pickup");
-
-            ctx.Db.pickup.Insert(Module.Pickup.Build(
+            Module.SpawnPickupWithDestination.Call(
                 ctx: ctx,
-                id: pickupId,
                 gameId: gameId,
                 positionX: gridX + 0.5f,
                 positionY: gridY + 0.5f,
                 gridX: gridX,
                 gridY: gridY,
-                type: pickupType,
+                pickupType: pickupType,
                 ammo: GetAmmoForPickupType(pickupType)
-            ));
+            );
         }
     }
 
@@ -240,19 +237,16 @@ public static partial class PickupSpawner
         int pickupTypeIndex = ctx.Rng.Next(NON_HEALTH_PICKUP_TYPES.Length);
         PickupType pickupType = NON_HEALTH_PICKUP_TYPES[pickupTypeIndex];
 
-        var pickupId = Module.GenerateId(ctx, "pickup");
-
-        ctx.Db.pickup.Insert(Module.Pickup.Build(
+        Module.SpawnPickupWithDestination.Call(
             ctx: ctx,
-            id: pickupId,
             gameId: gameId,
             positionX: centerX,
             positionY: centerY,
             gridX: spawnX,
             gridY: spawnY,
-            type: pickupType,
+            pickupType: pickupType,
             ammo: GetAmmoForPickupType(pickupType)
-        ));
+        );
 
         return true;
     }
@@ -287,19 +281,16 @@ public static partial class PickupSpawner
             return false;
         }
 
-        var pickupId = Module.GenerateId(ctx, "pickup");
-
-        ctx.Db.pickup.Insert(Module.Pickup.Build(
+        Module.SpawnPickupWithDestination.Call(
             ctx: ctx,
-            id: pickupId,
             gameId: gameId,
             positionX: centerX,
             positionY: centerY,
             gridX: spawnX,
             gridY: spawnY,
-            type: PickupType.Health,
+            pickupType: PickupType.Health,
             ammo: null
-        ));
+        );
 
         return true;
     }
@@ -390,6 +381,7 @@ public static partial class PickupSpawner
             tank = tank with { Health = maxHealth };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
+            DeleteDestinationAtPosition(ctx, pickup.GameId, pickup.PositionX, pickup.PositionY);
             return true;
         }
         return false;
@@ -402,6 +394,7 @@ public static partial class PickupSpawner
             tank = tank with { HasShield = true };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
+            DeleteDestinationAtPosition(ctx, pickup.GameId, pickup.PositionX, pickup.PositionY);
             return true;
         }
         return false;
@@ -436,6 +429,7 @@ public static partial class PickupSpawner
                 }
                 ctx.Db.tank_gun.Id.Update(existingGunEntry.Value with { Gun = existingGun });
                 ctx.Db.pickup.Id.Delete(pickup.Id);
+                DeleteDestinationAtPosition(ctx, pickup.GameId, pickup.PositionX, pickup.PositionY);
                 return true;
             }
         }
@@ -456,10 +450,25 @@ public static partial class PickupSpawner
             tank = tank with { SelectedGunIndex = newSlotIndex };
             needsUpdate = true;
             ctx.Db.pickup.Id.Delete(pickup.Id);
+            DeleteDestinationAtPosition(ctx, pickup.GameId, pickup.PositionX, pickup.PositionY);
             return true;
         }
 
         return false;
+    }
+
+    private static void DeleteDestinationAtPosition(ReducerContext ctx, string gameId, float positionX, float positionY)
+    {
+        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        {
+            float dx = destination.PositionX - positionX;
+            float dy = destination.PositionY - positionY;
+            if (dx * dx + dy * dy < 0.01f)
+            {
+                ctx.Db.destination.Id.Delete(destination.Id);
+                return;
+            }
+        }
     }
 
     public static float GenerateNormalDistribution(Random random)

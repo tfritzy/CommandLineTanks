@@ -113,6 +113,8 @@ import BaseTerrainLayerRow from "./base_terrain_layer_table";
 export { BaseTerrainLayerRow };
 import DailyActiveUsersRow from "./daily_active_users_table";
 export { DailyActiveUsersRow };
+import DestinationRow from "./destination_table";
+export { DestinationRow };
 import GameRow from "./game_table";
 export { GameRow };
 import GameRedirectRow from "./game_redirect_table";
@@ -163,6 +165,8 @@ import DamagedTank from "./damaged_tank_type";
 export { DamagedTank };
 import DamagedTile from "./damaged_tile_type";
 export { DamagedTile };
+import Destination from "./destination_type";
+export { Destination };
 import ExplosionTrigger from "./explosion_trigger_type";
 export { ExplosionTrigger };
 import Game from "./game_type";
@@ -380,6 +384,28 @@ const tablesSchema = __schema(
       { name: 'daily_active_users_Day_key', constraint: 'unique', columns: ['day'] },
     ],
   }, DailyActiveUsersRow),
+  __table({
+    name: 'destination',
+    indexes: [
+      { name: 'GameId_TargetCode', algorithm: 'btree', columns: [
+        'gameId',
+        'targetCode',
+      ] },
+      { name: 'GameId', algorithm: 'btree', columns: [
+        'gameId',
+      ] },
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { name: 'TargetCode', algorithm: 'btree', columns: [
+        'targetCode',
+      ] },
+    ],
+    constraints: [
+      { name: 'destination_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'destination_TargetCode_key', constraint: 'unique', columns: ['targetCode'] },
+    ],
+  }, DestinationRow),
   __table({
     name: 'game',
     indexes: [

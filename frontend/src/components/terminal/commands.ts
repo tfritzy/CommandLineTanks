@@ -226,7 +226,7 @@ export function findCommandSuggestion(input: string): string | null {
 export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
-      `  ${themeColors.command("drive")}, ${themeColors.command("d")}             Drive in a direction using pathfinding`,
+      `  ${themeColors.command("drive")}, ${themeColors.command("d")}             Drive in a direction or to a destination code`,
       `  ${themeColors.command("track")}, ${themeColors.command("t")}             Track an enemy tank by code for automatic targeting`,
       `  ${themeColors.command("stop")}, ${themeColors.command("s")}              Stop the tank immediately`,
       `  ${themeColors.command("aim")}, ${themeColors.command("a")}               Aim turret at an angle or direction`,
@@ -250,9 +250,9 @@ export function help(_connection: DbConnection, args: string[]): string[] {
     case "drive":
     case "d":
       return [
-        "drive, d - Navigate your tank using pathfinding",
+        "drive, d - Navigate your tank using pathfinding or drive to a destination code",
         "",
-        "Usage: drive <direction>",
+        "Usage: drive <direction|code>",
         "",
         "Arguments:",
         "  <direction>    Direction to drive (with pathfinding)",
@@ -265,10 +265,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ↙: southwest, downleft, leftdown, sw, dl, ld",
         "                   ←: west, left, w, l",
         "                   ↖: northwest, upleft, leftup, nw, ul, lu",
+        "  <code>         Destination code (like a1, z9) to drive to",
         "",
         "Examples:",
         "  d up",
         "  d s",
+        "  d a1          # Drive to destination a1",
       ];
 
     case "track":
@@ -797,11 +799,11 @@ export function drive(
     return [
       themeColors.error("drive: error: missing required arguments"),
       "",
-      themeColors.dim("Usage: drive <direction>"),
+      themeColors.dim("Usage: drive <direction|code>"),
       "",
       themeColors.dim("Examples:"),
       themeColors.dim("  d ne"),
-      themeColors.dim("  d u"),
+      themeColors.dim("  d a1"),
     ];
   }
 
@@ -826,7 +828,7 @@ export function drive(
     const targetX = Math.floor(myTransform.positionX) + relativeX;
     const targetY = Math.floor(myTransform.positionY) + relativeY;
 
-    connection.reducers.drive({ gameId, targetX, targetY });
+    connection.reducers.drive({ gameId, targetX, targetY, targetCode: undefined });
 
     const dirName = themeColors.value(directionInfo.name);
     return [
@@ -834,14 +836,24 @@ export function drive(
     ];
   }
 
+  const codePattern = /^[a-z]\d$/;
+  if (codePattern.test(firstArgLower)) {
+    connection.reducers.drive({ gameId, targetX: 0, targetY: 0, targetCode: firstArgLower });
+
+    return [
+      themeColors.success("Driving to ") + themeColors.value(firstArgLower),
+    ];
+  }
+
   return [
     themeColors.error("drive: error: invalid movement command"),
     "",
-    themeColors.dim("Usage: drive <direction>"),
+    themeColors.dim("Usage: drive <direction|code>"),
     "",
     themeColors.dim("Examples:"),
     themeColors.dim("  d ne"),
     themeColors.dim("  d u"),
+    themeColors.dim("  d a1          # Drive to destination a1"),
   ];
 }
 

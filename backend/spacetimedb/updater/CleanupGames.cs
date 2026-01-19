@@ -124,6 +124,11 @@ public static partial class Module
             ctx.Db.pickup.Id.Delete(pickup.Id);
         }
 
+        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        {
+            ctx.Db.destination.Id.Delete(destination.Id);
+        }
+
         foreach (var kill in ctx.Db.kills.GameId.Filter(gameId))
         {
             ctx.Db.kills.Id.Delete(kill.Id);
