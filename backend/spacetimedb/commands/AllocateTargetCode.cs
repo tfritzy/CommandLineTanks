@@ -24,11 +24,11 @@ public static partial class Module
                 }
             }
 
-            for (int i = 0; i < 260; i++)
+            for (int i = 0; i < 676; i++)
             {
-                var letter = Letters[ctx.Rng.Next(Letters.Length)];
-                var digit = ctx.Rng.Next(10);
-                var code = $"{letter}{digit}";
+                var letter1 = Letters[ctx.Rng.Next(Letters.Length)];
+                var letter2 = Letters[ctx.Rng.Next(Letters.Length)];
+                var code = $"{letter1}{letter2}";
                 
                 if (!usedCodes.Contains(code))
                 {

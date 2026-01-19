@@ -265,12 +265,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ↙: southwest, downleft, leftdown, sw, dl, ld",
         "                   ←: west, left, w, l",
         "                   ↖: northwest, upleft, leftup, nw, ul, lu",
-        "  <code>         Destination code (like a1, z9) to drive to",
+        "  <code>         Destination code (like ab, zx) to drive to",
         "",
         "Examples:",
         "  d up",
         "  d s",
-        "  d a1          # Drive to destination a1",
+        "  d ab          # Drive to destination ab",
       ];
 
     case "track":
@@ -281,14 +281,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Usage: track <target_code>",
         "",
         "Arguments:",
-        "  <target_code>       Target code of the tank to track (e.g., a4, h8, z2)",
-        "                      Format: one letter + one digit",
+        "  <target_code>       Target code of the tank to track (e.g., ab, hk, zx)",
+        "                      Format: two letters",
         "                      Your turret will automatically follow the target",
         "",
         "Examples:",
-        "  track a4",
-        "  track h8",
-        "  t z2",
+        "  track ab",
+        "  track hk",
+        "  t zx",
       ];
 
     case "stop":
@@ -591,23 +591,23 @@ export function track(
       "",
       themeColors.dim("Usage: track <target_code>"),
       themeColors.dim("Examples:"),
-      themeColors.dim("  track a4"),
-      themeColors.dim("  track h8"),
+      themeColors.dim("  track ab"),
+      themeColors.dim("  track hk"),
     ];
   }
 
   const input = args[0];
   const inputLower = input.toLowerCase();
 
-  const targetCodePattern = /^[a-z][0-9]$/;
+  const targetCodePattern = /^[a-z][a-z]$/;
   if (!targetCodePattern.test(inputLower)) {
     return [
       themeColors.error(`track: error: invalid target code '${input}'`),
-      themeColors.dim("Target code must be one letter followed by one digit (e.g., a4, h8)"),
+      themeColors.dim("Target code must be two letters (e.g., ab, hk)"),
       "",
       themeColors.dim("Usage: track <target_code>"),
       themeColors.dim("Examples:"),
-      themeColors.dim("  track a4"),
+      themeColors.dim("  track ab"),
     ];
   }
 
@@ -803,7 +803,7 @@ export function drive(
       "",
       themeColors.dim("Examples:"),
       themeColors.dim("  d ne"),
-      themeColors.dim("  d a1"),
+      themeColors.dim("  d ab"),
     ];
   }
 
@@ -836,7 +836,7 @@ export function drive(
     ];
   }
 
-  const codePattern = /^[a-z]\d$/;
+  const codePattern = /^[a-z][a-z]$/;
   if (codePattern.test(firstArgLower)) {
     connection.reducers.drive({ gameId, targetX: 0, targetY: 0, targetCode: firstArgLower });
 
@@ -853,7 +853,7 @@ export function drive(
     themeColors.dim("Examples:"),
     themeColors.dim("  d ne"),
     themeColors.dim("  d u"),
-    themeColors.dim("  d a1          # Drive to destination a1"),
+    themeColors.dim("  d ab          # Drive to destination ab"),
   ];
 }
 
