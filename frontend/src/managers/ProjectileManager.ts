@@ -125,7 +125,11 @@ export class ProjectileManager {
           const localProjectile = this.projectiles.get(transform.projectileId);
           if (localProjectile) {
             localProjectile.spawnDeathParticles(this.particlesManager);
-            this.soundManager.play("projectile-hit", 0.3, transform.positionX, transform.positionY);
+            if (localProjectile.isExplosive()) {
+              this.soundManager.play("explosion", 0.3, transform.positionX, transform.positionY);
+            } else {
+              this.soundManager.play("projectile-hit", 0.3, transform.positionX, transform.positionY);
+            }
             this.projectiles.delete(transform.projectileId);
           }
         }

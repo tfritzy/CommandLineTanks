@@ -80,6 +80,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
         `SELECT * FROM game WHERE Id = '${gameId}'`,
         `SELECT * FROM score WHERE GameId = '${gameId}'`,
         `SELECT * FROM tank_gun WHERE GameId = '${gameId}'`,
+        `SELECT * FROM base_terrain_layer WHERE GameId = '${gameId}'`,
         `SELECT * FROM player WHERE Identity = '${connection.identity}'`,
         `SELECT * FROM game_redirect WHERE OldGameId = '${gameId}'`,
       ]);

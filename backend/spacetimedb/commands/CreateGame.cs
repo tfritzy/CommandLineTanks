@@ -106,7 +106,7 @@ public static partial class Module
             ctx.Db.ScheduledGameEnd.Insert(new GameTimer.ScheduledGameEnd
             {
                 ScheduledId = 0,
-                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = GAME_DURATION_MICROS }),
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = duration }),
                 GameId = gameId
             });
 
