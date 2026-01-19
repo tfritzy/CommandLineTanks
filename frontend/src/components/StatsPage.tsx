@@ -19,24 +19,6 @@ export default function StatsPage() {
 
   useEffect(() => {
     if (!connection) {
-      const today = new Date();
-      const sampleStats: DailyStats[] = [];
-      for (let i = 4; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        const dayStr = date.toISOString().split('T')[0];
-        const totalCount = 38 + Math.floor(Math.random() * 25);
-        const newCount = 5 + Math.floor(Math.random() * 12);
-        const returningCount = totalCount - newCount;
-        sampleStats.push({
-          day: dayStr,
-          totalCount,
-          newCount,
-          returningCount,
-          returningPercentage: (returningCount / totalCount) * 100,
-        });
-      }
-      setStats(sampleStats);
       setLoading(false);
       return;
     }

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { connectToSpacetimeDB, onDisconnect } from "./spacetimedb-connection";
 import GameView from "./components/GameView";
 import TutorialRedirector from "./components/TutorialRedirector";
@@ -17,8 +17,6 @@ const LoadingView = () => (
 function App() {
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [hasConnectedOnce, setHasConnectedOnce] = useState(false);
-  const location = useLocation();
-  const isStatsPage = location.pathname === "/stats";
 
   const connect = useCallback(() => {
     setStatus("connecting");
@@ -60,7 +58,7 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [status, connect]);
 
-  if (status === "disconnected" && !isStatsPage) {
+  if (status === "disconnected") {
     const title = hasConnectedOnce ? "Connection Lost" : "Connection Failed";
     const message = hasConnectedOnce 
       ? "The connection to the server was interrupted." 
@@ -80,7 +78,7 @@ function App() {
     );
   }
 
-  if (status === "connecting" && !isStatsPage) {
+  if (status === "connecting") {
     return <LoadingView />;
   }
 
