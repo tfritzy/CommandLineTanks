@@ -259,14 +259,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
 
     const handleGameDelete = (_ctx: EventContext, game: Infer<typeof Game>) => {
       if (game.id !== gameId) return;
-      
-      if (!isHomegame) {
-        const homegameId = myIdentity?.toLowerCase();
-        if (homegameId) {
-          console.log(`Game ${gameId} was deleted, redirecting to homegame ${homegameId}`);
-          navigate(`/game/${homegameId}`);
-        }
-      }
+      setGameNotFound(true);
     };
 
     connection.db.game.onInsert(handleGameInsert);
@@ -284,6 +277,16 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       }
     };
   }, [gameId, isHomegame, joinModalStatus, myIdentity, navigate]);
+
+  useEffect(() => {
+    if (!gameNotFound) return;
+    
+    const homegameId = myIdentity?.toLowerCase();
+    if (homegameId && gameId?.toLowerCase() !== homegameId) {
+      console.log(`Game not found, navigating to homegame ${homegameId}`);
+      navigate(`/game/${homegameId}`);
+    }
+  }, [gameNotFound, gameId, myIdentity, navigate]);
 
   useEffect(() => {
     if (!gameId || !isHomegame) return;
