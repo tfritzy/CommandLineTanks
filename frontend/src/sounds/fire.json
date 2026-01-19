@@ -1,7 +1,7 @@
 {
   "oldParams": true,
   "wave_type": 2,
-  "p_env_attack": 0.12,
+  "p_env_attack": 0,
   "p_env_sustain": 0.23,
   "p_env_punch": 0.182,
   "p_env_decay": 0.19,
