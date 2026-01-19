@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { connectToSpacetimeDB, onDisconnect } from "./spacetimedb-connection";
 import GameView from "./components/GameView";
 import TutorialRedirector from "./components/TutorialRedirector";
+import StatsPage from "./components/StatsPage";
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
@@ -16,6 +17,8 @@ const LoadingView = () => (
 function App() {
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [hasConnectedOnce, setHasConnectedOnce] = useState(false);
+  const location = useLocation();
+  const isStatsPage = location.pathname === "/stats";
 
   const connect = useCallback(() => {
     setStatus("connecting");
@@ -57,7 +60,7 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [status, connect]);
 
-  if (status === "disconnected") {
+  if (status === "disconnected" && !isStatsPage) {
     const title = hasConnectedOnce ? "Connection Lost" : "Connection Failed";
     const message = hasConnectedOnce 
       ? "The connection to the server was interrupted." 
@@ -77,12 +80,13 @@ function App() {
     );
   }
 
-  if (status === "connecting") {
+  if (status === "connecting" && !isStatsPage) {
     return <LoadingView />;
   }
 
   return (
     <Routes>
+      <Route path="/stats" element={<StatsPage />} />
       <Route path="/deploy" element={<TutorialRedirector />} />
       <Route path="/tutorial/:gameId" element={<GameView isTutorialRoute={true} />} />
       <Route path="/game/:gameId" element={<GameView isTutorialRoute={false} />} />
