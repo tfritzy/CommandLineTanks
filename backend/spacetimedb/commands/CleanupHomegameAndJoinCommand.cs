@@ -18,7 +18,7 @@ public static partial class Module
         var player = ctx.Db.player.Identity.Find(ctx.Sender);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
-        var assignedAlliance = GetBalancedAlliance(ctx, gameId);
+        var assignedAlliance = GetBalancedAlliance.Call(ctx, gameId);
         var botToReplace = FindBotInAlliance.Call(ctx, gameId, assignedAlliance);
 
         if (botToReplace != null)
@@ -27,7 +27,7 @@ public static partial class Module
         }
         else
         {
-            var result = CreateTankInGame(ctx, gameId, ctx.Sender, joinCode);
+            var result = CreateTankInGame.Call(ctx, gameId, ctx.Sender, joinCode);
             if (result != null)
             {
                 var (tank, transform) = result.Value;

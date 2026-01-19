@@ -377,7 +377,7 @@ public static partial class PickupSpawner
 
         if (collected)
         {
-            Module.MaybeAdvanceTutorialOnPickup(ctx, tank.GameId, tank, pickup.Type);
+            Module.AdvanceTutorialOnPickup.Call(ctx, tank.GameId, tank, pickup.Type);
         }
 
         return collected;

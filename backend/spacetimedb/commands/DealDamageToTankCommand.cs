@@ -37,7 +37,7 @@ public static partial class Module
 
         if (newHealth <= 0)
         {
-            DeleteTankPathIfExists(ctx, tank.Id);
+            DeleteTankPath.Call(ctx, tank.Id);
 
             var killedTank = tank with
             {
@@ -99,7 +99,7 @@ public static partial class Module
                 }
             }
 
-            MaybeAdvanceTutorialOnKill(ctx, gameId, killedTank);
+            AdvanceTutorialOnKill.Call(ctx, gameId, killedTank);
         }
         else
         {

@@ -12,11 +12,11 @@ public static partial class Module
             var existingGame = ctx.Db.game.Id.Find(tutorialGameId);
             if (existingGame == null)
             {
-                CreateTutorialGame(ctx, identity, joinCode);
+                CreateTutorialGame.Call(ctx, identity, joinCode);
             }
             else
             {
-                EnsureTankInTutorial(ctx, tutorialGameId, identity, joinCode);
+                CreateTutorialGame.Call(ctx, identity, joinCode);
             }
         }
     }

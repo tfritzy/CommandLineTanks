@@ -2,6 +2,7 @@ spacetime generate --lang typescript --out-dir frontend/module_bindings --projec
 
 spacetime sql clt "SELECT * from player"
 
+# local deploy
 spacetime publish -c --project-path backend/spacetimedb clt -y -s local
 
 # Deploy backend to maincloud (production)

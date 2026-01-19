@@ -16,6 +16,6 @@ public static partial class Module
         tank = TargetTankByCode.Call(ctx, tank, targetCode);
         ctx.Db.tank.Id.Update(tank);
 
-        MaybeAdvanceTutorialOnTarget(ctx, gameId, tank);
+        AdvanceTutorialOnTarget.Call(ctx, gameId, tank);
     }
 }

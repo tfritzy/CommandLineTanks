@@ -206,7 +206,7 @@ public static partial class Module
             minPlayersPerTeam = botsPerTeam;
         }
 
-        var newGame = CreateGame(ctx, newGameId, baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap, width, height, oldGame.Value.Visibility, oldGame.Value.GameDurationMicros, oldGame.Value.Owner, minPlayersPerTeam);
+        var newGame = CreateGame.Call(ctx, newGameId, baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap, width, height, oldGame.Value.Visibility, oldGame.Value.GameDurationMicros, oldGame.Value.Owner, minPlayersPerTeam);
 
         SpawnInitialBots(ctx, newGameId, newGame, totalBotCount);
         var shuffledIndices = new int[totalTanks];

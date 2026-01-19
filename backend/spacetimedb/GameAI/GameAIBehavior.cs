@@ -91,7 +91,7 @@ public static partial class GameAI
             Path = pathEntries
         };
 
-        UpsertTankPath(ctx, newPathState);
+        UpsertTankPath.Call(ctx, newPathState);
     }
 
     private static void DriveTowards(ReducerContext ctx, FullTank fullTank, int targetX, int targetY)

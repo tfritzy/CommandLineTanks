@@ -10,13 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("Player", {
-  id: __t.string(),
-  identity: __t.identity(),
-  name: __t.option(__t.string()),
-  createdAt: __t.u64(),
-  tutorialComplete: __t.bool(),
-  lastGameJoinedDay: __t.option(__t.string()),
+export default __t.object("DailyActiveUsers", {
+  day: __t.string(),
+  totalCount: __t.i32(),
+  newCount: __t.i32(),
 });
 
 
