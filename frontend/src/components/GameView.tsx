@@ -11,7 +11,7 @@ import GameNotFound from "./GameNotFound";
 import EliminatedModal from "./EliminatedModal";
 import HomegameOverlay from "./HomegameOverlay";
 import { motion, AnimatePresence } from "framer-motion";
-import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual, setPendingJoinCode } from "../spacetimedb-connection";
+import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual, setPendingJoinCode, getPendingJoinCode } from "../spacetimedb-connection";
 import { useGameSwitcher } from "../hooks/useGameSwitcher";
 import { type Infer } from "spacetimedb";
 import TankRow from "../../module_bindings/tank_type";
@@ -247,6 +247,12 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       
       if (oldGame.gameState.tag === 'Playing' && newGame.gameState.tag === 'Results') {
         if (!isHomegame && joinModalStatus === "no_tank") {
+          const pendingJoinCode = getPendingJoinCode();
+          if (pendingJoinCode) {
+            console.log(`Game ${gameId} transitioned to Results, but pending join in progress (joinCode: ${pendingJoinCode}), not redirecting`);
+            return;
+          }
+          
           const homegameId = myIdentity?.toLowerCase();
           if (homegameId) {
             console.log(`Game ${gameId} transitioned to Results, redirecting spectator to homegame ${homegameId}`);
@@ -260,6 +266,12 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       if (game.id !== gameId) return;
       
       if (!isHomegame) {
+        const pendingJoinCode = getPendingJoinCode();
+        if (pendingJoinCode) {
+          console.log(`Game ${gameId} was deleted, but pending join in progress (joinCode: ${pendingJoinCode}), not redirecting`);
+          return;
+        }
+        
         const homegameId = myIdentity?.toLowerCase();
         if (homegameId) {
           console.log(`Game ${gameId} was deleted, redirecting to homegame ${homegameId}`);
