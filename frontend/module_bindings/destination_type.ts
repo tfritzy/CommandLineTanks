@@ -9,11 +9,16 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import DestinationType from "./destination_type_type";
+
 
 export default __t.object("Destination", {
   id: __t.string(),
   gameId: __t.string(),
   targetCode: __t.string(),
+  get type() {
+    return DestinationType;
+  },
   positionX: __t.f32(),
   positionY: __t.f32(),
 });

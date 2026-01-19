@@ -167,6 +167,8 @@ import DamagedTile from "./damaged_tile_type";
 export { DamagedTile };
 import Destination from "./destination_type";
 export { Destination };
+import DestinationType from "./destination_type_type";
+export { DestinationType };
 import ExplosionTrigger from "./explosion_trigger_type";
 export { ExplosionTrigger };
 import Game from "./game_type";
@@ -397,13 +399,9 @@ const tablesSchema = __schema(
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
-      { name: 'TargetCode', algorithm: 'btree', columns: [
-        'targetCode',
-      ] },
     ],
     constraints: [
       { name: 'destination_Id_key', constraint: 'unique', columns: ['id'] },
-      { name: 'destination_TargetCode_key', constraint: 'unique', columns: ['targetCode'] },
     ],
   }, DestinationRow),
   __table({

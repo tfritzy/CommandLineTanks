@@ -28,6 +28,8 @@ public static partial class Module
                 var (width, height) = TerrainGenerator.GenerateRandomGameDimensions(ctx.Rng);
                 var (baseTerrain, terrainDetails, traversibilityMap, projectileTraversibilityMap) = GenerateTerrainCommand(ctx, width, height);
 
+                GenerateDestinationAnchors.Call(ctx, newGameId, traversibilityMap, width, height);
+
                 int botsPerTeam = ctx.Rng.Next(2, 4);
                 int minPlayersPerTeam = botsPerTeam;
 

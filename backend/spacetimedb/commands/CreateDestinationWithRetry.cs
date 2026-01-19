@@ -1,0 +1,47 @@
+using SpacetimeDB;
+using System.Collections.Generic;
+using static Types;
+
+public static partial class Module
+{
+    public static class CreateDestinationWithRetry
+    {
+        public static string? Call(
+            ReducerContext ctx,
+            string gameId,
+            float positionX,
+            float positionY,
+            DestinationType type,
+            HashSet<string>? usedCodes = null,
+            int maxAttempts = 50)
+        {
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                var targetCode = AllocateDestinationCode.Call(ctx, gameId);
+                if (targetCode != null)
+                {
+                    if (usedCodes != null && usedCodes.Contains(targetCode))
+                    {
+                        continue;
+                    }
+
+                    var existing = ctx.Db.destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
+                    if (existing.Id == null)
+                    {
+                        ctx.Db.destination.Insert(Destination.Build(
+                            ctx: ctx,
+                            gameId: gameId,
+                            targetCode: targetCode,
+                            type: type,
+                            positionX: positionX,
+                            positionY: positionY
+                        ));
+                        return targetCode;
+                    }
+                }
+            }
+            
+            return null;
+        }
+    }
+}

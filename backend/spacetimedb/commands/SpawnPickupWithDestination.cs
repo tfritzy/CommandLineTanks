@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using System.Collections.Generic;
 using static Types;
 
 public static partial class Module
@@ -13,6 +14,7 @@ public static partial class Module
             int gridX,
             int gridY,
             PickupType pickupType,
+            HashSet<string>? usedCodes = null,
             int? ammo = null)
         {
             var pickupId = GenerateId(ctx, "pickup");
@@ -29,17 +31,7 @@ public static partial class Module
                 ammo: ammo
             ));
 
-            var targetCode = AllocateDestinationCode.Call(ctx, gameId);
-            if (targetCode != null)
-            {
-                ctx.Db.destination.Insert(Destination.Build(
-                    ctx: ctx,
-                    gameId: gameId,
-                    targetCode: targetCode,
-                    positionX: positionX,
-                    positionY: positionY
-                ));
-            }
+            var targetCode = CreateDestinationWithRetry.Call(ctx, gameId, positionX, positionY, DestinationType.Pickup, usedCodes);
             
             return targetCode;
         }

@@ -1,5 +1,6 @@
 import { getConnection } from "../spacetimedb-connection";
 import { type DestinationRow, type EventContext } from "../../module_bindings";
+import DestinationType from "../../module_bindings/destination_type_type";
 import { type Infer } from "spacetimedb";
 import { UNIT_TO_PIXEL } from "../constants";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
@@ -7,6 +8,7 @@ import { subscribeToTable, type TableSubscription } from "../utils/tableSubscrip
 interface DestinationData {
   id: string;
   targetCode: string;
+  type: Infer<typeof DestinationType>;
   positionX: number;
   positionY: number;
 }
@@ -33,6 +35,7 @@ export class DestinationManager {
           this.destinations.set(destination.id, {
             id: destination.id,
             targetCode: destination.targetCode,
+            type: destination.type,
             positionX: destination.positionX,
             positionY: destination.positionY,
           });
@@ -79,19 +82,31 @@ export class DestinationManager {
 
   private drawDestination(ctx: CanvasRenderingContext2D, destination: DestinationData) {
     const gameX = destination.positionX * UNIT_TO_PIXEL;
-    const gameY = (destination.positionY - 0.5) * UNIT_TO_PIXEL;
+    const gameY = destination.positionY * UNIT_TO_PIXEL;
+    const isPickup = destination.type.tag === "Pickup";
 
     ctx.save();
-    ctx.font = "bold 13px monospace";
+    ctx.font = isPickup ? "bold 13px monospace" : "bold 11px monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.lineWidth = 3;
-    ctx.strokeText(destination.targetCode, gameX, gameY);
+    const offsetY = isPickup ? gameY - UNIT_TO_PIXEL * 0.5 : gameY;
     
-    ctx.fillStyle = "#fceba8";
-    ctx.fillText(destination.targetCode, gameX, gameY);
+    if (isPickup) {
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+      ctx.lineWidth = 3;
+      ctx.strokeText(destination.targetCode, gameX, offsetY);
+      
+      ctx.fillStyle = "#fceba8";
+      ctx.fillText(destination.targetCode, gameX, offsetY);
+    } else {
+      ctx.strokeStyle = "#2e2e43";
+      ctx.lineWidth = 2;
+      ctx.strokeText(destination.targetCode, gameX, offsetY);
+      
+      ctx.fillStyle = "#707b89";
+      ctx.fillText(destination.targetCode, gameX, offsetY);
+    }
     
     ctx.restore();
   }

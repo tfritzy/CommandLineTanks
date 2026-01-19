@@ -185,6 +185,8 @@ public static partial class Module
 
         var newGameId = Module.GenerateGameId(ctx);
 
+        GenerateDestinationAnchors.Call(ctx, newGameId, traversibilityMap, width, height);
+
         int totalBotCount;
         int minPlayersPerTeam;
         if (oldGame.Value.Visibility == GameVisibility.Private)

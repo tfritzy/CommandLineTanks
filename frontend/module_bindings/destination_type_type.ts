@@ -9,16 +9,12 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import DestinationType from "./destination_type_type";
 
-
-export default __t.row({
-  id: __t.string().primaryKey(),
-  gameId: __t.string(),
-  targetCode: __t.string(),
-  get type() {
-    return DestinationType;
-  },
-  positionX: __t.f32(),
-  positionY: __t.f32(),
+// The tagged union or sum type for the algebraic type `DestinationType`.
+const DestinationType = __t.enum("DestinationType", {Pickup: __t.unit(),
+  Anchor: __t.unit(),
 });
+
+export default DestinationType;
+
+

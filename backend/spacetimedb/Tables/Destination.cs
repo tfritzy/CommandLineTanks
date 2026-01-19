@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using static Types;
 
 public static partial class Module
 {
@@ -12,8 +13,8 @@ public static partial class Module
         [SpacetimeDB.Index.BTree]
         public string GameId;
 
-        [Unique]
         public string TargetCode;
+        public DestinationType Type;
 
         public float PositionX;
         public float PositionY;
@@ -23,6 +24,7 @@ public static partial class Module
             string? id = null,
             string? gameId = null,
             string? targetCode = null,
+            DestinationType type = DestinationType.Anchor,
             float positionX = 0,
             float positionY = 0)
         {
@@ -31,6 +33,7 @@ public static partial class Module
                 Id = id ?? GenerateId(ctx, "destination"),
                 GameId = gameId ?? "",
                 TargetCode = targetCode ?? "",
+                Type = type,
                 PositionX = positionX,
                 PositionY = positionY
             };

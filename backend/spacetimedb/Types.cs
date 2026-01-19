@@ -57,6 +57,13 @@ public static partial class Types
     }
 
     [Type]
+    public enum DestinationType : byte
+    {
+        Pickup,
+        Anchor
+    }
+
+    [Type]
     public enum PickupType : byte
     {
         TripleShooter,
