@@ -22,7 +22,7 @@ const ARROW_RIGHT = "\x1b[C";
 const CTRL_ARROW_LEFT = "\x1b[1;5D";
 const CTRL_ARROW_RIGHT = "\x1b[1;5C";
 
-const VALID_COMMANDS = ['aim', 'a', 'track', 't', 'drive', 'd', 'stop', 's', 'fire', 'f',
+const VALID_COMMANDS = ['aim', 'a', 'track', 't', 'drive', 'd', 'move', 'm', 'stop', 's', 'fire', 'f',
   'switch', 'w',
   'respawn', 'tanks', 'say', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c', 'tutorial'];
 
@@ -151,6 +151,8 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
           return track(connection, gameId, commandArgs);
         case 'drive':
         case 'd':
+        case 'move':
+        case 'm':
           return drive(connection, gameId, commandArgs);
         case 'stop':
         case 's':

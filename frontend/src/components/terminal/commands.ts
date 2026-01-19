@@ -141,6 +141,7 @@ function directionToAngle(direction: string): number {
 
 const allCommands = [
   { name: 'drive', alias: 'd' },
+  { name: 'move', alias: 'm' },
   { name: 'track', alias: 't' },
   { name: 'stop', alias: 's' },
   { name: 'aim', alias: 'a' },
