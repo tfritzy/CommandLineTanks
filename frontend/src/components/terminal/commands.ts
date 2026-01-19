@@ -927,68 +927,31 @@ export function drive(
   ];
 }
 
-export function north(
-  connection: DbConnection,
-  gameId: string,
-  args: string[]
-): string[] {
-  if (args.length > 0) {
-    return [
-      themeColors.error("north: error: north command takes no arguments"),
-      "",
-      themeColors.dim("Usage: north"),
-      themeColors.dim("       n"),
-    ];
-  }
-  return drive(connection, gameId, ["north"]);
+function createDirectionalCommand(direction: string, alias?: string) {
+  return (
+    connection: DbConnection,
+    gameId: string,
+    args: string[]
+  ): string[] => {
+    if (args.length > 0) {
+      const usage = [
+        themeColors.error(`${direction}: error: ${direction} command takes no arguments`),
+        "",
+        themeColors.dim(`Usage: ${direction}`),
+      ];
+      if (alias) {
+        usage.push(themeColors.dim(`       ${alias}`));
+      }
+      return usage;
+    }
+    return drive(connection, gameId, [direction]);
+  };
 }
 
-export function east(
-  connection: DbConnection,
-  gameId: string,
-  args: string[]
-): string[] {
-  if (args.length > 0) {
-    return [
-      themeColors.error("east: error: east command takes no arguments"),
-      "",
-      themeColors.dim("Usage: east"),
-      themeColors.dim("       r"),
-    ];
-  }
-  return drive(connection, gameId, ["east"]);
-}
-
-export function south(
-  connection: DbConnection,
-  gameId: string,
-  args: string[]
-): string[] {
-  if (args.length > 0) {
-    return [
-      themeColors.error("south: error: south command takes no arguments"),
-      "",
-      themeColors.dim("Usage: south"),
-    ];
-  }
-  return drive(connection, gameId, ["south"]);
-}
-
-export function west(
-  connection: DbConnection,
-  gameId: string,
-  args: string[]
-): string[] {
-  if (args.length > 0) {
-    return [
-      themeColors.error("west: error: west command takes no arguments"),
-      "",
-      themeColors.dim("Usage: west"),
-      themeColors.dim("       l"),
-    ];
-  }
-  return drive(connection, gameId, ["west"]);
-}
+export const north = createDirectionalCommand("north", "n");
+export const east = createDirectionalCommand("east", "r");
+export const south = createDirectionalCommand("south");
+export const west = createDirectionalCommand("west", "l");
 
 export function create(
   connection: DbConnection,
