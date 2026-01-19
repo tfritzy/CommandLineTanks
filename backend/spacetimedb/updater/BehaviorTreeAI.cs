@@ -63,24 +63,24 @@ public static partial class BehaviorTreeAI
 
             if (timeSinceDeath < (ulong)BOT_RESPAWN_DELAY_MICROS)
             {
-                long nextUpdateMicros = ctx.Rng.Next(1_000_000, 2_000_001);
-                var updatedArgs = args with 
+                long nextDelay = ctx.Rng.Next(1_000_000, 2_000_001);
+                var updatedWaitArgs = args with 
                 { 
-                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = nextUpdateMicros }),
+                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = nextDelay }),
                     TickCount = args.TickCount + 1 
                 };
-                ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(updatedArgs);
+                ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(updatedWaitArgs);
                 return;
             }
 
             RespawnTank.Call(ctx, tank, transform, args.GameId, tank.Alliance, false, null);
-            long nextUpdateMicrosAfterRespawn = ctx.Rng.Next(1_000_000, 2_000_001);
-            var updatedArgsAfterRespawn = args with 
+            long respawnDelay = ctx.Rng.Next(1_000_000, 2_000_001);
+            var respawnArgs = args with 
             { 
-                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = nextUpdateMicrosAfterRespawn }),
+                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = respawnDelay }),
                 TickCount = args.TickCount + 1 
             };
-            ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(updatedArgsAfterRespawn);
+            ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(respawnArgs);
             return;
         }
 
@@ -92,13 +92,13 @@ public static partial class BehaviorTreeAI
 
         ctx.Db.tank.Id.Update(mutatedTank);
 
-        long nextUpdateMicros = ctx.Rng.Next(1_000_000, 2_000_001);
-        var updatedArgs = args with 
+        long finalUpdateMicros = ctx.Rng.Next(1_000_000, 2_000_001);
+        var finalArgs = args with 
         { 
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = nextUpdateMicros }),
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = finalUpdateMicros }),
             TickCount = args.TickCount + 1 
         };
-        ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(updatedArgs);
+        ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(finalArgs);
     }
 
     public static void ScheduleTankAIUpdate(ReducerContext ctx, string gameId, string tankId)
