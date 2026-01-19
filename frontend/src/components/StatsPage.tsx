@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
-import DailyActiveUsersRow from "../../module_bindings/daily_active_users_type";
+import DailyActiveUsersRow from "../../module_bindings/daily_active_users_table";
 import { PALETTE } from "../theme/colors.config";
 
 interface DailyStats {
@@ -19,13 +19,23 @@ export default function StatsPage() {
 
   useEffect(() => {
     if (!connection) {
-      const sampleStats: DailyStats[] = [
-        { day: "2026-01-15", totalCount: 45, newCount: 12, returningCount: 33, returningPercentage: 73.3 },
-        { day: "2026-01-16", totalCount: 52, newCount: 8, returningCount: 44, returningPercentage: 84.6 },
-        { day: "2026-01-17", totalCount: 38, newCount: 5, returningCount: 33, returningPercentage: 86.8 },
-        { day: "2026-01-18", totalCount: 61, newCount: 15, returningCount: 46, returningPercentage: 75.4 },
-        { day: "2026-01-19", totalCount: 48, newCount: 7, returningCount: 41, returningPercentage: 85.4 },
-      ];
+      const today = new Date();
+      const sampleStats: DailyStats[] = [];
+      for (let i = 4; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dayStr = date.toISOString().split('T')[0];
+        const totalCount = 38 + Math.floor(Math.random() * 25);
+        const newCount = 5 + Math.floor(Math.random() * 12);
+        const returningCount = totalCount - newCount;
+        sampleStats.push({
+          day: dayStr,
+          totalCount,
+          newCount,
+          returningCount,
+          returningPercentage: (returningCount / totalCount) * 100,
+        });
+      }
       setStats(sampleStats);
       setLoading(false);
       return;
@@ -74,7 +84,7 @@ export default function StatsPage() {
     ? stats.reduce((sum, s) => sum + s.returningPercentage, 0) / stats.length
     : 0;
 
-  const maxTotalCount = Math.max(...stats.map(s => s.totalCount), 1);
+  const maxTotalCount = stats.length > 0 ? Math.max(...stats.map(s => s.totalCount)) : 1;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1a1a24] to-[#2e2e43] text-[#fcfbf3] p-8">
