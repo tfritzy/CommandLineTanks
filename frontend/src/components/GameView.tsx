@@ -264,20 +264,6 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
 
     const handleGameDelete = (_ctx: EventContext, game: Infer<typeof Game>) => {
       if (game.id !== gameId) return;
-      
-      if (!isHomegame) {
-        const pendingJoinCode = getPendingJoinCode();
-        if (pendingJoinCode) {
-          console.log(`Game ${gameId} was deleted, but pending join in progress, not redirecting`);
-          return;
-        }
-        
-        const homegameId = myIdentity?.toLowerCase();
-        if (homegameId) {
-          console.log(`Game ${gameId} was deleted, redirecting to homegame ${homegameId}`);
-          navigate(`/game/${homegameId}`);
-        }
-      }
     };
 
     connection.db.game.onInsert(handleGameInsert);
