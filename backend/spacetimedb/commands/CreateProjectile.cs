@@ -8,6 +8,8 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, Tank tank, float startX, float startY, float angle, Gun gun)
         {
+            MaybeResumeUpdatersForLowTrafficGame(ctx, tank.GameId);
+
             float velocityX = (float)Math.Cos(angle) * gun.ProjectileSpeed;
             float velocityY = (float)Math.Sin(angle) * gun.ProjectileSpeed;
 
