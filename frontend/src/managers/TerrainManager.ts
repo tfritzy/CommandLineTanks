@@ -4,6 +4,7 @@ import { SoundManager } from "./SoundManager";
 import { type EventContext, BaseTerrain } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
 import GameRow from "../../module_bindings/game_type";
+import BaseTerrainLayerRow from "../../module_bindings/base_terrain_layer_type";
 import { UNIT_TO_PIXEL } from "../constants";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { drawBaseTerrain } from "../drawing/terrain/base-terrain";
@@ -17,12 +18,14 @@ export class TerrainManager {
   private gameHeight: number = 0;
   private baseTerrainLayer: BaseTerrainType[] = [];
   private soundManager: SoundManager;
-  private subscription: TableSubscription<typeof GameRow> | null = null;
+  private gameSubscription: TableSubscription<typeof GameRow> | null = null;
+  private terrainSubscription: TableSubscription<typeof BaseTerrainLayerRow> | null = null;
 
   constructor(gameId: string, soundManager: SoundManager) {
     this.gameId = gameId;
     this.soundManager = soundManager;
     this.subscribeToGameForDetails();
+    this.subscribeToBaseTerrainLayer();
   }
 
   private subscribeToGameForDetails() {
@@ -33,7 +36,6 @@ export class TerrainManager {
       if (game.id !== this.gameId) return;
       this.gameWidth = game.width;
       this.gameHeight = game.height;
-      this.baseTerrainLayer = game.baseTerrainLayer;
 
       if (!this.detailManager) {
         this.detailManager = new TerrainDetailManager(
@@ -49,7 +51,7 @@ export class TerrainManager {
       }
     };
 
-    this.subscription = subscribeToTable({
+    this.gameSubscription = subscribeToTable({
       table: connection.db.game,
       handlers: {
         onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
@@ -68,10 +70,46 @@ export class TerrainManager {
     }
   }
 
+  private subscribeToBaseTerrainLayer() {
+    const connection = getConnection();
+    if (!connection) return;
+
+    const handleTerrainChange = (terrain: Infer<typeof BaseTerrainLayerRow>) => {
+      if (terrain.gameId !== this.gameId) return;
+      this.baseTerrainLayer = terrain.layer;
+
+      if (this.detailManager) {
+        this.detailManager.updateBaseTerrainLayer(this.baseTerrainLayer);
+      }
+    };
+
+    this.terrainSubscription = subscribeToTable({
+      table: connection.db.baseTerrainLayer,
+      handlers: {
+        onInsert: (_ctx: EventContext, terrain: Infer<typeof BaseTerrainLayerRow>) => {
+          handleTerrainChange(terrain);
+        },
+        onUpdate: (_ctx: EventContext, _oldTerrain: Infer<typeof BaseTerrainLayerRow>, newTerrain: Infer<typeof BaseTerrainLayerRow>) => {
+          handleTerrainChange(newTerrain);
+        }
+      },
+      loadInitialData: false
+    });
+
+    const cachedTerrain = connection.db.baseTerrainLayer.GameId.find(this.gameId);
+    if (cachedTerrain) {
+      handleTerrainChange(cachedTerrain);
+    }
+  }
+
   public destroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-      this.subscription = null;
+    if (this.gameSubscription) {
+      this.gameSubscription.unsubscribe();
+      this.gameSubscription = null;
+    }
+    if (this.terrainSubscription) {
+      this.terrainSubscription.unsubscribe();
+      this.terrainSubscription = null;
     }
     if (this.detailManager) {
       this.detailManager.destroy();
