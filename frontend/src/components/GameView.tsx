@@ -249,7 +249,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
         if (!isHomegame && joinModalStatus === "no_tank") {
           const pendingJoinCode = getPendingJoinCode();
           if (pendingJoinCode) {
-            console.log(`Game ${gameId} transitioned to Results, but pending join in progress (joinCode: ${pendingJoinCode}), not redirecting`);
+            console.log(`Game ${gameId} transitioned to Results, but pending join in progress, not redirecting`);
             return;
           }
           
@@ -268,7 +268,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       if (!isHomegame) {
         const pendingJoinCode = getPendingJoinCode();
         if (pendingJoinCode) {
-          console.log(`Game ${gameId} was deleted, but pending join in progress (joinCode: ${pendingJoinCode}), not redirecting`);
+          console.log(`Game ${gameId} was deleted, but pending join in progress, not redirecting`);
           return;
         }
         
