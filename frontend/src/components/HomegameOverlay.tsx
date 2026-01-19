@@ -20,12 +20,9 @@ const HomegameOverlay: React.FC = () => {
 
                     <button
                         onClick={() => setShowHostModal(true)}
-                        className="pointer-events-auto group flex items-center gap-2 bg-palette-blue-light/10 hover:bg-palette-blue-light/20 border border-palette-blue-light/30 hover:border-palette-blue-light/50 rounded px-3 py-1 text-[11px] text-palette-blue-light font-mono cursor-pointer tracking-wider font-bold transition-all uppercase whitespace-nowrap"
+                        className="pointer-events-auto ml-2 bg-palette-blue-cyan/15 hover:bg-palette-blue-cyan/25 border border-palette-blue-cyan/30 hover:border-palette-blue-cyan/50 rounded px-3 py-1 text-[11px] text-palette-blue-cyan font-mono cursor-pointer tracking-wider font-bold transition-all uppercase whitespace-nowrap active:translate-y-[1px]"
                     >
                         Host Game
-                        <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                        </svg>
                     </button>
                 </div>
             </div>

@@ -288,7 +288,7 @@ export class Game {
       this.killManager.draw(this.ctx, displayWidth)
     );
 
-    this.fpsCounter.draw(this.ctx, displayHeight);
+    // this.fpsCounter.draw(this.ctx, displayHeight);
 
     this.profiler.update();
 

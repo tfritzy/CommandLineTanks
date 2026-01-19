@@ -27,7 +27,7 @@ public static partial class Module
 
         var newMessage = new Message
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = GenerateId(ctx, "msg"),
             GameId = gameId,
             Sender = player.Value.Name ?? "Anonymous",
             SenderIdentity = ctx.Sender,

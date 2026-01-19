@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
 import DailyActiveUsersRow from "../../module_bindings/daily_active_users_table";
 import { PALETTE } from "../theme/colors.config";
+import type { EventContext, SubscriptionHandle } from "../../module_bindings";
 
 interface DailyStats {
   day: string;
@@ -16,6 +17,7 @@ export default function StatsPage() {
   const [stats, setStats] = useState<DailyStats[]>([]);
   const [loading, setLoading] = useState(true);
   const connection = getConnection();
+  const subscriptionRef = useRef<SubscriptionHandle | null>(null);
 
   useEffect(() => {
     if (!connection) {
@@ -23,27 +25,53 @@ export default function StatsPage() {
       return;
     }
 
-    const dailyActiveUsers = Array.from(connection.db.dailyActiveUsers.iter());
-    
-    const processedStats: DailyStats[] = dailyActiveUsers
-      .map((entry: Infer<typeof DailyActiveUsersRow>) => {
-        const returningCount = entry.totalCount - entry.newCount;
-        const returningPercentage = entry.totalCount > 0 
-          ? (returningCount / entry.totalCount) * 100 
-          : 0;
-        
-        return {
-          day: entry.day,
-          totalCount: entry.totalCount,
-          newCount: entry.newCount,
-          returningCount,
-          returningPercentage,
-        };
-      })
-      .sort((a, b) => a.day.localeCompare(b.day));
+    const processStats = () => {
+      const dailyActiveUsers = Array.from(connection.db.dailyActiveUsers.iter());
+      
+      const processedStats: DailyStats[] = dailyActiveUsers
+        .map((entry: Infer<typeof DailyActiveUsersRow>) => {
+          const returningCount = entry.totalCount - entry.newCount;
+          const returningPercentage = entry.totalCount > 0 
+            ? (returningCount / entry.totalCount) * 100 
+            : 0;
+          
+          return {
+            day: entry.day,
+            totalCount: entry.totalCount,
+            newCount: entry.newCount,
+            returningCount,
+            returningPercentage,
+          };
+        })
+        .sort((a, b) => a.day.localeCompare(b.day));
 
-    setStats(processedStats);
-    setLoading(false);
+      setStats(processedStats);
+      setLoading(false);
+    };
+
+    subscriptionRef.current = connection
+      .subscriptionBuilder()
+      .onError((e) => console.error("Daily active users subscription error", e))
+      .subscribe([`SELECT * FROM daily_active_users`]);
+
+    processStats();
+
+    const handleInsert = (_ctx: EventContext, _entry: Infer<typeof DailyActiveUsersRow>) => {
+      processStats();
+    };
+
+    const handleUpdate = (_ctx: EventContext, _oldEntry: Infer<typeof DailyActiveUsersRow>, _newEntry: Infer<typeof DailyActiveUsersRow>) => {
+      processStats();
+    };
+
+    connection.db.dailyActiveUsers.onInsert(handleInsert);
+    connection.db.dailyActiveUsers.onUpdate(handleUpdate);
+
+    return () => {
+      subscriptionRef.current?.unsubscribe();
+      connection.db.dailyActiveUsers.removeOnInsert(handleInsert);
+      connection.db.dailyActiveUsers.removeOnUpdate(handleUpdate);
+    };
   }, [connection]);
 
   if (loading) {
