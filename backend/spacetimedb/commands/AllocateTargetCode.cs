@@ -5,10 +5,13 @@ public static partial class Module
 {
     public static class AllocateTargetCode
     {
-        private static readonly char[] Letters = [
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-            'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-            'u', 'v', 'w', 'x', 'y', 'z'
+        private static readonly char[] Consonants = [
+            'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
+            'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'
+        ];
+
+        private static readonly char[] Vowels = [
+            'a', 'e', 'i', 'o', 'u'
         ];
 
         public static string? Call(ReducerContext ctx, string gameId)
@@ -24,11 +27,12 @@ public static partial class Module
                 }
             }
 
-            for (int i = 0; i < 676; i++)
+            for (int i = 0; i < 2205; i++)
             {
-                var letter1 = Letters[ctx.Rng.Next(Letters.Length)];
-                var letter2 = Letters[ctx.Rng.Next(Letters.Length)];
-                var code = $"{letter1}{letter2}";
+                var consonant1 = Consonants[ctx.Rng.Next(Consonants.Length)];
+                var vowel = Vowels[ctx.Rng.Next(Vowels.Length)];
+                var consonant2 = Consonants[ctx.Rng.Next(Consonants.Length)];
+                var code = $"{consonant1}{vowel}{consonant2}";
                 
                 if (!usedCodes.Contains(code))
                 {

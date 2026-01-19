@@ -265,12 +265,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ↙: southwest, downleft, leftdown, sw, dl, ld",
         "                   ←: west, left, w, l",
         "                   ↖: northwest, upleft, leftup, nw, ul, lu",
-        "  <code>         Destination code (like ab, zx) to drive to",
+        "  <code>         Destination code (like bak, hex) to drive to",
         "",
         "Examples:",
         "  d up",
         "  d s",
-        "  d ab          # Drive to destination ab",
+        "  d bak          # Drive to destination bak",
       ];
 
     case "track":
@@ -281,14 +281,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Usage: track <target_code>",
         "",
         "Arguments:",
-        "  <target_code>       Target code of the tank to track (e.g., ab, hk, zx)",
-        "                      Format: two letters",
+        "  <target_code>       Target code of the tank to track (e.g., bak, hex, zul)",
+        "                      Format: consonant-vowel-consonant (three letters)",
         "                      Your turret will automatically follow the target",
         "",
         "Examples:",
-        "  track ab",
-        "  track hk",
-        "  t zx",
+        "  track bak",
+        "  track hex",
+        "  t zul",
       ];
 
     case "stop":
@@ -591,23 +591,23 @@ export function track(
       "",
       themeColors.dim("Usage: track <target_code>"),
       themeColors.dim("Examples:"),
-      themeColors.dim("  track ab"),
-      themeColors.dim("  track hk"),
+      themeColors.dim("  track bak"),
+      themeColors.dim("  track hex"),
     ];
   }
 
   const input = args[0];
   const inputLower = input.toLowerCase();
 
-  const targetCodePattern = /^[a-z][a-z]$/;
+  const targetCodePattern = /^[bcdfghjklmnpqrstvwxyz][aeiou][bcdfghjklmnpqrstvwxyz]$/;
   if (!targetCodePattern.test(inputLower)) {
     return [
       themeColors.error(`track: error: invalid target code '${input}'`),
-      themeColors.dim("Target code must be two letters (e.g., ab, hk)"),
+      themeColors.dim("Target code must be three letters: consonant-vowel-consonant (e.g., bak, hex, zul)"),
       "",
       themeColors.dim("Usage: track <target_code>"),
       themeColors.dim("Examples:"),
-      themeColors.dim("  track ab"),
+      themeColors.dim("  track bak"),
     ];
   }
 
@@ -803,7 +803,7 @@ export function drive(
       "",
       themeColors.dim("Examples:"),
       themeColors.dim("  d ne"),
-      themeColors.dim("  d ab"),
+      themeColors.dim("  d bak"),
     ];
   }
 
@@ -836,7 +836,7 @@ export function drive(
     ];
   }
 
-  const codePattern = /^[a-z][a-z]$/;
+  const codePattern = /^[bcdfghjklmnpqrstvwxyz][aeiou][bcdfghjklmnpqrstvwxyz]$/;
   if (codePattern.test(firstArgLower)) {
     connection.reducers.drive({ gameId, targetX: 0, targetY: 0, targetCode: firstArgLower });
 
@@ -853,7 +853,7 @@ export function drive(
     themeColors.dim("Examples:"),
     themeColors.dim("  d ne"),
     themeColors.dim("  d u"),
-    themeColors.dim("  d ab          # Drive to destination ab"),
+    themeColors.dim("  d bak          # Drive to destination bak"),
   ];
 }
 
