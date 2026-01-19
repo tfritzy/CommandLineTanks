@@ -953,7 +953,7 @@ export function east(
       themeColors.error("east: error: east command takes no arguments"),
       "",
       themeColors.dim("Usage: east"),
-      themeColors.dim("       e"),
+      themeColors.dim("       r"),
     ];
   }
   return drive(connection, gameId, ["east"]);
@@ -969,7 +969,6 @@ export function south(
       themeColors.error("south: error: south command takes no arguments"),
       "",
       themeColors.dim("Usage: south"),
-      themeColors.dim("       s"),
     ];
   }
   return drive(connection, gameId, ["south"]);
@@ -985,7 +984,7 @@ export function west(
       themeColors.error("west: error: west command takes no arguments"),
       "",
       themeColors.dim("Usage: west"),
-      themeColors.dim("       w"),
+      themeColors.dim("       l"),
     ];
   }
   return drive(connection, gameId, ["west"]);
