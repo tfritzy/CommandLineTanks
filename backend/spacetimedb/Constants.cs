@@ -23,6 +23,14 @@ public static partial class Module
 
     public const long BOT_RESPAWN_DELAY_MICROS = 5_000_000;
 
+    public const string ALLIANCE_0_COLOR = "#ff5555";
+    public const string ALLIANCE_1_COLOR = "#7fbbdc";
+
+    public static string GetAllianceColor(int alliance)
+    {
+        return alliance == 0 ? ALLIANCE_0_COLOR : ALLIANCE_1_COLOR;
+    }
+
     public static readonly Gun BASE_GUN = new Gun
     {
         GunType = GunType.Base,

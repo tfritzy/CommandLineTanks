@@ -209,9 +209,4 @@ public static partial class Module
 
         return (-1, -1);
     }
-
-    private static string GetAllianceColor(int alliance)
-    {
-        return alliance == 0 ? "#ff5555" : "#7fbbdc";
-    }
 }
