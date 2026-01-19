@@ -4,7 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { getConnection } from "../../spacetimedb-connection";
 import { COLORS, PALETTE, colorize } from "../../theme/colors";
-import { aim, track, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitGame, tanks, tutorial, say, findCommandSuggestion, parseCommandInput, north, east, south, west } from "./commands";
+import { aim, track, drive, fire, help, respawn, stop, switchGun, join, create, changeName, exitGame, tanks, tutorial, say, findCommandSuggestion, parseCommandInput } from "./commands";
 import { setTerminalWriteCallback } from "../../utils/terminalOutput";
 
 interface TerminalComponentProps {
@@ -24,8 +24,7 @@ const CTRL_ARROW_RIGHT = "\x1b[1;5C";
 
 const VALID_COMMANDS = ['aim', 'a', 'track', 't', 'drive', 'd', 'stop', 's', 'fire', 'f',
   'switch', 'w',
-  'respawn', 'tanks', 'say', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c', 'tutorial',
-  'north', 'n', 'east', 'r', 'south', 'west', 'l'];
+  'respawn', 'tanks', 'say', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c', 'tutorial'];
 
 const MAX_TERMINAL_LINES = 1000;
 
@@ -153,17 +152,6 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
         case 'drive':
         case 'd':
           return drive(connection, gameId, commandArgs);
-        case 'north':
-        case 'n':
-          return north(connection, gameId, commandArgs);
-        case 'east':
-        case 'r':
-          return east(connection, gameId, commandArgs);
-        case 'south':
-          return south(connection, gameId, commandArgs);
-        case 'west':
-        case 'l':
-          return west(connection, gameId, commandArgs);
         case 'stop':
         case 's':
           return stop(connection, gameId, commandArgs);
