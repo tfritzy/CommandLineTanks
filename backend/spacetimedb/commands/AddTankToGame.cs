@@ -21,7 +21,7 @@ public static partial class Module
                 var game = ctx.Db.game.Id.Find(tank.GameId);
                 if (game != null && game.Value.GameType == GameType.Game)
                 {
-                    var allianceColor = tank.Alliance == 0 ? "#ff5555" : "#7fbbdc";
+                    var allianceColor = GetAllianceColor(tank.Alliance);
                     var coloredPlayerName = $"[color={allianceColor}]{tank.Name}[/color]";
                     
                     ctx.Db.message.Insert(new Message
