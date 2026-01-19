@@ -1,11 +1,15 @@
-<svg width="64" height="64" viewBox="-22 -22 48 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Body: Rounded rectangle with a "keyhole" cutout -->
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M-18,-14 A4,4 0 0 1 -14,-18 H14 A4,4 0 0 1 18,-14 V-8 H12.7 A15,15 0 1 0 12.7,8 H18 V14 A4,4 0 0 1 14,18 H-14 A4,4 0 0 1 -18,14 V-14 Z" fill="#7fbbdc"/>
+<svg width="64" height="64" viewBox="-24 -24 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="-24" y="-24" width="48" height="48" fill="#2e2e43"/>
   
-  <!-- Turret: Changed to a circle -->
-  <circle cx="0" cy="0" r="11.5" fill="white"/>
+  <g transform="scale(0.85)">
+    <!-- Body: Rounded rectangle with a "keyhole" cutout -->
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M-18,-14 A4,4 0 0 1 -14,-18 H14 A4,4 0 0 1 18,-14 V-8 H12.7 A15,15 0 1 0 12.7,8 H18 V14 A4,4 0 0 1 14,18 H-14 A4,4 0 0 1 -18,14 V-14 Z" fill="#7fbbdc"/>
+    
+    <!-- Turret: Changed to a circle -->
+    <circle cx="0" cy="0" r="11.5" fill="white"/>
 
-  <!-- Barrel: Restored to original dimensions -->
-  <rect x="0" y="-5" width="24" height="10" rx="3" fill="white"/>
+    <!-- Barrel: Restored to original dimensions -->
+    <rect x="0" y="-5" width="24" height="10" rx="3" fill="white"/>
+  </g>
 </svg>
 

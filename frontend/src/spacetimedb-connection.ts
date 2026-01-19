@@ -1,6 +1,7 @@
 import { DbConnection, type ErrorContext } from '../module_bindings';
 import { Identity } from 'spacetimedb';
 import { ServerTimeTracker } from './utils/ServerTimeTracker';
+import { getStoredToken, storeToken } from './utils/storage';
 
 const SPACETIMEDB_HOST = import.meta.env.VITE_SPACETIMEDB_HOST || 'ws://localhost:3000';
 const MODULE_NAME = import.meta.env.VITE_SPACETIMEDB_MODULE || 'clt';
@@ -40,7 +41,7 @@ export async function connectToSpacetimeDB(): Promise<DbConnection> {
   console.log(`  Module: ${MODULE_NAME}`);
   
   // Get stored token if available
-  const token = localStorage.getItem(CREDS_KEY) || undefined;
+  const token = getStoredToken(CREDS_KEY) || undefined;
 
   connectingPromise = new Promise((resolve, reject) => {
     try {
@@ -53,7 +54,7 @@ export async function connectToSpacetimeDB(): Promise<DbConnection> {
           console.log('✓ Connected to SpacetimeDB');
           console.log('  Identity:', identity.toHexString());
           
-          localStorage.setItem(CREDS_KEY, authToken);
+          storeToken(CREDS_KEY, authToken);
           
           dbConnection = conn;
           connectingPromise = null;
