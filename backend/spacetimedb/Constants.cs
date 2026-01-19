@@ -4,7 +4,7 @@ using static Types;
 public static partial class Module
 {
     public const long NETWORK_TICK_RATE_MICROS = 1_000_000 / 30;
-    public const long AI_UPDATE_INTERVAL_MICROS = 1_000_000;
+    public const long AI_UPDATE_INTERVAL_MICROS = 1_500_000;
     public const float PROJECTILE_SPEED = 7.0f;
     public const float SNIPER_PROJECTILE_SPEED = 15.0f;
     public const float GUN_BARREL_LENGTH = 0.4f;
