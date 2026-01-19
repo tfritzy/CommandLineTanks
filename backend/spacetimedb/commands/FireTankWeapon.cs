@@ -15,6 +15,8 @@ public static partial class Module
 
         public static Tank Call(ReducerContext ctx, Tank tank, TankTransform transform)
         {
+            MaybeResumeUpdatersForLowTrafficGame(ctx, tank.GameId);
+
             if (tank.Health <= 0) return tank;
 
             ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
