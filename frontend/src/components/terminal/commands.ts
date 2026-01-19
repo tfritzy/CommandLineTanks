@@ -141,6 +141,10 @@ function directionToAngle(direction: string): number {
 
 const allCommands = [
   { name: 'drive', alias: 'd' },
+  { name: 'north', alias: 'n' },
+  { name: 'east', alias: 'r' },
+  { name: 'south', alias: undefined },
+  { name: 'west', alias: 'l' },
   { name: 'track', alias: 't' },
   { name: 'stop', alias: 's' },
   { name: 'aim', alias: 'a' },
@@ -227,6 +231,10 @@ export function help(_connection: DbConnection, args: string[]): string[] {
   if (args.length === 0) {
     return [
       `  ${themeColors.command("drive")}, ${themeColors.command("d")}             Drive to a direction or coordinate using pathfinding`,
+      `  ${themeColors.command("north")}, ${themeColors.command("n")}             Drive north as far as possible`,
+      `  ${themeColors.command("east")}, ${themeColors.command("r")}              Drive east as far as possible`,
+      `  ${themeColors.command("south")}                 Drive south as far as possible`,
+      `  ${themeColors.command("west")}, ${themeColors.command("l")}              Drive west as far as possible`,
       `  ${themeColors.command("track")}, ${themeColors.command("t")}             Track an enemy tank by code for automatic targeting`,
       `  ${themeColors.command("stop")}, ${themeColors.command("s")}              Stop the tank immediately`,
       `  ${themeColors.command("aim")}, ${themeColors.command("a")}               Aim turret at an angle or direction`,
@@ -265,12 +273,66 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ↙: southwest, downleft, leftdown, sw, dl, ld",
         "                   ←: west, left, w, l",
         "                   ↖: northwest, upleft, leftup, nw, ul, lu",
-        "  [distance]     Distance to drive in units (default: 1)",
+        "  [distance]     Distance to drive in units (default: 100)",
         "",
         "Examples:",
         "  drive northeast 5",
         "  drive up 3",
         "  drive s 10",
+      ];
+
+    case "north":
+    case "n":
+      return [
+        "north, n - Drive north as far as possible",
+        "",
+        "Usage: north",
+        "",
+        "Drives north until reaching the map edge or an obstacle.",
+        "",
+        "Examples:",
+        "  north",
+        "  n",
+      ];
+
+    case "east":
+    case "r":
+      return [
+        "east, r - Drive east as far as possible",
+        "",
+        "Usage: east",
+        "",
+        "Drives east until reaching the map edge or an obstacle.",
+        "",
+        "Examples:",
+        "  east",
+        "  r",
+      ];
+
+    case "south":
+      return [
+        "south - Drive south as far as possible",
+        "",
+        "Usage: south",
+        "",
+        "Drives south until reaching the map edge or an obstacle.",
+        "",
+        "Examples:",
+        "  south",
+      ];
+
+    case "west":
+    case "l":
+      return [
+        "west, l - Drive west as far as possible",
+        "",
+        "Usage: west",
+        "",
+        "Drives west until reaching the map edge or an obstacle.",
+        "",
+        "Examples:",
+        "  west",
+        "  l",
       ];
 
     case "track":
@@ -823,7 +885,7 @@ export function drive(
   if (validDirections.includes(firstArgLower)) {
     const directionInfo = directionAliases[firstArgLower];
 
-    let distance = 1;
+    let distance = 100;
     if (args.length > 1) {
       const parsed = Number.parseInt(args[1]);
       if (Number.isNaN(parsed) || parsed <= 0) {
@@ -863,6 +925,70 @@ export function drive(
     themeColors.dim("  drive northeast 5"),
     themeColors.dim("  drive up 3"),
   ];
+}
+
+export function north(
+  connection: DbConnection,
+  gameId: string,
+  args: string[]
+): string[] {
+  if (args.length > 0) {
+    return [
+      themeColors.error("north: error: north command takes no arguments"),
+      "",
+      themeColors.dim("Usage: north"),
+      themeColors.dim("       n"),
+    ];
+  }
+  return drive(connection, gameId, ["north"]);
+}
+
+export function east(
+  connection: DbConnection,
+  gameId: string,
+  args: string[]
+): string[] {
+  if (args.length > 0) {
+    return [
+      themeColors.error("east: error: east command takes no arguments"),
+      "",
+      themeColors.dim("Usage: east"),
+      themeColors.dim("       e"),
+    ];
+  }
+  return drive(connection, gameId, ["east"]);
+}
+
+export function south(
+  connection: DbConnection,
+  gameId: string,
+  args: string[]
+): string[] {
+  if (args.length > 0) {
+    return [
+      themeColors.error("south: error: south command takes no arguments"),
+      "",
+      themeColors.dim("Usage: south"),
+      themeColors.dim("       s"),
+    ];
+  }
+  return drive(connection, gameId, ["south"]);
+}
+
+export function west(
+  connection: DbConnection,
+  gameId: string,
+  args: string[]
+): string[] {
+  if (args.length > 0) {
+    return [
+      themeColors.error("west: error: west command takes no arguments"),
+      "",
+      themeColors.dim("Usage: west"),
+      themeColors.dim("       w"),
+    ];
+  }
+  return drive(connection, gameId, ["west"]);
 }
 
 export function create(
