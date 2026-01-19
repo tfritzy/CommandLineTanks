@@ -827,10 +827,13 @@ export function drive(
 
   const targetCodePattern = /^[a-z][0-9]$/;
   if (targetCodePattern.test(firstArgLower)) {
-    const allPickups = Array.from(connection.db.pickup.iter()).filter(
-      (p) => p.gameId === gameId
-    );
-    const targetPickup = allPickups.find((p) => p.targetCode === firstArgLower);
+    let targetPickup = null;
+    for (const pickup of connection.db.pickup.GameId.filter(gameId)) {
+      if (pickup.targetCode === firstArgLower) {
+        targetPickup = pickup;
+        break;
+      }
+    }
 
     if (!targetPickup) {
       return [
