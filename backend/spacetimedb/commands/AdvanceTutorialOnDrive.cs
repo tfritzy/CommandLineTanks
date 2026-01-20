@@ -7,8 +7,7 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, string gameId, Tank tank)
         {
-            var game = ctx.Db.game.Id.Find(gameId);
-            if (game == null || game.Value.GameType != GameType.Tutorial)
+            if (!gameId.StartsWith("tutorial_"))
             {
                 return;
             }
@@ -54,9 +53,9 @@ public static partial class Module
                 id: $"{gameId}_label_waypoint",
                 gameId: gameId,
                 positionX: TUTORIAL_WIDTH / 2.0f,
-                positionY: TUTORIAL_HEIGHT / 2.0f - 1,
+                positionY: TUTORIAL_HEIGHT / 2.0f + 1,
                 gridX: TUTORIAL_WIDTH / 2,
-                gridY: TUTORIAL_HEIGHT / 2 - 1,
+                gridY: TUTORIAL_HEIGHT / 2 + 1,
                 type: TerrainDetailType.Label,
                 label: "You can also navigate using anchors on the ground. Try driving to [color=#fceba8]`d uz`[/color]"
             ));

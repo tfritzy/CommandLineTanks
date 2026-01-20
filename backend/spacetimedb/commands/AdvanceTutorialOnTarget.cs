@@ -7,8 +7,7 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, string gameId, Tank playerTank)
         {
-            var game = ctx.Db.game.Id.Find(gameId);
-            if (game == null || game.Value.GameType != GameType.Tutorial)
+            if (!gameId.StartsWith("tutorial_"))
             {
                 return;
             }

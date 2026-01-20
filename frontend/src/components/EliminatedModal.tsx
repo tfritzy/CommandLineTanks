@@ -54,7 +54,7 @@ export default function EliminatedModal({ killerName, gameId }: EliminatedModalP
         <div className="text-[10px] text-palette-white-pure/30 tracking-[0.25em] px-1 font-bold text-left uppercase">
           Invite your friends to this game:
         </div>
-        <CopyBox text={`${window.location.origin}/game/${gameId}`} showPrompt={false} />
+        <CopyBox text={`https://cltanks.io/game/${gameId}`} showPrompt={false} />
       </div>
     </motion.div>
   );

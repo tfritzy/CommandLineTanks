@@ -8,7 +8,7 @@ import { colorize } from '../theme/colors';
 
 
 function outputGameCreatedMessage(gameId: string): void {
-    const url = `${window.location.origin}/game/${gameId}`;
+    const url = `https://cltanks.io/game/${gameId}`;
     const urlLabel = colorize('Share this URL with friends to invite them:', 'TEXT_DEFAULT');
     const urlText = colorize(url, 'TANK_CODE');
     

@@ -7,8 +7,7 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, string gameId, Tank killedTank)
         {
-            var game = ctx.Db.game.Id.Find(gameId);
-            if (game == null || game.Value.GameType != GameType.Tutorial)
+            if (!gameId.StartsWith("tutorial_"))
             {
                 return;
             }
@@ -44,7 +43,7 @@ public static partial class Module
                 gridX: TUTORIAL_WIDTH / 2,
                 gridY: TUTORIAL_HEIGHT / 2 - 1,
                 type: TerrainDetailType.Label,
-                label: "You can also drive using cardinal directions. Try [color=#fceba8]`d n`[/color] to drive north"
+                label: "You can also drive using cardinal directions. Try [color=#fceba8]`d s`[/color] to drive south"
             ));
         }
     }
