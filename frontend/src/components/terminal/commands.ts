@@ -73,61 +73,29 @@ const directionAliases: Record<
   string,
   { x: number; y: number; name: string; symbol: string }
 > = {
-  // North
   north: { x: 0, y: -1, name: "north", symbol: "↑" },
-  up: { x: 0, y: -1, name: "north", symbol: "↑" },
   n: { x: 0, y: -1, name: "north", symbol: "↑" },
-  u: { x: 0, y: -1, name: "north", symbol: "↑" },
 
-  // Northeast
   northeast: { x: 1, y: -1, name: "northeast", symbol: "↗" },
-  upright: { x: 1, y: -1, name: "northeast", symbol: "↗" },
-  rightup: { x: 1, y: -1, name: "northeast", symbol: "↗" },
   ne: { x: 1, y: -1, name: "northeast", symbol: "↗" },
-  ur: { x: 1, y: -1, name: "northeast", symbol: "↗" },
-  ru: { x: 1, y: -1, name: "northeast", symbol: "↗" },
 
-  // East
   east: { x: 1, y: 0, name: "east", symbol: "→" },
-  right: { x: 1, y: 0, name: "east", symbol: "→" },
   e: { x: 1, y: 0, name: "east", symbol: "→" },
-  r: { x: 1, y: 0, name: "east", symbol: "→" },
 
-  // Southeast
   southeast: { x: 1, y: 1, name: "southeast", symbol: "↘" },
-  downright: { x: 1, y: 1, name: "southeast", symbol: "↘" },
-  rightdown: { x: 1, y: 1, name: "southeast", symbol: "↘" },
   se: { x: 1, y: 1, name: "southeast", symbol: "↘" },
-  dr: { x: 1, y: 1, name: "southeast", symbol: "↘" },
-  rd: { x: 1, y: 1, name: "southeast", symbol: "↘" },
 
-  // South
   south: { x: 0, y: 1, name: "south", symbol: "↓" },
-  down: { x: 0, y: 1, name: "south", symbol: "↓" },
   s: { x: 0, y: 1, name: "south", symbol: "↓" },
-  d: { x: 0, y: 1, name: "south", symbol: "↓" },
 
-  // Southwest
   southwest: { x: -1, y: 1, name: "southwest", symbol: "↙" },
-  downleft: { x: -1, y: 1, name: "southwest", symbol: "↙" },
-  leftdown: { x: -1, y: 1, name: "southwest", symbol: "↙" },
   sw: { x: -1, y: 1, name: "southwest", symbol: "↙" },
-  dl: { x: -1, y: 1, name: "southwest", symbol: "↙" },
-  ld: { x: -1, y: 1, name: "southwest", symbol: "↙" },
 
-  // West
   west: { x: -1, y: 0, name: "west", symbol: "←" },
-  left: { x: -1, y: 0, name: "west", symbol: "←" },
   w: { x: -1, y: 0, name: "west", symbol: "←" },
-  l: { x: -1, y: 0, name: "west", symbol: "←" },
 
-  // Northwest
   northwest: { x: -1, y: -1, name: "northwest", symbol: "↖" },
-  upleft: { x: -1, y: -1, name: "northwest", symbol: "↖" },
-  leftup: { x: -1, y: -1, name: "northwest", symbol: "↖" },
   nw: { x: -1, y: -1, name: "northwest", symbol: "↖" },
-  ul: { x: -1, y: -1, name: "northwest", symbol: "↖" },
-  lu: { x: -1, y: -1, name: "northwest", symbol: "↖" },
 };
 
 const validDirections = Object.keys(directionAliases);
@@ -258,18 +226,18 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Arguments:",
         "  <direction>    Direction to drive (with pathfinding)",
         "                 Directions:",
-        "                   ↑: north, up, n, u",
-        "                   ↗: northeast, upright, rightup, ne, ur, ru",
-        "                   →: east, right, e, r",
-        "                   ↘: southeast, downright, rightdown, se, dr, rd",
-        "                   ↓: south, down, s, d",
-        "                   ↙: southwest, downleft, leftdown, sw, dl, ld",
-        "                   ←: west, left, w, l",
-        "                   ↖: northwest, upleft, leftup, nw, ul, lu",
+        "                   ↑: north, n",
+        "                   ↗: northeast, ne",
+        "                   →: east, e",
+        "                   ↘: southeast, se",
+        "                   ↓: south, s",
+        "                   ↙: southwest, sw",
+        "                   ←: west, w",
+        "                   ↖: northwest, nw",
         "  <code>         Destination code (like bak, hex) to drive to",
         "",
         "Examples:",
-        "  d up",
+        "  d north",
         "  d s",
         "  d bak          # Drive to destination bak",
       ];
@@ -318,14 +286,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                      Angles: 0=east, 90=north, 180=west, 270=south",
         "                      Negative angles are supported",
         "                      Directions:",
-        "                        ↑: north, up, n, u",
-        "                        ↗: northeast, upright, rightup, ne, ur, ru",
-        "                        →: east, right, e, r",
-        "                        ↘: southeast, downright, rightdown, se, dr, rd",
-        "                        ↓: south, down, s, d",
-        "                        ↙: southwest, downleft, leftdown, sw, dl, ld",
-        "                        ←: west, left, w, l",
-        "                        ↖: northwest, upleft, leftup, nw, ul, lu",
+        "                        ↑: north, n",
+        "                        ↗: northeast, ne",
+        "                        →: east, e",
+        "                        ↘: southeast, se",
+        "                        ↓: south, s",
+        "                        ↙: southwest, sw",
+        "                        ←: west, w",
+        "                        ↖: northwest, nw",
         "",
         "Examples:",
         "  aim 90",
@@ -556,7 +524,7 @@ export function aim(
       return [
         themeColors.error(`aim: error: invalid value '${args[0]}'`),
         themeColors.dim("Must be a number (degrees) or valid direction"),
-        themeColors.dim("Valid directions: n/u, ne/ur/ru, e/r, se/dr/rd, s/d, sw/dl/ld, w/l, nw/ul/lu"),
+        themeColors.dim("Valid directions: n, ne, e, se, s, sw, w, nw"),
         "",
         themeColors.dim("Usage: aim <angle|direction>"),
         themeColors.dim("Examples:"),
