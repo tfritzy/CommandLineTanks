@@ -71,7 +71,7 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
           name: tank.name,
           kills: tank.kills,
           deaths: tank.deaths,
-          netKills: netKills,
+          netKills,
           alliance: tank.alliance,
           displayScore: netKills,
           owner: ownerHex,
