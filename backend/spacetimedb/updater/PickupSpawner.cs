@@ -6,7 +6,7 @@ using System.Linq;
 
 public static partial class PickupSpawner
 {
-    private const float POSITION_COLLISION_THRESHOLD = 0.01f;
+    private const float POSITION_COLLISION_THRESHOLD_SQUARED = 0.01f;
 
     public static readonly PickupType[] PICKUP_TYPES = new PickupType[]
     {
@@ -475,7 +475,7 @@ public static partial class PickupSpawner
         {
             float dx = destination.PositionX - positionX;
             float dy = destination.PositionY - positionY;
-            if (dx * dx + dy * dy < POSITION_COLLISION_THRESHOLD && destination.Type == DestinationType.Pickup)
+            if (dx * dx + dy * dy < POSITION_COLLISION_THRESHOLD_SQUARED && destination.Type == DestinationType.Pickup)
             {
                 ctx.Db.destination.Id.Delete(destination.Id);
                 return;
@@ -492,7 +492,7 @@ public static partial class PickupSpawner
 
             float dx = destination.PositionX - positionX;
             float dy = destination.PositionY - positionY;
-            if (dx * dx + dy * dy < POSITION_COLLISION_THRESHOLD)
+            if (dx * dx + dy * dy < POSITION_COLLISION_THRESHOLD_SQUARED)
             {
                 return true;
             }
