@@ -15,6 +15,13 @@ public static partial class Module
         private static readonly (int x, int y) TUTORIAL_HEALTH_PICKUP = (6, 6);
         private static readonly (int x, int y) TUTORIAL_WEAPON_PICKUP = (9, 9);
         private static readonly (int x, int y) TUTORIAL_ENEMY_SPAWN = (16, 6);
+        
+        private static readonly (int x, int y, string label)[] TUTORIAL_ANCHORS = new[]
+        {
+            (12, 3, "ar"),
+            (10, 7, "uz"),
+            (18, 8, "re")
+        };
 
         public static void Call(ReducerContext ctx, Identity identity, string joinCode)
         {
@@ -89,6 +96,7 @@ public static partial class Module
             });
 
             AddTutorialTerrainDetails(ctx, tutorialGameId);
+            CreateTutorialAnchors(ctx, tutorialGameId);
 
             var healthDestinationCode = SpawnTutorialHealthPickup(ctx, tutorialGameId);
             SpawnDriveToHealthLabel(ctx, tutorialGameId, healthDestinationCode);
@@ -283,7 +291,7 @@ public static partial class Module
         {
             var driveCommand = destinationCode != null 
                 ? $"d {destinationCode}"
-                : "d e 3";
+                : "d e";
             
             ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
@@ -325,6 +333,26 @@ public static partial class Module
                 aiBehavior: AIBehavior.None);
 
             AddTankToGame.Call(ctx, tank, transform);
+        }
+
+        private static void CreateTutorialAnchors(ReducerContext ctx, string gameId)
+        {
+            foreach (var (x, y, label) in TUTORIAL_ANCHORS)
+            {
+                var destinationId = $"{gameId}_anchor_{label}";
+                
+                var destination = new Destination
+                {
+                    Id = destinationId,
+                    GameId = gameId,
+                    PositionX = x + 0.5f,
+                    PositionY = y + 0.5f,
+                    Type = DestinationType.Anchor,
+                    TargetCode = label
+                };
+                
+                ctx.Db.destination.Insert(destination);
+            }
         }
     }
 }

@@ -83,5 +83,7 @@ public static partial class Module
         };
 
         ctx.Db.tank_transform.TankId.Update(updatedTransform);
+
+        AdvanceTutorialOnDrive.Call(ctx, gameId, tank);
     }
 }

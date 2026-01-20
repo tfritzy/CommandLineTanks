@@ -16,8 +16,8 @@ public static partial class Module
             if (killedTank.Id == $"{gameId}_enemy")
             {
                 RemoveTutorialLabel(ctx, $"{gameId}_label_fire");
-                SpawnCompletionLabel(ctx, gameId);
-                Log.Info($"Tutorial {gameId}: Complete!");
+                SpawnCardinalDirectionWaypoint(ctx, gameId);
+                Log.Info($"Tutorial {gameId}: Advanced to CardinalDirections");
             }
         }
 
@@ -30,33 +30,21 @@ public static partial class Module
             }
         }
 
-        private static void SpawnCompletionLabel(ReducerContext ctx, string gameId)
+        private static void SpawnCardinalDirectionWaypoint(ReducerContext ctx, string gameId)
         {
             const int TUTORIAL_WIDTH = 20;
             const int TUTORIAL_HEIGHT = 12;
 
             ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
-                id: $"{gameId}_label_complete",
+                id: $"{gameId}_label_waypoint",
                 gameId: gameId,
                 positionX: TUTORIAL_WIDTH / 2.0f,
                 positionY: TUTORIAL_HEIGHT / 2.0f - 1,
                 gridX: TUTORIAL_WIDTH / 2,
                 gridY: TUTORIAL_HEIGHT / 2 - 1,
                 type: TerrainDetailType.Label,
-                label: "Tutorial complete! Use [color=#fceba8]`tutorial complete`[/color] to start playing"
-            ));
-
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
-                ctx: ctx,
-                id: $"{gameId}_label_help",
-                gameId: gameId,
-                positionX: TUTORIAL_WIDTH / 2.0f,
-                positionY: TUTORIAL_HEIGHT / 2.0f,
-                gridX: TUTORIAL_WIDTH / 2,
-                gridY: TUTORIAL_HEIGHT / 2,
-                type: TerrainDetailType.Label,
-                label: "[color=#a9bcbf]Use the help command to learn more[/color]"
+                label: "You can also drive using cardinal directions. Try [color=#fceba8]`d n`[/color] to drive north"
             ));
         }
     }

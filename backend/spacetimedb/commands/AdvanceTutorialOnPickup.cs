@@ -70,7 +70,7 @@ public static partial class Module
 
             var driveCommand = destinationCode != null 
                 ? $"d {destinationCode}"
-                : "d se 3";
+                : "d se";
 
             ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
                 ctx: ctx,
