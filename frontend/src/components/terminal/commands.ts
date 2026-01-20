@@ -234,12 +234,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ↙: southwest, sw",
         "                   ←: west, w",
         "                   ↖: northwest, nw",
-        "  <code>         Destination code (like bak, hex) to drive to",
+        "  <code>         Destination code (like ba, ex) to drive to",
         "",
         "Examples:",
         "  d north",
         "  d s",
-        "  d bak          # Drive to destination bak",
+        "  d ba           # Drive to destination ba",
       ];
 
     case "track":
@@ -250,14 +250,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Usage: track <target_code>",
         "",
         "Arguments:",
-        "  <target_code>       Target code of the tank to track (e.g., bak, hex, zul)",
-        "                      Format: consonant-vowel-consonant (three letters)",
+        "  <target_code>       Target code of the tank to track (e.g., ba, ex, zu)",
+        "                      Format: consonant-vowel or vowel-consonant (two letters)",
         "                      Your turret will automatically follow the target",
         "",
         "Examples:",
-        "  track bak",
-        "  track hex",
-        "  t zul",
+        "  track ba",
+        "  track ex",
+        "  t zu",
       ];
 
     case "stop":
@@ -389,22 +389,18 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       return [
         "join - Join or create a game",
         "",
-        "Usage: join [game_id|random] [passcode]",
+        "Usage: join [game_id|random]",
         "",
         "Arguments:",
         "  [game_id|random]  The 4-letter ID of the game to join, or 'random' (default: random)",
-        "  [passcode]         The passcode for private games (optional)",
         "",
         "With no arguments or 'random', finds an available public game or creates one.",
         "With a game ID, joins that specific game.",
-        "Private games require a passcode. Use quotes for passcodes with spaces.",
         "",
         "Examples:",
         "  join              (same as 'join random')",
         "  join random",
         "  join ABCD",
-        "  join ABCD mysecretpass",
-        "  join ABCD 'my secret pass'",
       ];
 
     case "exit":
@@ -414,7 +410,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Usage: exit",
         "",
-        "Removes your tank from the current game game and places it back",
+        "Removes your tank from the current game and places it back",
         "in your personal homegame.",
         "",
         "Examples:",
@@ -772,7 +768,7 @@ export function drive(
       "",
       themeColors.dim("Examples:"),
       themeColors.dim("  d ne"),
-      themeColors.dim("  d bak"),
+      themeColors.dim("  d ba"),
     ];
   }
 
@@ -822,7 +818,7 @@ export function drive(
     themeColors.dim("Examples:"),
     themeColors.dim("  d ne"),
     themeColors.dim("  d u"),
-    themeColors.dim("  d bak          # Drive to destination bak"),
+    themeColors.dim("  d ba           # Drive to destination ba"),
   ];
 }
 
@@ -968,7 +964,7 @@ export function join(
   });
 
   if (isRandom) {
-    const output = [themeColors.success("Finding or creating a game game...")];
+    const output = [themeColors.success("Finding or creating a game...")];
     if (args.length === 0) {
       output.unshift("", themeColors.dim("join random"));
     }

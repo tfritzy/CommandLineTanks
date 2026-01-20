@@ -955,9 +955,9 @@
                             </p>
                             <div class="command-syntax">
                                 <div class="syntax-comment"># Syntax</div>
-                                <div class="syntax-primary">drive &lt;dir&gt; [dist]</div>
+                                <div class="syntax-primary">drive &lt;dir|code&gt;</div>
                                 <div class="syntax-comment"># Type this:</div>
-                                <div class="syntax-example"><span class="syntax-dollar">$</span> drive north 10</div>
+                                <div class="syntax-example"><span class="syntax-dollar">$</span> drive north</div>
                             </div>
                         </div>
                     </div>
@@ -977,7 +977,7 @@
                                 <div class="syntax-comment"># Syntax</div>
                                 <div class="syntax-primary">track &lt;code&gt;</div>
                                 <div class="syntax-comment"># Type this:</div>
-                                <div class="syntax-example"><span class="syntax-dollar">$</span> track a4</div>
+                                <div class="syntax-example"><span class="syntax-dollar">$</span> track ba</div>
                             </div>
                         </div>
                     </div>
@@ -1315,7 +1315,7 @@
                 await newLine();
 
                 lines.push('Available commands:');
-                lines.push('  <span class="terminal-cyan">drive</span>      Move unit: drive &lt;dir&gt; [dist]');
+                lines.push('  <span class="terminal-cyan">drive</span>      Move unit: drive &lt;dir|code&gt;');
                 lines.push('  <span class="terminal-cyan">track</span>      Track target: track &lt;code&gt;');
                 lines.push('  <span class="terminal-cyan">aim</span>        Aim turret: aim &lt;deg|dir&gt;');
                 lines.push('  <span class="terminal-cyan">fire</span>       Fire main weapon');
@@ -1326,18 +1326,18 @@
                 render();
                 await sleep(1000);
 
-                await typeText('drive northeast 20');
+                await typeText('drive northeast');
                 await newLine();
-                lines.push('Driving <span class="terminal-cyan">20</span> units <span class="terminal-cyan">northeast</span>');
+                lines.push('Driving <span class="terminal-cyan">northeast</span>');
                 lines.push('');
                 lines.push('');
                 currentLine = prompt();
                 render();
                 await sleep(1000);
 
-                await typeText('track a4');
+                await typeText('track ba');
                 await newLine();
-                lines.push('Tracking tank <span class="terminal-magenta">a4</span> (Alpha)');
+                lines.push('Tracking tank <span class="terminal-magenta">ba</span> (Alpha)');
                 lines.push('');
                 lines.push('');
                 currentLine = prompt();
