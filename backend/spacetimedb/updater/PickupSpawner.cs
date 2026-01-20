@@ -234,6 +234,11 @@ public static partial class PickupSpawner
             return false;
         }
 
+        if (IsAnchorAtPosition(ctx, gameId, centerX, centerY))
+        {
+            return false;
+        }
+
         int pickupTypeIndex = ctx.Rng.Next(NON_HEALTH_PICKUP_TYPES.Length);
         PickupType pickupType = NON_HEALTH_PICKUP_TYPES[pickupTypeIndex];
 
@@ -277,6 +282,11 @@ public static partial class PickupSpawner
 
         var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
         foreach (var p in existingPickup)
+        {
+            return false;
+        }
+
+        if (IsAnchorAtPosition(ctx, gameId, centerX, centerY))
         {
             return false;
         }
@@ -459,16 +469,32 @@ public static partial class PickupSpawner
 
     private static void DeleteDestinationAtPosition(ReducerContext ctx, string gameId, float positionX, float positionY)
     {
-        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        int gridX = (int)positionX;
+        int gridY = (int)positionY;
+
+        foreach (var destination in ctx.Db.destination.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
         {
-            float dx = destination.PositionX - positionX;
-            float dy = destination.PositionY - positionY;
-            if (dx * dx + dy * dy < 0.01f)
+            if (destination.Type == DestinationType.Pickup)
             {
                 ctx.Db.destination.Id.Delete(destination.Id);
                 return;
             }
         }
+    }
+
+    private static bool IsAnchorAtPosition(ReducerContext ctx, string gameId, float positionX, float positionY)
+    {
+        int gridX = (int)positionX;
+        int gridY = (int)positionY;
+
+        foreach (var destination in ctx.Db.destination.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
+        {
+            if (destination.Type == DestinationType.Anchor)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static float GenerateNormalDistribution(Random random)
