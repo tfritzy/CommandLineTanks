@@ -5,11 +5,22 @@ public static partial class Module
 {
     public static class AllocateTargetCode
     {
-        private static readonly char[] Letters = [
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-            'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-            'u', 'v', 'w', 'x', 'y', 'z'
+        private static readonly char[] Consonants = [
+            'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
+            'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'
         ];
+
+        private static readonly char[] Vowels = [
+            'a', 'e', 'i', 'o', 'u'
+        ];
+
+        private static readonly HashSet<string> BlockedWords = new HashSet<string>
+        {
+            "ass", "bum", "cox", "cum", "cun", "dam", "dik", "fag",
+            "fuc", "fuk", "gay", "god", "hel", "hoe", "jap", "jew",
+            "jiz", "kok", "kys", "naz", "nig", "pee", "pis", "poo",
+            "pus", "sex", "suc", "suk", "tit", "vag", "wap", "wet"
+        };
 
         public static string? Call(ReducerContext ctx, string gameId)
         {
@@ -24,13 +35,14 @@ public static partial class Module
                 }
             }
 
-            for (int i = 0; i < 260; i++)
+            for (int i = 0; i < 2205; i++)
             {
-                var letter = Letters[ctx.Rng.Next(Letters.Length)];
-                var digit = ctx.Rng.Next(10);
-                var code = $"{letter}{digit}";
+                var consonant1 = Consonants[ctx.Rng.Next(Consonants.Length)];
+                var vowel = Vowels[ctx.Rng.Next(Vowels.Length)];
+                var consonant2 = Consonants[ctx.Rng.Next(Consonants.Length)];
+                var code = $"{consonant1}{vowel}{consonant2}";
                 
-                if (!usedCodes.Contains(code))
+                if (!usedCodes.Contains(code) && !BlockedWords.Contains(code))
                 {
                     return code;
                 }
