@@ -21,4 +21,6 @@ export default __t.row({
   },
   positionX: __t.f32(),
   positionY: __t.f32(),
+  gridX: __t.i32(),
+  gridY: __t.i32(),
 });

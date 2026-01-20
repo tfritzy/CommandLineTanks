@@ -21,6 +21,8 @@ export default __t.object("Destination", {
   },
   positionX: __t.f32(),
   positionY: __t.f32(),
+  gridX: __t.i32(),
+  gridY: __t.i32(),
 });
 
 

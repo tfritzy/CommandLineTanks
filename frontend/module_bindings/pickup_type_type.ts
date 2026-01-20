@@ -20,7 +20,6 @@ const PickupType = __t.enum("PickupType", {TripleShooter: __t.unit(),
   Moag: __t.unit(),
   Shield: __t.unit(),
   Sniper: __t.unit(),
-  Waypoint: __t.unit(),
 });
 
 export default PickupType;

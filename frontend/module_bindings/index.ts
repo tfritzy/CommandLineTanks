@@ -392,6 +392,11 @@ const tablesSchema = __schema(
   __table({
     name: 'destination',
     indexes: [
+      { name: 'GameId_GridX_GridY', algorithm: 'btree', columns: [
+        'gameId',
+        'gridX',
+        'gridY',
+      ] },
       { name: 'GameId_TargetCode', algorithm: 'btree', columns: [
         'gameId',
         'targetCode',
