@@ -5,22 +5,6 @@ public static partial class Module
 {
     public static class AllocateTargetCode
     {
-        private static readonly char[] Consonants = [
-            'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
-            'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'
-        ];
-
-        private static readonly char[] Vowels = [
-            'a', 'e', 'i', 'o', 'u'
-        ];
-
-        private static readonly HashSet<string> BlockedWords = new HashSet<string>
-        {
-            "ass", "bum", "cox", "cum", "cun", "dam", "dik", "fag",
-            "fuc", "fuk", "gay", "god", "hel", "hoe", "jap", "jew",
-            "jiz", "kok", "kys", "naz", "nig", "pee", "pis", "poo",
-            "pus", "sex", "suc", "suk", "tit", "vag", "wap", "wet"
-        };
 
         public static string? Call(ReducerContext ctx, string gameId)
         {
@@ -37,12 +21,9 @@ public static partial class Module
 
             for (int i = 0; i < 2205; i++)
             {
-                var consonant1 = Consonants[ctx.Rng.Next(Consonants.Length)];
-                var vowel = Vowels[ctx.Rng.Next(Vowels.Length)];
-                var consonant2 = Consonants[ctx.Rng.Next(Consonants.Length)];
-                var code = $"{consonant1}{vowel}{consonant2}";
+                string code = GenerateCode.Call(ctx);
                 
-                if (!usedCodes.Contains(code) && !BlockedWords.Contains(code))
+                if (!usedCodes.Contains(code))
                 {
                     return code;
                 }

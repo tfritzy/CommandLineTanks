@@ -100,7 +100,7 @@ export class DestinationManager {
       ctx.fillStyle = "#fceba8";
       ctx.fillText(destination.targetCode, gameX, offsetY);
     } else {
-      ctx.strokeStyle = "#2e2e43";
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
       ctx.lineWidth = 2;
       ctx.strokeText(destination.targetCode, gameX, offsetY);
       

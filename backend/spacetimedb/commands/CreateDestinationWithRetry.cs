@@ -17,27 +17,24 @@ public static partial class Module
         {
             for (int attempt = 0; attempt < maxAttempts; attempt++)
             {
-                var targetCode = AllocateDestinationCode.Call(ctx, gameId);
-                if (targetCode != null)
+                var targetCode = GenerateCode.Call(ctx);
+                if (usedCodes != null && usedCodes.Contains(targetCode))
                 {
-                    if (usedCodes != null && usedCodes.Contains(targetCode))
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    var existing = ctx.Db.destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
-                    if (existing.Id == null)
-                    {
-                        ctx.Db.destination.Insert(Destination.Build(
-                            ctx: ctx,
-                            gameId: gameId,
-                            targetCode: targetCode,
-                            type: type,
-                            positionX: positionX,
-                            positionY: positionY
-                        ));
-                        return targetCode;
-                    }
+                var existing = ctx.Db.destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
+                if (existing.Id == null)
+                {
+                    ctx.Db.destination.Insert(Destination.Build(
+                        ctx: ctx,
+                        gameId: gameId,
+                        targetCode: targetCode,
+                        type: type,
+                        positionX: positionX,
+                        positionY: positionY
+                    ));
+                    return targetCode;
                 }
             }
             
