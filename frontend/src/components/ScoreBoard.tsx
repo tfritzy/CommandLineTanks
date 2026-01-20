@@ -12,7 +12,7 @@ interface PlayerScore {
   name: string;
   kills: number;
   deaths: number;
-  killStreak: number;
+  netKills: number;
   alliance: number;
   displayScore: number;
   owner: string;
@@ -55,8 +55,7 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
 
     const updatePlayerScores = () => {
       const tanks = Array.from(connection.db.tank.iter())
-        .filter(tank => tank.gameId === gameId)
-        .sort((a, b) => b.killStreak - a.killStreak);
+        .filter(tank => tank.gameId === gameId);
 
       const newPlayers: PlayerScore[] = [];
       for (const tank of tanks) {
@@ -66,18 +65,20 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
           cachedOwnerHexStrings.current.set(tank.id, ownerHex);
         }
         
+        const netKills = tank.kills - tank.deaths;
         newPlayers.push({
           id: tank.id,
           name: tank.name,
           kills: tank.kills,
           deaths: tank.deaths,
-          killStreak: tank.killStreak,
+          netKills,
           alliance: tank.alliance,
-          displayScore: tank.killStreak,
+          displayScore: netKills,
           owner: ownerHex,
         });
       }
 
+      newPlayers.sort((a, b) => b.netKills - a.netKills);
       setPlayers(newPlayers);
     };
 
@@ -148,7 +149,7 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
         </span>
         <span className="text-palette-slate-medium opacity-50 px-0.5">-</span>
         <span className="font-extrabold min-w-[24px] text-right tabular-nums" style={{ color: teamColors.value }}>
-          <AnimatedScore value={player.killStreak} />
+          <AnimatedScore value={player.netKills} />
         </span>
       </motion.div>
     );
@@ -160,7 +161,7 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
     >
       <div className="w-full bg-palette-purple-void/85 backdrop-blur-xl border border-palette-white-pure/[0.08] rounded p-2 shadow-2xl flex flex-col">
         <div className="text-ui-text-dim text-[10px] font-mono font-extrabold tracking-[0.2em] mb-1.5 text-center opacity-80 border-b border-palette-white-pure/[0.08] pb-1 uppercase">
-          Top Streaks
+          Top Players
         </div>
 
         <div className="flex flex-col gap-0.5">
