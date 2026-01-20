@@ -15,6 +15,9 @@ public static partial class Module
             HashSet<string>? usedCodes = null,
             int maxAttempts = 50)
         {
+            int gridX = (int)positionX;
+            int gridY = (int)positionY;
+
             for (int attempt = 0; attempt < maxAttempts; attempt++)
             {
                 var targetCode = GenerateCode.Call(ctx);
@@ -32,7 +35,9 @@ public static partial class Module
                         targetCode: targetCode,
                         type: type,
                         positionX: positionX,
-                        positionY: positionY
+                        positionY: positionY,
+                        gridX: gridX,
+                        gridY: gridY
                     ));
                     return targetCode;
                 }

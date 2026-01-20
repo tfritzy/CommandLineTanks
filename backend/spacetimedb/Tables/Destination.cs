@@ -5,6 +5,7 @@ public static partial class Module
 {
     [Table(Name = "destination", Public = true)]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Destination.GameId), nameof(Destination.TargetCode) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(Destination.GameId), nameof(Destination.GridX), nameof(Destination.GridY) })]
     public partial struct Destination
     {
         [PrimaryKey]
@@ -19,6 +20,9 @@ public static partial class Module
         public float PositionX;
         public float PositionY;
 
+        public int GridX;
+        public int GridY;
+
         public static Destination Build(
             ReducerContext ctx,
             string? id = null,
@@ -26,7 +30,9 @@ public static partial class Module
             string? targetCode = null,
             DestinationType type = DestinationType.Anchor,
             float positionX = 0,
-            float positionY = 0)
+            float positionY = 0,
+            int gridX = 0,
+            int gridY = 0)
         {
             return new Destination
             {
@@ -35,7 +41,9 @@ public static partial class Module
                 TargetCode = targetCode ?? "",
                 Type = type,
                 PositionX = positionX,
-                PositionY = positionY
+                PositionY = positionY,
+                GridX = gridX,
+                GridY = gridY
             };
         }
     }

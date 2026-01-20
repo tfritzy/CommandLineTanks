@@ -6,8 +6,6 @@ using System.Linq;
 
 public static partial class PickupSpawner
 {
-    private const float POSITION_COLLISION_THRESHOLD_SQUARED = 0.01f;
-
     public static readonly PickupType[] PICKUP_TYPES = new PickupType[]
     {
         PickupType.TripleShooter,
@@ -471,11 +469,12 @@ public static partial class PickupSpawner
 
     private static void DeleteDestinationAtPosition(ReducerContext ctx, string gameId, float positionX, float positionY)
     {
-        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        int gridX = (int)positionX;
+        int gridY = (int)positionY;
+
+        foreach (var destination in ctx.Db.destination.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
         {
-            float dx = destination.PositionX - positionX;
-            float dy = destination.PositionY - positionY;
-            if (dx * dx + dy * dy < POSITION_COLLISION_THRESHOLD_SQUARED && destination.Type == DestinationType.Pickup)
+            if (destination.Type == DestinationType.Pickup)
             {
                 ctx.Db.destination.Id.Delete(destination.Id);
                 return;
@@ -485,14 +484,12 @@ public static partial class PickupSpawner
 
     private static bool IsAnchorAtPosition(ReducerContext ctx, string gameId, float positionX, float positionY)
     {
-        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
-        {
-            if (destination.Type != DestinationType.Anchor)
-                continue;
+        int gridX = (int)positionX;
+        int gridY = (int)positionY;
 
-            float dx = destination.PositionX - positionX;
-            float dy = destination.PositionY - positionY;
-            if (dx * dx + dy * dy < POSITION_COLLISION_THRESHOLD_SQUARED)
+        foreach (var destination in ctx.Db.destination.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
+        {
+            if (destination.Type == DestinationType.Anchor)
             {
                 return true;
             }
