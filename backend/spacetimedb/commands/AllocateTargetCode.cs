@@ -14,6 +14,14 @@ public static partial class Module
             'a', 'e', 'i', 'o', 'u'
         ];
 
+        private static readonly HashSet<string> BlockedWords = new HashSet<string>
+        {
+            "ass", "bum", "cox", "cum", "cun", "dam", "dik", "fag",
+            "fuc", "fuk", "gay", "god", "hel", "hoe", "jap", "jew",
+            "jiz", "kok", "kys", "naz", "nig", "pee", "pis", "poo",
+            "pus", "sex", "suc", "suk", "tit", "vag", "wap", "wet"
+        };
+
         public static string? Call(ReducerContext ctx, string gameId)
         {
             var tanksInGame = ctx.Db.tank.GameId.Filter(gameId);
@@ -34,7 +42,7 @@ public static partial class Module
                 var consonant2 = Consonants[ctx.Rng.Next(Consonants.Length)];
                 var code = $"{consonant1}{vowel}{consonant2}";
                 
-                if (!usedCodes.Contains(code))
+                if (!usedCodes.Contains(code) && !BlockedWords.Contains(code))
                 {
                     return code;
                 }
