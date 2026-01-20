@@ -6,6 +6,8 @@ using System.Linq;
 
 public static partial class PickupSpawner
 {
+    private const float POSITION_COLLISION_THRESHOLD = 0.01f;
+
     public static readonly PickupType[] PICKUP_TYPES = new PickupType[]
     {
         PickupType.TripleShooter,
@@ -234,14 +236,9 @@ public static partial class PickupSpawner
             return false;
         }
 
-        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        if (IsAnchorAtPosition(ctx, gameId, centerX, centerY))
         {
-            float dx = destination.PositionX - centerX;
-            float dy = destination.PositionY - centerY;
-            if (dx * dx + dy * dy < 0.01f && destination.Type == DestinationType.Anchor)
-            {
-                return false;
-            }
+            return false;
         }
 
         int pickupTypeIndex = ctx.Rng.Next(NON_HEALTH_PICKUP_TYPES.Length);
@@ -291,14 +288,9 @@ public static partial class PickupSpawner
             return false;
         }
 
-        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        if (IsAnchorAtPosition(ctx, gameId, centerX, centerY))
         {
-            float dx = destination.PositionX - centerX;
-            float dy = destination.PositionY - centerY;
-            if (dx * dx + dy * dy < 0.01f && destination.Type == DestinationType.Anchor)
-            {
-                return false;
-            }
+            return false;
         }
 
         Module.SpawnPickupWithDestination.Call(
@@ -483,12 +475,29 @@ public static partial class PickupSpawner
         {
             float dx = destination.PositionX - positionX;
             float dy = destination.PositionY - positionY;
-            if (dx * dx + dy * dy < 0.01f && destination.Type == DestinationType.Pickup)
+            if (dx * dx + dy * dy < POSITION_COLLISION_THRESHOLD && destination.Type == DestinationType.Pickup)
             {
                 ctx.Db.destination.Id.Delete(destination.Id);
                 return;
             }
         }
+    }
+
+    private static bool IsAnchorAtPosition(ReducerContext ctx, string gameId, float positionX, float positionY)
+    {
+        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        {
+            if (destination.Type != DestinationType.Anchor)
+                continue;
+
+            float dx = destination.PositionX - positionX;
+            float dy = destination.PositionY - positionY;
+            if (dx * dx + dy * dy < POSITION_COLLISION_THRESHOLD)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static float GenerateNormalDistribution(Random random)
