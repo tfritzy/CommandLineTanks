@@ -14,27 +14,25 @@ public static partial class Module
             'a', 'e', 'i', 'o', 'u'
         ];
 
-        private static readonly HashSet<string> BlockedWords = new HashSet<string>
+        private static readonly HashSet<string> BlockedCodes = new HashSet<string>
         {
-            "ass", "bum", "cox", "cum", "cun", "dam", "dik", "fag",
-            "fuc", "fuk", "gay", "god", "hel", "hoe", "jap", "jew",
-            "jiz", "kok", "kys", "naz", "nig", "pee", "pis", "poo",
-            "pus", "sex", "suc", "suk", "tit", "vag", "wap", "wet",
-            "coc"
+            "ne", "se"
         };
-
-        private static readonly char[] Letters = [
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-            'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-            'u', 'v', 'w', 'x', 'y', 'z'
-        ];
 
         public static string Call(ReducerContext ctx)
         {
-            var consonant1 = Consonants[ctx.Rng.Next(Consonants.Length)];
-            var vowel = Vowels[ctx.Rng.Next(Vowels.Length)];
-            var consonant2 = Consonants[ctx.Rng.Next(Consonants.Length)];
-            return $"{consonant1}{vowel}{consonant2}";
+            string code;
+            int attempts = 0;
+            do
+            {
+                var consonant = Consonants[ctx.Rng.Next(Consonants.Length)];
+                var vowel = Vowels[ctx.Rng.Next(Vowels.Length)];
+                var consonantFirst = ctx.Rng.Next(2) == 0;
+                code = consonantFirst ? $"{consonant}{vowel}" : $"{vowel}{consonant}";
+                attempts++;
+            } while (BlockedCodes.Contains(code) && attempts < 100);
+            
+            return code;
         }
     }
 }

@@ -600,15 +600,15 @@ export function track(
   const input = args[0];
   const inputLower = input.toLowerCase();
 
-  const targetCodePattern = /^[bcdfghjklmnpqrstvwxyz][aeiou][bcdfghjklmnpqrstvwxyz]$/;
+  const targetCodePattern = /^([bcdfghjklmnpqrstvwxyz][aeiou]|[aeiou][bcdfghjklmnpqrstvwxyz])$/;
   if (!targetCodePattern.test(inputLower)) {
     return [
       themeColors.error(`track: error: invalid target code '${input}'`),
-      themeColors.dim("Target code must be three letters: consonant-vowel-consonant (e.g., bak, hex, zul)"),
+      themeColors.dim("Target code must be two letters: consonant-vowel or vowel-consonant (e.g., ba, ex, zu)"),
       "",
       themeColors.dim("Usage: track <target_code>"),
       themeColors.dim("Examples:"),
-      themeColors.dim("  track bak"),
+      themeColors.dim("  track ba"),
     ];
   }
 
@@ -837,7 +837,7 @@ export function drive(
     ];
   }
 
-  const codePattern = /^[bcdfghjklmnpqrstvwxyz][aeiou][bcdfghjklmnpqrstvwxyz]$/;
+  const codePattern = /^([bcdfghjklmnpqrstvwxyz][aeiou]|[aeiou][bcdfghjklmnpqrstvwxyz])$/;
   if (codePattern.test(firstArgLower)) {
     connection.reducers.drive({ gameId, targetX: 0, targetY: 0, targetCode: firstArgLower });
 

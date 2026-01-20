@@ -66,9 +66,9 @@ public static partial class Module
             int CountNeighbors((int x, int y) pos, HashSet<(int x, int y)> posSet)
             {
                 int count = 0;
-                for (int dx = -4; dx <= 4; dx++)
+                for (int dx = -5; dx <= 5; dx++)
                 {
-                    for (int dy = -4; dy <= 4; dy++)
+                    for (int dy = -5; dy <= 5; dy++)
                     {
                         if (dx == 0 && dy == 0) continue;
                         
@@ -114,9 +114,9 @@ public static partial class Module
                 positionSet.Remove(posToRemove);
                 neighborCounts.Remove(posToRemove);
 
-                for (int dx = -4; dx <= 4; dx++)
+                for (int dx = -5; dx <= 5; dx++)
                 {
-                    for (int dy = -4; dy <= 4; dy++)
+                    for (int dy = -5; dy <= 5; dy++)
                     {
                         if (dx == 0 && dy == 0) continue;
                         

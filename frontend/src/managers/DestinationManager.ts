@@ -93,18 +93,18 @@ export class DestinationManager {
     const offsetY = isPickup ? gameY - UNIT_TO_PIXEL * 0.5 : gameY;
     
     if (isPickup) {
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
       ctx.lineWidth = 3;
       ctx.strokeText(destination.targetCode, gameX, offsetY);
       
       ctx.fillStyle = "#fceba8";
       ctx.fillText(destination.targetCode, gameX, offsetY);
     } else {
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
       ctx.lineWidth = 2;
       ctx.strokeText(destination.targetCode, gameX, offsetY);
       
-      ctx.fillStyle = "#4a4b5b";
+      ctx.fillStyle = "#707b89";
       ctx.fillText(destination.targetCode, gameX, offsetY);
     }
     

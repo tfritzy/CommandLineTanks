@@ -48,13 +48,7 @@ public static partial class BehaviorTreeAI
         {
             if (tank.DeathTimestamp == 0)
             {
-                long nextUpdateMicros = ctx.Rng.Next(1_000_000, 2_000_001);
-                var updatedArgs = args with 
-                { 
-                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = nextUpdateMicros }),
-                    TickCount = args.TickCount + 1 
-                };
-                ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(updatedArgs);
+                RescheduleAIUpdate(ctx, args);
                 return;
             }
 
@@ -63,24 +57,12 @@ public static partial class BehaviorTreeAI
 
             if (timeSinceDeath < (ulong)BOT_RESPAWN_DELAY_MICROS)
             {
-                long nextDelay = ctx.Rng.Next(1_000_000, 2_000_001);
-                var updatedWaitArgs = args with 
-                { 
-                    ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = nextDelay }),
-                    TickCount = args.TickCount + 1 
-                };
-                ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(updatedWaitArgs);
+                RescheduleAIUpdate(ctx, args);
                 return;
             }
 
             RespawnTank.Call(ctx, tank, transform, args.GameId, tank.Alliance, false, null);
-            long respawnDelay = ctx.Rng.Next(1_000_000, 2_000_001);
-            var respawnArgs = args with 
-            { 
-                ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = respawnDelay }),
-                TickCount = args.TickCount + 1 
-            };
-            ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(respawnArgs);
+            RescheduleAIUpdate(ctx, args);
             return;
         }
 
@@ -91,14 +73,19 @@ public static partial class BehaviorTreeAI
         }
 
         ctx.Db.tank.Id.Update(mutatedTank);
+        RescheduleAIUpdate(ctx, args);
+    }
 
-        long finalUpdateMicros = ctx.Rng.Next(1_000_000, 2_000_001);
-        var finalArgs = args with 
+    private static void RescheduleAIUpdate(ReducerContext ctx, ScheduledTankAIUpdate args)
+    {
+        long nextUpdateMicros = ctx.Rng.Next(1_000_000, 2_000_001);
+        var updatedArgs = args with 
         { 
-            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = finalUpdateMicros }),
+            ScheduledId = 0,
+            ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = nextUpdateMicros }),
             TickCount = args.TickCount + 1 
         };
-        ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(finalArgs);
+        ctx.Db.ScheduledTankAIUpdate.Insert(updatedArgs);
     }
 
     public static void ScheduleTankAIUpdate(ReducerContext ctx, string gameId, string tankId)

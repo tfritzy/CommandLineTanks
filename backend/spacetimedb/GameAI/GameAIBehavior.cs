@@ -10,8 +10,7 @@ public static partial class GameAI
     public static Tank EvaluateAndMutateTank(ReducerContext ctx, FullTank fullTank, GameAIContext aiContext, int tickCount)
     {
         var tank = fullTank.Tank;
-        bool canFireThisTick = tickCount % 2 == 0;
-        var decision = GameAILogic.EvaluateBehaviorTree(ctx, fullTank, aiContext, canFireThisTick);
+        var decision = GameAILogic.EvaluateBehaviorTree(ctx, fullTank, aiContext, true);
 
         switch (decision.Action)
         {
