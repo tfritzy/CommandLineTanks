@@ -9,6 +9,7 @@ export default defineConfig({
     outDir: 'dist-portable',
     rollupOptions: {
       input: {
+        index: resolve(__dirname, 'app.html'),
         app: resolve(__dirname, 'app.html'),
       },
       output: {

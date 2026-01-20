@@ -12,7 +12,7 @@
     "firebase:login": "firebase login",
     "firebase:init": "firebase init",
     "build:standalone": "tsc -b && vite build --config vite.config.portable.ts",
-    "package:standalone": "npm run build:standalone && cd dist-portable && zip -r \"$HOME/Downloads/cltanks-standalone-$(date +%Y%m%d-%H%M%S).zip\" ."
+    "package:standalone": "npm run build:standalone && cp dist-portable/app.html dist-portable/index.html && cd dist-portable && zip -r \"$HOME/Downloads/cltanks-standalone-$(date +%Y%m%d-%H%M%S).zip\" ."
   },
   "dependencies": {
     "@babel/runtime": "^7.28.4",
