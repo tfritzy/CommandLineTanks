@@ -556,8 +556,8 @@ export function track(
       "",
       themeColors.dim("Usage: track <target_code>"),
       themeColors.dim("Examples:"),
-      themeColors.dim("  track bak"),
-      themeColors.dim("  track hex"),
+      themeColors.dim("  track ba"),
+      themeColors.dim("  track ex"),
     ];
   }
 
