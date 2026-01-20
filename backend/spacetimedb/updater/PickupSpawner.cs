@@ -234,6 +234,16 @@ public static partial class PickupSpawner
             return false;
         }
 
+        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        {
+            float dx = destination.PositionX - centerX;
+            float dy = destination.PositionY - centerY;
+            if (dx * dx + dy * dy < 0.01f && destination.Type == DestinationType.Anchor)
+            {
+                return false;
+            }
+        }
+
         int pickupTypeIndex = ctx.Rng.Next(NON_HEALTH_PICKUP_TYPES.Length);
         PickupType pickupType = NON_HEALTH_PICKUP_TYPES[pickupTypeIndex];
 
@@ -279,6 +289,16 @@ public static partial class PickupSpawner
         foreach (var p in existingPickup)
         {
             return false;
+        }
+
+        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        {
+            float dx = destination.PositionX - centerX;
+            float dy = destination.PositionY - centerY;
+            if (dx * dx + dy * dy < 0.01f && destination.Type == DestinationType.Anchor)
+            {
+                return false;
+            }
         }
 
         Module.SpawnPickupWithDestination.Call(
@@ -463,7 +483,7 @@ public static partial class PickupSpawner
         {
             float dx = destination.PositionX - positionX;
             float dy = destination.PositionY - positionY;
-            if (dx * dx + dy * dy < 0.01f)
+            if (dx * dx + dy * dy < 0.01f && destination.Type == DestinationType.Pickup)
             {
                 ctx.Db.destination.Id.Delete(destination.Id);
                 return;
