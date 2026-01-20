@@ -14,11 +14,12 @@ public static partial class Module
         if (!string.IsNullOrEmpty(targetCode))
         {
             var destination = ctx.Db.destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
-            if (destination != null)
+            if (destination == null)
             {
-                targetX = (int)destination.PositionX;
-                targetY = (int)destination.PositionY;
+                return;
             }
+            targetX = (int)destination.PositionX;
+            targetY = (int)destination.PositionY;
         }
 
         Game? maybeGame = ctx.Db.game.Id.Find(gameId);
