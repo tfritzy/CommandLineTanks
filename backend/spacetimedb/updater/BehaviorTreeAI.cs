@@ -8,7 +8,14 @@ using System.Diagnostics;
 
 public static partial class BehaviorTreeAI
 {
-    public const long AI_UPDATE_INTERVAL_MICROS = 2_500_000;
+    public const long AI_UPDATE_INTERVAL_MICROS = 750_000;
+
+    public static bool CanBotFireOnTick(string tankId, ulong tickCount)
+    {
+        int hash = tankId.GetHashCode();
+        int fireSlot = Math.Abs(hash % 3);
+        return (tickCount % 3) == (ulong)fireSlot;
+    }
 
     [Table(Scheduled = nameof(UpdateTankAI))]
     public partial struct ScheduledTankAIUpdate
@@ -19,7 +26,7 @@ public static partial class BehaviorTreeAI
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
         public string GameId;
-        public int TickCount;
+        public ulong TickCount;
     }
 
     [Reducer]
@@ -30,6 +37,13 @@ public static partial class BehaviorTreeAI
         {
             return;
         }
+
+        var newTickCount = args.TickCount + 1;
+
+        ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(args with
+        {
+            TickCount = newTickCount
+        });
 
         var aiContext = new GameAIContext(ctx, args.GameId);
 
@@ -71,7 +85,7 @@ public static partial class BehaviorTreeAI
             Tank mutatedTank = tank;
             if (tank.AIBehavior == AIBehavior.GameAI)
             {
-                mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext, args.TickCount);
+                mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext, newTickCount);
             }
 
             ctx.Db.tank.Id.Update(mutatedTank);
