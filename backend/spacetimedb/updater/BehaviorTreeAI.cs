@@ -10,15 +10,11 @@ public static partial class BehaviorTreeAI
 {
     public const long AI_UPDATE_INTERVAL_MICROS = 750_000;
 
-    public static bool CanBotFireOnTick(string tankId, int tickCount)
+    public static bool CanBotFireOnTick(string tankId, ulong tickCount)
     {
-        uint hash = 0;
-        foreach (char c in tankId)
-        {
-            hash = unchecked((hash << 5) - hash) + c;
-        }
-        int fireSlot = (int)(hash % 3);
-        return (tickCount % 3) == fireSlot;
+        int hash = tankId.GetHashCode();
+        int fireSlot = Math.Abs(hash % 3);
+        return (tickCount % 3) == (ulong)fireSlot;
     }
 
     [Table(Scheduled = nameof(UpdateTankAI))]
@@ -89,7 +85,7 @@ public static partial class BehaviorTreeAI
             Tank mutatedTank = tank;
             if (tank.AIBehavior == AIBehavior.GameAI)
             {
-                mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext, (int)newTickCount);
+                mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext, newTickCount);
             }
 
             ctx.Db.tank.Id.Update(mutatedTank);
