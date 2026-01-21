@@ -345,9 +345,6 @@ const tablesSchema = __schema(
       { name: 'ScheduledId', algorithm: 'btree', columns: [
         'scheduledId',
       ] },
-      { name: 'TankId', algorithm: 'btree', columns: [
-        'tankId',
-      ] },
     ],
     constraints: [
       { name: 'ScheduledTankAIUpdate_ScheduledId_key', constraint: 'unique', columns: ['scheduledId'] },

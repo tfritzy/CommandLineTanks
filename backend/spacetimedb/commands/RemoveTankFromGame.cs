@@ -19,11 +19,6 @@ public static partial class Module
             DeleteTankPath.Call(ctx, tank.Id);
             DeleteTankGuns(ctx, tank.Id);
             
-            if (isBot)
-            {
-                BehaviorTreeAI.CancelTankAIUpdate(ctx, tank.Id);
-            }
-            
             ctx.Db.tank_transform.TankId.Delete(tank.Id);
             ctx.Db.tank.Id.Delete(tank.Id);
             

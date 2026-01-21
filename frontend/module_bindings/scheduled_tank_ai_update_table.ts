@@ -14,6 +14,5 @@ export default __t.row({
   scheduledId: __t.u64().primaryKey(),
   scheduledAt: __t.scheduleAt(),
   gameId: __t.string(),
-  tankId: __t.string(),
   tickCount: __t.i32(),
 });
