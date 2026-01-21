@@ -207,7 +207,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       `  ${themeColors.command("name")}                 View or change your player name`,
       `  ${themeColors.command("create")}               Create a new game`,
       `  ${themeColors.command("join")}                 Join a game (default: random)`,
-      `  ${themeColors.command("exit")}, ${themeColors.command("e")}              Return to your homegame`,
+      `  ${themeColors.command("exit")}}                Return to your homegame`,
       `  ${themeColors.command("clear")}, ${themeColors.command("c")}             Clear the terminal output`,
       `  ${themeColors.command("help")}, ${themeColors.command("h")}              Display help information`,
     ];
@@ -251,7 +251,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Arguments:",
         "  <target_code>       Target code of the tank to track (e.g., ba, ex, zu)",
-        "                      Format: consonant-vowel or vowel-consonant (two letters)",
+        "                      Format: letter-letter",
         "                      Your turret will automatically follow the target",
         "",
         "Examples:",
@@ -372,8 +372,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Flags:",
         "  --bots, -b          Number of AI bots, 0-10 (default: 0)",
         "  --duration, -d      Game duration in minutes, 1-20 (default: 10)",
-        "  --width, -w         Map width, 10-200 (default: 50)",
-        "  --height, -h        Map height, 10-200 (default: 50)",
+        "  --width, -w         Map width, 10-100 (default: 50)",
+        "  --height, -h        Map height, 10-100 (default: 50)",
         "",
         "All games are created as private.",
         "After creation, you'll be automatically joined to the new game.",
@@ -404,9 +404,8 @@ export function help(_connection: DbConnection, args: string[]): string[] {
       ];
 
     case "exit":
-    case "e":
       return [
-        "exit, e - Return to your homegame",
+        "exit - Return to your homegame",
         "",
         "Usage: exit",
         "",
@@ -415,7 +414,6 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Examples:",
         "  exit",
-        "  e"
       ];
 
     case "help":
@@ -564,11 +562,11 @@ export function track(
   const input = args[0];
   const inputLower = input.toLowerCase();
 
-  const targetCodePattern = /^([bcdfghjklmnpqrstvwxyz][aeiou]|[aeiou][bcdfghjklmnpqrstvwxyz])$/;
+  const targetCodePattern = /^[a-z]{2}$/;
   if (!targetCodePattern.test(inputLower)) {
     return [
       themeColors.error(`track: error: invalid target code '${input}'`),
-      themeColors.dim("Target code must be two letters: consonant-vowel or vowel-consonant (e.g., ba, ex, zu)"),
+      themeColors.dim("Target code must be two letters: letter-letter (e.g., ba, ex, zu)"),
       "",
       themeColors.dim("Usage: track <target_code>"),
       themeColors.dim("Examples:"),
@@ -886,9 +884,9 @@ export function create(
         ];
       }
       const width = parseInt(args[i + 1]);
-      if (isNaN(width) || width < 10 || width > 200) {
+      if (isNaN(width) || width < 10 || width > 100) {
         return [
-          themeColors.error(`create: error: invalid width '${args[i + 1]}', must be between 10 and 200`),
+          themeColors.error(`create: error: invalid width '${args[i + 1]}', must be between 10 and 100`),
           "",
           usage
         ];
@@ -904,9 +902,9 @@ export function create(
         ];
       }
       const height = parseInt(args[i + 1]);
-      if (isNaN(height) || height < 10 || height > 200) {
+      if (isNaN(height) || height < 10 || height > 100) {
         return [
-          themeColors.error(`create: error: invalid height '${args[i + 1]}', must be between 10 and 200`),
+          themeColors.error(`create: error: invalid height '${args[i + 1]}', must be between 10 and 100`),
           "",
           usage
         ];
@@ -1052,7 +1050,6 @@ export function exitGame(connection: DbConnection, gameId: string, args: string[
       themeColors.error("exit: error: exit command takes no arguments"),
       "",
       themeColors.dim("Usage: exit"),
-      themeColors.dim("       e")
     ];
   }
 

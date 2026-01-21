@@ -128,8 +128,8 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 onBlur={() => {
                   if (width === '' || width < 10) {
                     setWidth(50);
-                  } else if (width > 200) {
-                    setWidth(200);
+                  } else if (width > 100) {
+                    setWidth(100);
                   }
                 }}
                 onWheel={(e) => e.currentTarget.blur()}
@@ -139,10 +139,10 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                   }
                 }}
                 min="10"
-                max="200"
+                max="100"
                 className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <div className="mt-1 text-xs text-palette-white-pure/40">Map width, 10-200</div>
+              <div className="mt-1 text-xs text-palette-white-pure/40">Map width, 10-100</div>
             </div>
 
             <div>
@@ -164,8 +164,8 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                 onBlur={() => {
                   if (height === '' || height < 10) {
                     setHeight(50);
-                  } else if (height > 200) {
-                    setHeight(200);
+                  } else if (height > 100) {
+                    setHeight(100);
                   }
                 }}
                 onWheel={(e) => e.currentTarget.blur()}
@@ -175,10 +175,10 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                   }
                 }}
                 min="10"
-                max="200"
+                max="100"
                 className="w-full px-4 py-3 text-sm font-mono bg-palette-slate-darkest/60 border border-palette-slate-light/30 rounded text-terminal-text-default outline-none transition-colors focus:border-palette-blue-light/60 focus:ring-2 focus:ring-palette-blue-light/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <div className="mt-1 text-xs text-palette-white-pure/40">Map height, 10-200</div>
+              <div className="mt-1 text-xs text-palette-white-pure/40">Map height, 10-100</div>
             </div>
           </div>
         </div>

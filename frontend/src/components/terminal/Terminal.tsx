@@ -24,7 +24,7 @@ const CTRL_ARROW_RIGHT = "\x1b[1;5C";
 
 const VALID_COMMANDS = ['aim', 'a', 'track', 't', 'drive', 'd', 'move', 'm', 'stop', 's', 'fire', 'f',
   'switch', 'w',
-  'respawn', 'tanks', 'say', 'create', 'join', 'exit', 'e', 'name', 'help', 'h', 'clear', 'c', 'tutorial'];
+  'respawn', 'tanks', 'say', 'create', 'join', 'exit', 'name', 'help', 'h', 'clear', 'c', 'tutorial'];
 
 const MAX_TERMINAL_LINES = 1000;
 
@@ -174,7 +174,6 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
         case 'join':
           return join(connection, gameId, commandArgs);
         case 'exit':
-        case 'e':
           return exitGame(connection, gameId, commandArgs);
         case 'name':
           return changeName(connection, commandArgs);

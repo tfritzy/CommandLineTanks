@@ -15,15 +15,15 @@ public static partial class Module
             return;
         }
 
-        if (width < 10 || width > 200)
+        if (width < 10 || width > 100)
         {
-            Log.Error($"Invalid width: {width}. Must be between 10 and 200.");
+            Log.Error($"Invalid width: {width}. Must be between 10 and 100.");
             return;
         }
 
-        if (height < 10 || height > 200)
+        if (height < 10 || height > 100)
         {
-            Log.Error($"Invalid height: {height}. Must be between 10 and 200.");
+            Log.Error($"Invalid height: {height}. Must be between 10 and 100.");
             return;
         }
 

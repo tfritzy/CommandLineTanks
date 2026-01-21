@@ -74,11 +74,13 @@ public static partial class BehaviorTreeAI
 
         ctx.Db.tank.Id.Update(mutatedTank);
         RescheduleAIUpdate(ctx, args);
+
+        GC.Collect();
     }
 
     private static void RescheduleAIUpdate(ReducerContext ctx, ScheduledTankAIUpdate args)
     {
-        long nextUpdateMicros = ctx.Rng.Next(2_000_000, 4_000_000);
+        long nextUpdateMicros = ctx.Rng.Next(2_000_000, 3_500_000);
         var updatedArgs = args with 
         { 
             ScheduledId = 0,

@@ -19,6 +19,7 @@ public static partial class Module
             Identity? owner = null,
             int minPlayersPerTeam = 0)
         {
+            var stopwatch = new LogStopwatch("CreateGame.Call");
             var duration = gameDurationMicros ?? GAME_DURATION_MICROS;
             
             var game = new Game
@@ -109,6 +110,10 @@ public static partial class Module
                 ScheduledAt = new ScheduleAt.Time(ctx.Timestamp + new TimeDuration { Microseconds = duration }),
                 GameId = gameId
             });
+
+            GC.Collect();
+
+            stopwatch.End();
 
             return game;
         }

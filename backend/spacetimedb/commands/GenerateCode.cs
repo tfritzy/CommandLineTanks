@@ -5,13 +5,9 @@ public static partial class Module
 {
     public static class GenerateCode
     {
-        private static readonly char[] Consonants = [
-            'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
-            'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'
-        ];
-
-        private static readonly char[] Vowels = [
-            'a', 'e', 'i', 'o', 'u'
+        private static readonly char[] Letters = [
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
         ];
 
         private static readonly HashSet<string> BlockedCodes = new HashSet<string>
@@ -25,10 +21,10 @@ public static partial class Module
             int attempts = 0;
             do
             {
-                var consonant = Consonants[ctx.Rng.Next(Consonants.Length)];
-                var vowel = Vowels[ctx.Rng.Next(Vowels.Length)];
-                var consonantFirst = ctx.Rng.Next(2) == 0;
-                code = consonantFirst ? $"{consonant}{vowel}" : $"{vowel}{consonant}";
+                var letter1 = Letters[ctx.Rng.Next(Letters.Length)];
+                var letter2 = Letters[ctx.Rng.Next(Letters.Length)];
+                var firstLetter = ctx.Rng.Next(2) == 0;
+                code = firstLetter ? $"{letter1}{letter2}" : $"{letter2}{letter1}";
                 attempts++;
             } while (BlockedCodes.Contains(code) && attempts < 100);
             
