@@ -12,12 +12,12 @@ public static partial class BehaviorTreeAI
 
     public static bool CanBotFireOnTick(string tankId, int tickCount)
     {
-        int hash = 0;
+        uint hash = 0;
         foreach (char c in tankId)
         {
-            hash = ((hash << 5) - hash) + c;
+            hash = unchecked((hash << 5) - hash) + c;
         }
-        int fireSlot = Math.Abs(hash) % 3;
+        int fireSlot = (int)(hash % 3);
         return (tickCount % 3) == fireSlot;
     }
 
