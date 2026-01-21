@@ -14,7 +14,6 @@ export default __t.object("ScheduledTankAiUpdate", {
   scheduledId: __t.u64(),
   scheduledAt: __t.scheduleAt(),
   gameId: __t.string(),
-  tankId: __t.string(),
   tickCount: __t.i32(),
 });
 

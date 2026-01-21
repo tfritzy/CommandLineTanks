@@ -13,7 +13,6 @@ public static partial class Module
             if (tank.IsBot)
             {
                 IncrementBotCount.Call(ctx, tank.GameId);
-                BehaviorTreeAI.ScheduleTankAIUpdate(ctx, tank.GameId, tank.Id);
             }
             else
             {

@@ -113,6 +113,17 @@ public static partial class Module
             });
         }
 
+        if (!ctx.Db.ScheduledTankAIUpdate.GameId.Filter(gameId).Any())
+        {
+            ctx.Db.ScheduledTankAIUpdate.Insert(new BehaviorTreeAI.ScheduledTankAIUpdate
+            {
+                ScheduledId = 0,
+                ScheduledAt = new ScheduleAt.Interval(new TimeDuration { Microseconds = BehaviorTreeAI.AI_UPDATE_INTERVAL_MICROS }),
+                GameId = gameId,
+                TickCount = 0
+            });
+        }
+
         Log.Info($"Started tickers for game {gameId}");
     }
 
