@@ -30,7 +30,7 @@ public static partial class BehaviorTreeAI
         public ScheduleAt ScheduledAt;
         [SpacetimeDB.Index.BTree]
         public string GameId;
-        public int TickCount;
+        public ulong TickCount;
     }
 
     [Reducer]
@@ -42,7 +42,12 @@ public static partial class BehaviorTreeAI
             return;
         }
 
-        int currentTick = args.TickCount + 1;
+        var newTickCount = args.TickCount + 1;
+
+        ctx.Db.ScheduledTankAIUpdate.ScheduledId.Update(args with
+        {
+            TickCount = newTickCount
+        });
 
         var aiContext = new GameAIContext(ctx, args.GameId);
 
@@ -84,7 +89,7 @@ public static partial class BehaviorTreeAI
             Tank mutatedTank = tank;
             if (tank.AIBehavior == AIBehavior.GameAI)
             {
-                mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext, currentTick);
+                mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext, (int)newTickCount);
             }
 
             ctx.Db.tank.Id.Update(mutatedTank);
