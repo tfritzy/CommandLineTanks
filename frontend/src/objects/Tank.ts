@@ -33,7 +33,7 @@ export class Tank {
   private message: string | null = null;
   private cachedPosition: { x: number; y: number } = { x: 0, y: 0 };
   private static readonly ARRIVAL_THRESHOLD = 0.1;
-  private static readonly TELEPORT_THRESHOLD = 2.0;
+  private static readonly TELEPORT_THRESHOLD = 0.3;
 
   constructor(
     id: string,
