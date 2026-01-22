@@ -58,6 +58,12 @@ public static partial class TankUpdater
             transforms[transform.TankId] = transform;
         }
 
+        var tankPaths = new Dictionary<string, Module.TankPath>();
+        foreach (var path in ctx.Db.tank_path.GameId.Filter(args.GameId))
+        {
+            tankPaths[path.TankId] = path;
+        }
+
         foreach (var tankEntry in tanks)
         {
             bool needsTankUpdate = false;
@@ -94,11 +100,10 @@ public static partial class TankUpdater
                 needsTankUpdate = true;
             }
 
-            var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
-            if (pathState != null && pathState.Value.PathIndex < pathState.Value.Path.Length)
+            if (tankPaths.TryGetValue(tank.Id, out var pathState) && pathState.PathIndex < pathState.Path.Length)
             {
-                var currentPath = pathState.Value.Path;
-                var pathIndex = pathState.Value.PathIndex;
+                var currentPath = pathState.Path;
+                var pathIndex = pathState.PathIndex;
                 var targetPos = currentPath[pathIndex];
                 var deltaX = targetPos.X - transform.PositionX;
                 var deltaY = targetPos.Y - transform.PositionY;
@@ -145,7 +150,7 @@ public static partial class TankUpdater
                             };
                         }
 
-                        ctx.Db.tank_path.TankId.Update(pathState.Value with { PathIndex = newPathIndex });
+                        ctx.Db.tank_path.TankId.Update(pathState with { PathIndex = newPathIndex });
                     }
                     else
                     {
@@ -177,23 +182,12 @@ public static partial class TankUpdater
 
             if (tank.Target != null)
             {
-                Module.Tank? targetTank = null;
-                Module.TankTransform? targetTransform = null;
-                
-                if (tanks.TryGetValue(tank.Target, out var tTank))
+                if (tanks.TryGetValue(tank.Target, out var targetTank) && 
+                    transforms.TryGetValue(tank.Target, out var targetTransform) && 
+                    targetTank.Health > 0)
                 {
-                    targetTank = tTank;
-                }
-                
-                if (transforms.TryGetValue(tank.Target, out var tTransform))
-                {
-                    targetTransform = tTransform;
-                }
-
-                if (targetTank != null && targetTransform != null && targetTank.Value.Health > 0)
-                {
-                    var targetX = targetTransform.Value.PositionX;
-                    var targetY = targetTransform.Value.PositionY;
+                    var targetX = targetTransform.PositionX;
+                    var targetY = targetTransform.PositionY;
 
                     var distanceDeltaX = targetX - transform.PositionX;
                     var distanceDeltaY = targetY - transform.PositionY;
@@ -208,7 +202,7 @@ public static partial class TankUpdater
                     {
                         if (tank.TargetLead > 0)
                         {
-                            var targetVelocity = targetTransform.Value.Velocity;
+                            var targetVelocity = targetTransform.Velocity;
                             var velocityMagnitude = Math.Sqrt(targetVelocity.X * targetVelocity.X + targetVelocity.Y * targetVelocity.Y);
                             if (velocityMagnitude > 0)
                             {
