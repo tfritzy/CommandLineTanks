@@ -48,15 +48,15 @@ export class MemoryProfiler {
       (a, b) => b[1].totalAllocated - a[1].totalAllocated
     );
 
-    let totalAllocated = 0;
+    let totalAllocatedPerFrame = 0;
     for (const [name, data] of sorted) {
       const avgBytes = data.totalAllocated / data.count;
       const avgKB = avgBytes / 1024;
       const totalKB = data.totalAllocated / 1024;
       console.log(`${name.padEnd(25)}: ${avgKB.toFixed(2)} KB (avg) | ${totalKB.toFixed(2)} KB (total)`);
-      totalAllocated += avgBytes;
+      totalAllocatedPerFrame += avgBytes;
     }
-    console.log(`Total Allocated (avg): ${(totalAllocated / 1024).toFixed(2)} KB`);
+    console.log(`Total Allocated (avg/frame): ${(totalAllocatedPerFrame / 1024).toFixed(2)} KB`);
     console.log("-------------------------------");
   }
 
