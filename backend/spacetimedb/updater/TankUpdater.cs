@@ -64,6 +64,38 @@ public static partial class TankUpdater
             tankPaths[path.TankId] = path;
         }
 
+        var pickups = new Dictionary<(int, int), List<Module.Pickup>>();
+        foreach (var pickup in ctx.Db.pickup.GameId.Filter(args.GameId))
+        {
+            var key = (pickup.GridX, pickup.GridY);
+            if (!pickups.ContainsKey(key))
+            {
+                pickups[key] = new List<Module.Pickup>();
+            }
+            pickups[key].Add(pickup);
+        }
+
+        var tankCollisionRegions = new HashSet<(int, int)>();
+        foreach (var transform in transforms.Values)
+        {
+            int tankTileX = (int)transform.PositionX;
+            int tankTileY = (int)transform.PositionY;
+            tankCollisionRegions.Add((tankTileX, tankTileY));
+        }
+
+        var terrainDetails = new Dictionary<(int, int), List<Module.TerrainDetail>>();
+        foreach (var region in tankCollisionRegions)
+        {
+            foreach (var terrainDetail in ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((args.GameId, region.Item1, region.Item2)))
+            {
+                if (!terrainDetails.ContainsKey(region))
+                {
+                    terrainDetails[region] = new List<Module.TerrainDetail>();
+                }
+                terrainDetails[region].Add(terrainDetail);
+            }
+        }
+
         foreach (var tankEntry in tanks)
         {
             bool needsTankUpdate = false;
@@ -269,19 +301,25 @@ public static partial class TankUpdater
             int tankTileX = (int)transform.PositionX;
             int tankTileY = (int)transform.PositionY;
 
-            foreach (var pickup in ctx.Db.pickup.GameId_GridX_GridY.Filter((args.GameId, tankTileX, tankTileY)))
+            if (pickups.TryGetValue((tankTileX, tankTileY), out var pickupsAtTile))
             {
-                if (PickupSpawner.TryCollectPickup(ctx, ref tank, ref needsTankUpdate, pickup))
+                foreach (var pickup in pickupsAtTile)
                 {
-                    break;
+                    if (PickupSpawner.TryCollectPickup(ctx, ref tank, ref needsTankUpdate, pickup))
+                    {
+                        break;
+                    }
                 }
             }
 
-            foreach (var terrainDetail in ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((args.GameId, tankTileX, tankTileY)))
+            if (terrainDetails.TryGetValue((tankTileX, tankTileY), out var terrainDetailsAtTile))
             {
-                if (terrainDetail.Type == TerrainDetailType.FenceEdge || terrainDetail.Type == TerrainDetailType.FenceCorner)
+                foreach (var terrainDetail in terrainDetailsAtTile)
                 {
-                    ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                    if (terrainDetail.Type == TerrainDetailType.FenceEdge || terrainDetail.Type == TerrainDetailType.FenceCorner)
+                    {
+                        ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                    }
                 }
             }
 
