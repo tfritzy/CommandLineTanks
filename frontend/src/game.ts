@@ -11,6 +11,7 @@ import { COLORS, UNIT_TO_PIXEL } from "./constants";
 import { ScreenShake } from "./utils/ScreenShake";
 import { FpsCounter } from "./utils/FpsCounter";
 import { Profiler } from "./utils/Profiler";
+import { MemoryProfiler } from "./utils/MemoryProfiler";
 import { initializeAllTextures } from "./textures";
 
 let texturesInitialized = false;
@@ -38,6 +39,7 @@ export class Game {
   private resizeObserver: ResizeObserver | null = null;
   private fpsCounter: FpsCounter;
   private profiler: Profiler;
+  private memoryProfiler: MemoryProfiler;
 
   private texturesReady: boolean = false;
 
@@ -67,6 +69,7 @@ export class Game {
     this.screenShake = new ScreenShake();
     this.fpsCounter = new FpsCounter();
     this.profiler = new Profiler();
+    this.memoryProfiler = new MemoryProfiler();
     this.tankManager = new TankManager(
       gameId,
       this.screenShake,
@@ -116,10 +119,18 @@ export class Game {
 
     this.fpsCounter.update(currentTime);
 
-    this.tankManager.update(deltaTime);
-    this.projectileManager.update(deltaTime);
-    this.terrainManager.update(deltaTime);
-    this.killManager.update(deltaTime);
+    this.memoryProfiler.profileMemory("tank_update", () =>
+      this.tankManager.update(deltaTime)
+    );
+    this.memoryProfiler.profileMemory("projectile_update", () =>
+      this.projectileManager.update(deltaTime)
+    );
+    this.memoryProfiler.profileMemory("terrain_update", () =>
+      this.terrainManager.update(deltaTime)
+    );
+    this.memoryProfiler.profileMemory("kill_update", () =>
+      this.killManager.update(deltaTime)
+    );
 
     const dpr = window.devicePixelRatio || 1;
     const displayWidth = this.canvas.width / dpr;
@@ -304,6 +315,7 @@ export class Game {
     // this.fpsCounter.draw(this.ctx, displayHeight);
 
     this.profiler.update();
+    this.memoryProfiler.update();
 
     this.animationFrameId = requestAnimationFrame((time) => this.update(time));
   }
