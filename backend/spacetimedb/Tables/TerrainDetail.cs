@@ -5,6 +5,7 @@ public static partial class Module
 {
     [Table(Name = "terrain_detail", Public = true)]
     [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameId), nameof(GridX), nameof(GridY) })]
+    [SpacetimeDB.Index.BTree(Columns = new[] { nameof(GameId), nameof(CollisionRegionX), nameof(CollisionRegionY) })]
     public partial struct TerrainDetail
     {
         [PrimaryKey]
@@ -18,6 +19,9 @@ public static partial class Module
 
         public int GridX;
         public int GridY;
+
+        public int CollisionRegionX;
+        public int CollisionRegionY;
 
         public TerrainDetailType Type;
 
@@ -40,6 +44,9 @@ public static partial class Module
             string? label = null,
             int rotation = 0)
         {
+            int collisionRegionX = (int)(positionX / COLLISION_REGION_SIZE);
+            int collisionRegionY = (int)(positionY / COLLISION_REGION_SIZE);
+
             return new TerrainDetail
             {
                 Id = id ?? GenerateId(ctx, "td"),
@@ -48,6 +55,8 @@ public static partial class Module
                 PositionY = positionY,
                 GridX = gridX,
                 GridY = gridY,
+                CollisionRegionX = collisionRegionX,
+                CollisionRegionY = collisionRegionY,
                 Type = type,
                 Health = health,
                 Label = label,

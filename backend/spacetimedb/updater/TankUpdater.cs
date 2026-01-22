@@ -78,15 +78,13 @@ public static partial class TankUpdater
         var tankCollisionRegions = new HashSet<(int, int)>();
         foreach (var transform in transforms.Values)
         {
-            int tankTileX = (int)transform.PositionX;
-            int tankTileY = (int)transform.PositionY;
-            tankCollisionRegions.Add((tankTileX, tankTileY));
+            tankCollisionRegions.Add((transform.CollisionRegionX, transform.CollisionRegionY));
         }
 
         var terrainDetails = new Dictionary<(int, int), List<Module.TerrainDetail>>();
         foreach (var region in tankCollisionRegions)
         {
-            foreach (var terrainDetail in ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((args.GameId, region.Item1, region.Item2)))
+            foreach (var terrainDetail in ctx.Db.terrain_detail.GameId_CollisionRegionX_CollisionRegionY.Filter((args.GameId, region.Item1, region.Item2)))
             {
                 if (!terrainDetails.ContainsKey(region))
                 {
@@ -312,9 +310,9 @@ public static partial class TankUpdater
                 }
             }
 
-            if (terrainDetails.TryGetValue((tankTileX, tankTileY), out var terrainDetailsAtTile))
+            if (terrainDetails.TryGetValue((transform.CollisionRegionX, transform.CollisionRegionY), out var terrainDetailsAtRegion))
             {
-                foreach (var terrainDetail in terrainDetailsAtTile)
+                foreach (var terrainDetail in terrainDetailsAtRegion)
                 {
                     if (terrainDetail.Type == TerrainDetailType.FenceEdge || terrainDetail.Type == TerrainDetailType.FenceCorner)
                     {
