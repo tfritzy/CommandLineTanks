@@ -1,59 +1,68 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 
 public static class MemoryProfiler
 {
-    private static Dictionary<string, MemoryStats> _stats = new Dictionary<string, MemoryStats>();
-    private static ulong _lastLogTimestampMicros = 0;
+    private static ConcurrentDictionary<string, MemoryStats> _stats = new ConcurrentDictionary<string, MemoryStats>();
+    private static long _lastLogTimestampMicros = 0;
     private const ulong LOG_INTERVAL_MICROS = 1_000_000;
 
     private class MemoryStats
     {
         public long TotalAllocated;
         public int Count;
+
+        public void AddAllocation(long bytes)
+        {
+            Interlocked.Add(ref TotalAllocated, bytes);
+            Interlocked.Increment(ref Count);
+        }
     }
 
     public static void ProfileMemory(string name, Action action, ulong currentTimestampMicros)
     {
-        long memoryBefore = GC.GetTotalMemory(false);
+        long allocationsBefore = GC.GetTotalAllocatedBytes(false);
         
         action();
         
-        long memoryAfter = GC.GetTotalMemory(false);
-        long allocated = Math.Max(0, memoryAfter - memoryBefore);
+        long allocationsAfter = GC.GetTotalAllocatedBytes(false);
+        long allocated = Math.Max(0, allocationsAfter - allocationsBefore);
 
-        if (!_stats.ContainsKey(name))
+        var stats = _stats.GetOrAdd(name, _ => new MemoryStats());
+        stats.AddAllocation(allocated);
+
+        long lastLogTime = Interlocked.Read(ref _lastLogTimestampMicros);
+        if (currentTimestampMicros - (ulong)lastLogTime >= LOG_INTERVAL_MICROS)
         {
-            _stats[name] = new MemoryStats();
-        }
-
-        _stats[name].TotalAllocated += allocated;
-        _stats[name].Count++;
-
-        if (currentTimestampMicros - _lastLogTimestampMicros >= LOG_INTERVAL_MICROS)
-        {
-            LogResults();
-            Reset();
-            _lastLogTimestampMicros = currentTimestampMicros;
+            if (Interlocked.CompareExchange(ref _lastLogTimestampMicros, (long)currentTimestampMicros, lastLogTime) == lastLogTime)
+            {
+                LogResults();
+                Reset();
+            }
         }
     }
 
     private static void LogResults()
     {
-        if (_stats.Count == 0) return;
+        if (_stats.IsEmpty) return;
 
         Console.WriteLine("--- Memory Profiler Results ---");
         
-        var sorted = _stats.OrderByDescending(kvp => kvp.Value.TotalAllocated).ToList();
+        var snapshot = _stats.ToArray();
+        var sorted = snapshot.OrderByDescending(kvp => kvp.Value.TotalAllocated).ToList();
 
         long totalAllocatedPerCall = 0;
         foreach (var kvp in sorted)
         {
-            long avgBytes = kvp.Value.TotalAllocated / kvp.Value.Count;
+            int count = kvp.Value.Count;
+            if (count == 0) continue;
+
+            long avgBytes = kvp.Value.TotalAllocated / count;
             double avgKB = avgBytes / 1024.0;
             double totalKB = kvp.Value.TotalAllocated / 1024.0;
-            Console.WriteLine($"{kvp.Key.PadRight(30)}: {avgKB:F2} KB (avg) | {totalKB:F2} KB (total) | {kvp.Value.Count} calls");
+            Console.WriteLine($"{kvp.Key.PadRight(30)}: {avgKB:F2} KB (avg) | {totalKB:F2} KB (total) | {count} calls");
             totalAllocatedPerCall += avgBytes;
         }
         
