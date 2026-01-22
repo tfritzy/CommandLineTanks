@@ -19,6 +19,12 @@ public static partial class EnemyTankRespawner
     [Reducer]
     public static void CheckAndRespawnEnemyTanks(ReducerContext ctx, ScheduledEnemyTankRespawnCheck args)
     {
+        var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        MemoryProfiler.ProfileMemory("EnemyTankRespawner.CheckAndRespawnEnemyTanks", () => CheckAndRespawnEnemyTanksImpl(ctx, args), currentTime);
+    }
+
+    private static void CheckAndRespawnEnemyTanksImpl(ReducerContext ctx, ScheduledEnemyTankRespawnCheck args)
+    {
         var tanks = ctx.Db.tank.GameId.Filter(args.GameId);
         foreach (var tank in tanks)
         {

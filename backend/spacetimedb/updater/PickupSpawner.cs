@@ -80,6 +80,12 @@ public static partial class PickupSpawner
     [Reducer]
     public static void SpawnPickup(ReducerContext ctx, ScheduledPickupSpawn args)
     {
+        var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        MemoryProfiler.ProfileMemory("PickupSpawner.SpawnPickup", () => SpawnPickupImpl(ctx, args), currentTime);
+    }
+
+    private static void SpawnPickupImpl(ReducerContext ctx, ScheduledPickupSpawn args)
+    {
         var game = ctx.Db.game.Id.Find(args.GameId);
         if (game == null) return;
 

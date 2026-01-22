@@ -32,6 +32,12 @@ public static partial class BehaviorTreeAI
     [Reducer]
     public static void UpdateTankAI(ReducerContext ctx, ScheduledTankAIUpdate args)
     {
+        var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        MemoryProfiler.ProfileMemory("BehaviorTreeAI.UpdateTankAI", () => UpdateTankAIImpl(ctx, args), currentTime);
+    }
+
+    private static void UpdateTankAIImpl(ReducerContext ctx, ScheduledTankAIUpdate args)
+    {
         var game = ctx.Db.game.Id.Find(args.GameId);
         if (game == null)
         {

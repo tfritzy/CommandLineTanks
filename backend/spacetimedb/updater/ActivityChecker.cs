@@ -21,6 +21,11 @@ public static partial class Module
     public static void CheckGameActivity(ReducerContext ctx, ScheduledGameActivityCheck args)
     {
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        MemoryProfiler.ProfileMemory("ActivityChecker.CheckGameActivity", () => CheckGameActivityImpl(ctx, args, currentTime), currentTime);
+    }
+
+    private static void CheckGameActivityImpl(ReducerContext ctx, ScheduledGameActivityCheck args, ulong currentTime)
+    {
 
         foreach (var game in ctx.Db.game.Iter())
         {

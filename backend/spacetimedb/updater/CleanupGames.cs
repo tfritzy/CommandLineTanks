@@ -15,11 +15,17 @@ public static partial class Module
     [Reducer]
     public static void CleanupResultsGames(ReducerContext ctx, ScheduledGameCleanup args)
     {
+        var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        MemoryProfiler.ProfileMemory("CleanupGames.CleanupResultsGames", () => CleanupResultsGamesImpl(ctx, args, currentTime), currentTime);
+    }
+
+    private static void CleanupResultsGamesImpl(ReducerContext ctx, ScheduledGameCleanup args, ulong currentTime)
+    {
         var gamesToDelete = new System.Collections.Generic.List<string>();
 
         foreach (var game in ctx.Db.game.GameState.Filter(GameState.Results))
         {
-            if (game.CreatedAt + (ulong)game.GameDurationMicros + 60_000_000 < (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
+            if (game.CreatedAt + (ulong)game.GameDurationMicros + 60_000_000 < currentTime)
             {
                 gamesToDelete.Add(game.Id);
             }

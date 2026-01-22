@@ -25,6 +25,11 @@ public static partial class TankUpdater
     public static void UpdateTanks(ReducerContext ctx, ScheduledTankUpdates args)
     {
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        MemoryProfiler.ProfileMemory("TankUpdater.UpdateTanks", () => UpdateTanksImpl(ctx, args, currentTime), currentTime);
+    }
+
+    private static void UpdateTanksImpl(ReducerContext ctx, ScheduledTankUpdates args, ulong currentTime)
+    {
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
 

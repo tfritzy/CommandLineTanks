@@ -18,6 +18,12 @@ public static partial class GameTimer
     [Reducer]
     public static void EndGame(ReducerContext ctx, ScheduledGameEnd args)
     {
+        var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        MemoryProfiler.ProfileMemory("GameTimer.EndGame", () => EndGameImpl(ctx, args), currentTime);
+    }
+
+    private static void EndGameImpl(ReducerContext ctx, ScheduledGameEnd args)
+    {
         var game = ctx.Db.game.Id.Find(args.GameId);
         if (game == null || game.Value.GameState != GameState.Playing)
         {

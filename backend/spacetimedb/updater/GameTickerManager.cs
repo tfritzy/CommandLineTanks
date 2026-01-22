@@ -147,6 +147,12 @@ public static partial class Module
     [Reducer]
     public static void ResetGame(ReducerContext ctx, ScheduledGameReset args)
     {
+        var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        MemoryProfiler.ProfileMemory("GameTickerManager.ResetGame", () => ResetGameImpl(ctx, args), currentTime);
+    }
+
+    private static void ResetGameImpl(ReducerContext ctx, ScheduledGameReset args)
+    {
         var oldGame = ctx.Db.game.Id.Find(args.GameId);
         if (oldGame == null) return;
 

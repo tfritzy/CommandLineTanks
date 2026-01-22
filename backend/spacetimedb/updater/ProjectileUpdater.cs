@@ -619,6 +619,11 @@ return (false, projectile, transform);
     public static void UpdateProjectiles(ReducerContext ctx, ScheduledProjectileUpdates args)
     {
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        MemoryProfiler.ProfileMemory("ProjectileUpdater.UpdateProjectiles", () => UpdateProjectilesImpl(ctx, args, currentTime), currentTime);
+    }
+
+    private static void UpdateProjectilesImpl(ReducerContext ctx, ScheduledProjectileUpdates args, ulong currentTime)
+    {
         var deltaTimeMicros = currentTime - args.LastTickAt;
         var deltaTime = deltaTimeMicros / 1_000_000.0;
 
