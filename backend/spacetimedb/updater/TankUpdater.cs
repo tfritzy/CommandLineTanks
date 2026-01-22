@@ -46,23 +46,33 @@ public static partial class TankUpdater
             TickCount = newTickCount
         });
 
-        foreach (var iTank in ctx.Db.tank.GameId.Filter(args.GameId))
+        var tanks = new Dictionary<string, Module.Tank>();
+        foreach (var tank in ctx.Db.tank.GameId.Filter(args.GameId))
+        {
+            tanks[tank.Id] = tank;
+        }
+
+        var transforms = new Dictionary<string, Module.TankTransform>();
+        foreach (var transform in ctx.Db.tank_transform.GameId.Filter(args.GameId))
+        {
+            transforms[transform.TankId] = transform;
+        }
+
+        foreach (var tankEntry in tanks)
         {
             bool needsTankUpdate = false;
             bool needsTransformUpdate = false;
-            var tank = iTank;
+            var tank = tankEntry.Value;
 
             if (tank.Health <= 0)
             {
                 continue;
             }
 
-            var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
-            if (transformQuery == null)
+            if (!transforms.TryGetValue(tank.Id, out var transform))
             {
                 continue;
             }
-            var transform = transformQuery.Value;
 
             int newCollisionRegionX = (int)(transform.PositionX / Module.COLLISION_REGION_SIZE);
             int newCollisionRegionY = (int)(transform.PositionY / Module.COLLISION_REGION_SIZE);
@@ -167,14 +177,23 @@ public static partial class TankUpdater
 
             if (tank.Target != null)
             {
-                var targetTankQuery = ctx.Db.tank.Id.Find(tank.Target);
-                var targetTransformQuery = ctx.Db.tank_transform.TankId.Find(tank.Target);
-
-                if (targetTankQuery != null && targetTransformQuery != null && targetTankQuery.Value.Health > 0)
+                Module.Tank? targetTank = null;
+                Module.TankTransform? targetTransform = null;
+                
+                if (tanks.TryGetValue(tank.Target, out var tTank))
                 {
-                    var targetTransform = targetTransformQuery.Value;
-                    var targetX = targetTransform.PositionX;
-                    var targetY = targetTransform.PositionY;
+                    targetTank = tTank;
+                }
+                
+                if (transforms.TryGetValue(tank.Target, out var tTransform))
+                {
+                    targetTransform = tTransform;
+                }
+
+                if (targetTank != null && targetTransform != null && targetTank.Value.Health > 0)
+                {
+                    var targetX = targetTransform.Value.PositionX;
+                    var targetY = targetTransform.Value.PositionY;
 
                     var distanceDeltaX = targetX - transform.PositionX;
                     var distanceDeltaY = targetY - transform.PositionY;
@@ -189,7 +208,7 @@ public static partial class TankUpdater
                     {
                         if (tank.TargetLead > 0)
                         {
-                            var targetVelocity = targetTransform.Velocity;
+                            var targetVelocity = targetTransform.Value.Velocity;
                             var velocityMagnitude = Math.Sqrt(targetVelocity.X * targetVelocity.X + targetVelocity.Y * targetVelocity.Y);
                             if (velocityMagnitude > 0)
                             {
