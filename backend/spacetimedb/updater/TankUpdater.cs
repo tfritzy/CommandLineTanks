@@ -41,23 +41,51 @@ public static partial class TankUpdater
             TickCount = newTickCount
         });
 
-        foreach (var iTank in ctx.Db.tank.GameId.Filter(args.GameId))
+        var tanks = new Dictionary<string, Module.Tank>();
+        foreach (var tank in ctx.Db.tank.GameId.Filter(args.GameId))
+        {
+            tanks[tank.Id] = tank;
+        }
+
+        var transforms = new Dictionary<string, Module.TankTransform>();
+        foreach (var transform in ctx.Db.tank_transform.GameId.Filter(args.GameId))
+        {
+            transforms[transform.TankId] = transform;
+        }
+
+        var tankPaths = new Dictionary<string, Module.TankPath>();
+        foreach (var path in ctx.Db.tank_path.GameId.Filter(args.GameId))
+        {
+            tankPaths[path.TankId] = path;
+        }
+
+        var pickups = new Dictionary<(int, int), List<Module.Pickup>>();
+        foreach (var pickup in ctx.Db.pickup.GameId.Filter(args.GameId))
+        {
+            var key = (pickup.GridX, pickup.GridY);
+            if (!pickups.TryGetValue(key, out var pickupList))
+            {
+                pickupList = new List<Module.Pickup>();
+                pickups[key] = pickupList;
+            }
+            pickupList.Add(pickup);
+        }
+
+        foreach (var tankEntry in tanks)
         {
             bool needsTankUpdate = false;
             bool needsTransformUpdate = false;
-            var tank = iTank;
+            var tank = tankEntry.Value;
 
             if (tank.Health <= 0)
             {
                 continue;
             }
 
-            var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
-            if (transformQuery == null)
+            if (!transforms.TryGetValue(tank.Id, out var transform))
             {
                 continue;
             }
-            var transform = transformQuery.Value;
 
             int newCollisionRegionX = (int)(transform.PositionX / Module.COLLISION_REGION_SIZE);
             int newCollisionRegionY = (int)(transform.PositionY / Module.COLLISION_REGION_SIZE);
@@ -79,11 +107,10 @@ public static partial class TankUpdater
                 needsTankUpdate = true;
             }
 
-            var pathState = ctx.Db.tank_path.TankId.Find(tank.Id);
-            if (pathState != null && pathState.Value.PathIndex < pathState.Value.Path.Length)
+            if (tankPaths.TryGetValue(tank.Id, out var pathState) && pathState.PathIndex < pathState.Path.Length)
             {
-                var currentPath = pathState.Value.Path;
-                var pathIndex = pathState.Value.PathIndex;
+                var currentPath = pathState.Path;
+                var pathIndex = pathState.PathIndex;
                 var targetPos = currentPath[pathIndex];
                 var deltaX = targetPos.X - transform.PositionX;
                 var deltaY = targetPos.Y - transform.PositionY;
@@ -130,7 +157,7 @@ public static partial class TankUpdater
                             };
                         }
 
-                        ctx.Db.tank_path.TankId.Update(pathState.Value with { PathIndex = newPathIndex });
+                        ctx.Db.tank_path.TankId.Update(pathState with { PathIndex = newPathIndex });
                     }
                     else
                     {
@@ -162,12 +189,10 @@ public static partial class TankUpdater
 
             if (tank.Target != null)
             {
-                var targetTankQuery = ctx.Db.tank.Id.Find(tank.Target);
-                var targetTransformQuery = ctx.Db.tank_transform.TankId.Find(tank.Target);
-
-                if (targetTankQuery != null && targetTransformQuery != null && targetTankQuery.Value.Health > 0)
+                if (tanks.TryGetValue(tank.Target, out var targetTank) && 
+                    transforms.TryGetValue(tank.Target, out var targetTransform) && 
+                    targetTank.Health > 0)
                 {
-                    var targetTransform = targetTransformQuery.Value;
                     var targetX = targetTransform.PositionX;
                     var targetY = targetTransform.PositionY;
 
@@ -251,11 +276,14 @@ public static partial class TankUpdater
             int tankTileX = (int)transform.PositionX;
             int tankTileY = (int)transform.PositionY;
 
-            foreach (var pickup in ctx.Db.pickup.GameId_GridX_GridY.Filter((args.GameId, tankTileX, tankTileY)))
+            if (pickups.TryGetValue((tankTileX, tankTileY), out var pickupsAtTile))
             {
-                if (PickupSpawner.TryCollectPickup(ctx, ref tank, ref needsTankUpdate, pickup))
+                foreach (var pickup in pickupsAtTile)
                 {
-                    break;
+                    if (PickupSpawner.TryCollectPickup(ctx, ref tank, ref needsTankUpdate, pickup))
+                    {
+                        break;
+                    }
                 }
             }
 
