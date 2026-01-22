@@ -234,12 +234,12 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                   ↙: southwest, sw",
         "                   ←: west, w",
         "                   ↖: northwest, nw",
-        "  <code>         Destination code (like ba, ex) to drive to",
+        "  <code>         Destination code (like bd, mx) to drive to",
         "",
         "Examples:",
         "  d north",
         "  d s",
-        "  d ba           # Drive to destination ba",
+        "  d bd           # Drive to destination bd",
       ];
 
     case "track":
@@ -250,14 +250,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Usage: track <target_code>",
         "",
         "Arguments:",
-        "  <target_code>       Target code of the tank to track (e.g., ba, ex, zu)",
-        "                      Format: letter-letter",
+        "  <target_code>       Target code of the tank to track (e.g., bd, mx, zk)",
+        "                      Format: two letters",
         "                      Your turret will automatically follow the target",
         "",
         "Examples:",
-        "  track ba",
-        "  track ex",
-        "  t zu",
+        "  track bd",
+        "  track mx",
+        "  t zk",
       ];
 
     case "stop":
@@ -566,7 +566,7 @@ export function track(
   if (!targetCodePattern.test(inputLower)) {
     return [
       themeColors.error(`track: error: invalid target code '${input}'`),
-      themeColors.dim("Target code must be two letters: letter-letter (e.g., ba, ex, zu)"),
+      themeColors.dim("Target code must be two letters (e.g., bd, mx, zk)"),
       "",
       themeColors.dim("Usage: track <target_code>"),
       themeColors.dim("Examples:"),
@@ -799,7 +799,7 @@ export function drive(
     ];
   }
 
-  const codePattern = /^([bcdfghjklmnpqrstvwxyz][aeiou]|[aeiou][bcdfghjklmnpqrstvwxyz])$/;
+  const codePattern = /^[a-z]{2}$/;
   if (codePattern.test(firstArgLower)) {
     connection.reducers.drive({ gameId, targetX: 0, targetY: 0, targetCode: firstArgLower });
 
@@ -816,7 +816,7 @@ export function drive(
     themeColors.dim("Examples:"),
     themeColors.dim("  d ne"),
     themeColors.dim("  d u"),
-    themeColors.dim("  d ba           # Drive to destination ba"),
+    themeColors.dim("  d bd           # Drive to destination bd"),
   ];
 }
 

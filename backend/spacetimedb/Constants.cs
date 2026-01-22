@@ -143,7 +143,7 @@ public static partial class Module
     public static readonly Gun ROCKET_GUN = new Gun
     {
         GunType = GunType.Rocket,
-        Ammo = 8,
+        Ammo = 3,
         ProjectileCount = 1,
         SpreadAngle = 0,
         Damage = 100,
@@ -159,7 +159,7 @@ public static partial class Module
         Damping = null,
         Bounce = false,
         ProjectileSize = .2f,
-        ProjectileSpeed = PROJECTILE_SPEED,
+        ProjectileSpeed = 6f,
     };
 
     public static readonly Gun MOAG_GUN = new Gun

@@ -429,6 +429,50 @@
             margin-right: 0.5rem;
         }
 
+        .hero-play-btn .kbd-key {
+            margin-right: 0.8rem;
+            margin-left: -0.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.6rem;
+            height: 1.6rem;
+            color: white;
+            background-color: transparent;
+            border: 2px solid white;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .kbd-key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.4rem;
+            height: 1.4rem;
+            padding: 0 0.3rem;
+            font-size: 0.85rem;
+            font-weight: 800;
+            line-height: 1;
+            color: currentColor;
+            background-color: transparent;
+            border: 1.5px solid currentColor;
+            border-radius: 3px;
+            margin-left: 0.5rem;
+            margin-right: 0.2rem;
+        }
+
+        .header-play-btn .kbd-key {
+            margin-right: 0.6rem;
+            margin-left: -0.1rem;
+            width: 1.3rem;
+            height: 1.3rem;
+            border-width: 1.5px;
+            font-size: 0.75rem;
+        }
+
         .hero-docs-btn {
             display: flex;
             height: 3.5rem;
@@ -869,7 +913,8 @@
                     <a class="nav-link" href="https://github.com/tfritzy/CommandLineTanks">GitHub</a>
                 </div>
                 <a href="/deploy" class="header-play-btn">
-                    <span>&gt; Play now</span>
+                    <span class="kbd-key">P</span>
+                    <span>Play in browser</span>
                 </a>
                 <div class="mobile-menu">
                     <span class="material-symbols-outlined">menu</span>
@@ -895,8 +940,8 @@
                     </p>
                     <div class="hero-buttons">
                         <a href="/deploy" class="hero-play-btn">
-                            <span class="material-symbols-outlined">terminal</span>
-                            Play now
+                            <span class="kbd-key">P</span>
+                            Play in browser
                         </a>
                         <a href="#docs" class="hero-docs-btn">
                             <span class="material-symbols-outlined">code</span>
@@ -980,7 +1025,7 @@
                                 <div class="syntax-comment"># Syntax</div>
                                 <div class="syntax-primary">track &lt;code&gt;</div>
                                 <div class="syntax-comment"># Type this:</div>
-                                <div class="syntax-example"><span class="syntax-dollar">$</span> track ba</div>
+                                <div class="syntax-example"><span class="syntax-dollar">$</span> track bd</div>
                             </div>
                         </div>
                     </div>
@@ -1338,9 +1383,9 @@
                 render();
                 await sleep(1000);
 
-                await typeText('track ba');
+                await typeText('track bd');
                 await newLine();
-                lines.push('Tracking tank <span class="terminal-magenta">ba</span> (Alpha)');
+                lines.push('Tracking tank <span class="terminal-magenta">bd</span> (Alpha)');
                 lines.push('');
                 lines.push('');
                 currentLine = prompt();
@@ -1390,6 +1435,17 @@
 
             runSequence();
         })();
+
+        // Keyboard shortcut handler
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'p' || event.key === 'P') {
+                // Prevent if user is typing in an input field
+                if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+                    event.preventDefault();
+                    window.location.href = '/deploy';
+                }
+            }
+        });
     </script>
 </body>
 </html>

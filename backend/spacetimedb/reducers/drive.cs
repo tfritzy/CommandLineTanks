@@ -14,7 +14,7 @@ public static partial class Module
         if (!string.IsNullOrEmpty(targetCode))
         {
             var destination = ctx.Db.destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
-            if (destination == null)
+            if (string.IsNullOrEmpty(destination.Id))
             {
                 return;
             }
