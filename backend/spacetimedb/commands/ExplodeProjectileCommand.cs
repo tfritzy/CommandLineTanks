@@ -46,7 +46,7 @@ public static partial class ProjectileUpdater
 
                         if (distanceSquared <= explosionRadiusSquared)
                         {
-                            Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId, traversibilityMap);
+                            tank = Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId, traversibilityMap);
                         }
                     }
                 }
