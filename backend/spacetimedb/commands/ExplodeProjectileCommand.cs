@@ -23,6 +23,8 @@ public static partial class ProjectileUpdater
 
         int searchRadius = (int)Math.Ceiling(explosionRadius / Module.COLLISION_REGION_SIZE);
 
+        var processedTanks = new System.Collections.Generic.Dictionary<string, Module.Tank>();
+
         for (int dx = -searchRadius; dx <= searchRadius; dx++)
         {
             for (int dy = -searchRadius; dy <= searchRadius; dy++)
@@ -33,9 +35,18 @@ public static partial class ProjectileUpdater
                 var tankTransforms = ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY));
                 foreach (var tankTransform in tankTransforms)
                 {
-                    var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
-                    if (tankQuery == null) continue;
-                    var tank = tankQuery.Value;
+                    Module.Tank tank;
+                    if (processedTanks.TryGetValue(tankTransform.TankId, out var cachedTank))
+                    {
+                        tank = cachedTank;
+                    }
+                    else
+                    {
+                        var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
+                        if (tankQuery == null) continue;
+                        tank = tankQuery.Value;
+                        processedTanks[tank.Id] = tank;
+                    }
                     
                     if (tank.Health > 0 && tank.Alliance != projectile.Alliance)
                     {
@@ -47,6 +58,7 @@ public static partial class ProjectileUpdater
                         if (distanceSquared <= explosionRadiusSquared)
                         {
                             tank = Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId, traversibilityMap);
+                            processedTanks[tank.Id] = tank;
                         }
                     }
                 }
