@@ -100,7 +100,6 @@ public static partial class Module
             }
 
             AdvanceTutorialOnKill.Call(ctx, gameId, killedTank);
-            
             return killedTank;
         }
         else
