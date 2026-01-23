@@ -371,7 +371,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "",
         "Flags:",
         "  --bots, -b          Number of AI bots, 0-10 (default: 0)",
-        "  --duration, -d      Game duration in minutes, 1-20 (default: 10)",
+        "  --duration, -d      Game duration in minutes, 1-20 (default: 5)",
         "  --width, -w         Map width, 10-100 (default: 50)",
         "  --height, -h        Map height, 10-100 (default: 50)",
         "",
@@ -828,7 +828,7 @@ export function create(
 
   const defaults = {
     bots: 0,
-    duration: 10,
+    duration: 5,
     width: 50,
     height: 50
   };
@@ -917,7 +917,7 @@ export function create(
         "",
         usage,
         "",
-        themeColors.dim("Defaults: bots=0, duration=10, width=50, height=50")
+        themeColors.dim("Defaults: bots=0, duration=5, width=50, height=50")
       ];
     }
   }
