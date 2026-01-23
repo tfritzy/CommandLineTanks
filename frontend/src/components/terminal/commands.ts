@@ -538,7 +538,7 @@ export function aim(
       return [
         themeColors.error(`aim: error: invalid value '${args[0]}'`),
         themeColors.dim("Must be a number (degrees) or valid direction"),
-        themeColors.dim("Valid directions: n, ne, e, se, s, sw, w, nw"),
+        themeColors.dim("Valid directions: n/up/u/k, s/down/d/j, e/right/r/l, w/left/h, ne, se, sw, nw"),
         "",
         themeColors.dim("Usage: aim <angle|direction>"),
         themeColors.dim("Examples:"),
