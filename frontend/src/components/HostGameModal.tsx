@@ -8,7 +8,7 @@ interface HostGameModalProps {
 
 export default function HostGameModal({ onClose }: HostGameModalProps) {
   const [bots, setBots] = useState<number | ''>(0);
-  const [duration, setDuration] = useState<number | ''>(10);
+  const [duration, setDuration] = useState<number | ''>(5);
   const [width, setWidth] = useState<number | ''>(50);
   const [height, setHeight] = useState<number | ''>(50);
 
@@ -92,7 +92,7 @@ export default function HostGameModal({ onClose }: HostGameModalProps) {
                   setDuration(Math.max(1, Math.min(20, val)));
                 }}
                 onBlur={() => {
-                  if (duration === '') setDuration(10);
+                  if (duration === '') setDuration(5);
                 }}
                 onWheel={(e) => e.currentTarget.blur()}
                 onKeyDown={(e) => {
