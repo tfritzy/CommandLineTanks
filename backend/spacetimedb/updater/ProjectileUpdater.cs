@@ -227,7 +227,8 @@ public static partial class ProjectileUpdater
         ref Module.ProjectileTraversibilityMap projectileTraversibilityMap,
         ref Module.TraversibilityMap traversibilityMap,
         string gameId,
-        double deltaTime)
+        double deltaTime,
+        Dictionary<string, Module.Tank> tanksById)
     {
         int projectileTileX = (int)transform.PositionX;
         int projectileTileY = (int)transform.PositionY;
@@ -264,7 +265,7 @@ return (false, projectile, transform);
 
         if (projectile.ExplosionRadius != null && projectile.ExplosionRadius > 0 && projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
         {
-            ExplodeProjectileCommand(ctx, projectile, transform, gameId, ref traversibilityMap, ref projectileTraversibilityMap);
+            ExplodeProjectileCommand(ctx, projectile, transform, gameId, ref traversibilityMap, ref projectileTraversibilityMap, tanksById);
             DeleteProjectile(ctx, projectile.Id);
             return (true, projectile, transform);
         }
@@ -567,7 +568,7 @@ return (false, projectile, transform);
                                 {
                                     if (projectile.ExplosionTrigger == ExplosionTrigger.OnHit)
                                     {
-                                        ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, transform, gameId, ref traversibilityMap, ref projectileTraversibilityMap);
+                                        ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, transform, gameId, ref traversibilityMap, ref projectileTraversibilityMap, tanksById);
                                         DeleteProjectile(ctx, projectile.Id);
                                         return (true, projectile, transform);
                                     }
@@ -685,7 +686,7 @@ return (false, projectile, transform);
                 projectilesExpired++;
                 if (projectile.ExplosionTrigger == ExplosionTrigger.OnExpiration)
                 {
-                    ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap);
+                    ProjectileUpdater.ExplodeProjectileCommand(ctx, projectile, transform, args.GameId, ref traversibilityMap, ref projectileTraversibilityMap, tanksById);
                 }
                 DeleteProjectile(ctx, projectile.Id);
                 continue;
@@ -715,7 +716,7 @@ return (false, projectile, transform);
             };
 
             bool collided;
-            (collided, projectile, transform) = HandleTerrainCollision(ctx, projectile, transform, ref projectileTraversibilityMap, ref traversibilityMap, args.GameId, deltaTime);
+            (collided, projectile, transform) = HandleTerrainCollision(ctx, projectile, transform, ref projectileTraversibilityMap, ref traversibilityMap, args.GameId, deltaTime, tanksById);
 
             if (collided)
             {

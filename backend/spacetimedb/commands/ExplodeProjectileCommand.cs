@@ -4,7 +4,7 @@ using System;
 
 public static partial class ProjectileUpdater
 {
-    public static void ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string gameId, ref Module.TraversibilityMap traversibilityMap, ref Module.ProjectileTraversibilityMap projectileTraversibilityMap)
+    public static void ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string gameId, ref Module.TraversibilityMap traversibilityMap, ref Module.ProjectileTraversibilityMap projectileTraversibilityMap, System.Collections.Generic.Dictionary<string, Module.Tank> tanksById)
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
         {
@@ -23,8 +23,6 @@ public static partial class ProjectileUpdater
 
         int searchRadius = (int)Math.Ceiling(explosionRadius / Module.COLLISION_REGION_SIZE);
 
-        var processedTanks = new System.Collections.Generic.Dictionary<string, Module.Tank>();
-
         for (int dx = -searchRadius; dx <= searchRadius; dx++)
         {
             for (int dy = -searchRadius; dy <= searchRadius; dy++)
@@ -36,7 +34,7 @@ public static partial class ProjectileUpdater
                 foreach (var tankTransform in tankTransforms)
                 {
                     Module.Tank tank;
-                    if (processedTanks.TryGetValue(tankTransform.TankId, out var cachedTank))
+                    if (tanksById.TryGetValue(tankTransform.TankId, out var cachedTank))
                     {
                         tank = cachedTank;
                     }
@@ -45,7 +43,7 @@ public static partial class ProjectileUpdater
                         var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
                         if (tankQuery == null) continue;
                         tank = tankQuery.Value;
-                        processedTanks[tank.Id] = tank;
+                        tanksById[tank.Id] = tank;
                     }
                     
                     if (tank.Health > 0 && tank.Alliance != projectile.Alliance)
@@ -58,7 +56,7 @@ public static partial class ProjectileUpdater
                         if (distanceSquared <= explosionRadiusSquared)
                         {
                             tank = Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId, traversibilityMap);
-                            processedTanks[tank.Id] = tank;
+                            tanksById[tank.Id] = tank;
                         }
                     }
                 }
