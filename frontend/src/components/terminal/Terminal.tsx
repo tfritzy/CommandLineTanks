@@ -21,6 +21,8 @@ const ARROW_LEFT = "\x1b[D";
 const ARROW_RIGHT = "\x1b[C";
 const CTRL_ARROW_LEFT = "\x1b[1;5D";
 const CTRL_ARROW_RIGHT = "\x1b[1;5C";
+const ALT_BACKSPACE = "\x1b\x7f";
+const CTRL_BACKSPACE_SEQ = "\x1b[3;5~";
 
 const VALID_COMMANDS = ['aim', 'a', 'track', 't', 'drive', 'd', 'move', 'm', 'stop', 's', 'fire', 'f',
   'switch', 'w',
@@ -237,8 +239,47 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
       term.write(newInput);
     };
 
+    const deleteWordBackward = () => {
+      if (cursorPosRef.current > 0) {
+        const input = currentInputRef.current;
+        let deletePos = cursorPosRef.current - 1;
+
+        while (deletePos >= 0 && input[deletePos] === ' ') {
+          deletePos--;
+        }
+
+        while (deletePos >= 0 && input[deletePos] !== ' ') {
+          deletePos--;
+        }
+
+        const newCursorPos = deletePos + 1;
+        const before = input.substring(0, newCursorPos);
+        const after = input.substring(cursorPosRef.current);
+        const charsDeleted = cursorPosRef.current - newCursorPos;
+
+        currentInputRef.current = before + after;
+
+        for (let i = 0; i < charsDeleted; i++) {
+          term.write("\b");
+        }
+        term.write(after + " ".repeat(charsDeleted));
+        term.write(ARROW_LEFT.repeat(after.length + charsDeleted));
+
+        cursorPosRef.current = newCursorPos;
+      }
+    };
+
     const handleData = (data: string) => {
+      if (data === ALT_BACKSPACE) {
+        deleteWordBackward();
+        return;
+      }
+
       if (data.startsWith('\x1b[')) {
+        if (data === CTRL_BACKSPACE_SEQ) {
+          deleteWordBackward();
+          return;
+        }
         if (data === ARROW_UP) {
           if (commandHistoryRef.current.length === 0) return;
 
@@ -387,33 +428,7 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
           term.write(ARROW_LEFT.repeat(after.length + 1));
         }
       } else if (code === KEY_CTRL_BACKSPACE || code === KEY_CTRL_H) {
-        if (cursorPosRef.current > 0) {
-          const input = currentInputRef.current;
-          let deletePos = cursorPosRef.current - 1;
-
-          while (deletePos >= 0 && input[deletePos] === ' ') {
-            deletePos--;
-          }
-
-          while (deletePos >= 0 && input[deletePos] !== ' ') {
-            deletePos--;
-          }
-
-          const newCursorPos = deletePos + 1;
-          const before = input.substring(0, newCursorPos);
-          const after = input.substring(cursorPosRef.current);
-          const charsDeleted = cursorPosRef.current - newCursorPos;
-
-          currentInputRef.current = before + after;
-
-          for (let i = 0; i < charsDeleted; i++) {
-            term.write("\b");
-          }
-          term.write(after + " ".repeat(charsDeleted));
-          term.write(ARROW_LEFT.repeat(after.length + charsDeleted));
-
-          cursorPosRef.current = newCursorPos;
-        }
+        deleteWordBackward();
       } else if (code >= 32) {
         const input = currentInputRef.current;
         const before = input.substring(0, cursorPosRef.current);
