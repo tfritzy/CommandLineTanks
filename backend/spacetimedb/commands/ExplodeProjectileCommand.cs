@@ -4,7 +4,7 @@ using System;
 
 public static partial class ProjectileUpdater
 {
-    public static void ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string gameId, ref Module.TraversibilityMap traversibilityMap, ref Module.ProjectileTraversibilityMap projectileTraversibilityMap)
+    public static void ExplodeProjectileCommand(ReducerContext ctx, Module.Projectile projectile, Module.ProjectileTransform transform, string gameId, ref Module.TraversibilityMap traversibilityMap, ref Module.ProjectileTraversibilityMap projectileTraversibilityMap, System.Collections.Generic.Dictionary<string, Module.Tank> tanksById)
     {
         if (projectile.ExplosionRadius == null || projectile.ExplosionRadius <= 0)
         {
@@ -33,9 +33,18 @@ public static partial class ProjectileUpdater
                 var tankTransforms = ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY));
                 foreach (var tankTransform in tankTransforms)
                 {
-                    var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
-                    if (tankQuery == null) continue;
-                    var tank = tankQuery.Value;
+                    Module.Tank tank;
+                    if (tanksById.TryGetValue(tankTransform.TankId, out var cachedTank))
+                    {
+                        tank = cachedTank;
+                    }
+                    else
+                    {
+                        var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
+                        if (tankQuery == null) continue;
+                        tank = tankQuery.Value;
+                        tanksById[tank.Id] = tank;
+                    }
                     
                     if (tank.Health > 0 && tank.Alliance != projectile.Alliance)
                     {
@@ -46,7 +55,8 @@ public static partial class ProjectileUpdater
 
                         if (distanceSquared <= explosionRadiusSquared)
                         {
-                            Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId, traversibilityMap);
+                            tank = Module.DealDamageToTankCommand(ctx, tank, tankTransform, projectile.Damage, projectile.ShooterTankId, projectile.Alliance, gameId, traversibilityMap);
+                            tanksById[tank.Id] = tank;
                         }
                     }
                 }

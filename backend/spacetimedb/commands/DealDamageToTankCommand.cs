@@ -4,7 +4,7 @@ using System;
 
 public static partial class Module
 {
-    public static void DealDamageToTankCommand(
+    public static Tank DealDamageToTankCommand(
         ReducerContext ctx,
         Tank tank,
         TankTransform transform,
@@ -16,7 +16,7 @@ public static partial class Module
     {
         if (tank.RemainingImmunityMicros > 0)
         {
-            return;
+            return tank;
         }
 
         var shooterTankQuery = ctx.Db.tank.Id.Find(shooterTankId);
@@ -30,7 +30,7 @@ public static partial class Module
                 LastDamagedBy = shooterIdentity
             };
             ctx.Db.tank.Id.Update(tankWithoutShield);
-            return;
+            return tankWithoutShield;
         }
 
         var newHealth = tank.Health - damage;
@@ -100,6 +100,7 @@ public static partial class Module
             }
 
             AdvanceTutorialOnKill.Call(ctx, gameId, killedTank);
+            return killedTank;
         }
         else
         {
@@ -109,6 +110,7 @@ public static partial class Module
                 LastDamagedBy = shooterIdentity
             };
             ctx.Db.tank.Id.Update(updatedTank);
+            return updatedTank;
         }
     }
 
