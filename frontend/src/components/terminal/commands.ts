@@ -88,9 +88,10 @@ const directionAliases: Record<
   u: northDirection,
   k: northDirection,
 
-  northeast: northeastDirection,
-  ne: northeastDirection,
-  en: northeastDirection,
+  upright: northeastDirection,
+  rightup: northeastDirection,
+  kl: northeastDirection,
+  lk: northeastDirection,
 
   east: eastDirection,
   e: eastDirection,
@@ -98,9 +99,10 @@ const directionAliases: Record<
   r: eastDirection,
   l: eastDirection,
 
-  southeast: southeastDirection,
-  se: southeastDirection,
-  es: southeastDirection,
+  downright: southeastDirection,
+  rightdown: southeastDirection,
+  jl: southeastDirection,
+  lj: southeastDirection,
 
   south: southDirection,
   s: southDirection,
@@ -108,24 +110,26 @@ const directionAliases: Record<
   d: southDirection,
   j: southDirection,
 
-  southwest: southwestDirection,
-  sw: southwestDirection,
-  ws: southwestDirection,
+  downleft: southwestDirection,
+  leftdown: southwestDirection,
+  jh: southwestDirection,
+  hj: southwestDirection,
 
   west: westDirection,
   w: westDirection,
   left: westDirection,
   h: westDirection,
 
-  northwest: northwestDirection,
-  nw: northwestDirection,
-  wn: northwestDirection,
+  upleft: northwestDirection,
+  leftup: northwestDirection,
+  kh: northwestDirection,
+  hk: northwestDirection,
 };
 
 const validDirections = Object.keys(directionAliases);
 
 function getDirectionExamples(): string {
-  return "n/up/u/k, s/down/d/j, e/right/r/l, w/left/h, ne/en, se/es, sw/ws, nw/wn";
+  return "n/up/u/k, s/down/d/j, e/right/r/l, w/left/h, upright/rightup/kl/lk, downright/rightdown/jl/lj, downleft/leftdown/jh/hj, upleft/leftup/kh/hk";
 }
 
 function directionToAngle(direction: string): number {
@@ -255,13 +259,13 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "  <direction>    Direction to drive (with pathfinding)",
         "                 Directions:",
         "                   ↑: north, n, up, u, k",
-        "                   ↗: northeast, ne, en",
+        "                   ↗: upright, rightup, kl, lk",
         "                   →: east, e, right, r, l",
-        "                   ↘: southeast, se, es",
+        "                   ↘: downright, rightdown, jl, lj",
         "                   ↓: south, s, down, d, j",
-        "                   ↙: southwest, sw, ws",
+        "                   ↙: downleft, leftdown, jh, hj",
         "                   ←: west, w, left, h",
-        "                   ↖: northwest, nw, wn",
+        "                   ↖: upleft, leftup, kh, hk",
         "  <code>         Destination code (like bd, mx) to drive to",
         "",
         "Examples:",
@@ -315,13 +319,13 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                      Negative angles are supported",
         "                      Directions:",
         "                        ↑: north, n, up, u, k",
-        "                        ↗: northeast, ne, en",
+        "                        ↗: upright, rightup, kl, lk",
         "                        →: east, e, right, r, l",
-        "                        ↘: southeast, se, es",
+        "                        ↘: downright, rightdown, jl, lj",
         "                        ↓: south, s, down, d, j",
-        "                        ↙: southwest, sw, ws",
+        "                        ↙: downleft, leftdown, jh, hj",
         "                        ←: west, w, left, h",
-        "                        ↖: northwest, nw, wn",
+        "                        ↖: upleft, leftup, kh, hk",
         "",
         "Examples:",
         "  aim 90",
