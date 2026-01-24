@@ -69,36 +69,76 @@ function isPlayerDead(connection: DbConnection, gameId: string): boolean {
   return tank ? tank.health <= 0 : false;
 }
 
+const northDirection = { x: 0, y: -1, name: "north", symbol: "↑" };
+const northeastDirection = { x: 1, y: -1, name: "northeast", symbol: "↗" };
+const eastDirection = { x: 1, y: 0, name: "east", symbol: "→" };
+const southeastDirection = { x: 1, y: 1, name: "southeast", symbol: "↘" };
+const southDirection = { x: 0, y: 1, name: "south", symbol: "↓" };
+const southwestDirection = { x: -1, y: 1, name: "southwest", symbol: "↙" };
+const westDirection = { x: -1, y: 0, name: "west", symbol: "←" };
+const northwestDirection = { x: -1, y: -1, name: "northwest", symbol: "↖" };
+
 const directionAliases: Record<
   string,
   { x: number; y: number; name: string; symbol: string }
 > = {
-  north: { x: 0, y: -1, name: "north", symbol: "↑" },
-  n: { x: 0, y: -1, name: "north", symbol: "↑" },
+  north: northDirection,
+  n: northDirection,
+  up: northDirection,
+  u: northDirection,
+  k: northDirection,
 
-  northeast: { x: 1, y: -1, name: "northeast", symbol: "↗" },
-  ne: { x: 1, y: -1, name: "northeast", symbol: "↗" },
+  upright: northeastDirection,
+  rightup: northeastDirection,
+  ur: northeastDirection,
+  ru: northeastDirection,
+  kl: northeastDirection,
+  lk: northeastDirection,
 
-  east: { x: 1, y: 0, name: "east", symbol: "→" },
-  e: { x: 1, y: 0, name: "east", symbol: "→" },
+  east: eastDirection,
+  e: eastDirection,
+  right: eastDirection,
+  r: eastDirection,
+  l: eastDirection,
 
-  southeast: { x: 1, y: 1, name: "southeast", symbol: "↘" },
-  se: { x: 1, y: 1, name: "southeast", symbol: "↘" },
+  downright: southeastDirection,
+  rightdown: southeastDirection,
+  dr: southeastDirection,
+  rd: southeastDirection,
+  jl: southeastDirection,
+  lj: southeastDirection,
 
-  south: { x: 0, y: 1, name: "south", symbol: "↓" },
-  s: { x: 0, y: 1, name: "south", symbol: "↓" },
+  south: southDirection,
+  s: southDirection,
+  down: southDirection,
+  d: southDirection,
+  j: southDirection,
 
-  southwest: { x: -1, y: 1, name: "southwest", symbol: "↙" },
-  sw: { x: -1, y: 1, name: "southwest", symbol: "↙" },
+  downleft: southwestDirection,
+  leftdown: southwestDirection,
+  dl: southwestDirection,
+  ld: southwestDirection,
+  jh: southwestDirection,
+  hj: southwestDirection,
 
-  west: { x: -1, y: 0, name: "west", symbol: "←" },
-  w: { x: -1, y: 0, name: "west", symbol: "←" },
+  west: westDirection,
+  w: westDirection,
+  left: westDirection,
+  h: westDirection,
 
-  northwest: { x: -1, y: -1, name: "northwest", symbol: "↖" },
-  nw: { x: -1, y: -1, name: "northwest", symbol: "↖" },
+  upleft: northwestDirection,
+  leftup: northwestDirection,
+  ul: northwestDirection,
+  lu: northwestDirection,
+  kh: northwestDirection,
+  hk: northwestDirection,
 };
 
 const validDirections = Object.keys(directionAliases);
+
+function getDirectionExamples(): string {
+  return "n/up/u/k, s/down/d/j, e/right/r/l, w/left/h, upright/rightup/ur/ru/kl/lk, downright/rightdown/dr/rd/jl/lj, downleft/leftdown/dl/ld/jh/hj, upleft/leftup/ul/lu/kh/hk";
+}
 
 function directionToAngle(direction: string): number {
   const dir = directionAliases[direction.toLowerCase()];
@@ -226,14 +266,14 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Arguments:",
         "  <direction>    Direction to drive (with pathfinding)",
         "                 Directions:",
-        "                   ↑: north, n",
-        "                   ↗: northeast, ne",
-        "                   →: east, e",
-        "                   ↘: southeast, se",
-        "                   ↓: south, s",
-        "                   ↙: southwest, sw",
-        "                   ←: west, w",
-        "                   ↖: northwest, nw",
+        "                   ↑: north, n, up, u, k",
+        "                   ↗: upright, rightup, ur, ru, kl, lk",
+        "                   →: east, e, right, r, l",
+        "                   ↘: downright, rightdown, dr, rd, jl, lj",
+        "                   ↓: south, s, down, d, j",
+        "                   ↙: downleft, leftdown, dl, ld, jh, hj",
+        "                   ←: west, w, left, h",
+        "                   ↖: upleft, leftup, ul, lu, kh, hk",
         "  <code>         Destination code (like bd, mx) to drive to",
         "",
         "Examples:",
@@ -286,19 +326,19 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "                      Angles: 0=east, 90=north, 180=west, 270=south",
         "                      Negative angles are supported",
         "                      Directions:",
-        "                        ↑: north, n",
-        "                        ↗: northeast, ne",
-        "                        →: east, e",
-        "                        ↘: southeast, se",
-        "                        ↓: south, s",
-        "                        ↙: southwest, sw",
-        "                        ←: west, w",
-        "                        ↖: northwest, nw",
+        "                        ↑: north, n, up, u, k",
+        "                        ↗: upright, rightup, ur, ru, kl, lk",
+        "                        →: east, e, right, r, l",
+        "                        ↘: downright, rightdown, dr, rd, jl, lj",
+        "                        ↓: south, s, down, d, j",
+        "                        ↙: downleft, leftdown, dl, ld, jh, hj",
+        "                        ←: west, w, left, h",
+        "                        ↖: upleft, leftup, ul, lu, kh, hk",
         "",
         "Examples:",
         "  aim 90",
         "  aim -45",
-        "  aim northeast",
+        "  aim upright",
       ];
 
     case "fire":
@@ -498,7 +538,7 @@ export function aim(
       themeColors.dim("Usage: aim <angle|direction>"),
       themeColors.dim("Examples:"),
       themeColors.dim("  aim 45"),
-      themeColors.dim("  aim northeast"),
+      themeColors.dim("  aim upright"),
     ];
   }
 
@@ -518,12 +558,12 @@ export function aim(
       return [
         themeColors.error(`aim: error: invalid value '${args[0]}'`),
         themeColors.dim("Must be a number (degrees) or valid direction"),
-        themeColors.dim("Valid directions: n, ne, e, se, s, sw, w, nw"),
+        themeColors.dim(`Valid directions: ${getDirectionExamples()}`),
         "",
         themeColors.dim("Usage: aim <angle|direction>"),
         themeColors.dim("Examples:"),
         themeColors.dim("  aim 90"),
-        themeColors.dim("  aim northeast"),
+        themeColors.dim("  aim upright"),
       ];
     }
 

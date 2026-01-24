@@ -12,7 +12,14 @@ public static partial class Module
 
         private static readonly HashSet<string> BlockedCodes = new HashSet<string>
         {
-            "ne", "se"
+            "ur", "ru",
+            "dr", "rd",
+            "dl", "ld",
+            "ul", "lu",
+            "kl", "lk",
+            "jl", "lj",
+            "jh", "hj",
+            "kh", "hk"
         };
 
         public static string Call(ReducerContext ctx)
