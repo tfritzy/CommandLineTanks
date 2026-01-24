@@ -12,6 +12,10 @@ public static partial class Module
 
         private static readonly HashSet<string> BlockedCodes = new HashSet<string>
         {
+            "ur", "ru",
+            "dr", "rd",
+            "dl", "ld",
+            "ul", "lu",
             "kl", "lk",
             "jl", "lj",
             "jh", "hj",
