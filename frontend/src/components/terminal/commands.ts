@@ -330,7 +330,7 @@ export function help(_connection: DbConnection, args: string[]): string[] {
         "Examples:",
         "  aim 90",
         "  aim -45",
-        "  aim northeast",
+        "  aim upright",
       ];
 
     case "fire":
@@ -530,7 +530,7 @@ export function aim(
       themeColors.dim("Usage: aim <angle|direction>"),
       themeColors.dim("Examples:"),
       themeColors.dim("  aim 45"),
-      themeColors.dim("  aim northeast"),
+      themeColors.dim("  aim upright"),
     ];
   }
 
@@ -555,7 +555,7 @@ export function aim(
         themeColors.dim("Usage: aim <angle|direction>"),
         themeColors.dim("Examples:"),
         themeColors.dim("  aim 90"),
-        themeColors.dim("  aim northeast"),
+        themeColors.dim("  aim upright"),
       ];
     }
 
