@@ -11,7 +11,7 @@ public static partial class Module
     public const float TANK_COLLISION_RADIUS = 0.5f;
     public const int COLLISION_REGION_SIZE = 4;
     public const long GAME_RESET_DELAY_MICROS = 15_000_000;
-    public const float MISSILE_TRACKING_RADIUS = 5.5f;
+    public const float MISSILE_TRACKING_RADIUS = 3.5f;
     public const long GAME_DURATION_MICROS = 300_000_000;
     public const long COUNTDOWN_MICROS = 10_000_000;
     public const float MAX_TARGETING_RANGE = 18.0f;
@@ -77,11 +77,11 @@ public static partial class Module
     public static readonly Gun MISSILE_LAUNCHER_GUN = new Gun
     {
         GunType = GunType.MissileLauncher,
-        Ammo = 10,
+        Ammo = 6,
         ProjectileCount = 1,
         SpreadAngle = 0,
         Damage = 40,
-        TrackingStrength = 2.0f,
+        TrackingStrength = 1.2f,
         TrackingRadius = MISSILE_TRACKING_RADIUS,
         ProjectileType = ProjectileType.Missile,
         LifetimeSeconds = 15.0f,
