@@ -42,7 +42,7 @@ export function JoinGameModal({ gameId }: JoinGameModalProps) {
     const nameChanged = !currentName || nameToUse !== currentName;
     
     if (nameChanged) {
-      return `name set ${nameToUse}; join ${gameId}`;
+      return `name set ${nameToUse} and join ${gameId}`;
     }
     return `join ${gameId}`;
   }, [sanitizedName, gameId, currentName]);
