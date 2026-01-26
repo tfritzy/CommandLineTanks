@@ -391,7 +391,7 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
           commandHistoryRef.current.push(input);
           historyIndexRef.current = -1;
 
-          const commands = input.split(/[;\n]/);
+          const commands = input.split(/[;\n]|&&|\|\|/);
           const result = executeMultipleCommands(commands);
 
           if (result === 'CLEAR') {
