@@ -15,6 +15,7 @@ const KEY_ENTER = 13;
 const KEY_BACKSPACE = 127;
 const KEY_CTRL_BACKSPACE = 23;
 const KEY_CTRL_H = 8;
+const DELETE_SEQ = "\x1b[3~";
 const ARROW_UP = "\x1b[A";
 const ARROW_DOWN = "\x1b[B";
 const ARROW_LEFT = "\x1b[D";
@@ -23,6 +24,12 @@ const CTRL_ARROW_LEFT = "\x1b[1;5D";
 const CTRL_ARROW_RIGHT = "\x1b[1;5C";
 const ALT_BACKSPACE = "\x1b\x7f";
 const CTRL_BACKSPACE_SEQ = "\x1b[3;5~";
+const HOME_SEQ = "\x1b[H";
+const HOME_SEQ_ALT = "\x1b[1~";
+const HOME_SEQ_APP = "\x1bOH";
+const END_SEQ = "\x1b[F";
+const END_SEQ_ALT = "\x1b[4~";
+const END_SEQ_APP = "\x1bOF";
 
 const VALID_COMMANDS = ['aim', 'a', 'track', 't', 'drive', 'd', 'move', 'm', 'stop', 's', 'fire', 'f',
   'switch', 'w',
@@ -269,15 +276,53 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
       }
     };
 
+    const deleteCharForward = () => {
+      const input = currentInputRef.current;
+      if (cursorPosRef.current < input.length) {
+        const before = input.substring(0, cursorPosRef.current);
+        const after = input.substring(cursorPosRef.current + 1);
+        currentInputRef.current = before + after;
+        term.write(after + " ");
+        term.write(ARROW_LEFT.repeat(after.length + 1));
+      }
+    };
+
+    const moveCursorToStart = () => {
+      if (cursorPosRef.current > 0) {
+        term.write(ARROW_LEFT.repeat(cursorPosRef.current));
+        cursorPosRef.current = 0;
+      }
+    };
+
+    const moveCursorToEnd = () => {
+      const moveBy = currentInputRef.current.length - cursorPosRef.current;
+      if (moveBy > 0) {
+        term.write(ARROW_RIGHT.repeat(moveBy));
+        cursorPosRef.current = currentInputRef.current.length;
+      }
+    };
+
     const handleData = (data: string) => {
       if (data === ALT_BACKSPACE) {
         deleteWordBackward();
         return;
       }
 
-      if (data.startsWith('\x1b[')) {
+      if (data.startsWith('\x1b')) {
         if (data === CTRL_BACKSPACE_SEQ) {
           deleteWordBackward();
+          return;
+        }
+        if (data === DELETE_SEQ) {
+          deleteCharForward();
+          return;
+        }
+        if (data === HOME_SEQ || data === HOME_SEQ_ALT || data === HOME_SEQ_APP) {
+          moveCursorToStart();
+          return;
+        }
+        if (data === END_SEQ || data === END_SEQ_ALT || data === END_SEQ_APP) {
+          moveCursorToEnd();
           return;
         }
         if (data === ARROW_UP) {
