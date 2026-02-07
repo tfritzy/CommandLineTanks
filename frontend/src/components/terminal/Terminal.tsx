@@ -282,8 +282,7 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
         const before = input.substring(0, cursorPosRef.current);
         const after = input.substring(cursorPosRef.current + 1);
         currentInputRef.current = before + after;
-        term.write(after + " ");
-        term.write(ARROW_LEFT.repeat(after.length + 1));
+        term.write(after + " " + ARROW_LEFT.repeat(after.length + 1));
       }
     };
 
@@ -308,7 +307,7 @@ function TerminalComponent({ gameId }: TerminalComponentProps) {
         return;
       }
 
-      if (data.startsWith('\x1b')) {
+      if (data.startsWith('\x1b[') || data.startsWith('\x1bO')) {
         if (data === CTRL_BACKSPACE_SEQ) {
           deleteWordBackward();
           return;
