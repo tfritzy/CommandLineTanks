@@ -7,8 +7,8 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, Tank tank, TankTransform transform)
         {
-            ctx.Db.tank.Insert(tank);
-            ctx.Db.tank_transform.Insert(transform);
+            ctx.Db.Tank.Insert(tank);
+            ctx.Db.TankTransform.Insert(transform);
             
             if (tank.IsBot)
             {
@@ -21,7 +21,7 @@ public static partial class Module
                 var allianceColor = GetAllianceColor(tank.Alliance);
                 var coloredPlayerName = $"[color={allianceColor}]{tank.Name}[/color]";
                 
-                ctx.Db.message.Insert(new Message
+                ctx.Db.Message.Insert(new Message
                 {
                     Id = GenerateId(ctx, "msg"),
                     GameId = tank.GameId,

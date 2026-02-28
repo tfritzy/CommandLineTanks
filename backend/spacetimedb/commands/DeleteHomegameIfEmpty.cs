@@ -8,13 +8,13 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, string identityString)
         {
-            var homegame = ctx.Db.game.Id.Find(identityString);
+            var homegame = ctx.Db.Game.Id.Find(identityString);
             if (homegame == null || homegame.Value.GameType != GameType.Home)
             {
                 return;
             }
 
-            var hasHumanPlayers = ctx.Db.tank.GameId.Filter(identityString).Any(t => !t.IsBot);
+            var hasHumanPlayers = ctx.Db.Tank.GameId.Filter(identityString).Any(t => !t.IsBot);
             if (hasHumanPlayers)
             {
                 return;

@@ -9,21 +9,23 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2Float from "./vector_2_float_type";
+import {
+  Vector2Float,
+} from "./types";
 
 
 export default __t.row({
-  tankId: __t.string().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
+  tankId: __t.string().primaryKey().name("tank_id"),
+  gameId: __t.string().name("game_id"),
+  positionX: __t.f32().name("position_x"),
+  positionY: __t.f32().name("position_y"),
   get velocity() {
     return Vector2Float;
   },
-  collisionRegionX: __t.i32(),
-  collisionRegionY: __t.i32(),
-  turretRotation: __t.f32(),
-  targetTurretRotation: __t.f32(),
-  turretAngularVelocity: __t.f32(),
-  updatedAt: __t.u64(),
+  collisionRegionX: __t.i32().name("collision_region_x"),
+  collisionRegionY: __t.i32().name("collision_region_y"),
+  turretRotation: __t.f32().name("turret_rotation"),
+  targetTurretRotation: __t.f32().name("target_turret_rotation"),
+  turretAngularVelocity: __t.f32().name("turret_angular_velocity"),
+  updatedAt: __t.u64().name("updated_at"),
 });

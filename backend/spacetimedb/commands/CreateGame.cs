@@ -40,9 +40,9 @@ public static partial class Module
                 Owner = owner
             };
 
-            ctx.Db.game.Insert(game);
+            ctx.Db.Game.Insert(game);
 
-            ctx.Db.base_terrain_layer.Insert(new BaseTerrainLayer
+            ctx.Db.BaseTerrainLayer.Insert(new BaseTerrainLayer
             {
                 GameId = gameId,
                 Layer = baseTerrain,
@@ -63,7 +63,7 @@ public static partial class Module
                     posY += (float)(ctx.Rng.NextDouble() * 0.5 - 0.25);
                 }
 
-                ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                     ctx: ctx,
                     id: terrainDetailId,
                     gameId: gameId,
@@ -78,7 +78,7 @@ public static partial class Module
                 ));
             }
 
-            ctx.Db.traversibility_map.Insert(new TraversibilityMap
+            ctx.Db.TraversibilityMap.Insert(new TraversibilityMap
             {
                 GameId = gameId,
                 Map = traversibilityMap,
@@ -86,7 +86,7 @@ public static partial class Module
                 Height = height
             });
 
-            ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
+            ctx.Db.ProjectileTraversibilityMap.Insert(new ProjectileTraversibilityMap
             {
                 GameId = gameId,
                 Map = projectileTraversibilityMap,
@@ -94,7 +94,7 @@ public static partial class Module
                 Height = height
             });
 
-            ctx.Db.score.Insert(new Score
+            ctx.Db.Score.Insert(new Score
             {
                 GameId = gameId,
                 Kills = new int[] { 0, 0 }

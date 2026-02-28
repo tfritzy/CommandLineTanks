@@ -80,7 +80,7 @@ public static partial class PickupSpawner
     [Reducer]
     public static void SpawnPickup(ReducerContext ctx, ScheduledPickupSpawn args)
     {
-        var game = ctx.Db.game.Id.Find(args.GameId);
+        var game = ctx.Db.Game.Id.Find(args.GameId);
         if (game == null) return;
 
         if (game.Value.GameType == GameType.Home)
@@ -93,7 +93,7 @@ public static partial class PickupSpawner
         }
         else
         {
-            var existingPickups = ctx.Db.pickup.GameId.Filter(args.GameId);
+            var existingPickups = ctx.Db.Pickup.GameId.Filter(args.GameId);
             int regularPickupCount = 0;
             int healthPackCount = 0;
             foreach (var pickup in existingPickups)
@@ -108,7 +108,7 @@ public static partial class PickupSpawner
                 }
             }
 
-            var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(args.GameId);
+            var traversibilityMap = ctx.Db.TraversibilityMap.GameId.Find(args.GameId);
             if (traversibilityMap == null) return;
 
             bool spawnedSomething = false;
@@ -151,7 +151,7 @@ public static partial class PickupSpawner
                 continue;
             }
 
-            var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, gridX, gridY));
+            var existingPickup = ctx.Db.Pickup.GameId_GridX_GridY.Filter((gameId, gridX, gridY));
 
             if (existingPickup.Any())
             {
@@ -180,7 +180,7 @@ public static partial class PickupSpawner
             GameId = gameId
         });
 
-        var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(gameId);
+        var traversibilityMap = ctx.Db.TraversibilityMap.GameId.Find(gameId);
         if (traversibilityMap == null) return;
 
         int regularSpawnedCount = 0;
@@ -222,13 +222,13 @@ public static partial class PickupSpawner
         float centerX = spawnX + 0.5f;
         float centerY = spawnY + 0.5f;
 
-        var existingDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
+        var existingDetail = ctx.Db.TerrainDetail.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
         foreach (var detail in existingDetail)
         {
             return false;
         }
 
-        var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
+        var existingPickup = ctx.Db.Pickup.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
         foreach (var p in existingPickup)
         {
             return false;
@@ -274,13 +274,13 @@ public static partial class PickupSpawner
         float centerX = spawnX + 0.5f;
         float centerY = spawnY + 0.5f;
 
-        var existingDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
+        var existingDetail = ctx.Db.TerrainDetail.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
         foreach (var detail in existingDetail)
         {
             return false;
         }
 
-        var existingPickup = ctx.Db.pickup.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
+        var existingPickup = ctx.Db.Pickup.GameId_GridX_GridY.Filter((gameId, spawnX, spawnY));
         foreach (var p in existingPickup)
         {
             return false;
@@ -390,7 +390,7 @@ public static partial class PickupSpawner
         {
             tank = tank with { Health = maxHealth };
             needsUpdate = true;
-            ctx.Db.pickup.Id.Delete(pickup.Id);
+            ctx.Db.Pickup.Id.Delete(pickup.Id);
             DeleteDestinationAtPosition(ctx, pickup.GameId, pickup.PositionX, pickup.PositionY);
             return true;
         }
@@ -403,7 +403,7 @@ public static partial class PickupSpawner
         {
             tank = tank with { HasShield = true };
             needsUpdate = true;
-            ctx.Db.pickup.Id.Delete(pickup.Id);
+            ctx.Db.Pickup.Id.Delete(pickup.Id);
             DeleteDestinationAtPosition(ctx, pickup.GameId, pickup.PositionX, pickup.PositionY);
             return true;
         }
@@ -414,7 +414,7 @@ public static partial class PickupSpawner
     {
         Module.TankGun? existingGunEntry = null;
         int storedGunCount = 0;
-        foreach (var g in ctx.Db.tank_gun.TankId.Filter(tank.Id))
+        foreach (var g in ctx.Db.TankGun.TankId.Filter(tank.Id))
         {
             storedGunCount++;
             if (g.Gun.GunType == gunToAdd.GunType)
@@ -437,8 +437,8 @@ public static partial class PickupSpawner
                 {
                     existingGun.Ammo = pickup.Ammo;
                 }
-                ctx.Db.tank_gun.Id.Update(existingGunEntry.Value with { Gun = existingGun });
-                ctx.Db.pickup.Id.Delete(pickup.Id);
+                ctx.Db.TankGun.Id.Update(existingGunEntry.Value with { Gun = existingGun });
+                ctx.Db.Pickup.Id.Delete(pickup.Id);
                 DeleteDestinationAtPosition(ctx, pickup.GameId, pickup.PositionX, pickup.PositionY);
                 return true;
             }
@@ -450,7 +450,7 @@ public static partial class PickupSpawner
                 : gunToAdd;
 
             int newSlotIndex = storedGunCount + 1;
-            ctx.Db.tank_gun.Insert(new Module.TankGun
+            ctx.Db.TankGun.Insert(new Module.TankGun
             {
                 TankId = tank.Id,
                 GameId = tank.GameId,
@@ -459,7 +459,7 @@ public static partial class PickupSpawner
             });
             tank = tank with { SelectedGunIndex = newSlotIndex };
             needsUpdate = true;
-            ctx.Db.pickup.Id.Delete(pickup.Id);
+            ctx.Db.Pickup.Id.Delete(pickup.Id);
             DeleteDestinationAtPosition(ctx, pickup.GameId, pickup.PositionX, pickup.PositionY);
             return true;
         }
@@ -472,11 +472,11 @@ public static partial class PickupSpawner
         int gridX = (int)positionX;
         int gridY = (int)positionY;
 
-        foreach (var destination in ctx.Db.destination.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
+        foreach (var destination in ctx.Db.Destination.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
         {
             if (destination.Type == DestinationType.Pickup)
             {
-                ctx.Db.destination.Id.Delete(destination.Id);
+                ctx.Db.Destination.Id.Delete(destination.Id);
                 return;
             }
         }
@@ -487,7 +487,7 @@ public static partial class PickupSpawner
         int gridX = (int)positionX;
         int gridY = (int)positionY;
 
-        foreach (var destination in ctx.Db.destination.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
+        foreach (var destination in ctx.Db.Destination.GameId_GridX_GridY.Filter((gameId, gridX, gridY)))
         {
             if (destination.Type == DestinationType.Anchor)
             {

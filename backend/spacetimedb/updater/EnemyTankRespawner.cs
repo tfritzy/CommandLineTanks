@@ -19,7 +19,7 @@ public static partial class EnemyTankRespawner
     [Reducer]
     public static void CheckAndRespawnEnemyTanks(ReducerContext ctx, ScheduledEnemyTankRespawnCheck args)
     {
-        var tanks = ctx.Db.tank.GameId.Filter(args.GameId);
+        var tanks = ctx.Db.Tank.GameId.Filter(args.GameId);
         foreach (var tank in tanks)
         {
             if (tank.Alliance == 1)
@@ -39,7 +39,7 @@ public static partial class EnemyTankRespawner
                         continue;
                     }
                     
-                    var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+                    var transformQuery = ctx.Db.TankTransform.TankId.Find(tank.Id);
 
                     var respawnedTank = tank with
                     {
@@ -47,7 +47,7 @@ public static partial class EnemyTankRespawner
                         RemainingImmunityMicros = Module.SPAWN_IMMUNITY_DURATION_MICROS,
                         DeathTimestamp = 0
                     };
-                    ctx.Db.tank.Id.Update(respawnedTank);
+                    ctx.Db.Tank.Id.Update(respawnedTank);
                     Log.Info($"Respawned enemy tank {tank.Name} at position ({transformQuery?.PositionX ?? 0}, {transformQuery?.PositionY ?? 0})");
                 }
             }

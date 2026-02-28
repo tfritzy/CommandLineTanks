@@ -19,7 +19,7 @@ export function JoinGameModal({ gameId }: JoinGameModalProps) {
     const connection = getConnection();
     if (connection?.identity) {
       let player = null;
-      for (const p of connection.db.player.iter()) {
+      for (const p of connection.db.Player.iter()) {
         if (isCurrentIdentity(p.identity)) {
           player = p;
           break;

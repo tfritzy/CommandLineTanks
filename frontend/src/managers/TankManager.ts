@@ -10,9 +10,9 @@ import { GUN_BARREL_LENGTH, UNIT_TO_PIXEL } from "../constants";
 import { COLORS } from "../theme/colors";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
-import TankRow from "../../module_bindings/tank_type";
-import TankTransformRow from "../../module_bindings/tank_transform_type";
-import TankFireStateRow from "../../module_bindings/tank_fire_state_type";
+import TankRow from "../../module_bindings/tank_table";
+import TankTransformRow from "../../module_bindings/tank_transform_table";
+import TankFireStateRow from "../../module_bindings/tank_fire_state_table";
 import TankPathRow from "../../module_bindings/tank_path_table";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 import { drawTankShadow, drawTankBody, drawTankHealthBar, drawTankNameLabel } from "../drawing/tanks/tank";
@@ -49,7 +49,7 @@ export class TankManager {
 
     this.subscription = createMultiTableSubscription()
       .add<typeof TankRow>({
-        table: connection.db.tank,
+        table: connection.db.Tank,
         handlers: {
           onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
             if (tank.gameId !== this.gameId) return;
@@ -140,12 +140,12 @@ export class TankManager {
         }
       })
       .add<typeof TankTransformRow>({
-        table: connection.db.tankTransform,
+        table: connection.db.TankTransform,
         handlers: {
           onInsert: (_ctx: EventContext, transform: Infer<typeof TankTransformRow>) => {
             if (transform.gameId !== this.gameId) return;
             
-            const tankData = connection.db.tank.id.find(transform.tankId);
+            const tankData = connection.db.Tank.id.find(transform.tankId);
             if (tankData && isCurrentIdentity(tankData.owner) && tankData.gameId == this.gameId) {
               this.playerTankId = transform.tankId;
               this.updatePlayerTarget(tankData.target);
@@ -180,7 +180,7 @@ export class TankManager {
         }
       })
       .add<typeof TankPathRow>({
-        table: connection.db.tankPath,
+        table: connection.db.TankPath,
         handlers: {
           onInsert: (_ctx: EventContext, tankPath: Infer<typeof TankPathRow>) => {
             if (tankPath.gameId !== this.gameId) return;
@@ -206,7 +206,7 @@ export class TankManager {
         }
       })
       .add<typeof TankFireStateRow>({
-        table: connection.db.tankFireState,
+        table: connection.db.TankFireState,
         handlers: {
           onInsert: (_ctx: EventContext, newState: Infer<typeof TankFireStateRow>) => {
             this.handleTankFire(newState);
@@ -223,12 +223,12 @@ export class TankManager {
     const connection = getConnection();
     if (!connection) return;
 
-    const tank = connection.db.tank.id.find(tankId);
-    const transform = connection.db.tankTransform.tankId.find(tankId);
+    const tank = connection.db.Tank.id.find(tankId);
+    const transform = connection.db.TankTransform.tankId.find(tankId);
     
     if (!tank || !transform) return;
 
-    const tankPath = connection.db.tankPath.tankId.find(tankId);
+    const tankPath = connection.db.TankPath.tankId.find(tankId);
     const path = tankPath?.path ?? [];
     const pathIndex = tankPath?.pathIndex ?? 0;
 
@@ -262,8 +262,8 @@ export class TankManager {
     const connection = getConnection();
     if (!connection) return;
 
-    const tankRow = connection.db.tank.id.find(fireState.tankId);
-    const transform = connection.db.tankTransform.tankId.find(fireState.tankId);
+    const tankRow = connection.db.Tank.id.find(fireState.tankId);
+    const transform = connection.db.TankTransform.tankId.find(fireState.tankId);
     
     if (tankRow && transform && tankRow.health > 0) {
       const barrelTipX =

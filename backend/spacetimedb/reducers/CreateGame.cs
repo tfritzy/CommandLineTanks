@@ -8,7 +8,7 @@ public static partial class Module
     {
         Log.Info($"{ctx.Sender} is creating a game (visibility: {visibility}, bots: {botCount}, size: {width}x{height})");
 
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        var player = ctx.Db.Player.Identity.Find(ctx.Sender);
         if (player == null)
         {
             Log.Error("Player not found for identity");
@@ -81,7 +81,7 @@ public static partial class Module
             }
         }
 
-        ctx.Db.message.Insert(new Message
+        ctx.Db.Message.Insert(new Message
         {
             Id = GenerateId(ctx, "msg"),
             GameId = game.Id,

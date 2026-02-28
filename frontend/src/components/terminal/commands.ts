@@ -1,5 +1,5 @@
 import { type DbConnection } from "../../../module_bindings";
-import GameVisibility from "../../../module_bindings/game_visibility_type";
+import { GameVisibility } from "../../../module_bindings/types";
 import { setPendingJoinCode } from "../../spacetimedb-connection";
 import * as themeColors from "../../theme/colors";
 import { getTankGuns, type GunSlot } from "../../utils/tankHelpers";
@@ -47,7 +47,7 @@ export function parseCommandInput(input: string): string[] {
 
 function findMyTank(connection: DbConnection, gameId: string) {
   if (!connection.identity) return null;
-  for (const tank of connection.db.tank.iter()) {
+  for (const tank of connection.db.Tank.iter()) {
     if (tank.gameId === gameId && tank.owner.isEqual(connection.identity)) {
       return tank;
     }
@@ -58,7 +58,7 @@ function findMyTank(connection: DbConnection, gameId: string) {
 function findMyTankTransform(connection: DbConnection, gameId: string) {
   const tank = findMyTank(connection, gameId);
   if (!tank) return null;
-  return connection.db.tankTransform.tankId.find(tank.id);
+  return connection.db.TankTransform.tankId.find(tank.id);
 }
 
 function isPlayerDead(connection: DbConnection, gameId: string): boolean {
@@ -627,7 +627,7 @@ export function track(
     return [themeColors.error("track: error: cannot target your own tank")];
   }
 
-  const allTanks = Array.from(connection.db.tank.iter()).filter(
+  const allTanks = Array.from(connection.db.Tank.iter()).filter(
     (t) => t.gameId === gameId
   );
   const targetTank = allTanks.find((t) => t.targetCode === inputLower);
@@ -1019,7 +1019,7 @@ export function changeName(connection: DbConnection, args: string[]): string[] {
     return [themeColors.error("name: error: no connection")];
   }
 
-  const player = Array.from(connection.db.player.iter()).find((p) =>
+  const player = Array.from(connection.db.Player.iter()).find((p) =>
     p.identity.isEqual(connection.identity!)
   );
 
@@ -1131,7 +1131,7 @@ export function tanks(connection: DbConnection, gameId: string, args: string[]):
     return [themeColors.error("tanks: error: no connection")];
   }
 
-  const tanksInGame = Array.from(connection.db.tank.iter())
+  const tanksInGame = Array.from(connection.db.Tank.iter())
     .filter((tank) => tank.gameId === gameId);
 
   interface CombinedTank {

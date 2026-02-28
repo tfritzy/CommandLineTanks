@@ -26,7 +26,7 @@ export default function StatsPage() {
     }
 
     const processStats = () => {
-      const dailyActiveUsers = Array.from(connection.db.dailyActiveUsers.iter());
+      const dailyActiveUsers = Array.from(connection.db.DailyActiveUsers.iter());
       
       const processedStats: DailyStats[] = dailyActiveUsers
         .map((entry: Infer<typeof DailyActiveUsersRow>) => {
@@ -64,13 +64,13 @@ export default function StatsPage() {
       processStats();
     };
 
-    connection.db.dailyActiveUsers.onInsert(handleInsert);
-    connection.db.dailyActiveUsers.onUpdate(handleUpdate);
+    connection.db.DailyActiveUsers.onInsert(handleInsert);
+    connection.db.DailyActiveUsers.onUpdate(handleUpdate);
 
     return () => {
       subscriptionRef.current?.unsubscribe();
-      connection.db.dailyActiveUsers.removeOnInsert(handleInsert);
-      connection.db.dailyActiveUsers.removeOnUpdate(handleUpdate);
+      connection.db.DailyActiveUsers.removeOnInsert(handleInsert);
+      connection.db.DailyActiveUsers.removeOnUpdate(handleUpdate);
     };
   }, [connection]);
 

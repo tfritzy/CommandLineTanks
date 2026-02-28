@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { getConnection, getPendingJoinCode, clearPendingJoinCode, isCurrentIdentity, isPendingCreation } from '../spacetimedb-connection';
 import type { EventContext, SubscriptionHandle } from '../../module_bindings';
 import { type Infer } from "spacetimedb";
-import TankRow from '../../module_bindings/tank_type';
+import TankRow from '../../module_bindings/tank_table';
 import { writeToTerminal } from '../utils/terminalOutput';
 import { colorize } from '../theme/colors';
 
@@ -77,15 +77,15 @@ export function useGameSwitcher(onGameChange: (gameId: string) => void, currentG
             }
         };
 
-        connection.db.tank.onInsert(handleTankInsert);
-        connection.db.tank.onUpdate(handleTankUpdate);
+        connection.db.Tank.onInsert(handleTankInsert);
+        connection.db.Tank.onUpdate(handleTankUpdate);
 
         return () => {
             if (subscriptionHandleRef.current) {
                 subscriptionHandleRef.current.unsubscribe();
             }
-            connection.db.tank.removeOnInsert(handleTankInsert);
-            connection.db.tank.removeOnUpdate(handleTankUpdate);
+            connection.db.Tank.removeOnInsert(handleTankInsert);
+            connection.db.Tank.removeOnUpdate(handleTankUpdate);
         };
     }, [onGameChange, currentGameId]);
 }

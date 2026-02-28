@@ -10,7 +10,9 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-import GameVisibility from "./game_visibility_type";
+import {
+  GameVisibility,
+} from "./types";
 
 export default {
   joinCode: __t.string(),

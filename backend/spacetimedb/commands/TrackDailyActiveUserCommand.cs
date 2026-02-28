@@ -19,7 +19,7 @@ public static partial class Module
             return;
         }
 
-        var player = ctx.Db.player.Id.Find(playerId);
+        var player = ctx.Db.Player.Id.Find(playerId);
         if (player == null)
         {
             Log.Error($"TrackDailyActiveUserCommand: Player {playerId} not found");
@@ -35,10 +35,10 @@ public static partial class Module
 
         bool isNewPlayer = player.Value.LastGameJoinedDay == null;
 
-        var dailyStats = ctx.Db.daily_active_users.Day.Find(currentDay);
+        var dailyStats = ctx.Db.DailyActiveUsers.Day.Find(currentDay);
         if (dailyStats == null)
         {
-            ctx.Db.daily_active_users.Insert(new DailyActiveUsers
+            ctx.Db.DailyActiveUsers.Insert(new DailyActiveUsers
             {
                 Day = currentDay,
                 TotalCount = 1,
@@ -47,7 +47,7 @@ public static partial class Module
         }
         else
         {
-            ctx.Db.daily_active_users.Day.Update(new DailyActiveUsers
+            ctx.Db.DailyActiveUsers.Day.Update(new DailyActiveUsers
             {
                 Day = currentDay,
                 TotalCount = dailyStats.Value.TotalCount + 1,
@@ -55,6 +55,6 @@ public static partial class Module
             });
         }
 
-        ctx.Db.player.Id.Update(player.Value with { LastGameJoinedDay = currentDay });
+        ctx.Db.Player.Id.Update(player.Value with { LastGameJoinedDay = currentDay });
     }
 }

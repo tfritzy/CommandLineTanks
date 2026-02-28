@@ -8,19 +8,19 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, string identityString, string joinCode)
         {
-            var existingTank = ctx.Db.tank.GameId_Owner.Filter((identityString, ctx.Sender))
+            var existingTank = ctx.Db.Tank.GameId_Owner.Filter((identityString, ctx.Sender))
                 .FirstOrDefault();
             
             if (existingTank.Id != null)
             {
                 var updatedTank = existingTank with { JoinCode = joinCode };
-                ctx.Db.tank.Id.Update(updatedTank);
+                ctx.Db.Tank.Id.Update(updatedTank);
                 StartGameTickers(ctx, identityString);
                 Log.Info($"Updated existing homegame tank with new join code");
                 return;
             }
 
-            var player = ctx.Db.player.Identity.Find(ctx.Sender);
+            var player = ctx.Db.Player.Identity.Find(ctx.Sender);
             var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
             var (tank, transform) = BuildTank(

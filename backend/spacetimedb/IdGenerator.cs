@@ -50,7 +50,7 @@ public static partial class Module
             }
             
             var gameId = new string(result);
-            var existing = ctx.Db.game.Id.Find(gameId);
+            var existing = ctx.Db.Game.Id.Find(gameId);
             if (existing == null)
             {
                 return gameId;

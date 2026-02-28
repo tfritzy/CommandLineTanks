@@ -1,6 +1,6 @@
 import { UNIT_TO_PIXEL } from "../../constants";
 import { FLASH_DURATION } from "../../utils/colors";
-import { type TerrainDetailRow } from "../../../module_bindings";
+import type TerrainDetailRow from "../../../module_bindings/terrain_detail_table";
 import { type Infer } from "spacetimedb";
 import { COLORS } from "../../theme/colors";
 

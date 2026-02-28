@@ -1,10 +1,11 @@
 import { getConnection } from "../spacetimedb-connection";
 import { TerrainDetailManager } from "./TerrainDetailManager";
 import { SoundManager } from "./SoundManager";
-import { type EventContext, BaseTerrain } from "../../module_bindings";
+import { type EventContext } from "../../module_bindings";
+import { BaseTerrain } from "../../module_bindings/types";
 import { type Infer } from "spacetimedb";
-import GameRow from "../../module_bindings/game_type";
-import BaseTerrainLayerRow from "../../module_bindings/base_terrain_layer_type";
+import GameRow from "../../module_bindings/game_table";
+import BaseTerrainLayerRow from "../../module_bindings/base_terrain_layer_table";
 import { UNIT_TO_PIXEL } from "../constants";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { drawBaseTerrain } from "../drawing/terrain/base-terrain";
@@ -52,7 +53,7 @@ export class TerrainManager {
     };
 
     this.gameSubscription = subscribeToTable({
-      table: connection.db.game,
+      table: connection.db.Game,
       handlers: {
         onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
           handleGameChange(game);
@@ -64,7 +65,7 @@ export class TerrainManager {
       loadInitialData: false
     });
 
-    const cachedGame = connection.db.game.Id.find(this.gameId);
+    const cachedGame = connection.db.Game.id.find(this.gameId);
     if (cachedGame) {
       handleGameChange(cachedGame);
     }
@@ -84,7 +85,7 @@ export class TerrainManager {
     };
 
     this.terrainSubscription = subscribeToTable({
-      table: connection.db.baseTerrainLayer,
+      table: connection.db.BaseTerrainLayer,
       handlers: {
         onInsert: (_ctx: EventContext, terrain: Infer<typeof BaseTerrainLayerRow>) => {
           handleTerrainChange(terrain);
@@ -96,7 +97,7 @@ export class TerrainManager {
       loadInitialData: false
     });
 
-    const cachedTerrain = connection.db.baseTerrainLayer.GameId.find(this.gameId);
+    const cachedTerrain = connection.db.BaseTerrainLayer.gameId.find(this.gameId);
     if (cachedTerrain) {
       handleTerrainChange(cachedTerrain);
     }

@@ -32,7 +32,7 @@ public static partial class BehaviorTreeAI
     [Reducer]
     public static void UpdateTankAI(ReducerContext ctx, ScheduledTankAIUpdate args)
     {
-        var game = ctx.Db.game.Id.Find(args.GameId);
+        var game = ctx.Db.Game.Id.Find(args.GameId);
         if (game == null)
         {
             return;
@@ -47,14 +47,14 @@ public static partial class BehaviorTreeAI
 
         var aiContext = new GameAIContext(ctx, args.GameId);
 
-        foreach (var tank in ctx.Db.tank.GameId.Filter(args.GameId))
+        foreach (var tank in ctx.Db.Tank.GameId.Filter(args.GameId))
         {
             if (!tank.IsBot)
             {
                 continue;
             }
 
-            var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+            var transformQuery = ctx.Db.TankTransform.TankId.Find(tank.Id);
             if (transformQuery == null)
             {
                 continue;
@@ -88,7 +88,7 @@ public static partial class BehaviorTreeAI
                 mutatedTank = GameAI.EvaluateAndMutateTank(ctx, fullTank, aiContext, newTickCount);
             }
 
-            ctx.Db.tank.Id.Update(mutatedTank);
+            ctx.Db.Tank.Id.Update(mutatedTank);
         }
 
         GC.Collect();

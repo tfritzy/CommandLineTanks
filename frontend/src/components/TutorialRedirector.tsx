@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getConnection, getIdentityHex } from '../spacetimedb-connection';
 import type { EventContext, SubscriptionHandle } from '../../module_bindings';
 import { type Infer } from "spacetimedb";
-import PlayerRow from '../../module_bindings/player_type';
+import PlayerRow from '../../module_bindings/player_table';
 
 function getTutorialGameId(identity: string): string {
     return `tutorial_${identity.toLowerCase()}`;
@@ -35,7 +35,7 @@ export default function TutorialRedirector() {
 
         const checkPlayerAndRedirect = () => {
             let playerFound = false;
-            for (const player of connection.db.player.iter()) {
+            for (const player of connection.db.Player.iter()) {
                 if (player.identity.toHexString().toLowerCase() === identityLower) {
                     playerFound = true;
                     if (player.tutorialComplete) {
@@ -71,8 +71,8 @@ export default function TutorialRedirector() {
             }
         };
 
-        connection.db.player.onInsert(handlePlayerInsert);
-        connection.db.player.onUpdate(handlePlayerUpdate);
+        connection.db.Player.onInsert(handlePlayerInsert);
+        connection.db.Player.onUpdate(handlePlayerUpdate);
 
         const timeoutId = setTimeout(() => {
             setIsLoading(false);
@@ -84,8 +84,8 @@ export default function TutorialRedirector() {
             if (subscriptionHandleRef.current) {
                 subscriptionHandleRef.current.unsubscribe();
             }
-            connection.db.player.removeOnInsert(handlePlayerInsert);
-            connection.db.player.removeOnUpdate(handlePlayerUpdate);
+            connection.db.Player.removeOnInsert(handlePlayerInsert);
+            connection.db.Player.removeOnUpdate(handlePlayerUpdate);
         };
     }, [navigate]);
 

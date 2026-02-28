@@ -11,7 +11,7 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  oldGameId: __t.string().primaryKey(),
-  newGameId: __t.string(),
-  insertedAt: __t.u64(),
+  oldGameId: __t.string().primaryKey().name("old_game_id"),
+  newGameId: __t.string().name("new_game_id"),
+  insertedAt: __t.u64().name("inserted_at"),
 });

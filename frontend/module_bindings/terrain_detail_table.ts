@@ -9,16 +9,18 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import TerrainDetailType from "./terrain_detail_type_type";
+import {
+  TerrainDetailType,
+} from "./types";
 
 
 export default __t.row({
   id: __t.string().primaryKey(),
-  gameId: __t.string(),
-  positionX: __t.f32(),
-  positionY: __t.f32(),
-  gridX: __t.i32(),
-  gridY: __t.i32(),
+  gameId: __t.string().name("game_id"),
+  positionX: __t.f32().name("position_x"),
+  positionY: __t.f32().name("position_y"),
+  gridX: __t.i32().name("grid_x"),
+  gridY: __t.i32().name("grid_y"),
   get type() {
     return TerrainDetailType;
   },

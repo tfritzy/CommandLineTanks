@@ -12,7 +12,7 @@ public static partial class Module
                 return;
             }
 
-            var targetLabel = ctx.Db.terrain_detail.Id.Find($"{gameId}_label_target");
+            var targetLabel = ctx.Db.TerrainDetail.Id.Find($"{gameId}_label_target");
             if (targetLabel == null)
             {
                 return;
@@ -28,10 +28,10 @@ public static partial class Module
 
         private static void RemoveTutorialLabel(ReducerContext ctx, string labelId)
         {
-            var label = ctx.Db.terrain_detail.Id.Find(labelId);
+            var label = ctx.Db.TerrainDetail.Id.Find(labelId);
             if (label != null)
             {
-                ctx.Db.terrain_detail.Id.Delete(labelId);
+                ctx.Db.TerrainDetail.Id.Delete(labelId);
             }
         }
 
@@ -40,7 +40,7 @@ public static partial class Module
             const int TUTORIAL_ENEMY_SPAWN_X = 16;
             const int TUTORIAL_ENEMY_SPAWN_Y = 6;
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 id: $"{gameId}_label_fire",
                 gameId: gameId,

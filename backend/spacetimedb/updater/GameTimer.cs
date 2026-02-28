@@ -18,16 +18,16 @@ public static partial class GameTimer
     [Reducer]
     public static void EndGame(ReducerContext ctx, ScheduledGameEnd args)
     {
-        var game = ctx.Db.game.Id.Find(args.GameId);
+        var game = ctx.Db.Game.Id.Find(args.GameId);
         if (game == null || game.Value.GameState != GameState.Playing)
         {
             return;
         }
 
         var updatedGame = game.Value with { GameState = GameState.Results };
-        ctx.Db.game.Id.Update(updatedGame);
+        ctx.Db.Game.Id.Update(updatedGame);
 
-        ctx.Db.message.Insert(new Message
+        ctx.Db.Message.Insert(new Message
         {
             Id = GenerateId(ctx, "msg"),
             GameId = args.GameId,

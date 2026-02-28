@@ -1,7 +1,7 @@
 import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import { SoundManager } from "./SoundManager";
 import { type Infer } from "spacetimedb";
-import KillRow from "../../module_bindings/kills_table";
+import KillRow from "../../module_bindings/kill_table";
 import { type EventContext } from "../../module_bindings";
 import { drawKillNotification } from "../drawing/ui/kill-feed";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
@@ -36,7 +36,7 @@ export class KillManager {
     }
 
     this.subscription = subscribeToTable({
-      table: connection.db.kills,
+      table: connection.db.Kill,
       handlers: {
         onInsert: (_ctx: EventContext, kill: Infer<typeof KillRow>) => {
           if (kill.gameId !== this.gameId) return;

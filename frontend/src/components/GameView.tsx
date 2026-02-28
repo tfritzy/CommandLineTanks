@@ -13,9 +13,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getConnection, getIdentityHex, isCurrentIdentity, areIdentitiesEqual, setPendingJoinCode } from "../spacetimedb-connection";
 import { useGameSwitcher } from "../hooks/useGameSwitcher";
 import { type Infer } from "spacetimedb";
-import TankRow from "../../module_bindings/tank_type";
+import TankRow from "../../module_bindings/tank_table";
 import GameRedirectRow from "../../module_bindings/game_redirect_table";
-import { Game } from "../../module_bindings";
+import { Game } from "../../module_bindings/types";
 import {
   type EventContext,
   type SubscriptionHandle,
@@ -123,7 +123,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
 
     redirectSubscriptionRef.current?.unsubscribe();
     redirectSubscriptionRef.current = subscribeToTable({
-      table: connection.db.gameRedirect,
+      table: connection.db.GameRedirect,
       handlers: {
         onInsert: (_ctx: EventContext, redirect: Infer<typeof GameRedirectRow>) => {
           if (redirect.oldGameId === gameId) {
@@ -150,7 +150,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
     let playerTankId: string | null = null;
 
     const checkForTank = () => {
-      for (const tank of connection.db.tank.iter()) {
+      for (const tank of connection.db.Tank.iter()) {
         if (
           isCurrentIdentity(tank.owner) &&
           tank.gameId === gameId
@@ -164,7 +164,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
     };
 
     tankSubscriptionRef.current = subscribeToTable({
-      table: connection.db.tank,
+      table: connection.db.Tank,
       handlers: {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (tank.gameId !== gameId) return;
@@ -184,7 +184,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
           if (!wasDead && isNowDead && newTank.lastDamagedBy) {
             let killerNameFound: string | null = null;
 
-            for (const t of connection.db.tank.iter()) {
+            for (const t of connection.db.Tank.iter()) {
               if (t.gameId === gameId && areIdentitiesEqual(t.owner, newTank.lastDamagedBy)) {
                 killerNameFound = t.name;
                 break;
@@ -192,7 +192,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
             }
 
             if (!killerNameFound) {
-              for (const player of connection.db.player.iter()) {
+              for (const player of connection.db.Player.iter()) {
                 if (areIdentitiesEqual(player.identity, newTank.lastDamagedBy)) {
                   killerNameFound = player.name ?? null;
                   break;
@@ -236,7 +236,7 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
     if (!connection) return;
 
     const check = () => {
-      const game = connection.db.game.Id.find(gameId);
+      const game = connection.db.Game.id.find(gameId);
       if (!game) {
         navigateToHomegameIfNotHome("not found");
       }
@@ -258,14 +258,14 @@ export default function GameView({ isTutorialRoute }: GameViewProps) {
       }
     };
 
-    connection.db.game.onUpdate(handleGameUpdate);
+    connection.db.Game.onUpdate(handleGameUpdate);
 
     return () => {
       if (gameCheckTimeoutRef.current) {
         clearTimeout(gameCheckTimeoutRef.current);
       }
       if (connection) {
-        connection.db.game.removeOnUpdate(handleGameUpdate);
+        connection.db.Game.removeOnUpdate(handleGameUpdate);
       }
     };
   }, [gameId, isHomegame, joinModalStatus, myIdentity, navigate]);

@@ -9,11 +9,13 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import BaseTerrain from "./base_terrain_type";
+import {
+  BaseTerrain,
+} from "./types";
 
 
 export default __t.row({
-  gameId: __t.string().primaryKey(),
+  gameId: __t.string().primaryKey().name("game_id"),
   get layer() {
     return __t.array(BaseTerrain);
   },

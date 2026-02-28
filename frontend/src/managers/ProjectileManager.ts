@@ -8,8 +8,8 @@ import { ScreenShake } from "../utils/ScreenShake";
 import { SoundManager } from "./SoundManager";
 import type { EventContext } from "../../module_bindings";
 import { type Infer } from "spacetimedb";
-import ProjectileRow from "../../module_bindings/projectile_type";
-import ProjectileTransformRow from "../../module_bindings/projectile_transform_type";
+import ProjectileRow from "../../module_bindings/projectile_table";
+import ProjectileTransformRow from "../../module_bindings/projectile_transform_table";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
 export class ProjectileManager {
@@ -39,14 +39,14 @@ export class ProjectileManager {
     if (!connection) return;
 
     this.projectileSubscription = subscribeToTable({
-      table: connection.db.projectile,
+      table: connection.db.Projectile,
       handlers: {
         onInsert: (_ctx: EventContext, newProjectile: Infer<typeof ProjectileRow>) => {
           if (newProjectile.gameId !== this.gameId) return;
 
           if (this.projectiles.has(newProjectile.id)) return;
 
-          const transform = connection.db.projectileTransform.projectileId.find(newProjectile.id);
+          const transform = connection.db.ProjectileTransform.projectileId.find(newProjectile.id);
           if (!transform) return;
 
           const projectile = ProjectileFactory.create(
@@ -78,12 +78,12 @@ export class ProjectileManager {
     });
 
     this.transformSubscription = subscribeToTable({
-      table: connection.db.projectileTransform,
+      table: connection.db.ProjectileTransform,
       handlers: {
         onInsert: (_ctx: EventContext, newTransform: Infer<typeof ProjectileTransformRow>) => {
           if (this.projectiles.has(newTransform.projectileId)) return;
 
-          const projectileData = connection.db.projectile.id.find(newTransform.projectileId);
+          const projectileData = connection.db.Projectile.id.find(newTransform.projectileId);
           if (!projectileData) return;
           if (projectileData.gameId !== this.gameId) return;
 

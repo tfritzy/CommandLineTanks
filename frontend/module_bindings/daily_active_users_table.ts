@@ -12,6 +12,6 @@ import {
 
 export default __t.row({
   day: __t.string().primaryKey(),
-  totalCount: __t.i32(),
-  newCount: __t.i32(),
+  totalCount: __t.i32().name("total_count"),
+  newCount: __t.i32().name("new_count"),
 });

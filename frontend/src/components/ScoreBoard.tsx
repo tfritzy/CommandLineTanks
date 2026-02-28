@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
-import TankRow from "../../module_bindings/tank_type";
+import TankRow from "../../module_bindings/tank_table";
 import { type EventContext } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 import { motion, AnimatePresence, animate } from "framer-motion";
@@ -54,7 +54,7 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
     if (!connection || !isRealGame) return;
 
     const updatePlayerScores = () => {
-      const tanks = Array.from(connection.db.tank.iter())
+      const tanks = Array.from(connection.db.Tank.iter())
         .filter(tank => tank.gameId === gameId);
 
       const newPlayers: PlayerScore[] = [];
@@ -83,7 +83,7 @@ export default function ScoreBoard({ gameId }: ScoreBoardProps) {
     };
 
     subscriptionRef.current = subscribeToTable({
-      table: connection.db.tank,
+      table: connection.db.Tank,
       handlers: {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (tank.gameId === gameId) {

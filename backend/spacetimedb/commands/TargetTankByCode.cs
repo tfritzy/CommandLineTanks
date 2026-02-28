@@ -11,7 +11,7 @@ public static partial class Module
             if (tank.Health <= 0) return tank;
 
             var targetCodeLower = targetCode.ToLower();
-            var targetTank = ctx.Db.tank.GameId_TargetCode.Filter((tank.GameId, targetCodeLower)).FirstOrDefault();
+            var targetTank = ctx.Db.Tank.GameId_TargetCode.Filter((tank.GameId, targetCodeLower)).FirstOrDefault();
 
             if (targetTank.Id == null)
             {

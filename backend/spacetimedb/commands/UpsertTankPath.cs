@@ -7,14 +7,14 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, TankPath tankPath)
         {
-            var existingPath = ctx.Db.tank_path.TankId.Find(tankPath.TankId);
+            var existingPath = ctx.Db.TankPath.TankId.Find(tankPath.TankId);
             if (existingPath != null)
             {
-                ctx.Db.tank_path.TankId.Update(tankPath);
+                ctx.Db.TankPath.TankId.Update(tankPath);
             }
             else
             {
-                ctx.Db.tank_path.Insert(tankPath);
+                ctx.Db.TankPath.Insert(tankPath);
             }
         }
     }

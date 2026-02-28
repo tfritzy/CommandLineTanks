@@ -22,12 +22,12 @@ public static partial class Module
     {
         var currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
 
-        foreach (var game in ctx.Db.game.Iter())
+        foreach (var game in ctx.Db.Game.Iter())
         {
             if (game.GameType == GameType.Home || game.GameType == GameType.Tutorial)
             {
                 Tank? playerTank = null;
-                foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((game.Id, false)))
+                foreach (var tank in ctx.Db.Tank.GameId_IsBot.Filter((game.Id, false)))
                 {
                     playerTank = tank;
                     break;
@@ -38,7 +38,7 @@ public static partial class Module
                     continue;
                 }
 
-                var playerTransform = ctx.Db.tank_transform.TankId.Find(playerTank.Value.Id);
+                var playerTransform = ctx.Db.TankTransform.TankId.Find(playerTank.Value.Id);
                 if (playerTransform == null)
                 {
                     continue;
@@ -58,9 +58,9 @@ public static partial class Module
                 }
 
                 var tanksToRemove = new List<(Tank tank, ulong inactivityTime)>();
-                foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((game.Id, false)))
+                foreach (var tank in ctx.Db.Tank.GameId_IsBot.Filter((game.Id, false)))
                 {
-                    var tankTransform = ctx.Db.tank_transform.TankId.Find(tank.Id);
+                    var tankTransform = ctx.Db.TankTransform.TankId.Find(tank.Id);
                     if (tankTransform == null)
                     {
                         continue;

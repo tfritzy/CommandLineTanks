@@ -5,7 +5,7 @@ public static partial class Module
     [Reducer]
     public static void changeName(ReducerContext ctx, string newName)
     {
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        var player = ctx.Db.Player.Identity.Find(ctx.Sender);
         if (player == null)
         {
             Log.Error("Player not found for identity");
@@ -32,13 +32,13 @@ public static partial class Module
 
         var updatedPlayer = player.Value;
         updatedPlayer.Name = newName;
-        ctx.Db.player.Id.Update(updatedPlayer);
+        ctx.Db.Player.Id.Update(updatedPlayer);
 
-        var tanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
+        var tanks = ctx.Db.Tank.Owner.Filter(ctx.Sender);
         foreach (var tank in tanks)
         {
             var updatedTank = tank with { Name = newName };
-            ctx.Db.tank.Id.Update(updatedTank);
+            ctx.Db.Tank.Id.Update(updatedTank);
         }
 
         Log.Info($"Player name changed to: {newName}");

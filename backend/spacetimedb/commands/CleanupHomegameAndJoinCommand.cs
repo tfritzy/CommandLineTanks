@@ -6,7 +6,7 @@ public static partial class Module
     public static void CleanupHomegameAndJoinCommand(ReducerContext ctx, string gameId, string joinCode)
     {
         var identityString = ctx.Sender.ToString().ToLower();
-        var existingTanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
+        var existingTanks = ctx.Db.Tank.Owner.Filter(ctx.Sender);
 
         foreach (var existingTank in existingTanks)
         {
@@ -15,7 +15,7 @@ public static partial class Module
 
         DeleteHomegameIfEmpty.Call(ctx, identityString);
 
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        var player = ctx.Db.Player.Identity.Find(ctx.Sender);
         var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
         var assignedAlliance = GetBalancedAlliance.Call(ctx, gameId);
@@ -39,7 +39,7 @@ public static partial class Module
 
         if (player != null)
         {
-            var game = ctx.Db.game.Id.Find(gameId);
+            var game = ctx.Db.Game.Id.Find(gameId);
             if (game != null)
             {
                 TrackDailyActiveUserCommand(ctx, player.Value.Id, game.Value.GameType);

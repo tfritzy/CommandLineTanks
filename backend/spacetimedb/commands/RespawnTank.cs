@@ -7,7 +7,7 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, Tank tank, TankTransform transform, string gameId, int alliance, bool resetKills = false, (float, float)? spawnPosition = null)
         {
-            var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(gameId);
+            var traversibilityMap = ctx.Db.TraversibilityMap.GameId.Find(gameId);
             if (traversibilityMap == null)
             {
                 return;
@@ -47,8 +47,8 @@ public static partial class Module
                 UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
             };
 
-            ctx.Db.tank.Id.Update(respawnedTank);
-            ctx.Db.tank_transform.TankId.Update(respawnedTransform);
+            ctx.Db.Tank.Id.Update(respawnedTank);
+            ctx.Db.TankTransform.TankId.Update(respawnedTransform);
         }
     }
 }

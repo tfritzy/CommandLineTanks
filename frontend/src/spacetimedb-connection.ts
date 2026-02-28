@@ -48,7 +48,7 @@ export async function connectToSpacetimeDB(): Promise<DbConnection> {
       // Create connection using the generated DbConnection builder
       DbConnection.builder()
         .withUri(SPACETIMEDB_HOST)
-        .withModuleName(MODULE_NAME)
+        .withDatabaseName(MODULE_NAME)
         .withToken(token)
         .onConnect((conn: DbConnection, identity: Identity, authToken: string) => {
           console.log('✓ Connected to SpacetimeDB');

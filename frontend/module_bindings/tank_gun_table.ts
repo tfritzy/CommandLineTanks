@@ -9,14 +9,16 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Gun from "./gun_type";
+import {
+  Gun,
+} from "./types";
 
 
 export default __t.row({
   id: __t.u64().primaryKey(),
-  tankId: __t.string(),
-  gameId: __t.string(),
-  slotIndex: __t.i32(),
+  tankId: __t.string().name("tank_id"),
+  gameId: __t.string().name("game_id"),
+  slotIndex: __t.i32().name("slot_index"),
   get gun() {
     return Gun;
   },

@@ -7,7 +7,7 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, string gameId)
         {
-            var game = ctx.Db.game.Id.Find(gameId);
+            var game = ctx.Db.Game.Id.Find(gameId);
             if (game == null || game.Value.MinPlayersPerTeam <= 0)
             {
                 return;
@@ -16,7 +16,7 @@ public static partial class Module
             var alliance0Players = 0;
             var alliance1Players = 0;
 
-            foreach (var tank in ctx.Db.tank.GameId.Filter(gameId))
+            foreach (var tank in ctx.Db.Tank.GameId.Filter(gameId))
             {
                 if (tank.Alliance == 0)
                 {

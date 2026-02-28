@@ -14,8 +14,8 @@ public static partial class Module
 
         if (transform.CollisionCount >= projectile.MaxCollisions)
         {
-            ctx.Db.projectile.Id.Delete(projectile.Id);
-            ctx.Db.projectile_transform.ProjectileId.Delete(transform.ProjectileId);
+            ctx.Db.Projectile.Id.Delete(projectile.Id);
+            ctx.Db.ProjectileTransform.ProjectileId.Delete(transform.ProjectileId);
             return (true, transform);
         }
 

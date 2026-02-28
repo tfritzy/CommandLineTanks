@@ -36,9 +36,9 @@ public static partial class Module
                 bounce: gun.Bounce
             );
 
-            var insertedProjectile = ctx.Db.projectile.Insert(projectile);
+            var insertedProjectile = ctx.Db.Projectile.Insert(projectile);
             transform = transform with { ProjectileId = insertedProjectile.Id };
-            ctx.Db.projectile_transform.Insert(transform);
+            ctx.Db.ProjectileTransform.Insert(transform);
         }
     }
 }

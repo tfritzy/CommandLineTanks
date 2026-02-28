@@ -22,10 +22,10 @@ public static partial class Module
 
         private static void RemoveTutorialLabel(ReducerContext ctx, string labelId)
         {
-            var label = ctx.Db.terrain_detail.Id.Find(labelId);
+            var label = ctx.Db.TerrainDetail.Id.Find(labelId);
             if (label != null)
             {
-                ctx.Db.terrain_detail.Id.Delete(labelId);
+                ctx.Db.TerrainDetail.Id.Delete(labelId);
             }
         }
 
@@ -34,7 +34,7 @@ public static partial class Module
             const int TUTORIAL_WIDTH = 20;
             const int TUTORIAL_HEIGHT = 12;
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 id: $"{gameId}_label_waypoint",
                 gameId: gameId,

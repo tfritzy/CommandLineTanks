@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
-import TankRow from "../../module_bindings/tank_type";
+import TankRow from "../../module_bindings/tank_table";
 import TerrainDetailRow from "../../module_bindings/terrain_detail_table";
 import { type EventContext } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
@@ -42,7 +42,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
     setStatus("loading");
 
     const findPlayerTank = (): Infer<typeof TankRow> | null => {
-      for (const tank of connection.db.tank.iter()) {
+      for (const tank of connection.db.Tank.iter()) {
         if (isCurrentIdentity(tank.owner) && tank.gameId === gameId) {
           return tank;
         }
@@ -68,7 +68,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
     };
 
     terrainSubscriptionRef.current = subscribeToTable({
-      table: connection.db.terrainDetail,
+      table: connection.db.TerrainDetail,
       handlers: {
         onInsert: (_ctx: EventContext, terrain: Infer<typeof TerrainDetailRow>) => {
           if (terrain.gameId !== gameId) return;
@@ -81,7 +81,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
     });
 
     tankSubscriptionRef.current = subscribeToTable({
-      table: connection.db.tank,
+      table: connection.db.Tank,
       handlers: {
         onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
           if (tank.gameId !== gameId) return;
@@ -108,7 +108,7 @@ export function useJoinModalStatus(gameId: string | undefined): JoinModalStatus 
       },
     });
 
-    for (const terrain of connection.db.terrainDetail.iter()) {
+    for (const terrain of connection.db.TerrainDetail.iter()) {
       if (terrain.gameId === gameId) {
         worldLoadedRef.current = true;
         break;

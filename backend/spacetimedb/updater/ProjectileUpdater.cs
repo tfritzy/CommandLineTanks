@@ -87,12 +87,12 @@ public static partial class ProjectileUpdater
         Dictionary<(int, int), List<(Module.Tank, Module.TankTransform)>> tanksByRegion,
         Dictionary<string, Module.Tank> tanksById)
     {
-        foreach (var tank in ctx.Db.tank.GameId.Filter(gameId))
+        foreach (var tank in ctx.Db.Tank.GameId.Filter(gameId))
         {
             tanksById[tank.Id] = tank;
         }
 
-        foreach (var tankTransform in ctx.Db.tank_transform.GameId.Filter(gameId))
+        foreach (var tankTransform in ctx.Db.TankTransform.GameId.Filter(gameId))
         {
             if (!tanksById.TryGetValue(tankTransform.TankId, out var tank))
                 continue;
@@ -450,7 +450,7 @@ return (false, projectile, transform);
 
         Module.TankGun? existingBoomerang = null;
         int storedGunCount = 0;
-        foreach (var g in ctx.Db.tank_gun.TankId.Filter(tank.Id))
+        foreach (var g in ctx.Db.TankGun.TankId.Filter(tank.Id))
         {
             storedGunCount++;
             if (g.Gun.GunType == GunType.Boomerang)
@@ -465,14 +465,14 @@ return (false, projectile, transform);
             if (gun.Ammo != null)
             {
                 gun.Ammo = gun.Ammo.Value + 1;
-                ctx.Db.tank_gun.Id.Update(existingBoomerang.Value with { Gun = gun });
+                ctx.Db.TankGun.Id.Update(existingBoomerang.Value with { Gun = gun });
             }
         }
         else if (storedGunCount < 2)
         {
             var boomerangGun = Module.BOOMERANG_GUN with { Ammo = 1 };
             var newGunIndex = storedGunCount + 1;
-            ctx.Db.tank_gun.Insert(new Module.TankGun
+            ctx.Db.TankGun.Insert(new Module.TankGun
             {
                 TankId = tank.Id,
                 GameId = tank.GameId,
@@ -480,7 +480,7 @@ return (false, projectile, transform);
                 Gun = boomerangGun
             });
             tank = tank with { SelectedGunIndex = newGunIndex };
-            ctx.Db.tank.Id.Update(tank);
+            ctx.Db.Tank.Id.Update(tank);
         }
 
         DeleteProjectile(ctx, projectile.Id);
@@ -613,8 +613,8 @@ return (false, projectile, transform);
 
     public static void DeleteProjectile(ReducerContext ctx, ulong projectileId)
     {
-        ctx.Db.projectile.Id.Delete(projectileId);
-        ctx.Db.projectile_transform.ProjectileId.Delete(projectileId);
+        ctx.Db.Projectile.Id.Delete(projectileId);
+        ctx.Db.ProjectileTransform.ProjectileId.Delete(projectileId);
     }
 
     [Reducer]
@@ -636,18 +636,18 @@ return (false, projectile, transform);
             TickCount = newTickCount
         });
 
-        var traversibilityMapQuery = ctx.Db.traversibility_map.GameId.Find(args.GameId);
+        var traversibilityMapQuery = ctx.Db.TraversibilityMap.GameId.Find(args.GameId);
         if (traversibilityMapQuery == null) return;
         var traversibilityMap = traversibilityMapQuery.Value;
         var initialTankMapVersion = traversibilityMap.Version;
 
-        var projectileTraversibilityMapQuery = ctx.Db.projectile_traversibility_map.GameId.Find(args.GameId);
+        var projectileTraversibilityMapQuery = ctx.Db.ProjectileTraversibilityMap.GameId.Find(args.GameId);
         if (projectileTraversibilityMapQuery == null) return;
         var projectileTraversibilityMap = projectileTraversibilityMapQuery.Value;
         var initialProjectileMapVersion = projectileTraversibilityMap.Version;
 
         var transforms = GetTransformCache();
-        foreach (var t in ctx.Db.projectile_transform.GameId.Filter(args.GameId))
+        foreach (var t in ctx.Db.ProjectileTransform.GameId.Filter(args.GameId))
         {
             transforms[t.ProjectileId] = t;
         }
@@ -657,7 +657,7 @@ return (false, projectile, transform);
         BuildTankSpatialCache(ctx, args.GameId, tanksByRegion, tanksById);
 
         var projectiles = GetProjectileList();
-        foreach (var p in ctx.Db.projectile.GameId.Filter(args.GameId))
+        foreach (var p in ctx.Db.Projectile.GameId.Filter(args.GameId))
         {
             projectiles.Add(p);
         }
@@ -674,7 +674,7 @@ return (false, projectile, transform);
             if (!transforms.TryGetValue(projectile.Id, out var transform))
             {
                 Log.Warn($"Orphaned projectile found without transform: {projectile.Id}");
-                ctx.Db.projectile.Id.Delete(projectile.Id);
+                ctx.Db.Projectile.Id.Delete(projectile.Id);
                 continue;
             }
 
@@ -734,18 +734,18 @@ return (false, projectile, transform);
                 continue;
             }
 
-            ctx.Db.projectile.Id.Update(projectile);
-            ctx.Db.projectile_transform.ProjectileId.Update(transform);
+            ctx.Db.Projectile.Id.Update(projectile);
+            ctx.Db.ProjectileTransform.ProjectileId.Update(transform);
         }
 
         if (traversibilityMap.Version != initialTankMapVersion)
         {
-            ctx.Db.traversibility_map.GameId.Update(traversibilityMap);
+            ctx.Db.TraversibilityMap.GameId.Update(traversibilityMap);
         }
 
         if (projectileTraversibilityMap.Version != initialProjectileMapVersion)
         {
-            ctx.Db.projectile_traversibility_map.GameId.Update(projectileTraversibilityMap);
+            ctx.Db.ProjectileTraversibilityMap.GameId.Update(projectileTraversibilityMap);
         }
 
         if (newTickCount % 8 == 0)

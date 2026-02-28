@@ -9,38 +9,40 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import ProjectileType from "./projectile_type_type";
-import ExplosionTrigger from "./explosion_trigger_type";
-import DamagedTile from "./damaged_tile_type";
-import DamagedTank from "./damaged_tank_type";
+import {
+  ProjectileType,
+  ExplosionTrigger,
+  DamagedTile,
+  DamagedTank,
+} from "./types";
 
 
 export default __t.row({
   id: __t.u64().primaryKey(),
-  gameId: __t.string(),
-  shooterTankId: __t.string(),
+  gameId: __t.string().name("game_id"),
+  shooterTankId: __t.string().name("shooter_tank_id"),
   alliance: __t.i32(),
   size: __t.f32(),
   damage: __t.i32(),
-  trackingStrength: __t.f32(),
-  trackingRadius: __t.f32(),
+  trackingStrength: __t.f32().name("tracking_strength"),
+  trackingRadius: __t.f32().name("tracking_radius"),
   get projectileType() {
-    return ProjectileType;
+    return ProjectileType.name("projectile_type");
   },
-  spawnedAt: __t.u64(),
-  lifetimeSeconds: __t.f32(),
-  returnsToShooter: __t.bool(),
-  maxCollisions: __t.i32(),
-  passThroughTerrain: __t.bool(),
-  collisionRadius: __t.f32(),
-  explosionRadius: __t.option(__t.f32()),
+  spawnedAt: __t.u64().name("spawned_at"),
+  lifetimeSeconds: __t.f32().name("lifetime_seconds"),
+  returnsToShooter: __t.bool().name("returns_to_shooter"),
+  maxCollisions: __t.i32().name("max_collisions"),
+  passThroughTerrain: __t.bool().name("pass_through_terrain"),
+  collisionRadius: __t.f32().name("collision_radius"),
+  explosionRadius: __t.option(__t.f32()).name("explosion_radius"),
   get explosionTrigger() {
-    return ExplosionTrigger;
+    return ExplosionTrigger.name("explosion_trigger");
   },
   damping: __t.option(__t.f32()),
   bounce: __t.bool(),
   speed: __t.f32(),
-  isReturning: __t.bool(),
-  recentlyDamagedTiles: __t.option(__t.array(DamagedTile)),
-  recentlyHitTanks: __t.option(__t.array(DamagedTank)),
+  isReturning: __t.bool().name("is_returning"),
+  recentlyDamagedTiles: __t.option(__t.array(DamagedTile)).name("recently_damaged_tiles"),
+  recentlyHitTanks: __t.option(__t.array(DamagedTank)).name("recently_hit_tanks"),
 });

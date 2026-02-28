@@ -11,7 +11,7 @@ public static partial class Module
 
         public static (float, float) Call(ReducerContext ctx, Game game, int alliance, Random random)
         {
-            var traversibilityMapQuery = ctx.Db.traversibility_map.GameId.Find(game.Id);
+            var traversibilityMapQuery = ctx.Db.TraversibilityMap.GameId.Find(game.Id);
             if (traversibilityMapQuery == null) return (0, 0);
             return Call(ctx, traversibilityMapQuery.Value, alliance, random);
         }

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { getConnection } from "../spacetimedb-connection";
 import { type Infer } from "spacetimedb";
-import MessageRow from "../../module_bindings/message_type";
+import MessageRow from "../../module_bindings/message_table";
 import { type EventContext } from "../../module_bindings";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
 
@@ -54,7 +54,7 @@ export default function ChatBox({ gameId }: ChatBoxProps) {
     if (!connection) return;
 
     const updateMessages = () => {
-      const allMessages = Array.from(connection.db.message.GameId.filter(gameId))
+      const allMessages = Array.from(connection.db.Message.iter()).filter(msg => msg.gameId === gameId)
         .sort((a, b) => Number(a.timestamp - b.timestamp));
 
       const recentMessages = allMessages.slice(-MAX_VISIBLE_MESSAGES);
@@ -70,7 +70,7 @@ export default function ChatBox({ gameId }: ChatBoxProps) {
     updateMessages();
 
     subscriptionRef.current = subscribeToTable({
-      table: connection.db.message,
+      table: connection.db.Message,
       handlers: {
         onInsert: (_ctx: EventContext, message: Infer<typeof MessageRow>) => {
           if (message.gameId === gameId) {

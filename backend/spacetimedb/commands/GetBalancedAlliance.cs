@@ -11,7 +11,7 @@ public static partial class Module
             int alliance0TotalCount = 0;
             int alliance1TotalCount = 0;
 
-            foreach (var t in ctx.Db.tank.GameId.Filter(gameId))
+            foreach (var t in ctx.Db.Tank.GameId.Filter(gameId))
             {
                 if (t.Alliance == 0)
                 {

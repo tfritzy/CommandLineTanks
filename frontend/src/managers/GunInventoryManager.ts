@@ -1,7 +1,7 @@
 import { type Infer } from "spacetimedb";
 import { getConnection, isCurrentIdentity } from "../spacetimedb-connection";
 import { type EventContext } from "../../module_bindings";
-import TankRow from "../../module_bindings/tank_type";
+import TankRow from "../../module_bindings/tank_table";
 import TankGunRow from "../../module_bindings/tank_gun_table";
 import { redTeamPickupTextureCache, blueTeamPickupTextureCache } from "../textures";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
@@ -33,7 +33,7 @@ export class GunInventoryManager {
 
     this.subscription = createMultiTableSubscription()
       .add<typeof TankRow>({
-        table: connection.db.tank,
+        table: connection.db.Tank,
         handlers: {
           onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
             if (tank.gameId !== gameId) return;
@@ -62,7 +62,7 @@ export class GunInventoryManager {
         }
       })
       .add<typeof TankGunRow>({
-        table: connection.db.tankGun,
+        table: connection.db.TankGun,
         handlers: {
           onInsert: (_ctx: EventContext, tankGun: Infer<typeof TankGunRow>) => {
             if (tankGun.gameId !== this.gameId) return;
@@ -94,7 +94,7 @@ export class GunInventoryManager {
     this.guns.push({ gunType: "Base", ammo: undefined });
     
     const gunEntries: Array<{ slotIndex: number; gunType: string; ammo: number | undefined }> = [];
-    for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
+    for (const tankGun of Array.from(connection.db.TankGun.iter()).filter(gun => gun.tankId === tankId)) {
       gunEntries.push({ 
         slotIndex: tankGun.slotIndex, 
         gunType: tankGun.gun.gunType.tag, 

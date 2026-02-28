@@ -7,7 +7,7 @@ public static partial class Module
     {
         public static Tank? Call(ReducerContext ctx, string gameId, int alliance)
         {
-            foreach (var tank in ctx.Db.tank.GameId_IsBot.Filter((gameId, true)))
+            foreach (var tank in ctx.Db.Tank.GameId_IsBot.Filter((gameId, true)))
             {
                 if (tank.Alliance == alliance)
                 {

@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { getConnection, getServerTime } from "../spacetimedb-connection";
 import { PALETTE } from "../theme/colors.config";
 import { createMultiTableSubscription, MultiTableSubscription } from "../utils/tableSubscription";
-import ScoreRow from "../../module_bindings/score_type";
-import GameRow from "../../module_bindings/game_type";
+import ScoreRow from "../../module_bindings/score_table";
+import GameRow from "../../module_bindings/game_table";
 
 const COUNTDOWN_WARNING_SECONDS = 10;
 
@@ -58,13 +58,13 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
     if (!connection || !isRealGame) return;
 
     const updateFromDb = () => {
-      const score = connection.db.score.GameId.find(gameId);
+      const score = connection.db.Score.gameId.find(gameId);
       if (score) {
         setTeam0Kills(score.kills[0] || 0);
         setTeam1Kills(score.kills[1] || 0);
       }
 
-      const game = connection.db.game.Id.find(gameId);
+      const game = connection.db.Game.id.find(gameId);
       if (game && game.gameState.tag === "Playing") {
         const serverTimeMicros = BigInt(Math.floor(getServerTime() * 1000));
         const elapsedMicros = serverTimeMicros - game.gameStartedAt;
@@ -78,7 +78,7 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
 
     subscriptionRef.current = createMultiTableSubscription()
       .add<typeof ScoreRow>({
-        table: connection.db.score,
+        table: connection.db.Score,
         loadInitialData: false,
         handlers: {
           onUpdate: (_ctx, _old, newScore) => {
@@ -87,7 +87,7 @@ export default function GameHeader({ gameId }: GameHeaderProps) {
         }
       })
       .add<typeof GameRow>({
-        table: connection.db.game,
+        table: connection.db.Game,
         loadInitialData: false,
         handlers: {
           onUpdate: (_ctx, _old, newGame) => {
