@@ -17,7 +17,7 @@ public static partial class Module
     {
         var gamesToDelete = new System.Collections.Generic.List<string>();
 
-        foreach (var game in ctx.Db.game.GameState.Filter(GameState.Results))
+        foreach (var game in ctx.Db.Game.GameState.Filter(GameState.Results))
         {
             if (game.CreatedAt + (ulong)game.GameDurationMicros + 60_000_000 < (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch)
             {
@@ -37,11 +37,11 @@ public static partial class Module
 
         var homegamesToDelete = new System.Collections.Generic.List<string>();
 
-        foreach (var game in ctx.Db.game.Iter())
+        foreach (var game in ctx.Db.Game.Iter())
         {
             if (game.GameType == GameType.Home || game.GameType == GameType.Tutorial)
             {
-                var hasHumanPlayers = ctx.Db.tank.GameId.Filter(game.Id).Any(t => !t.IsBot);
+                var hasHumanPlayers = ctx.Db.Tank.GameId.Filter(game.Id).Any(t => !t.IsBot);
                 if (!hasHumanPlayers)
                 {
                     homegamesToDelete.Add(game.Id);
@@ -62,7 +62,7 @@ public static partial class Module
         var expiredRedirectOldGameIds = new System.Collections.Generic.List<string>();
         var oneHourAgoMicros = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch - (ulong)Module.REDIRECT_CLEANUP_AGE_MICROS;
 
-        foreach (var redirect in ctx.Db.game_redirect.Iter())
+        foreach (var redirect in ctx.Db.GameRedirect.Iter())
         {
             if (redirect.InsertedAt < oneHourAgoMicros)
             {
@@ -72,7 +72,7 @@ public static partial class Module
 
         foreach (var oldGameId in expiredRedirectOldGameIds)
         {
-            ctx.Db.game_redirect.OldGameId.Delete(oldGameId);
+            ctx.Db.GameRedirect.OldGameId.Delete(oldGameId);
         }
 
         if (expiredRedirectOldGameIds.Count > 0)
@@ -83,79 +83,79 @@ public static partial class Module
 
     public static void DeleteGame(ReducerContext ctx, string gameId)
     {
-        foreach (var tank in ctx.Db.tank.GameId.Filter(gameId))
+        foreach (var tank in ctx.Db.Tank.GameId.Filter(gameId))
         {
-            ctx.Db.tank.Id.Delete(tank.Id);
+            ctx.Db.Tank.Id.Delete(tank.Id);
         }
 
-        foreach (var transform in ctx.Db.tank_transform.GameId.Filter(gameId))
+        foreach (var transform in ctx.Db.TankTransform.GameId.Filter(gameId))
         {
-            ctx.Db.tank_transform.TankId.Delete(transform.TankId);
+            ctx.Db.TankTransform.TankId.Delete(transform.TankId);
         }
 
-        foreach (var pathState in ctx.Db.tank_path.GameId.Filter(gameId))
+        foreach (var pathState in ctx.Db.TankPath.GameId.Filter(gameId))
         {
-            ctx.Db.tank_path.TankId.Delete(pathState.TankId);
+            ctx.Db.TankPath.TankId.Delete(pathState.TankId);
         }
 
-        foreach (var tankGun in ctx.Db.tank_gun.GameId.Filter(gameId))
+        foreach (var tankGun in ctx.Db.TankGun.GameId.Filter(gameId))
         {
-            ctx.Db.tank_gun.Id.Delete(tankGun.Id);
+            ctx.Db.TankGun.Id.Delete(tankGun.Id);
         }
 
-        foreach (var projectile in ctx.Db.projectile.GameId.Filter(gameId))
+        foreach (var projectile in ctx.Db.Projectile.GameId.Filter(gameId))
         {
-            ctx.Db.projectile_transform.ProjectileId.Delete(projectile.Id);
-            ctx.Db.projectile.Id.Delete(projectile.Id);
+            ctx.Db.ProjectileTransform.ProjectileId.Delete(projectile.Id);
+            ctx.Db.Projectile.Id.Delete(projectile.Id);
         }
 
-        foreach (var terrainDetail in ctx.Db.terrain_detail.GameId.Filter(gameId))
+        foreach (var terrainDetail in ctx.Db.TerrainDetail.GameId.Filter(gameId))
         {
-            ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+            ctx.Db.TerrainDetail.Id.Delete(terrainDetail.Id);
         }
 
-        foreach (var pickup in ctx.Db.pickup.GameId.Filter(gameId))
+        foreach (var pickup in ctx.Db.Pickup.GameId.Filter(gameId))
         {
-            ctx.Db.pickup.Id.Delete(pickup.Id);
+            ctx.Db.Pickup.Id.Delete(pickup.Id);
         }
 
-        foreach (var destination in ctx.Db.destination.GameId.Filter(gameId))
+        foreach (var destination in ctx.Db.Destination.GameId.Filter(gameId))
         {
-            ctx.Db.destination.Id.Delete(destination.Id);
+            ctx.Db.Destination.Id.Delete(destination.Id);
         }
 
-        foreach (var kill in ctx.Db.kills.GameId.Filter(gameId))
+        foreach (var kill in ctx.Db.Kill.GameId.Filter(gameId))
         {
-            ctx.Db.kills.Id.Delete(kill.Id);
+            ctx.Db.Kill.Id.Delete(kill.Id);
         }
 
-        foreach (var message in ctx.Db.message.GameId.Filter(gameId))
+        foreach (var message in ctx.Db.Message.GameId.Filter(gameId))
         {
-            ctx.Db.message.Id.Delete(message.Id);
+            ctx.Db.Message.Id.Delete(message.Id);
         }
 
-        var score = ctx.Db.score.GameId.Find(gameId);
+        var score = ctx.Db.Score.GameId.Find(gameId);
         if (score != null)
         {
-            ctx.Db.score.GameId.Delete(gameId);
+            ctx.Db.Score.GameId.Delete(gameId);
         }
 
-        var traversibilityMap = ctx.Db.traversibility_map.GameId.Find(gameId);
+        var traversibilityMap = ctx.Db.TraversibilityMap.GameId.Find(gameId);
         if (traversibilityMap != null)
         {
-            ctx.Db.traversibility_map.GameId.Delete(gameId);
+            ctx.Db.TraversibilityMap.GameId.Delete(gameId);
         }
 
-        var projectileTraversibilityMap = ctx.Db.projectile_traversibility_map.GameId.Find(gameId);
+        var projectileTraversibilityMap = ctx.Db.ProjectileTraversibilityMap.GameId.Find(gameId);
         if (projectileTraversibilityMap != null)
         {
-            ctx.Db.projectile_traversibility_map.GameId.Delete(gameId);
+            ctx.Db.ProjectileTraversibilityMap.GameId.Delete(gameId);
         }
 
-        var baseTerrainLayer = ctx.Db.base_terrain_layer.GameId.Find(gameId);
+        var baseTerrainLayer = ctx.Db.BaseTerrainLayer.GameId.Find(gameId);
         if (baseTerrainLayer != null)
         {
-            ctx.Db.base_terrain_layer.GameId.Delete(gameId);
+            ctx.Db.BaseTerrainLayer.GameId.Delete(gameId);
         }
 
         foreach (var tankUpdater in ctx.Db.ScheduledTankUpdates.GameId.Filter(gameId))
@@ -193,27 +193,27 @@ public static partial class Module
             ctx.Db.ScheduledTankAIUpdate.ScheduledId.Delete(aiUpdate.ScheduledId);
         }
 
-        var redirectPointingToGame = ctx.Db.game_redirect.OldGameId.Find(gameId);
+        var redirectPointingToGame = ctx.Db.GameRedirect.OldGameId.Find(gameId);
         if (redirectPointingToGame != null)
         {
-            ctx.Db.game_redirect.OldGameId.Delete(gameId);
+            ctx.Db.GameRedirect.OldGameId.Delete(gameId);
         }
 
         var redirectsPointingToDeletedGame = new System.Collections.Generic.List<string>();
-        foreach (var redirect in ctx.Db.game_redirect.NewGameId.Filter(gameId))
+        foreach (var redirect in ctx.Db.GameRedirect.NewGameId.Filter(gameId))
         {
             redirectsPointingToDeletedGame.Add(redirect.OldGameId);
         }
 
         foreach (var oldGameId in redirectsPointingToDeletedGame)
         {
-            ctx.Db.game_redirect.OldGameId.Delete(oldGameId);
+            ctx.Db.GameRedirect.OldGameId.Delete(oldGameId);
         }
 
-        var gameToDelete = ctx.Db.game.Id.Find(gameId);
+        var gameToDelete = ctx.Db.Game.Id.Find(gameId);
         if (gameToDelete != null)
         {
-            ctx.Db.game.Id.Delete(gameId);
+            ctx.Db.Game.Id.Delete(gameId);
         }
 
         Log.Info($"Deleted game {gameId} and all related objects");

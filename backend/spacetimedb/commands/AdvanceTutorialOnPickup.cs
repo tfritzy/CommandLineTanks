@@ -7,7 +7,7 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, string gameId, Tank tank, PickupType pickupType)
         {
-            var game = ctx.Db.game.Id.Find(gameId);
+            var game = ctx.Db.Game.Id.Find(gameId);
             if (game == null || game.Value.GameType != GameType.Tutorial)
             {
                 return;
@@ -36,10 +36,10 @@ public static partial class Module
 
         private static void RemoveTutorialLabel(ReducerContext ctx, string labelId)
         {
-            var label = ctx.Db.terrain_detail.Id.Find(labelId);
+            var label = ctx.Db.TerrainDetail.Id.Find(labelId);
             if (label != null)
             {
-                ctx.Db.terrain_detail.Id.Delete(labelId);
+                ctx.Db.TerrainDetail.Id.Delete(labelId);
             }
         }
 
@@ -72,7 +72,7 @@ public static partial class Module
                 ? $"d {destinationCode}"
                 : "d se";
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 id: $"{gameId}_label_weapon",
                 gameId: gameId,
@@ -90,7 +90,7 @@ public static partial class Module
             const int TUTORIAL_ENEMY_SPAWN_X = 16;
             const int TUTORIAL_ENEMY_SPAWN_Y = 6;
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 id: $"{gameId}_label_target",
                 gameId: gameId,
@@ -124,8 +124,8 @@ public static partial class Module
                 positionY: TUTORIAL_ENEMY_SPAWN_Y + 0.5f,
                 aiBehavior: AIBehavior.None);
 
-            ctx.Db.tank.Insert(enemyTank);
-            ctx.Db.tank_transform.Insert(enemyTransform);
+            ctx.Db.Tank.Insert(enemyTank);
+            ctx.Db.TankTransform.Insert(enemyTransform);
 
             return targetCode;
         }

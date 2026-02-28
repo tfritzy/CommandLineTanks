@@ -15,7 +15,7 @@ public static partial class Module
 
         public static string Call(ReducerContext ctx, string gameId)
         {
-            var tanksInGame = ctx.Db.tank.GameId.Filter(gameId);
+            var tanksInGame = ctx.Db.Tank.GameId.Filter(gameId);
             var usedNames = new HashSet<string>();
             
             foreach (var tank in tanksInGame)

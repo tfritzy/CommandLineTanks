@@ -1,8 +1,9 @@
 import { getConnection } from "../spacetimedb-connection";
 import { SoundManager } from "./SoundManager";
-import { type PickupRow, type EventContext } from "../../module_bindings";
+import { type EventContext } from "../../module_bindings";
+import type PickupRow from "../../module_bindings/pickup_table";
 import { type Infer } from "spacetimedb";
-import PickupType from "../../module_bindings/pickup_type_type";
+import { PickupType } from "../../module_bindings/types";
 import { UNIT_TO_PIXEL } from "../constants";
 import { redTeamPickupTextureCache, blueTeamPickupTextureCache } from "../textures";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
@@ -36,7 +37,7 @@ export class PickupManager {
     if (!connection) return;
 
     this.subscription = subscribeToTable({
-      table: connection.db.pickup,
+      table: connection.db.Pickup,
       handlers: {
         onInsert: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
           if (pickup.gameId !== this.gameId) return;

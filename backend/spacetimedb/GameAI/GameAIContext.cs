@@ -30,9 +30,9 @@ public class GameAIContext
         if (_allFullTanks == null)
         {
             _allFullTanks = new List<FullTank>();
-            foreach (var tank in _ctx.Db.tank.GameId.Filter(_gameId))
+            foreach (var tank in _ctx.Db.Tank.GameId.Filter(_gameId))
             {
-                var transform = _ctx.Db.tank_transform.TankId.Find(tank.Id);
+                var transform = _ctx.Db.TankTransform.TankId.Find(tank.Id);
                 if (transform != null)
                 {
                     _allFullTanks.Add(new FullTank(tank, transform.Value));
@@ -47,7 +47,7 @@ public class GameAIContext
         if (_allPickups == null)
         {
             _allPickups = new List<Pickup>();
-            foreach (var pickup in _ctx.Db.pickup.GameId.Filter(_gameId))
+            foreach (var pickup in _ctx.Db.Pickup.GameId.Filter(_gameId))
             {
                 _allPickups.Add(pickup);
             }
@@ -59,7 +59,7 @@ public class GameAIContext
     {
         if (!_traversibilityMapLoaded)
         {
-            _traversibilityMap = _ctx.Db.traversibility_map.GameId.Find(_gameId);
+            _traversibilityMap = _ctx.Db.TraversibilityMap.GameId.Find(_gameId);
             _traversibilityMapLoaded = true;
         }
         return _traversibilityMap;
@@ -74,7 +74,7 @@ public class GameAIContext
 
         if (!_tankPaths.ContainsKey(tankId))
         {
-            _tankPaths[tankId] = _ctx.Db.tank_path.TankId.Find(tankId);
+            _tankPaths[tankId] = _ctx.Db.TankPath.TankId.Find(tankId);
         }
 
         return _tankPaths[tankId];
@@ -83,7 +83,7 @@ public class GameAIContext
     public int GetGunCount(string tankId)
     {
         int count = 1;
-        foreach (var _ in _ctx.Db.tank_gun.TankId.Filter(tankId))
+        foreach (var _ in _ctx.Db.TankGun.TankId.Filter(tankId))
         {
             count++;
         }

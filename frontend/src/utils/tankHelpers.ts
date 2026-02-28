@@ -44,7 +44,7 @@ export function getTankGuns(tankId: string): GunSlot[] {
   
   const guns: GunSlot[] = [{ gunType: "Base", ammo: undefined }];
   const gunEntries: Array<{ slotIndex: number; gunType: string; ammo: number | undefined }> = [];
-  for (const tankGun of connection.db.tankGun.TankId.filter(tankId)) {
+  for (const tankGun of Array.from(connection.db.TankGun.iter()).filter(gun => gun.tankId === tankId)) {
     gunEntries.push({ slotIndex: tankGun.slotIndex, gunType: tankGun.gun.gunType.tag, ammo: tankGun.gun.ammo });
   }
   gunEntries.sort((a, b) => a.slotIndex - b.slotIndex);
@@ -58,8 +58,8 @@ export function getFullTank(tankId: string): FullTankData | null {
   const connection = getConnection();
   if (!connection) return null;
 
-  const tank = connection.db.tank.id.find(tankId);
-  const transform = connection.db.tankTransform.tankId.find(tankId);
+  const tank = connection.db.Tank.id.find(tankId);
+  const transform = connection.db.TankTransform.tankId.find(tankId);
 
   if (!tank || !transform) return null;
 
@@ -99,19 +99,19 @@ export function getFullTank(tankId: string): FullTankData | null {
 export function getTank(tankId: string) {
   const connection = getConnection();
   if (!connection) return null;
-  return connection.db.tank.id.find(tankId);
+  return connection.db.Tank.id.find(tankId);
 }
 
 export function getTankTransform(tankId: string) {
   const connection = getConnection();
   if (!connection) return null;
-  return connection.db.tankTransform.tankId.find(tankId);
+  return connection.db.TankTransform.tankId.find(tankId);
 }
 
 export function getTankByOwner(gameId: string, owner: Identity) {
   const connection = getConnection();
   if (!connection) return null;
-  for (const tank of connection.db.tank.GameId.filter(gameId)) {
+  for (const tank of Array.from(connection.db.Tank.iter()).filter(tank => tank.gameId === gameId)) {
     if (tank.owner.isEqual(owner)) {
       return tank;
     }

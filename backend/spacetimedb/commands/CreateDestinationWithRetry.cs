@@ -26,10 +26,10 @@ public static partial class Module
                     continue;
                 }
 
-                var existing = ctx.Db.destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
+                var existing = ctx.Db.Destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
                 if (existing.Id == null)
                 {
-                    ctx.Db.destination.Insert(Destination.Build(
+                    ctx.Db.Destination.Insert(Destination.Build(
                         ctx: ctx,
                         gameId: gameId,
                         targetCode: targetCode,

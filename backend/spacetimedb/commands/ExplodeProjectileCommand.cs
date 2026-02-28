@@ -30,7 +30,7 @@ public static partial class ProjectileUpdater
                 int regionX = projectileCollisionRegionX + dx;
                 int regionY = projectileCollisionRegionY + dy;
 
-                var tankTransforms = ctx.Db.tank_transform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY));
+                var tankTransforms = ctx.Db.TankTransform.GameId_CollisionRegionX_CollisionRegionY.Filter((gameId, regionX, regionY));
                 foreach (var tankTransform in tankTransforms)
                 {
                     Module.Tank tank;
@@ -40,7 +40,7 @@ public static partial class ProjectileUpdater
                     }
                     else
                     {
-                        var tankQuery = ctx.Db.tank.Id.Find(tankTransform.TankId);
+                        var tankQuery = ctx.Db.Tank.Id.Find(tankTransform.TankId);
                         if (tankQuery == null) continue;
                         tank = tankQuery.Value;
                         tanksById[tank.Id] = tank;
@@ -124,9 +124,9 @@ public static partial class ProjectileUpdater
                 lifetimeSeconds: subProjectileLifetime
             );
 
-            var insertedSubProjectile = ctx.Db.projectile.Insert(subProjectile);
+            var insertedSubProjectile = ctx.Db.Projectile.Insert(subProjectile);
             subTransform = subTransform with { ProjectileId = insertedSubProjectile.Id };
-            ctx.Db.projectile_transform.Insert(subTransform);
+            ctx.Db.ProjectileTransform.Insert(subTransform);
         }
     }
 
@@ -140,7 +140,7 @@ public static partial class ProjectileUpdater
         ref Module.TraversibilityMap traversibilityMap,
         ref Module.ProjectileTraversibilityMap projectileTraversibilityMap)
     {
-        var terrainDetail = ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((gameId, gridX, gridY)).FirstOrDefault();
+        var terrainDetail = ctx.Db.TerrainDetail.GameId_GridX_GridY.Filter((gameId, gridX, gridY)).FirstOrDefault();
         if (terrainDetail.Id == null || terrainDetail.Health == null)
         {
             return;
@@ -157,12 +157,12 @@ public static partial class ProjectileUpdater
                     Type = TerrainDetailType.DeadTree,
                     Health = null
                 };
-                ctx.Db.terrain_detail.Id.Update(deadTree);
+                ctx.Db.TerrainDetail.Id.Update(deadTree);
                 projectileTraversibilityMap.SetTraversable(tileIndex, true);
             }
             else
             {
-                ctx.Db.terrain_detail.Id.Delete(detail.Id);
+                ctx.Db.TerrainDetail.Id.Delete(detail.Id);
                 traversibilityMap.SetTraversable(tileIndex, true);
                 if (detail.Type.BlocksProjectiles())
                 {
@@ -176,7 +176,7 @@ public static partial class ProjectileUpdater
             {
                 Health = newHealth
             };
-            ctx.Db.terrain_detail.Id.Update(updatedDetail);
+            ctx.Db.TerrainDetail.Id.Update(updatedDetail);
         }
     }
 }

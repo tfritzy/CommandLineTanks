@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { getConnection } from '../spacetimedb-connection';
 import { type Infer } from 'spacetimedb';
-import TankRow from '../../module_bindings/tank_type';
-import ScoreRow from '../../module_bindings/score_type';
-import GameRow from '../../module_bindings/game_type';
+import TankRow from '../../module_bindings/tank_table';
+import ScoreRow from '../../module_bindings/score_table';
+import GameRow from '../../module_bindings/game_table';
 import { type EventContext } from "../../module_bindings";
 import { createMultiTableSubscription, type MultiTableSubscription } from '../utils/tableSubscription';
 import { getEventTimestamp } from '../utils/eventHelpers';
@@ -55,7 +55,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
         if (!connection) return;
 
         const updateTanks = () => {
-            const tanksInGame = Array.from(connection.db.tank.iter())
+            const tanksInGame = Array.from(connection.db.Tank.iter())
                 .filter(tank => tank.gameId === gameId);
             
             const combinedTanks: CombinedTankData[] = [];
@@ -74,7 +74,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
         };
 
         const updateScores = () => {
-            const score = connection.db.score.GameId.find(gameId);
+            const score = connection.db.Score.gameId.find(gameId);
             if (score) {
                 setTeam0Kills(score.kills[0] || 0);
                 setTeam1Kills(score.kills[1] || 0);
@@ -101,7 +101,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
         };
 
         const updateVisibility = () => {
-            const game = connection.db.game.Id.find(gameId);
+            const game = connection.db.Game.id.find(gameId);
             if (game && game.gameState.tag === 'Results') {
                 setShowResults(true);
                 initializeResetTimer(game);
@@ -115,7 +115,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
 
         subscriptionRef.current = createMultiTableSubscription()
             .add<typeof TankRow>({
-                table: connection.db.tank,
+                table: connection.db.Tank,
                 handlers: {
                     onInsert: (_ctx: EventContext, tank: Infer<typeof TankRow>) => {
                         if (tank.gameId === gameId) updateTanks();
@@ -130,7 +130,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                 loadInitialData: false
             })
             .add<typeof ScoreRow>({
-                table: connection.db.score,
+                table: connection.db.Score,
                 handlers: {
                     onInsert: (_ctx: EventContext, score: Infer<typeof ScoreRow>) => {
                         if (score.gameId === gameId) updateScores();
@@ -142,7 +142,7 @@ export default function ResultsScreen({ gameId }: ResultsScreenProps) {
                 loadInitialData: false
             })
             .add<typeof GameRow>({
-                table: connection.db.game,
+                table: connection.db.Game,
                 handlers: {
                     onInsert: (ctx: EventContext, game: Infer<typeof GameRow>) => {
                         if (game.id === gameId && game.gameState.tag === 'Results') {

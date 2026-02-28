@@ -14,7 +14,7 @@ export default __t.row({
   id: __t.string().primaryKey(),
   identity: __t.identity(),
   name: __t.option(__t.string()),
-  createdAt: __t.u64(),
-  tutorialComplete: __t.bool(),
-  lastGameJoinedDay: __t.option(__t.string()),
+  createdAt: __t.u64().name("created_at"),
+  tutorialComplete: __t.bool().name("tutorial_complete"),
+  lastGameJoinedDay: __t.option(__t.string()).name("last_game_joined_day"),
 });

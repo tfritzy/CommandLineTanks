@@ -6,10 +6,10 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, string tankId)
         {
-            var pathState = ctx.Db.tank_path.TankId.Find(tankId);
+            var pathState = ctx.Db.TankPath.TankId.Find(tankId);
             if (pathState != null)
             {
-                ctx.Db.tank_path.TankId.Delete(tankId);
+                ctx.Db.TankPath.TankId.Delete(tankId);
             }
         }
     }

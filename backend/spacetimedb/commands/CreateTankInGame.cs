@@ -7,14 +7,14 @@ public static partial class Module
     {
         public static (Tank, TankTransform)? Call(ReducerContext ctx, string gameId, Identity owner, string joinCode)
         {
-            Tank? existingTank = ctx.Db.tank.GameId_Owner.Filter((gameId, owner)).FirstOrDefault();
+            Tank? existingTank = ctx.Db.Tank.GameId_Owner.Filter((gameId, owner)).FirstOrDefault();
             if (existingTank != null && !string.IsNullOrEmpty(existingTank.Value.Id))
             {
                 Log.Info($"Player already has tank in game {gameId}, removing before creating new one");
                 RemoveTankFromGame.Call(ctx, existingTank.Value);
             }
 
-            var game = ctx.Db.game.Id.Find(gameId);
+            var game = ctx.Db.Game.Id.Find(gameId);
             if (game == null)
             {
                 Log.Error($"Game {gameId} not found");
@@ -28,7 +28,7 @@ public static partial class Module
                 return null;
             }
 
-            var player = ctx.Db.player.Identity.Find(owner);
+            var player = ctx.Db.Player.Identity.Find(owner);
             var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
             int assignedAlliance = GetBalancedAlliance.Call(ctx, gameId);

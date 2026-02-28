@@ -5,13 +5,13 @@ public static partial class Module
     [Reducer(ReducerKind.ClientDisconnected)]
     public static void HandleDisconnect(ReducerContext ctx)
     {
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        var player = ctx.Db.Player.Identity.Find(ctx.Sender);
         if (player == null)
         {
             return;
         }
 
-        var tanks = ctx.Db.tank.Owner.Filter(ctx.Sender);
+        var tanks = ctx.Db.Tank.Owner.Filter(ctx.Sender);
         foreach (var tank in tanks)
         {
             if (tank.GameId.Length > 4)

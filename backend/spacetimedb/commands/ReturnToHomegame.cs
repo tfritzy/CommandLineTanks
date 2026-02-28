@@ -8,7 +8,7 @@ public static partial class Module
         public static void Call(ReducerContext ctx, string joinCode)
         {
             var identityString = ctx.Sender.ToString().ToLower();
-            var homegame = ctx.Db.game.Id.Find(identityString);
+            var homegame = ctx.Db.Game.Id.Find(identityString);
             if (homegame == null)
             {
                 CreateHomegame.Call(ctx, identityString);

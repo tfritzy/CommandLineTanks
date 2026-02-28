@@ -13,7 +13,7 @@ public static partial class Module
 
         if (!string.IsNullOrEmpty(targetCode))
         {
-            var destination = ctx.Db.destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
+            var destination = ctx.Db.Destination.GameId_TargetCode.Filter((gameId, targetCode)).FirstOrDefault();
             if (string.IsNullOrEmpty(destination.Id))
             {
                 return;
@@ -22,7 +22,7 @@ public static partial class Module
             targetY = (int)destination.PositionY;
         }
 
-        Game? maybeGame = ctx.Db.game.Id.Find(gameId);
+        Game? maybeGame = ctx.Db.Game.Id.Find(gameId);
         if (maybeGame != null)
         {
             var game = maybeGame.Value;
@@ -30,17 +30,17 @@ public static partial class Module
             targetY = Math.Max(0, Math.Min(game.Height - 1, targetY));
         }
 
-        Tank? tankQuery = ctx.Db.tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
+        Tank? tankQuery = ctx.Db.Tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
         
-        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        var transformQuery = ctx.Db.TankTransform.TankId.Find(tank.Id);
         if (transformQuery == null) return;
         var transform = transformQuery.Value;
 
         if (tank.Health <= 0) return;
 
-        TraversibilityMap? maybeMap = ctx.Db.traversibility_map.GameId.Find(gameId);
+        TraversibilityMap? maybeMap = ctx.Db.TraversibilityMap.GameId.Find(gameId);
         if (maybeMap == null) return;
         var traversibilityMap = maybeMap.Value;
 
@@ -83,7 +83,7 @@ public static partial class Module
             UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
-        ctx.Db.tank_transform.TankId.Update(updatedTransform);
+        ctx.Db.TankTransform.TankId.Update(updatedTransform);
 
         AdvanceTutorialOnDrive.Call(ctx, gameId, tank);
     }

@@ -1,12 +1,14 @@
 import { TankManager } from "./TankManager";
 
 import { getConnection } from "../spacetimedb-connection";
-import { type EventContext, type TerrainDetailRow, type PickupRow } from "../../module_bindings";
-import GameRow from "../../module_bindings/game_type";
-import BaseTerrainLayerRow from "../../module_bindings/base_terrain_layer_type";
-import GameType from "../../module_bindings/game_type_type";
+import { type EventContext } from "../../module_bindings";
+import type TerrainDetailRow from "../../module_bindings/terrain_detail_table";
+import type PickupRow from "../../module_bindings/pickup_table";
+import GameRow from "../../module_bindings/game_table";
+import BaseTerrainLayerRow from "../../module_bindings/base_terrain_layer_table";
+import { GameType } from "../../module_bindings/types";
 import { type Infer } from "spacetimedb";
-import { BaseTerrain } from "../../module_bindings";
+import { BaseTerrain } from "../../module_bindings/types";
 import { createMultiTableSubscription, type MultiTableSubscription } from "../utils/tableSubscription";
 import { COLORS } from "../theme/colors";
 
@@ -67,7 +69,7 @@ export class MiniMapManager {
 
     this.subscription = createMultiTableSubscription()
       .add<typeof GameRow>({
-        table: connection.db.game,
+        table: connection.db.Game,
         handlers: {
           onInsert: (_ctx: EventContext, game: Infer<typeof GameRow>) => {
             handleGameChange(game);
@@ -79,7 +81,7 @@ export class MiniMapManager {
         loadInitialData: false
       })
       .add<typeof BaseTerrainLayerRow>({
-        table: connection.db.baseTerrainLayer,
+        table: connection.db.BaseTerrainLayer,
         handlers: {
           onInsert: (_ctx: EventContext, terrain: Infer<typeof BaseTerrainLayerRow>) => {
             handleTerrainChange(terrain);
@@ -91,7 +93,7 @@ export class MiniMapManager {
         loadInitialData: false
       })
       .add<typeof TerrainDetailRow>({
-        table: connection.db.terrainDetail,
+        table: connection.db.TerrainDetail,
         handlers: {
           onInsert: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
             if (detail.gameId !== this.gameId) return;
@@ -108,7 +110,7 @@ export class MiniMapManager {
         }
       })
       .add<typeof PickupRow>({
-        table: connection.db.pickup,
+        table: connection.db.Pickup,
         handlers: {
           onInsert: (_ctx: EventContext, pickup: Infer<typeof PickupRow>) => {
             if (pickup.gameId !== this.gameId) return;
@@ -125,12 +127,12 @@ export class MiniMapManager {
         }
       });
 
-    const cachedGame = connection.db.game.Id.find(this.gameId);
+    const cachedGame = connection.db.Game.id.find(this.gameId);
     if (cachedGame) {
       handleGameChange(cachedGame);
     }
 
-    const cachedTerrain = connection.db.baseTerrainLayer.GameId.find(this.gameId);
+    const cachedTerrain = connection.db.BaseTerrainLayer.gameId.find(this.gameId);
     if (cachedTerrain) {
       handleTerrainChange(cachedTerrain);
     }

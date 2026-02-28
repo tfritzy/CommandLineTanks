@@ -9,7 +9,7 @@ public static partial class Module
         {
             var tutorialGameId = GetTutorialGameId(identity);
 
-            var existingGame = ctx.Db.game.Id.Find(tutorialGameId);
+            var existingGame = ctx.Db.Game.Id.Find(tutorialGameId);
             if (existingGame == null)
             {
                 CreateTutorialGame.Call(ctx, identity, joinCode);

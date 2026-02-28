@@ -18,7 +18,7 @@ public static partial class Module
 
     public static bool HasAnyTanksInGame(ReducerContext ctx, string gameId)
     {
-        return ctx.Db.tank.GameId.Filter(gameId).Any();
+        return ctx.Db.Tank.GameId.Filter(gameId).Any();
     }
 
     public static void StopGameTickers(ReducerContext ctx, string gameId)
@@ -58,7 +58,7 @@ public static partial class Module
 
     public static void MaybeResumeUpdatersForLowTrafficGame(ReducerContext ctx, string gameId)
     {
-        var game = ctx.Db.game.Id.Find(gameId);
+        var game = ctx.Db.Game.Id.Find(gameId);
         if (game == null || (game.Value.GameType != GameType.Home && game.Value.GameType != GameType.Tutorial))
         {
             return;
@@ -147,11 +147,11 @@ public static partial class Module
     [Reducer]
     public static void ResetGame(ReducerContext ctx, ScheduledGameReset args)
     {
-        var oldGame = ctx.Db.game.Id.Find(args.GameId);
+        var oldGame = ctx.Db.Game.Id.Find(args.GameId);
         if (oldGame == null) return;
 
         var playerMetadatas = new List<Module.Tank>();
-        foreach (var metadata in ctx.Db.tank.GameId.Filter(args.GameId))
+        foreach (var metadata in ctx.Db.Tank.GameId.Filter(args.GameId))
         {
             if (!metadata.IsBot)
             {
@@ -192,7 +192,7 @@ public static partial class Module
         if (oldGame.Value.Visibility == GameVisibility.Private)
         {
             totalBotCount = 0;
-            foreach (var tank in ctx.Db.tank.GameId.Filter(args.GameId))
+            foreach (var tank in ctx.Db.Tank.GameId.Filter(args.GameId))
             {
                 if (tank.IsBot)
                 {
@@ -252,7 +252,7 @@ public static partial class Module
 
         var oldGameId = args.GameId;
         var redirectsToUpdate = new List<GameRedirect>();
-        foreach (var redirect in ctx.Db.game_redirect.NewGameId.Filter(oldGameId))
+        foreach (var redirect in ctx.Db.GameRedirect.NewGameId.Filter(oldGameId))
         {
             redirectsToUpdate.Add(redirect);
         }
@@ -260,10 +260,10 @@ public static partial class Module
         foreach (var redirect in redirectsToUpdate)
         {
             var updatedRedirect = redirect with { NewGameId = newGameId };
-            ctx.Db.game_redirect.OldGameId.Update(updatedRedirect);
+            ctx.Db.GameRedirect.OldGameId.Update(updatedRedirect);
         }
 
-        ctx.Db.game_redirect.Insert(new GameRedirect
+        ctx.Db.GameRedirect.Insert(new GameRedirect
         {
             OldGameId = oldGameId,
             NewGameId = newGameId,

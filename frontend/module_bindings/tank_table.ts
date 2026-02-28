@@ -9,38 +9,40 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import AiBehavior from "./ai_behavior_type";
-import AiConfig from "./ai_config_type";
+import {
+  AiBehavior,
+  AiConfig,
+} from "./types";
 
 
 export default __t.row({
   id: __t.string().primaryKey(),
-  gameId: __t.string(),
+  gameId: __t.string().name("game_id"),
   owner: __t.identity(),
   name: __t.string(),
-  targetCode: __t.string(),
-  joinCode: __t.option(__t.string()),
-  isBot: __t.bool(),
+  targetCode: __t.string().name("target_code"),
+  joinCode: __t.option(__t.string()).name("join_code"),
+  isBot: __t.bool().name("is_bot"),
   get aiBehavior() {
-    return AiBehavior;
+    return AiBehavior.name("ai_behavior");
   },
   get aiConfig() {
-    return __t.option(AiConfig);
+    return __t.option(AiConfig).name("ai_config");
   },
   alliance: __t.i32(),
-  maxHealth: __t.i32(),
-  topSpeed: __t.f32(),
-  turretRotationSpeed: __t.f32(),
+  maxHealth: __t.i32().name("max_health"),
+  topSpeed: __t.f32().name("top_speed"),
+  turretRotationSpeed: __t.f32().name("turret_rotation_speed"),
   health: __t.i32(),
   kills: __t.i32(),
   deaths: __t.i32(),
-  killStreak: __t.i32(),
+  killStreak: __t.i32().name("kill_streak"),
   target: __t.option(__t.string()),
-  targetLead: __t.f32(),
+  targetLead: __t.f32().name("target_lead"),
   message: __t.option(__t.string()),
-  selectedGunIndex: __t.i32(),
-  hasShield: __t.bool(),
-  remainingImmunityMicros: __t.i64(),
-  deathTimestamp: __t.u64(),
-  lastDamagedBy: __t.option(__t.identity()),
+  selectedGunIndex: __t.i32().name("selected_gun_index"),
+  hasShield: __t.bool().name("has_shield"),
+  remainingImmunityMicros: __t.i64().name("remaining_immunity_micros"),
+  deathTimestamp: __t.u64().name("death_timestamp"),
+  lastDamagedBy: __t.option(__t.identity()).name("last_damaged_by"),
 });

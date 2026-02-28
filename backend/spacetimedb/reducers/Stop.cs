@@ -8,11 +8,11 @@ public static partial class Module
     {
         MaybeResumeUpdatersForLowTrafficGame(ctx, gameId);
 
-        Tank? tankQuery = ctx.Db.tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
+        Tank? tankQuery = ctx.Db.Tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
         
-        var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+        var transformQuery = ctx.Db.TankTransform.TankId.Find(tank.Id);
         if (transformQuery == null) return;
         var transform = transformQuery.Value;
 
@@ -25,7 +25,7 @@ public static partial class Module
             Velocity = new Vector2Float(0, 0),
             UpdatedAt = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
-        ctx.Db.tank_transform.TankId.Update(updatedTransform);
+        ctx.Db.TankTransform.TankId.Update(updatedTransform);
         Log.Info($"Tank {tank.Name} stopped");
     }
 }

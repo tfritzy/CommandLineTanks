@@ -12,9 +12,9 @@ import {
 
 export default __t.row({
   id: __t.string().primaryKey(),
-  gameId: __t.string(),
+  gameId: __t.string().name("game_id"),
   sender: __t.string(),
-  senderIdentity: __t.option(__t.identity()),
+  senderIdentity: __t.option(__t.identity()).name("sender_identity"),
   text: __t.string(),
   timestamp: __t.u64(),
 });

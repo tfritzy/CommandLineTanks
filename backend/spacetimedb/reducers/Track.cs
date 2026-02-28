@@ -7,14 +7,14 @@ public static partial class Module
     {
         MaybeResumeUpdatersForLowTrafficGame(ctx, gameId);
 
-        Tank? tankQuery = ctx.Db.tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
+        Tank? tankQuery = ctx.Db.Tank.GameId_Owner.Filter((gameId, ctx.Sender)).FirstOrDefault();
         if (tankQuery == null || tankQuery.Value.Id == null) return;
         var tank = tankQuery.Value;
 
         if (tank.Health <= 0) return;
 
         tank = TargetTankByCode.Call(ctx, tank, targetCode);
-        ctx.Db.tank.Id.Update(tank);
+        ctx.Db.Tank.Id.Update(tank);
 
         AdvanceTutorialOnTarget.Call(ctx, gameId, tank);
     }

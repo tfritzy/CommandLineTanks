@@ -19,7 +19,7 @@ public static partial class Module
         {
             var pickupId = GenerateId(ctx, "pickup");
 
-            ctx.Db.pickup.Insert(Pickup.Build(
+            ctx.Db.Pickup.Insert(Pickup.Build(
                 ctx: ctx,
                 id: pickupId,
                 gameId: gameId,

@@ -36,7 +36,7 @@ public static partial class Module
             RemoveNeighboringPositions(validPositions, width, height, ctx.Rng);
 
             var usedCodes = new HashSet<string>();
-            foreach (var existing in ctx.Db.destination.GameId.Filter(gameId))
+            foreach (var existing in ctx.Db.Destination.GameId.Filter(gameId))
             {
                 usedCodes.Add(existing.TargetCode);
             }

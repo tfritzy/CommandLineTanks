@@ -9,30 +9,32 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import GameVisibility from "./game_visibility_type";
-import GameState from "./game_state_type";
-import GameType from "./game_type_type";
+import {
+  GameVisibility,
+  GameState,
+  GameType,
+} from "./types";
 
 
 export default __t.row({
   id: __t.string().primaryKey(),
-  createdAt: __t.u64(),
+  createdAt: __t.u64().name("created_at"),
   width: __t.i32(),
   height: __t.i32(),
   get gameState() {
-    return GameState;
+    return GameState.name("game_state");
   },
   get gameType() {
-    return GameType;
+    return GameType.name("game_type");
   },
-  gameStartedAt: __t.u64(),
-  gameDurationMicros: __t.i64(),
+  gameStartedAt: __t.u64().name("game_started_at"),
+  gameDurationMicros: __t.i64().name("game_duration_micros"),
   get visibility() {
     return GameVisibility;
   },
-  maxPlayers: __t.i32(),
-  currentPlayerCount: __t.i32(),
-  botCount: __t.i32(),
-  minPlayersPerTeam: __t.i32(),
+  maxPlayers: __t.i32().name("max_players"),
+  currentPlayerCount: __t.i32().name("current_player_count"),
+  botCount: __t.i32().name("bot_count"),
+  minPlayersPerTeam: __t.i32().name("min_players_per_team"),
   owner: __t.option(__t.identity()),
 });

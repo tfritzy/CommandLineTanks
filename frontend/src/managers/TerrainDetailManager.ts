@@ -1,10 +1,10 @@
 import { getConnection } from "../spacetimedb-connection";
 import { SoundManager } from "./SoundManager";
 import {
-  type TerrainDetailRow,
   type EventContext,
-  BaseTerrain,
 } from "../../module_bindings";
+import type TerrainDetailRow from "../../module_bindings/terrain_detail_table";
+import { BaseTerrain } from "../../module_bindings/types";
 import { type Infer } from "spacetimedb";
 import { UNIT_TO_PIXEL } from "../constants";
 import { TerrainDetailObject } from "../objects/terrain-details/TerrainDetailObject";
@@ -88,7 +88,7 @@ export class TerrainDetailManager {
     if (!connection) return;
 
     this.subscription = subscribeToTable({
-      table: connection.db.terrainDetail,
+      table: connection.db.TerrainDetail,
       handlers: {
         onInsert: (_ctx: EventContext, detail: Infer<typeof TerrainDetailRow>) => {
           if (detail.gameId !== this.gameId) return;

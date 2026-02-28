@@ -14,7 +14,7 @@ public static partial class Module
             return;
         }
 
-        var homegame = ctx.Db.game.Id.Find(identityString);
+        var homegame = ctx.Db.Game.Id.Find(identityString);
         if (homegame == null)
         {
             CreateHomegame.Call(ctx, identityString);

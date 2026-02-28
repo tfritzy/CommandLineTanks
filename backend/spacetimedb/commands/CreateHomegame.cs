@@ -33,9 +33,9 @@ public static partial class Module
                 GameType = GameType.Home
             };
 
-            ctx.Db.game.Insert(game);
+            ctx.Db.Game.Insert(game);
 
-            ctx.Db.base_terrain_layer.Insert(new BaseTerrainLayer
+            ctx.Db.BaseTerrainLayer.Insert(new BaseTerrainLayer
             {
                 GameId = identityString,
                 Layer = baseTerrain,
@@ -58,7 +58,7 @@ public static partial class Module
                 {
                     traversibilityBoolMap[rIndex] = false;
                     projectileTraversibilityBoolMap[rIndex] = false;
-                    ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                    ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                         ctx: ctx,
                         gameId: identityString,
                         positionX: rx + 0.5f,
@@ -81,7 +81,7 @@ public static partial class Module
                 {
                     traversibilityBoolMap[tIndex] = false;
                     projectileTraversibilityBoolMap[tIndex] = false;
-                    ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+                    ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                         ctx: ctx,
                         gameId: identityString,
                         positionX: tx + 0.5f,
@@ -95,7 +95,7 @@ public static partial class Module
                 }
             }
 
-            ctx.Db.score.Insert(new Score
+            ctx.Db.Score.Insert(new Score
             {
                 GameId = identityString,
                 Kills = new int[] { 0, 0 }
@@ -104,7 +104,7 @@ public static partial class Module
             var traversibilityMapBytes = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap);
             var projectileTraversibilityMapBytes = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap);
 
-            ctx.Db.traversibility_map.Insert(new TraversibilityMap
+            ctx.Db.TraversibilityMap.Insert(new TraversibilityMap
             {
                 GameId = identityString,
                 Map = traversibilityMapBytes,
@@ -112,7 +112,7 @@ public static partial class Module
                 Height = gameHeight
             });
 
-            ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
+            ctx.Db.ProjectileTraversibilityMap.Insert(new ProjectileTraversibilityMap
             {
                 GameId = identityString,
                 Map = projectileTraversibilityMapBytes,

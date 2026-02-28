@@ -7,7 +7,7 @@ public static partial class Module
     [Reducer]
     public static void joinGame(ReducerContext ctx, string? gameId, string? currentGameId, string joinCode)
     {
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        var player = ctx.Db.Player.Identity.Find(ctx.Sender);
         if (player == null)
         {
             Log.Error("Player not found for identity");
@@ -18,7 +18,7 @@ public static partial class Module
 
         if (string.IsNullOrEmpty(gameId))
         {
-            var games = ctx.Db.game.GameState_GameType_Visibility.Filter((GameState.Playing, GameType.Game, GameVisibility.Public));
+            var games = ctx.Db.Game.GameState_GameType_Visibility.Filter((GameState.Playing, GameType.Game, GameVisibility.Public));
             game = games.FirstOrDefault(w => w.Id != currentGameId);
             
             if (game == null || string.IsNullOrEmpty(game.Value.Id))
@@ -52,7 +52,7 @@ public static partial class Module
         }
         else
         {
-            game = ctx.Db.game.Id.Find(gameId);
+            game = ctx.Db.Game.Id.Find(gameId);
             if (game == null)
             {
                 Log.Error($"Game {gameId} not found");

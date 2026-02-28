@@ -38,11 +38,11 @@ public static partial class GameAI
                 {
                     DeleteTankPath.Call(ctx, tank.Id);
 
-                    var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+                    var transformQuery = ctx.Db.TankTransform.TankId.Find(tank.Id);
                     if (transformQuery != null)
                     {
                         var updatedTransform = transformQuery.Value with { Velocity = new Vector2Float(0, 0) };
-                        ctx.Db.tank_transform.TankId.Update(updatedTransform);
+                        ctx.Db.TankTransform.TankId.Update(updatedTransform);
                     }
 
                     tank = TargetTankByCode.Call(ctx, tank, decision.TargetTank.Value.TargetCode);

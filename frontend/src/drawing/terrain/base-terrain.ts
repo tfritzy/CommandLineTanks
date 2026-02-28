@@ -1,5 +1,5 @@
 import { type Infer } from "spacetimedb";
-import { BaseTerrain } from "../../../module_bindings";
+import { BaseTerrain } from "../../../module_bindings/types";
 import { UNIT_TO_PIXEL } from "../../constants";
 import { COLORS } from "../../theme/colors";
 import { waterTextureCache } from "../../textures";

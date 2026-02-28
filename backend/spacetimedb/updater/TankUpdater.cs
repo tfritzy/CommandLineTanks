@@ -42,25 +42,25 @@ public static partial class TankUpdater
         });
 
         var tanks = new Dictionary<string, Module.Tank>();
-        foreach (var tank in ctx.Db.tank.GameId.Filter(args.GameId))
+        foreach (var tank in ctx.Db.Tank.GameId.Filter(args.GameId))
         {
             tanks[tank.Id] = tank;
         }
 
         var transforms = new Dictionary<string, Module.TankTransform>();
-        foreach (var transform in ctx.Db.tank_transform.GameId.Filter(args.GameId))
+        foreach (var transform in ctx.Db.TankTransform.GameId.Filter(args.GameId))
         {
             transforms[transform.TankId] = transform;
         }
 
         var tankPaths = new Dictionary<string, Module.TankPath>();
-        foreach (var path in ctx.Db.tank_path.GameId.Filter(args.GameId))
+        foreach (var path in ctx.Db.TankPath.GameId.Filter(args.GameId))
         {
             tankPaths[path.TankId] = path;
         }
 
         var pickups = new Dictionary<(int, int), List<Module.Pickup>>();
-        foreach (var pickup in ctx.Db.pickup.GameId.Filter(args.GameId))
+        foreach (var pickup in ctx.Db.Pickup.GameId.Filter(args.GameId))
         {
             var key = (pickup.GridX, pickup.GridY);
             if (!pickups.TryGetValue(key, out var pickupList))
@@ -157,7 +157,7 @@ public static partial class TankUpdater
                             };
                         }
 
-                        ctx.Db.tank_path.TankId.Update(pathState with { PathIndex = newPathIndex });
+                        ctx.Db.TankPath.TankId.Update(pathState with { PathIndex = newPathIndex });
                     }
                     else
                     {
@@ -168,7 +168,7 @@ public static partial class TankUpdater
                             Velocity = new Vector2Float(0, 0)
                         };
 
-                        ctx.Db.tank_path.TankId.Delete(tank.Id);
+                        ctx.Db.TankPath.TankId.Delete(tank.Id);
                     }
                     needsTransformUpdate = true;
                 }
@@ -287,23 +287,23 @@ public static partial class TankUpdater
                 }
             }
 
-            foreach (var terrainDetail in ctx.Db.terrain_detail.GameId_GridX_GridY.Filter((args.GameId, tankTileX, tankTileY)))
+            foreach (var terrainDetail in ctx.Db.TerrainDetail.GameId_GridX_GridY.Filter((args.GameId, tankTileX, tankTileY)))
             {
                 if (terrainDetail.Type == TerrainDetailType.FenceEdge || terrainDetail.Type == TerrainDetailType.FenceCorner)
                 {
-                    ctx.Db.terrain_detail.Id.Delete(terrainDetail.Id);
+                    ctx.Db.TerrainDetail.Id.Delete(terrainDetail.Id);
                 }
             }
 
             if (needsTankUpdate)
             {
-                ctx.Db.tank.Id.Update(tank);
+                ctx.Db.Tank.Id.Update(tank);
             }
 
             if (needsTransformUpdate)
             {
                 transform = transform with { UpdatedAt = currentTime };
-                ctx.Db.tank_transform.TankId.Update(transform);
+                ctx.Db.TankTransform.TankId.Update(transform);
             }
         }
     }

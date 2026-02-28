@@ -7,7 +7,7 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, Tank bot, Identity playerOwner, string playerName, string joinCode)
         {
-            var botTransform = ctx.Db.tank_transform.TankId.Find(bot.Id);
+            var botTransform = ctx.Db.TankTransform.TankId.Find(bot.Id);
             if (botTransform == null)
             {
                 return;

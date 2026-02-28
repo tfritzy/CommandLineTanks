@@ -5,7 +5,7 @@ public static partial class Module
     [Reducer(ReducerKind.ClientConnected)]
     public static void HandleConnect(ReducerContext ctx)
     {
-        var existingPlayer = ctx.Db.player.Identity.Find(ctx.Sender);
+        var existingPlayer = ctx.Db.Player.Identity.Find(ctx.Sender);
 
         if (existingPlayer != null)
         {
@@ -24,7 +24,7 @@ public static partial class Module
                 LastGameJoinedDay = null
             };
 
-            ctx.Db.player.Insert(player);
+            ctx.Db.Player.Insert(player);
             Log.Info($"New player connected with ID {playerId}");
         }
     }

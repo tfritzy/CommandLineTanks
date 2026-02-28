@@ -1,6 +1,7 @@
 import { getConnection } from "../spacetimedb-connection";
-import { type DestinationRow, type EventContext } from "../../module_bindings";
-import DestinationType from "../../module_bindings/destination_type_type";
+import { type EventContext } from "../../module_bindings";
+import type DestinationRow from "../../module_bindings/destination_table";
+import { DestinationType } from "../../module_bindings/types";
 import { type Infer } from "spacetimedb";
 import { UNIT_TO_PIXEL } from "../constants";
 import { subscribeToTable, type TableSubscription } from "../utils/tableSubscription";
@@ -28,7 +29,7 @@ export class DestinationManager {
     if (!connection) return;
 
     this.subscription = subscribeToTable({
-      table: connection.db.destination,
+      table: connection.db.Destination,
       handlers: {
         onInsert: (_ctx: EventContext, destination: Infer<typeof DestinationRow>) => {
           if (destination.gameId !== this.gameId) return;

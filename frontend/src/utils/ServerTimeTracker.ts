@@ -20,16 +20,10 @@ export class ServerTimeTracker {
     }
     this.started = true;
 
-    connection.reducers.onUpdateTanks((ctx) => {
-      this.recordMeasurement(ctx.event.timestamp.microsSinceUnixEpoch);
-    });
-
-    connection.reducers.onJoinGame((ctx) => {
-      this.recordMeasurement(ctx.event.timestamp.microsSinceUnixEpoch);
-    });
-
-    connection.reducers.onCreateGame((ctx) => {
-      this.recordMeasurement(ctx.event.timestamp.microsSinceUnixEpoch);
+    connection.db.Tank.onUpdate((ctx) => {
+      if (ctx.event.tag === 'Reducer') {
+        this.recordMeasurement(ctx.event.value.timestamp.microsSinceUnixEpoch);
+      }
     });
   }
 

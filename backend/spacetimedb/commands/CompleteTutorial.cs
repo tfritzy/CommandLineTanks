@@ -7,14 +7,14 @@ public static partial class Module
     {
         public static void Call(ReducerContext ctx, Identity identity)
         {
-            var player = ctx.Db.player.Identity.Find(identity);
+            var player = ctx.Db.Player.Identity.Find(identity);
             if (player != null)
             {
-                ctx.Db.player.Identity.Update(player.Value with { TutorialComplete = true });
+                ctx.Db.Player.Id.Update(player.Value with { TutorialComplete = true });
             }
 
             var tutorialGameId = GetTutorialGameId(identity);
-            var game = ctx.Db.game.Id.Find(tutorialGameId);
+            var game = ctx.Db.Game.Id.Find(tutorialGameId);
             if (game != null)
             {
                 DeleteGame(ctx, tutorialGameId);

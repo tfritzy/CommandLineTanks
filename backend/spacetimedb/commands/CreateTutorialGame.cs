@@ -27,7 +27,7 @@ public static partial class Module
         {
             var tutorialGameId = GetTutorialGameId(identity);
 
-            var existingGame = ctx.Db.game.Id.Find(tutorialGameId);
+            var existingGame = ctx.Db.Game.Id.Find(tutorialGameId);
             if (existingGame != null)
             {
                 DeleteGame(ctx, tutorialGameId);
@@ -60,9 +60,9 @@ public static partial class Module
                 Owner = identity
             };
 
-            ctx.Db.game.Insert(game);
+            ctx.Db.Game.Insert(game);
 
-            ctx.Db.base_terrain_layer.Insert(new BaseTerrainLayer
+            ctx.Db.BaseTerrainLayer.Insert(new BaseTerrainLayer
             {
                 GameId = tutorialGameId,
                 Layer = baseTerrain,
@@ -73,7 +73,7 @@ public static partial class Module
             var traversibilityBoolMap = CalculateTutorialTraversibility(baseTerrain);
             var projectileTraversibilityBoolMap = CalculateTutorialProjectileTraversibility(baseTerrain);
 
-            ctx.Db.traversibility_map.Insert(new TraversibilityMap
+            ctx.Db.TraversibilityMap.Insert(new TraversibilityMap
             {
                 GameId = tutorialGameId,
                 Map = BitPackingUtils.BoolArrayToByteArray(traversibilityBoolMap),
@@ -81,7 +81,7 @@ public static partial class Module
                 Height = TUTORIAL_HEIGHT
             });
 
-            ctx.Db.projectile_traversibility_map.Insert(new ProjectileTraversibilityMap
+            ctx.Db.ProjectileTraversibilityMap.Insert(new ProjectileTraversibilityMap
             {
                 GameId = tutorialGameId,
                 Map = BitPackingUtils.BoolArrayToByteArray(projectileTraversibilityBoolMap),
@@ -89,7 +89,7 @@ public static partial class Module
                 Height = TUTORIAL_HEIGHT
             });
 
-            ctx.Db.score.Insert(new Score
+            ctx.Db.Score.Insert(new Score
             {
                 GameId = tutorialGameId,
                 Kills = new int[] { 0, 0 }
@@ -142,7 +142,7 @@ public static partial class Module
 
         private static void AddTutorialTerrainDetails(ReducerContext ctx, string gameId)
         {
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 1.5f,
@@ -153,7 +153,7 @@ public static partial class Module
                 rotation: 0
             ));
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 13.5f,
@@ -164,7 +164,7 @@ public static partial class Module
                 rotation: 1
             ));
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 16.5f,
@@ -175,7 +175,7 @@ public static partial class Module
                 rotation: 2
             ));
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 4.5f,
@@ -186,7 +186,7 @@ public static partial class Module
                 rotation: 0
             ));
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 17.5f,
@@ -197,7 +197,7 @@ public static partial class Module
                 rotation: 0
             ));
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 11.5f,
@@ -208,7 +208,7 @@ public static partial class Module
                 rotation: 0
             ));
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 2.5f,
@@ -219,7 +219,7 @@ public static partial class Module
                 rotation: 0
             ));
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 18.5f,
@@ -230,7 +230,7 @@ public static partial class Module
                 rotation: 0
             ));
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 5.5f,
@@ -241,7 +241,7 @@ public static partial class Module
                 rotation: 0
             ));
 
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 gameId: gameId,
                 positionX: 14.5f,
@@ -293,7 +293,7 @@ public static partial class Module
                 ? $"d {destinationCode}"
                 : "d e";
             
-            ctx.Db.terrain_detail.Insert(TerrainDetail.Build(
+            ctx.Db.TerrainDetail.Insert(TerrainDetail.Build(
                 ctx: ctx,
                 id: $"{gameId}_label_health",
                 gameId: gameId,
@@ -308,13 +308,13 @@ public static partial class Module
 
         private static void EnsureTankInTutorial(ReducerContext ctx, string gameId, Identity owner, string joinCode)
         {
-            var existingTank = ctx.Db.tank.GameId_Owner.Filter((gameId, owner)).FirstOrDefault();
+            var existingTank = ctx.Db.Tank.GameId_Owner.Filter((gameId, owner)).FirstOrDefault();
             if (existingTank.Id != null)
             {
                 return;
             }
 
-            var player = ctx.Db.player.Identity.Find(owner);
+            var player = ctx.Db.Player.Identity.Find(owner);
             var playerName = player?.Name ?? $"Guest{ctx.Rng.Next(1000, 9999)}";
 
             var targetCode = AllocateTargetCode.Call(ctx, gameId) ?? "p1";
@@ -351,7 +351,7 @@ public static partial class Module
                     TargetCode = label
                 };
                 
-                ctx.Db.destination.Insert(destination);
+                ctx.Db.Destination.Insert(destination);
             }
         }
     }

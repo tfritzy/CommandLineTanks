@@ -8,7 +8,7 @@ public static partial class Module
     {
         public static Tank Call(ReducerContext ctx, Tank tank)
         {
-            var transformQuery = ctx.Db.tank_transform.TankId.Find(tank.Id);
+            var transformQuery = ctx.Db.TankTransform.TankId.Find(tank.Id);
             if (transformQuery == null) return tank;
             return Call(ctx, tank, transformQuery.Value);
         }
@@ -20,7 +20,7 @@ public static partial class Module
             if (tank.Health <= 0) return tank;
 
             ulong currentTime = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch;
-            var fireState = ctx.Db.tank_fire_state.TankId.Find(tank.Id);
+            var fireState = ctx.Db.TankFireState.TankId.Find(tank.Id);
             if (fireState != null && fireState.Value.LastFireTime != 0)
             {
                 ulong timeSinceLastFire = currentTime - fireState.Value.LastFireTime;
@@ -36,7 +36,7 @@ public static partial class Module
             }
             else
             {
-                var gunQuery = ctx.Db.tank_gun.TankId_SlotIndex.Filter((tank.Id, tank.SelectedGunIndex)).FirstOrDefault();
+                var gunQuery = ctx.Db.TankGun.TankId_SlotIndex.Filter((tank.Id, tank.SelectedGunIndex)).FirstOrDefault();
                 if (gunQuery.TankId == null) return tank;
                 tankGunEntry = gunQuery;
                 gun = gunQuery.Gun;
@@ -88,14 +88,14 @@ public static partial class Module
                 if (gun.Ammo <= 0)
                 {
                     int deletedSlot = tank.SelectedGunIndex;
-                    ctx.Db.tank_gun.Id.Delete(tankGunEntry.Value.Id);
+                    ctx.Db.TankGun.Id.Delete(tankGunEntry.Value.Id);
 
                     int lowestNonBaseSlot = int.MaxValue;
-                    foreach (var g in ctx.Db.tank_gun.TankId.Filter(tank.Id))
+                    foreach (var g in ctx.Db.TankGun.TankId.Filter(tank.Id))
                     {
                         if (g.SlotIndex > deletedSlot)
                         {
-                            ctx.Db.tank_gun.Id.Update(g with { SlotIndex = g.SlotIndex - 1 });
+                            ctx.Db.TankGun.Id.Update(g with { SlotIndex = g.SlotIndex - 1 });
                         }
                         int newSlotIndex = g.SlotIndex > deletedSlot ? g.SlotIndex - 1 : g.SlotIndex;
                         if (newSlotIndex < lowestNonBaseSlot)
@@ -108,7 +108,7 @@ public static partial class Module
                 }
                 else
                 {
-                    ctx.Db.tank_gun.Id.Update(tankGunEntry.Value with { Gun = gun });
+                    ctx.Db.TankGun.Id.Update(tankGunEntry.Value with { Gun = gun });
                 }
             }
 
@@ -121,11 +121,11 @@ public static partial class Module
             };
             if (fireState != null)
             {
-                ctx.Db.tank_fire_state.TankId.Update(newFireState);
+                ctx.Db.TankFireState.TankId.Update(newFireState);
             }
             else
             {
-                ctx.Db.tank_fire_state.Insert(newFireState);
+                ctx.Db.TankFireState.Insert(newFireState);
             }
 
             return tank;

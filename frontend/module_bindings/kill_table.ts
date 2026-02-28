@@ -10,12 +10,11 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("ScheduledTankUpdates", {
-  scheduledId: __t.u64(),
-  scheduledAt: __t.scheduleAt(),
-  gameId: __t.string(),
-  lastTickAt: __t.u64(),
-  tickCount: __t.u64(),
+export default __t.row({
+  id: __t.string().primaryKey(),
+  gameId: __t.string().name("game_id"),
+  killer: __t.identity(),
+  killeeName: __t.string().name("killee_name"),
+  killeeIsBot: __t.bool().name("killee_is_bot"),
+  timestamp: __t.u64(),
 });
-
-

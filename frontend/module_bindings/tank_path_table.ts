@@ -9,15 +9,17 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-import Vector2Float from "./vector_2_float_type";
+import {
+  Vector2Float,
+} from "./types";
 
 
 export default __t.row({
-  tankId: __t.string().primaryKey(),
-  gameId: __t.string(),
+  tankId: __t.string().primaryKey().name("tank_id"),
+  gameId: __t.string().name("game_id"),
   owner: __t.identity(),
   get path() {
     return __t.array(Vector2Float);
   },
-  pathIndex: __t.i32(),
+  pathIndex: __t.i32().name("path_index"),
 });

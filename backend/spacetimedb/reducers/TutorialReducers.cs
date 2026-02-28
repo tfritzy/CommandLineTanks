@@ -5,7 +5,7 @@ public static partial class Module
     [Reducer]
     public static void ensureTutorial(ReducerContext ctx, string gameId, string joinCode)
     {
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        var player = ctx.Db.Player.Identity.Find(ctx.Sender);
         if (player == null)
         {
             Log.Info("ensureTutorial called with no player");
@@ -24,7 +24,7 @@ public static partial class Module
     [Reducer]
     public static void tutorialComplete(ReducerContext ctx, string gameId, string joinCode)
     {
-        var game = ctx.Db.game.Id.Find(gameId);
+        var game = ctx.Db.Game.Id.Find(gameId);
         if (game == null || game.Value.GameType != Types.GameType.Tutorial)
         {
             Log.Info("tutorialComplete called on non-tutorial game");
@@ -47,7 +47,7 @@ public static partial class Module
     [Reducer]
     public static void tutorialSkip(ReducerContext ctx, string gameId, string joinCode)
     {
-        var game = ctx.Db.game.Id.Find(gameId);
+        var game = ctx.Db.Game.Id.Find(gameId);
         if (game == null || game.Value.GameType != Types.GameType.Tutorial)
         {
             Log.Info("tutorialSkip called on non-tutorial game");

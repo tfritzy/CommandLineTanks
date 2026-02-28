@@ -19,7 +19,7 @@ public static partial class Module
             return tank;
         }
 
-        var shooterTankQuery = ctx.Db.tank.Id.Find(shooterTankId);
+        var shooterTankQuery = ctx.Db.Tank.Id.Find(shooterTankId);
         var shooterIdentity = shooterTankQuery?.Owner;
 
         if (tank.HasShield)
@@ -29,7 +29,7 @@ public static partial class Module
                 HasShield = false,
                 LastDamagedBy = shooterIdentity
             };
-            ctx.Db.tank.Id.Update(tankWithoutShield);
+            ctx.Db.Tank.Id.Update(tankWithoutShield);
             return tankWithoutShield;
         }
 
@@ -47,7 +47,7 @@ public static partial class Module
                 DeathTimestamp = tank.IsBot ? (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch : 0,
                 LastDamagedBy = shooterIdentity
             };
-            ctx.Db.tank.Id.Update(killedTank);
+            ctx.Db.Tank.Id.Update(killedTank);
 
             DropWeaponsOnDeath(ctx, tank, transform, gameId, traversibilityMap);
 
@@ -58,10 +58,10 @@ public static partial class Module
                     Kills = shooterTankQuery.Value.Kills + 1,
                     KillStreak = shooterTankQuery.Value.KillStreak + 1
                 };
-                ctx.Db.tank.Id.Update(updatedShooterTank);
+                ctx.Db.Tank.Id.Update(updatedShooterTank);
 
                 var killeeName = tank.Name;
-                ctx.Db.kills.Insert(new Kill
+                ctx.Db.Kill.Insert(new Kill
                 {
                     Id = GenerateId(ctx, "k"),
                     GameId = gameId,
@@ -77,7 +77,7 @@ public static partial class Module
                 var coloredShooterName = $"[color={shooterColor}]{shooterName}[/color]";
                 var coloredKilleeName = $"[color={killeeColor}]{killeeName}[/color]";
                 
-                ctx.Db.message.Insert(new Message
+                ctx.Db.Message.Insert(new Message
                 {
                     Id = GenerateId(ctx, "msg"),
                     GameId = gameId,
@@ -88,14 +88,14 @@ public static partial class Module
                 });
             }
 
-            var score = ctx.Db.score.GameId.Find(gameId);
+            var score = ctx.Db.Score.GameId.Find(gameId);
             if (score != null)
             {
                 var updatedScore = score.Value;
                 if (attackerAlliance >= 0 && attackerAlliance < updatedScore.Kills.Length)
                 {
                     updatedScore.Kills[attackerAlliance]++;
-                    ctx.Db.score.GameId.Update(updatedScore);
+                    ctx.Db.Score.GameId.Update(updatedScore);
                 }
             }
 
@@ -109,14 +109,14 @@ public static partial class Module
                 Health = newHealth,
                 LastDamagedBy = shooterIdentity
             };
-            ctx.Db.tank.Id.Update(updatedTank);
+            ctx.Db.Tank.Id.Update(updatedTank);
             return updatedTank;
         }
     }
 
     private static void DropWeaponsOnDeath(ReducerContext ctx, Tank tank, TankTransform transform, string gameId, TraversibilityMap traversibilityMap)
     {
-        foreach (var tankGun in ctx.Db.tank_gun.TankId.Filter(tank.Id))
+        foreach (var tankGun in ctx.Db.TankGun.TankId.Filter(tank.Id))
         {
             var gun = tankGun.Gun;
 

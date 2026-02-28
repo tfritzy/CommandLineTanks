@@ -6,7 +6,7 @@ public static partial class Module
     [Reducer]
     public static void say(ReducerContext ctx, string gameId, string message)
     {
-        var player = ctx.Db.player.Identity.Find(ctx.Sender);
+        var player = ctx.Db.Player.Identity.Find(ctx.Sender);
         if (player == null)
         {
             Log.Error("Player not found for identity");
@@ -35,7 +35,7 @@ public static partial class Module
             Timestamp = (ulong)ctx.Timestamp.MicrosecondsSinceUnixEpoch
         };
 
-        ctx.Db.message.Insert(newMessage);
+        ctx.Db.Message.Insert(newMessage);
         Log.Info($"{player.Value.Name}: {message}");
     }
 }
